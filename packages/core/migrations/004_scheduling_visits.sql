@@ -262,8 +262,6 @@ CREATE INDEX idx_visits_unassigned ON visits(organization_id, branch_id, schedul
     WHERE deleted_at IS NULL AND assigned_caregiver_id IS NULL AND status IN ('UNASSIGNED', 'SCHEDULED');
 CREATE INDEX idx_visits_urgent ON visits(organization_id, scheduled_date, is_urgent) 
     WHERE deleted_at IS NULL AND is_urgent = true;
-CREATE INDEX idx_visits_upcoming ON visits(assigned_caregiver_id, scheduled_date) 
-    WHERE deleted_at IS NULL AND status IN ('ASSIGNED', 'CONFIRMED') AND scheduled_date >= CURRENT_DATE;
 
 -- Full-text search index
 CREATE INDEX idx_visits_search ON visits 
