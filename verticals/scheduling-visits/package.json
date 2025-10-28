@@ -1,0 +1,35 @@
+{
+  "name": "@care-commons/scheduling-visits",
+  "version": "0.1.0",
+  "description": "Scheduling & Visit Management vertical for Care Commons",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@care-commons/core": "file:../../packages/core",
+    "zod": "^3.22.4",
+    "uuid": "^9.0.1",
+    "date-fns": "^3.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.15.6",
+    "@types/uuid": "^9.0.7",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "care-commons",
+    "scheduling",
+    "visit-management",
+    "home-care",
+    "calendar"
+  ],
+  "author": "Neighborhood Lab",
+  "license": "AGPL-3.0"
+}
