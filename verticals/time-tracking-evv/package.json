@@ -1,0 +1,32 @@
+{
+  "name": "@care-commons/time-tracking-evv",
+  "version": "0.1.0",
+  "description": "Time Tracking & Electronic Visit Verification (EVV) - Accurate timing and location evidence of visits",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"No tests yet\" && exit 0",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@care-commons/core": "file:../../packages/core",
+    "@care-commons/scheduling-visits": "file:../scheduling-visits",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "evv",
+    "electronic-visit-verification",
+    "time-tracking",
+    "geofencing",
+    "compliance",
+    "home-care"
+  ],
+  "license": "AGPL-3.0"
+}
