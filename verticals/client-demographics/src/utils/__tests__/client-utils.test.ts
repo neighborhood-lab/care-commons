@@ -162,25 +162,39 @@ describe('Client Utilities', () => {
 
   describe('calculateAge', () => {
     it('should calculate age correctly', () => {
-      const age = calculateAge(new Date('1950-05-15'));
-      expect(age).toBeGreaterThanOrEqual(73);
-      expect(age).toBeLessThanOrEqual(74);
+      // Use a date that's exactly 25 years ago from today
+      const today = new Date();
+      const birthDate = new Date(today);
+      birthDate.setFullYear(today.getFullYear() - 25);
+      
+      const age = calculateAge(birthDate);
+      expect(age).toBe(25);
     });
 
     it('should handle string dates', () => {
-      const age = calculateAge('1950-05-15');
-      expect(age).toBeGreaterThanOrEqual(73);
+      // Use a date that's exactly 30 years ago from today
+      const today = new Date();
+      const birthDate = new Date(today);
+      birthDate.setFullYear(today.getFullYear() - 30);
+      
+      const age = calculateAge(birthDate.toISOString().split('T')[0]);
+      expect(age).toBe(30);
     });
   });
 
   describe('calculateDetailedAge', () => {
     it('should return years and months', () => {
-      const age = calculateDetailedAge('1950-05-15');
+      // Use a date that's exactly 25 years and 6 months ago from today
+      const today = new Date();
+      const birthDate = new Date(today);
+      birthDate.setFullYear(today.getFullYear() - 25);
+      birthDate.setMonth(today.getMonth() - 6);
+      
+      const age = calculateDetailedAge(birthDate.toISOString().split('T')[0]);
       expect(age).toHaveProperty('years');
       expect(age).toHaveProperty('months');
-      expect(age.years).toBeGreaterThanOrEqual(73);
-      expect(age.months).toBeGreaterThanOrEqual(0);
-      expect(age.months).toBeLessThanOrEqual(11);
+      expect(age.years).toBe(25);
+      expect(age.months).toBe(6);
     });
   });
 
