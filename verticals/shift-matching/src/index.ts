@@ -18,6 +18,13 @@ export * from './types/shift-matching';
 // Repository
 export { ShiftMatchingRepository } from './repository/shift-matching-repository';
 
+// Service
+export { ShiftMatchingService } from './service/shift-matching-service';
+export type { MatchShiftResult } from './service/shift-matching-service';
+
+// API Handlers
+export { ShiftMatchingHandlers } from './api/shift-matching-handlers';
+
 // Utilities
 export { MatchingAlgorithm } from './utils/matching-algorithm';
 export type { CaregiverContext } from './utils/matching-algorithm';
