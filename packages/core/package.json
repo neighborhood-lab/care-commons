@@ -8,6 +8,7 @@
     "dev": "tsc --watch",
     "test": "jest",
     "typecheck": "tsc --noEmit",
+    "lint": "echo 'Linting not configured yet'",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts"
   },

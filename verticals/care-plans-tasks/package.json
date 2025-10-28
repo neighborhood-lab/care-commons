@@ -7,7 +7,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'Linting not configured yet'"
   },
   "dependencies": {
     "@care-commons/core": "^0.1.0",
