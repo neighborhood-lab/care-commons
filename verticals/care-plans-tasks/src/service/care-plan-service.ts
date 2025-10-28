@@ -566,22 +566,39 @@ export class CarePlanService {
     // If your Timestamp is an ISO string alias, use: const makeTs = () => new Date().toISOString() as Timestamp;
     const makeTs = () => now as unknown as Timestamp;
 
-    const normalizedObservations =
-      validatedInput.observations?.map(o => ({
-        ...o,
-        timestamp: (o as any).timestamp ?? makeTs(),
+    const normalizedObservations: CreateProgressNoteInput['observations'] =
+      validatedInput.observations?.map(observation => ({
+        ...observation,
+        timestamp:
+          (observation as { timestamp?: Timestamp }).timestamp ?? makeTs(),
       }));
+
+    const signature = validatedInput.signature
+      ? { ...validatedInput.signature }
+      : undefined;
+
+    const noteInput: CreateProgressNoteInput = {
+      carePlanId: validatedInput.carePlanId,
+      clientId: validatedInput.clientId,
+      visitId: validatedInput.visitId,
+      noteType: validatedInput.noteType,
+      content: validatedInput.content,
+      goalProgress: validatedInput.goalProgress,
+      observations: normalizedObservations,
+      concerns: validatedInput.concerns,
+      recommendations: validatedInput.recommendations,
+      signature,
+    };
 
     // Get user details for author
     const authorRole = context.roles[0] || 'CAREGIVER';
 
     const note = await this.repository.createProgressNote({
-      ...validatedInput,
-      observations: normalizedObservations,
+      ...noteInput,
       authorId: context.userId,
       authorName: 'User Name', // TODO: Get from user service
       authorRole: String(authorRole), // convert enum/union to string for the repo type
-      noteDate: new Date(),
+      noteDate: now,
     });
 
     return note;
