@@ -8,11 +8,11 @@ import {
   NotFoundError,
   ValidationError,
   UUID,
-  SyncMetadata,
 } from '@care-commons/core';
-import { VisitStatus } from '@care-commons/scheduling-visits';
 import { EVVRepository } from '../repository/evv-repository';
 import { EVVValidator } from '../validation/evv-validator';
+import { IntegrationService } from '../utils/integration-service';
+import { CryptoUtils } from '../utils/crypto-utils';
 import {
   EVVRecord,
   TimeEntry,
@@ -22,10 +22,6 @@ import {
   CreateGeofenceInput,
   ManualOverrideInput,
   LocationVerification,
-  EVVRecordStatus,
-  VerificationLevel,
-  ComplianceFlag,
-  GeofenceCheckResult,
   VerificationResult,
   ExceptionEvent,
 } from '../types/evv';
@@ -33,6 +29,7 @@ import {
 export class EVVService {
   constructor(
     private repository: EVVRepository,
+    private integrationService: IntegrationService,
     private validator: EVVValidator = new EVVValidator()
   ) { }
 
