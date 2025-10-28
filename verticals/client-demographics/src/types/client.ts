@@ -15,9 +15,7 @@
 import {
   Entity,
   SoftDeletable,
-  LifecycleStatus,
   UUID,
-  Timestamp,
 } from '@care-commons/core';
 
 export interface Client extends Entity, SoftDeletable {
@@ -70,7 +68,7 @@ export interface Client extends Entity, SoftDeletable {
   programs: ProgramEnrollment[];
   serviceEligibility: ServiceEligibility;
   fundingSources?: FundingSource[];
-  
+
   // Risk and safety
   riskFlags: RiskFlag[];
   allergies?: Allergy[];
@@ -91,7 +89,7 @@ export interface Client extends Entity, SoftDeletable {
 
 export type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO_SAY';
 
-export type MaritalStatus = 
+export type MaritalStatus =
   | 'SINGLE'
   | 'MARRIED'
   | 'DIVORCED'
@@ -101,7 +99,7 @@ export type MaritalStatus =
 
 export type ContactMethod = 'PHONE' | 'EMAIL' | 'SMS' | 'MAIL' | 'IN_PERSON';
 
-export type ClientStatus = 
+export type ClientStatus =
   | 'INQUIRY'
   | 'PENDING_INTAKE'
   | 'ACTIVE'

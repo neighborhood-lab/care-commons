@@ -2,7 +2,7 @@
  * Client repository - data access layer
  */
 
-import { Repository, Database, UserContext, PaginatedResult } from '@care-commons/core';
+import { Repository, Database, PaginatedResult } from '@care-commons/core';
 import { Client, ClientSearchFilters } from '../types/client';
 
 export class ClientRepository extends Repository<Client> {
