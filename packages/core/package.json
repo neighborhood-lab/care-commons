@@ -9,7 +9,7 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "node --loader ts-node/esm scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "date-fns": "^3.0.6",
