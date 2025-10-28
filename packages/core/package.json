@@ -1,0 +1,28 @@
+{
+  "name": "@care-commons/core",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node --loader ts-node/esm scripts/migrate.ts",
+    "db:seed": "node --loader ts-node/esm scripts/seed.ts"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "zod": "^3.22.4",
+    "date-fns": "^3.0.6",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/pg": "^8.10.9",
+    "@types/uuid": "^9.0.7",
+    "jest": "^29.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
