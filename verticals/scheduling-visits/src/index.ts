@@ -24,3 +24,6 @@ export { ScheduleRepository } from './repository/schedule-repository';
 
 // Validation
 export { ScheduleValidator } from './validation/schedule-validator';
+
+// Utilities
+export * from './utils/schedule-utils';
