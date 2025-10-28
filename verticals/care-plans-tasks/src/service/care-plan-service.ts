@@ -573,7 +573,7 @@ export class CarePlanService {
           (observation as { timestamp?: Timestamp }).timestamp ?? makeTs(),
       }));
 
-    const signature = validatedInput.signature
+    const signature: CreateProgressNoteInput['signature'] = validatedInput.signature
       ? { ...validatedInput.signature }
       : undefined;
 
