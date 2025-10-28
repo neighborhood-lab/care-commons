@@ -22,3 +22,10 @@ export { EVVValidator } from './validation/evv-validator';
 
 // Service
 export { EVVService } from './service/evv-service';
+
+// Utilities
+export { IntegrationService } from './utils/integration-service';
+export { CryptoUtils } from './utils/crypto-utils';
+
+// API Handlers
+export { EVVHandlers } from './api/evv-handlers';
