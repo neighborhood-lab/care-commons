@@ -4,9 +4,12 @@
  * Runs all SQL migrations in order
  */
 
+import dotenv from "dotenv";
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { Database, initializeDatabase } from '../src/db/connection';
+
+dotenv.config({ path: '../../.env', quiet: true });
 
 async function runMigrations() {
   console.log('🔄 Starting database migrations...\n');
