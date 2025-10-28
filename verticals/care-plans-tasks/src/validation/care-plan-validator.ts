@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod';
+import { CreateProgressNoteInput } from '../types/care-plan';
 
 // Base schemas
 const UUIDSchema = z.string().uuid();
@@ -324,6 +325,15 @@ const SignatureSchema = z.object({
   deviceInfo: z.string().max(500).optional(),
 });
 
+const SignatureWithoutTimestampSchema = SignatureSchema.pick({
+  signatureData: true,
+  signedBy: true,
+  signedByName: true,
+  signatureType: true,
+  ipAddress: true,
+  deviceInfo: true,
+});
+
 const GeoLocationSchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
@@ -457,10 +467,11 @@ export const CreateProgressNoteInputSchema = z.object({
     ]),
     observation: z.string().max(1000),
     severity: z.enum(['NORMAL', 'ATTENTION', 'URGENT']).optional(),
+    timestamp: DateSchema,
   })).optional(),
   concerns: z.array(z.string().max(500)).optional(),
   recommendations: z.array(z.string().max(500)).optional(),
-  signature: SignatureSchema.omit({ signedAt: true }).optional(),
+  signature: SignatureWithoutTimestampSchema.optional(),
 });
 
 export const CarePlanSearchFiltersSchema = z.object({
@@ -514,7 +525,7 @@ export class CarePlanValidator {
     return CompleteTaskInputSchema.parse(input);
   }
 
-  static validateCreateProgressNote(input: unknown) {
+  static validateCreateProgressNote(input: unknown): CreateProgressNoteInput {
     return CreateProgressNoteInputSchema.parse(input);
   }
 
