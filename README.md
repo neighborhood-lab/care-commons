@@ -61,10 +61,10 @@ care-commons/
 - **[Client & Demographics Management](./verticals/client-demographics/)** - Foundational record system for individuals receiving care
 - **[Caregiver & Staff Management](./verticals/caregiver-staff/)** - Secure directory of personnel providing care services
 - **[Scheduling & Visit Management](./verticals/scheduling-visits/)** - Service patterns, automated scheduling, and real-time visit tracking
+- **[Care Plans & Tasks Library](./verticals/care-plans-tasks/)** - Structured care plans with goals, interventions, and task management
 
 ### 📋 Planned
 - Time Tracking & Electronic Visit Verification (EVV)
-- Care Plans & Tasks Library
 - Shift Matching & Assignment
 - Billing & Invoicing
 - Payroll Processing
@@ -169,6 +169,7 @@ npm run db:seed
 - [Client & Demographics](./verticals/client-demographics/README.md) - Client management vertical documentation
 - [Caregiver & Staff Management](./verticals/caregiver-staff/README.md) - Caregiver and staff management documentation
 - [Scheduling & Visit Management](./verticals/scheduling-visits/README.md) - Scheduling and visit tracking documentation
+- [Care Plans & Tasks Library](./verticals/care-plans-tasks/README.md) - Care plans, goals, interventions, and task management
 - [Core Package](./packages/core/README.md) - Core functionality documentation
 
 ## Contributing
