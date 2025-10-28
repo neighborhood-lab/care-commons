@@ -5,7 +5,7 @@
  */
 
 import { UserContext, PaginationParams, PaginatedResult, UUID, NotFoundError, ValidationError, PermissionError } from '@care-commons/core';
-import { PermissionService } from '@care-commons/core';
+import { PermissionService, Timestamp } from '@care-commons/core';
 import { v4 as uuid } from 'uuid';
 import { addDays, isBefore, isAfter } from 'date-fns';
 import {
@@ -111,7 +111,7 @@ export class CarePlanService {
 
     // Prevent updates to completed/discontinued plans without proper permissions
     if (['COMPLETED', 'DISCONTINUED'].includes(existing.status) &&
-        !this.permissions.hasPermission(context, 'care-plans:update:archived')) {
+      !this.permissions.hasPermission(context, 'care-plans:update:archived')) {
       throw new PermissionError('Cannot update completed or discontinued care plans');
     }
 
@@ -150,7 +150,7 @@ export class CarePlanService {
     const existingActive = await this.repository.getActiveCarePlanForClient(
       carePlan.clientId
     );
-    
+
     if (existingActive && existingActive.id !== id) {
       // Optionally expire the old plan
       await this.repository.updateCarePlan(
@@ -205,7 +205,7 @@ export class CarePlanService {
     }
 
     const plans = await this.repository.getCarePlansByClientId(clientId);
-    
+
     // Filter by organization
     return plans.filter(plan => plan.organizationId === context.organizationId);
   }
@@ -223,7 +223,7 @@ export class CarePlanService {
     }
 
     const plan = await this.repository.getActiveCarePlanForClient(clientId);
-    
+
     // Check organization access
     if (plan && plan.organizationId !== context.organizationId) {
       return null;
@@ -289,7 +289,7 @@ export class CarePlanService {
     const carePlan = await this.getCarePlanById(carePlanId, context);
 
     const tasks: TaskInstance[] = [];
-    
+
     for (const template of carePlan.taskTemplates || []) {
       if (template.status !== 'ACTIVE') {
         continue;
@@ -407,22 +407,31 @@ export class CarePlanService {
       }
     }
 
+    const now = new Date();
+
     // Update task
     const completed = await this.repository.updateTaskInstance(
       id,
       {
         status: 'COMPLETED',
-        completedAt: new Date(),
+        completedAt: now,
         completedBy: context.userId,
         completionNote: validatedInput.completionNote,
         completionSignature: validatedInput.signature ? {
           ...validatedInput.signature,
-          signedAt: new Date(),
+          signedAt: now,
         } : undefined,
         verificationData: validatedInput.verificationData ? {
           ...validatedInput.verificationData,
-          verifiedAt: new Date(),
+          verifiedAt: now,
           verifiedBy: context.userId,
+          gpsLocation: validatedInput.verificationData.gpsLocation
+            ? {
+              ...validatedInput.verificationData.gpsLocation,
+              // Ensure the required field exists for the persisted type:
+              timestamp: now, // If Timestamp is not Date, convert appropriately (e.g., now.toISOString()).
+            }
+            : undefined,
         } : undefined,
         qualityCheckResponses: validatedInput.qualityCheckResponses,
         customFieldValues: validatedInput.customFieldValues,
@@ -551,14 +560,27 @@ export class CarePlanService {
     // Validate input
     const validatedInput = CarePlanValidator.validateCreateProgressNote(input);
 
+    const now = new Date();
+
+    // If Timestamp is a Date, this is fine.
+    // If your Timestamp is an ISO string alias, use: const makeTs = () => new Date().toISOString() as Timestamp;
+    const makeTs = () => now as unknown as Timestamp;
+
+    const normalizedObservations =
+      validatedInput.observations?.map(o => ({
+        ...o,
+        timestamp: (o as any).timestamp ?? makeTs(),
+      }));
+
     // Get user details for author
     const authorRole = context.roles[0] || 'CAREGIVER';
 
     const note = await this.repository.createProgressNote({
       ...validatedInput,
+      observations: normalizedObservations,
       authorId: context.userId,
       authorName: 'User Name', // TODO: Get from user service
-      authorRole,
+      authorRole: String(authorRole), // convert enum/union to string for the repo type
       noteDate: new Date(),
     });
 
@@ -599,15 +621,15 @@ export class CarePlanService {
     );
 
     const activePlans = plans.items.filter(p => p.status === 'ACTIVE');
-    const expiringPlans = plans.items.filter(p => 
-      p.expirationDate && 
+    const expiringPlans = plans.items.filter(p =>
+      p.expirationDate &&
       isBefore(p.expirationDate, addDays(new Date(), 30))
     );
 
     // Calculate metrics
     let totalGoals = 0;
     let achievedGoals = 0;
-    
+
     plans.items.forEach(plan => {
       totalGoals += plan.goals.length;
       achievedGoals += plan.goals.filter(g => g.status === 'ACHIEVED').length;
