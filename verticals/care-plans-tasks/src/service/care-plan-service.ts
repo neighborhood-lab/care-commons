@@ -569,8 +569,7 @@ export class CarePlanService {
     const normalizedObservations: CreateProgressNoteInput['observations'] =
       validatedInput.observations?.map(observation => ({
         ...observation,
-        timestamp:
-          (observation as { timestamp?: Timestamp }).timestamp ?? makeTs(),
+        timestamp: observation.timestamp ?? makeTs(),
       }));
 
     const signature: CreateProgressNoteInput['signature'] = validatedInput.signature
@@ -591,13 +590,17 @@ export class CarePlanService {
     };
 
     // Get user details for author
-    const authorRole = context.roles[0] || 'CAREGIVER';
+    // Extract role and construct author name from context
+    const authorRole = context.roles?.[0] || 'CAREGIVER';
+    // In production, this would be fetched from a user repository
+    // For now, construct from available context data
+    const authorName = context.userId ? `User ${context.userId.substring(0, 8)}` : 'System User';
 
     const note = await this.repository.createProgressNote({
       ...noteInput,
       authorId: context.userId,
-      authorName: 'User Name', // TODO: Get from user service
-      authorRole: String(authorRole), // convert enum/union to string for the repo type
+      authorName,
+      authorRole: String(authorRole),
       noteDate: now,
     });
 
@@ -652,15 +655,27 @@ export class CarePlanService {
       achievedGoals += plan.goals.filter(g => g.status === 'ACHIEVED').length;
     });
 
+    // Get task metrics for organization
+    const thirtyDaysAgo = addDays(new Date(), -30);
+    const taskMetrics = await this.getTaskCompletionMetrics({
+      dateFrom: thirtyDaysAgo,
+      dateTo: new Date(),
+      organizationId,
+    }, context);
+
+    // Calculate compliance based on active plans with no expiring credentials
+    const compliantPlans = activePlans.filter(p => p.complianceStatus === 'COMPLIANT').length;
+    const complianceRate = activePlans.length > 0 ? (compliantPlans / activePlans.length) * 100 : 100;
+
     return {
       totalPlans: plans.total,
       activePlans: activePlans.length,
       expiringPlans: expiringPlans.length,
       goalCompletionRate: totalGoals > 0 ? (achievedGoals / totalGoals) * 100 : 0,
-      taskCompletionRate: 0, // TODO: Calculate from tasks
+      taskCompletionRate: taskMetrics.completionRate,
       averageGoalsPerPlan: plans.total > 0 ? totalGoals / plans.total : 0,
-      averageTasksPerVisit: 0, // TODO: Calculate from tasks
-      complianceRate: 0, // TODO: Calculate compliance
+      averageTasksPerVisit: taskMetrics.totalTasks > 0 ? taskMetrics.totalTasks / plans.total : 0,
+      complianceRate,
     };
   }
 
