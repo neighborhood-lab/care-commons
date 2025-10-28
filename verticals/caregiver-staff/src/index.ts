@@ -15,3 +15,6 @@ export { CaregiverService } from './service/caregiver-service';
 
 // Validation
 export { CaregiverValidator } from './validation/caregiver-validator';
+
+// Utilities
+export * from './utils/caregiver-utils';

@@ -737,6 +737,667 @@ async function seedDatabase() {
         ]
       );
 
+      // Create sample caregivers
+      console.log('Creating sample caregivers...');
+
+      // Caregiver 1: Senior caregiver with 5 years experience - fully compliant
+      const cg1Id = uuidv4();
+      const cg1PayRateId = uuidv4();
+      await client.query(
+        `
+        INSERT INTO caregivers (
+          id, organization_id, branch_ids, primary_branch_id,
+          employee_number, first_name, middle_name, last_name, preferred_name,
+          date_of_birth, gender, pronouns,
+          primary_phone, alternate_phone, email, preferred_contact_method,
+          languages, primary_address,
+          emergency_contacts, employment_type, employment_status, hire_date,
+          role, permissions, credentials, training, skills, specializations,
+          availability, work_preferences, max_hours_per_week,
+          willing_to_travel, max_travel_distance,
+          pay_rate, compliance_status, reliability_score,
+          status, notes, created_by, updated_by
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+          $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35,
+          $36, $37, $38, $39, $40
+        )
+      `,
+        [
+          cg1Id, orgId, [branchId], branchId,
+          '1001', 'Sarah', 'Marie', 'Johnson', 'Sarah',
+          '1985-04-12', 'FEMALE', 'she/her',
+          JSON.stringify({ number: '555-1001', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
+          JSON.stringify({ number: '555-1002', type: 'HOME', canReceiveSMS: false, isPrimary: false }),
+          'sarah.johnson@example.com', 'SMS',
+          ['English', 'Spanish'],
+          JSON.stringify({
+            type: 'HOME',
+            line1: '123 Caregiver Lane',
+            city: 'Springfield',
+            state: 'IL',
+            postalCode: '62701',
+            country: 'US',
+            latitude: 39.7817,
+            longitude: -89.6501,
+          }),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'Michael Johnson',
+              relationship: 'Spouse',
+              phone: { number: '555-1010', type: 'MOBILE', canReceiveSMS: true },
+              isPrimary: true,
+            },
+          ]),
+          'FULL_TIME', 'ACTIVE', '2019-03-15',
+          'SENIOR_CAREGIVER',
+          ['visits:create', 'visits:read', 'visits:update', 'clients:read', 'caregivers:read'],
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              type: 'CNA',
+              name: 'Certified Nursing Assistant',
+              number: 'CNA123456',
+              issuingAuthority: 'Illinois Department of Public Health',
+              issueDate: '2019-01-15',
+              expirationDate: '2025-01-15',
+              verifiedDate: '2019-03-10',
+              status: 'ACTIVE',
+            },
+            {
+              id: uuidv4(),
+              type: 'CPR',
+              name: 'CPR & AED Certification',
+              number: 'CPR789012',
+              issuingAuthority: 'American Heart Association',
+              issueDate: '2024-01-10',
+              expirationDate: '2026-01-10',
+              verifiedDate: '2024-01-12',
+              status: 'ACTIVE',
+            },
+            {
+              id: uuidv4(),
+              type: 'FIRST_AID',
+              name: 'First Aid Certification',
+              issueDate: '2024-01-10',
+              expirationDate: '2026-01-10',
+              status: 'ACTIVE',
+            },
+          ]),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'New Employee Orientation',
+              category: 'ORIENTATION',
+              completionDate: '2019-03-20',
+              hours: 8,
+              status: 'COMPLETED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Dementia Care Specialist',
+              category: 'SPECIALIZED_CARE',
+              provider: 'Alzheimer\'s Association',
+              completionDate: '2020-06-15',
+              expirationDate: '2025-06-15',
+              hours: 16,
+              certificateNumber: 'DCS-2020-456',
+              status: 'COMPLETED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Fall Prevention',
+              category: 'SAFETY',
+              completionDate: '2023-09-10',
+              hours: 4,
+              status: 'COMPLETED',
+            },
+          ]),
+          JSON.stringify([
+            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+            { id: uuidv4(), name: 'Dementia Care', category: 'Specialized', proficiencyLevel: 'ADVANCED' },
+            { id: uuidv4(), name: 'Medication Reminders', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+            { id: uuidv4(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+            { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
+          ]),
+          ['Dementia Care', 'Fall Prevention'],
+          JSON.stringify({
+            schedule: {
+              monday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '17:00' }] },
+              tuesday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '17:00' }] },
+              wednesday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '17:00' }] },
+              thursday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '17:00' }] },
+              friday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '17:00' }] },
+              saturday: { available: false },
+              sunday: { available: false },
+            },
+            lastUpdated: new Date().toISOString(),
+          }),
+          JSON.stringify({
+            preferredShiftTypes: ['MORNING', 'AFTERNOON'],
+            willingToWorkWeekends: false,
+            willingToWorkHolidays: true,
+            preferredClients: [client1Id],
+          }),
+          40, true, 25,
+          JSON.stringify({
+            id: cg1PayRateId,
+            rateType: 'BASE',
+            amount: 18.50,
+            unit: 'HOURLY',
+            effectiveDate: '2024-01-01',
+            overtimeMultiplier: 1.5,
+            weekendMultiplier: 1.2,
+            holidayMultiplier: 1.5,
+          }),
+          'COMPLIANT', 0.95,
+          'ACTIVE',
+          'Excellent caregiver with strong dementia care skills. Preferred by multiple clients.',
+          systemUserId, systemUserId,
+        ]
+      );
+
+      // Caregiver 2: New CNA - onboarding in progress
+      const cg2Id = uuidv4();
+      const cg2PayRateId = uuidv4();
+      await client.query(
+        `
+        INSERT INTO caregivers (
+          id, organization_id, branch_ids, primary_branch_id,
+          employee_number, first_name, last_name,
+          date_of_birth, gender,
+          primary_phone, email, preferred_contact_method,
+          languages, primary_address,
+          emergency_contacts, employment_type, employment_status, hire_date,
+          role, permissions, credentials, training, skills,
+          availability, max_hours_per_week,
+          willing_to_travel, max_travel_distance,
+          pay_rate, compliance_status,
+          status, notes, created_by, updated_by
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+          $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33
+        )
+      `,
+        [
+          cg2Id, orgId, [branchId], branchId,
+          '1002', 'Michael', 'Chen',
+          '1992-08-25', 'MALE',
+          JSON.stringify({ number: '555-1101', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
+          'michael.chen@example.com', 'SMS',
+          ['English', 'Mandarin'],
+          JSON.stringify({
+            type: 'HOME',
+            line1: '456 Helper Street',
+            city: 'Springfield',
+            state: 'IL',
+            postalCode: '62702',
+            country: 'US',
+          }),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'Lisa Chen',
+              relationship: 'Sister',
+              phone: { number: '555-1110', type: 'MOBILE', canReceiveSMS: true },
+              isPrimary: true,
+            },
+          ]),
+          'FULL_TIME', 'ACTIVE', '2024-02-15',
+          'CERTIFIED_NURSING_ASSISTANT',
+          ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              type: 'CNA',
+              name: 'Certified Nursing Assistant',
+              number: 'CNA987654',
+              issuingAuthority: 'Illinois Department of Public Health',
+              issueDate: '2023-12-01',
+              expirationDate: '2025-12-01',
+              verifiedDate: '2024-02-10',
+              status: 'ACTIVE',
+            },
+            {
+              id: uuidv4(),
+              type: 'CPR',
+              name: 'CPR & AED Certification',
+              issueDate: '2023-11-15',
+              expirationDate: '2025-11-15',
+              status: 'ACTIVE',
+            },
+          ]),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'New Employee Orientation',
+              category: 'ORIENTATION',
+              completionDate: '2024-02-20',
+              hours: 8,
+              status: 'COMPLETED',
+            },
+            {
+              id: uuidv4(),
+              name: 'HIPAA Training',
+              category: 'MANDATORY_COMPLIANCE',
+              completionDate: '2024-02-20',
+              hours: 2,
+              status: 'COMPLETED',
+            },
+          ]),
+          JSON.stringify([
+            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
+            { id: uuidv4(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+            { id: uuidv4(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
+          ]),
+          JSON.stringify({
+            schedule: {
+              monday: { available: true, timeSlots: [{ startTime: '07:00', endTime: '19:00' }] },
+              tuesday: { available: true, timeSlots: [{ startTime: '07:00', endTime: '19:00' }] },
+              wednesday: { available: true, timeSlots: [{ startTime: '07:00', endTime: '19:00' }] },
+              thursday: { available: true, timeSlots: [{ startTime: '07:00', endTime: '19:00' }] },
+              friday: { available: true, timeSlots: [{ startTime: '07:00', endTime: '19:00' }] },
+              saturday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '16:00' }] },
+              sunday: { available: false },
+            },
+            lastUpdated: new Date().toISOString(),
+          }),
+          40, true, 30,
+          JSON.stringify({
+            id: cg2PayRateId,
+            rateType: 'BASE',
+            amount: 16.00,
+            unit: 'HOURLY',
+            effectiveDate: '2024-02-15',
+            overtimeMultiplier: 1.5,
+            weekendMultiplier: 1.2,
+          }),
+          'PENDING_VERIFICATION',
+          'ONBOARDING',
+          'Completing onboarding training. Background check in progress.',
+          systemUserId, systemUserId,
+        ]
+      );
+
+      // Caregiver 3: Part-time companion - bilingual Spanish
+      const cg3Id = uuidv4();
+      const cg3PayRateId = uuidv4();
+      await client.query(
+        `
+        INSERT INTO caregivers (
+          id, organization_id, branch_ids, primary_branch_id,
+          employee_number, first_name, last_name, preferred_name,
+          date_of_birth, gender,
+          primary_phone, email, preferred_contact_method,
+          languages, primary_address,
+          emergency_contacts, employment_type, employment_status, hire_date,
+          role, permissions, credentials, training, skills,
+          availability, work_preferences, max_hours_per_week,
+          willing_to_travel, max_travel_distance,
+          pay_rate, compliance_status, reliability_score,
+          status, created_by, updated_by
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+          $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35
+        )
+      `,
+        [
+          cg3Id, orgId, [branchId], branchId,
+          '1003', 'Maria', 'Garcia', 'Mari',
+          '1978-11-30', 'FEMALE',
+          JSON.stringify({ number: '555-1201', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
+          'maria.garcia@example.com', 'SMS',
+          ['Spanish', 'English'],
+          JSON.stringify({
+            type: 'HOME',
+            line1: '789 Companion Way',
+            city: 'Springfield',
+            state: 'IL',
+            postalCode: '62703',
+            country: 'US',
+          }),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'Roberto Garcia',
+              relationship: 'Spouse',
+              phone: { number: '555-1210', type: 'MOBILE', canReceiveSMS: true },
+              isPrimary: true,
+            },
+          ]),
+          'PART_TIME', 'ACTIVE', '2021-06-01',
+          'COMPANION',
+          ['visits:create', 'visits:read', 'clients:read'],
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              type: 'CPR',
+              name: 'CPR & AED Certification',
+              issueDate: '2023-06-01',
+              expirationDate: '2025-06-01',
+              status: 'ACTIVE',
+            },
+            {
+              id: uuidv4(),
+              type: 'FIRST_AID',
+              name: 'First Aid Certification',
+              issueDate: '2023-06-01',
+              expirationDate: '2025-06-01',
+              status: 'ACTIVE',
+            },
+          ]),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'New Employee Orientation',
+              category: 'ORIENTATION',
+              completionDate: '2021-06-10',
+              hours: 8,
+              status: 'COMPLETED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Companion Care Basics',
+              category: 'CLINICAL_SKILLS',
+              completionDate: '2021-06-15',
+              hours: 12,
+              status: 'COMPLETED',
+            },
+          ]),
+          JSON.stringify([
+            { id: uuidv4(), name: 'Companionship', category: 'Social', proficiencyLevel: 'EXPERT' },
+            { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
+            { id: uuidv4(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
+            { id: uuidv4(), name: 'Transportation', category: 'Support', proficiencyLevel: 'INTERMEDIATE' },
+          ]),
+          JSON.stringify({
+            schedule: {
+              monday: { available: true, timeSlots: [{ startTime: '09:00', endTime: '15:00' }] },
+              tuesday: { available: true, timeSlots: [{ startTime: '09:00', endTime: '15:00' }] },
+              wednesday: { available: true, timeSlots: [{ startTime: '09:00', endTime: '15:00' }] },
+              thursday: { available: true, timeSlots: [{ startTime: '09:00', endTime: '15:00' }] },
+              friday: { available: true, timeSlots: [{ startTime: '09:00', endTime: '15:00' }] },
+              saturday: { available: false },
+              sunday: { available: false },
+            },
+            lastUpdated: new Date().toISOString(),
+          }),
+          JSON.stringify({
+            preferredShiftTypes: ['MORNING', 'AFTERNOON'],
+            willingToWorkWeekends: false,
+            willingToWorkHolidays: false,
+            requiresFixedSchedule: true,
+            notes: 'Prefers consistent schedule due to childcare needs',
+          }),
+          25, true, 15,
+          JSON.stringify({
+            id: cg3PayRateId,
+            rateType: 'BASE',
+            amount: 15.00,
+            unit: 'HOURLY',
+            effectiveDate: '2024-01-01',
+            weekendMultiplier: 1.2,
+          }),
+          'COMPLIANT', 0.92,
+          'ACTIVE',
+          systemUserId, systemUserId,
+        ]
+      );
+
+      // Caregiver 4: HHA with expiring credentials
+      const cg4Id = uuidv4();
+      const cg4PayRateId = uuidv4();
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 25);
+      
+      await client.query(
+        `
+        INSERT INTO caregivers (
+          id, organization_id, branch_ids, primary_branch_id,
+          employee_number, first_name, last_name,
+          date_of_birth, gender,
+          primary_phone, email, preferred_contact_method,
+          languages, primary_address,
+          emergency_contacts, employment_type, employment_status, hire_date,
+          role, permissions, credentials, training, skills, specializations,
+          availability, max_hours_per_week,
+          willing_to_travel, max_travel_distance,
+          pay_rate, compliance_status, reliability_score,
+          status, notes, created_by, updated_by
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+          $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35
+        )
+      `,
+        [
+          cg4Id, orgId, [branchId], branchId,
+          '1004', 'Jennifer', 'Williams',
+          '1980-03-18', 'FEMALE',
+          JSON.stringify({ number: '555-1301', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
+          'jennifer.williams@example.com', 'EMAIL',
+          ['English'],
+          JSON.stringify({
+            type: 'HOME',
+            line1: '321 Healthcare Ave',
+            city: 'Springfield',
+            state: 'IL',
+            postalCode: '62704',
+            country: 'US',
+          }),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'David Williams',
+              relationship: 'Spouse',
+              phone: { number: '555-1310', type: 'MOBILE', canReceiveSMS: true },
+              isPrimary: true,
+            },
+          ]),
+          'FULL_TIME', 'ACTIVE', '2020-01-10',
+          'HOME_HEALTH_AIDE',
+          ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              type: 'HHA',
+              name: 'Home Health Aide Certification',
+              number: 'HHA456789',
+              issuingAuthority: 'Illinois Department of Public Health',
+              issueDate: '2020-01-05',
+              expirationDate: thirtyDaysFromNow.toISOString().split('T')[0],
+              verifiedDate: '2020-01-08',
+              status: 'ACTIVE',
+              notes: 'EXPIRING SOON - Renewal application submitted',
+            },
+            {
+              id: uuidv4(),
+              type: 'CPR',
+              name: 'CPR & AED Certification',
+              issueDate: '2024-02-01',
+              expirationDate: '2026-02-01',
+              status: 'ACTIVE',
+            },
+          ]),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'Home Health Aide Training',
+              category: 'CLINICAL_SKILLS',
+              completionDate: '2019-12-15',
+              hours: 75,
+              status: 'COMPLETED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Infection Control',
+              category: 'SAFETY',
+              completionDate: '2023-08-10',
+              hours: 4,
+              status: 'COMPLETED',
+            },
+          ]),
+          JSON.stringify([
+            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+            { id: uuidv4(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+            { id: uuidv4(), name: 'Wound Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+            { id: uuidv4(), name: 'Catheter Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+          ]),
+          ['Wound Care', 'Post-Surgical Care'],
+          JSON.stringify({
+            schedule: {
+              monday: { available: true, timeSlots: [{ startTime: '06:00', endTime: '14:00' }] },
+              tuesday: { available: true, timeSlots: [{ startTime: '06:00', endTime: '14:00' }] },
+              wednesday: { available: true, timeSlots: [{ startTime: '06:00', endTime: '14:00' }] },
+              thursday: { available: true, timeSlots: [{ startTime: '06:00', endTime: '14:00' }] },
+              friday: { available: true, timeSlots: [{ startTime: '06:00', endTime: '14:00' }] },
+              saturday: { available: false },
+              sunday: { available: false },
+            },
+            lastUpdated: new Date().toISOString(),
+          }),
+          40, true, 30,
+          JSON.stringify({
+            id: cg4PayRateId,
+            rateType: 'BASE',
+            amount: 17.50,
+            unit: 'HOURLY',
+            effectiveDate: '2024-01-01',
+            overtimeMultiplier: 1.5,
+            weekendMultiplier: 1.2,
+            holidayMultiplier: 1.5,
+          }),
+          'EXPIRING_SOON', 0.88,
+          'ACTIVE',
+          'HHA certification expiring soon - renewal in progress. Excellent clinical skills.',
+          systemUserId, systemUserId,
+        ]
+      );
+
+      // Caregiver 5: Per diem caregiver - weekend availability
+      const cg5Id = uuidv4();
+      const cg5PayRateId = uuidv4();
+      await client.query(
+        `
+        INSERT INTO caregivers (
+          id, organization_id, branch_ids, primary_branch_id,
+          employee_number, first_name, last_name,
+          date_of_birth, gender,
+          primary_phone, email, preferred_contact_method,
+          languages, primary_address,
+          emergency_contacts, employment_type, employment_status, hire_date,
+          role, permissions, credentials, training, skills,
+          availability, work_preferences, max_hours_per_week,
+          willing_to_travel, max_travel_distance,
+          pay_rate, compliance_status, reliability_score,
+          status, created_by, updated_by
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+          $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34
+        )
+      `,
+        [
+          cg5Id, orgId, [branchId], branchId,
+          '1005', 'James', 'Robinson',
+          '1995-07-22', 'MALE',
+          JSON.stringify({ number: '555-1401', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
+          'james.robinson@example.com', 'SMS',
+          ['English'],
+          JSON.stringify({
+            type: 'HOME',
+            line1: '654 Weekend Way',
+            city: 'Springfield',
+            state: 'IL',
+            postalCode: '62701',
+            country: 'US',
+          }),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'Patricia Robinson',
+              relationship: 'Mother',
+              phone: { number: '555-1410', type: 'HOME', canReceiveSMS: false },
+              isPrimary: true,
+            },
+          ]),
+          'PER_DIEM', 'ACTIVE', '2023-05-01',
+          'CAREGIVER',
+          ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              type: 'CPR',
+              name: 'CPR & AED Certification',
+              issueDate: '2023-04-15',
+              expirationDate: '2025-04-15',
+              status: 'ACTIVE',
+            },
+            {
+              id: uuidv4(),
+              type: 'FIRST_AID',
+              name: 'First Aid Certification',
+              issueDate: '2023-04-15',
+              expirationDate: '2025-04-15',
+              status: 'ACTIVE',
+            },
+          ]),
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              name: 'New Employee Orientation',
+              category: 'ORIENTATION',
+              completionDate: '2023-05-05',
+              hours: 8,
+              status: 'COMPLETED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Personal Care Assistant Training',
+              category: 'CLINICAL_SKILLS',
+              completionDate: '2023-05-10',
+              hours: 20,
+              status: 'COMPLETED',
+            },
+          ]),
+          JSON.stringify([
+            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
+            { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
+            { id: uuidv4(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
+          ]),
+          JSON.stringify({
+            schedule: {
+              monday: { available: false },
+              tuesday: { available: false },
+              wednesday: { available: false },
+              thursday: { available: false },
+              friday: { available: false },
+              saturday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '20:00' }] },
+              sunday: { available: true, timeSlots: [{ startTime: '08:00', endTime: '20:00' }] },
+            },
+            lastUpdated: new Date().toISOString(),
+          }),
+          JSON.stringify({
+            preferredShiftTypes: ['MORNING', 'AFTERNOON', 'EVENING'],
+            willingToWorkWeekends: true,
+            willingToWorkHolidays: true,
+            notes: 'Weekend-only availability due to full-time student status',
+          }),
+          20, true, 20,
+          JSON.stringify({
+            id: cg5PayRateId,
+            rateType: 'BASE',
+            amount: 16.50,
+            unit: 'HOURLY',
+            effectiveDate: '2024-01-01',
+            weekendMultiplier: 1.3,
+            holidayMultiplier: 1.6,
+          }),
+          'COMPLIANT', 0.85,
+          'ACTIVE',
+          systemUserId, systemUserId,
+        ]
+      );
+
       console.log('\n✅ Database seeded successfully!');
       console.log('\n📊 Sample data created:');
       console.log(`  Organization: Care Commons Home Health`);
@@ -749,6 +1410,12 @@ async function seedDatabase() {
       console.log(`    • CL-2024-003: Dorothy Williams (Pending Intake) - Post-stroke assessment needed`);
       console.log(`    • CL-2024-004: George Patterson (On Hold) - Hospitalized`);
       console.log(`    • CL-2024-005: Eleanor Rodriguez (Inquiry) - Respite care inquiry`);
+      console.log(`\n👨‍⚕️ Caregivers: 5`);
+      console.log(`    • 1001: Sarah Johnson (Senior CNA) - Compliant, 5 years exp, bilingual`);
+      console.log(`    • 1002: Michael Chen (New CNA) - Onboarding, bilingual Mandarin`);
+      console.log(`    • 1003: Maria Garcia (Companion) - Part-time, bilingual Spanish`);
+      console.log(`    • 1004: Jennifer Williams (HHA) - Credentials expiring soon`);
+      console.log(`    • 1005: James Robinson (Per Diem) - Weekend availability only`);
     });
   } catch (error) {
     console.error('❌ Seeding failed:', error);
