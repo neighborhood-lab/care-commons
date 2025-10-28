@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/core": "workspace:*",
+    "@care-commons/core": "^0.1.0",
     "zod": "^3.22.4",
     "uuid": "^9.0.1",
     "date-fns": "^3.0.6"
