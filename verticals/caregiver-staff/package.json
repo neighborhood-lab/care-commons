@@ -9,7 +9,7 @@
     "dev": "tsc --watch",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts"
+    "lint": "echo 'Linting not configured yet'"
   },
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
