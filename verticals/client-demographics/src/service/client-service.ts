@@ -139,7 +139,8 @@ export class ClientService {
   ): Promise<Client> {
     this.permissionService.requirePermission(context, 'clients:update');
 
-    const existing = await this.getClientById(id, context);
+    // Verify client exists
+    await this.getClientById(id, context);
 
     // Validate updates
     const validation = this.validator.validateUpdate(updates);
@@ -161,7 +162,8 @@ export class ClientService {
   async deleteClient(id: string, context: UserContext): Promise<void> {
     this.permissionService.requirePermission(context, 'clients:delete');
 
-    const existing = await this.getClientById(id, context);
+    // Verify client exists
+    await this.getClientById(id, context);
     await this.repository.delete(id, context);
   }
 
@@ -325,8 +327,8 @@ export class ClientService {
   async updateClientStatus(
     clientId: string,
     status: import('../types/client').ClientStatus,
-    reason?: string,
-    context: UserContext
+    context: UserContext,
+    reason?: string
   ): Promise<Client> {
     const client = await this.getClientById(clientId, context);
 
@@ -344,7 +346,7 @@ export class ClientService {
   /**
    * Generate unique client number
    */
-  private async generateClientNumber(organizationId: string): Promise<string> {
+  private async generateClientNumber(_organizationId: string): Promise<string> {
     // Simple implementation: timestamp-based
     // Production would use a more sophisticated approach
     const timestamp = Date.now().toString(36).toUpperCase();
