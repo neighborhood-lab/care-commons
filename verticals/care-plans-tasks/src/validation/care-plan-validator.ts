@@ -415,8 +415,8 @@ export const CreateTaskInstanceInputSchema = z.object({
 
 export const CompleteTaskInputSchema = z.object({
   completionNote: z.string().max(2000).optional(),
-  signature: SignatureSchema.omit({ signedAt: true }).optional(),
-  verificationData: VerificationDataSchema.omit({ verifiedAt: true }).optional(),
+  signature: SignatureSchema.optional(),
+  verificationData: VerificationDataSchema.optional(),
   qualityCheckResponses: z.array(QualityCheckResponseSchema).optional(),
   customFieldValues: z.record(z.unknown()).optional(),
 });
@@ -566,7 +566,7 @@ export class CarePlanValidator {
       warnings.push('Oxygen saturation is critically low');
     }
     if (parsed.temperature) {
-      const tempF = parsed.temperatureUnit === 'C' ? (parsed.temperature * 9/5) + 32 : parsed.temperature;
+      const tempF = parsed.temperatureUnit === 'C' ? (parsed.temperature * 9 / 5) + 32 : parsed.temperature;
       if (tempF > 103) {
         warnings.push('Temperature is critically high');
       } else if (tempF < 95) {

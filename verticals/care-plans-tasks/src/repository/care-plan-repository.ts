@@ -20,9 +20,18 @@ import {
   CarePlanStatus,
 } from '../types/care-plan';
 
-export class CarePlanRepository extends Repository {
-  constructor(db: Database) {
-    super(db);
+export class CarePlanRepository extends Repository<CarePlan> {
+  constructor(database: Database) {
+    super({ tableName: 'care_plans', database, enableAudit: true, enableSoftDelete: true });
+  }
+
+  // satisfy abstract methods (delegate / stub)
+  protected mapRowToEntity(row: any): CarePlan {
+    return this.mapRowToCarePlan(row);
+  }
+
+  protected mapEntityToRow(_entity: Partial<CarePlan>): Record<string, any> {
+    throw new Error('mapEntityToRow not implemented for CarePlanRepository');
   }
 
   /**
@@ -66,7 +75,7 @@ export class CarePlanRepository extends Repository {
       RETURNING *
     `;
 
-    const result = await this.db.query(query, [
+    const result = await this.database.query(query, [
       input.planNumber,
       input.name,
       input.clientId,
@@ -98,7 +107,7 @@ export class CarePlanRepository extends Repository {
       WHERE id = $1 AND deleted_at IS NULL
     `;
 
-    const result = await this.db.query(query, [id]);
+    const result = await this.database.query(query, [id]);
     return result.rows[0] ? this.mapRowToCarePlan(result.rows[0]) : null;
   }
 
@@ -169,7 +178,7 @@ export class CarePlanRepository extends Repository {
       RETURNING *
     `;
 
-    const result = await this.db.query(query, values);
+    const result = await this.database.query(query, values);
     if (result.rows.length === 0) {
       throw new Error('Care plan not found or already deleted');
     }
@@ -242,10 +251,10 @@ export class CarePlanRepository extends Repository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    
+
     // Count total
     const countQuery = `SELECT COUNT(*) FROM care_plans ${whereClause}`;
-    const countResult = await this.db.query(countQuery, values);
+    const countResult = await this.database.query(countQuery, values);
     const total = parseInt(countResult.rows[0].count, 10);
 
     // Get paginated results
@@ -261,7 +270,7 @@ export class CarePlanRepository extends Repository {
     `;
     values.push(pagination.limit, offset);
 
-    const result = await this.db.query(dataQuery, values);
+    const result = await this.database.query(dataQuery, values);
     const items = result.rows.map(row => this.mapRowToCarePlan(row));
 
     return {
@@ -283,7 +292,7 @@ export class CarePlanRepository extends Repository {
       ORDER BY effective_date DESC
     `;
 
-    const result = await this.db.query(query, [clientId]);
+    const result = await this.database.query(query, [clientId]);
     return result.rows.map(row => this.mapRowToCarePlan(row));
   }
 
@@ -302,7 +311,7 @@ export class CarePlanRepository extends Repository {
       LIMIT 1
     `;
 
-    const result = await this.db.query(query, [clientId]);
+    const result = await this.database.query(query, [clientId]);
     return result.rows[0] ? this.mapRowToCarePlan(result.rows[0]) : null;
   }
 
@@ -324,7 +333,7 @@ export class CarePlanRepository extends Repository {
     `;
 
     const expirationCutoff = new Date(Date.now() + daysUntilExpiration * 24 * 60 * 60 * 1000);
-    const result = await this.db.query(query, [organizationId, expirationCutoff]);
+    const result = await this.database.query(query, [organizationId, expirationCutoff]);
     return result.rows.map(row => this.mapRowToCarePlan(row));
   }
 
@@ -341,7 +350,7 @@ export class CarePlanRepository extends Repository {
       WHERE id = $2 AND deleted_at IS NULL
     `;
 
-    await this.db.query(query, [deletedBy, id]);
+    await this.database.query(query, [deletedBy, id]);
   }
 
   /**
@@ -383,7 +392,7 @@ export class CarePlanRepository extends Repository {
       RETURNING *
     `;
 
-    const result = await this.db.query(query, [
+    const result = await this.database.query(query, [
       input.carePlanId,
       input.templateId,
       input.visitId,
@@ -413,7 +422,7 @@ export class CarePlanRepository extends Repository {
       WHERE id = $1
     `;
 
-    const result = await this.db.query(query, [id]);
+    const result = await this.database.query(query, [id]);
     return result.rows[0] ? this.mapRowToTaskInstance(result.rows[0]) : null;
   }
 
@@ -433,7 +442,7 @@ export class CarePlanRepository extends Repository {
       if (value !== undefined) {
         const snakeKey = this.camelToSnake(key);
         updateFields.push(`${snakeKey} = $${paramIndex++}`);
-        
+
         // Handle JSON fields
         if (['verification_data', 'quality_check_responses', 'completion_signature', 'custom_field_values'].includes(snakeKey)) {
           values.push(JSON.stringify(value));
@@ -457,7 +466,7 @@ export class CarePlanRepository extends Repository {
       RETURNING *
     `;
 
-    const result = await this.db.query(query, values);
+    const result = await this.database.query(query, values);
     if (result.rows.length === 0) {
       throw new Error('Task instance not found');
     }
@@ -526,10 +535,10 @@ export class CarePlanRepository extends Repository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    
+
     // Count total
     const countQuery = `SELECT COUNT(*) FROM task_instances ${whereClause}`;
-    const countResult = await this.db.query(countQuery, values);
+    const countResult = await this.database.query(countQuery, values);
     const total = parseInt(countResult.rows[0].count, 10);
 
     // Get paginated results
@@ -545,7 +554,7 @@ export class CarePlanRepository extends Repository {
     `;
     values.push(pagination.limit, offset);
 
-    const result = await this.db.query(dataQuery, values);
+    const result = await this.database.query(dataQuery, values);
     const items = result.rows.map(row => this.mapRowToTaskInstance(row));
 
     return {
@@ -567,7 +576,7 @@ export class CarePlanRepository extends Repository {
       ORDER BY scheduled_time ASC NULLS LAST, name ASC
     `;
 
-    const result = await this.db.query(query, [visitId]);
+    const result = await this.database.query(query, [visitId]);
     return result.rows.map(row => this.mapRowToTaskInstance(row));
   }
 
@@ -612,7 +621,7 @@ export class CarePlanRepository extends Repository {
       RETURNING *
     `;
 
-    const result = await this.db.query(query, [
+    const result = await this.database.query(query, [
       input.carePlanId,
       input.clientId,
       input.visitId,
@@ -642,7 +651,7 @@ export class CarePlanRepository extends Repository {
       ORDER BY note_date DESC, created_at DESC
     `;
 
-    const result = await this.db.query(query, [carePlanId]);
+    const result = await this.database.query(query, [carePlanId]);
     return result.rows.map(row => this.mapRowToProgressNote(row));
   }
 
