@@ -518,11 +518,11 @@ CREATE INDEX idx_invoices_status ON invoices(status, due_date)
     WHERE deleted_at IS NULL;
 CREATE INDEX idx_invoices_period ON invoices(period_start, period_end) 
     WHERE deleted_at IS NULL;
-CREATE INDEX idx_invoices_past_due ON invoices(due_date) 
+CREATE INDEX idx_invoices_past_due ON invoices(due_date, status) 
     WHERE status IN ('SENT', 'SUBMITTED', 'PARTIALLY_PAID') 
-        AND due_date < CURRENT_DATE AND deleted_at IS NULL;
-CREATE INDEX idx_invoices_unpaid ON invoices(organization_id, payer_id) 
-    WHERE balance_due > 0 AND status NOT IN ('CANCELLED', 'VOIDED') 
+        AND deleted_at IS NULL;
+CREATE INDEX idx_invoices_unpaid ON invoices(organization_id, payer_id, status) 
+    WHERE status NOT IN ('CANCELLED', 'VOIDED') 
         AND deleted_at IS NULL;
 
 -- ============================================================================
@@ -615,8 +615,7 @@ CREATE INDEX idx_payments_reference ON payments(reference_number)
     WHERE reference_number IS NOT NULL;
 CREATE INDEX idx_payments_unreconciled ON payments(organization_id) 
     WHERE is_reconciled = false;
-CREATE INDEX idx_payments_unapplied ON payments(organization_id) 
-    WHERE unapplied_amount > 0;
+CREATE INDEX idx_payments_unapplied ON payments(organization_id, unapplied_amount);
 
 -- ============================================================================
 -- CLAIMS

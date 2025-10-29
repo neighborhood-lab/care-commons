@@ -80,7 +80,7 @@ CREATE INDEX idx_open_shifts_date ON open_shifts(scheduled_date, start_time);
 CREATE INDEX idx_open_shifts_status ON open_shifts(matching_status);
 CREATE INDEX idx_open_shifts_priority ON open_shifts(priority, is_urgent) WHERE matching_status IN ('NEW', 'MATCHING', 'NO_MATCH');
 CREATE INDEX idx_open_shifts_urgent ON open_shifts(scheduled_date) WHERE is_urgent = true AND matching_status NOT IN ('ASSIGNED', 'EXPIRED');
-CREATE INDEX idx_open_shifts_location ON open_shifts USING gist(ll_to_earth(latitude, longitude)) WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+CREATE INDEX idx_open_shifts_location ON open_shifts USING gist(point(longitude, latitude)) WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 CREATE INDEX idx_open_shifts_fill_by ON open_shifts(fill_by_date) WHERE fill_by_date IS NOT NULL AND matching_status NOT IN ('ASSIGNED', 'EXPIRED');
 
 -- Trigger to update updated_at timestamp
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS matching_configurations (
     updated_by UUID NOT NULL,
     version INTEGER NOT NULL DEFAULT 1,
     
-    CONSTRAINT unique_default_per_scope UNIQUE NULLS NOT FIRST (organization_id, branch_id, is_default) DEFERRABLE INITIALLY DEFERRED
+    CONSTRAINT unique_default_per_scope UNIQUE NULLS NOT DISTINCT (organization_id, branch_id, is_default) DEFERRABLE INITIALLY DEFERRED
 );
 
 -- Indexes for matching_configurations

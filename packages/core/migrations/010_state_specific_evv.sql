@@ -408,8 +408,8 @@ CREATE INDEX idx_exception_queue_branch ON evv_exception_queue(branch_id, status
 CREATE INDEX idx_exception_queue_assigned ON evv_exception_queue(assigned_to, status) WHERE assigned_to IS NOT NULL;
 CREATE INDEX idx_exception_queue_status ON evv_exception_queue(status, priority, detected_at);
 CREATE INDEX idx_exception_queue_severity ON evv_exception_queue(exception_severity, status) WHERE status != 'RESOLVED';
-CREATE INDEX idx_exception_queue_overdue ON evv_exception_queue(due_date) WHERE status IN ('OPEN', 'IN_PROGRESS') AND due_date < NOW();
-CREATE INDEX idx_exception_queue_sla ON evv_exception_queue(sla_deadline) WHERE status IN ('OPEN', 'IN_PROGRESS') AND sla_deadline < NOW();
+CREATE INDEX idx_exception_queue_overdue ON evv_exception_queue(due_date, status) WHERE status IN ('OPEN', 'IN_PROGRESS');
+CREATE INDEX idx_exception_queue_sla ON evv_exception_queue(sla_deadline, status) WHERE status IN ('OPEN', 'IN_PROGRESS');
 CREATE INDEX idx_exception_queue_unassigned ON evv_exception_queue(organization_id, detected_at) WHERE assigned_to IS NULL AND status = 'OPEN';
 
 -- ============================================================================
