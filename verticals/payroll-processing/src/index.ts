@@ -10,4 +10,16 @@ export * from './types/payroll';
 // Repository
 export { PayrollRepository } from './repository/payroll-repository';
 
-// TODO: Export service, validation, and utilities once implemented
+// Service
+export { PayrollService } from './service/payroll-service';
+export type {
+  CreatePayPeriodInput,
+  CompileTimeSheetInput,
+  CreatePayRunInput,
+  ApproveTimeSheetInput,
+} from './service/payroll-service';
+
+// Utilities
+export * from './utils/pay-calculations';
+export * from './utils/tax-calculations';
+export * from './utils/deduction-calculations';
