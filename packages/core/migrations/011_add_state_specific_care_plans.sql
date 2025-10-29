@@ -67,6 +67,10 @@ ALTER TABLE task_instances
     ADD COLUMN IF NOT EXISTS skill_level_required VARCHAR(50), -- CNA, HHA, RN, LPN, etc.
     ADD COLUMN IF NOT EXISTS state_specific_task_data JSONB DEFAULT '{}';
 
+-- Add care_plan_id to existing service_authorizations table
+ALTER TABLE service_authorizations
+    ADD COLUMN IF NOT EXISTS care_plan_id UUID REFERENCES care_plans(id) ON DELETE CASCADE;
+
 -- Create index for tasks requiring supervision
 CREATE INDEX IF NOT EXISTS idx_task_instances_supervision_required 
     ON task_instances(requires_supervision) WHERE requires_supervision = TRUE;
@@ -80,68 +84,13 @@ CREATE INDEX IF NOT EXISTS idx_task_instances_supervisor_review
 CREATE INDEX IF NOT EXISTS idx_task_instances_state_specific_data_gin 
     ON task_instances USING gin(state_specific_task_data);
 
--- Add TX-specific tracking table for service authorization and service delivery
-CREATE TABLE IF NOT EXISTS service_authorizations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    
-    -- Core identifiers
-    care_plan_id UUID NOT NULL REFERENCES care_plans(id) ON DELETE CASCADE,
-    client_id UUID NOT NULL REFERENCES clients(id),
-    organization_id UUID NOT NULL REFERENCES organizations(id),
-    
-    -- TX/FL authorization details
-    state_jurisdiction VARCHAR(2) NOT NULL,
-    authorization_type VARCHAR(100) NOT NULL, -- TX: HHSC, MCO; FL: AHCA, SMMC
-    authorization_number VARCHAR(100) NOT NULL,
-    payer_name VARCHAR(255) NOT NULL,
-    payer_id VARCHAR(100),
-    
-    -- Authorization scope
-    service_codes TEXT[] NOT NULL, -- Procedure codes
-    authorized_units DECIMAL(10, 2) NOT NULL, -- Hours or units
-    unit_type VARCHAR(50) NOT NULL, -- HOURS, VISITS, DAYS
-    rate_per_unit DECIMAL(10, 2),
-    
-    -- Period
-    effective_date DATE NOT NULL,
-    expiration_date DATE NOT NULL,
-    
-    -- Usage tracking
-    units_used DECIMAL(10, 2) DEFAULT 0,
-    units_remaining DECIMAL(10, 2),
-    last_usage_date DATE,
-    
-    -- TX-specific
-    form_number VARCHAR(50), -- HHSC Form 4100 series
-    mcoid VARCHAR(100), -- TX MCO ID
-    
-    -- FL-specific  
-    ahca_provider_number VARCHAR(50),
-    smmc_plan_name VARCHAR(100),
-    
-    -- Status
-    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN (
-        'PENDING', 'ACTIVE', 'EXPIRING_SOON', 'EXPIRED', 'SUSPENDED', 'TERMINATED'
-    )),
-    
-    -- Metadata
-    notes TEXT,
-    state_specific_data JSONB DEFAULT '{}',
-    
-    -- Audit
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_by UUID NOT NULL REFERENCES users(id),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_by UUID NOT NULL REFERENCES users(id),
-    version INTEGER NOT NULL DEFAULT 1,
-    deleted_at TIMESTAMP,
-    deleted_by UUID REFERENCES users(id),
-    
-    -- Constraints
-    CONSTRAINT valid_authorization_period CHECK (expiration_date > effective_date),
-    CONSTRAINT valid_units CHECK (authorized_units > 0),
-    CONSTRAINT valid_units_remaining CHECK (units_remaining >= 0)
-);
+-- Add state-specific columns to existing service_authorizations table
+ALTER TABLE service_authorizations
+    ADD COLUMN IF NOT EXISTS state_jurisdiction VARCHAR(2),
+    ADD COLUMN IF NOT EXISTS service_codes TEXT[], -- Procedure codes
+    ADD COLUMN IF NOT EXISTS units_used DECIMAL(10, 2) DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS units_remaining DECIMAL(10, 2) GENERATED ALWAYS AS (authorized_units - units_used) STORED,
+    ADD COLUMN IF NOT EXISTS state_specific_data JSONB DEFAULT '{}';
 
 -- Indexes for service_authorizations
 CREATE INDEX idx_service_authorizations_care_plan 
@@ -153,7 +102,7 @@ CREATE INDEX idx_service_authorizations_organization
 CREATE INDEX idx_service_authorizations_status 
     ON service_authorizations(status) WHERE deleted_at IS NULL;
 CREATE INDEX idx_service_authorizations_expiring 
-    ON service_authorizations(expiration_date) WHERE deleted_at IS NULL AND status = 'ACTIVE';
+    ON service_authorizations(effective_to) WHERE deleted_at IS NULL AND status = 'ACTIVE';
 CREATE INDEX idx_service_authorizations_state 
     ON service_authorizations(state_jurisdiction) WHERE deleted_at IS NULL;
 

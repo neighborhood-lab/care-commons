@@ -102,8 +102,8 @@ CREATE INDEX idx_registry_checks_expiration ON registry_check_results(expiration
 CREATE INDEX idx_registry_checks_date ON registry_check_results(check_date);
 
 -- Partial index for expired checks
-CREATE INDEX idx_registry_checks_expired ON registry_check_results(caregiver_id, registry_type)
-    WHERE status = 'EXPIRED' OR expiration_date < CURRENT_DATE;
+CREATE INDEX idx_registry_checks_expired ON registry_check_results(caregiver_id, registry_type, expiration_date)
+    WHERE status = 'EXPIRED';
 
 -- Trigger for registry check results
 CREATE TRIGGER update_registry_checks_updated_at 
