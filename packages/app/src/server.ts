@@ -4,7 +4,7 @@
  * Main Express application that integrates all vertical route handlers
  */
 
-import 'dotenv/config';
+import dotenv from "dotenv";
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -13,6 +13,8 @@ import { authContextMiddleware } from './middleware/auth-context';
 import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index';
+
+dotenv.config({ path: '../../.env', quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -75,6 +77,22 @@ function setupApiRoutes() {
       timestamp: new Date().toISOString(),
       environment: NODE_ENV,
       database: dbHealthy ? 'connected' : 'disconnected',
+    });
+  });
+
+  // Root endpoint - API overview
+  app.get('/', (_req, res) => {
+    res.json({
+      name: 'Care Commons API',
+      version: '0.1.0',
+      environment: NODE_ENV,
+      endpoints: {
+        health: '/health',
+        api: '/api',
+        clients: '/api/clients',
+        carePlans: '/api/care-plans',
+      },
+      documentation: 'http://localhost:3000/api',
     });
   });
 
