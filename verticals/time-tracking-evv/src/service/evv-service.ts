@@ -10,6 +10,8 @@ import {
   NotFoundError,
   ValidationError,
   UUID,
+  PaginationParams,
+  PaginatedResult,
 } from '@care-commons/core';
 import { EVVRepository } from '../repository/evv-repository';
 import { EVVValidator } from '../validation/evv-validator';
@@ -26,6 +28,7 @@ import {
   LocationVerification,
   VerificationResult,
   ExceptionEvent,
+  EVVRecordSearchFilters,
 } from '../types/evv';
 import {
   IVisitProvider,
@@ -594,6 +597,21 @@ export class EVVService {
     }
 
     return await this.repository.getTimeEntriesByVisitId(visitId);
+  }
+
+  /**
+   * Search EVV records
+   */
+  async searchEVVRecords(
+    filters: EVVRecordSearchFilters,
+    pagination: PaginationParams,
+    userContext: UserContext
+  ): Promise<PaginatedResult<EVVRecord>> {
+    if (!this.hasPermission(userContext, 'evv:read')) {
+      throw new PermissionError('User does not have permission to search EVV records');
+    }
+
+    return await this.repository.searchEVVRecords(filters, pagination);
   }
 
   /**

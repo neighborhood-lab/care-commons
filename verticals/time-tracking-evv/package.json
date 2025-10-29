@@ -14,11 +14,11 @@
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
     "@care-commons/scheduling-visits": "file:../scheduling-visits",
-    "uuid": "^9.0.1"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.6",
-    "typescript": "^5.3.3"
+    "@types/node": "^24.9.2",
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "evv",

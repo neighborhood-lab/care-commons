@@ -122,7 +122,7 @@ export const signatureDataSchema = z.object({
   signatureImageUrl: z.string().url().optional(),
   signatureDataUrl: z.string().optional(),
   deviceId: z.string().optional(),
-  ipAddress: z.string().ip().optional(),
+  ipAddress: z.string().regex(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, 'Invalid IP address').optional(),
 });
 
 // Input validators

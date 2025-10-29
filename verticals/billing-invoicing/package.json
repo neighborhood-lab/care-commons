@@ -16,14 +16,14 @@
     "@care-commons/client-demographics": "file:../client-demographics",
     "@care-commons/scheduling-visits": "file:../scheduling-visits",
     "@care-commons/time-tracking-evv": "file:../time-tracking-evv",
-    "uuid": "^9.0.1"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.11",
-    "@types/node": "^20.10.6",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.1",
-    "typescript": "^5.3.3"
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.9.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "billing",

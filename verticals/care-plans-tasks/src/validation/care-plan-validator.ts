@@ -361,7 +361,7 @@ const VerificationDataSchema = z.object({
   photoUrls: z.array(z.string().url()).optional(),
   barcodeData: z.string().optional(),
   vitalSigns: VitalSignsSchema.optional(),
-  customData: z.record(z.unknown()).optional(),
+  customData: z.record(z.string(), z.unknown()).optional(),
 });
 
 const QualityCheckResponseSchema = z.object({
@@ -428,7 +428,7 @@ export const CompleteTaskInputSchema = z.object({
   signature: SignatureSchema.optional(),
   verificationData: VerificationDataSchema.optional(),
   qualityCheckResponses: z.array(QualityCheckResponseSchema).optional(),
-  customFieldValues: z.record(z.unknown()).optional(),
+  customFieldValues: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const CreateProgressNoteInputSchema = z.object({
