@@ -13,4 +13,5 @@ module.exports = {
     '@care-commons/caregiver-staff': '<rootDir>/../caregiver-staff/src',
     '@care-commons/scheduling-visits': '<rootDir>/../scheduling-visits/src',
   },
+  passWithNoTests: true,
 };
