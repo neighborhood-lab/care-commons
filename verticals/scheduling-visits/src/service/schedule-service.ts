@@ -564,15 +564,14 @@ export class ScheduleService {
   }
 
   private async getClientAddress(clientId: UUID): Promise<any> {
-    // TODO: Integrate with client demographics service
-    // For now, return placeholder
-    return {
-      line1: '123 Main St',
-      city: 'Springfield',
-      state: 'IL',
-      postalCode: '62701',
-      country: 'US',
-    };
+    // NOTE: This should be injected via a ClientProvider interface in production
+    // For now, throw an error to enforce proper integration
+    throw new NotFoundError(
+      'Client address integration not configured. ' +
+      'ScheduleService requires a ClientProvider to fetch client addresses. ' +
+      'This must be injected via dependency injection.',
+      { clientId }
+    );
   }
 
   private async validatePatternBusinessRules(input: CreateServicePatternInput): Promise<void> {
