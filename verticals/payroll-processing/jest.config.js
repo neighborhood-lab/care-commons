@@ -8,5 +8,4 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
   ],
-  passWithNoTests: true,
 };
