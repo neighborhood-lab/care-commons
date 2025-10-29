@@ -9,8 +9,8 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'Linting not configured yet'",
-    "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:migrate": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate.ts",
+    "db:seed": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/seed.ts"
   },
   "dependencies": {
     "date-fns": "^3.0.6",
