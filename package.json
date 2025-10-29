@@ -14,7 +14,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "db:migrate": "cd packages/core && npm run db:migrate",
-    "db:seed": "cd packages/core && npm run db:seed"
+    "db:seed": "cd packages/core && npm run db:seed",
+    "db:seed:billing": "cd packages/core && npx ts-node scripts/seed-billing.ts"
   },
   "devDependencies": {
     "turbo": "^1.11.0",
