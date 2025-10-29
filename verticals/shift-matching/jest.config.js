@@ -9,9 +9,18 @@ module.exports = {
     '!src/**/__tests__/**',
   ],
   moduleNameMapper: {
-    '@care-commons/core': '<rootDir>/../../packages/core/src',
-    '@care-commons/caregiver-staff': '<rootDir>/../caregiver-staff/src',
-    '@care-commons/scheduling-visits': '<rootDir>/../scheduling-visits/src',
+    '^@care-commons/core$': '<rootDir>/../../packages/core/src',
+    '^@care-commons/caregiver-staff$': '<rootDir>/../caregiver-staff/src',
+    '^@care-commons/scheduling-visits$': '<rootDir>/../scheduling-visits/src',
+    '^uuid$': 'jest-transform-stub',
   },
-  passWithNoTests: true,
+  transformIgnorePatterns: [
+    'node_modules/(?!(uuid|@care-commons))'
+  ],
+  extensionsToTreatAsEsm: ['.ts'],
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: false,
+    }],
+  },
 };
