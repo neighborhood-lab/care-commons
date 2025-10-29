@@ -1,15 +1,456 @@
 # Texas and Florida State-Specific Implementation Summary
 
 ## Overview
-This implementation adds comprehensive Texas and Florida compliance features to the Care Commons platform, focusing on the **Client & Demographics Management** and **Caregiver & Staff Management** verticals. All changes follow SOLID and APIE (Abstraction, Polymorphism, Inheritance, Encapsulation) principles to ensure maintainability and extensibility.
+This implementation adds comprehensive Texas and Florida compliance features to the Care Commons platform across **four core verticals**:
+1. **Client & Demographics Management** ✅ COMPLETE
+2. **Caregiver & Staff Management** ✅ COMPLETE  
+3. **Care Plans & Tasks Library** 🟡 IN PROGRESS (70% complete)
+4. **Shift Matching & Assignment** 🟡 IN PROGRESS (60% complete)
 
-## Implementation Status: ✅ COMPLETE
+All changes follow SOLID and APIE (Abstraction, Polymorphism, Inheritance, Encapsulation) principles to ensure maintainability and extensibility.
 
-All requested features have been implemented with production-ready frameworks that clearly indicate where external API integrations are required.
+## Implementation Status by Vertical
+
+### Verticals 1-2: ✅ COMPLETE
+Client & Demographics and Caregiver & Staff Management have production-ready frameworks that clearly indicate where external API integrations are required.
+
+### Verticals 3-4: 🟡 IN PROGRESS  
+Care Plans & Tasks and Shift Matching have foundational schema, types, and validation implemented. Integration with services and comprehensive seed data are pending.
 
 ---
 
-## 🏗️ Architecture Changes
+## 📋 CARE PLANS & TASKS LIBRARY (Vertical 3)
+
+### Implementation Status: 🟡 70% Complete
+
+#### ✅ Completed Components
+
+##### 1. Database Schema Extensions
+**File**: `packages/core/migrations/011_add_state_specific_care_plans.sql`
+
+**Care Plans Table Extensions**:
+- State jurisdiction tracking (`state_jurisdiction`)
+- **TX 26 TAC §558.287 Requirements**:
+  - Physician order provenance: `ordering_provider_name`, `ordering_provider_license`, `ordering_provider_npi`, `order_date`
+  - Verbal order authentication: `verbal_order_authenticated_by`, `verbal_order_authenticated_at`
+  - Emergency preparedness: `disaster_plan_on_file`
+  - CDS model support: `is_cds_model`, `employer_authority_id`, `financial_management_service_id`
+- **FL AHCA 59A-8.0095 Requirements**:
+  - RN supervision: `rn_supervisor_id`, `rn_supervisor_name`, `rn_supervisor_license`
+  - Supervisory visit tracking: `last_supervisory_visit_date`, `next_supervisory_visit_due`
+  - RN delegation linkage: `rn_delegation_id`
+- **Both States**:
+  - Plan review enforcement: `plan_review_interval_days` (60-90 days), `next_review_due`
+  - Medicaid tracking: `medicaid_program`, `medicaid_waiver`, `service_authorization_form`
+  - Service authorization: `service_authorization_units`, period dates
+  - Form documentation: `plan_of_care_form_number`
+  - Infection control: `infection_control_plan_reviewed`
+
+**New Tables**:
+1. **`service_authorizations`**: TX HHSC Form 4100 / FL AHCA authorization tracking
+   - Authorization numbers, service codes, authorized units
+   - Auto-calculates units remaining
+   - Auto-updates status (ACTIVE → EXPIRING_SOON → EXPIRED)
+   - Supports both TX (HHSC, MCO) and FL (AHCA, SMMC) payers
+
+2. **`rn_delegations`**: FL 59A-8.0216 RN delegation of nursing tasks
+   - Delegating RN and delegated caregiver tracking
+   - Training and competency evaluation lifecycle
+   - Supervision frequency and due date tracking
+   - Task scope and limitations documentation
+   - Status management (PENDING_TRAINING → ACTIVE → EXPIRED)
+
+**Task Instances Extensions**:
+- Supervision requirements: `requires_supervision`, `supervisor_review_required`
+- Skill level requirements: `skill_level_required` (CAREGIVER, CNA, HHA, LPN, RN, THERAPIST)
+- Delegation authority: `delegation_authority_id`
+- State-specific task data: `state_specific_task_data JSONB`
+
+##### 2. State-Specific Types
+**File**: `verticals/care-plans-tasks/src/types/state-specific.ts`
+
+**Comprehensive Type Definitions**:
+- `StateJurisdiction`: TX | FL | OTHER
+- `ServiceAuthorization`: Complete authorization tracking with unit management
+- `RNDelegation`: FL nursing task delegation with training/competency lifecycle
+- `StateSpecificCarePlanData`: Extended care plan fields for both states
+- `StateSpecificTaskData`: Task-level supervision and delegation requirements
+- `StateComplianceValidation`: Validation results with errors/warnings/severity
+- `TexasCarePlanRequirements`: TX-specific validation configuration
+- `FloridaCarePlanRequirements`: FL-specific validation configuration
+
+**Input Types**:
+- `CreateServiceAuthorizationInput`: Authorization creation
+- `CreateRNDelegationInput`: Delegation setup with training requirements
+- Search filters for both entity types
+
+##### 3. State Compliance Validator
+**File**: `verticals/care-plans-tasks/src/validation/state-compliance-validator.ts`
+
+**`StateComplianceValidator` class provides**:
+
+**TX Validation (26 TAC §558.287)**:
+- ✅ Physician order requirement (`TX_MISSING_PHYSICIAN_ORDER`)
+- ✅ Provider license verification (`TX_MISSING_PROVIDER_LICENSE`)
+- ✅ Verbal order authentication within timeframe (`TX_VERBAL_ORDER_NOT_AUTHENTICATED`)
+- ✅ Service authorization for Medicaid (`TX_MISSING_SERVICE_AUTHORIZATION`)
+- ✅ 60-day review interval enforcement
+- ✅ Emergency preparedness plan (`TX_MISSING_DISASTER_PLAN`)
+- ✅ CDS model validation: employer authority + FMS provider (`TX_CDS_MISSING_EMPLOYER_AUTHORITY`, `TX_CDS_MISSING_FMS`)
+- ✅ Goals and interventions requirements
+
+**FL Validation (AHCA 59A-8)**:
+- ✅ Physician orders requirement (FL Statute 400.487)
+- ✅ RN supervision for skilled services (`FL_MISSING_RN_SUPERVISOR`)
+- ✅ RN supervisory visit tracking (14-30 days)
+- ✅ Overdue supervisory visit detection (`FL_SUPERVISORY_VISIT_OVERDUE`)
+- ✅ RN delegation for delegated nursing tasks (`FL_MISSING_RN_DELEGATION`)
+- ✅ Comprehensive assessment requirement (`FL_INCOMPLETE_ASSESSMENT`)
+- ✅ 60-day plan review enforcement (59A-8.0215)
+- ✅ AHCA form documentation
+
+**Methods**:
+- `validateCarePlanCompliance()`: Validate against state requirements
+- `validateActivation()`: Pre-activation compliance check
+- `getTexasRequirements()`: TX configuration
+- `getFloridaRequirements()`: FL configuration
+
+#### ❌ Pending Implementation
+
+##### 1. Service Integration (HIGH PRIORITY)
+**Location**: `verticals/care-plans-tasks/src/service/care-plan-service.ts`
+
+**Issues Identified**:
+- **Line 596: MOCKED AUTHOR NAME** - Constructs from user ID substring instead of fetching from user repository
+  ```typescript
+  // CURRENT (MOCKED):
+  const authorName = context.userId ? `User ${context.userId.substring(0, 8)}` : 'System User';
+  
+  // REQUIRED:
+  const user = await this.userRepository.getUserById(context.userId);
+  const authorName = `${user.firstName} ${user.lastName}`;
+  ```
+
+- **No state compliance integration** - `createCarePlan()` doesn't call `StateComplianceValidator`
+- **No automatic review due date** - Doesn't calculate `nextReviewDue` based on `planReviewIntervalDays`
+- **No activation validation** - `activateCarePlan()` doesn't validate state requirements
+
+**Required Changes**:
+```typescript
+// In createCarePlan():
+if (input.stateJurisdiction && ['TX', 'FL'].includes(input.stateJurisdiction)) {
+  const validation = StateComplianceValidator.validateCarePlanCompliance(
+    input as any,
+    input.stateJurisdiction
+  );
+  if (!validation.isCompliant) {
+    throw new ValidationError('Care plan does not meet state requirements', {
+      errors: validation.errors,
+    });
+  }
+}
+
+// Calculate next review
+const reviewIntervalDays = input.planReviewIntervalDays || 60;
+const nextReviewDue = addDays(input.effectiveDate, reviewIntervalDays);
+
+// In activateCarePlan():
+if (carePlan.stateJurisdiction) {
+  const validation = StateComplianceValidator.validateActivation(
+    carePlan,
+    carePlan.stateJurisdiction
+  );
+  if (!validation.isCompliant) {
+    throw new ValidationError('Cannot activate', { errors: validation.errors });
+  }
+}
+```
+
+##### 2. Seed Data (MEDIUM PRIORITY)
+**Create**: `packages/core/scripts/seed-care-plans.ts`
+
+**Required Scenarios**:
+- **TX STAR+Plus Client**: 
+  - Personal Care Services plan
+  - Physician order with NPI
+  - HHSC Form 4100 authorization
+  - 160 authorized hours
+  - Emergency plan documented
+  - 60-day review cycle
+
+- **FL SMMC LTC Client**:
+  - Skilled Nursing plan
+  - RN supervisor assigned
+  - RN delegation for medication administration
+  - Competency evaluation completed
+  - 30-day supervisory visit schedule
+  - AHCA Form 484 documented
+
+##### 3. Integration Tests (MEDIUM PRIORITY)
+**Create**: `verticals/care-plans-tasks/__tests__/state-compliance.test.ts`
+
+**Test Cases**:
+- TX plan without physician order → activation blocked
+- FL plan without RN supervisor → validation error
+- Overdue supervisory visit → critical warning
+- CDS plan without FMS → blocked
+- Expiring service authorization → warning alert
+
+---
+
+## 🎯 SHIFT MATCHING & ASSIGNMENT (Vertical 4)
+
+### Implementation Status: 🟡 60% Complete
+
+#### ✅ Completed Components
+
+##### 1. Core Architecture
+**Files**: 
+- `verticals/shift-matching/src/service/shift-matching-service.ts`
+- `verticals/shift-matching/src/repository/shift-matching-repository.ts`
+- `verticals/shift-matching/src/utils/matching-algorithm.ts`
+
+**Current Capabilities**:
+- ✅ Open shift creation and tracking
+- ✅ Matching configuration management
+- ✅ Multi-dimensional scoring algorithm
+- ✅ Eligibility checking framework
+- ✅ Assignment proposal workflow
+- ✅ Match history tracking
+
+**Scoring Dimensions** (0-100 scale):
+- Skill match: Required skills/certifications
+- Availability match: Schedule conflicts
+- Proximity match: Distance to client location
+- Preference match: Client preferences (gender, language)
+- Experience match: Previous visits with client
+- Reliability match: Historical performance
+- Compliance match: Credentials current
+- Capacity match: Weekly hour limits
+
+#### ❌ Critical Gaps (HIGH PRIORITY)
+
+##### 1. No TX/FL Background Screening Checks
+**Location**: `verticals/shift-matching/src/utils/matching-algorithm.ts:262-276`
+
+**Current Code**:
+```typescript
+// Only checks generic compliance status
+if (caregiver.complianceStatus === 'EXPIRED' || caregiver.complianceStatus === 'NON_COMPLIANT') {
+  issues.push({
+    type: 'NOT_COMPLIANT',
+    severity: 'BLOCKING',
+    message: 'Caregiver is not compliant - credentials expired or missing',
+  });
+}
+```
+
+**Missing**:
+- ✗ TX Employee Misconduct Registry check
+- ✗ TX Nurse Aide Registry verification for CNAs
+- ✗ FL Level 2 Background Screening (5-year lifecycle)
+- ✗ State-specific license validation (TX RN ≠ FL RN)
+
+**Required Implementation**:
+```typescript
+// Add new EligibilityIssueTypes:
+| 'TX_REGISTRY_NOT_CLEAR'
+| 'TX_NURSE_AIDE_NOT_REGISTERED'
+| 'FL_SCREENING_EXPIRED'
+| 'FL_SCREENING_PENDING'
+| 'MISSING_STATE_LICENSE'
+
+// New method in MatchingAlgorithm:
+private static async checkStateSpecificEligibility(
+  shift: OpenShift & { stateJurisdiction?: StateJurisdiction },
+  caregiver: Caregiver,
+  config: MatchingConfiguration
+): Promise<EligibilityIssue[]> {
+  const issues: EligibilityIssue[] = [];
+  
+  if (shift.stateJurisdiction === 'TX') {
+    // Check TX Employee Misconduct Registry
+    if (!caregiver.stateSpecific?.texas?.employeeMisconductRegistryClear) {
+      issues.push({
+        type: 'TX_REGISTRY_NOT_CLEAR',
+        severity: 'BLOCKING',
+        message: 'Not cleared on TX Employee Misconduct Registry - cannot be assigned',
+      });
+    }
+    
+    // Check TX Nurse Aide Registry for CNA tasks
+    if (shift.requiredCertifications?.includes('CNA')) {
+      if (!caregiver.stateSpecific?.texas?.nurseAideRegistryStatus?.active) {
+        issues.push({
+          type: 'TX_NURSE_AIDE_NOT_REGISTERED',
+          severity: 'BLOCKING',
+          message: 'TX Nurse Aide Registry registration required for CNA tasks',
+        });
+      }
+    }
+  }
+  
+  if (shift.stateJurisdiction === 'FL') {
+    const screening = caregiver.stateSpecific?.florida?.level2Screening;
+    
+    // Check FL Level 2 screening
+    if (!screening || screening.screeningStatus !== 'CLEARED') {
+      issues.push({
+        type: 'FL_SCREENING_EXPIRED',
+        severity: 'BLOCKING',
+        message: 'FL Level 2 Background Screening clearance required',
+      });
+    }
+    
+    // Check if rescreening needed (5-year lifecycle)
+    if (screening?.needsRescreening) {
+      issues.push({
+        type: 'FL_SCREENING_PENDING',
+        severity: 'BLOCKING',
+        message: '5-year FL Level 2 rescreening is overdue',
+      });
+    }
+  }
+  
+  return issues;
+}
+
+// Call from checkEligibility():
+const stateIssues = await this.checkStateSpecificEligibility(shift, context.caregiver, config);
+issues.push(...stateIssues);
+```
+
+##### 2. No RN Delegation Validation
+**Missing Check**: When shift requires delegated nursing tasks (medication admin, wound care), must verify:
+- FL: Active RN delegation exists
+- FL: Competency evaluation completed
+- FL: Supervision schedule current
+
+**Required**:
+```typescript
+// Add to OpenShift type:
+interface OpenShift {
+  // ... existing fields
+  requiresDelegatedNursingTasks?: boolean;
+  delegatedTaskCategories?: string[]; // ['MEDICATION', 'WOUND_CARE']
+}
+
+// In checkStateSpecificEligibility():
+if (shift.stateJurisdiction === 'FL' && shift.requiresDelegatedNursingTasks) {
+  // Query rn_delegations table
+  const delegation = await getRNDelegation(caregiver.id, shift.clientId);
+  
+  if (!delegation || delegation.status !== 'ACTIVE') {
+    issues.push({
+      type: 'MISSING_DELEGATION_AUTHORITY',
+      severity: 'BLOCKING',
+      message: 'RN delegation required for nursing tasks per FL 59A-8.0216',
+    });
+  }
+  
+  if (delegation?.competencyEvaluated === false) {
+    issues.push({
+      type: 'MISSING_COMPETENCY_EVALUATION',
+      severity: 'BLOCKING',
+      message: 'Competency evaluation must be completed before assignment',
+    });
+  }
+}
+```
+
+##### 3. No License Type Validation
+**Missing Check**: Skill level required vs caregiver credential type
+
+**Required**:
+```typescript
+// Match shift.skillLevelRequired to caregiver credential type
+if (shift.skillLevelRequired === 'RN' && !caregiver.credentials?.some(c => c.type === 'RN' && c.status === 'ACTIVE')) {
+  issues.push({
+    type: 'MISSING_STATE_LICENSE',
+    severity: 'BLOCKING',
+    message: 'Active RN license required for this shift',
+  });
+}
+
+if (shift.skillLevelRequired === 'CNA') {
+  if (shift.stateJurisdiction === 'TX' && !caregiver.stateSpecific?.texas?.nurseAideRegistryStatus?.active) {
+    issues.push({
+      type: 'MISSING_STATE_LICENSE',
+      severity: 'BLOCKING',
+      message: 'TX Nurse Aide Registry registration required',
+    });
+  }
+  
+  if (shift.stateJurisdiction === 'FL' && !caregiver.stateSpecific?.florida?.cnaRegistrationNumber) {
+    issues.push({
+      type: 'MISSING_STATE_LICENSE',
+      severity: 'BLOCKING',
+      message: 'FL CNA registration required per AHCA 59A-8.0095',
+    });
+  }
+}
+```
+
+##### 4. Service Integration Updates
+**Location**: `verticals/shift-matching/src/service/shift-matching-service.ts:566-717`
+
+**Current Issue**: `buildCaregiverContext()` doesn't fetch state-specific clearances
+
+**Required**:
+```typescript
+interface CaregiverContext {
+  // ... existing fields
+  stateRegistryStatus?: {
+    txMisconductClear?: boolean;
+    txNurseAideActive?: boolean;
+    txNurseAideExpiration?: Date;
+    flLevel2Valid?: boolean;
+    flLevel2Expiration?: Date;
+    flLevel2NeedsRescreening?: boolean;
+  };
+  rnDelegations?: RNDelegation[];
+}
+
+// In buildCaregiverContext():
+let stateRegistryStatus = undefined;
+if (shift.stateJurisdiction) {
+  stateRegistryStatus = await this.fetchStateRegistryStatus(caregiverId, shift.stateJurisdiction);
+}
+
+let rnDelegations: RNDelegation[] = [];
+if (shift.requiresDelegatedNursingTasks) {
+  rnDelegations = await this.fetchActiveDelegations(caregiverId, shift.clientId);
+}
+```
+
+##### 5. Seed Data (MEDIUM PRIORITY)
+**Create**: `packages/core/scripts/seed-shift-matching.ts`
+
+**Required Scenarios**:
+- **TX Scenario**:
+  - Open shift requiring CNA
+  - Caregiver A: TX registries clear, CNA active → ELIGIBLE
+  - Caregiver B: TX misconduct registry listing → BLOCKED
+  - Caregiver C: CNA certification expired → BLOCKED
+
+- **FL Scenario**:
+  - Open shift requiring RN delegation (medication)
+  - Caregiver A: Level 2 cleared, RN delegation active → ELIGIBLE
+  - Caregiver B: Level 2 needs rescreening → BLOCKED
+  - Caregiver C: No RN delegation → BLOCKED
+
+##### 6. Integration Tests (MEDIUM PRIORITY)
+**Create**: `verticals/shift-matching/__tests__/state-compliance.test.ts`
+
+**Test Cases**:
+- TX shift filters out caregiver with misconduct listing
+- FL shift requires valid Level 2 screening
+- Shift requiring RN delegation validates competency evaluation
+- CNA shift validates TX Nurse Aide Registry / FL CNA registration
+
+---
+
+## 🏗️ Architecture Changes (Verticals 1-2)
 
 ### 1. Type Definitions Enhanced
 
