@@ -18,6 +18,199 @@ import {
   UUID,
 } from '@care-commons/core';
 
+/**
+ * State-specific client data for TX and FL compliance
+ */
+export interface StateSpecificClientData {
+  state: 'TX' | 'FL';
+  texas?: TexasClientData;
+  florida?: FloridaClientData;
+}
+
+/**
+ * Texas-specific client fields (26 TAC §558, HHSC requirements)
+ */
+export interface TexasClientData {
+  // Medicaid & Program Eligibility
+  medicaidMemberId?: string; // Texas Medicaid ID
+  medicaidProgram?: TexasMedicaidProgram;
+  hhscClientId?: string; // HHSC community care client ID
+  serviceDeliveryOption?: 'AGENCY' | 'CDS'; // Consumer Directed Services vs Agency
+  
+  // Authorization & Plan of Care
+  planOfCareNumber?: string; // HHSC Form 1746/8606 reference
+  authorizedServices: TexasAuthorizedService[];
+  currentAuthorization?: TexasServiceAuthorization;
+  
+  // EVV Requirements
+  evvEntityId?: string; // HHAeXchange Entity ID
+  evvRequirements?: TexasEVVRequirements;
+  
+  // Emergency Planning & Safety
+  emergencyPlanOnFile: boolean;
+  emergencyPlanDate?: Date;
+  disasterEvacuationPlan?: string;
+  
+  // Privacy & Compliance
+  form1746Consent?: ConsentRecord; // Service delivery consent
+  biometricDataConsent?: ConsentRecord; // Texas Privacy Protection Act
+  releaseOfInformation?: ReleaseRecord[];
+  
+  // Risk Classification
+  acuityLevel?: 'LOW' | 'MODERATE' | 'HIGH' | 'COMPLEX';
+  starPlusWaiverServices?: string[];
+}
+
+/**
+ * Florida-specific client fields (Chapter 59A-8, AHCA requirements)
+ */
+export interface FloridaClientData {
+  // Medicaid & Program Enrollment
+  medicaidRecipientId?: string; // Florida Medicaid ID
+  managedCarePlan?: FloridaManagedCarePlan;
+  apdWaiverEnrollment?: APDWaiverInfo; // Agency for Persons with Disabilities
+  doeaRiskClassification?: 'LOW' | 'MODERATE' | 'HIGH'; // Dept of Elder Affairs
+  
+  // Plan of Care (Florida Statute 400.487)
+  planOfCareId?: string; // AHCA Form 484 adaptation
+  planOfCareReviewDate?: Date;
+  nextReviewDue?: Date; // 60/90-day mandatory review
+  authorizedServices: FloridaAuthorizedService[];
+  
+  // EVV & Billing
+  evvAggregatorId?: string; // HHAeXchange or Netsmart/Tellus ID
+  evvSystemType?: 'HHAX' | 'NETSMART' | 'OTHER';
+  smmcProgramEnrollment?: boolean; // Statewide Medicaid Managed Care
+  ltcProgramEnrollment?: boolean; // Long-Term Care
+  
+  // Clinical Oversight (59A-8.0095)
+  rnSupervisorId?: string;
+  lastSupervisoryVisit?: Date;
+  nextSupervisoryVisitDue?: Date;
+  supervisoryVisitFrequency?: number; // days
+  
+  // Safety & Environment
+  hurricaneZone?: string; // For disaster planning per 59A-8.027
+  biomedicalWasteExposure?: BiomedicalWasteRecord[];
+  
+  // Compliance
+  ahcaLicenseVerification?: Date;
+  backgroundScreeningStatus?: 'COMPLIANT' | 'PENDING' | 'NON_COMPLIANT';
+}
+
+export type TexasMedicaidProgram = 
+  | 'STAR'
+  | 'STAR_PLUS'
+  | 'STAR_KIDS'
+  | 'STAR_HEALTH'
+  | 'PHC' // Primary Home Care
+  | 'CFC'; // Community First Choice
+
+export type FloridaManagedCarePlan =
+  | 'SMMC_LTC' // Statewide Medicaid Managed Care - Long-Term Care
+  | 'SMMC_MMA' // Managed Medical Assistance
+  | 'PACE' // Program of All-Inclusive Care for the Elderly
+  | 'FFS'; // Fee-for-Service
+
+export interface TexasAuthorizedService {
+  id: UUID;
+  serviceCode: string; // HHSC service code
+  serviceName: string;
+  authorizedUnits: number;
+  usedUnits: number;
+  unitType: 'HOURS' | 'VISITS' | 'DAYS';
+  authorizationNumber: string; // HHSC Form 4100 series
+  effectiveDate: Date;
+  expirationDate: Date;
+  status: 'ACTIVE' | 'EXPIRED' | 'SUSPENDED' | 'CANCELLED';
+  requiresEVV: boolean;
+}
+
+export interface FloridaAuthorizedService {
+  id: UUID;
+  serviceCode: string; // AHCA service code
+  serviceName: string;
+  authorizedUnits: number;
+  usedUnits: number;
+  unitType: 'HOURS' | 'VISITS' | 'DAYS';
+  authorizationNumber: string;
+  effectiveDate: Date;
+  expirationDate: Date;
+  visitFrequency?: string; // e.g., "3x weekly"
+  status: 'ACTIVE' | 'EXPIRED' | 'SUSPENDED' | 'CANCELLED';
+  requiresEVV: boolean;
+  requiresRNSupervision: boolean;
+}
+
+export interface TexasServiceAuthorization {
+  authorizationId: string;
+  authorizationDate: Date;
+  authorizingProvider: string; // Physician/licensed professional
+  effectiveDate: Date;
+  expirationDate: Date;
+  totalAuthorizedHours?: number;
+  servicesAuthorized: string[];
+  restrictions?: string[];
+  formNumber?: string; // e.g., "Form 4100"
+}
+
+export interface TexasEVVRequirements {
+  evvMandatory: boolean;
+  approvedClockMethods: ('MOBILE' | 'TELEPHONY' | 'FIXED')[];
+  geoPerimeterRadius?: number; // meters
+  aggregatorSubmissionRequired: boolean;
+  tmhpIntegration: boolean; // Texas Medicaid Healthcare Partnership
+}
+
+export interface APDWaiverInfo {
+  waiverType: string;
+  enrollmentDate: Date;
+  supportPlanDate?: Date;
+  supportCoordinator?: string;
+}
+
+export interface ConsentRecord {
+  consentDate: Date;
+  consentFormId: string;
+  documentPath?: string;
+  signedBy: string;
+  witnessedBy?: string;
+  expirationDate?: Date;
+  status: 'ACTIVE' | 'EXPIRED' | 'REVOKED';
+}
+
+export interface ReleaseRecord {
+  id: UUID;
+  releaseType: 'HIPAA' | 'RECORDS' | 'BILLING' | 'OTHER';
+  recipientName: string;
+  recipientOrganization?: string;
+  purpose: string;
+  dateGranted: Date;
+  expirationDate?: Date;
+  documentPath?: string;
+  disclosureLog?: DisclosureEntry[];
+}
+
+export interface DisclosureEntry {
+  id: UUID;
+  disclosureDate: Date;
+  disclosedTo: string;
+  disclosedBy: UUID; // User ID
+  purpose: string;
+  informationDisclosed: string;
+  method: 'VERBAL' | 'WRITTEN' | 'ELECTRONIC' | 'FAX';
+  authorizationRef?: string;
+}
+
+export interface BiomedicalWasteRecord {
+  id: UUID;
+  exposureDate: Date;
+  exposureType: string;
+  reportedTo?: string;
+  actionTaken?: string;
+  followUpDate?: Date;
+}
+
 export interface Client extends Entity, SoftDeletable {
   // Organization context
   organizationId: UUID;
@@ -80,6 +273,9 @@ export interface Client extends Entity, SoftDeletable {
   intakeDate?: Date;
   dischargeDate?: Date;
   dischargeReason?: string;
+
+  // State-specific compliance fields
+  stateSpecific?: StateSpecificClientData;
 
   // Metadata
   referralSource?: string;

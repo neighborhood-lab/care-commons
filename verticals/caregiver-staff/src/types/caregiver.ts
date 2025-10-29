@@ -18,6 +18,255 @@ import {
   Timestamp,
 } from '@care-commons/core';
 
+/**
+ * State-specific caregiver/staff data for TX and FL compliance
+ */
+export interface StateSpecificCaregiverData {
+  state: 'TX' | 'FL';
+  texas?: TexasCaregiverData;
+  florida?: FloridaCaregiverData;
+}
+
+/**
+ * Texas-specific caregiver fields (26 TAC §558, HHSC requirements)
+ */
+export interface TexasCaregiverData {
+  // Registry Checks & Background Screening
+  employeeMisconductRegistryCheck?: RegistryCheck;
+  nurseAideRegistryCheck?: RegistryCheck;
+  dpsFingerprinting?: FingerprintRecord;
+  
+  // Health Screening (DSHS requirements)
+  tbScreening?: TBScreening;
+  tbScreeningRequired: boolean;
+  
+  // Training & Orientation (26 TAC §558.259)
+  hhscOrientationComplete: boolean;
+  hhscOrientationDate?: Date;
+  hhscOrientationTopics?: string[];
+  mandatoryTraining?: TexasMandatoryTraining;
+  
+  // EVV System Registration
+  evvAttendantId?: string; // HHAeXchange attendant ID
+  evvSystemEnrolled: boolean;
+  evvEnrollmentDate?: Date;
+  
+  // Delegation Records (HHSC Form 1727)
+  delegationRecords?: DelegationRecord[];
+  rnDelegationSupervisor?: UUID;
+  
+  // Work Authorization & Eligibility
+  eVerifyCompleted: boolean;
+  eVerifyDate?: Date;
+  i9FormOnFile: boolean;
+  i9ExpirationDate?: Date;
+  
+  // Service-Specific Qualifications
+  qualifiedForCDS: boolean; // Consumer Directed Services
+  qualifiedForPAS: boolean; // Personal Assistance Services
+  qualifiedForHAB: boolean; // Habilitation Services
+  
+  // Compliance Status
+  registryCheckStatus: 'CLEAR' | 'PENDING' | 'FLAGGED' | 'INELIGIBLE';
+  lastComplianceReview?: Date;
+  nextComplianceReview?: Date;
+}
+
+/**
+ * Florida-specific caregiver fields (Chapter 59A-8, AHCA requirements)
+ */
+export interface FloridaCaregiverData {
+  // Level 2 Background Screening (AHCA Clearinghouse)
+  level2BackgroundScreening?: FloridaBackgroundScreening;
+  ahcaClearinghouseId?: string;
+  screeningStatus: 'CLEARED' | 'PENDING' | 'CONDITIONAL' | 'DISQUALIFIED';
+  
+  // Professional Licensure (MQA Portal)
+  flLicenseNumber?: string;
+  flLicenseType?: FloridaLicenseType;
+  flLicenseStatus?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'REVOKED';
+  flLicenseExpiration?: Date;
+  mqaVerificationDate?: Date;
+  
+  // CNA/HHA Qualification (59A-8.0095)
+  cnaRegistrationNumber?: string;
+  hhaRegistrationNumber?: string;
+  registrationExpiration?: Date;
+  
+  // Clinical Supervision
+  requiresRNSupervision: boolean;
+  assignedRNSupervisor?: UUID;
+  supervisoryRelationship?: SupervisoryRelationship;
+  
+  // Training & Competency
+  hivAidsTrainingComplete: boolean;
+  hivAidsTrainingDate?: Date;
+  oshaBloodbornePathogenTraining?: Date;
+  tbScreening?: TBScreening;
+  
+  // Scope of Practice & Delegation (59A-8.0216)
+  scopeOfPractice?: string[];
+  delegatedTasks?: DelegatedTask[];
+  rnDelegationAuthorization?: RNDelegationAuth[];
+  
+  // EVV & Billing
+  medicaidProviderId?: string;
+  ahcaProviderId?: string;
+  evvSystemIds?: EVVSystemRegistration[];
+  
+  // Geographic & Emergency
+  hurricaneRedeploymentZone?: string;
+  emergencyCredentialing?: EmergencyCredential[];
+  
+  // Compliance
+  ahcaComplianceStatus: 'COMPLIANT' | 'PENDING' | 'NON_COMPLIANT';
+  lastAHCAVerification?: Date;
+  nextRescreenDue?: Date; // 5-year re-screen requirement
+}
+
+export type FloridaLicenseType =
+  | 'RN'
+  | 'LPN'
+  | 'ARNP'
+  | 'CNA'
+  | 'HHA'
+  | 'PT'
+  | 'OT'
+  | 'ST'
+  | 'NONE';
+
+export interface RegistryCheck {
+  checkDate: Date;
+  expirationDate: Date;
+  status: 'CLEAR' | 'PENDING' | 'LISTED' | 'EXPIRED';
+  registryType: 'EMPLOYEE_MISCONDUCT' | 'NURSE_AIDE' | 'OTHER';
+  confirmationNumber?: string;
+  performedBy: UUID;
+  documentPath?: string;
+  notes?: string;
+  listingDetails?: {
+    listedDate?: Date;
+    violationType?: string;
+    disposition?: string;
+    ineligibleForHire: boolean;
+  };
+}
+
+export interface FingerprintRecord {
+  submissionDate: Date;
+  clearanceDate?: Date;
+  status: 'SUBMITTED' | 'CLEARED' | 'PENDING' | 'FLAGGED';
+  dpsReferenceNumber?: string;
+  fbiReferenceNumber?: string;
+  documentPath?: string;
+}
+
+export interface TBScreening {
+  screeningDate: Date;
+  screeningType: 'SKIN_TEST' | 'CHEST_XRAY' | 'BLOOD_TEST' | 'QUESTIONNAIRE';
+  result: 'NEGATIVE' | 'POSITIVE' | 'PENDING';
+  expirationDate?: Date;
+  provider?: string;
+  documentPath?: string;
+  followUpRequired: boolean;
+  followUpDate?: Date;
+}
+
+export interface TexasMandatoryTraining {
+  abuseNeglectReporting: boolean;
+  abuseNeglectReportingDate?: Date;
+  clientRights: boolean;
+  clientRightsDate?: Date;
+  infectionControl: boolean;
+  infectionControlDate?: Date;
+  emergencyProcedures: boolean;
+  emergencyProceduresDate?: Date;
+  mandatedReporterTraining: boolean;
+  mandatedReporterDate?: Date;
+}
+
+export interface DelegationRecord {
+  id: UUID;
+  taskName: string;
+  delegatedBy: UUID; // RN supervisor
+  delegationDate: Date;
+  expirationDate?: Date;
+  competencyVerified: boolean;
+  competencyVerificationDate?: Date;
+  formNumber?: string; // HHSC Form 1727
+  status: 'ACTIVE' | 'EXPIRED' | 'REVOKED';
+  restrictions?: string[];
+}
+
+export interface FloridaBackgroundScreening {
+  screeningDate: Date;
+  screeningType: 'INITIAL' | 'FIVE_YEAR_RESCREEN' | 'UPDATE';
+  clearanceDate?: Date;
+  expirationDate: Date;
+  status: 'CLEARED' | 'PENDING' | 'CONDITIONAL' | 'DISQUALIFIED';
+  clearinghouseId?: string;
+  ahcaClearanceNumber?: string;
+  exemptionGranted?: boolean;
+  exemptionReason?: string;
+  disqualifyingOffenses?: DisqualifyingOffense[];
+  documentPath?: string;
+}
+
+export interface DisqualifyingOffense {
+  offenseType: string;
+  offenseDate: Date;
+  disposition: string;
+  exemptionRequested: boolean;
+  exemptionGranted: boolean;
+}
+
+export interface SupervisoryRelationship {
+  supervisorId: UUID;
+  supervisorLicenseType: 'RN' | 'ARNP';
+  relationshipStartDate: Date;
+  supervisoryVisitFrequency: number; // days
+  lastSupervisoryVisit?: Date;
+  nextSupervisoryVisitDue?: Date;
+  notes?: string;
+}
+
+export interface DelegatedTask {
+  taskId: UUID;
+  taskName: string;
+  delegationType: 'NURSING' | 'THERAPY' | 'OTHER';
+  delegatedBy: UUID;
+  delegationDate: Date;
+  competencyAssessed: boolean;
+  competencyDate?: Date;
+  restrictions?: string[];
+  status: 'ACTIVE' | 'SUSPENDED' | 'REVOKED';
+}
+
+export interface RNDelegationAuth {
+  authId: UUID;
+  authorizingRN: UUID;
+  scope: string[];
+  effectiveDate: Date;
+  expirationDate?: Date;
+  formReference?: string; // 59A-8.0216 reference
+  status: 'ACTIVE' | 'EXPIRED' | 'REVOKED';
+}
+
+export interface EVVSystemRegistration {
+  systemName: 'HHAX' | 'NETSMART' | 'TELLUS' | 'OTHER';
+  providerId: string;
+  enrollmentDate: Date;
+  status: 'ACTIVE' | 'INACTIVE';
+}
+
+export interface EmergencyCredential {
+  credentialType: string;
+  issuingAuthority: string;
+  issueDate: Date;
+  expirationDate?: Date;
+  scope?: string;
+}
+
 export interface Caregiver extends Entity, SoftDeletable {
   // Organization context
   organizationId: UUID;
@@ -111,6 +360,9 @@ export interface Caregiver extends Entity, SoftDeletable {
   
   // Documents
   documents?: DocumentReference[];
+
+  // State-specific compliance fields
+  stateSpecific?: StateSpecificCaregiverData;
 
   // Metadata
   notes?: string;
