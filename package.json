@@ -9,7 +9,7 @@
     "verticals/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --parallel",
     "dev:server": "cd packages/app && npm run dev:server",
     "build": "turbo run build",
     "start": "cd packages/app && npm run start",
