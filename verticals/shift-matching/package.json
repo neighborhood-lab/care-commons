@@ -12,18 +12,19 @@
     "lint": "echo 'Linting not configured yet'"
   },
   "dependencies": {
-    "@care-commons/core": "file:../../packages/core",
     "@care-commons/caregiver-staff": "file:../caregiver-staff",
+    "@care-commons/core": "file:../../packages/core",
     "@care-commons/scheduling-visits": "file:../scheduling-visits",
-    "zod": "^4.1.12",
+    "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
-    "date-fns": "^4.1.0"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
     "@types/uuid": "^11.0.0",
     "jest": "^30.2.0",
+    "jest-transform-stub": "^2.0.0",
     "typescript": "^5.9.3"
   },
   "keywords": [
