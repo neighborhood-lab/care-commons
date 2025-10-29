@@ -164,6 +164,11 @@ export function calculateSocialSecurityTax(
   grossPay: number,
   ytdGrossPay: number
 ): number {
+  // Handle negative gross pay
+  if (grossPay <= 0) {
+    return 0;
+  }
+
   // Check if already at wage base
   if (ytdGrossPay >= SOCIAL_SECURITY_WAGE_BASE) {
     return 0;
@@ -182,6 +187,10 @@ export function calculateSocialSecurityTax(
  * Calculate Medicare tax
  */
 export function calculateMedicareTax(grossPay: number): number {
+  // Handle negative gross pay
+  if (grossPay <= 0) {
+    return 0;
+  }
   return roundToTwoDecimals(grossPay * MEDICARE_RATE);
 }
 
@@ -249,7 +258,8 @@ function getStateWithholdingRate(
     // Add more states as needed
   };
 
-  return stateRates[stateCode] || 0.03; // Default 3% if state not found
+  const rate = stateRates[stateCode];
+  return rate !== undefined ? rate : 0.03; // Default 3% if state not found
 }
 
 /**
@@ -346,6 +356,11 @@ export function calculateSupplementalWithholding(
   supplementalAmount: number,
   useFlatRate: boolean = true
 ): number {
+  // Handle negative or zero amounts
+  if (supplementalAmount <= 0) {
+    return 0;
+  }
+
   if (useFlatRate) {
     // IRS flat rate for supplemental wages: 22% (or 37% if over $1 million)
     const rate = supplementalAmount > 1000000 ? 0.37 : 0.22;
