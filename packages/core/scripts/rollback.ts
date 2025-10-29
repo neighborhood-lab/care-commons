@@ -1,7 +1,7 @@
 /**
- * Database migration script using Knex
+ * Database rollback script using Knex
  * 
- * Runs all Knex migrations
+ * Rolls back the last batch of migrations
  */
 
 import dotenv from "dotenv";
@@ -9,8 +9,8 @@ import knex, { Knex } from 'knex';
 
 dotenv.config({ path: '../../.env', quiet: true });
 
-async function runMigrations() {
-  console.log('🔄 Starting database migrations with Knex...\n');
+async function rollbackMigrations() {
+  console.log('🔄 Rolling back last migration batch...\n');
 
   // Determine environment
   const environment = process.env.NODE_ENV || 'development';
@@ -40,13 +40,13 @@ async function runMigrations() {
   const db = knex(config);
 
   try {
-    // Run migrations
-    const [batchNo, migrations] = await db.migrate.latest();
+    // Rollback last batch
+    const [batchNo, migrations] = await db.migrate.rollback();
 
     if (migrations.length === 0) {
-      console.log('✨ Database is already up to date!');
+      console.log('✨ No migrations to rollback!');
     } else {
-      console.log(`✅ Batch ${batchNo} run: ${migrations.length} migration(s)`);
+      console.log(`✅ Batch ${batchNo} rolled back: ${migrations.length} migration(s)`);
       migrations.forEach((migration: string) => {
         console.log(`   📝 ${migration}`);
       });
@@ -54,17 +54,17 @@ async function runMigrations() {
 
     // Show current migration status
     const [completedMigrations] = await db.migrate.list();
-    console.log(`\n📊 Total migrations applied: ${completedMigrations.length}`);
+    console.log(`\n📊 Remaining migrations: ${completedMigrations.length}`);
   } catch (error) {
-    console.error('❌ Migration failed:', error);
+    console.error('❌ Rollback failed:', error);
     process.exit(1);
   } finally {
     await db.destroy();
   }
 }
 
-// Run migrations
-runMigrations().catch((error) => {
+// Run rollback
+rollbackMigrations().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

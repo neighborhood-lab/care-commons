@@ -18,10 +18,13 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "db:migrate": "cd packages/core && npm run db:migrate",
+    "db:migrate:rollback": "cd packages/core && npm run db:migrate:rollback",
+    "db:migrate:status": "cd packages/core && npm run db:migrate:status",
     "db:seed": "cd packages/core && npm run db:seed",
     "db:seed:billing": "cd packages/core && node --import tsx --no-warnings scripts/seed-billing.ts"
   },
   "devDependencies": {
+    "@types/knex": "^0.15.2",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3"
   },
