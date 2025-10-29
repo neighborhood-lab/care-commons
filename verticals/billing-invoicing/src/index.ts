@@ -9,5 +9,11 @@
 // Export types
 export * from './types/billing';
 
-// Services, repositories, and utilities will be exported as they're implemented
-// For now, this vertical provides the domain model and database schema
+// Export repository
+export { BillingRepository } from './repository/billing-repository';
+
+// Export validation
+export * from './validation/billing-validator';
+
+// Export utilities
+export * from './utils/billing-calculations';
