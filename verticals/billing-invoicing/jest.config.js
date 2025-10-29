@@ -8,5 +8,11 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/**/__tests__/**'
   ],
-  passWithNoTests: true
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: {
+        rootDir: '.',
+      }
+    }]
+  }
 };
