@@ -17,7 +17,7 @@ module.exports = {
       statements: 70,
     },
   },
-  passWithNoTests: true,
+  passWithNoTests: false,
   moduleNameMapper: {
     '^@care-commons/core$': '<rootDir>/../../packages/core/src',
   },
