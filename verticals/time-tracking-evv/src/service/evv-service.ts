@@ -1,5 +1,7 @@
 /**
  * EVV Service - Core business logic for time tracking and verification
+ * 
+ * Implements TX/FL state-specific EVV requirements with proper integration points.
  */
 
 import {
@@ -12,7 +14,6 @@ import {
 import { EVVRepository } from '../repository/evv-repository';
 import { EVVValidator } from '../validation/evv-validator';
 import { IntegrationService } from '../utils/integration-service';
-import { CryptoUtils } from '../utils/crypto-utils';
 import {
   EVVRecord,
   TimeEntry,
@@ -25,11 +26,19 @@ import {
   VerificationResult,
   ExceptionEvent,
 } from '../types/evv';
+import {
+  IVisitProvider,
+  IClientProvider,
+  ICaregiverProvider,
+} from '../interfaces/visit-provider';
 
 export class EVVService {
   constructor(
     private repository: EVVRepository,
     private integrationService: IntegrationService,
+    private visitProvider: IVisitProvider,
+    private clientProvider: IClientProvider,
+    private caregiverProvider: ICaregiverProvider,
     private validator: EVVValidator = new EVVValidator()
   ) { }
 
