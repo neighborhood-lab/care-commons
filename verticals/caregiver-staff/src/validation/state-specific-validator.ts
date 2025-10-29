@@ -153,7 +153,7 @@ export class StateSpecificCaregiverValidator {
       if (error instanceof z.ZodError) {
         return {
           success: false,
-          errors: error.errors.map((e) => ({
+          errors: error.issues.map((e) => ({
             path: e.path.join('.'),
             message: e.message,
           })),
@@ -283,7 +283,7 @@ export class StateSpecificCaregiverValidator {
       if (error instanceof z.ZodError) {
         return {
           success: false,
-          errors: error.errors.map((e) => ({
+          errors: error.issues.map((e) => ({
             path: e.path.join('.'),
             message: e.message,
           })),
@@ -454,7 +454,7 @@ export class StateSpecificCaregiverValidator {
       if (error instanceof z.ZodError) {
         return {
           success: false,
-          errors: error.errors.map((e) => ({
+          errors: error.issues.map((e) => ({
             path: e.path.join('.'),
             message: e.message,
           })),

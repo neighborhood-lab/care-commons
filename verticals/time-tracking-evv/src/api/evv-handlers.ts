@@ -15,6 +15,9 @@ import {
   ClockOutInput,
   ManualOverrideInput,
   EVVRecordSearchFilters,
+  EVVRecord,
+  VerificationLevel,
+  ComplianceFlag,
 } from '../types/evv';
 
 export interface APIRequest {
@@ -253,12 +256,12 @@ export class EVVHandlers {
         sortOrder: (req.query.sortOrder || 'desc') as 'asc' | 'desc',
       };
 
-      const result = await this.evvService.searchEVVRecords(filters, pagination);
+      const result = await this.evvService.searchEVVRecords(filters, pagination, req.user);
 
       return {
         status: 200,
         data: {
-          items: result.items.map(record => ({
+          items: result.items.map((record: EVVRecord) => ({
             id: record.id,
             visitId: record.visitId,
             clientName: record.clientName,
@@ -275,7 +278,7 @@ export class EVVHandlers {
             complianceFlags: record.complianceFlags,
             isCompliant: record.complianceFlags.includes('COMPLIANT'),
             hasIssues: record.complianceFlags.some(
-              flag => flag !== 'COMPLIANT'
+              (flag: ComplianceFlag) => flag !== 'COMPLIANT'
             ),
             submittedToPayor: record.submittedToPayor,
             payorApprovalStatus: record.payorApprovalStatus,
@@ -322,7 +325,7 @@ export class EVVHandlers {
         limit: 10000, // Get all records for summary
         sortBy: 'serviceDate',
         sortOrder: 'desc',
-      });
+      }, req.user);
 
       const summary = {
         period: {
@@ -365,7 +368,7 @@ export class EVVHandlers {
       // Calculate statistics
       for (const record of allRecords.items) {
         // Verification levels
-        summary.verificationLevels[record.verificationLevel]++;
+        summary.verificationLevels[record.verificationLevel as VerificationLevel]++;
 
         // Compliance status
         if (record.recordStatus === 'PENDING') {
