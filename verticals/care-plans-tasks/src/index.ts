@@ -15,3 +15,6 @@ export { CarePlanRepository } from './repository/care-plan-repository';
 
 // Service
 export { CarePlanService } from './service/care-plan-service';
+
+// API Handlers
+export { createCarePlanHandlers } from './api/care-plan-handlers';
