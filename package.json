@@ -10,7 +10,9 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:server": "cd packages/app && npm run dev:server",
     "build": "turbo run build",
+    "start": "cd packages/app && npm run start",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
