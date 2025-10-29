@@ -14,6 +14,7 @@ import {
 import { EVVRepository } from '../repository/evv-repository';
 import { EVVValidator } from '../validation/evv-validator';
 import { IntegrationService } from '../utils/integration-service';
+import { CryptoUtils } from '../utils/crypto-utils';
 import {
   EVVRecord,
   TimeEntry,
@@ -62,43 +63,60 @@ export class EVVService {
       throw new PermissionError('Cannot clock in for another caregiver');
     }
 
-    // Get visit details (from scheduling vertical)
-    // In real implementation, fetch visit from scheduling service
-    // const visit = await this.schedulingService.getVisit(input.visitId);
+    // Validate caregiver can clock in for this visit
+    const canClockIn = await this.visitProvider.canClockIn(input.visitId, input.caregiverId);
+    if (!canClockIn) {
+      throw new ValidationError('Cannot clock in for this visit', {
+        visitId: input.visitId,
+        caregiverId: input.caregiverId,
+      });
+    }
 
-    // Mock visit data for now
-    const visitData = {
-      visitId: input.visitId,
-      organizationId: userContext.organizationId,
-      branchId: userContext.branchIds[0], // Assuming first branch
-      clientId: 'client-123', // Would come from visit
-      clientName: 'John Doe', // Would come from visit
-      clientMedicaidId: undefined,
-      serviceTypeCode: 'PC001',
-      serviceTypeName: 'Personal Care',
-      serviceDate: new Date(),
-      serviceAddress: {
-        line1: '123 Main St',
-        city: 'Springfield',
-        state: 'IL',
-        postalCode: '62701',
-        country: 'US',
-        latitude: 39.7817,
-        longitude: -89.6501,
-        geofenceRadius: 100,
-        addressVerified: true,
-      },
-      scheduledDuration: 120, // minutes
-    };
+    // Get visit details from the visit provider (scheduling vertical)
+    const visitData = await this.visitProvider.getVisitForEVV(input.visitId);
+    
+    // Get additional client details for compliance data
+    const client = await this.clientProvider.getClientForEVV(visitData.clientId);
+    
+    // Get caregiver details
+    const caregiver = await this.caregiverProvider.getCaregiverForEVV(input.caregiverId);
+    
+    // Validate caregiver is authorized for this service
+    const authCheck = await this.caregiverProvider.canProvideService(
+      input.caregiverId,
+      visitData.serviceTypeCode,
+      visitData.clientId
+    );
+    
+    if (!authCheck.authorized) {
+      throw new ValidationError(
+        `Caregiver not authorized to provide service: ${authCheck.reason}`,
+        {
+          caregiverId: input.caregiverId,
+          serviceTypeCode: visitData.serviceTypeCode,
+          missingCredentials: authCheck.missingCredentials,
+          blockedReasons: authCheck.blockedReasons,
+        }
+      );
+    }
+
+    // Validate address has coordinates for geofencing
+    if (!visitData.serviceAddress.latitude || !visitData.serviceAddress.longitude) {
+      throw new ValidationError(
+        'Visit address must have valid geocoded coordinates for EVV compliance',
+        { visitId: input.visitId, address: visitData.serviceAddress }
+      );
+    }
 
     // Get or create geofence for location
+    const geofenceRadius = visitData.serviceAddress.geofenceRadius || 100; // Default 100m
     const geofence = await this.getOrCreateGeofence(
       visitData.serviceAddress.latitude,
       visitData.serviceAddress.longitude,
-      visitData.serviceAddress.geofenceRadius,
+      geofenceRadius,
       visitData.organizationId,
       visitData.clientId,
-      'address-id-123', // Would come from visit
+      'address-id-123', // TODO: Get actual address ID from visit
       userContext
     );
 
@@ -189,13 +207,24 @@ export class EVVService {
       caregiverId: input.caregiverId,
       serviceTypeCode: visitData.serviceTypeCode,
       serviceTypeName: visitData.serviceTypeName,
-      clientName: visitData.clientName,
-      clientMedicaidId: visitData.clientMedicaidId,
-      caregiverName: 'Jane Smith', // Would come from caregiver service
-      caregiverEmployeeId: 'EMP-001',
-      caregiverNationalProviderId: undefined,
+      clientName: client.name,
+      clientMedicaidId: client.medicaidId,
+      caregiverName: caregiver.name,
+      caregiverEmployeeId: caregiver.employeeId,
+      caregiverNationalProviderId: caregiver.nationalProviderId,
       serviceDate: visitData.serviceDate,
-      serviceAddress: visitData.serviceAddress,
+      serviceAddress: {
+        line1: visitData.serviceAddress.line1,
+        line2: visitData.serviceAddress.line2,
+        city: visitData.serviceAddress.city,
+        state: visitData.serviceAddress.state,
+        postalCode: visitData.serviceAddress.postalCode,
+        country: visitData.serviceAddress.country,
+        latitude: visitData.serviceAddress.latitude,
+        longitude: visitData.serviceAddress.longitude,
+        geofenceRadius: geofenceRadius,
+        addressVerified: visitData.serviceAddress.addressVerified,
+      },
       clockInTime: now,
       clockOutTime: null,
       clockInVerification: locationVerification,
@@ -587,47 +616,30 @@ export class EVVService {
   }
 
   /**
-   * Helper: Generate UUID
+   * Helper: Generate UUID (cryptographically secure)
    */
   private generateUUID(): UUID {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+    return CryptoUtils.generateSecureId();
   }
 
   /**
-   * Helper: Generate integrity hash
+   * Helper: Generate integrity hash using production-grade crypto
    */
   private generateIntegrityHash(data: any): string {
-    // In production, use crypto.createHash('sha256')
-    const str = JSON.stringify(data);
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash).toString(16);
+    return CryptoUtils.generateIntegrityHash(data);
   }
 
   /**
    * Helper: Generate core data hash for EVV record
    */
   private generateCoreDataHash(data: any): string {
-    return this.generateIntegrityHash(data);
+    return CryptoUtils.generateIntegrityHash(data);
   }
 
   /**
    * Helper: Generate checksum
    */
   private generateChecksum(data: any): string {
-    const str = JSON.stringify(data);
-    let sum = 0;
-    for (let i = 0; i < str.length; i++) {
-      sum += str.charCodeAt(i);
-    }
-    return sum.toString(16);
+    return CryptoUtils.generateChecksum(data);
   }
 }
