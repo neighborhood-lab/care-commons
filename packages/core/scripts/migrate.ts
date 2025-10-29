@@ -7,7 +7,7 @@
 import dotenv from "dotenv";
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { Database, initializeDatabase } from '../src/db/connection';
+import { initializeDatabase } from '../src/db/connection';
 
 dotenv.config({ path: '../../.env', quiet: true });
 
