@@ -1,0 +1,39 @@
+{
+  "name": "@care-commons/app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Care Commons API server",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsc --watch",
+    "dev:server": "node --watch --import tsx --no-warnings src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'No linter configured yet'"
+  },
+  "dependencies": {
+    "@care-commons/core": "*",
+    "@care-commons/billing-invoicing": "*",
+    "@care-commons/care-plans-tasks": "*",
+    "@care-commons/caregiver-staff": "*",
+    "@care-commons/client-demographics": "*",
+    "@care-commons/payroll-processing": "*",
+    "@care-commons/scheduling-visits": "*",
+    "@care-commons/shift-matching": "*",
+    "@care-commons/time-tracking-evv": "*",
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.17.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}
