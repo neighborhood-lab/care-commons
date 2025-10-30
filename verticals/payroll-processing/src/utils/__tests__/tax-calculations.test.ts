@@ -284,9 +284,23 @@ describe('Tax Calculation Utilities', () => {
       expect(result).toBe(555000); // 1500000 * 0.37
     });
 
-    it('should return zero when using aggregate method (not implemented)', () => {
-      const result = calculateSupplementalWithholding(1000, false);
-      expect(result).toBe(0);
+    it('should calculate withholding using aggregate method when parameters provided', () => {
+      const aggregateParams = {
+        regularGrossPay: 2000,
+        payPeriodType: 'BI_WEEKLY' as const,
+        taxConfig: mockTaxConfig,
+      };
+      
+      const result = calculateSupplementalWithholding(1000, false, aggregateParams);
+      // Should calculate the difference between withholding on $3000 vs $2000
+      expect(result).toBeGreaterThan(0);
+      expect(result).toBeLessThanOrEqual(1000);
+    });
+
+    it('should throw error when using aggregate method without parameters', () => {
+      expect(() => {
+        calculateSupplementalWithholding(1000, false);
+      }).toThrow('Aggregate method requires aggregate parameters');
     });
 
     it('should handle zero supplemental amount', () => {
