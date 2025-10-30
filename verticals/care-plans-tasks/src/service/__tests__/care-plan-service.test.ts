@@ -27,12 +27,12 @@ import {
   ComplianceStatus,
 } from '../../types/care-plan';
 import { UserContext, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
-import { jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock uuid
 let uuidCounter = 0;
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => {
+vi.mock('uuid', () => ({
+  v4: vi.fn(() => {
     const counter = (uuidCounter++).toString().padStart(12, '0');
     return `00000000-0000-4000-8000-${counter}`;
   }),
@@ -41,14 +41,14 @@ jest.mock('uuid', () => ({
 const { v4: uuid } = require('uuid');
 
 // Mock dependencies
-jest.mock('../../repository/care-plan-repository');
-jest.mock('@care-commons/core', () => ({
-  PermissionService: jest.fn(),
-  UserContext: jest.fn(),
-  PaginationParams: jest.fn(),
-  PaginatedResult: jest.fn(),
-  UUID: jest.fn(),
-  Timestamp: jest.fn(),
+vi.mock('../../repository/care-plan-repository');
+vi.mock('@care-commons/core', () => ({
+  PermissionService: vi.fn(),
+  UserContext: vi.fn(),
+  PaginationParams: vi.fn(),
+  PaginatedResult: vi.fn(),
+  UUID: vi.fn(),
+  Timestamp: vi.fn(),
   ValidationError: class extends Error {
     constructor(message: string, details?: any) {
       super(message);
@@ -68,54 +68,54 @@ jest.mock('@care-commons/core', () => ({
     }
   }
 }));
-jest.mock('../../validation/care-plan-validator');
+vi.mock('../../validation/care-plan-validator');
 
 describe('CarePlanService', () => {
   let service: CarePlanService;
-  let mockRepository: jest.Mocked<CarePlanRepository>;
-  let mockPermissions: jest.Mocked<PermissionService>;
-  let mockValidator: jest.Mocked<typeof CarePlanValidator>;
+  let mockRepository: vi.Mocked<CarePlanRepository>;
+  let mockPermissions: vi.Mocked<PermissionService>;
+  let mockValidator: vi.Mocked<typeof CarePlanValidator>;
   let mockContext: UserContext;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     uuidCounter = 0;
     
     mockRepository = {
-      createCarePlan: jest.fn(),
-      getCarePlanById: jest.fn(),
-      updateCarePlan: jest.fn(),
-      searchCarePlans: jest.fn(),
-      getCarePlansByClientId: jest.fn(),
-      getActiveCarePlanForClient: jest.fn(),
-      getExpiringCarePlans: jest.fn(),
-      deleteCarePlan: jest.fn(),
-      createTaskInstance: jest.fn(),
-      getTaskInstanceById: jest.fn(),
-      updateTaskInstance: jest.fn(),
-      searchTaskInstances: jest.fn(),
-      getTasksByVisitId: jest.fn(),
-      createProgressNote: jest.fn(),
-      getProgressNotesByCarePlanId: jest.fn(),
+      createCarePlan: vi.fn(),
+      getCarePlanById: vi.fn(),
+      updateCarePlan: vi.fn(),
+      searchCarePlans: vi.fn(),
+      getCarePlansByClientId: vi.fn(),
+      getActiveCarePlanForClient: vi.fn(),
+      getExpiringCarePlans: vi.fn(),
+      deleteCarePlan: vi.fn(),
+      createTaskInstance: vi.fn(),
+      getTaskInstanceById: vi.fn(),
+      updateTaskInstance: vi.fn(),
+      searchTaskInstances: vi.fn(),
+      getTasksByVisitId: vi.fn(),
+      createProgressNote: vi.fn(),
+      getProgressNotesByCarePlanId: vi.fn(),
     } as any;
 
     mockPermissions = {
-      hasPermission: jest.fn().mockReturnValue(true),
+      hasPermission: vi.fn().mockReturnValue(true),
     } as any;
 
     mockValidator = CarePlanValidator as any;
     
     // Mock all validation methods to return input by default
-    mockValidator.validateCreateCarePlan = jest.fn((input: any) => input);
-    mockValidator.validateUpdateCarePlan = jest.fn((input: any) => input);
-    mockValidator.validateCreateTaskInstance = jest.fn((input: any) => input);
-    mockValidator.validateCompleteTask = jest.fn((input: any) => input);
-    mockValidator.validateCreateProgressNote = jest.fn((input: any) => input);
-    mockValidator.validateCarePlanSearchFilters = jest.fn((input: any) => input);
-    mockValidator.validateTaskInstanceSearchFilters = jest.fn((input: any) => input);
-    mockValidator.validateTaskCompletion = jest.fn(() => ({ valid: true, errors: [] }));
-    mockValidator.validateVitalSigns = jest.fn(() => ({ valid: true, warnings: [] }));
-    mockValidator.validateCarePlanActivation = jest.fn(() => ({ valid: true, errors: [] }));
+    mockValidator.validateCreateCarePlan = vi.fn((input: any) => input);
+    mockValidator.validateUpdateCarePlan = vi.fn((input: any) => input);
+    mockValidator.validateCreateTaskInstance = vi.fn((input: any) => input);
+    mockValidator.validateCompleteTask = vi.fn((input: any) => input);
+    mockValidator.validateCreateProgressNote = vi.fn((input: any) => input);
+    mockValidator.validateCarePlanSearchFilters = vi.fn((input: any) => input);
+    mockValidator.validateTaskInstanceSearchFilters = vi.fn((input: any) => input);
+    mockValidator.validateTaskCompletion = vi.fn(() => ({ valid: true, errors: [] }));
+    mockValidator.validateVitalSigns = vi.fn(() => ({ valid: true, warnings: [] }));
+    mockValidator.validateCarePlanActivation = vi.fn(() => ({ valid: true, errors: [] }));
 
     service = new CarePlanService(mockRepository, mockPermissions);
 
@@ -989,7 +989,7 @@ describe('CarePlanService', () => {
       };
 
       // Mock the private method by spying on the service
-      jest.spyOn(service as any, 'getTaskCompletionMetrics').mockResolvedValue(mockTaskMetrics);
+      vi.spyOn(service as any, 'getTaskCompletionMetrics').mockResolvedValue(mockTaskMetrics);
 
       // Act
       const result = await service.getCarePlanAnalytics(organizationId, mockContext);
