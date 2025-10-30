@@ -1,9 +1,0 @@
-export declare const isEmail: (email: string) => boolean;
-export declare const isPhone: (phone: string) => boolean;
-export declare const isZipCode: (zip: string) => boolean;
-export declare const isSSN: (ssn: string) => boolean;
-export declare const isEmpty: (value: unknown) => boolean;
-export declare const isValidDate: (date: string | Date) => boolean;
-export declare const minLength: (value: string, min: number) => boolean;
-export declare const maxLength: (value: string, max: number) => boolean;
-//# sourceMappingURL=validators.d.ts.map

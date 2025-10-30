@@ -1,9 +1,0 @@
-export declare const formatDate: (date: string | Date, options?: Intl.DateTimeFormatOptions) => string;
-export declare const formatDateTime: (date: string | Date) => string;
-export declare const formatTime: (date: string | Date) => string;
-export declare const formatPhone: (phone: string) => string;
-export declare const formatCurrency: (amount: number, currency?: string) => string;
-export declare const formatDuration: (minutes: number) => string;
-export declare const truncate: (text: string, maxLength: number) => string;
-export declare const capitalize: (text: string) => string;
-//# sourceMappingURL=formatters.d.ts.map

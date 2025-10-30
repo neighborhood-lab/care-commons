@@ -17,7 +17,7 @@ const config = {
             ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
         },
         migrations: {
-            directory: './migrations',
+            directory: './packages/core/migrations',
             tableName: 'knex_migrations',
             extension: 'ts',
             loadExtensions: ['.ts'],
@@ -37,7 +37,7 @@ const config = {
             ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
         },
         migrations: {
-            directory: './migrations',
+            directory: './packages/core/migrations',
             tableName: 'knex_migrations',
             extension: 'ts',
             loadExtensions: ['.ts'],
@@ -61,7 +61,7 @@ const config = {
             ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
         },
         migrations: {
-            directory: './migrations',
+            directory: './packages/core/migrations',
             tableName: 'knex_migrations',
             extension: 'ts',
             loadExtensions: ['.ts'],
