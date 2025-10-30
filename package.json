@@ -21,7 +21,8 @@
     "db:migrate:rollback": "cd packages/core && npm run db:migrate:rollback",
     "db:migrate:status": "cd packages/core && npm run db:migrate:status",
     "db:seed": "cd packages/core && npm run db:seed",
-    "db:seed:billing": "cd packages/core && node --import tsx --no-warnings scripts/seed-billing.ts"
+    "db:seed:billing": "cd packages/core && node --import tsx --no-warnings scripts/seed-billing.ts",
+    "db:nuke": "cd packages/core && npm run db:nuke"
   },
   "devDependencies": {
     "@types/knex": "^0.16.1",

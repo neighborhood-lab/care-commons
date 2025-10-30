@@ -7,7 +7,7 @@
 import dotenv from "dotenv";
 import knex, { Knex } from 'knex';
 
-dotenv.config({ path: '../../.env', quiet: true });
+dotenv.config({ path: '.env', quiet: true });
 
 async function rollbackMigrations() {
   console.log('🔄 Rolling back last migration batch...\n');

@@ -1,7 +1,7 @@
 import type { Knex } from 'knex';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../../.env', quiet: true });
+dotenv.config({ path: '.env', quiet: true });
 
 const config: { [key: string]: Knex.Config } = {
   development: {
