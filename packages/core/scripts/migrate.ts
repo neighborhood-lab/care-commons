@@ -40,7 +40,7 @@ async function runMigrations() {
     client: 'postgresql',
     connection,
     migrations: {
-      directory: './migrations',
+      directory: './packages/core/migrations',
       tableName: 'knex_migrations',
       extension: 'ts',
       loadExtensions: ['.ts'],

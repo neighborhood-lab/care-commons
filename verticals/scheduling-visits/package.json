@@ -21,7 +21,7 @@
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
     "typescript": "^5.9.3",
-    "vitest": "^2.0.0"
+    "vitest": "^4.0.5"
   },
   "keywords": [
     "care-commons",
