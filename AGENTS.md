@@ -14,3 +14,29 @@ Jest is configured per package; place new specs under `__tests__` directories wi
 
 ## Commit & Pull Request Guidelines
 Follow the existing history: short, present-tense commands such as `add risk flag helper` or `update migrate script`. Group related changes per commit and include context for schema updates or new vertical contracts in the body if needed. Pull requests should explain the problem, the solution, and any follow-up tasks, link to tracking issues, and include screenshots or console output when UI or CLI behavior changes. Confirm tests, type checks, and migrations before requesting review.
+
+## GitHub Actions Guidelines
+
+### CI/CD Pipeline
+- All pull requests automatically trigger CI workflow
+- Tests, linting, and type checking must pass before merge
+- Database migrations run automatically during deployments
+- Security scans run weekly and can be triggered manually
+
+### Release Process
+- Create releases by pushing git tags (e.g., `git tag v1.0.0 && git push origin v1.0.0`)
+- Or use the Release workflow manually for version bumping
+- Changelog is automatically generated from commit messages
+- All tests must pass before release creation
+
+### Database Management
+- Use the Database Operations workflow for manual database tasks
+- Always test migrations on staging before production
+- Database operations require explicit environment selection
+- Nuke operations include safety warnings and confirmations
+
+### Security
+- Dependency updates create automatic PRs
+- Security vulnerabilities are scanned weekly
+- CodeQL analysis runs on all PRs
+- Configure Snyk token for additional security scanning

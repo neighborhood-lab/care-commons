@@ -153,6 +153,64 @@ npm run typecheck
 npm run lint
 ```
 
+## GitHub Actions
+
+This project uses GitHub Actions for automated CI/CD workflows:
+
+### Workflows
+
+- **CI** (`ci.yml`) - Runs on pull requests and pushes to main/develop
+  - Linting and type checking
+  - Unit and integration tests with PostgreSQL
+  - Build verification
+  - Code coverage reporting
+
+- **Deploy** (`deploy.yml`) - Automated deployments
+  - Production deployments on main branch pushes
+  - Staging deployments on develop branch pushes
+  - Database migrations during deployment
+
+- **Database Operations** (`database.yml`) - Manual database management
+  - Run migrations, rollbacks, and seeding
+  - Support for staging and production environments
+  - Manual workflow dispatch with safety checks
+
+- **Security and Dependencies** (`security.yml`) - Automated security
+  - Weekly security audits
+  - Dependency updates with PR creation
+  - CodeQL analysis and Snyk scanning
+
+- **Release** (`release.yml`) - Version management
+  - Automated releases on git tags
+  - Changelog generation
+  - Version bumping and npm publishing
+
+### Required Secrets
+
+Configure these repository secrets for full functionality:
+
+```bash
+# Database connections
+DATABASE_URL=postgresql://user:pass@host:port/db
+STAGING_DATABASE_URL=postgresql://user:pass@host:port/staging_db
+
+# Application secrets
+JWT_SECRET=your-jwt-secret
+STAGING_JWT_SECRET=your-staging-jwt-secret
+
+# Optional services
+CODECOV_TOKEN=your-codecov-token
+SNYK_TOKEN=your-snyk-token
+```
+
+### Manual Workflows
+
+Some workflows can be triggered manually:
+
+1. **Database Operations** - Go to Actions → Database Operations → Run workflow
+2. **Security Scans** - Go to Actions → Security and Dependencies → Run workflow  
+3. **Release** - Go to Actions → Release → Run workflow (or push a git tag)
+
 ## Database Management
 
 ```bash
