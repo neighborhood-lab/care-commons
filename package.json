@@ -25,9 +25,9 @@
     "db:nuke": "cd packages/core && npm run db:nuke"
   },
   "devDependencies": {
-    "@types/knex": "^0.16.1",
     "turbo": "^2.5.8",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.0.0"
   },
   "engines": {
     "node": ">=20.0.0",

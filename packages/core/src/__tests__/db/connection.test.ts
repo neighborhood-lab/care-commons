@@ -3,22 +3,33 @@
  */
 
 import { Database } from '../../db/connection';
-import { createMockDatabaseConfig } from '../test-utils.helper';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
+const createMockDatabaseConfig = () => ({
+  host: 'localhost',
+  port: 5432,
+  database: 'test_db',
+  user: 'test_user',
+  password: 'test_password',
+  ssl: false,
+  max: 5,
+  idleTimeoutMillis: 1000,
+});
 
 // Mock the 'pg' module
-const mockQuery = jest.fn();
+const mockQuery = vi.fn();
 const mockClient = {
-  query: jest.fn(),
-  release: jest.fn(),
+  query: vi.fn(),
+  release: vi.fn(),
 };
 const mockPool = {
   query: mockQuery,
-  connect: jest.fn().mockResolvedValue(mockClient),
-  end: jest.fn().mockResolvedValue(undefined),
+  connect: vi.fn().mockResolvedValue(mockClient),
+  end: vi.fn().mockResolvedValue(undefined),
 };
 
-jest.mock('pg', () => ({
-  Pool: jest.fn().mockImplementation(() => mockPool),
+vi.mock('pg', () => ({
+  Pool: vi.fn().mockImplementation(() => mockPool),
 }));
 
 import { Pool } from 'pg';
@@ -27,7 +38,7 @@ describe('Database Connection', () => {
   let database: Database;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Setup default successful query
     mockQuery.mockResolvedValue({
@@ -145,8 +156,8 @@ describe('Database Connection', () => {
 
   describe('Client Management', () => {
     it('should get a client from pool', async () => {
-      const mockClient = { query: jest.fn(), release: jest.fn() };
-      (mockPool.connect as jest.MockedFunction<any>).mockResolvedValue(mockClient);
+      const mockClient = { query: vi.fn(), release: vi.fn() };
+      (mockPool.connect as any).mockResolvedValue(mockClient);
 
       const client = await database.getClient();
 
@@ -160,14 +171,14 @@ describe('Database Connection', () => {
 
     beforeEach(() => {
       mockClient = {
-        query: jest.fn(),
-        release: jest.fn(),
+        query: vi.fn(),
+        release: vi.fn(),
       };
-      (mockPool.connect as jest.MockedFunction<any>).mockResolvedValue(mockClient);
+      (mockPool.connect as any).mockResolvedValue(mockClient);
     });
 
     it('should execute successful transaction', async () => {
-      const callback = jest.fn().mockResolvedValue('success');
+      const callback = vi.fn().mockResolvedValue('success');
 
       const result = await database.transaction(callback);
 
@@ -180,7 +191,7 @@ describe('Database Connection', () => {
 
     it('should rollback on transaction failure', async () => {
       const error = new Error('Transaction failed');
-      const callback = jest.fn().mockRejectedValue(error);
+      const callback = vi.fn().mockRejectedValue(error);
 
       await expect(database.transaction(callback)).rejects.toThrow('Transaction failed');
 
@@ -192,7 +203,7 @@ describe('Database Connection', () => {
 
     it('should release client even if rollback fails', async () => {
       const error = new Error('Transaction failed');
-      const callback = jest.fn().mockRejectedValue(error);
+      const callback = vi.fn().mockRejectedValue(error);
       mockClient.query.mockRejectedValue(new Error('Rollback failed'));
 
       await expect(database.transaction(callback)).rejects.toThrow('Rollback failed');

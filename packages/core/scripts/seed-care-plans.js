@@ -1,14 +1,10 @@
-/**
- * Care Plans & Tasks seed data
- *
- * Creates realistic care plans, task templates, task instances, and progress notes
- * for demonstration and testing purposes
- */
-import { v4 as uuidv4 } from 'uuid';
-import { initializeDatabase } from '../src/db/connection';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const connection_1 = require("../src/db/connection");
 async function seedCarePlans() {
     console.log('🌱 Seeding care plans data...\n');
-    const db = initializeDatabase({
+    const db = (0, connection_1.initializeDatabase)({
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT || '5432'),
         database: process.env.DB_NAME || 'care_commons',
@@ -18,7 +14,6 @@ async function seedCarePlans() {
     });
     try {
         await db.transaction(async (client) => {
-            // Get existing data
             const orgResult = await client.query(`SELECT id FROM organizations LIMIT 1`);
             if (orgResult.rows.length === 0) {
                 throw new Error('No organization found. Please run seed.ts first.');
@@ -34,7 +29,6 @@ async function seedCarePlans() {
                 throw new Error('No user found. Please run seed.ts first.');
             }
             const systemUserId = userResult.rows[0].id;
-            // Get client IDs
             const clientsResult = await client.query(`
         SELECT id, client_number FROM clients 
         WHERE organization_id = $1 AND status = 'ACTIVE' 
@@ -44,9 +38,8 @@ async function seedCarePlans() {
             if (clientsResult.rows.length < 2) {
                 throw new Error('Need at least 2 active clients. Please run seed.ts first.');
             }
-            const client1Id = clientsResult.rows[0].id; // Margaret Thompson
-            const client2Id = clientsResult.rows[1].id; // Robert Martinez
-            // Get caregiver IDs
+            const client1Id = clientsResult.rows[0].id;
+            const client2Id = clientsResult.rows[1].id;
             const caregiversResult = await client.query(`
         SELECT id, employee_number FROM caregivers 
         WHERE organization_id = $1 AND status = 'ACTIVE'
@@ -56,20 +49,19 @@ async function seedCarePlans() {
             if (caregiversResult.rows.length < 2) {
                 throw new Error('Need at least 2 active caregivers. Please run seed.ts first.');
             }
-            const cg1Id = caregiversResult.rows[0].id; // Sarah Johnson
-            const cg2Id = caregiversResult.rows[1].id; // Michael Chen
+            const cg1Id = caregiversResult.rows[0].id;
+            const cg2Id = caregiversResult.rows[1].id;
             console.log('Creating care plans...');
-            // Care Plan 1: Personal Care for Margaret Thompson (Fall Risk Client)
-            const plan1Id = uuidv4();
+            const plan1Id = (0, uuid_1.v4)();
             const plan1Goals = [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Improve Mobility and Reduce Fall Risk',
                     description: 'Client will demonstrate safe ambulation with walker for distances up to 50 feet without assistance within 3 months',
                     category: 'MOBILITY',
                     status: 'IN_PROGRESS',
                     priority: 'HIGH',
-                    targetDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+                    targetDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
                     measurementType: 'QUANTITATIVE',
                     targetValue: 50,
                     currentValue: 20,
@@ -78,7 +70,7 @@ async function seedCarePlans() {
                     notes: 'Client making steady progress. Started at 10 feet, now at 20 feet.',
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Medication Compliance',
                     description: 'Client will take all prescribed medications as scheduled without reminders 90% of the time',
                     category: 'MEDICATION_MANAGEMENT',
@@ -92,7 +84,7 @@ async function seedCarePlans() {
                     progressPercentage: 75,
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Maintain Independence in ADLs',
                     description: 'Client will maintain current level of independence in bathing, dressing, and grooming',
                     category: 'ADL',
@@ -106,7 +98,7 @@ async function seedCarePlans() {
             ];
             const plan1Interventions = [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Ambulation Training with Walker',
                     description: 'Assist client with walker ambulation, gradually increasing distance',
                     category: 'AMBULATION_ASSISTANCE',
@@ -124,7 +116,7 @@ async function seedCarePlans() {
                     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Medication Reminders',
                     description: 'Provide verbal reminders for medication times and observe intake',
                     category: 'MEDICATION_REMINDER',
@@ -142,7 +134,7 @@ async function seedCarePlans() {
                     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Personal Care Assistance',
                     description: 'Assist with bathing, dressing, and grooming as needed',
                     category: 'ASSISTANCE_WITH_ADL',
@@ -161,7 +153,7 @@ async function seedCarePlans() {
             ];
             const plan1TaskTemplates = [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Morning Walker Ambulation',
                     description: 'Assist client with morning walker practice',
                     category: 'MOBILITY',
@@ -209,14 +201,14 @@ async function seedCarePlans() {
                     verificationType: 'CUSTOM',
                     qualityChecks: [
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Did client complete ambulation without signs of distress?',
                             checkType: 'YES_NO',
                             required: true,
                             options: [],
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Distance achieved (in feet)',
                             checkType: 'TEXT',
                             required: true,
@@ -226,7 +218,7 @@ async function seedCarePlans() {
                     status: 'ACTIVE',
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Morning Medication Reminder',
                     description: 'Provide medication reminder and observe intake',
                     category: 'MEDICATION',
@@ -247,7 +239,7 @@ async function seedCarePlans() {
                     status: 'ACTIVE',
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Personal Care - Morning',
                     description: 'Assist with morning personal care routine',
                     category: 'PERSONAL_HYGIENE',
@@ -265,13 +257,13 @@ async function seedCarePlans() {
                     verificationType: 'CHECKBOX',
                     qualityChecks: [
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Client appearance neat and appropriate for weather?',
                             checkType: 'YES_NO',
                             required: true,
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Any skin concerns observed?',
                             checkType: 'YES_NO',
                             required: true,
@@ -280,7 +272,7 @@ async function seedCarePlans() {
                     status: 'ACTIVE',
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Light Housekeeping',
                     description: 'Light housekeeping in client living areas',
                     category: 'HOUSEKEEPING',
@@ -318,9 +310,9 @@ async function seedCarePlans() {
                 'PERSONAL_CARE',
                 'ACTIVE',
                 'HIGH',
-                new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Started 30 days ago
-                new Date(Date.now() + 150 * 24 * 60 * 60 * 1000), // Expires in 150 days
-                new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Review in 30 days
+                new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                new Date(Date.now() + 150 * 24 * 60 * 60 * 1000),
+                new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                 cg1Id,
                 systemUserId,
                 JSON.stringify(plan1Goals),
@@ -331,18 +323,17 @@ async function seedCarePlans() {
                     timesPerWeek: 7,
                     customSchedule: 'Morning visits 7 days per week, 9 AM - 11 AM',
                 }),
-                14.0, // 2 hours per day * 7 days
+                14.0,
                 'COMPLIANT',
                 'Client has made excellent progress. Family very satisfied with care.',
                 systemUserId,
                 systemUserId,
             ]);
             console.log(`  ✓ Created care plan CP-2024-001 for client ${clientsResult.rows[0].client_number}`);
-            // Care Plan 2: Complex Care for Robert Martinez (Veteran with PTSD)
-            const plan2Id = uuidv4();
+            const plan2Id = (0, uuid_1.v4)();
             const plan2Goals = [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Increase Transfer Independence',
                     description: 'Client will complete wheelchair to bed transfers with minimal assistance within 6 weeks',
                     category: 'MOBILITY',
@@ -354,7 +345,7 @@ async function seedCarePlans() {
                     notes: 'Starting physical therapy exercises to build upper body strength.',
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Manage PTSD Symptoms',
                     description: 'Reduce frequency and intensity of PTSD episodes through structured environment and service dog support',
                     category: 'EMOTIONAL_WELLBEING',
@@ -365,7 +356,7 @@ async function seedCarePlans() {
                     notes: 'Service dog Max providing excellent support. Episodes have decreased from daily to 2-3 times per week.',
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Pressure Wound Prevention',
                     description: 'Prevent pressure wounds through proper positioning and skin care',
                     category: 'WOUND_CARE',
@@ -378,7 +369,7 @@ async function seedCarePlans() {
             ];
             const plan2Interventions = [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Transfer Training',
                     description: 'Assist with wheelchair transfers and strengthen upper body',
                     category: 'TRANSFER_ASSISTANCE',
@@ -397,7 +388,7 @@ async function seedCarePlans() {
                     startDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'PTSD Support Protocol',
                     description: 'Maintain calm environment, ensure service dog present, avoid triggers',
                     category: 'SAFETY_MONITORING',
@@ -413,7 +404,7 @@ async function seedCarePlans() {
                     startDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Pressure Relief and Skin Care',
                     description: 'Reposition every 2 hours, inspect skin, apply barrier cream',
                     category: 'SKIN_CARE',
@@ -434,7 +425,7 @@ async function seedCarePlans() {
             ];
             const plan2TaskTemplates = [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Morning Transfer and Personal Care',
                     description: 'Assist with transfer from bed and complete morning care routine',
                     category: 'TRANSFERRING',
@@ -452,20 +443,20 @@ async function seedCarePlans() {
                     verificationType: 'CUSTOM',
                     qualityChecks: [
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Transfer completed safely?',
                             checkType: 'YES_NO',
                             required: true,
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Level of assistance required',
                             checkType: 'SCALE',
                             required: true,
                             options: ['Total assist', 'Moderate assist', 'Minimal assist', 'Supervision only'],
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Any signs of PTSD symptoms?',
                             checkType: 'YES_NO',
                             required: true,
@@ -474,7 +465,7 @@ async function seedCarePlans() {
                     status: 'ACTIVE',
                 },
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     name: 'Skin Inspection and Repositioning',
                     description: 'Check pressure points and reposition client',
                     category: 'MONITORING',
@@ -494,13 +485,13 @@ async function seedCarePlans() {
                     verificationType: 'PHOTO',
                     qualityChecks: [
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'Any areas of concern noted?',
                             checkType: 'YES_NO',
                             required: true,
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             question: 'If yes, describe location and appearance',
                             checkType: 'TEXT',
                             required: false,
@@ -542,19 +533,17 @@ async function seedCarePlans() {
                     timesPerWeek: 7,
                     customSchedule: 'Daily visits, morning and afternoon shifts. Evening check-in as needed.',
                 }),
-                28.0, // 4 hours per day * 7 days
+                28.0,
                 'COMPLIANT',
                 'Complex care case. Excellent progress with PTSD management. Daughter very involved and supportive.',
                 systemUserId,
                 systemUserId,
             ]);
             console.log(`  ✓ Created care plan CP-2024-002 for client ${clientsResult.rows[1].client_number}`);
-            // Create sample task instances for today
             console.log('\nCreating task instances for today...');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            // Create 3 tasks for plan 1 (Margaret)
-            const plan1Task1Id = uuidv4();
+            const plan1Task1Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
@@ -591,7 +580,7 @@ async function seedCarePlans() {
           updated_at = $1
         WHERE id = $5
       `, [
-                new Date(today.getTime() + 10 * 60 * 60 * 1000), // Completed at 10 AM
+                new Date(today.getTime() + 10 * 60 * 60 * 1000),
                 cg1Id,
                 'Client ambulated 22 feet with walker. Good endurance, no signs of fatigue. Continuing to make progress.',
                 JSON.stringify([
@@ -608,7 +597,7 @@ async function seedCarePlans() {
                 ]),
                 plan1Task1Id,
             ]);
-            const plan1Task2Id = uuidv4();
+            const plan1Task2Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
@@ -649,7 +638,7 @@ async function seedCarePlans() {
                 'Client took all morning medications as scheduled. No issues.',
                 plan1Task2Id,
             ]);
-            const plan1Task3Id = uuidv4();
+            const plan1Task3Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
@@ -677,8 +666,7 @@ async function seedCarePlans() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Create 2 tasks for plan 2 (Robert)
-            const plan2Task1Id = uuidv4();
+            const plan2Task1Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
@@ -737,7 +725,7 @@ async function seedCarePlans() {
                 ]),
                 plan2Task1Id,
             ]);
-            const plan2Task2Id = uuidv4();
+            const plan2Task2Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
@@ -766,9 +754,8 @@ async function seedCarePlans() {
                 systemUserId,
             ]);
             console.log(`  ✓ Created ${5} task instances for today`);
-            // Create sample progress notes
             console.log('\nCreating progress notes...');
-            const note1Id = uuidv4();
+            const note1Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO progress_notes (
           id, care_plan_id, client_id, note_type, note_date,
@@ -821,7 +808,7 @@ async function seedCarePlans() {
                 systemUserId,
                 systemUserId,
             ]);
-            const note2Id = uuidv4();
+            const note2Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO progress_notes (
           id, care_plan_id, client_id, note_type, note_date,
@@ -907,3 +894,4 @@ seedCarePlans().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);
 });
+//# sourceMappingURL=seed-care-plans.js.map

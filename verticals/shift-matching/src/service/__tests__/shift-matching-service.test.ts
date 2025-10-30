@@ -27,37 +27,38 @@ import {
   MatchingStatus,
 } from '../../types/shift-matching';
 import { UserContext, UUID, NotFoundError, ValidationError, ConflictError } from '@care-commons/core';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock dependencies
 const mockPool = {
-  query: jest.fn(),
-} as unknown as jest.Mocked<Pool>;
+  query: vi.fn(),
+} as unknown as any;
 
 const mockRepository = {
-  createOpenShift: jest.fn(),
-  getOpenShift: jest.fn(),
-  updateOpenShiftStatus: jest.fn(),
-  searchOpenShifts: jest.fn(),
-  getMatchingConfiguration: jest.fn(),
-  getDefaultConfiguration: jest.fn(),
-  updateMatchingConfiguration: jest.fn(),
-  createProposal: jest.fn(),
-  getProposal: jest.fn(),
-  updateProposalStatus: jest.fn(),
-  respondToProposal: jest.fn(),
-  getProposalsByCaregiver: jest.fn(),
-  getProposalsByOpenShift: jest.fn(),
-  searchProposals: jest.fn(),
-  getCaregiverPreferences: jest.fn(),
-  upsertCaregiverPreferences: jest.fn(),
-  createBulkMatchRequest: jest.fn(),
-  updateBulkMatchRequest: jest.fn(),
-  createMatchHistory: jest.fn(),
+  createOpenShift: vi.fn(),
+  getOpenShift: vi.fn(),
+  updateOpenShiftStatus: vi.fn(),
+  searchOpenShifts: vi.fn(),
+  getMatchingConfiguration: vi.fn(),
+  getDefaultConfiguration: vi.fn(),
+  updateMatchingConfiguration: vi.fn(),
+  createProposal: vi.fn(),
+  getProposal: vi.fn(),
+  updateProposalStatus: vi.fn(),
+  respondToProposal: vi.fn(),
+  getProposalsByCaregiver: vi.fn(),
+  getProposalsByOpenShift: vi.fn(),
+  searchProposals: vi.fn(),
+  getCaregiverPreferences: vi.fn(),
+  upsertCaregiverPreferences: vi.fn(),
+  createBulkMatchRequest: vi.fn(),
+  updateBulkMatchRequest: vi.fn(),
+  createMatchHistory: vi.fn(),
 } as any;
 
 const mockCaregiverService = {
-  getCaregiverById: jest.fn(),
-  searchCaregivers: jest.fn(),
+  getCaregiverById: vi.fn(),
+  searchCaregivers: vi.fn(),
 } as any;
 
 const mockContext: UserContext = {
@@ -69,21 +70,19 @@ const mockContext: UserContext = {
 };
 
 // Mock MatchingAlgorithm
-jest.mock('../../utils/matching-algorithm', () => ({
+vi.mock('../../utils/matching-algorithm', () => ({
   MatchingAlgorithm: {
-    evaluateMatch: jest.fn(),
-    rankCandidates: jest.fn(),
+    evaluateMatch: vi.fn(),
+    rankCandidates: vi.fn(),
   },
 }));
 
 describe('ShiftMatchingService', () => {
   let service: ShiftMatchingService;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    service = new ShiftMatchingService(mockPool, mockCaregiverService);
-    // Replace repository with mock
-    (service as any).repository = mockRepository;
+beforeEach(() => {
+    vi.clearAllMocks();
+    service = new ShiftMatchingService(mockRepository as any, mockCaregiverService as any);
   });
 
   describe('createOpenShift', () => {
@@ -268,8 +267,8 @@ describe('ShiftMatchingService', () => {
         return Promise.resolve(mockCaregivers.items.find((cg: any) => cg.id === caregiverId));
       });
       
-      (MatchingAlgorithm.evaluateMatch as jest.Mock).mockReturnValue(mockCandidates[0]);
-      (MatchingAlgorithm.rankCandidates as jest.Mock).mockReturnValue(mockCandidates);
+      (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(mockCandidates[0]);
+      (MatchingAlgorithm.rankCandidates as any).mockReturnValue(mockCandidates);
       mockRepository.updateOpenShiftStatus.mockResolvedValue(mockOpenShift);
       mockRepository.createProposal.mockResolvedValue({
         id: 'proposal-123',
@@ -279,7 +278,7 @@ describe('ShiftMatchingService', () => {
 
       // Mock database queries for buildCaregiverContext - set up right before calling service
       // Need to handle 2 caregivers, so each query is called twice
-      (mockPool.query as jest.Mock)
+      (mockPool.query as any)
         .mockResolvedValueOnce({ rows: [{ total_minutes: '240' }] }) // week hours for caregiver 1
         .mockResolvedValueOnce({ rows: [] }) // conflicts for caregiver 1
         .mockResolvedValueOnce({ rows: [{ count: '5', avg_rating: '4.2' }] }) // previous visits for caregiver 1
@@ -323,14 +322,14 @@ describe('ShiftMatchingService', () => {
         return Promise.resolve(mockCaregivers.items.find((cg: any) => cg.id === caregiverId));
       });
       
-      (MatchingAlgorithm.evaluateMatch as jest.Mock).mockReturnValue(ineligibleCandidates[0]);
-      (MatchingAlgorithm.rankCandidates as jest.Mock).mockReturnValue(ineligibleCandidates);
+      (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(ineligibleCandidates[0]);
+      (MatchingAlgorithm.rankCandidates as any).mockReturnValue(ineligibleCandidates);
       mockRepository.updateOpenShiftStatus.mockResolvedValue(mockOpenShift);
       mockRepository.createMatchHistory.mockResolvedValue({} as any);
 
       // Mock database queries for buildCaregiverContext - set up right before calling service
       // Need to handle 2 caregivers, so each query is called twice
-      (mockPool.query as jest.Mock)
+      (mockPool.query as any)
         .mockResolvedValueOnce({ rows: [{ total_minutes: '180' }] }) // week hours for caregiver 1
         .mockResolvedValueOnce({ rows: [] }) // conflicts for caregiver 1
         .mockResolvedValueOnce({ rows: [{ count: '2', avg_rating: '3.8' }] }) // previous visits for caregiver 1
@@ -387,15 +386,15 @@ describe('ShiftMatchingService', () => {
       });
       
       // Mock database queries for buildCaregiverContext
-      (mockPool.query as jest.Mock)
+      (mockPool.query as any)
         .mockResolvedValueOnce({ rows: [{ total_minutes: '200' }] }) // week hours
         .mockResolvedValueOnce({ rows: [] }) // conflicts
         .mockResolvedValueOnce({ rows: [{ count: '3', avg_rating: '4.0' }] }) // previous visits
         .mockResolvedValueOnce({ rows: [{ completed: '47', no_shows: '1', cancellations: '2', total: '50' }] }) // reliability
         .mockResolvedValueOnce({ rows: [{ count: '0' }] }); // rejections
       
-      (MatchingAlgorithm.evaluateMatch as jest.Mock).mockReturnValue(mockCandidates[1]);
-      (MatchingAlgorithm.rankCandidates as jest.Mock).mockReturnValue([mockCandidates[1]]);
+      (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(mockCandidates[1]);
+      (MatchingAlgorithm.rankCandidates as any).mockReturnValue([mockCandidates[1]]);
       mockRepository.updateOpenShiftStatus.mockResolvedValue(mockOpenShift);
       mockRepository.createMatchHistory.mockResolvedValue({} as any);
 
@@ -437,8 +436,8 @@ describe('ShiftMatchingService', () => {
       mockRepository.createMatchHistory.mockResolvedValue({} as any);
 
       // Mock the private methods
-      (service as any).assignShift = jest.fn();
-      (service as any).withdrawOtherProposals = jest.fn();
+      (service as any).assignShift = vi.fn();
+      (service as any).withdrawOtherProposals = vi.fn();
 
       const result = await service.respondToProposal('proposal-123', input, mockContext);
 
@@ -556,12 +555,12 @@ describe('ShiftMatchingService', () => {
         computedAt: new Date(),
       };
 
-      (MatchingAlgorithm.evaluateMatch as jest.Mock).mockReturnValue(mockCandidate);
-      (MatchingAlgorithm.rankCandidates as jest.Mock).mockReturnValue([mockCandidate]);
+      (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(mockCandidate);
+      (MatchingAlgorithm.rankCandidates as any).mockReturnValue([mockCandidate]);
 
       // Mock database queries for buildCaregiverContext - set up right before calling service
       // 2 shifts for 1 caregiver, so need 2 sets of mocks (one per shift)
-      (mockPool.query as jest.Mock)
+      (mockPool.query as any)
         .mockResolvedValueOnce({ rows: [{ total_minutes: '160' }] }) // week hours for shift 1
         .mockResolvedValueOnce({ rows: [] }) // conflicts for shift 1
         .mockResolvedValueOnce({ rows: [{ count: '1', avg_rating: '4.5' }] }) // previous visits for shift 1
@@ -633,8 +632,8 @@ describe('ShiftMatchingService', () => {
       } as AssignmentProposal);
 
       // Mock buildCaregiverContext
-      (service as any).buildCaregiverContext = jest.fn().mockResolvedValue({});
-      (MatchingAlgorithm.evaluateMatch as jest.Mock).mockReturnValue(mockCandidate);
+      (service as any).buildCaregiverContext = vi.fn().mockResolvedValue({});
+      (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(mockCandidate);
 
       const result = await service.caregiverSelectShift('cg-123', 'shift-123', mockContext);
 
@@ -663,8 +662,8 @@ describe('ShiftMatchingService', () => {
         minScoreForProposal: 60,
       } as MatchingConfiguration);
 
-      (service as any).buildCaregiverContext = jest.fn().mockResolvedValue({});
-      (MatchingAlgorithm.evaluateMatch as jest.Mock).mockReturnValue(ineligibleCandidate);
+      (service as any).buildCaregiverContext = vi.fn().mockResolvedValue({});
+      (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(ineligibleCandidate);
 
       await expect(service.caregiverSelectShift('cg-123', 'shift-123', mockContext))
         .rejects.toThrow(ValidationError);
@@ -690,10 +689,10 @@ describe('ShiftMatchingService', () => {
       } as any);
 
       // Mock respondToProposal to return accepted proposal
-      jest.spyOn(service, 'respondToProposal').mockResolvedValue(acceptedProposal);
+      vi.spyOn(service, 'respondToProposal').mockResolvedValue(acceptedProposal);
 
-      (service as any).buildCaregiverContext = jest.fn().mockResolvedValue({});
-      (MatchingAlgorithm.evaluateMatch as jest.Mock).mockReturnValue(highScoreCandidate);
+      (service as any).buildCaregiverContext = vi.fn().mockResolvedValue({});
+      (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(highScoreCandidate);
 
       const result = await service.caregiverSelectShift('cg-123', 'shift-123', mockContext);
 

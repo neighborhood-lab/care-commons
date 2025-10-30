@@ -1,0 +1,41 @@
+import { Pool, PoolClient } from 'pg';
+import { UUID } from '@care-commons/core';
+import { PayPeriod, PayRun, PayStub, TimeSheet, PaymentRecord, TaxConfiguration, ACHBatch, Deduction, PayPeriodSearchFilters, TimeSheetSearchFilters, PayStubSearchFilters, PaymentSearchFilters } from '../types/payroll';
+export declare class PayrollRepository {
+    private pool;
+    constructor(pool: Pool);
+    createPayPeriod(period: Omit<PayPeriod, 'id' | 'createdAt' | 'updatedAt' | 'version'>, client?: PoolClient): Promise<PayPeriod>;
+    findPayPeriodById(id: UUID): Promise<PayPeriod | null>;
+    findPayPeriodByDate(organizationId: UUID, date: Date): Promise<PayPeriod | null>;
+    findPayPeriods(filters: PayPeriodSearchFilters): Promise<PayPeriod[]>;
+    updatePayPeriod(id: UUID, updates: Partial<PayPeriod>): Promise<PayPeriod | null>;
+    createTimeSheet(sheet: Omit<TimeSheet, 'id' | 'createdAt' | 'updatedAt' | 'version' | 'deletedAt' | 'deletedBy'>, client?: PoolClient): Promise<TimeSheet>;
+    findTimeSheetById(id: UUID): Promise<TimeSheet | null>;
+    findTimeSheetByCaregiver(caregiverId: UUID, payPeriodId: UUID): Promise<TimeSheet | null>;
+    findTimeSheets(filters: TimeSheetSearchFilters): Promise<TimeSheet[]>;
+    updateTimeSheet(id: UUID, updates: Partial<TimeSheet>): Promise<TimeSheet | null>;
+    createPayRun(run: Omit<PayRun, 'id' | 'createdAt' | 'updatedAt' | 'version'>, client?: PoolClient): Promise<PayRun>;
+    findPayRunById(id: UUID): Promise<PayRun | null>;
+    findPayRunsByPeriod(payPeriodId: UUID): Promise<PayRun[]>;
+    updatePayRun(id: UUID, updates: Partial<PayRun>): Promise<PayRun | null>;
+    createPayStub(stub: Omit<PayStub, 'id' | 'createdAt' | 'updatedAt' | 'version'>, client?: PoolClient): Promise<PayStub>;
+    findPayStubById(id: UUID): Promise<PayStub | null>;
+    findPayStubs(filters: PayStubSearchFilters): Promise<PayStub[]>;
+    createTaxConfiguration(config: Omit<TaxConfiguration, 'id' | 'createdAt' | 'updatedAt' | 'version'>, client?: PoolClient): Promise<TaxConfiguration>;
+    findTaxConfiguration(caregiverId: UUID): Promise<TaxConfiguration | null>;
+    createDeduction(deduction: Omit<Deduction, 'id'>, caregiverId: UUID, client?: PoolClient): Promise<Deduction>;
+    findDeductionsForCaregiver(caregiverId: UUID): Promise<Deduction[]>;
+    createPaymentRecord(payment: Omit<PaymentRecord, 'id' | 'createdAt' | 'updatedAt' | 'version'>, client?: PoolClient): Promise<PaymentRecord>;
+    findPaymentRecordById(id: UUID): Promise<PaymentRecord | null>;
+    findPaymentRecords(filters: PaymentSearchFilters): Promise<PaymentRecord[]>;
+    createACHBatch(batch: Omit<ACHBatch, 'id' | 'createdAt' | 'updatedAt' | 'version'>, client?: PoolClient): Promise<ACHBatch>;
+    private mapPayPeriod;
+    private mapTimeSheet;
+    private mapPayRun;
+    private mapPayStub;
+    private mapTaxConfiguration;
+    private mapDeduction;
+    private mapPaymentRecord;
+    private mapACHBatch;
+}
+//# sourceMappingURL=payroll-repository.d.ts.map

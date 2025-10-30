@@ -16,6 +16,7 @@ import {
   groupDeductionsByCategory,
 } from '../deduction-calculations';
 import { Deduction, GarnishmentOrder } from '../../types/payroll';
+import { describe, it, expect } from 'vitest';
 
 describe('Deduction Calculation Utilities', () => {
   const mockDeduction: Deduction = {

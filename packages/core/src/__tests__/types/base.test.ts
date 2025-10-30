@@ -20,6 +20,7 @@ import {
   Role,
   SyncMetadata,
 } from '../../types/base';
+import { describe, it, expect } from 'vitest';
 
 describe('Base Types', () => {
   describe('Error Classes', () => {

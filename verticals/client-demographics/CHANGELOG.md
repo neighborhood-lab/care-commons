@@ -97,7 +97,7 @@
 
 #### Testing
 - ✅ Unit test suite for utility functions
-- ✅ Jest configuration
+- ✅ Vitest configuration
 - ✅ Test coverage for core functionality
 - ✅ Mock data helpers
 
@@ -146,7 +146,7 @@
 ### Development Dependencies
 
 - `typescript`: Type checking
-- `jest`: Testing framework
+- `vitest`: Testing framework
 - `@types/node`: Node.js types
 - `@types/express`: Express types
 

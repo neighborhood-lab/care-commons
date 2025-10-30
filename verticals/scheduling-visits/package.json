@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "jest",
+    "test": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'Linting not configured yet'"
   },
@@ -20,8 +20,8 @@
   "devDependencies": {
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
-    "@types/uuid": "^11.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.0.0"
   },
   "keywords": [
     "care-commons",

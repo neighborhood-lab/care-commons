@@ -20,29 +20,30 @@ import {
   ServiceAuthorization,
   Payer,
 } from '../../types/billing';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock the repository
-jest.mock('../../repository/billing-repository');
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'test-uuid-123'),
+vi.mock('../../repository/billing-repository');
+vi.mock('uuid', () => ({
+  v4: vi.fn(() => 'test-uuid-123'),
 }));
 
 describe('BillingService Integration Tests', () => {
   let service: BillingService;
-  let mockPool: jest.Mocked<Pool>;
-  let mockClient: jest.Mocked<PoolClient>;
-  let mockRepository: jest.Mocked<BillingRepository>;
+  let mockPool: any;
+  let mockClient: any;
+  let mockRepository: any;
 
   beforeEach(() => {
     // Setup mock pool and client
     mockClient = {
-      query: jest.fn(),
-      release: jest.fn(),
+      query: vi.fn(),
+      release: vi.fn(),
     } as any;
 
     mockPool = {
-      connect: jest.fn().mockResolvedValue(mockClient),
-      query: jest.fn(),
+      connect: vi.fn().mockResolvedValue(mockClient),
+      query: vi.fn(),
     } as any;
 
     // Create service instance
@@ -51,7 +52,7 @@ describe('BillingService Integration Tests', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('createBillableItem', () => {
@@ -453,7 +454,7 @@ describe('BillingService Integration Tests', () => {
       mockRepository.findPayerById.mockResolvedValue(mockPayer);
       
       // Mock the query that counts invoices
-      (mockClient.query as jest.Mock).mockImplementation((sql: string) => {
+      (mockClient.query as any).mockImplementation((sql: string) => {
         if (typeof sql === 'string' && sql.includes('COUNT')) {
           return Promise.resolve({ rows: [{ count: '0' }] });
         }
@@ -647,7 +648,7 @@ describe('BillingService Integration Tests', () => {
         version: 1,
       };
 
-      (mockPool.query as jest.Mock).mockResolvedValue({ rows: [{ count: '0' }] });
+      (mockPool.query as any).mockResolvedValue({ rows: [{ count: '0' }] });
       mockRepository.createPayment.mockResolvedValue(mockPayment);
 
       const result = await service.createPayment(input, 'user-123' as any, 'ORG');
@@ -745,7 +746,7 @@ describe('BillingService Integration Tests', () => {
         .mockResolvedValueOnce(mockInvoice1)
         .mockResolvedValueOnce(mockInvoice2);
 
-      (mockClient.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (mockClient.query as any).mockResolvedValue({ rows: [] });
 
       await service.allocatePayment(input, 'user-123' as any);
 

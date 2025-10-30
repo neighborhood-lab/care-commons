@@ -27,36 +27,37 @@ import {
   CaregiverPreferenceProfile,
 } from '../../types/shift-matching';
 import { UserContext, UUID, PaginationParams } from '@care-commons/core';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock dependencies
 const mockPool = {
-  query: jest.fn() as any,
+  query: vi.fn() as any,
 } as any;
 
 const mockService = {
-  createOpenShift: jest.fn(),
-  matchShift: jest.fn(),
-  createProposal: jest.fn(),
-  respondToProposal: jest.fn(),
-  getAvailableShiftsForCaregiver: jest.fn(),
-  getCaregiverProposals: jest.fn(),
-  markProposalViewed: jest.fn(),
-  caregiverSelectShift: jest.fn(),
-  expireStaleProposals: jest.fn(),
+  createOpenShift: vi.fn(),
+  matchShift: vi.fn(),
+  createProposal: vi.fn(),
+  respondToProposal: vi.fn(),
+  getAvailableShiftsForCaregiver: vi.fn(),
+  getCaregiverProposals: vi.fn(),
+  markProposalViewed: vi.fn(),
+  caregiverSelectShift: vi.fn(),
+  expireStaleProposals: vi.fn(),
 } as any;
 
 const mockRepository = {
-  searchOpenShifts: jest.fn(),
-  getOpenShift: jest.fn(),
-  getProposalsByOpenShift: jest.fn(),
-  searchProposals: jest.fn(),
-  getProposal: jest.fn(),
-  createMatchingConfiguration: jest.fn(),
-  updateMatchingConfiguration: jest.fn(),
-  getMatchingConfiguration: jest.fn(),
-  getDefaultConfiguration: jest.fn(),
-  upsertCaregiverPreferences: jest.fn(),
-  getCaregiverPreferences: jest.fn(),
+  searchOpenShifts: vi.fn(),
+  getOpenShift: vi.fn(),
+  getProposalsByOpenShift: vi.fn(),
+  searchProposals: vi.fn(),
+  getProposal: vi.fn(),
+  createMatchingConfiguration: vi.fn(),
+  updateMatchingConfiguration: vi.fn(),
+  getMatchingConfiguration: vi.fn(),
+  getDefaultConfiguration: vi.fn(),
+  upsertCaregiverPreferences: vi.fn(),
+  getCaregiverPreferences: vi.fn(),
 } as any;
 
 const mockContext: UserContext = {
@@ -71,7 +72,7 @@ describe('ShiftMatchingHandlers', () => {
   let handlers: ShiftMatchingHandlers;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     handlers = new ShiftMatchingHandlers(mockPool);
     
     // Replace service and repository with mocks
@@ -231,14 +232,14 @@ describe('ShiftMatchingHandlers', () => {
         mockRepository.getDefaultConfiguration.mockResolvedValue(mockConfig);
         
         // Mock the private method call
-        const mockBuildCaregiverContext = jest.fn().mockResolvedValue({});
+        const mockBuildCaregiverContext = vi.fn().mockResolvedValue({});
         (mockService as any).buildCaregiverContext = mockBuildCaregiverContext;
 
         // Mock MatchingAlgorithm
         const mockMatchingAlgorithm = {
-          evaluateMatch: jest.fn().mockReturnValue(mockCandidate),
+          evaluateMatch: vi.fn().mockReturnValue(mockCandidate),
         };
-        jest.doMock('../../utils/matching-algorithm', () => ({
+        vi.doMock('../../utils/matching-algorithm', () => ({
           MatchingAlgorithm: mockMatchingAlgorithm,
         }));
 

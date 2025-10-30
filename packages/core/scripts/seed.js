@@ -1,13 +1,10 @@
-/**
- * Database seeding script
- *
- * Seeds initial data for development and testing
- */
-import { v4 as uuidv4 } from 'uuid';
-import { initializeDatabase } from '../src/db/connection';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const connection_1 = require("../src/db/connection");
 async function seedDatabase() {
     console.log('🌱 Seeding database...\n');
-    const db = initializeDatabase({
+    const db = (0, connection_1.initializeDatabase)({
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT || '5432'),
         database: process.env.DB_NAME || 'care_commons',
@@ -17,9 +14,8 @@ async function seedDatabase() {
     });
     try {
         await db.transaction(async (client) => {
-            // Create sample organization
-            const orgId = uuidv4();
-            const systemUserId = uuidv4();
+            const orgId = (0, uuid_1.v4)();
+            const systemUserId = (0, uuid_1.v4)();
             console.log('Creating organization...');
             await client.query(`
         INSERT INTO organizations (
@@ -43,8 +39,7 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Create branch
-            const branchId = uuidv4();
+            const branchId = (0, uuid_1.v4)();
             console.log('Creating branch...');
             await client.query(`
         INSERT INTO branches (
@@ -68,7 +63,6 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Create admin user
             console.log('Creating admin user...');
             await client.query(`
         INSERT INTO users (
@@ -81,7 +75,7 @@ async function seedDatabase() {
                 orgId,
                 'admin',
                 'admin@carecommons.example',
-                '$2a$10$dummyhashdummyhashdummyhashdummyhashdummyhash', // Placeholder
+                '$2a$10$dummyhashdummyhashdummyhashdummyhashdummyhash',
                 'System',
                 'Administrator',
                 ['SUPER_ADMIN'],
@@ -90,8 +84,7 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Create sample program
-            const programId = uuidv4();
+            const programId = (0, uuid_1.v4)();
             console.log('Creating sample program...');
             await client.query(`
         INSERT INTO programs (
@@ -110,10 +103,8 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Create sample clients
             console.log('Creating sample clients...');
-            // Client 1: Active senior with multiple risk flags
-            const client1Id = uuidv4();
+            const client1Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO clients (
           id, organization_id, branch_id, client_number,
@@ -176,7 +167,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Sarah Thompson-Martinez',
                         relationship: 'Daughter',
                         phone: { number: '555-0210', type: 'MOBILE', canReceiveSMS: true },
@@ -195,7 +186,7 @@ async function seedDatabase() {
                         notes: 'Available evenings and weekends',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'James Thompson',
                         relationship: 'Son',
                         phone: { number: '555-0220', type: 'MOBILE', canReceiveSMS: true },
@@ -207,7 +198,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Sarah Thompson-Martinez',
                         relationship: 'Daughter',
                         phone: { number: '555-0210', type: 'MOBILE', canReceiveSMS: true },
@@ -248,7 +239,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'PRIMARY',
                         provider: 'Medicare Part A & B',
                         policyNumber: 'MCR123456789A',
@@ -258,7 +249,7 @@ async function seedDatabase() {
                         effectiveDate: '2007-06-01',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'SECONDARY',
                         provider: 'Blue Cross Blue Shield - Medigap',
                         policyNumber: 'BCBS987654',
@@ -273,7 +264,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         programId: programId,
                         programName: 'Personal Care Services',
                         enrollmentDate: '2024-01-15',
@@ -293,7 +284,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'MEDICARE',
                         name: 'Medicare Part A & B',
                         priority: 1,
@@ -301,7 +292,7 @@ async function seedDatabase() {
                         effectiveDate: '2024-01-15',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'PRIVATE_INSURANCE',
                         name: 'Blue Cross Blue Shield - Medigap',
                         priority: 2,
@@ -311,7 +302,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'FALL_RISK',
                         severity: 'HIGH',
                         description: 'History of falls, uses walker, stairs in home',
@@ -320,7 +311,7 @@ async function seedDatabase() {
                         requiresAcknowledgment: true,
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'MEDICATION_COMPLIANCE',
                         severity: 'MEDIUM',
                         description: 'Sometimes forgets afternoon medications',
@@ -331,7 +322,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         allergen: 'Penicillin',
                         type: 'MEDICATION',
                         reaction: 'Severe rash and breathing difficulty',
@@ -339,7 +330,7 @@ async function seedDatabase() {
                         notes: 'Use alternative antibiotics only',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         allergen: 'Shellfish',
                         type: 'FOOD',
                         reaction: 'Hives and swelling',
@@ -354,8 +345,7 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Client 2: Veteran with complex care needs
-            const client2Id = uuidv4();
+            const client2Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO clients (
           id, organization_id, branch_id, client_number,
@@ -416,7 +406,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Maria Martinez-Chen',
                         relationship: 'Daughter',
                         phone: { number: '555-0360', type: 'MOBILE', canReceiveSMS: true },
@@ -428,7 +418,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Maria Martinez-Chen',
                         relationship: 'Daughter',
                         phone: { number: '555-0360', type: 'MOBILE', canReceiveSMS: true },
@@ -456,7 +446,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         programId: programId,
                         programName: 'Personal Care Services',
                         enrollmentDate: '2024-02-01',
@@ -477,7 +467,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'VETERANS_BENEFITS',
                         name: 'VA Home Based Primary Care',
                         priority: 1,
@@ -487,7 +477,7 @@ async function seedDatabase() {
                         notes: 'Covers 50% of approved personal care services',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'MEDICARE',
                         name: 'Medicare Part A & B',
                         priority: 2,
@@ -497,7 +487,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'SAFETY_CONCERN',
                         severity: 'MEDIUM',
                         description: 'Service dog must be present during care - provides PTSD support',
@@ -514,8 +504,7 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Client 3: New intake - pending assessment
-            const client3Id = uuidv4();
+            const client3Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO clients (
           id, organization_id, branch_id, client_number,
@@ -549,7 +538,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Patricia Williams',
                         relationship: 'Sister',
                         phone: { number: '555-0460', type: 'MOBILE', canReceiveSMS: true },
@@ -574,8 +563,7 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Client 4: On hold due to hospitalization
-            const client4Id = uuidv4();
+            const client4Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO clients (
           id, organization_id, branch_id, client_number,
@@ -607,7 +595,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Linda Patterson',
                         relationship: 'Spouse',
                         phone: { number: '555-0560', type: 'MOBILE', canReceiveSMS: true },
@@ -617,7 +605,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         programId: programId,
                         programName: 'Personal Care Services',
                         enrollmentDate: '2023-11-01',
@@ -639,8 +627,7 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Client 5: Inquiry stage - potential client
-            const client5Id = uuidv4();
+            const client5Id = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO clients (
           id, organization_id, branch_id, client_number,
@@ -673,7 +660,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Carlos Rodriguez',
                         relationship: 'Son',
                         phone: { number: '555-0660', type: 'MOBILE', canReceiveSMS: true },
@@ -695,11 +682,9 @@ async function seedDatabase() {
                 systemUserId,
                 systemUserId,
             ]);
-            // Create sample caregivers
             console.log('Creating sample caregivers...');
-            // Caregiver 1: Senior caregiver with 5 years experience - fully compliant
-            const cg1Id = uuidv4();
-            const cg1PayRateId = uuidv4();
+            const cg1Id = (0, uuid_1.v4)();
+            const cg1PayRateId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO caregivers (
           id, organization_id, branch_ids, primary_branch_id,
@@ -738,7 +723,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Michael Johnson',
                         relationship: 'Spouse',
                         phone: { number: '555-1010', type: 'MOBILE', canReceiveSMS: true },
@@ -750,7 +735,7 @@ async function seedDatabase() {
                 ['visits:create', 'visits:read', 'visits:update', 'clients:read', 'caregivers:read'],
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'CNA',
                         name: 'Certified Nursing Assistant',
                         number: 'CNA123456',
@@ -761,7 +746,7 @@ async function seedDatabase() {
                         status: 'ACTIVE',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'CPR',
                         name: 'CPR & AED Certification',
                         number: 'CPR789012',
@@ -772,7 +757,7 @@ async function seedDatabase() {
                         status: 'ACTIVE',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'FIRST_AID',
                         name: 'First Aid Certification',
                         issueDate: '2024-01-10',
@@ -782,7 +767,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'New Employee Orientation',
                         category: 'ORIENTATION',
                         completionDate: '2019-03-20',
@@ -790,7 +775,7 @@ async function seedDatabase() {
                         status: 'COMPLETED',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Dementia Care Specialist',
                         category: 'SPECIALIZED_CARE',
                         provider: 'Alzheimer\'s Association',
@@ -801,7 +786,7 @@ async function seedDatabase() {
                         status: 'COMPLETED',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Fall Prevention',
                         category: 'SAFETY',
                         completionDate: '2023-09-10',
@@ -810,11 +795,11 @@ async function seedDatabase() {
                     },
                 ]),
                 JSON.stringify([
-                    { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-                    { id: uuidv4(), name: 'Dementia Care', category: 'Specialized', proficiencyLevel: 'ADVANCED' },
-                    { id: uuidv4(), name: 'Medication Reminders', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
-                    { id: uuidv4(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-                    { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+                    { id: (0, uuid_1.v4)(), name: 'Dementia Care', category: 'Specialized', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Medication Reminders', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+                    { id: (0, uuid_1.v4)(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
                 ]),
                 ['Dementia Care', 'Fall Prevention'],
                 JSON.stringify({
@@ -851,9 +836,8 @@ async function seedDatabase() {
                 'Excellent caregiver with strong dementia care skills. Preferred by multiple clients.',
                 systemUserId, systemUserId,
             ]);
-            // Caregiver 2: New CNA - onboarding in progress
-            const cg2Id = uuidv4();
-            const cg2PayRateId = uuidv4();
+            const cg2Id = (0, uuid_1.v4)();
+            const cg2PayRateId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO caregivers (
           id, organization_id, branch_ids, primary_branch_id,
@@ -888,7 +872,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Lisa Chen',
                         relationship: 'Sister',
                         phone: { number: '555-1110', type: 'MOBILE', canReceiveSMS: true },
@@ -900,7 +884,7 @@ async function seedDatabase() {
                 ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'CNA',
                         name: 'Certified Nursing Assistant',
                         number: 'CNA987654',
@@ -911,7 +895,7 @@ async function seedDatabase() {
                         status: 'ACTIVE',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'CPR',
                         name: 'CPR & AED Certification',
                         issueDate: '2023-11-15',
@@ -921,7 +905,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'New Employee Orientation',
                         category: 'ORIENTATION',
                         completionDate: '2024-02-20',
@@ -929,7 +913,7 @@ async function seedDatabase() {
                         status: 'COMPLETED',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'HIPAA Training',
                         category: 'MANDATORY_COMPLIANCE',
                         completionDate: '2024-02-20',
@@ -938,9 +922,9 @@ async function seedDatabase() {
                     },
                 ]),
                 JSON.stringify([
-                    { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
-                    { id: uuidv4(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
-                    { id: uuidv4(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
+                    { id: (0, uuid_1.v4)(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
+                    { id: (0, uuid_1.v4)(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
                 ]),
                 JSON.stringify({
                     schedule: {
@@ -969,9 +953,8 @@ async function seedDatabase() {
                 'Completing onboarding training. Background check in progress.',
                 systemUserId, systemUserId,
             ]);
-            // Caregiver 3: Part-time companion - bilingual Spanish
-            const cg3Id = uuidv4();
-            const cg3PayRateId = uuidv4();
+            const cg3Id = (0, uuid_1.v4)();
+            const cg3PayRateId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO caregivers (
           id, organization_id, branch_ids, primary_branch_id,
@@ -1006,7 +989,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Roberto Garcia',
                         relationship: 'Spouse',
                         phone: { number: '555-1210', type: 'MOBILE', canReceiveSMS: true },
@@ -1018,7 +1001,7 @@ async function seedDatabase() {
                 ['visits:create', 'visits:read', 'clients:read'],
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'CPR',
                         name: 'CPR & AED Certification',
                         issueDate: '2023-06-01',
@@ -1026,7 +1009,7 @@ async function seedDatabase() {
                         status: 'ACTIVE',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'FIRST_AID',
                         name: 'First Aid Certification',
                         issueDate: '2023-06-01',
@@ -1036,7 +1019,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'New Employee Orientation',
                         category: 'ORIENTATION',
                         completionDate: '2021-06-10',
@@ -1044,7 +1027,7 @@ async function seedDatabase() {
                         status: 'COMPLETED',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Companion Care Basics',
                         category: 'CLINICAL_SKILLS',
                         completionDate: '2021-06-15',
@@ -1053,10 +1036,10 @@ async function seedDatabase() {
                     },
                 ]),
                 JSON.stringify([
-                    { id: uuidv4(), name: 'Companionship', category: 'Social', proficiencyLevel: 'EXPERT' },
-                    { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
-                    { id: uuidv4(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
-                    { id: uuidv4(), name: 'Transportation', category: 'Support', proficiencyLevel: 'INTERMEDIATE' },
+                    { id: (0, uuid_1.v4)(), name: 'Companionship', category: 'Social', proficiencyLevel: 'EXPERT' },
+                    { id: (0, uuid_1.v4)(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Transportation', category: 'Support', proficiencyLevel: 'INTERMEDIATE' },
                 ]),
                 JSON.stringify({
                     schedule: {
@@ -1090,9 +1073,8 @@ async function seedDatabase() {
                 'ACTIVE',
                 systemUserId, systemUserId,
             ]);
-            // Caregiver 4: HHA with expiring credentials
-            const cg4Id = uuidv4();
-            const cg4PayRateId = uuidv4();
+            const cg4Id = (0, uuid_1.v4)();
+            const cg4PayRateId = (0, uuid_1.v4)();
             const thirtyDaysFromNow = new Date();
             thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 25);
             await client.query(`
@@ -1129,7 +1111,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'David Williams',
                         relationship: 'Spouse',
                         phone: { number: '555-1310', type: 'MOBILE', canReceiveSMS: true },
@@ -1141,7 +1123,7 @@ async function seedDatabase() {
                 ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'HHA',
                         name: 'Home Health Aide Certification',
                         number: 'HHA456789',
@@ -1153,7 +1135,7 @@ async function seedDatabase() {
                         notes: 'EXPIRING SOON - Renewal application submitted',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'CPR',
                         name: 'CPR & AED Certification',
                         issueDate: '2024-02-01',
@@ -1163,7 +1145,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Home Health Aide Training',
                         category: 'CLINICAL_SKILLS',
                         completionDate: '2019-12-15',
@@ -1171,7 +1153,7 @@ async function seedDatabase() {
                         status: 'COMPLETED',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Infection Control',
                         category: 'SAFETY',
                         completionDate: '2023-08-10',
@@ -1180,10 +1162,10 @@ async function seedDatabase() {
                     },
                 ]),
                 JSON.stringify([
-                    { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-                    { id: uuidv4(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-                    { id: uuidv4(), name: 'Wound Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
-                    { id: uuidv4(), name: 'Catheter Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+                    { id: (0, uuid_1.v4)(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+                    { id: (0, uuid_1.v4)(), name: 'Wound Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+                    { id: (0, uuid_1.v4)(), name: 'Catheter Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
                 ]),
                 ['Wound Care', 'Post-Surgical Care'],
                 JSON.stringify({
@@ -1214,9 +1196,8 @@ async function seedDatabase() {
                 'HHA certification expiring soon - renewal in progress. Excellent clinical skills.',
                 systemUserId, systemUserId,
             ]);
-            // Caregiver 5: Per diem caregiver - weekend availability
-            const cg5Id = uuidv4();
-            const cg5PayRateId = uuidv4();
+            const cg5Id = (0, uuid_1.v4)();
+            const cg5PayRateId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO caregivers (
           id, organization_id, branch_ids, primary_branch_id,
@@ -1251,7 +1232,7 @@ async function seedDatabase() {
                 }),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Patricia Robinson',
                         relationship: 'Mother',
                         phone: { number: '555-1410', type: 'HOME', canReceiveSMS: false },
@@ -1263,7 +1244,7 @@ async function seedDatabase() {
                 ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'CPR',
                         name: 'CPR & AED Certification',
                         issueDate: '2023-04-15',
@@ -1271,7 +1252,7 @@ async function seedDatabase() {
                         status: 'ACTIVE',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         type: 'FIRST_AID',
                         name: 'First Aid Certification',
                         issueDate: '2023-04-15',
@@ -1281,7 +1262,7 @@ async function seedDatabase() {
                 ]),
                 JSON.stringify([
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'New Employee Orientation',
                         category: 'ORIENTATION',
                         completionDate: '2023-05-05',
@@ -1289,7 +1270,7 @@ async function seedDatabase() {
                         status: 'COMPLETED',
                     },
                     {
-                        id: uuidv4(),
+                        id: (0, uuid_1.v4)(),
                         name: 'Personal Care Assistant Training',
                         category: 'CLINICAL_SKILLS',
                         completionDate: '2023-05-10',
@@ -1298,9 +1279,9 @@ async function seedDatabase() {
                     },
                 ]),
                 JSON.stringify([
-                    { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
-                    { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
-                    { id: uuidv4(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
+                    { id: (0, uuid_1.v4)(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
+                    { id: (0, uuid_1.v4)(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
+                    { id: (0, uuid_1.v4)(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
                 ]),
                 JSON.stringify({
                     schedule: {
@@ -1366,3 +1347,4 @@ seedDatabase().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);
 });
+//# sourceMappingURL=seed.js.map

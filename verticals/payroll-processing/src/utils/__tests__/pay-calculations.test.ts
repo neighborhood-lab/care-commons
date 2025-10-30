@@ -20,6 +20,7 @@ import {
   calculateOnCallPay,
   calculateShiftDifferential,
 } from '../pay-calculations';
+import { describe, it, expect } from 'vitest';
 
 describe('Pay Calculation Utilities', () => {
   describe('roundToTwoDecimals', () => {

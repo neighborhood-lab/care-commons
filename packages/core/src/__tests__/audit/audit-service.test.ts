@@ -3,33 +3,41 @@
  */
 
 import { AuditService, AuditEventType } from '../../audit/audit-service';
-import { Database } from '../../db/connection';
 import { UserContext } from '../../types/base';
-import { createMockUserContext } from '../test-utils.helper';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
+const createMockUserContext = (overrides = {}) => ({
+  userId: 'test-user-id',
+  roles: ['COORDINATOR' as const],
+  permissions: ['clients:read', 'clients:write'],
+  organizationId: 'test-org-id',
+  branchIds: ['test-branch-id'],
+  ...overrides,
+});
 
 // Mock Database
-jest.mock('../../db/connection');
+vi.mock('../../db/connection');
 
 // Mock UUID
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'test-audit-event-id'),
+vi.mock('uuid', () => ({
+  v4: vi.fn(() => 'test-audit-event-id'),
 }));
 
 describe('AuditService', () => {
   let auditService: AuditService;
-  let mockDatabase: jest.Mocked<Database>;
+  let mockDatabase: any;
   let mockUserContext: UserContext;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Create mock database
     mockDatabase = {
-      query: jest.fn(),
-      getClient: jest.fn(),
-      transaction: jest.fn(),
-      close: jest.fn(),
-      healthCheck: jest.fn(),
+      query: vi.fn(),
+      getClient: vi.fn(),
+      transaction: vi.fn(),
+      close: vi.fn(),
+      healthCheck: vi.fn(),
     } as any;
 
     // Create audit service instance

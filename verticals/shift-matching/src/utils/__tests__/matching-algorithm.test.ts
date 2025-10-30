@@ -21,6 +21,7 @@ import {
   ConflictingVisit,
 } from '../../types/shift-matching';
 // // import { Caregiver } from '@care-commons/caregiver-staff';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock Caregiver interface for testing
 interface MockCaregiver {

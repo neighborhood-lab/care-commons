@@ -1,18 +1,10 @@
-/**
- * EVV Seed Data - Realistic scenarios for demonstration
- *
- * Creates comprehensive EVV data including:
- * - Compliant visits with successful verification
- * - Geofence violations requiring supervisor review
- * - Offline time entries pending sync
- * - Manual overrides for legitimate exceptions
- * - Various compliance scenarios
- */
-import { v4 as uuidv4 } from 'uuid';
-import { initializeDatabase } from '../src/db/connection';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const connection_1 = require("../src/db/connection");
 async function seedEVVData() {
     console.log('🌱 Seeding EVV data...\n');
-    const db = initializeDatabase({
+    const db = (0, connection_1.initializeDatabase)({
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT || '5432'),
         database: process.env.DB_NAME || 'care_commons',
@@ -22,7 +14,6 @@ async function seedEVVData() {
     });
     try {
         await db.transaction(async (client) => {
-            // First, fetch existing data we need to reference
             console.log('Fetching existing data...');
             const orgsResult = await client.query('SELECT id FROM organizations LIMIT 1');
             const orgId = orgsResult.rows[0]?.id;
@@ -38,21 +29,19 @@ async function seedEVVData() {
                 console.error('❌ Missing required base data. Please run seed.ts first.');
                 process.exit(1);
             }
-            // Create service patterns and visits for EVV demos
-            const serviceTypeId = uuidv4();
+            const serviceTypeId = (0, uuid_1.v4)();
             const now = new Date();
             const yesterday = new Date(now);
             yesterday.setDate(yesterday.getDate() - 1);
             const twoDaysAgo = new Date(now);
             twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-            // Create geofences for client locations
             console.log('Creating geofences...');
             const geofences = [];
             for (const client of clients) {
                 const address = typeof client.primary_address === 'string'
                     ? JSON.parse(client.primary_address)
                     : client.primary_address;
-                const geofenceId = uuidv4();
+                const geofenceId = (0, uuid_1.v4)();
                 await client.query(`
           INSERT INTO geofences (
             id, organization_id, client_id, address_id,
@@ -64,14 +53,14 @@ async function seedEVVData() {
                     geofenceId,
                     orgId,
                     client.id,
-                    uuidv4(), // address_id
+                    (0, uuid_1.v4)(),
                     address.latitude || 39.7817,
                     address.longitude || -89.6501,
-                    100, // 100 meter radius
+                    100,
                     'STANDARD',
                     'CIRCLE',
                     true,
-                    0, // Will be updated as verifications occur
+                    0,
                     0,
                     0,
                     0,
@@ -86,11 +75,9 @@ async function seedEVVData() {
                     longitude: address.longitude || -89.6501,
                 });
             }
-            // Create visits
             console.log('Creating visits...');
             const visits = [];
-            // Visit 1: Completed yesterday - fully compliant
-            const visit1Id = uuidv4();
+            const visit1Id = (0, uuid_1.v4)();
             const visit1Address = typeof clients[0].primary_address === 'string'
                 ? JSON.parse(clients[0].primary_address)
                 : clients[0].primary_address;
@@ -134,8 +121,7 @@ async function seedEVVData() {
                 geofence: geofences[0],
                 scenario: 'compliant',
             });
-            // Visit 2: Completed with geofence violation (caregiver slightly outside radius)
-            const visit2Id = uuidv4();
+            const visit2Id = (0, uuid_1.v4)();
             const visit2Address = typeof clients[1].primary_address === 'string'
                 ? JSON.parse(clients[1].primary_address)
                 : clients[1].primary_address;
@@ -179,8 +165,7 @@ async function seedEVVData() {
                 geofence: geofences[1],
                 scenario: 'geofence_violation',
             });
-            // Visit 3: In progress (clocked in, not clocked out yet)
-            const visit3Id = uuidv4();
+            const visit3Id = (0, uuid_1.v4)();
             const visit3Address = typeof clients[2].primary_address === 'string'
                 ? JSON.parse(clients[2].primary_address)
                 : clients[2].primary_address;
@@ -224,7 +209,6 @@ async function seedEVVData() {
                 geofence: geofences[2],
                 scenario: 'in_progress',
             });
-            // Create EVV records and time entries
             console.log('Creating EVV records and time entries...');
             for (const visit of visits) {
                 const geofence = visit.geofence;
@@ -233,21 +217,18 @@ async function seedEVVData() {
                 const address = typeof client.primary_address === 'string'
                     ? JSON.parse(client.primary_address)
                     : client.primary_address;
-                // Calculate clock-in location based on scenario
                 let clockInLat = geofence.latitude;
                 let clockInLon = geofence.longitude;
-                let clockInAccuracy = 15; // meters
+                let clockInAccuracy = 15;
                 let isWithinGeofence = true;
                 if (visit.scenario === 'geofence_violation') {
-                    // Simulate being 120 meters away (outside 100m geofence)
-                    clockInLat += 0.001; // ~111m north
-                    clockInLon += 0.001; // ~90m east
+                    clockInLat += 0.001;
+                    clockInLon += 0.001;
                     clockInAccuracy = 25;
                     isWithinGeofence = false;
                 }
                 const clockInTime = new Date(visit.date);
-                clockInTime.setHours(9, 5, 0, 0); // Clocked in at 9:05 AM
-                // Create clock-in verification data
+                clockInTime.setHours(9, 5, 0, 0);
                 const clockInVerification = {
                     latitude: clockInLat,
                     longitude: clockInLon,
@@ -274,8 +255,7 @@ async function seedEVVData() {
                     verificationPassed: isWithinGeofence,
                     verificationFailureReasons: isWithinGeofence ? null : ['Location outside geofence boundary'],
                 };
-                // Create time entry for clock-in
-                const timeEntryIdIn = uuidv4();
+                const timeEntryIdIn = (0, uuid_1.v4)();
                 await client.query(`
           INSERT INTO time_entries (
             id, visit_id, organization_id, caregiver_id, client_id,
@@ -310,7 +290,7 @@ async function seedEVVData() {
                     'dummy-hash-' + timeEntryIdIn.substring(0, 8),
                     clockInTime,
                     JSON.stringify({
-                        syncId: uuidv4(),
+                        syncId: (0, uuid_1.v4)(),
                         lastSyncedAt: clockInTime,
                         syncStatus: 'SYNCED',
                     }),
@@ -321,7 +301,6 @@ async function seedEVVData() {
                     systemUserId,
                     systemUserId,
                 ]);
-                // Update geofence statistics
                 await client.query(`
           UPDATE geofences
           SET verification_count = verification_count + 1,
@@ -336,20 +315,18 @@ async function seedEVVData() {
                     clockInAccuracy,
                     geofence.id,
                 ]);
-                // Create clock-out data if visit is completed
                 if (visit.scenario !== 'in_progress') {
                     const clockOutTime = new Date(visit.date);
-                    clockOutTime.setHours(11, 0, 0, 0); // Clocked out at 11:00 AM
+                    clockOutTime.setHours(11, 0, 0, 0);
                     const clockOutVerification = {
                         ...clockInVerification,
                         timestamp: clockOutTime.toISOString(),
-                        isWithinGeofence: true, // Clock-out always within geofence
+                        isWithinGeofence: true,
                         distanceFromAddress: 10,
                         verificationPassed: true,
                         verificationFailureReasons: null,
                     };
-                    // Create time entry for clock-out
-                    const timeEntryIdOut = uuidv4();
+                    const timeEntryIdOut = (0, uuid_1.v4)();
                     await client.query(`
             INSERT INTO time_entries (
               id, visit_id, organization_id, caregiver_id, client_id,
@@ -384,7 +361,7 @@ async function seedEVVData() {
                         'dummy-hash-' + timeEntryIdOut.substring(0, 8),
                         clockOutTime,
                         JSON.stringify({
-                            syncId: uuidv4(),
+                            syncId: (0, uuid_1.v4)(),
                             lastSyncedAt: clockOutTime,
                             syncStatus: 'SYNCED',
                         }),
@@ -394,7 +371,6 @@ async function seedEVVData() {
                         systemUserId,
                         systemUserId,
                     ]);
-                    // Update geofence statistics for clock-out
                     await client.query(`
             UPDATE geofences
             SET verification_count = verification_count + 1,
@@ -403,12 +379,10 @@ async function seedEVVData() {
                 updated_at = NOW()
             WHERE id = $2
           `, [clockInAccuracy, geofence.id]);
-                    // Calculate duration
                     const durationMinutes = Math.round((clockOutTime.getTime() - clockInTime.getTime()) / 60000);
-                    // Create EVV record
-                    const evvRecordId = uuidv4();
+                    const evvRecordId = (0, uuid_1.v4)();
                     const complianceFlags = isWithinGeofence ? ['COMPLIANT'] : ['GEOFENCE_VIOLATION'];
-                    const recordStatus = isWithinGeofence ? 'COMPLETE' : 'COMPLETE'; // Both complete, but flagged has issue
+                    const recordStatus = isWithinGeofence ? 'COMPLETE' : 'COMPLETE';
                     await client.query(`
             INSERT INTO evv_records (
               id, visit_id, organization_id, branch_id, client_id, caregiver_id,
@@ -452,20 +426,18 @@ async function seedEVVData() {
                         clockOutTime,
                         systemUserId,
                         JSON.stringify({
-                            syncId: uuidv4(),
+                            syncId: (0, uuid_1.v4)(),
                             lastSyncedAt: clockOutTime,
                             syncStatus: 'SYNCED',
                         }),
                         systemUserId,
                         systemUserId,
                     ]);
-                    // Link time entries to EVV record
                     await client.query('UPDATE time_entries SET evv_record_id = $1 WHERE id IN ($2, $3)', [evvRecordId, timeEntryIdIn, timeEntryIdOut]);
                     console.log(`  ✓ Created EVV record for visit ${visit.id} - ${visit.scenario}`);
                 }
                 else {
-                    // In-progress visit - only clock-in, no EVV record yet
-                    const evvRecordId = uuidv4();
+                    const evvRecordId = (0, uuid_1.v4)();
                     await client.query(`
             INSERT INTO evv_records (
               id, visit_id, organization_id, branch_id, client_id, caregiver_id,
@@ -497,9 +469,9 @@ async function seedEVVData() {
                         visit.date.toISOString().split('T')[0],
                         JSON.stringify(address),
                         clockInTime,
-                        null, // No clock-out yet
+                        null,
                         JSON.stringify(clockInVerification),
-                        'PENDING', // Still pending clock-out
+                        'PENDING',
                         'FULL',
                         JSON.stringify(['COMPLIANT']),
                         'dummy-integrity-hash-' + evvRecordId.substring(0, 8),
@@ -507,14 +479,13 @@ async function seedEVVData() {
                         clockInTime,
                         systemUserId,
                         JSON.stringify({
-                            syncId: uuidv4(),
+                            syncId: (0, uuid_1.v4)(),
                             lastSyncedAt: clockInTime,
                             syncStatus: 'SYNCED',
                         }),
                         systemUserId,
                         systemUserId,
                     ]);
-                    // Link time entry to EVV record
                     await client.query('UPDATE time_entries SET evv_record_id = $1 WHERE id = $2', [evvRecordId, timeEntryIdIn]);
                     console.log(`  ✓ Created EVV record for in-progress visit ${visit.id}`);
                 }
@@ -544,3 +515,4 @@ seedEVVData().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);
 });
+//# sourceMappingURL=seed-evv.js.map

@@ -1,20 +1,10 @@
-/**
- * Billing & Invoicing seed data
- *
- * Creates realistic demo data for billing operations including:
- * - Payers (Medicare, Medicaid, private insurance, private pay)
- * - Rate schedules
- * - Service authorizations
- * - Billable items from completed visits
- * - Invoices
- * - Payments
- * - Claims
- */
-import { v4 as uuidv4 } from 'uuid';
-import { initializeDatabase } from '../src/db/connection';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const connection_1 = require("../src/db/connection");
 async function seedBillingData() {
     console.log('💰 Seeding billing data...\n');
-    const db = initializeDatabase({
+    const db = (0, connection_1.initializeDatabase)({
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT || '5432'),
         database: process.env.DB_NAME || 'care_commons',
@@ -24,7 +14,6 @@ async function seedBillingData() {
     });
     try {
         await db.transaction(async (client) => {
-            // Get existing data
             console.log('Fetching existing organization and user data...');
             const orgResult = await client.query('SELECT id FROM organizations ORDER BY created_at ASC LIMIT 1');
             if (orgResult.rows.length === 0) {
@@ -41,19 +30,13 @@ async function seedBillingData() {
                 throw new Error('No branch found. Please run seed.ts first.');
             }
             const branchId = branchResult.rows[0].id;
-            // Get clients
             const clientsResult = await client.query('SELECT id, first_name, last_name FROM clients WHERE organization_id = $1 AND status = $2', [orgId, 'ACTIVE']);
             const clients = clientsResult.rows;
-            // Get caregivers
             const caregiversResult = await client.query('SELECT id, first_name, last_name FROM caregivers WHERE organization_id = $1 AND status = $2 LIMIT 3', [orgId, 'ACTIVE']);
             const caregivers = caregiversResult.rows;
             console.log(`Found org: ${orgId}, ${clients.length} active clients, ${caregivers.length} active caregivers\n`);
-            // ========================================================================
-            // CREATE PAYERS
-            // ========================================================================
             console.log('Creating payers...');
-            // Medicare
-            const medicareId = uuidv4();
+            const medicareId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO payers (
           id, organization_id, payer_name, payer_type, payer_code,
@@ -101,8 +84,7 @@ async function seedBillingData() {
                 new Date(),
                 1,
             ]);
-            // Medicaid (Illinois)
-            const medicaidId = uuidv4();
+            const medicaidId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO payers (
           id, organization_id, payer_name, payer_type, payer_code,
@@ -150,8 +132,7 @@ async function seedBillingData() {
                 new Date(),
                 1,
             ]);
-            // Private Insurance - Blue Cross Blue Shield
-            const bcbsId = uuidv4();
+            const bcbsId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO payers (
           id, organization_id, payer_name, payer_type, payer_code,
@@ -208,8 +189,7 @@ async function seedBillingData() {
                 new Date(),
                 1,
             ]);
-            // Veterans Benefits
-            const vaId = uuidv4();
+            const vaId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO payers (
           id, organization_id, payer_name, payer_type, payer_code,
@@ -254,8 +234,7 @@ async function seedBillingData() {
                 new Date(),
                 1,
             ]);
-            // Private Pay (for clients paying out of pocket)
-            const privatePayId = uuidv4();
+            const privatePayId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO payers (
           id, organization_id, payer_name, payer_type, payer_code,
@@ -285,12 +264,8 @@ async function seedBillingData() {
                 1,
             ]);
             console.log('  ✓ Created 5 payers');
-            // ========================================================================
-            // CREATE RATE SCHEDULES
-            // ========================================================================
             console.log('Creating rate schedules...');
-            // Standard rate schedule (default for private pay)
-            const standardRateId = uuidv4();
+            const standardRateId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO rate_schedules (
           id, organization_id, branch_id, name, description, schedule_type,
@@ -310,8 +285,8 @@ async function seedBillingData() {
                 '2024-01-01',
                 JSON.stringify([
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'S5126',
                         serviceTypeName: 'Home Care - Personal Care',
                         unitType: 'HOUR',
@@ -322,8 +297,8 @@ async function seedBillingData() {
                         nightRate: 1.15,
                     },
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'S5125',
                         serviceTypeName: 'Home Care - Companion',
                         unitType: 'HOUR',
@@ -333,8 +308,8 @@ async function seedBillingData() {
                         holidayRate: 1.5,
                     },
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'G0156',
                         serviceTypeName: 'Home Health Aide Services',
                         unitType: 'HOUR',
@@ -345,8 +320,8 @@ async function seedBillingData() {
                         nightRate: 1.15,
                     },
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'S5125',
                         serviceTypeName: 'Respite Care',
                         unitType: 'HOUR',
@@ -363,8 +338,7 @@ async function seedBillingData() {
                 new Date(),
                 1,
             ]);
-            // Medicare rate schedule
-            const medicareRateId = uuidv4();
+            const medicareRateId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO rate_schedules (
           id, organization_id, branch_id, name, description, schedule_type,
@@ -388,8 +362,8 @@ async function seedBillingData() {
                 '2024-01-01',
                 JSON.stringify([
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'G0156',
                         serviceTypeName: 'Home Health Aide Services',
                         unitType: 'HOUR',
@@ -399,8 +373,8 @@ async function seedBillingData() {
                         maximumUnits: 8,
                     },
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'S5126',
                         serviceTypeName: 'Personal Care',
                         unitType: 'HOUR',
@@ -419,8 +393,7 @@ async function seedBillingData() {
                 new Date(),
                 1,
             ]);
-            // Medicaid rate schedule
-            const medicaidRateId = uuidv4();
+            const medicaidRateId = (0, uuid_1.v4)();
             await client.query(`
         INSERT INTO rate_schedules (
           id, organization_id, branch_id, name, description, schedule_type,
@@ -444,8 +417,8 @@ async function seedBillingData() {
                 '2024-01-01',
                 JSON.stringify([
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'S5126',
                         serviceTypeName: 'Personal Care Services',
                         unitType: 'HOUR',
@@ -455,8 +428,8 @@ async function seedBillingData() {
                         maximumUnits: 20,
                     },
                     {
-                        id: uuidv4(),
-                        serviceTypeId: uuidv4(),
+                        id: (0, uuid_1.v4)(),
+                        serviceTypeId: (0, uuid_1.v4)(),
                         serviceTypeCode: 'S5125',
                         serviceTypeName: 'Homemaker Services',
                         unitType: 'HOUR',
@@ -476,16 +449,11 @@ async function seedBillingData() {
                 1,
             ]);
             console.log('  ✓ Created 3 rate schedules');
-            // ========================================================================
-            // CREATE SERVICE AUTHORIZATIONS
-            // ========================================================================
             console.log('Creating service authorizations...');
             const authorizations = [];
-            // Create authorizations for active clients with insurance
             for (let i = 0; i < Math.min(clients.length, 2); i++) {
                 const client = clients[i];
-                const authId = uuidv4();
-                // Determine payer based on client
+                const authId = (0, uuid_1.v4)();
                 const payerId = i === 0 ? medicareId : medicaidId;
                 const payerType = i === 0 ? 'MEDICARE' : 'MEDICAID';
                 const payerName = i === 0 ? 'Medicare Part A & B' : 'Illinois Medicaid';
@@ -518,23 +486,23 @@ async function seedBillingData() {
                     payerId,
                     payerType,
                     payerName,
-                    uuidv4(), // service_type_id
+                    (0, uuid_1.v4)(),
                     'S5126',
                     'Personal Care Services',
-                    320, // 80 hours over 3 months
+                    320,
                     'HOUR',
                     i === 0 ? 26.00 : 24.50,
                     i === 0 ? 8320.00 : 7840.00,
                     '2024-01-15',
                     '2024-04-15',
-                    12.5, // Some units already used
+                    12.5,
                     307.5,
-                    8.0, // Some units already billed
+                    8.0,
                     false,
                     'ACTIVE',
                     JSON.stringify([
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: null,
                             toStatus: 'PENDING',
                             timestamp: '2024-01-10T10:00:00Z',
@@ -542,7 +510,7 @@ async function seedBillingData() {
                             reason: 'Authorization requested',
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: 'PENDING',
                             toStatus: 'ACTIVE',
                             timestamp: '2024-01-15T14:30:00Z',
@@ -550,8 +518,8 @@ async function seedBillingData() {
                             reason: 'Authorization approved by payer',
                         },
                     ]),
-                    50, // Alert when below 50 hours
-                    30, // Alert 30 days before expiration
+                    50,
+                    30,
                     `Initial authorization for personal care services - ${client.first_name} ${client.last_name}`,
                     systemUserId,
                     systemUserId,
@@ -562,36 +530,27 @@ async function seedBillingData() {
                 authorizations.push({ id: authId, clientId: client.id, authNumber, payerId });
             }
             console.log(`  ✓ Created ${authorizations.length} service authorizations`);
-            // ========================================================================
-            // CREATE BILLABLE ITEMS
-            // ========================================================================
             console.log('Creating billable items...');
             const billableItems = [];
-            // Generate billable items for the past month
             const today = new Date();
             const oneMonthAgo = new Date(today);
             oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-            // Create 15 billable items across different clients, dates, and statuses
             for (let i = 0; i < 15; i++) {
-                const itemId = uuidv4();
+                const itemId = (0, uuid_1.v4)();
                 const clientIndex = i % Math.min(clients.length, 3);
                 const client = clients[clientIndex];
                 const caregiver = caregivers[i % caregivers.length];
-                // Stagger dates over the past month
                 const serviceDate = new Date(oneMonthAgo);
                 serviceDate.setDate(serviceDate.getDate() + (i * 2));
-                // Vary service times and durations
                 const startTime = new Date(serviceDate);
                 startTime.setHours(9 + (i % 8), 0, 0, 0);
                 const durationMinutes = [90, 120, 150, 180][i % 4];
                 const endTime = new Date(startTime);
                 endTime.setMinutes(endTime.getMinutes() + durationMinutes);
-                // Calculate units and amounts
                 const units = durationMinutes / 60;
                 const unitRate = [28.00, 26.00, 24.50][clientIndex % 3];
                 const subtotal = units * unitRate;
                 const finalAmount = subtotal;
-                // Determine payer and authorization
                 const auth = authorizations.find((a) => a.clientId === client.id);
                 const payerId = auth ? auth.payerId : privatePayId;
                 const payerType = auth
@@ -604,7 +563,6 @@ async function seedBillingData() {
                         ? 'Medicare Part A & B'
                         : 'Illinois Medicaid'
                     : 'Private Pay';
-                // Vary statuses for realism
                 const statusOptions = ['READY', 'INVOICED', 'SUBMITTED', 'PAID'];
                 const status = statusOptions[Math.min(Math.floor(i / 4), statusOptions.length - 1)];
                 await client.query(`
@@ -632,9 +590,9 @@ async function seedBillingData() {
                     orgId,
                     branchId,
                     client.id,
-                    null, // visit_id
-                    null, // evv_record_id
-                    uuidv4(), // service_type_id
+                    null,
+                    null,
+                    (0, uuid_1.v4)(),
                     'S5126',
                     'Personal Care Services',
                     serviceDate.toISOString().split('T')[0],
@@ -658,14 +616,14 @@ async function seedBillingData() {
                     status,
                     JSON.stringify([
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: null,
                             toStatus: 'PENDING',
                             timestamp: serviceDate.toISOString(),
                             changedBy: systemUserId,
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: 'PENDING',
                             toStatus: status,
                             timestamp: new Date().toISOString(),
@@ -692,12 +650,8 @@ async function seedBillingData() {
                 });
             }
             console.log(`  ✓ Created ${billableItems.length} billable items`);
-            // ========================================================================
-            // CREATE INVOICES
-            // ========================================================================
             console.log('Creating invoices...');
             const invoices = [];
-            // Group billable items by payer for invoicing
             const itemsByPayer = billableItems
                 .filter((item) => item.status !== 'READY')
                 .reduce((acc, item) => {
@@ -709,17 +663,15 @@ async function seedBillingData() {
             }, {});
             let invoiceSequence = 1;
             for (const [payerId, items] of Object.entries(itemsByPayer)) {
-                const invoiceId = uuidv4();
+                const invoiceId = (0, uuid_1.v4)();
                 const invoiceNumber = `INV-CCHH-2024-${String(invoiceSequence++).padStart(6, '0')}`;
-                // Calculate totals
                 const subtotal = items.reduce((sum, item) => sum + item.finalAmount, 0);
-                const taxAmount = 0; // No tax for healthcare services
+                const taxAmount = 0;
                 const totalAmount = subtotal;
                 const paidAmount = items.every((item) => item.status === 'PAID')
                     ? totalAmount
                     : 0;
                 const balanceDue = totalAmount - paidAmount;
-                // Determine invoice period
                 const dates = items.map((item) => new Date(item.serviceDate));
                 const periodStart = new Date(Math.min(...dates.map((d) => d.getTime())));
                 const periodEnd = new Date(Math.max(...dates.map((d) => d.getTime())));
@@ -727,20 +679,17 @@ async function seedBillingData() {
                 invoiceDate.setDate(invoiceDate.getDate() + 5);
                 const dueDate = new Date(invoiceDate);
                 dueDate.setDate(dueDate.getDate() + 30);
-                // Get payer info
                 const payerResult = await client.query('SELECT payer_name, payer_type FROM payers WHERE id = $1', [payerId]);
                 const payer = payerResult.rows[0];
-                // Determine status
                 const status = paidAmount === totalAmount ? 'PAID' : 'SENT';
-                // Create line items
                 const lineItems = items.map((item) => ({
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     billableItemId: item.id,
                     serviceDate: item.serviceDate,
                     serviceCode: 'S5126',
                     serviceDescription: 'Personal Care Services',
                     unitType: 'HOUR',
-                    units: item.finalAmount / 26.0, // Rough approximation
+                    units: item.finalAmount / 26.0,
                     unitRate: 26.0,
                     subtotal: item.finalAmount,
                     adjustments: 0,
@@ -780,22 +729,22 @@ async function seedBillingData() {
                     JSON.stringify(lineItems),
                     subtotal,
                     taxAmount,
-                    0, // discount
-                    0, // adjustment
+                    0,
+                    0,
                     totalAmount,
                     paidAmount,
                     balanceDue,
                     status,
                     JSON.stringify([
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: null,
                             toStatus: 'DRAFT',
                             timestamp: invoiceDate.toISOString(),
                             changedBy: systemUserId,
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: 'DRAFT',
                             toStatus: status,
                             timestamp: new Date().toISOString(),
@@ -819,18 +768,13 @@ async function seedBillingData() {
                 });
             }
             console.log(`  ✓ Created ${invoices.length} invoices`);
-            // ========================================================================
-            // CREATE PAYMENTS
-            // ========================================================================
             console.log('Creating payments...');
             const payments = [];
-            // Create payments for paid invoices
             const paidInvoices = invoices.filter((inv) => inv.paidAmount > 0);
             for (let i = 0; i < paidInvoices.length; i++) {
                 const invoice = paidInvoices[i];
-                const paymentId = uuidv4();
+                const paymentId = (0, uuid_1.v4)();
                 const paymentNumber = `PAY-CCHH-2024-${String(i + 1).padStart(6, '0')}`;
-                // Get payer info
                 const payerResult = await client.query('SELECT payer_name, payer_type FROM payers WHERE id = $1', [invoice.payerId]);
                 const payer = payerResult.rows[0];
                 const paymentDate = new Date();
@@ -869,7 +813,7 @@ async function seedBillingData() {
                     `REF-${String(10000 + i)}`,
                     JSON.stringify([
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             invoiceId: invoice.id,
                             invoiceNumber: invoice.invoiceNumber,
                             amount: invoice.paidAmount,
@@ -877,18 +821,18 @@ async function seedBillingData() {
                             appliedBy: systemUserId,
                         },
                     ]),
-                    0, // fully applied
+                    0,
                     'APPLIED',
                     JSON.stringify([
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: null,
                             toStatus: 'RECEIVED',
                             timestamp: paymentDate.toISOString(),
                             changedBy: systemUserId,
                         },
                         {
-                            id: uuidv4(),
+                            id: (0, uuid_1.v4)(),
                             fromStatus: 'RECEIVED',
                             toStatus: 'APPLIED',
                             timestamp: new Date().toISOString(),
@@ -928,3 +872,4 @@ seedBillingData().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);
 });
+//# sourceMappingURL=seed-billing.js.map
