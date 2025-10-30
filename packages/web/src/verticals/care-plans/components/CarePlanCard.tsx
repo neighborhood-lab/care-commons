@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, Target, Clock, AlertTriangle } from 'lucide-react';
 import { Card, StatusBadge } from '@/core/components';
@@ -11,11 +11,13 @@ export interface CarePlanCardProps {
 }
 
 export const CarePlanCard: React.FC<CarePlanCardProps> = ({ carePlan, compact = false }) => {
+  const [now] = useState(() => Date.now());
+  
   const isExpiringSoon = carePlan.expirationDate && 
-    new Date(carePlan.expirationDate) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    new Date(carePlan.expirationDate) <= new Date(now + 30 * 24 * 60 * 60 * 1000);
 
   const isOverdue = carePlan.reviewDate && 
-    new Date(carePlan.reviewDate) < new Date();
+    new Date(carePlan.reviewDate) < new Date(now);
 
   return (
     <Link to={`/care-plans/${carePlan.id}`}>

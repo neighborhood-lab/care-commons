@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   X,
+  Plus,
 } from 'lucide-react';
 import { cn } from '@/core/utils';
 import { useAuth, usePermissions } from '@/core/hooks';
@@ -53,6 +54,12 @@ const navItems: NavItem[] = [
     path: '/care-plans',
     icon: <ClipboardList className="h-5 w-5" />,
     permission: 'care_plans:read',
+  },
+  {
+    label: 'Create Care Plan',
+    path: '/care-plans/new',
+    icon: <Plus className="h-5 w-5" />,
+    permission: 'care_plans:create',
   },
   {
     label: 'Tasks',
