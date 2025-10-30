@@ -3,16 +3,14 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { UserContext } from '@care-commons/core';
+import { UserContext, Role } from '@care-commons/core';
 
 /**
  * Extend Express Request to include userContext
  */
-declare global {
-  namespace Express {
-    interface Request {
-      userContext?: UserContext;
-    }
+declare module 'express' {
+  interface Request {
+    userContext?: UserContext;
   }
 }
 
@@ -29,7 +27,7 @@ export function authContextMiddleware(
   const userId = req.header('X-User-Id') || 'system';
   const organizationId = req.header('X-Organization-Id') || '';
   const branchId = req.header('X-Branch-Id');
-  const roles = (req.header('X-User-Roles') || 'CAREGIVER').split(',') as any[];
+  const roles = (req.header('X-User-Roles') || 'CAREGIVER').split(',') as Role[];
   const permissions = (req.header('X-User-Permissions') || '').split(',').filter(Boolean);
 
   // Set user context on request
