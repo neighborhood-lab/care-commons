@@ -12,25 +12,35 @@ dotenv.config({ path: '.env', quiet: true });
 const env = process.env.NODE_ENV || 'development';
 const dbName = process.env.DB_NAME || 'care_commons';
 
-const connectionConfig = {
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-}
+// Use DATABASE_URL if provided, otherwise build from individual DB_* variables
+const connectionConfig = process.env.DATABASE_URL 
+  ? { connectionString: process.env.DATABASE_URL }
+  : {
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    };
 
 async function runMigrations() {
   console.log('🔄 Starting database migrations with Knex...\n');
 
-  const database = env === 'test' ? `${dbName}_test` : dbName;
+  // Build connection config
+  let connection;
+  if (process.env.DATABASE_URL) {
+    connection = connectionConfig; // Already contains connectionString
+  } else {
+    const database = env === 'test' ? `${dbName}_test` : dbName;
+    connection = { ...connectionConfig, database };
+  }
 
   // Build Knex config inline to avoid tsconfig issues
   const config: Knex.Config = {
     client: 'postgresql',
-    connection: { ...connectionConfig, database },
+    connection,
     migrations: {
-      directory: './packages/core/migrations',
+      directory: './migrations',
       tableName: 'knex_migrations',
       extension: 'ts',
       loadExtensions: ['.ts'],
@@ -65,6 +75,12 @@ async function runMigrations() {
 }
 
 async function createDatabase() {
+  // Skip database creation when using DATABASE_URL (production environments)
+  if (process.env.DATABASE_URL) {
+    console.log('📝 Using DATABASE_URL, skipping database creation');
+    return;
+  }
+
   const config = {
     client: 'postgresql',
     connection: {
