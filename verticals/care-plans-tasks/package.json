@@ -2,24 +2,28 @@
   "name": "@care-commons/care-plans-tasks",
   "version": "0.1.0",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "['vitest/globals']",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "jest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'Linting not configured yet'"
+    "lint": "echo 'Linting not configured yet'",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@care-commons/core": "^0.1.0",
-    "zod": "^4.1.12",
+    "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
-    "date-fns": "^4.1.0"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^24.9.2",
     "@types/uuid": "^11.0.0",
+    "@vitest/ui": "^4.0.5",
     "jest": "^30.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.5"
   }
 }
