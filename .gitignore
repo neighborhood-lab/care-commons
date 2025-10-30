@@ -139,3 +139,9 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Compiled migration files
+packages/core/migrations/*.js
+packages/core/migrations/*.js.map
+packages/core/migrations/*.d.ts
+packages/core/migrations/*.d.ts.map
