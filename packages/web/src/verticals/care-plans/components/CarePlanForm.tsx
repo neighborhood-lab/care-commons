@@ -56,8 +56,8 @@ export const CarePlanForm: React.FC<CarePlanFormProps> = ({
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<CarePlanFormData>({
     resolver: zodResolver(carePlanSchema),
@@ -166,8 +166,8 @@ export const CarePlanForm: React.FC<CarePlanFormProps> = ({
         >
           <Select
             options={planTypeOptions}
-            value={watch('planType')}
-            onChange={(e) => setValue('planType', e.target.value as any)}
+            value={getValues('planType')}
+            onChange={(e) => setValue('planType', e.target.value as CarePlanFormData['planType'])}
           />
         </FormField>
 
@@ -226,7 +226,7 @@ export const CarePlanForm: React.FC<CarePlanFormProps> = ({
   );
 
   const renderReview = () => {
-    const watchedValues = watch();
+    const watchedValues = getValues();
     
     return (
       <div className="space-y-6">

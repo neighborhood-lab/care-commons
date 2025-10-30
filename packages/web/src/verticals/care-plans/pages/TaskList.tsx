@@ -24,7 +24,7 @@ export const TaskList: React.FC = () => {
   if (error) {
     return (
       <ErrorMessage
-        message={(error as any).message || 'Failed to load tasks'}
+        message={(error as Error).message || 'Failed to load tasks'}
         retry={refetch}
       />
     );
@@ -106,8 +106,8 @@ export const TaskList: React.FC = () => {
             </div>
             <Input
               placeholder="Search tasks..."
-              value={(filters as any).query || ''}
-              onChange={(e) => setFilters({ ...filters, query: e.target.value } as any)}
+              value={filters.query || ''}
+              onChange={(e) => setFilters({ ...filters, query: e.target.value })}
               className="pl-10"
             />
           </div>

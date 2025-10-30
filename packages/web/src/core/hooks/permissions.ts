@@ -1,4 +1,5 @@
 import { useAuth } from './auth';
+import type { Role } from '../types/auth';
 
 export interface UsePermissionsReturn {
   can: (permission: string) => boolean;
@@ -28,12 +29,12 @@ export const usePermissions = (): UsePermissionsReturn => {
 
   const hasRole = (role: string): boolean => {
     if (!user) return false;
-    return user.roles.includes(role as any);
+    return user.roles.includes(role as Role);
   };
 
   const hasAnyRole = (roles: string[]): boolean => {
     if (!user) return false;
-    return roles.some((role) => user.roles.includes(role as any));
+    return roles.some((role) => user.roles.includes(role as Role));
   };
 
   return {

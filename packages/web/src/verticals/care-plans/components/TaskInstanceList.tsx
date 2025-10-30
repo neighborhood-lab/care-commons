@@ -14,14 +14,14 @@ import {
 import { usePermissions } from '@/core/hooks';
 import { useTasks } from '../hooks';
 import { TaskCard } from './TaskCard';
-import type { TaskInstanceSearchFilters, TaskStatus, TaskCategory } from '../types';
+import type { TaskInstanceSearchFilters, TaskStatus, TaskCategory, TaskInstance } from '../types';
 
 export interface TaskInstanceListProps {
   carePlanId?: string;
   clientId?: string;
   showFilters?: boolean;
   showViewToggle?: boolean;
-  onTaskClick?: (task: any) => void;
+  onTaskClick?: (task: TaskInstance) => void;
 }
 
 export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({ 
@@ -51,7 +51,7 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
   if (error) {
     return (
       <ErrorMessage
-        message={(error as any).message || 'Failed to load tasks'}
+        message={(error as Error).message || 'Failed to load tasks'}
         retry={refetch}
       />
     );
@@ -173,8 +173,8 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
               </div>
               <Input
                 placeholder="Search tasks..."
-                value={(filters as any).query || ''}
-                onChange={(e) => setFilters({ ...filters, query: e.target.value } as any)}
+                value={filters.query || ''}
+                onChange={(e) => setFilters({ ...filters, query: e.target.value })}
                 className="pl-10"
               />
             </div>

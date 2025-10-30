@@ -35,8 +35,9 @@ export const Login: React.FC = () => {
       login(response.user, response.token);
       toast.success('Welcome back!');
       navigate('/');
-    } catch (error: any) {
-      toast.error(error.message || 'Login failed');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

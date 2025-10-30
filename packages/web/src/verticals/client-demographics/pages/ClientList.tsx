@@ -24,7 +24,7 @@ export const ClientList: React.FC = () => {
   if (error) {
     return (
       <ErrorMessage
-        message={(error as any).message || 'Failed to load clients'}
+        message={(error as Error).message || 'Failed to load clients'}
         retry={refetch}
       />
     );
