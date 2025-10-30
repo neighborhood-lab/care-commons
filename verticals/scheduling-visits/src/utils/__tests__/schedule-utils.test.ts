@@ -33,8 +33,7 @@ import {
   getUnassignedCount,
   isVisitOverdue,
 } from '../schedule-utils';
-import { Visit, ServicePattern, VisitStatus, VisitType, PatternStatus, DayOfWeek } from '../../types/schedule';
-import { parseISO } from 'date-fns';
+import { ServicePattern, VisitStatus, PatternStatus, DayOfWeek, AssignmentMethod, Visit } from '../../types/schedule';
 import { describe, it, expect } from 'vitest';
 
 describe('Schedule Utils', () => {
@@ -325,7 +324,7 @@ describe('Schedule Utils', () => {
     it('should return display text for all methods', () => {
       const methods = ['MANUAL', 'AUTO_MATCH', 'SELF_ASSIGN', 'PREFERRED', 'OVERFLOW'];
       methods.forEach(method => {
-        const display = getAssignmentMethodDisplay(method as any);
+        const display = getAssignmentMethodDisplay(method as AssignmentMethod);
         expect(typeof display).toBe('string');
         expect(display.length).toBeGreaterThan(0);
       });
@@ -370,7 +369,7 @@ describe('Schedule Utils', () => {
         { scheduledDate: today, scheduledStartTime: '09:00' }
       ];
       
-      const sorted = sortVisitsByTime(visits as any);
+      const sorted = sortVisitsByTime(visits as Visit[]);
       expect(sorted[0].scheduledStartTime).toBe('08:00');
       expect(sorted[1].scheduledStartTime).toBe('09:00');
       expect(sorted[2].scheduledStartTime).toBe('10:00');
@@ -388,7 +387,7 @@ describe('Schedule Utils', () => {
         { scheduledDate: date1, scheduledStartTime: '11:00' }
       ];
       
-      const grouped = groupVisitsByDate(visits as any);
+      const grouped = groupVisitsByDate(visits as Visit[]);
       expect(Object.keys(grouped)).toHaveLength(2);
       expect(grouped['2024-01-14']).toHaveLength(2); // Due to timezone conversion
       expect(grouped['2024-01-15']).toHaveLength(1);
@@ -404,10 +403,10 @@ describe('Schedule Utils', () => {
         { status: 'CANCELLED' as VisitStatus }
       ];
       
-      const scheduled = filterVisitsByStatus(visits as any, ['SCHEDULED']);
+      const scheduled = filterVisitsByStatus(visits as Visit[], ['SCHEDULED']);
       expect(scheduled).toHaveLength(2);
       
-      const completed = filterVisitsByStatus(visits as any, ['COMPLETED']);
+      const completed = filterVisitsByStatus(visits as Visit[], ['COMPLETED']);
       expect(completed).toHaveLength(1);
     });
   });
@@ -424,7 +423,7 @@ describe('Schedule Utils', () => {
         { scheduledDate: today }
       ];
       
-      const todays = getTodaysVisits(visits as any);
+      const todays = getTodaysVisits(visits as Visit[]);
       expect(todays).toHaveLength(2);
       expect(todays.every(v => v.scheduledDate === today)).toBe(true);
     });
@@ -439,7 +438,7 @@ describe('Schedule Utils', () => {
         { status: 'ASSIGNED' as VisitStatus, assignedCaregiverId: 'caregiver-2' }
       ];
       
-      const count = getUnassignedCount(visits as any);
+      const count = getUnassignedCount(visits as Visit[]);
       expect(count).toBe(2);
     });
   });
@@ -457,7 +456,7 @@ describe('Schedule Utils', () => {
         scheduledStartTime: pastTime.toTimeString().substring(0, 5),
         status: 'ASSIGNED' as VisitStatus
       };
-      expect(isVisitOverdue(visit as any)).toBe(true);
+      expect(isVisitOverdue(visit as Visit)).toBe(true);
     });
 
     it('should not flag future visits as overdue', () => {
@@ -466,7 +465,7 @@ describe('Schedule Utils', () => {
         scheduledStartTime: futureTime.toTimeString().substring(0, 5),
         status: 'ASSIGNED' as VisitStatus
       };
-      expect(isVisitOverdue(visit as any)).toBe(false);
+      expect(isVisitOverdue(visit as Visit)).toBe(false);
     });
 
     it('should not flag completed visits as overdue', () => {
@@ -475,7 +474,7 @@ describe('Schedule Utils', () => {
         scheduledStartTime: pastTime.toTimeString().substring(0, 5),
         status: 'COMPLETED' as VisitStatus
       };
-      expect(isVisitOverdue(visit as any)).toBe(false);
+      expect(isVisitOverdue(visit as Visit)).toBe(false);
     });
   });
 });
