@@ -19,6 +19,7 @@ export default [
         require: 'readonly',
         exports: 'readonly',
         Buffer: 'readonly',
+        crypto: 'readonly',
       },
     },
     plugins: {

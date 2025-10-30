@@ -1,6 +1,7 @@
 {
   "name": "@care-commons/scheduling-visits",
   "version": "0.1.0",
+  "type": "module",
   "description": "Scheduling & Visit Management vertical for Care Commons",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

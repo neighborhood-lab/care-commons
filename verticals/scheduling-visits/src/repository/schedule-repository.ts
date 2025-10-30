@@ -5,7 +5,8 @@
  * Handles database operations, queries, and data mapping.
  */
 
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
+import { randomUUID } from 'crypto';
 import {
   UUID,
   PaginationParams,
@@ -15,17 +16,13 @@ import {
 } from '@care-commons/core';
 import {
   ServicePattern,
-  Schedule,
   Visit,
-  VisitAssignment,
-  VisitException,
   VisitSearchFilters,
   VisitStatus,
   CreateServicePatternInput,
   UpdateServicePatternInput,
   CreateVisitInput,
   AssignVisitInput,
-  ScheduleGenerationOptions,
 } from '../types/schedule';
 
 export class ScheduleRepository {
@@ -121,7 +118,7 @@ export class ScheduleRepository {
     }
 
     const updates: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramCount = 1;
 
     if (input.name !== undefined) {
@@ -269,7 +266,7 @@ export class ScheduleRepository {
 
     // Add to status history
     const statusChange = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       fromStatus: visit.status,
       toStatus: newStatus,
       timestamp: new Date(),
@@ -343,7 +340,7 @@ export class ScheduleRepository {
     pagination: PaginationParams
   ): Promise<PaginatedResult<Visit>> {
     const conditions: string[] = ['deleted_at IS NULL'];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramCount = 1;
 
     if (filters.organizationId) {
@@ -459,7 +456,7 @@ export class ScheduleRepository {
         AND scheduled_date <= $3
         AND deleted_at IS NULL
     `;
-    const values: any[] = [organizationId, startDate, endDate];
+    const values: unknown[] = [organizationId, startDate, endDate];
 
     if (branchIds && branchIds.length > 0) {
       query += ` AND branch_id = ANY($4)`;
@@ -483,7 +480,7 @@ export class ScheduleRepository {
         AND assigned_caregiver_id IS NULL
         AND deleted_at IS NULL
     `;
-    const values: any[] = [organizationId];
+    const values: unknown[] = [organizationId];
 
     if (branchId) {
       query += ` AND branch_id = $2`;
@@ -513,53 +510,12 @@ export class ScheduleRepository {
     return `V${year}-${count.toString().padStart(6, '0')}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToServicePattern(row: any): ServicePattern {
-    return {
-      id: row.id,
-      organizationId: row.organization_id,
-      branchId: row.branch_id,
-      clientId: row.client_id,
-      name: row.name,
-      description: row.description,
-      patternType: row.pattern_type,
-      serviceTypeId: row.service_type_id,
-      serviceTypeName: row.service_type_name,
-      recurrence: row.recurrence,
-      duration: row.duration,
-      flexibilityWindow: row.flexibility_window,
-      requiredSkills: row.required_skills,
-      requiredCertifications: row.required_certifications,
-      preferredCaregivers: row.preferred_caregivers,
-      blockedCaregivers: row.blocked_caregivers,
-      genderPreference: row.gender_preference,
-      languagePreference: row.language_preference,
-      preferredTimeOfDay: row.preferred_time_of_day,
-      mustStartBy: row.must_start_by,
-      mustEndBy: row.must_end_by,
-      authorizedHoursPerWeek: row.authorized_hours_per_week,
-      authorizedVisitsPerWeek: row.authorized_visits_per_week,
-      authorizationStartDate: row.authorization_start_date,
-      authorizationEndDate: row.authorization_end_date,
-      fundingSourceId: row.funding_source_id,
-      travelTimeBefore: row.travel_time_before,
-      travelTimeAfter: row.travel_time_after,
-      allowBackToBack: row.allow_back_to_back,
-      status: row.status,
-      effectiveFrom: row.effective_from,
-      effectiveTo: row.effective_to,
-      notes: row.notes,
-      clientInstructions: row.client_instructions,
-      caregiverInstructions: row.caregiver_instructions,
-      createdAt: row.created_at,
-      createdBy: row.created_by,
-      updatedAt: row.updated_at,
-      updatedBy: row.updated_by,
-      version: row.version,
-      deletedAt: row.deleted_at,
-      deletedBy: row.deleted_by,
-    };
+    return row as ServicePattern;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToVisit(row: any): Visit {
     return {
       id: row.id,

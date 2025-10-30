@@ -37,19 +37,14 @@ import {
   CaregiverAvailabilityQuery,
   AvailabilitySlot,
   DayOfWeek,
-  Frequency,
 } from '../types/schedule';
 import {
   addDays,
   addWeeks,
-  addMonths,
   startOfDay,
   endOfDay,
   isBefore,
-  isAfter,
   isSameDay,
-  format,
-  parse,
 } from 'date-fns';
 
 export class ScheduleService {
@@ -65,8 +60,6 @@ export class ScheduleService {
   ): Promise<ServicePattern> {
     // Validate input
     const validated = ScheduleValidator.validateServicePattern(input);
-
-    // Check permissions
     this.checkPermission(context, 'schedules:create');
     this.checkOrganizationAccess(context, input.organizationId);
     this.checkBranchAccess(context, input.branchId);
@@ -160,7 +153,7 @@ export class ScheduleService {
     input: UpdateVisitStatusInput,
     context: UserContext
   ): Promise<Visit> {
-    const validated = ScheduleValidator.validateStatusUpdate(input);
+    ScheduleValidator.validateStatusUpdate(input);
     this.checkPermission(context, 'visits:update');
 
     const visit = await this.repository.getVisitById(input.visitId);
@@ -186,7 +179,7 @@ export class ScheduleService {
     input: CompleteVisitInput,
     context: UserContext
   ): Promise<Visit> {
-    const validated = ScheduleValidator.validateCompletion(input);
+    ScheduleValidator.validateCompletion(input);
     this.checkPermission(context, 'visits:update');
 
     const visit = await this.repository.getVisitById(input.visitId);
@@ -297,7 +290,7 @@ export class ScheduleService {
     options: ScheduleGenerationOptions,
     context: UserContext
   ): Promise<Visit[]> {
-    const validated = ScheduleValidator.validateGenerationOptions(options);
+    ScheduleValidator.validateGenerationOptions(options);
     this.checkPermission(context, 'schedules:generate');
 
     const pattern = await this.repository.getServicePatternById(options.patternId);
@@ -318,7 +311,7 @@ export class ScheduleService {
       pattern,
       options.startDate,
       options.endDate,
-      options.skipHolidays || false
+    options.skipHolidays || false
     );
 
     // Create visits
@@ -363,7 +356,7 @@ export class ScheduleService {
               context
             );
             break; // Successfully assigned
-          } catch (error) {
+          } catch {
             // Try next preferred caregiver
             continue;
           }
@@ -471,6 +464,7 @@ export class ScheduleService {
     pattern: ServicePattern,
     startDate: Date,
     endDate: Date,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     skipHolidays: boolean
   ): Date[] {
     const dates: Date[] = [];
@@ -563,6 +557,7 @@ export class ScheduleService {
     return hours * 60 + mins;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async getClientAddress(clientId: UUID): Promise<any> {
     // NOTE: This should be injected via a ClientProvider interface in production
     // For now, throw an error to enforce proper integration
@@ -626,6 +621,7 @@ export class ScheduleService {
   private validateStatusTransition(
     currentStatus: VisitStatus,
     newStatus: VisitStatus,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     context: UserContext
   ): void {
     // Define valid transitions
