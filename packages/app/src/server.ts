@@ -14,7 +14,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index';
 
-dotenv.config({ path: '.env', quiet: true });
+dotenv.config({ path: '../../.env', quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,7 +27,7 @@ function initDb() {
   const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'care_commons',
+    database: process.env.DB_NAME || 'care_commons4',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || '',
     ssl: process.env.DB_SSL === 'true',
@@ -36,6 +36,8 @@ function initDb() {
   };
 
   console.log(`Initializing database connection to ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+  console.log('Database config:', { ...dbConfig, password: dbConfig.password ? '[REDACTED]' : 'MISSING' });
+  console.log('Password type:', typeof dbConfig.password);
   return initializeDatabase(dbConfig);
 }
 
