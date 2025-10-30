@@ -10,7 +10,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'No linter configured yet'"
+    "lint": "eslint . --ext ts --max-warnings 0"
   },
   "dependencies": {
     "@care-commons/core": "*",
@@ -33,6 +33,9 @@
     "@types/cors": "^2.8.19",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.9.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^4.0.5"
