@@ -22,18 +22,18 @@
     "@care-commons/scheduling-visits": "*",
     "@care-commons/shift-matching": "*",
     "@care-commons/time-tracking-evv": "*",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "cors": "^2.8.5",
-    "helmet": "^8.0.0",
-    "morgan": "^1.10.0",
-    "dotenv": "^16.4.7"
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1",
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/cors": "^2.8.17",
-    "@types/morgan": "^1.9.9",
-    "@types/node": "^20.17.11",
-    "tsx": "^4.19.2",
+    "@types/express": "^5.0.5",
+    "@types/cors": "^2.8.19",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.9.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }

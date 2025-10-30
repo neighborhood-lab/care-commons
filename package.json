@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Shared care software, community owned",
-  "packageManager": "npm@11.6.1",
+  "packageManager": "npm@11.6.2",
   "workspaces": [
     "packages/*",
     "verticals/*"
@@ -24,7 +24,7 @@
     "db:seed:billing": "cd packages/core && node --import tsx --no-warnings scripts/seed-billing.ts"
   },
   "devDependencies": {
-    "@types/knex": "^0.15.2",
+    "@types/knex": "^0.16.1",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3"
   },
