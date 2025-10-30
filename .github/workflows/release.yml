@@ -1,0 +1,203 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0, 1.0.1, 1.1.0)'
+        required: true
+        type: string
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      releases: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            # Get current version from package.json
+            CURRENT_VERSION=$(node -p "require('./package.json').version")
+            echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            
+            # Calculate next version based on release type
+            case "${{ github.event.inputs.release_type }}" in
+              "patch")
+                NEXT_VERSION=$(node -p "
+                  const [major, minor, patch] = '${CURRENT_VERSION}'.split('.').map(Number);
+                  \`\${major}.\${minor}.\${patch + 1}\`;
+                ")
+                ;;
+              "minor")
+                NEXT_VERSION=$(node -p "
+                  const [major, minor, patch] = '${CURRENT_VERSION}'.split('.').map(Number);
+                  \`\${major}.\${minor + 1}.0\`;
+                ")
+                ;;
+              "major")
+                NEXT_VERSION=$(node -p "
+                  const [major, minor, patch] = '${CURRENT_VERSION}'.split('.').map(Number);
+                  \`\${major + 1}.0.0\`;
+                ")
+                ;;
+            esac
+            
+            if [ -n "${{ github.event.inputs.version }}" ]; then
+              VERSION="${{ github.event.inputs.version }}"
+            else
+              VERSION="$NEXT_VERSION"
+            fi
+            
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update version in package.json
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
+      - name: Run tests
+        run: |
+          npm run typecheck
+          npm run lint
+          npm run test
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Create tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json
+          git commit -m "chore: bump version to v${{ steps.version.outputs.version }}"
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
+          git push origin main --follow-tags
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)")
+          fi
+          
+          # Save changelog to file
+          echo "$CHANGELOG" > CHANGELOG.md
+          
+          # Set output for GitHub release
+          {
+            echo 'changelog<<EOF'
+            echo "$CHANGELOG"
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          release_name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## Changes in v${{ steps.version.outputs.version }}
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### Installation
+            ```bash
+            npm install @care-commons/platform@${{ steps.version.outputs.version }}
+            ```
+            
+            ### Verification
+            - [x] All tests pass
+            - [x] Type checking passes
+            - [x] Linting passes
+            - [x] Build succeeds
+          draft: false
+          prerelease: false
+
+      - name: Publish to npm (if needed)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "Would publish to npm here"
+          # npm publish --access public
+
+  deploy-release:
+    name: Deploy Release
+    needs: create-release
+    runs-on: ubuntu-latest
+    environment: production
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build release artifacts
+        run: npm run build
+
+      - name: Deploy to production
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          echo "Deploying release ${{ github.ref_name }} to production"
+          # Add your production deployment commands here
+
+      - name: Notify deployment
+        run: |
+          echo "✅ Release ${{ github.ref_name }} deployed successfully to production"

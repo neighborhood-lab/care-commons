@@ -1,0 +1,87 @@
+name: Database Operations
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Database operation'
+        required: true
+        default: 'migrate'
+        type: choice
+        options:
+          - migrate
+          - rollback
+          - status
+          - seed
+          - nuke
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  database-operation:
+    name: Database ${{ github.event.inputs.operation }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set environment variables
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "production" ]; then
+            echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" >> $GITHUB_ENV
+          else
+            echo "DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}" >> $GITHUB_ENV
+          fi
+
+      - name: Run database operation
+        run: |
+          case "${{ github.event.inputs.operation }}" in
+            "migrate")
+              npm run db:migrate
+              ;;
+            "rollback")
+              npm run db:migrate:rollback
+              ;;
+            "status")
+              npm run db:migrate:status
+              ;;
+            "seed")
+              npm run db:seed
+              ;;
+            "nuke")
+              echo "⚠️  WARNING: This will destroy all data in ${{ github.event.inputs.environment }}"
+              npm run db:nuke
+              ;;
+          esac
+
+      - name: Notify on completion
+        if: always()
+        run: |
+          if [ ${{ job.status }} = 'success' ]; then
+            echo "✅ Database ${{ github.event.inputs.operation }} completed successfully on ${{ github.event.inputs.environment }}"
+          else
+            echo "❌ Database ${{ github.event.inputs.operation }} failed on ${{ github.event.inputs.environment }}"
+            exit 1
+          fi
