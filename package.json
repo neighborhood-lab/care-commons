@@ -27,7 +27,7 @@
   "devDependencies": {
     "turbo": "^2.5.8",
     "typescript": "^5.9.3",
-    "vitest": "^2.0.0"
+    "vitest": "^4.0.5"
   },
   "engines": {
     "node": ">=20.0.0",
