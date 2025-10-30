@@ -7,6 +7,7 @@ import { AppShell } from './app/components';
 import { Dashboard, Login, NotFound } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
+import { CreateCarePlanPage } from './verticals/care-plans';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,6 +111,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <CarePlanList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/care-plans/new"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CreateCarePlanPage />
             </AppShell>
           </ProtectedRoute>
         }
