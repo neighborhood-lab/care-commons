@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -21,6 +21,7 @@ export const CarePlanDetail: React.FC = () => {
   const { can } = usePermissions();
   const { data: carePlan, isLoading, error, refetch } = useCarePlan(id);
   const activateCarePlan = useActivateCarePlan();
+  const [now] = useState(() => Date.now());
 
   const handleActivate = async () => {
     if (!carePlan) return;
@@ -49,12 +50,12 @@ export const CarePlanDetail: React.FC = () => {
       />
     );
   }
-
+  
   const isExpiringSoon = carePlan.expirationDate && 
-    new Date(carePlan.expirationDate) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    new Date(carePlan.expirationDate) <= new Date(now + 30 * 24 * 60 * 60 * 1000);
 
   const isOverdue = carePlan.reviewDate && 
-    new Date(carePlan.reviewDate) < new Date();
+    new Date(carePlan.reviewDate) < new Date(now);
 
   const achievedGoalsCount = carePlan.goals.filter(g => g.status === 'ACHIEVED').length;
   const inProgressGoalsCount = carePlan.goals.filter(g => 
