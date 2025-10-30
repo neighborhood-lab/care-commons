@@ -6,6 +6,7 @@ import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
 import { Dashboard, Login, NotFound } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
+import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -104,14 +105,31 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/care-plans/*"
+        path="/care-plans"
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Care Plans Module</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <CarePlanList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/care-plans/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CarePlanDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tasks"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <TaskList />
             </AppShell>
           </ProtectedRoute>
         }
