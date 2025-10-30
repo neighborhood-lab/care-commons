@@ -569,7 +569,7 @@ export class CarePlanService {
     const normalizedObservations: CreateProgressNoteInput['observations'] =
       validatedInput.observations?.map(observation => ({
         ...observation,
-        timestamp: observation.timestamp ?? makeTs(),
+        timestamp: new Date(),
       }));
 
     const signature: CreateProgressNoteInput['signature'] = validatedInput.signature
