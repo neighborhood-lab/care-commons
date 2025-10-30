@@ -354,7 +354,12 @@ function getPayPeriodsPerYear(
  */
 export function calculateSupplementalWithholding(
   supplementalAmount: number,
-  useFlatRate: boolean = true
+  useFlatRate: boolean = true,
+  aggregateParams?: {
+    regularGrossPay: number;
+    payPeriodType: 'WEEKLY' | 'BI_WEEKLY' | 'SEMI_MONTHLY' | 'MONTHLY';
+    taxConfig: TaxConfiguration;
+  }
 ): number {
   // Handle negative or zero amounts
   if (supplementalAmount <= 0) {
@@ -367,9 +372,42 @@ export function calculateSupplementalWithholding(
     return roundToTwoDecimals(supplementalAmount * rate);
   }
 
-  // Aggregate method would combine with regular wages and recalculate
-  // Not implemented here for simplicity
-  return 0;
+  // Aggregate method: combine with regular wages and recalculate
+  if (!aggregateParams) {
+    throw new Error('Aggregate method requires aggregate parameters');
+  }
+
+  const {
+    regularGrossPay,
+    payPeriodType,
+    taxConfig
+  } = aggregateParams;
+
+  // Calculate total withholding for combined wages (regular + supplemental)
+  const totalCombinedPay = regularGrossPay + supplementalAmount;
+  const totalWithholding = calculateFederalIncomeTax(
+    totalCombinedPay,
+    payPeriodType,
+    taxConfig
+  );
+
+  // Calculate withholding for regular wages only
+  const regularWithholding = calculateFederalIncomeTax(
+    regularGrossPay,
+    payPeriodType,
+    taxConfig
+  );
+
+  // Supplemental withholding is the difference
+  let supplementalWithholding = totalWithholding - regularWithholding;
+
+  // Ensure we don't withhold more than the supplemental amount
+  supplementalWithholding = Math.min(supplementalWithholding, supplementalAmount);
+
+  // Ensure non-negative result
+  supplementalWithholding = Math.max(0, supplementalWithholding);
+
+  return roundToTwoDecimals(supplementalWithholding);
 }
 
 /**
