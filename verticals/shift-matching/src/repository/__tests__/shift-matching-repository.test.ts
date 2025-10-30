@@ -31,11 +31,12 @@ import {
   ProposalFilters,
 } from '../../types/shift-matching';
 import { UserContext, UUID, PaginationParams } from '@care-commons/core';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock dependencies
 const mockPool = {
-  query: jest.fn(),
-} as unknown as jest.Mocked<Pool>;
+  query: vi.fn(),
+} as unknown as any;
 
 const mockContext: UserContext = {
   userId: 'user-123',
@@ -48,8 +49,8 @@ const mockContext: UserContext = {
 describe('ShiftMatchingRepository', () => {
   let repository: ShiftMatchingRepository;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+beforeEach(() => {
+    vi.clearAllMocks();
     repository = new ShiftMatchingRepository(mockPool);
   });
 
@@ -139,7 +140,7 @@ describe('ShiftMatchingRepository', () => {
           internalNotes: 'Urgent shift',
         };
 
-        (mockPool.query as jest.Mock)
+        (mockPool.query as any)
           .mockResolvedValueOnce({ rows: [mockVisitRow] }) // Visit query
           .mockResolvedValueOnce({ rows: [] }) // Existing check
           .mockResolvedValueOnce({ rows: [mockOpenShiftRow] }); // Insert
@@ -159,7 +160,7 @@ describe('ShiftMatchingRepository', () => {
       it('should throw error if visit not found', async () => {
         const input: CreateOpenShiftInput = { visitId: 'invalid-visit' };
 
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [] });
 
         await expect(repository.createOpenShift(input, mockContext))
           .rejects.toThrow('Visit not found');
@@ -168,7 +169,7 @@ describe('ShiftMatchingRepository', () => {
       it('should throw error if open shift already exists', async () => {
         const input: CreateOpenShiftInput = { visitId: 'visit-123' };
 
-        (mockPool.query as jest.Mock)
+        (mockPool.query as any)
           .mockResolvedValueOnce({ rows: [mockVisitRow] })
           .mockResolvedValueOnce({ rows: [{ id: 'existing-shift' }] });
 
@@ -179,7 +180,7 @@ describe('ShiftMatchingRepository', () => {
 
     describe('getOpenShift', () => {
       it('should return open shift by ID', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockOpenShiftRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockOpenShiftRow] });
 
         const result = await repository.getOpenShift('shift-123');
 
@@ -190,7 +191,7 @@ describe('ShiftMatchingRepository', () => {
       });
 
       it('should return null if not found', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [] });
 
         const result = await repository.getOpenShift('invalid-shift');
 
@@ -201,7 +202,7 @@ describe('ShiftMatchingRepository', () => {
     describe('updateOpenShiftStatus', () => {
       it('should update shift status', async () => {
         const updatedRow = { ...mockOpenShiftRow, matching_status: 'MATCHED' };
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [updatedRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [updatedRow] });
 
         const result = await repository.updateOpenShiftStatus('shift-123', 'MATCHED', mockContext);
 
@@ -228,7 +229,7 @@ describe('ShiftMatchingRepository', () => {
           sortOrder: 'asc',
         };
 
-        (mockPool.query as jest.Mock)
+        (mockPool.query as any)
           .mockResolvedValueOnce({ rows: [{ count: '1' }] }) // Count
           .mockResolvedValueOnce({ rows: [mockOpenShiftRow] }); // Data
 
@@ -294,7 +295,7 @@ describe('ShiftMatchingRepository', () => {
           isActive: true,
         };
 
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockConfigRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockConfigRow] });
 
         const result = await repository.createMatchingConfiguration(input, mockContext);
 
@@ -305,7 +306,7 @@ describe('ShiftMatchingRepository', () => {
 
     describe('getDefaultConfiguration', () => {
       it('should get default configuration for organization', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockConfigRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockConfigRow] });
 
         const result = await repository.getDefaultConfiguration('org-123', 'branch-123');
 
@@ -314,7 +315,7 @@ describe('ShiftMatchingRepository', () => {
       });
 
       it('should return null if no default config', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [] });
 
         const result = await repository.getDefaultConfiguration('org-123', 'branch-123');
 
@@ -330,7 +331,7 @@ describe('ShiftMatchingRepository', () => {
         };
 
         const updatedRow = { ...mockConfigRow, name: 'Updated Config', auto_assign_threshold: 85 };
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [updatedRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [updatedRow] });
 
         const result = await repository.updateMatchingConfiguration('config-123', input, mockContext);
 
@@ -339,7 +340,7 @@ describe('ShiftMatchingRepository', () => {
       });
 
       it('should throw error if configuration not found', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [] });
 
         await expect(repository.updateMatchingConfiguration('invalid-config', {}, mockContext))
           .rejects.toThrow('Matching configuration not found');
@@ -399,7 +400,7 @@ describe('ShiftMatchingRepository', () => {
         };
 
         const mockShiftRow = { branch_id: 'branch-123', visit_id: 'visit-123' };
-        (mockPool.query as jest.Mock)
+        (mockPool.query as any)
           .mockResolvedValueOnce({ rows: [mockShiftRow] }) // Get shift
           .mockResolvedValueOnce({ rows: [mockProposalRow] }); // Insert
 
@@ -435,7 +436,7 @@ describe('ShiftMatchingRepository', () => {
           response_method: 'WEB',
         };
 
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [acceptedRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [acceptedRow] });
 
         const result = await repository.respondToProposal('proposal-123', input, mockContext);
 
@@ -463,7 +464,7 @@ describe('ShiftMatchingRepository', () => {
           response_method: 'WEB',
         };
 
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [rejectedRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [rejectedRow] });
 
         const result = await repository.respondToProposal('proposal-123', input, mockContext);
 
@@ -474,7 +475,7 @@ describe('ShiftMatchingRepository', () => {
 
     describe('getProposalsByCaregiver', () => {
       it('should get proposals for caregiver', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockProposalRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockProposalRow] });
 
         const result = await repository.getProposalsByCaregiver('cg-123');
 
@@ -483,7 +484,7 @@ describe('ShiftMatchingRepository', () => {
       });
 
       it('should filter by status', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockProposalRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockProposalRow] });
 
         await repository.getProposalsByCaregiver('cg-123', ['PENDING', 'SENT']);
 
@@ -503,7 +504,7 @@ describe('ShiftMatchingRepository', () => {
 
         const pagination: PaginationParams = { page: 1, limit: 10 };
 
-        (mockPool.query as jest.Mock)
+        (mockPool.query as any)
           .mockResolvedValueOnce({ rows: [{ count: '1' }] })
           .mockResolvedValueOnce({ rows: [mockProposalRow] });
 
@@ -549,7 +550,7 @@ describe('ShiftMatchingRepository', () => {
 
     describe('getCaregiverPreferences', () => {
       it('should get caregiver preferences', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockPreferencesRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockPreferencesRow] });
 
         const result = await repository.getCaregiverPreferences('cg-123');
 
@@ -558,7 +559,7 @@ describe('ShiftMatchingRepository', () => {
       });
 
       it('should return null if no preferences', async () => {
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [] });
 
         const result = await repository.getCaregiverPreferences('cg-123');
 
@@ -574,7 +575,7 @@ describe('ShiftMatchingRepository', () => {
           willingToAcceptUrgentShifts: false,
         };
 
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockPreferencesRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockPreferencesRow] });
 
         const result = await repository.upsertCaregiverPreferences('cg-123', 'org-123', input, mockContext);
 
@@ -624,7 +625,7 @@ describe('ShiftMatchingRepository', () => {
           notes: 'Weekly bulk match',
         };
 
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockBulkMatchRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockBulkMatchRow] });
 
         const result = await repository.createBulkMatchRequest(input, mockContext);
 
@@ -653,7 +654,7 @@ describe('ShiftMatchingRepository', () => {
           proposals_generated: updates.proposalsGenerated,
           completed_at: updates.completedAt,
         };
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [updatedRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [updatedRow] });
 
         const result = await repository.updateBulkMatchRequest('bulk-123', updates, mockContext);
 
@@ -705,7 +706,7 @@ describe('ShiftMatchingRepository', () => {
           notes: 'Successfully matched',
         };
 
-        (mockPool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockHistoryRow] });
+        (mockPool.query as any).mockResolvedValueOnce({ rows: [mockHistoryRow] });
 
         const result = await repository.createMatchHistory(data, mockContext);
 

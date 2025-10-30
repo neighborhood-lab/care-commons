@@ -4,7 +4,16 @@
 
 import { PermissionService, getPermissionService } from '../../permissions/permission-service';
 import { PermissionError, Role } from '../../types/base';
-import { createMockUserContext } from '../test-utils.helper';
+import { describe, it, expect, beforeEach } from 'vitest';
+
+const createMockUserContext = (overrides = {}) => ({
+  userId: 'test-user-id',
+  roles: ['COORDINATOR' as const],
+  permissions: ['clients:read', 'clients:write'],
+  organizationId: 'test-org-id',
+  branchIds: ['test-branch-id'],
+  ...overrides,
+});
 
 describe('PermissionService', () => {
   let permissionService: PermissionService;

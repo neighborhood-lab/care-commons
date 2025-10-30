@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "echo \"No tests yet\" && exit 0",
+    "test": "vitest",
     "lint": "echo 'Linting not configured yet'",
     "typecheck": "tsc --noEmit"
   },
@@ -18,7 +18,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.0.0"
   },
   "keywords": [
     "evv",

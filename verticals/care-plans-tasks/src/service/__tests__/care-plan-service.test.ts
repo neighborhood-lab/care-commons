@@ -72,9 +72,9 @@ vi.mock('../../validation/care-plan-validator');
 
 describe('CarePlanService', () => {
   let service: CarePlanService;
-  let mockRepository: vi.Mocked<CarePlanRepository>;
-  let mockPermissions: vi.Mocked<PermissionService>;
-  let mockValidator: vi.Mocked<typeof CarePlanValidator>;
+  let mockRepository: any;
+  let mockPermissions: any;
+  let mockValidator: any;
   let mockContext: UserContext;
 
   beforeEach(() => {

@@ -1,46 +1,31 @@
-/**
- * Enhanced seed data for Texas and Florida state-specific scenarios
- *
- * Creates realistic demo data for:
- * - Texas clients with STAR+PLUS, CDS, and EVV requirements
- * - Florida clients with SMMC, LTC, and RN supervision needs
- * - Texas caregivers with registry checks and mandatory training
- * - Florida caregivers with Level 2 screening and licensure
- */
-import { v4 as uuidv4 } from 'uuid';
-// IDs for reference
-const ORG_ID = uuidv4();
-const BRANCH_TX_ID = uuidv4();
-const BRANCH_FL_ID = uuidv4();
-const SYSTEM_USER_ID = uuidv4();
-export async function seedStateSpecificData(db) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedStateSpecificData = seedStateSpecificData;
+const uuid_1 = require("uuid");
+const ORG_ID = (0, uuid_1.v4)();
+const BRANCH_TX_ID = (0, uuid_1.v4)();
+const BRANCH_FL_ID = (0, uuid_1.v4)();
+const SYSTEM_USER_ID = (0, uuid_1.v4)();
+async function seedStateSpecificData(db) {
     console.log('🌱 Seeding Texas and Florida state-specific data...');
-    // Create organization
     await db.query(`INSERT INTO organizations (id, name, type, status, created_at, created_by, updated_at, updated_by)
      VALUES ($1, $2, $3, $4, NOW(), $5, NOW(), $5)
      ON CONFLICT (id) DO NOTHING`, [ORG_ID, 'Care Commons Demo Agency', 'HOME_HEALTH', 'ACTIVE', SYSTEM_USER_ID]);
-    // Create Texas branch
     await db.query(`INSERT INTO branches (id, organization_id, name, state, city, status, created_at, created_by, updated_at, updated_by)
      VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, NOW(), $7)
      ON CONFLICT (id) DO NOTHING`, [BRANCH_TX_ID, ORG_ID, 'Houston Branch', 'TX', 'Houston', 'ACTIVE', SYSTEM_USER_ID]);
-    // Create Florida branch
     await db.query(`INSERT INTO branches (id, organization_id, name, state, city, status, created_at, created_by, updated_at, updated_by)
      VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, NOW(), $7)
      ON CONFLICT (id) DO NOTHING`, [BRANCH_FL_ID, ORG_ID, 'Miami Branch', 'FL', 'Miami', 'ACTIVE', SYSTEM_USER_ID]);
-    // Seed Texas clients
     await seedTexasClients(db);
-    // Seed Florida clients
     await seedFloridaClients(db);
-    // Seed Texas caregivers
     await seedTexasCaregivers(db);
-    // Seed Florida caregivers
     await seedFloridaCaregivers(db);
     console.log('✅ State-specific seed data complete!');
 }
 async function seedTexasClients(db) {
     console.log('  → Creating Texas clients...');
-    // Client 1: STAR+PLUS waiver, active services
-    const txClient1Id = uuidv4();
+    const txClient1Id = (0, uuid_1.v4)();
     const txClient1StateData = {
         state: 'TX',
         texas: {
@@ -51,7 +36,7 @@ async function seedTexasClients(db) {
             planOfCareNumber: 'POC-TX-2024-001',
             authorizedServices: [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     serviceCode: 'S5125',
                     serviceName: 'Personal Assistance Services',
                     authorizedUnits: 160,
@@ -112,7 +97,7 @@ async function seedTexasClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'Carlos Rodriguez',
                 relationship: 'Son',
                 phone: { number: '+1-713-555-0102', type: 'MOBILE', canReceiveSMS: true },
@@ -130,8 +115,8 @@ async function seedTexasClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
-                programId: uuidv4(),
+                id: (0, uuid_1.v4)(),
+                programId: (0, uuid_1.v4)(),
                 programName: 'STAR+PLUS',
                 enrollmentDate: new Date('2024-01-01'),
                 status: 'ACTIVE',
@@ -140,7 +125,7 @@ async function seedTexasClients(db) {
         ]),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 type: 'FALL_RISK',
                 severity: 'MEDIUM',
                 description: 'History of falls, uses walker',
@@ -152,8 +137,7 @@ async function seedTexasClients(db) {
         JSON.stringify(txClient1StateData),
         SYSTEM_USER_ID,
     ]);
-    // Client 2: Consumer Directed Services (CDS)
-    const txClient2Id = uuidv4();
+    const txClient2Id = (0, uuid_1.v4)();
     const txClient2StateData = {
         state: 'TX',
         texas: {
@@ -163,7 +147,7 @@ async function seedTexasClients(db) {
             planOfCareNumber: 'POC-TX-2024-002',
             authorizedServices: [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     serviceCode: 'T1019',
                     serviceName: 'Personal Care Services (CDS)',
                     authorizedUnits: 120,
@@ -216,7 +200,7 @@ async function seedTexasClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'Sarah Thompson',
                 relationship: 'Daughter',
                 phone: { number: '+1-713-555-0202', type: 'MOBILE', canReceiveSMS: true },
@@ -235,8 +219,8 @@ async function seedTexasClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
-                programId: uuidv4(),
+                id: (0, uuid_1.v4)(),
+                programId: (0, uuid_1.v4)(),
                 programName: 'Community First Choice',
                 enrollmentDate: new Date('2024-02-01'),
                 status: 'ACTIVE',
@@ -252,8 +236,7 @@ async function seedTexasClients(db) {
 }
 async function seedFloridaClients(db) {
     console.log('  → Creating Florida clients...');
-    // Client 1: SMMC LTC with RN supervision
-    const flClient1Id = uuidv4();
+    const flClient1Id = (0, uuid_1.v4)();
     const flClient1StateData = {
         state: 'FL',
         florida: {
@@ -265,7 +248,7 @@ async function seedFloridaClients(db) {
             nextReviewDue: new Date('2024-07-10'),
             authorizedServices: [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     serviceCode: 'S0215',
                     serviceName: 'Skilled Nursing Services',
                     authorizedUnits: 80,
@@ -284,7 +267,7 @@ async function seedFloridaClients(db) {
             evvSystemType: 'HHAX',
             smmcProgramEnrollment: true,
             ltcProgramEnrollment: true,
-            rnSupervisorId: uuidv4().toString(),
+            rnSupervisorId: (0, uuid_1.v4)().toString(),
             lastSupervisoryVisit: new Date('2024-09-15'),
             nextSupervisoryVisitDue: new Date('2024-12-15'),
             supervisoryVisitFrequency: 90,
@@ -321,7 +304,7 @@ async function seedFloridaClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'Miguel Garcia',
                 relationship: 'Son',
                 phone: { number: '+1-305-555-0302', type: 'MOBILE', canReceiveSMS: true },
@@ -340,8 +323,8 @@ async function seedFloridaClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
-                programId: uuidv4(),
+                id: (0, uuid_1.v4)(),
+                programId: (0, uuid_1.v4)(),
                 programName: 'SMMC Long-Term Care',
                 enrollmentDate: new Date('2024-01-01'),
                 status: 'ACTIVE',
@@ -350,7 +333,7 @@ async function seedFloridaClients(db) {
         ]),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 type: 'MEDICATION_COMPLIANCE',
                 severity: 'HIGH',
                 description: 'Multiple medications, requires monitoring',
@@ -362,8 +345,7 @@ async function seedFloridaClients(db) {
         JSON.stringify(flClient1StateData),
         SYSTEM_USER_ID,
     ]);
-    // Client 2: APD Waiver
-    const flClient2Id = uuidv4();
+    const flClient2Id = (0, uuid_1.v4)();
     const flClient2StateData = {
         state: 'FL',
         florida: {
@@ -381,7 +363,7 @@ async function seedFloridaClients(db) {
             nextReviewDue: new Date('2024-08-01'),
             authorizedServices: [
                 {
-                    id: uuidv4(),
+                    id: (0, uuid_1.v4)(),
                     serviceCode: 'T2020',
                     serviceName: 'Personal Care - APD',
                     authorizedUnits: 100,
@@ -432,7 +414,7 @@ async function seedFloridaClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'Ana Martinez',
                 relationship: 'Mother',
                 phone: { number: '+1-954-555-0402', type: 'MOBILE', canReceiveSMS: true },
@@ -450,8 +432,8 @@ async function seedFloridaClients(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
-                programId: uuidv4(),
+                id: (0, uuid_1.v4)(),
+                programId: (0, uuid_1.v4)(),
                 programName: 'APD Developmental Disabilities Waiver',
                 enrollmentDate: new Date('2023-06-01'),
                 status: 'ACTIVE',
@@ -467,8 +449,7 @@ async function seedFloridaClients(db) {
 }
 async function seedTexasCaregivers(db) {
     console.log('  → Creating Texas caregivers...');
-    // Caregiver 1: CNA with all checks complete
-    const txCaregiver1Id = uuidv4();
+    const txCaregiver1Id = (0, uuid_1.v4)();
     const txCaregiver1StateData = {
         state: 'TX',
         texas: {
@@ -561,7 +542,7 @@ async function seedTexasCaregivers(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'Robert Williams',
                 relationship: 'Spouse',
                 phone: { number: '+1-713-555-0502', type: 'MOBILE', canReceiveSMS: true },
@@ -574,7 +555,7 @@ async function seedTexasCaregivers(db) {
         'CERTIFIED_NURSING_ASSISTANT',
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 type: 'CNA',
                 name: 'Certified Nursing Assistant',
                 number: 'TX-CNA-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
@@ -584,7 +565,7 @@ async function seedTexasCaregivers(db) {
                 status: 'ACTIVE',
             },
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 type: 'CPR',
                 name: 'CPR Certification',
                 issueDate: new Date('2023-11-01'),
@@ -594,7 +575,7 @@ async function seedTexasCaregivers(db) {
         ]),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'HHSC Orientation',
                 category: 'ORIENTATION',
                 completionDate: new Date('2024-01-08'),
@@ -602,8 +583,8 @@ async function seedTexasCaregivers(db) {
             },
         ]),
         JSON.stringify([
-            { id: uuidv4(), name: 'Personal Care', category: 'ADL', proficiencyLevel: 'EXPERT' },
-            { id: uuidv4(), name: 'Medication Reminders', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+            { id: (0, uuid_1.v4)(), name: 'Personal Care', category: 'ADL', proficiencyLevel: 'EXPERT' },
+            { id: (0, uuid_1.v4)(), name: 'Medication Reminders', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
         ]),
         JSON.stringify({
             schedule: {
@@ -618,7 +599,7 @@ async function seedTexasCaregivers(db) {
             lastUpdated: new Date(),
         }),
         JSON.stringify({
-            id: uuidv4(),
+            id: (0, uuid_1.v4)(),
             rateType: 'BASE',
             amount: 18.50,
             unit: 'HOURLY',
@@ -633,8 +614,7 @@ async function seedTexasCaregivers(db) {
 }
 async function seedFloridaCaregivers(db) {
     console.log('  → Creating Florida caregivers...');
-    // Caregiver 1: RN with Level 2 screening
-    const flCaregiver1Id = uuidv4();
+    const flCaregiver1Id = (0, uuid_1.v4)();
     const flCaregiver1StateData = {
         state: 'FL',
         florida: {
@@ -718,7 +698,7 @@ async function seedFloridaCaregivers(db) {
         }),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'Michael Johnson',
                 relationship: 'Spouse',
                 phone: { number: '+1-305-555-0602', type: 'MOBILE', canReceiveSMS: true },
@@ -731,7 +711,7 @@ async function seedFloridaCaregivers(db) {
         'NURSE_RN',
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 type: 'RN',
                 name: 'Registered Nurse',
                 number: flCaregiver1StateData.florida.flLicenseNumber,
@@ -741,7 +721,7 @@ async function seedFloridaCaregivers(db) {
                 status: 'ACTIVE',
             },
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 type: 'CPR',
                 name: 'BLS for Healthcare Providers',
                 issueDate: new Date('2023-10-01'),
@@ -751,14 +731,14 @@ async function seedFloridaCaregivers(db) {
         ]),
         JSON.stringify([
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'HIV/AIDS Training',
                 category: 'MANDATORY_COMPLIANCE',
                 completionDate: new Date('2024-01-08'),
                 status: 'COMPLETED',
             },
             {
-                id: uuidv4(),
+                id: (0, uuid_1.v4)(),
                 name: 'OSHA Bloodborne Pathogens',
                 category: 'SAFETY',
                 completionDate: new Date('2024-01-08'),
@@ -766,9 +746,9 @@ async function seedFloridaCaregivers(db) {
             },
         ]),
         JSON.stringify([
-            { id: uuidv4(), name: 'Patient Assessment', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-            { id: uuidv4(), name: 'Wound Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-            { id: uuidv4(), name: 'IV Therapy', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+            { id: (0, uuid_1.v4)(), name: 'Patient Assessment', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+            { id: (0, uuid_1.v4)(), name: 'Wound Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+            { id: (0, uuid_1.v4)(), name: 'IV Therapy', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
         ]),
         JSON.stringify({
             schedule: {
@@ -783,7 +763,7 @@ async function seedFloridaCaregivers(db) {
             lastUpdated: new Date(),
         }),
         JSON.stringify({
-            id: uuidv4(),
+            id: (0, uuid_1.v4)(),
             rateType: 'BASE',
             amount: 42.00,
             unit: 'HOURLY',
@@ -796,7 +776,6 @@ async function seedFloridaCaregivers(db) {
     ]);
     console.log(`    ✓ Created ${1} Florida caregiver`);
 }
-// CLI execution
 if (require.main === module) {
     const { database } = require('../src/db/connection');
     seedStateSpecificData(database)
@@ -809,3 +788,4 @@ if (require.main === module) {
         process.exit(1);
     });
 }
+//# sourceMappingURL=seed-state-specific.js.map

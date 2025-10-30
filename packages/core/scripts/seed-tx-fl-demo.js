@@ -1,25 +1,21 @@
-/**
- * TX/FL Demo Seed Data
- *
- * Creates realistic demo scenarios for Texas and Florida EVV/scheduling workflows.
- * Includes state-specific configurations, sample clients, caregivers, and visits.
- */
-import { Pool } from 'pg';
-import { v4 as uuidv4 } from 'uuid';
-const pool = new Pool({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const pg_1 = require("pg");
+const uuid_1 = require("uuid");
+const pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
 });
 async function main() {
     console.log('🌟 Seeding TX/FL demo data...\n');
     const ctx = {
-        texasOrgId: uuidv4(),
-        floridaOrgId: uuidv4(),
-        texasBranchId: uuidv4(),
-        floridaBranchId: uuidv4(),
-        texasAdminId: uuidv4(),
-        floridaAdminId: uuidv4(),
-        texasCoordinatorId: uuidv4(),
-        floridaCoordinatorId: uuidv4(),
+        texasOrgId: (0, uuid_1.v4)(),
+        floridaOrgId: (0, uuid_1.v4)(),
+        texasBranchId: (0, uuid_1.v4)(),
+        floridaBranchId: (0, uuid_1.v4)(),
+        texasAdminId: (0, uuid_1.v4)(),
+        floridaAdminId: (0, uuid_1.v4)(),
+        texasCoordinatorId: (0, uuid_1.v4)(),
+        floridaCoordinatorId: (0, uuid_1.v4)(),
         texasClientIds: [],
         floridaClientIds: [],
         texasCaregiverIds: [],
@@ -53,12 +49,8 @@ async function main() {
         await pool.end();
     }
 }
-/**
- * Seed Texas and Florida organizations
- */
 async function seedOrganizations(ctx) {
     console.log('📋 Seeding organizations...');
-    // Texas Organization - STAR+PLUS provider
     await pool.query(`
     INSERT INTO organizations (
       id, name, legal_name, organization_type, tax_id,
@@ -85,7 +77,6 @@ async function seedOrganizations(ctx) {
       'ACTIVE', NOW(), $3, NOW(), $3
     )
   `, [ctx.texasBranchId, ctx.texasOrgId, ctx.texasAdminId]);
-    // Florida Organization - SMMC LTC provider
     await pool.query(`
     INSERT INTO organizations (
       id, name, legal_name, organization_type, tax_id,
@@ -114,12 +105,8 @@ async function seedOrganizations(ctx) {
   `, [ctx.floridaBranchId, ctx.floridaOrgId, ctx.floridaAdminId]);
     console.log('  ✓ Organizations seeded');
 }
-/**
- * Seed admin and coordinator users
- */
 async function seedUsers(ctx) {
     console.log('👥 Seeding users...');
-    // Texas users
     await pool.query(`
     INSERT INTO users (
       id, organization_id, email, first_name, last_name,
@@ -131,7 +118,6 @@ async function seedUsers(ctx) {
       ($3, $2, 'coordinator@lonestarcare.example', 'Michael', 'Rodriguez',
        '["COORDINATOR"]', '["schedules:*", "visits:*", "evv:*"]', 'ACTIVE', NOW(), NOW())
   `, [ctx.texasAdminId, ctx.texasOrgId, ctx.texasCoordinatorId]);
-    // Florida users
     await pool.query(`
     INSERT INTO users (
       id, organization_id, email, first_name, last_name,
@@ -145,12 +131,8 @@ async function seedUsers(ctx) {
   `, [ctx.floridaAdminId, ctx.floridaOrgId, ctx.floridaCoordinatorId]);
     console.log('  ✓ Users seeded');
 }
-/**
- * Seed realistic clients for TX and FL
- */
 async function seedClients(ctx) {
     console.log('👤 Seeding clients...');
-    // Texas clients (STAR+PLUS eligible)
     const texasClients = [
         {
             firstName: 'Robert',
@@ -178,7 +160,7 @@ async function seedClients(ctx) {
         },
     ];
     for (const client of texasClients) {
-        const clientId = uuidv4();
+        const clientId = (0, uuid_1.v4)();
         ctx.texasClientIds.push(clientId);
         await pool.query(`
       INSERT INTO clients (
@@ -215,7 +197,6 @@ async function seedClients(ctx) {
             ctx.texasAdminId,
         ]);
     }
-    // Florida clients (SMMC LTC eligible)
     const floridaClients = [
         {
             firstName: 'Dorothy',
@@ -243,7 +224,7 @@ async function seedClients(ctx) {
         },
     ];
     for (const client of floridaClients) {
-        const clientId = uuidv4();
+        const clientId = (0, uuid_1.v4)();
         ctx.floridaClientIds.push(clientId);
         await pool.query(`
       INSERT INTO clients (
@@ -282,12 +263,8 @@ async function seedClients(ctx) {
     }
     console.log(`  ✓ Clients seeded (TX: ${texasClients.length}, FL: ${floridaClients.length})`);
 }
-/**
- * Seed caregivers with proper credentials and background screenings
- */
 async function seedCaregivers(ctx) {
     console.log('👨‍⚕️ Seeding caregivers...');
-    // Texas caregivers (cleared registries)
     const texasCaregivers = [
         {
             firstName: 'Jennifer',
@@ -305,7 +282,7 @@ async function seedCaregivers(ctx) {
         },
     ];
     for (const cg of texasCaregivers) {
-        const cgId = uuidv4();
+        const cgId = (0, uuid_1.v4)();
         ctx.texasCaregiverIds.push(cgId);
         await pool.query(`
       INSERT INTO caregivers (
@@ -332,7 +309,6 @@ async function seedCaregivers(ctx) {
             ctx.texasAdminId,
         ]);
     }
-    // Florida caregivers (Level 2 screening cleared)
     const floridaCaregivers = [
         {
             firstName: 'Ana',
@@ -350,7 +326,7 @@ async function seedCaregivers(ctx) {
         },
     ];
     for (const cg of floridaCaregivers) {
-        const cgId = uuidv4();
+        const cgId = (0, uuid_1.v4)();
         ctx.floridaCaregiverIds.push(cgId);
         await pool.query(`
       INSERT INTO caregivers (
@@ -374,7 +350,7 @@ async function seedCaregivers(ctx) {
                 flLevel2Screening: {
                     status: 'CLEARED',
                     completedAt: new Date(),
-                    expiresAt: new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000), // 5 years
+                    expiresAt: new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000),
                 },
             }),
             ctx.floridaAdminId,
@@ -382,12 +358,8 @@ async function seedCaregivers(ctx) {
     }
     console.log(`  ✓ Caregivers seeded (TX: ${texasCaregivers.length}, FL: ${floridaCaregivers.length})`);
 }
-/**
- * Seed state-specific EVV configuration
- */
 async function seedEVVStateConfig(ctx) {
     console.log('⚙️  Seeding EVV state configuration...');
-    // Texas EVV Config (HHAeXchange mandatory)
     await pool.query(`
     INSERT INTO evv_state_config (
       id, organization_id, branch_id,
@@ -409,11 +381,10 @@ async function seedEVVStateConfig(ctx) {
       NOW(), $5, NOW(), $5
     )
   `, [
-        uuidv4(), ctx.texasOrgId, ctx.texasBranchId,
+        (0, uuid_1.v4)(), ctx.texasOrgId, ctx.texasBranchId,
         JSON.stringify(['MOBILE_GPS', 'FIXED_TELEPHONY']),
         ctx.texasAdminId,
     ]);
-    // Florida EVV Config (Multi-aggregator)
     await pool.query(`
     INSERT INTO evv_state_config (
       id, organization_id, branch_id,
@@ -437,7 +408,7 @@ async function seedEVVStateConfig(ctx) {
       NOW(), $6, NOW(), $6
     )
   `, [
-        uuidv4(), ctx.floridaOrgId, ctx.floridaBranchId,
+        (0, uuid_1.v4)(), ctx.floridaOrgId, ctx.floridaBranchId,
         JSON.stringify(['MOBILE_GPS', 'TELEPHONY_IVR', 'BIOMETRIC_MOBILE']),
         JSON.stringify([
             { id: 'netsmart-fl', type: 'NETSMART_TELLUS', endpoint: 'https://api.netsmart.com/fl/v1' },
@@ -446,51 +417,28 @@ async function seedEVVStateConfig(ctx) {
     ]);
     console.log('  ✓ EVV state configurations seeded');
 }
-/**
- * Seed care plans with authorizations
- */
 async function seedCarePlans(_ctx) {
     console.log('📋 Seeding care plans...');
-    // Seed care plans for each client
-    // This would integrate with care-plans-tasks vertical
-    // For now, just log that it would be done
     console.log('  ℹ️  Care plan seeding would integrate with care-plans-tasks vertical');
 }
-/**
- * Seed service patterns
- */
 async function seedServicePatterns(_ctx) {
     console.log('🔄 Seeding service patterns...');
-    // Seed service patterns for clients
-    // This creates recurring visit schedules
     console.log('  ℹ️  Service pattern seeding would create recurring visit schedules');
 }
-/**
- * Seed visits for demonstration
- */
 async function seedVisits(_ctx) {
     console.log('📅 Seeding visits...');
-    // Seed visits for today and upcoming days
     console.log('  ℹ️  Visit seeding would create scheduled visits for demo');
 }
-/**
- * Seed EVV records with realistic scenarios
- */
 async function seedEVVRecords(_ctx) {
     console.log('🕐 Seeding EVV records...');
-    // Seed EVV records showing various compliance scenarios
     console.log('  ℹ️  EVV record seeding would show compliant and non-compliant scenarios');
 }
-/**
- * Seed exception queue items
- */
 async function seedExceptions(_ctx) {
     console.log('⚠️  Seeding exception queue...');
-    // Seed exception queue items for demo
     console.log('  ℹ️  Exception queue seeding would show various EVV anomalies');
 }
-// Run the seed script
 main().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);
 });
+//# sourceMappingURL=seed-tx-fl-demo.js.map

@@ -35,6 +35,7 @@ import {
 } from '../schedule-utils';
 import { Visit, ServicePattern, VisitStatus, VisitType, PatternStatus, DayOfWeek } from '../../types/schedule';
 import { parseISO } from 'date-fns';
+import { describe, it, expect } from 'vitest';
 
 describe('Schedule Utils', () => {
   describe('formatVisitDate', () => {

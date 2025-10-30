@@ -32,7 +32,7 @@ Care Commons is structured as a set of independently deployable **verticals** th
 - **Database**: PostgreSQL with JSONB for flexible data models
 - **Monorepo**: Turborepo for efficient builds
 - **Validation**: Zod for runtime type safety
-- **Testing**: Jest
+- **Testing**: Vitest
 
 ## Project Structure
 

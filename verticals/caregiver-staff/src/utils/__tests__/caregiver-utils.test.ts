@@ -29,6 +29,7 @@ import {
 } from '../caregiver-utils';
 import { Caregiver } from '../../types/caregiver';
 import { addDays, subDays } from 'date-fns';
+import { describe, it, expect } from 'vitest';
 
 describe('Caregiver Utilities', () => {
   describe('calculateAge', () => {

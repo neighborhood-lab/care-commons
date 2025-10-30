@@ -16,6 +16,7 @@ import {
   estimateQuarterlyTaxLiability,
 } from '../tax-calculations';
 import { TaxConfiguration, FederalFilingStatus } from '../../types/payroll';
+import { describe, it, expect } from 'vitest';
 
 describe('Tax Calculation Utilities', () => {
   const mockTaxConfig: TaxConfiguration = {

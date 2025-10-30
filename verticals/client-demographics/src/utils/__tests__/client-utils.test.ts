@@ -23,6 +23,7 @@ import {
   compareClients,
 } from '../client-utils';
 import { Client } from '../../types/client';
+import { describe, it, expect } from 'vitest';
 
 describe('Client Utilities', () => {
   const mockClient: Client = {
