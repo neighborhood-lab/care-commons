@@ -288,6 +288,7 @@ export interface CarePlanSearchFilters {
 }
 
 export interface TaskInstanceSearchFilters {
+  query?: string;
   carePlanId?: string;
   clientId?: string;
   assignedCaregiverId?: string;

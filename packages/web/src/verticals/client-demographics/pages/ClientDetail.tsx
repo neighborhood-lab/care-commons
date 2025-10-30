@@ -21,8 +21,8 @@ export const ClientDetail: React.FC = () => {
     try {
       await deleteClient.mutateAsync(client.id);
       navigate('/clients');
-    } catch (error) {
-      // Error is handled by the mutation
+    } catch {
+      // Error is handled by mutation
     }
   };
 
@@ -37,7 +37,7 @@ export const ClientDetail: React.FC = () => {
   if (error || !client) {
     return (
       <ErrorMessage
-        message={(error as any)?.message || 'Failed to load client'}
+        message={(error as Error)?.message || 'Failed to load client'}
         retry={refetch}
       />
     );

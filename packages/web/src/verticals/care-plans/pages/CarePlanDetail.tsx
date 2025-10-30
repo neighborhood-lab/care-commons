@@ -29,7 +29,7 @@ export const CarePlanDetail: React.FC = () => {
     try {
       await activateCarePlan.mutateAsync(carePlan.id);
       refetch();
-    } catch (error) {
+    } catch {
       // Error is handled by the mutation
     }
   };
@@ -45,7 +45,7 @@ export const CarePlanDetail: React.FC = () => {
   if (error || !carePlan) {
     return (
       <ErrorMessage
-        message={(error as any)?.message || 'Failed to load care plan'}
+        message={(error as Error)?.message || 'Failed to load care plan'}
         retry={refetch}
       />
     );

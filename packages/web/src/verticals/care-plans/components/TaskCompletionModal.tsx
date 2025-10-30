@@ -41,7 +41,7 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
       await completeTask.mutateAsync({ id: task.id, input });
       onComplete?.();
       onClose();
-    } catch (error) {
+    } catch {
       // Error is handled by the mutation
     }
   };

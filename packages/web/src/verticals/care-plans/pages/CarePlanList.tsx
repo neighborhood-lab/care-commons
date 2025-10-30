@@ -24,7 +24,7 @@ export const CarePlanList: React.FC = () => {
   if (error) {
     return (
       <ErrorMessage
-        message={(error as any).message || 'Failed to load care plans'}
+        message={(error as Error).message || 'Failed to load care plans'}
         retry={refetch}
       />
     );

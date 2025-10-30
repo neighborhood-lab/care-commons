@@ -46,7 +46,7 @@ export const useCreateCarePlan = () => {
       queryClient.invalidateQueries({ queryKey: ['care-plans'] });
       toast.success('Care plan created successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to create care plan');
     },
   });
@@ -64,7 +64,7 @@ export const useUpdateCarePlan = () => {
       queryClient.invalidateQueries({ queryKey: ['care-plans', data.id] });
       toast.success('Care plan updated successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to update care plan');
     },
   });
@@ -81,7 +81,7 @@ export const useActivateCarePlan = () => {
       queryClient.invalidateQueries({ queryKey: ['care-plans', data.id] });
       toast.success('Care plan activated successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to activate care plan');
     },
   });
@@ -119,7 +119,7 @@ export const useCompleteTask = () => {
       queryClient.invalidateQueries({ queryKey: ['care-plans', data.carePlanId] });
       toast.success('Task completed successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to complete task');
     },
   });

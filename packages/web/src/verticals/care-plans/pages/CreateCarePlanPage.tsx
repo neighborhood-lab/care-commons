@@ -14,7 +14,7 @@ export const CreateCarePlanPage: React.FC = () => {
     try {
       await createCarePlan.mutateAsync(data);
       navigate('/care-plans');
-    } catch (error) {
+    } catch {
       // Error is handled by the mutation
     }
   };
@@ -22,7 +22,7 @@ export const CreateCarePlanPage: React.FC = () => {
   if (createCarePlan.isError) {
     return (
       <ErrorMessage
-        message={(createCarePlan.error as any)?.message || 'Failed to create care plan'}
+        message={(createCarePlan.error as Error)?.message || 'Failed to create care plan'}
         retry={() => createCarePlan.reset()}
       />
     );

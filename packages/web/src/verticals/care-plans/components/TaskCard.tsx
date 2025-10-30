@@ -25,7 +25,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         input: { completionNote: 'Task completed via dashboard' } 
       });
       onCompleted?.();
-    } catch (error) {
+    } catch {
       // Error is handled by the mutation
     }
   };
