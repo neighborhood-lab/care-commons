@@ -4,8 +4,11 @@
  * Seeds initial data for development and testing
  */
 
+import dotenv from "dotenv";
 import { v4 as uuidv4 } from 'uuid';
 import { Database, initializeDatabase } from '../src/db/connection';
+
+dotenv.config({ path: '.env', quiet: true });
 
 async function seedDatabase() {
   console.log('🌱 Seeding database...\n');
@@ -1150,7 +1153,7 @@ async function seedDatabase() {
       const cg4PayRateId = uuidv4();
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 25);
-      
+
       await client.query(
         `
         INSERT INTO caregivers (
