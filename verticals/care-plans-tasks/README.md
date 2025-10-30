@@ -1,3 +1,7 @@
+> **Status**: ✅ Backend Complete | 🚧 Frontend In Progress | 📝 Testing Needed
+
+---
+
 # Care Plans & Tasks Library
 
 > Structured plan of care with task management and progress tracking
@@ -234,6 +238,50 @@ interface TaskInstance {
   verificationData?: VerificationData;
 }
 ```
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+ and npm
+- PostgreSQL 14+ running locally
+- All migrations applied: `npm run db:migrate` (✅ Complete)
+
+### Backend Setup (✅ Complete)
+The backend API is fully implemented and ready to use:
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Verify migrations (should show 12 migrations applied)
+npm run db:migrate:status
+
+# 3. Load demo data
+npm run db:seed:care-plans
+
+# 4. Start the API server
+npm run dev:server
+# Server runs at http://localhost:3000
+```
+
+### Testing the API
+See `DEMO.md` for comprehensive curl examples. Quick test:
+
+```bash
+# Get care plan analytics
+curl -H "X-User-Id: user-123" \
+     -H "X-Organization-Id: org-123" \
+     http://localhost:3000/api/analytics/care-plans
+```
+
+### Frontend Setup (🚧 In Progress)
+The frontend implementation is planned. Follow the pattern from `client-demographics` vertical:
+1. Create types in `packages/web/src/verticals/care-plans/types/`
+2. Create API service in `packages/web/src/verticals/care-plans/services/`
+3. Create React Query hooks in `packages/web/src/verticals/care-plans/hooks/`
+4. Create components and pages
+
+See Task 3 in the project improvement tasks for detailed instructions.
 
 ## Usage
 
