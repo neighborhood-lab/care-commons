@@ -14,7 +14,8 @@ The following SQL migrations are still active and required. They will be convert
 - ⚠️ `003_create_caregivers_table.sql` - Caregiver/staff table
 - ⚠️ `004_scheduling_visits.sql` - Scheduling and visits tables
 - ⚠️ `005_create_evv_tables.sql` - Electronic Visit Verification tables
-- ⚠️ `006_create_care_plans_tables.sql` - Care plans and tasks tables
+- ✅ `20251030214716_care_plans_tables.ts` - Care plans, tasks, and progress notes tables (TypeScript migration)
+- ~~❌ `006_create_care_plans_tables.sql` - DEPRECATED (replaced by TypeScript migration)~~
 - ⚠️ `007_shift_matching.sql` - Shift matching and open shifts tables
 - ⚠️ `008_billing_invoicing.sql` - Billing and invoicing tables
 - ⚠️ `009_add_state_specific_fields.sql` - State-specific compliance fields

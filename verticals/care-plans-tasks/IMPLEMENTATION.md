@@ -6,6 +6,19 @@ This document provides technical implementation details for the Care Plans & Tas
 
 ## Database Schema
 
+**Migration Status**: ✅ IMPLEMENTED
+
+The database schema described below has been implemented in migration file `packages/core/migrations/20251030214716_care_plans_tables.ts` and successfully applied to the database.
+
+To verify:
+```bash
+# Check migration status
+npm run db:migrate:status
+
+# View the comprehensive migration
+cat packages/core/migrations/20251030214716_care_plans_tables.ts
+```
+
 ### Table: care_plans
 
 ```sql
@@ -309,6 +322,18 @@ $$ LANGUAGE plpgsql;
 ```
 
 ## API Endpoints
+
+**Implementation Status**: ✅ IMPLEMENTED
+
+All API endpoints described below have been implemented in `verticals/care-plans-tasks/src/api/care-plan-handlers.ts` and are registered in the Express app via `packages/app/src/routes/index.ts`.
+
+To test the API:
+```bash
+# Start the server
+npm run dev:server
+
+# See DEMO.md for curl examples
+```
 
 ### Care Plans
 
