@@ -407,18 +407,18 @@ export class ClientHandlers {
     const stats = {
       total: allClients.total,
       byStatus: {
-        inquiry: allClients.items.filter((c) => c.status === 'INQUIRY').length,
-        pendingIntake: allClients.items.filter((c) => c.status === 'PENDING_INTAKE').length,
-        active: allClients.items.filter((c) => c.status === 'ACTIVE').length,
-        inactive: allClients.items.filter((c) => c.status === 'INACTIVE').length,
-        onHold: allClients.items.filter((c) => c.status === 'ON_HOLD').length,
-        discharged: allClients.items.filter((c) => c.status === 'DISCHARGED').length,
-        deceased: allClients.items.filter((c) => c.status === 'DECEASED').length,
+        inquiry: allClients.items.filter((c: any) => c.status === 'INQUIRY').length,
+        pendingIntake: allClients.items.filter((c: any) => c.status === 'PENDING_INTAKE').length,
+        active: allClients.items.filter((c: any) => c.status === 'ACTIVE').length,
+        inactive: allClients.items.filter((c: any) => c.status === 'INACTIVE').length,
+        onHold: allClients.items.filter((c: any) => c.status === 'ON_HOLD').length,
+        discharged: allClients.items.filter((c: any) => c.status === 'DISCHARGED').length,
+        deceased: allClients.items.filter((c: any) => c.status === 'DECEASED').length,
       },
-      highRiskCount: allClients.items.filter((c) =>
-        c.riskFlags.some((f) => !f.resolvedDate && (f.severity === 'HIGH' || f.severity === 'CRITICAL'))
+      highRiskCount: allClients.items.filter((c: any) =>
+        c.riskFlags.some((f: any) => !f.resolvedDate && (f.severity === 'HIGH' || f.severity === 'CRITICAL'))
       ).length,
-      newThisMonth: allClients.items.filter((c) => {
+      newThisMonth: allClients.items.filter((c: any) => {
         const intakeDate = c.intakeDate ? new Date(c.intakeDate) : null;
         if (!intakeDate) return false;
         const now = new Date();

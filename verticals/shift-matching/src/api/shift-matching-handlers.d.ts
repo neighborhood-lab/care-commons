@@ -8,12 +8,12 @@ export declare class ShiftMatchingHandlers {
     constructor(pool: Pool);
     createOpenShift(input: CreateOpenShiftInput, context: UserContext): Promise<import("../types/shift-matching").OpenShift>;
     matchOpenShift(openShiftId: string, input: Partial<MatchShiftInput>, context: UserContext): Promise<import("../service/shift-matching-service").MatchShiftResult>;
-    searchOpenShifts(filters: OpenShiftFilters, pagination: PaginationParams, _context: UserContext): Promise<import("@care-commons/core").PaginatedResult<import("../types/shift-matching").OpenShift>>;
+    searchOpenShifts(filters: OpenShiftFilters, pagination: PaginationParams, _context: UserContext): Promise<PaginatedResult<import("../types/shift-matching").OpenShift>>;
     getOpenShift(openShiftId: string, _context: UserContext): Promise<import("../types/shift-matching").OpenShift | null>;
     getProposalsForShift(openShiftId: string, _context: UserContext): Promise<import("../types/shift-matching").AssignmentProposal[]>;
     createManualProposal(input: CreateProposalInput, context: UserContext): Promise<import("../types/shift-matching").AssignmentProposal>;
     respondToProposal(proposalId: string, input: RespondToProposalInput, context: UserContext): Promise<import("../types/shift-matching").AssignmentProposal>;
-    searchProposals(filters: ProposalFilters, pagination: PaginationParams, _context: UserContext): Promise<import("@care-commons/core").PaginatedResult<import("../types/shift-matching").AssignmentProposal>>;
+    searchProposals(filters: ProposalFilters, pagination: PaginationParams, _context: UserContext): Promise<PaginatedResult<import("../types/shift-matching").AssignmentProposal>>;
     getAvailableShifts(caregiverId: string, context: UserContext): Promise<import("../types/shift-matching").MatchCandidate[]>;
     getCaregiverProposals(caregiverId: string, statuses: string[] | undefined, _context: UserContext): Promise<import("../types/shift-matching").AssignmentProposal[]>;
     markProposalViewed(proposalId: string, context: UserContext): Promise<import("../types/shift-matching").AssignmentProposal>;

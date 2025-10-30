@@ -252,7 +252,7 @@ export class ClientRepository extends Repository<Client> {
       offset,
     ]);
 
-    const items = result.rows.map((row) => this.mapRowToEntity(row));
+    const items = result.rows.map((row: any) => this.mapRowToEntity(row));
 
     return {
       items,
@@ -277,26 +277,7 @@ export class ClientRepository extends Repository<Client> {
     `;
 
     const result = await this.database.query(query, [branchId]);
-    return result.rows.map((row) => this.mapRowToEntity(row));
-  }
 
-  /**
-   * Get clients with specific risk flags
-   */
-  async findByRiskType(
-    organizationId: string,
-    riskType: string
-  ): Promise<Client[]> {
-    const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE organization_id = $1
-        AND deleted_at IS NULL
-        AND risk_flags::jsonb @> $2::jsonb
-    `;
-
-    const riskFilter = JSON.stringify([{ type: riskType }]);
-    const result = await this.database.query(query, [organizationId, riskFilter]);
-
-    return result.rows.map((row) => this.mapRowToEntity(row));
+    return result.rows.map((row: any) => this.mapRowToEntity(row));
   }
 }

@@ -152,11 +152,11 @@ export declare const CreateCarePlanInputSchema: z.ZodObject<{
         }, z.core.$strip>;
         performedBy: z.ZodArray<z.ZodEnum<{
             CAREGIVER: "CAREGIVER";
-            FAMILY: "FAMILY";
-            CLIENT: "CLIENT";
             HHA: "HHA";
             CNA: "CNA";
             RN: "RN";
+            FAMILY: "FAMILY";
+            CLIENT: "CLIENT";
             LPN: "LPN";
             THERAPIST: "THERAPIST";
         }>>;
@@ -476,11 +476,11 @@ export declare const UpdateCarePlanInputSchema: z.ZodObject<{
         precautions: z.ZodOptional<z.ZodArray<z.ZodString>>;
         performedBy: z.ZodArray<z.ZodEnum<{
             CAREGIVER: "CAREGIVER";
-            FAMILY: "FAMILY";
-            CLIENT: "CLIENT";
             HHA: "HHA";
             CNA: "CNA";
             RN: "RN";
+            FAMILY: "FAMILY";
+            CLIENT: "CLIENT";
             LPN: "LPN";
             THERAPIST: "THERAPIST";
         }>>;
@@ -952,7 +952,7 @@ export declare class CarePlanValidator {
                 specificTimes?: string[] | undefined;
                 specificDays?: ("MONDAY" | "WEDNESDAY" | "FRIDAY" | "TUESDAY" | "THURSDAY" | "SATURDAY" | "SUNDAY")[] | undefined;
             };
-            performedBy: ("CAREGIVER" | "FAMILY" | "CLIENT" | "HHA" | "CNA" | "RN" | "LPN" | "THERAPIST")[];
+            performedBy: ("CAREGIVER" | "HHA" | "CNA" | "RN" | "FAMILY" | "CLIENT" | "LPN" | "THERAPIST")[];
             requiresDocumentation: boolean;
             notes?: string | undefined;
             duration?: number | undefined;
@@ -1088,7 +1088,7 @@ export declare class CarePlanValidator {
                 specificDays?: ("MONDAY" | "WEDNESDAY" | "FRIDAY" | "TUESDAY" | "THURSDAY" | "SATURDAY" | "SUNDAY")[] | undefined;
             };
             instructions: string;
-            performedBy: ("CAREGIVER" | "FAMILY" | "CLIENT" | "HHA" | "CNA" | "RN" | "LPN" | "THERAPIST")[];
+            performedBy: ("CAREGIVER" | "HHA" | "CNA" | "RN" | "FAMILY" | "CLIENT" | "LPN" | "THERAPIST")[];
             requiresDocumentation: boolean;
             status: "ACTIVE" | "SUSPENDED" | "DISCONTINUED";
             startDate: Date;
