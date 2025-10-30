@@ -9,7 +9,7 @@
     "dev": "tsc --watch",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'Linting not configured yet'"
+    "lint": "eslint . --ext ts --max-warnings 0"
   },
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
@@ -20,6 +20,9 @@
   "devDependencies": {
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.5"
   },

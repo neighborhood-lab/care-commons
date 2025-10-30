@@ -8,7 +8,7 @@
     "dev": "tsc --watch",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'Linting not configured yet'",
+    "lint": "eslint . --ext ts --max-warnings 0",
     "db:migrate": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate.ts",
     "db:migrate:rollback": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/rollback.ts",
     "db:migrate:status": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate-status.ts",
@@ -25,6 +25,9 @@
   "devDependencies": {
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
