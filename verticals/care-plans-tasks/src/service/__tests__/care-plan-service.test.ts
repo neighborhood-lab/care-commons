@@ -6,6 +6,7 @@
 import { CarePlanService } from '../care-plan-service';
 import { CarePlanRepository } from '../../repository/care-plan-repository';
 import { PermissionService } from '@care-commons/core';
+import { CarePlanValidator } from '../../validation/care-plan-validator';
 import {
   CarePlan,
   CreateCarePlanInput,
@@ -41,12 +42,39 @@ const { v4: uuid } = require('uuid');
 
 // Mock dependencies
 jest.mock('../../repository/care-plan-repository');
-jest.mock('@care-commons/core');
+jest.mock('@care-commons/core', () => ({
+  PermissionService: jest.fn(),
+  UserContext: jest.fn(),
+  PaginationParams: jest.fn(),
+  PaginatedResult: jest.fn(),
+  UUID: jest.fn(),
+  Timestamp: jest.fn(),
+  ValidationError: class extends Error {
+    constructor(message: string, details?: any) {
+      super(message);
+      this.name = 'ValidationError';
+    }
+  },
+  PermissionError: class extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'PermissionError';
+    }
+  },
+  NotFoundError: class extends Error {
+    constructor(message: string, details?: any) {
+      super(message);
+      this.name = 'NotFoundError';
+    }
+  }
+}));
+jest.mock('../../validation/care-plan-validator');
 
 describe('CarePlanService', () => {
   let service: CarePlanService;
   let mockRepository: jest.Mocked<CarePlanRepository>;
   let mockPermissions: jest.Mocked<PermissionService>;
+  let mockValidator: jest.Mocked<typeof CarePlanValidator>;
   let mockContext: UserContext;
 
   beforeEach(() => {
@@ -72,8 +100,22 @@ describe('CarePlanService', () => {
     } as any;
 
     mockPermissions = {
-      hasPermission: jest.fn(),
+      hasPermission: jest.fn().mockReturnValue(true),
     } as any;
+
+    mockValidator = CarePlanValidator as any;
+    
+    // Mock all validation methods to return input by default
+    mockValidator.validateCreateCarePlan = jest.fn((input: any) => input);
+    mockValidator.validateUpdateCarePlan = jest.fn((input: any) => input);
+    mockValidator.validateCreateTaskInstance = jest.fn((input: any) => input);
+    mockValidator.validateCompleteTask = jest.fn((input: any) => input);
+    mockValidator.validateCreateProgressNote = jest.fn((input: any) => input);
+    mockValidator.validateCarePlanSearchFilters = jest.fn((input: any) => input);
+    mockValidator.validateTaskInstanceSearchFilters = jest.fn((input: any) => input);
+    mockValidator.validateTaskCompletion = jest.fn(() => ({ valid: true, errors: [] }));
+    mockValidator.validateVitalSigns = jest.fn(() => ({ valid: true, warnings: [] }));
+    mockValidator.validateCarePlanActivation = jest.fn(() => ({ valid: true, errors: [] }));
 
     service = new CarePlanService(mockRepository, mockPermissions);
 
@@ -173,6 +215,10 @@ describe('CarePlanService', () => {
       await expect(service.createCarePlan(validInput, mockContext))
         .rejects.toThrow(PermissionError);
       expect(mockRepository.createCarePlan).not.toHaveBeenCalled();
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'care-plans:create');
+      
+      // Reset mock for other tests
+      mockPermissions.hasPermission.mockReturnValue(true);
     });
   });
 
@@ -218,7 +264,7 @@ describe('CarePlanService', () => {
     it('should throw error when care plan not found', async () => {
       // Arrange
       const carePlanId = uuid();
-      mockPermissions.hasPermission.mockReturnValue(true);
+      mockPermissions.hasPermission.mockReturnValue(true); // Ensure permission passes
       mockRepository.getCarePlanById.mockResolvedValue(null);
 
       // Act & Assert
@@ -249,9 +295,9 @@ describe('CarePlanService', () => {
         updatedBy: 'user-1',
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        coordinatorId: 'user-1'
       };
-      mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getCarePlanById.mockResolvedValue(otherOrgCarePlan);
 
       // Act & Assert
@@ -338,7 +384,8 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        coordinatorId: mockContext.userId
       };
       
       mockPermissions.hasPermission
@@ -350,6 +397,9 @@ describe('CarePlanService', () => {
       // Act & Assert
       await expect(service.updateCarePlan(carePlanId, updateInput, mockContext))
         .rejects.toThrow(PermissionError);
+      
+      // Reset mock for other tests
+      mockPermissions.hasPermission.mockReturnValue(true);
     });
   });
 
@@ -376,7 +426,21 @@ describe('CarePlanService', () => {
             priority: 'MEDIUM'
           }
         ],
-        interventions: [],
+        interventions: [
+          {
+            id: 'intervention-1',
+            name: 'Test Intervention',
+            description: 'Test intervention',
+            category: 'ASSISTANCE_WITH_ADL',
+            goalIds: ['goal-1'],
+            frequency: { pattern: 'DAILY' },
+            instructions: 'Test instructions',
+            performedBy: ['CAREGIVER'],
+            requiresDocumentation: true,
+            status: 'ACTIVE',
+            startDate: new Date('2024-01-01')
+          }
+        ],
         taskTemplates: [],
         complianceStatus: 'COMPLIANT',
         createdAt: new Date('2024-01-01'),
@@ -385,9 +449,9 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        coordinatorId: mockContext.userId
       };
-
 
       // Arrange
       mockPermissions.hasPermission.mockReturnValue(true);
@@ -433,7 +497,21 @@ describe('CarePlanService', () => {
             priority: 'MEDIUM'
           }
         ],
-        interventions: [],
+        interventions: [
+          {
+            id: 'intervention-1',
+            name: 'Test Intervention',
+            description: 'Test intervention',
+            category: 'ASSISTANCE_WITH_ADL',
+            goalIds: ['goal-1'],
+            frequency: { pattern: 'DAILY' },
+            instructions: 'Test instructions',
+            performedBy: ['CAREGIVER'],
+            requiresDocumentation: true,
+            status: 'ACTIVE',
+            startDate: new Date('2024-01-01')
+          }
+        ],
         taskTemplates: [],
         complianceStatus: 'COMPLIANT',
         createdAt: new Date('2024-01-01'),
@@ -442,7 +520,8 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        coordinatorId: mockContext.userId
       };
       
       const existingActivePlan: CarePlan = {
@@ -465,7 +544,8 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        coordinatorId: mockContext.userId
       };
       
       mockPermissions.hasPermission.mockReturnValue(true);
@@ -545,11 +625,13 @@ describe('CarePlanService', () => {
 
     it('should throw error without create permission', async () => {
       // Arrange
-      mockPermissions.hasPermission.mockReturnValue(false);
+      mockPermissions.hasPermission.mockImplementationOnce(() => false);
 
       // Act & Assert
       await expect(service.createTaskInstance(taskInput, mockContext))
         .rejects.toThrow(PermissionError);
+      expect(mockRepository.createTaskInstance).not.toHaveBeenCalled();
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'tasks:create');
     });
   });
 
@@ -622,7 +704,6 @@ describe('CarePlanService', () => {
 
     it('should throw error when task is already completed', async () => {
       // Arrange
-      mockPermissions.hasPermission.mockReturnValue(true);
       const completedTask = { ...existingTask, status: 'COMPLETED' as TaskStatus };
       mockRepository.getTaskInstanceById.mockResolvedValue(completedTask);
 
@@ -633,7 +714,6 @@ describe('CarePlanService', () => {
 
     it('should throw error when task is cancelled', async () => {
       // Arrange
-      mockPermissions.hasPermission.mockReturnValue(true);
       const cancelledTask = { ...existingTask, status: 'CANCELLED' as TaskStatus };
       mockRepository.getTaskInstanceById.mockResolvedValue(cancelledTask);
 
@@ -703,7 +783,6 @@ describe('CarePlanService', () => {
 
     it('should throw error when trying to skip completed task', async () => {
       // Arrange
-      mockPermissions.hasPermission.mockReturnValue(true);
       const completedTask = { ...existingTask, status: 'COMPLETED' as TaskStatus };
       mockRepository.getTaskInstanceById.mockResolvedValue(completedTask);
 
@@ -768,7 +847,19 @@ describe('CarePlanService', () => {
       expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'progress-notes:create');
       expect(mockRepository.createProgressNote).toHaveBeenCalledWith(
         expect.objectContaining({
-          ...noteInput,
+          carePlanId: noteInput.carePlanId,
+          clientId: noteInput.clientId,
+          noteType: noteInput.noteType,
+          content: noteInput.content,
+          goalProgress: noteInput.goalProgress,
+          observations: expect.arrayContaining([
+            expect.objectContaining({
+              category: 'PHYSICAL',
+              observation: 'Client appeared more energetic today',
+              severity: 'NORMAL',
+              timestamp: expect.any(Date),
+            })
+          ]),
           authorId: mockContext.userId,
           authorName: expect.any(String),
           authorRole: expect.any(String),
@@ -780,11 +871,13 @@ describe('CarePlanService', () => {
 
     it('should throw error without create permission', async () => {
       // Arrange
-      mockPermissions.hasPermission.mockReturnValue(false);
+      mockPermissions.hasPermission.mockImplementationOnce(() => false);
 
       // Act & Assert
       await expect(service.createProgressNote(noteInput, mockContext))
         .rejects.toThrow(PermissionError);
+      expect(mockRepository.createProgressNote).not.toHaveBeenCalled();
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'progress-notes:create');
     });
   });
 
@@ -983,10 +1076,10 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
+        coordinatorId: mockContext.userId
       };
       
-      mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getCarePlanById.mockResolvedValue(activeCarePlan);
 
       // Act & Assert
