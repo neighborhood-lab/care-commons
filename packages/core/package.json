@@ -12,7 +12,8 @@
     "db:migrate": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate.ts",
     "db:migrate:rollback": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/rollback.ts",
     "db:migrate:status": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate-status.ts",
-    "db:seed": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/seed.ts"
+    "db:seed": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/seed.ts",
+    "db:nuke": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/nuke.ts"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
