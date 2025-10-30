@@ -5,6 +5,7 @@ import {
   Users,
   Calendar,
   ClipboardList,
+  CheckSquare,
   FileText,
   DollarSign,
   Settings,
@@ -51,7 +52,13 @@ const navItems: NavItem[] = [
     label: 'Care Plans',
     path: '/care-plans',
     icon: <ClipboardList className="h-5 w-5" />,
-    permission: 'care-plans:read',
+    permission: 'care_plans:read',
+  },
+  {
+    label: 'Tasks',
+    path: '/tasks',
+    icon: <CheckSquare className="h-5 w-5" />,
+    permission: 'tasks:read',
   },
   {
     label: 'Time Tracking',
