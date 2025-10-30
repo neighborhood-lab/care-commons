@@ -14,7 +14,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index';
 
-dotenv.config({ path: '../../.env', quiet: true });
+dotenv.config({ path: '.env', quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;

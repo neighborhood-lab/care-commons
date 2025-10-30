@@ -7,7 +7,7 @@
 import dotenv from "dotenv";
 import knex, { Knex } from 'knex';
 
-dotenv.config({ path: '../../.env', quiet: true });
+dotenv.config({ path: '.env', quiet: true });
 
 async function showMigrationStatus() {
   console.log('📊 Checking migration status...\n');

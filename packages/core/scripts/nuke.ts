@@ -11,7 +11,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import * as readline from 'readline';
 
-dotenv.config({ path: '../../.env', quiet: true });
+dotenv.config({ path: '.env', quiet: true });
 
 async function confirmNuke(): Promise<boolean> {
   const rl = readline.createInterface({
@@ -30,7 +30,7 @@ async function confirmNuke(): Promise<boolean> {
 async function nukeDatabase() {
   // Determine environment
   const environment = process.env.NODE_ENV || 'development';
-  const dbName = environment === 'test' 
+  const dbName = environment === 'test'
     ? (process.env.DB_NAME || 'care_commons') + '_test'
     : process.env.DB_NAME || 'care_commons';
 
@@ -66,16 +66,16 @@ async function nukeDatabase() {
 
   try {
     console.log('\n🔄 Reading nuke.sql script...');
-    
+
     // Read the nuke.sql file
     const nukeSqlPath = join(__dirname, 'nuke.sql');
     const nukeSql = readFileSync(nukeSqlPath, 'utf-8');
-    
+
     console.log('💥 Executing DROP statements...\n');
-    
+
     // Execute the nuke SQL
     await db.raw(nukeSql);
-    
+
     console.log('✅ Database nuked successfully!');
     console.log('   - All tables dropped');
     console.log('   - All functions dropped');
