@@ -50,6 +50,28 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# TypeScript compiled files in source directories
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.d.ts.map
+verticals/*/src/**/*.js
+verticals/*/src/**/*.js.map
+verticals/*/src/**/*.d.ts
+verticals/*/src/**/*.d.ts.map
+
+# Compiled script files
+packages/*/scripts/*.js
+packages/*/scripts/*.js.map
+packages/*/scripts/*.d.ts
+packages/*/scripts/*.d.ts.map
+
+# Compiled config files in root
+vitest.config.js
+vitest.config.js.map
+vitest.config.d.ts
+vitest.config.d.ts.map
+
 # Optional npm cache directory
 .npm
 
