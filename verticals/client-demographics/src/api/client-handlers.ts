@@ -7,20 +7,20 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserContext } from '@care-commons/core';
 import { ClientService } from '../service/client-service';
-import { CreateClientInput, UpdateClientInput, ClientSearchFilters } from '../types/client';
+import { CreateClientInput, UpdateClientInput, ClientSearchFilters, ClientStatus, RiskType } from '../types/client';
 
 /**
  * Extract user context from authenticated request
  */
 function getUserContext(req: Request): UserContext {
   // In production, this would be populated by auth middleware
-  return (req as any).userContext as UserContext;
+  return (req as Request & { userContext: UserContext }).userContext;
 }
 
 /**
  * Handle async route errors
  */
-function asyncHandler(fn: Function) {
+function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>) {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -44,9 +44,9 @@ export class ClientHandlers {
       query: req.query.q as string,
       organizationId: req.query.organizationId as string,
       branchId: req.query.branchId as string,
-      status: req.query.status ? (req.query.status as string).split(',') as any[] : undefined,
+      status: req.query.status ? (req.query.status as string).split(',') as ClientStatus[] : undefined,
       programId: req.query.programId as string,
-      riskType: req.query.riskType ? (req.query.riskType as string).split(',') as any[] : undefined,
+      riskType: req.query.riskType ? (req.query.riskType as string).split(',') as RiskType[] : undefined,
       minAge: req.query.minAge ? parseInt(req.query.minAge as string) : undefined,
       maxAge: req.query.maxAge ? parseInt(req.query.maxAge as string) : undefined,
       city: req.query.city as string,
@@ -345,8 +345,8 @@ export class ClientHandlers {
     }
 
     const results = {
-      successful: [] as any[],
-      failed: [] as any[],
+      successful: [] as Array<{ clientNumber: string; id: string }>,
+      failed: [] as Array<{ clientData: { firstName: string; lastName: string }; error: string }>,
     };
 
     for (const clientData of clients) {
@@ -356,13 +356,13 @@ export class ClientHandlers {
           clientNumber: client.clientNumber,
           id: client.id,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         results.failed.push({
           clientData: {
             firstName: clientData.firstName,
             lastName: clientData.lastName,
           },
-          error: error.message,
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -407,18 +407,18 @@ export class ClientHandlers {
     const stats = {
       total: allClients.total,
       byStatus: {
-        inquiry: allClients.items.filter((c: any) => c.status === 'INQUIRY').length,
-        pendingIntake: allClients.items.filter((c: any) => c.status === 'PENDING_INTAKE').length,
-        active: allClients.items.filter((c: any) => c.status === 'ACTIVE').length,
-        inactive: allClients.items.filter((c: any) => c.status === 'INACTIVE').length,
-        onHold: allClients.items.filter((c: any) => c.status === 'ON_HOLD').length,
-        discharged: allClients.items.filter((c: any) => c.status === 'DISCHARGED').length,
-        deceased: allClients.items.filter((c: any) => c.status === 'DECEASED').length,
+        inquiry: allClients.items.filter((c) => c.status === 'INQUIRY').length,
+        pendingIntake: allClients.items.filter((c) => c.status === 'PENDING_INTAKE').length,
+        active: allClients.items.filter((c) => c.status === 'ACTIVE').length,
+        inactive: allClients.items.filter((c) => c.status === 'INACTIVE').length,
+        onHold: allClients.items.filter((c) => c.status === 'ON_HOLD').length,
+        discharged: allClients.items.filter((c) => c.status === 'DISCHARGED').length,
+        deceased: allClients.items.filter((c) => c.status === 'DECEASED').length,
       },
-      highRiskCount: allClients.items.filter((c: any) =>
-        c.riskFlags.some((f: any) => !f.resolvedDate && (f.severity === 'HIGH' || f.severity === 'CRITICAL'))
+      highRiskCount: allClients.items.filter((c) =>
+        c.riskFlags.some((f) => !f.resolvedDate && (f.severity === 'HIGH' || f.severity === 'CRITICAL'))
       ).length,
-      newThisMonth: allClients.items.filter((c: any) => {
+      newThisMonth: allClients.items.filter((c) => {
         const intakeDate = c.intakeDate ? new Date(c.intakeDate) : null;
         if (!intakeDate) return false;
         const now = new Date();
@@ -440,6 +440,7 @@ export class ClientHandlers {
  * Create router with all client endpoints
  */
 export function createClientRouter(clientService: ClientService) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const express = require('express');
   const router = express.Router();
   const handlers = new ClientHandlers(clientService);

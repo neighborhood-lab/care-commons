@@ -329,10 +329,11 @@ export function compareClients(
   sortBy: 'name' | 'age' | 'status' | 'clientNumber' = 'name'
 ): number {
   switch (sortBy) {
-    case 'name':
+    case 'name': {
       const nameA = `${a.lastName}, ${a.firstName}`.toLowerCase();
       const nameB = `${b.lastName}, ${b.firstName}`.toLowerCase();
       return nameA.localeCompare(nameB);
+    }
 
     case 'age':
       return calculateAge(a.dateOfBirth) - calculateAge(b.dateOfBirth);

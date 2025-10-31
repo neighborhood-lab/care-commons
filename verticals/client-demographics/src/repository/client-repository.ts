@@ -3,7 +3,7 @@
  */
 
 import { Repository, Database, PaginatedResult } from '@care-commons/core';
-import { Client, ClientSearchFilters } from '../types/client';
+import { Client, ClientSearchFilters, Gender, ContactMethod, MaritalStatus, ClientStatus } from '../types/client';
 
 export class ClientRepository extends Repository<Client> {
   constructor(database: Database) {
@@ -18,77 +18,77 @@ export class ClientRepository extends Repository<Client> {
   /**
    * Map database row to Client entity
    */
-  protected mapRowToEntity(row: any): Client {
+  protected mapRowToEntity(row: Record<string, unknown>): Client {
     return {
-      id: row.id,
-      organizationId: row.organization_id,
-      branchId: row.branch_id,
-      clientNumber: row.client_number,
-      firstName: row.first_name,
-      middleName: row.middle_name,
-      lastName: row.last_name,
-      preferredName: row.preferred_name,
-      dateOfBirth: row.date_of_birth,
-      ssn: row.ssn,
-      gender: row.gender,
-      pronouns: row.pronouns,
-      primaryPhone: row.primary_phone ? JSON.parse(row.primary_phone) : undefined,
-      alternatePhone: row.alternate_phone ? JSON.parse(row.alternate_phone) : undefined,
-      email: row.email,
-      preferredContactMethod: row.preferred_contact_method,
+      id: row.id as string,
+      organizationId: row.organization_id as string,
+      branchId: row.branch_id as string,
+      clientNumber: row.client_number as string,
+      firstName: row.first_name as string,
+      middleName: row.middle_name as string | undefined,
+      lastName: row.last_name as string,
+      preferredName: row.preferred_name as string | undefined,
+      dateOfBirth: row.date_of_birth as Date,
+      ssn: row.ssn as string | undefined,
+      gender: row.gender as Gender | undefined,
+      pronouns: row.pronouns as string | undefined,
+      primaryPhone: row.primary_phone ? JSON.parse(row.primary_phone as string) : undefined,
+      alternatePhone: row.alternate_phone ? JSON.parse(row.alternate_phone as string) : undefined,
+      email: row.email as string | undefined,
+      preferredContactMethod: row.preferred_contact_method as ContactMethod | undefined,
       communicationPreferences: row.communication_preferences
-        ? JSON.parse(row.communication_preferences)
+        ? JSON.parse(row.communication_preferences as string)
         : undefined,
-      language: row.language,
-      ethnicity: row.ethnicity,
-      race: row.race ? JSON.parse(row.race) : undefined,
-      maritalStatus: row.marital_status,
-      veteranStatus: row.veteran_status,
-      primaryAddress: JSON.parse(row.primary_address),
+      language: row.language as string | undefined,
+      ethnicity: row.ethnicity as string | undefined,
+      race: row.race ? JSON.parse(row.race as string) : undefined,
+      maritalStatus: row.marital_status as MaritalStatus | undefined,
+      veteranStatus: row.veteran_status as boolean | undefined,
+      primaryAddress: JSON.parse(row.primary_address as string),
       secondaryAddresses: row.secondary_addresses
-        ? JSON.parse(row.secondary_addresses)
+        ? JSON.parse(row.secondary_addresses as string)
         : undefined,
       livingArrangement: row.living_arrangement
-        ? JSON.parse(row.living_arrangement)
+        ? JSON.parse(row.living_arrangement as string)
         : undefined,
-      mobilityInfo: row.mobility_info ? JSON.parse(row.mobility_info) : undefined,
-      emergencyContacts: JSON.parse(row.emergency_contacts || '[]'),
-      authorizedContacts: JSON.parse(row.authorized_contacts || '[]'),
+      mobilityInfo: row.mobility_info ? JSON.parse(row.mobility_info as string) : undefined,
+      emergencyContacts: JSON.parse((row.emergency_contacts as string) || '[]'),
+      authorizedContacts: JSON.parse((row.authorized_contacts as string) || '[]'),
       primaryPhysician: row.primary_physician
-        ? JSON.parse(row.primary_physician)
+        ? JSON.parse(row.primary_physician as string)
         : undefined,
-      pharmacy: row.pharmacy ? JSON.parse(row.pharmacy) : undefined,
-      insurance: row.insurance ? JSON.parse(row.insurance) : undefined,
-      medicalRecordNumber: row.medical_record_number,
-      programs: JSON.parse(row.programs || '[]'),
-      serviceEligibility: JSON.parse(row.service_eligibility),
-      fundingSources: row.funding_sources ? JSON.parse(row.funding_sources) : undefined,
-      riskFlags: JSON.parse(row.risk_flags || '[]'),
-      allergies: row.allergies ? JSON.parse(row.allergies) : undefined,
-      specialInstructions: row.special_instructions,
-      accessInstructions: row.access_instructions,
-      status: row.status,
-      intakeDate: row.intake_date,
-      dischargeDate: row.discharge_date,
-      dischargeReason: row.discharge_reason,
-      referralSource: row.referral_source,
-      notes: row.notes,
-      customFields: row.custom_fields ? JSON.parse(row.custom_fields) : undefined,
-      createdAt: row.created_at,
-      createdBy: row.created_by,
-      updatedAt: row.updated_at,
-      updatedBy: row.updated_by,
-      version: row.version,
-      deletedAt: row.deleted_at,
-      deletedBy: row.deleted_by,
+      pharmacy: row.pharmacy ? JSON.parse(row.pharmacy as string) : undefined,
+      insurance: row.insurance ? JSON.parse(row.insurance as string) : undefined,
+      medicalRecordNumber: row.medical_record_number as string | undefined,
+      programs: JSON.parse((row.programs as string) || '[]'),
+      serviceEligibility: JSON.parse(row.service_eligibility as string),
+      fundingSources: row.funding_sources ? JSON.parse(row.funding_sources as string) : undefined,
+      riskFlags: JSON.parse((row.risk_flags as string) || '[]'),
+      allergies: row.allergies ? JSON.parse(row.allergies as string) : undefined,
+      specialInstructions: row.special_instructions as string | undefined,
+      accessInstructions: row.access_instructions as string | undefined,
+      status: row.status as ClientStatus,
+      intakeDate: row.intake_date as Date | undefined,
+      dischargeDate: row.discharge_date as Date | undefined,
+      dischargeReason: row.discharge_reason as string | undefined,
+      referralSource: row.referral_source as string | undefined,
+      notes: row.notes as string | undefined,
+      customFields: row.custom_fields ? JSON.parse(row.custom_fields as string) : undefined,
+      createdAt: row.created_at as Date,
+      createdBy: row.created_by as string,
+      updatedAt: row.updated_at as Date,
+      updatedBy: row.updated_by as string,
+      version: row.version as number,
+      deletedAt: row.deleted_at as Date | null,
+      deletedBy: row.deleted_by as string | null,
     };
   }
 
   /**
    * Map Client entity to database row
    */
-  protected mapEntityToRow(entity: Partial<Client>): Record<string, any> {
-    const row: Record<string, any> = {};
+  protected mapEntityToRow(entity: Partial<Client>): Record<string, unknown> {
+    const row: Record<string, unknown> = {};
 
     if (entity.organizationId !== undefined) row.organization_id = entity.organizationId;
     if (entity.branchId !== undefined) row.branch_id = entity.branchId;
@@ -187,7 +187,7 @@ export class ClientRepository extends Repository<Client> {
     pagination: { page: number; limit: number }
   ): Promise<PaginatedResult<Client>> {
     const whereClauses: string[] = ['deleted_at IS NULL'];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramIndex = 1;
 
     if (filters.query) {
@@ -252,7 +252,7 @@ export class ClientRepository extends Repository<Client> {
       offset,
     ]);
 
-    const items = result.rows.map((row: any) => this.mapRowToEntity(row));
+    const items = result.rows.map((row) => this.mapRowToEntity(row));
 
     return {
       items,
@@ -278,6 +278,6 @@ export class ClientRepository extends Repository<Client> {
 
     const result = await this.database.query(query, [branchId]);
 
-    return result.rows.map((row: any) => this.mapRowToEntity(row));
+    return result.rows.map((row) => this.mapRowToEntity(row));
   }
 }

@@ -1,4 +1,5 @@
 .turbo/
+.idea/
 
 # Logs
 logs
