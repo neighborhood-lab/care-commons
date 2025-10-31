@@ -26,9 +26,10 @@ export default [
     },
     rules: {
       ...typescript.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
     },
   },
   {
-    ignores: ['dist/', 'eslint.config.js'],
+    ignores: ['dist/', '*.js', '*.d.ts', '*.js.map', '*.d.ts.map'],
   },
 ]

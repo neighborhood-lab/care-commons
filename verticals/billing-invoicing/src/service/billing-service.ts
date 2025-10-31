@@ -512,7 +512,7 @@ export class BillingService {
   /**
    * Approve invoice for submission
    */
-  async approveInvoice(invoiceId: UUID, userId: UUID): Promise<void> {
+  async approveInvoice(invoiceId: UUID): Promise<void> {
     const invoice = await this.repository.findInvoiceById(invoiceId);
     if (!invoice) {
       throw new Error('Invoice not found');

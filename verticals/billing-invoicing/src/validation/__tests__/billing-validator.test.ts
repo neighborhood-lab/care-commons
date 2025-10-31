@@ -5,6 +5,9 @@
  * without requiring database or external dependencies
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { describe, it, expect } from 'vitest';
 import {
   validateCreateBillableItem,
   validateCreateInvoice,
