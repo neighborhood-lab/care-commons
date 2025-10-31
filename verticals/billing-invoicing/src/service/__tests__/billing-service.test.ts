@@ -5,9 +5,9 @@
  * Focus on workflows, error handling, and transaction boundaries
  */
 
-import { Pool, PoolClient } from 'pg';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { BillingService } from '../billing-service';
-import { BillingRepository } from '../../repository/billing-repository';
 import {
   CreateBillableItemInput,
   CreateInvoiceInput,

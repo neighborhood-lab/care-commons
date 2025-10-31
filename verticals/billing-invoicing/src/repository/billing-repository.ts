@@ -452,6 +452,7 @@ export class BillingRepository {
     filters: BillableItemSearchFilters
   ): Promise<BillableItem[]> {
     const conditions: string[] = ['deleted_at IS NULL'];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     let paramCount = 1;
 
@@ -519,7 +520,8 @@ export class BillingRepository {
   async updateBillableItemStatus(
     id: UUID,
     status: string,
-    statusChange: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  statusChange: any,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -653,6 +655,7 @@ export class BillingRepository {
 
   async searchInvoices(filters: InvoiceSearchFilters): Promise<Invoice[]> {
     const conditions: string[] = ['deleted_at IS NULL'];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     let paramCount = 1;
 
@@ -709,7 +712,8 @@ export class BillingRepository {
   async updateInvoicePayment(
     id: UUID,
     paymentAmount: number,
-    paymentReference: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  paymentReference: any,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -821,6 +825,7 @@ export class BillingRepository {
 
   async searchPayments(filters: PaymentSearchFilters): Promise<Payment[]> {
     const conditions: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     let paramCount = 1;
 
@@ -868,7 +873,8 @@ export class BillingRepository {
 
   async allocatePayment(
     paymentId: UUID,
-    allocation: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  allocation: any,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -897,6 +903,7 @@ export class BillingRepository {
    * MAPPING FUNCTIONS
    */
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapPayer(row: any): Payer {
     return {
       id: row.id,
@@ -939,6 +946,7 @@ export class BillingRepository {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRateSchedule(row: any): RateSchedule {
     return {
       id: row.id,
@@ -965,6 +973,7 @@ export class BillingRepository {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapAuthorization(row: any): ServiceAuthorization {
     return {
       id: row.id,
@@ -1016,6 +1025,7 @@ export class BillingRepository {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapBillableItem(row: any): BillableItem {
     return {
       id: row.id,
@@ -1082,6 +1092,7 @@ export class BillingRepository {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapInvoice(row: any): Invoice {
     return {
       id: row.id,
@@ -1135,6 +1146,7 @@ export class BillingRepository {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapPayment(row: any): Payment {
     return {
       id: row.id,

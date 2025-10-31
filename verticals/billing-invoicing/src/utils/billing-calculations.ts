@@ -160,7 +160,6 @@ export function isWeekend(date: Date): boolean {
 export function isHoliday(date: Date): boolean {
   const month = date.getMonth() + 1; // JavaScript months are 0-indexed
   const day = date.getDate();
-  const year = date.getFullYear();
 
   // New Year's Day
   if (month === 1 && day === 1) return true;
