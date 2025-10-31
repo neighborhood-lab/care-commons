@@ -17,6 +17,7 @@ import {
   EVVRecord,
   TimeEntry,
 } from '../types/evv';
+import { CryptoUtils } from '../utils/crypto-utils';
 
 export class EVVValidator {
   
@@ -262,12 +263,12 @@ export class EVVValidator {
       clockOutVerification: record.clockOutVerification,
     };
 
-    const computedHash = this.computeHash(JSON.stringify(coreData));
+    const computedHash = CryptoUtils.generateIntegrityHash(coreData);
     const hashMatch = computedHash === record.integrityHash;
 
-    // Compute checksum
-    const checksumData = JSON.stringify(record);
-    const computedChecksum = this.computeChecksum(checksumData);
+    // Compute checksum - exclude integrity fields to avoid circular dependency
+    const { integrityHash, integrityChecksum, ...recordWithoutIntegrity } = record;
+    const computedChecksum = CryptoUtils.generateChecksum(recordWithoutIntegrity);
     const checksumMatch = computedChecksum === record.integrityChecksum;
 
     const tamperDetected = !hashMatch || !checksumMatch;
@@ -464,30 +465,5 @@ export class EVVValidator {
     return R * c;
   }
 
-  /**
-   * Compute cryptographic hash (simplified - use proper crypto in production)
-   */
-  private computeHash(data: string): string {
-    // In production, use crypto.createHash('sha256') or similar
-    // This is a simplified version for demonstration
-    let hash = 0;
-    for (let i = 0; i < data.length; i++) {
-      const char = data.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash).toString(16);
-  }
 
-  /**
-   * Compute checksum
-   */
-  private computeChecksum(data: string): string {
-    // Simple checksum - in production use proper algorithm
-    let sum = 0;
-    for (let i = 0; i < data.length; i++) {
-      sum += data.charCodeAt(i);
-    }
-    return sum.toString(16);
-  }
 }
