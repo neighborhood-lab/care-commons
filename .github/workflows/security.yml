@@ -66,6 +66,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create empty SARIF placeholder for dependencies
+        run: touch snyk-deps.sarif
+
       - name: Run Snyk to check for dependency vulnerabilities
         id: snyk-deps
         continue-on-error: true
@@ -111,6 +114,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create empty SARIF placeholder for code scan
+        run: touch snyk-code.sarif
+
       - name: Run Snyk Code to check for code vulnerabilities
         id: snyk-code
         continue-on-error: true
@@ -132,4 +138,3 @@ jobs:
         run: |
           echo "Snyk Code found issues. Failing job as required."
           exit 1
-
