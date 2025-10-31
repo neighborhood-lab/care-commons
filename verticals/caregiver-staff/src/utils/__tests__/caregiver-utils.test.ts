@@ -28,7 +28,7 @@ import {
   filterByLanguages,
 } from '../caregiver-utils';
 import { Caregiver } from '../../types/caregiver';
-import { addDays, subDays } from 'date-fns';
+import { addDays, subDays, subMonths } from 'date-fns';
 import { describe, it, expect } from 'vitest';
 
 describe('Caregiver Utilities', () => {
@@ -54,10 +54,9 @@ describe('Caregiver Utilities', () => {
 
   describe('calculateDetailedAge', () => {
     it('should return years and months', () => {
+      // Calculate from current date - 25 years and 6 months
       const today = new Date();
-      const birthDate = new Date(today);
-      birthDate.setFullYear(today.getFullYear() - 25);
-      birthDate.setMonth(today.getMonth() - 6);
+      const birthDate = subMonths(today, 25 * 12 + 6); // 25 years + 6 months in total months
       
       const age = calculateDetailedAge(birthDate);
       expect(age.years).toBe(25);
@@ -479,8 +478,8 @@ describe('Caregiver Utilities', () => {
     });
 
     it('should show months for less than 1 year', () => {
-      const sixMonthsAgo = new Date();
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      // Use date-fns subMonths to handle month calculations correctly
+      const sixMonthsAgo = subMonths(new Date(), 6);
       
       const formatted = formatYearsOfService(sixMonthsAgo);
       expect(formatted).toBe('6 months');
