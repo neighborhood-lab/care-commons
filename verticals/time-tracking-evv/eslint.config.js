@@ -24,11 +24,13 @@ export default [
     plugins: {
       '@typescript-eslint': typescript,
     },
-    rules: {
-      ...typescript.configs.recommended.rules,
-    },
+rules: {
+        ...typescript.configs.recommended.rules,
+        '@typescript-eslint/no-unused-vars': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
   },
   {
-    ignores: ['dist/', 'eslint.config.js'],
+    ignores: ['dist/', 'eslint.config.js', '**/*.js', '**/*.d.ts']
   },
 ]

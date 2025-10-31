@@ -4,6 +4,7 @@
   "description": "Time Tracking & Electronic Visit Verification (EVV) - Accurate timing and location evidence of visits",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

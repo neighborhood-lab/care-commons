@@ -18,10 +18,12 @@ import {
   EVVRecord,
   VerificationLevel,
   ComplianceFlag,
+  EVVRecordStatus,
+  PayorApprovalStatus,
 } from '../types/evv';
 
-export interface APIRequest {
-  body: any;
+export interface APIRequest<T = unknown> {
+  body: T;
   params: Record<string, string>;
   query: Record<string, string>;
   user: UserContext;
@@ -29,11 +31,11 @@ export interface APIRequest {
 
 export interface APIResponse {
   status: number;
-  data?: any;
+  data?: unknown;
   error?: {
     message: string;
     code?: string;
-    details?: any;
+    details?: unknown;
   };
 }
 
@@ -44,9 +46,9 @@ export class EVVHandlers {
    * POST /api/evv/clock-in
    * Clock in to start a visit
    */
-  async clockIn(req: APIRequest): Promise<APIResponse> {
+  async clockIn(req: APIRequest<ClockInInput>): Promise<APIResponse> {
     try {
-      const input: ClockInInput = req.body;
+      const input = req.body;
       const result = await this.evvService.clockIn(input, req.user);
 
       return {
@@ -70,7 +72,7 @@ export class EVVHandlers {
           },
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleError(error);
     }
   }
@@ -79,9 +81,9 @@ export class EVVHandlers {
    * POST /api/evv/clock-out
    * Clock out to end a visit
    */
-  async clockOut(req: APIRequest): Promise<APIResponse> {
+  async clockOut(req: APIRequest<ClockOutInput>): Promise<APIResponse> {
     try {
-      const input: ClockOutInput = req.body;
+      const input = req.body;
       const result = await this.evvService.clockOut(input, req.user);
 
       return {
@@ -109,7 +111,7 @@ export class EVVHandlers {
           },
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleError(error);
     }
   }
@@ -118,9 +120,9 @@ export class EVVHandlers {
    * POST /api/evv/manual-override
    * Apply manual override to flagged time entry (supervisor only)
    */
-  async applyManualOverride(req: APIRequest): Promise<APIResponse> {
+  async applyManualOverride(req: APIRequest<ManualOverrideInput>): Promise<APIResponse> {
     try {
-      const input: ManualOverrideInput = req.body;
+      const input = req.body;
       const result = await this.evvService.applyManualOverride(input, req.user);
 
       return {
@@ -133,7 +135,7 @@ export class EVVHandlers {
           manualOverride: result.manualOverride,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleError(error);
     }
   }
@@ -171,7 +173,7 @@ export class EVVHandlers {
           ),
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleError(error);
     }
   }
@@ -214,7 +216,7 @@ export class EVVHandlers {
           })),
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleError(error);
     }
   }
@@ -233,19 +235,19 @@ export class EVVHandlers {
         visitId: req.query.visitId,
         startDate: req.query.startDate ? new Date(req.query.startDate) : undefined,
         endDate: req.query.endDate ? new Date(req.query.endDate) : undefined,
-        status: req.query.status ? [req.query.status as any] : undefined,
+        status: req.query.status ? [req.query.status as EVVRecordStatus] : undefined,
         verificationLevel: req.query.verificationLevel 
-          ? [req.query.verificationLevel as any] 
+          ? [req.query.verificationLevel as VerificationLevel] 
           : undefined,
         hasComplianceFlags: req.query.hasComplianceFlags === 'true',
         complianceFlags: req.query.complianceFlags 
-          ? (req.query.complianceFlags as string).split(',') as any[]
+          ? (req.query.complianceFlags as string).split(',') as ComplianceFlag[]
           : undefined,
         submittedToPayor: req.query.submittedToPayor 
           ? req.query.submittedToPayor === 'true' 
           : undefined,
         payorApprovalStatus: req.query.payorApprovalStatus 
-          ? [req.query.payorApprovalStatus as any] 
+          ? [req.query.payorApprovalStatus as PayorApprovalStatus] 
           : undefined,
       };
 
@@ -291,7 +293,7 @@ export class EVVHandlers {
           },
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleError(error);
     }
   }
@@ -416,7 +418,7 @@ export class EVVHandlers {
         status: 200,
         data: summary,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleError(error);
     }
   }
@@ -424,36 +426,40 @@ export class EVVHandlers {
   /**
    * Error handler
    */
-  private handleError(error: any): APIResponse {
+  private handleError(error: unknown): APIResponse {
     console.error('EVV API Error:', error);
 
-    if (error.name === 'PermissionError') {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorName = error instanceof Error && error.name ? error.name : 'UnknownError';
+
+    if (errorName === 'PermissionError') {
       return {
         status: 403,
         error: {
-          message: error.message,
+          message: errorMessage,
           code: 'PERMISSION_DENIED',
         },
       };
     }
 
-    if (error.name === 'NotFoundError') {
+    if (errorName === 'NotFoundError') {
       return {
         status: 404,
         error: {
-          message: error.message,
+          message: errorMessage,
           code: 'NOT_FOUND',
         },
       };
     }
 
-    if (error.name === 'ValidationError') {
+    if (errorName === 'ValidationError') {
+      const validationError = error as { details?: unknown };
       return {
         status: 400,
         error: {
-          message: error.message,
+          message: errorMessage,
           code: 'VALIDATION_ERROR',
-          details: error.details,
+          details: validationError.details,
         },
       };
     }
