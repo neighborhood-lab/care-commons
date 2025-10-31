@@ -249,8 +249,8 @@ describe('Schedule Utils', () => {
 
   describe('getDayOfWeek', () => {
     it('should return day of week', () => {
-      const monday = new Date('2024-01-15'); // Actually Sunday in 2024
-      expect(getDayOfWeek(monday)).toBe('SUNDAY');
+      const monday = new Date('2024-01-15T00:00:00'); // Monday, Jan 15, 2024
+      expect(getDayOfWeek(monday)).toBe('MONDAY');
     });
   });
 
@@ -378,8 +378,8 @@ describe('Schedule Utils', () => {
 
   describe('groupVisitsByDate', () => {
     it('should group visits by date', () => {
-      const date1 = new Date('2024-01-15');
-      const date2 = new Date('2024-01-16');
+      const date1 = new Date('2024-01-15T12:00:00');
+      const date2 = new Date('2024-01-16T12:00:00');
       
       const visits = [
         { scheduledDate: date1, scheduledStartTime: '09:00' },
@@ -389,8 +389,8 @@ describe('Schedule Utils', () => {
       
       const grouped = groupVisitsByDate(visits as Visit[]);
       expect(Object.keys(grouped)).toHaveLength(2);
-      expect(grouped['2024-01-14']).toHaveLength(2); // Due to timezone conversion
-      expect(grouped['2024-01-15']).toHaveLength(1);
+      expect(grouped['2024-01-15']).toHaveLength(2);
+      expect(grouped['2024-01-16']).toHaveLength(1);
     });
   });
 
