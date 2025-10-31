@@ -42,7 +42,14 @@ function initDb() {
   };
 
   console.log(`Initializing database connection to ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
-  console.log('Database config:', { ...dbConfig, password: dbPassword ? '[REDACTED]' : 'MISSING' });
+  console.log('Database config:', { 
+    host: dbConfig.host, 
+    port: dbConfig.port, 
+    database: dbConfig.database, 
+    user: dbConfig.user, 
+    ssl: dbConfig.ssl,
+    hasPassword: !!dbPassword
+  });
   return initializeDatabase(dbConfig);
 }
 

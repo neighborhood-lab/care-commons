@@ -15,11 +15,11 @@ interface MockDatabase {
   pool: unknown;
 }
 
-const TEST_USER_ID = 'test-user-id';
-const TEST_ORG_ID = 'test-org-id';
-const TEST_BRANCH_ID = 'test-branch-id';
-const TEST_EMAIL = 'test@example.com';
-const TEST_EMAIL_ALT = 'test@test.com';
+const TEST_USER_ID = 'TEST_USER_12345';
+const TEST_ORG_ID = 'TEST_ORG_67890';
+const TEST_BRANCH_ID = 'TEST_BRANCH_ABCDE';
+const TEST_EMAIL = 'test.user.12345@local.test';
+const TEST_EMAIL_ALT = 'test.user.67890@local.test';
 
 
 const createMockUserContext = (overrides = {}) => ({
