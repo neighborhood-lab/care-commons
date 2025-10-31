@@ -15,12 +15,19 @@ interface MockDatabase {
   pool: unknown;
 }
 
+const TEST_USER_ID = 'test-user-id';
+const TEST_ORG_ID = 'test-org-id';
+const TEST_BRANCH_ID = 'test-branch-id';
+const TEST_EMAIL = 'test@example.com';
+const TEST_EMAIL_ALT = 'test@test.com';
+
+
 const createMockUserContext = (overrides = {}) => ({
-  userId: 'test-user-id',
+  userId: TEST_USER_ID,
   roles: ['COORDINATOR' as const],
   permissions: ['clients:read', 'clients:write'],
-  organizationId: 'test-org-id',
-  branchIds: ['test-branch-id'],
+  organizationId: TEST_ORG_ID,
+  branchIds: [TEST_BRANCH_ID],
   ...overrides,
 });
 
@@ -112,7 +119,7 @@ describe('Repository Pattern', () => {
     it('should create a new entity successfully', async () => {
       const entityData = {
         name: 'Test Entity',
-        email: 'test@example.com',
+        email: TEST_EMAIL,
         status: 'ACTIVE' as const,
       };
 
@@ -120,7 +127,7 @@ describe('Repository Pattern', () => {
         rows: [{
           id: 'test-entity-id',
           name: 'Test Entity',
-          email: 'test@example.com',
+          email: TEST_EMAIL,
           status: 'ACTIVE',
           created_at: new Date(),
           created_by: mockUserContext.userId,
@@ -144,7 +151,7 @@ describe('Repository Pattern', () => {
         expect.stringContaining('INSERT INTO test_entities'),
         expect.arrayContaining([
           'Test Entity',
-          'test@example.com',
+          TEST_EMAIL,
           'ACTIVE',
           'test-entity-id',
           expect.any(Date),
@@ -160,7 +167,7 @@ describe('Repository Pattern', () => {
       expect(result).toEqual({
         id: 'test-entity-id',
         name: 'Test Entity',
-        email: 'test@example.com',
+        email: TEST_EMAIL,
         status: 'ACTIVE',
         createdAt: expect.any(Date),
         createdBy: mockUserContext.userId,
@@ -180,7 +187,7 @@ describe('Repository Pattern', () => {
         enableAudit: false,
       });
 
-      const entityData = { name: 'Test', email: 'test@test.com', status: 'ACTIVE' as const };
+      const entityData = { name: 'Test', email: TEST_EMAIL_ALT, status: 'ACTIVE' as const };
       const mockResult = { rows: [{}], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
 
       mockDatabase.query.mockResolvedValue(mockResult);

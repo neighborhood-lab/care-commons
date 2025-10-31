@@ -350,17 +350,36 @@ export class EVVRepository {
     const countResult = await this.database.query(countQuery, values);
     const total = parseInt(countResult.rows[0].count as string);
 
-    // Get paginated results
-    const sortBy = pagination.sortBy || 'service_date';
-    const sortOrder = pagination.sortOrder || 'desc';
+    // Get paginated results with whitelisted sort parameters to prevent SQL injection
+    const allowedSortFields = ['serviceDate', 'createdAt', 'updatedAt', 'clockInTime', 'clockOutTime', 'recordStatus', 'verificationLevel'];
+    const sortByRaw = pagination.sortBy || 'serviceDate';
+    const sortBy = allowedSortFields.includes(sortByRaw) ? this.camelToSnake(sortByRaw) : 'service_date';
+    
+    const sortOrderRaw = pagination.sortOrder?.toLowerCase();
+    const sortOrder = (sortOrderRaw === 'asc' || sortOrderRaw === 'desc') ? sortOrderRaw.toUpperCase() : 'DESC';
     const offset = (pagination.page - 1) * pagination.limit;
+
+    // Use completely whitelisted ORDER BY clauses to prevent any SQL injection
+    const allowedOrderClauses = [
+      'service_date ASC', 'service_date DESC',
+      'created_at ASC', 'created_at DESC',
+      'updated_at ASC', 'updated_at DESC',
+      'clock_in_time ASC', 'clock_in_time DESC',
+      'clock_out_time ASC', 'clock_out_time DESC',
+      'record_status ASC', 'record_status DESC',
+      'verification_level ASC', 'verification_level DESC'
+    ];
+    
+    const orderClause = `${sortBy} ${sortOrder}`;
+    const finalOrderClause = allowedOrderClauses.includes(orderClause) ? orderClause : 'service_date DESC';
 
     values.push(pagination.limit, offset);
 
+    // Use parameterized query with completely safe ORDER BY clause
     const dataQuery = `
       SELECT * FROM evv_records
       ${whereClause}
-      ORDER BY ${this.camelToSnake(sortBy)} ${sortOrder}
+      ORDER BY ${finalOrderClause}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 

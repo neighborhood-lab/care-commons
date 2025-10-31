@@ -240,15 +240,28 @@ export class EVVHandlers {
           ? [req.query.verificationLevel as VerificationLevel] 
           : undefined,
         hasComplianceFlags: req.query.hasComplianceFlags === 'true',
-        complianceFlags: req.query.complianceFlags 
-          ? (req.query.complianceFlags as string).split(',') as ComplianceFlag[]
-          : undefined,
+        
+        // Validate compliance flags
+        complianceFlags: (() => {
+          if (typeof req.query.complianceFlags !== 'string') return undefined;
+          const validFlags: ComplianceFlag[] = ['COMPLIANT', 'GEOFENCE_VIOLATION', 'TIME_GAP', 'DEVICE_SUSPICIOUS', 'LOCATION_SUSPICIOUS', 'DUPLICATE_ENTRY', 'MISSING_SIGNATURE', 'LATE_SUBMISSION', 'MANUAL_OVERRIDE', 'AMENDED'];
+          const filtered = req.query.complianceFlags.split(',')
+            .map(s => s.trim().toUpperCase())
+            .filter(s => validFlags.includes(s as ComplianceFlag)) as ComplianceFlag[];
+          return filtered.length > 0 ? filtered : undefined;
+        })(),
+        
         submittedToPayor: req.query.submittedToPayor 
           ? req.query.submittedToPayor === 'true' 
           : undefined,
-        payorApprovalStatus: req.query.payorApprovalStatus 
-          ? [req.query.payorApprovalStatus as PayorApprovalStatus] 
-          : undefined,
+        
+        // Validate payor approval status
+        payorApprovalStatus: (() => {
+          if (typeof req.query.payorApprovalStatus !== 'string') return undefined;
+          const validStatuses: PayorApprovalStatus[] = ['PENDING', 'APPROVED', 'DENIED', 'PENDING_INFO', 'APPEALED'];
+          const status = req.query.payorApprovalStatus.trim().toUpperCase();
+          return validStatuses.includes(status as PayorApprovalStatus) ? [status as PayorApprovalStatus] : undefined;
+        })(),
       };
 
       const pagination = {

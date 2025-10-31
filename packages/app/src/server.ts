@@ -24,20 +24,25 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
  * Initialize database connection
  */
 function initDb() {
+  // Retrieve database password from environment
+  const dbPassword = process.env.DB_PASSWORD;
+  if (!dbPassword) {
+    throw new Error('DB_PASSWORD environment variable is required');
+  }
+
   const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432'),
     database: process.env.DB_NAME || 'care_commons4',
     user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
+    password: dbPassword,
     ssl: process.env.DB_SSL === 'true',
     max: 20,
     idleTimeoutMillis: 30000,
   };
 
   console.log(`Initializing database connection to ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
-  console.log('Database config:', { ...dbConfig, password: dbConfig.password ? '[REDACTED]' : 'MISSING' });
-  console.log('Password type:', typeof dbConfig.password);
+  console.log('Database config:', { ...dbConfig, password: dbPassword ? '[REDACTED]' : 'MISSING' });
   return initializeDatabase(dbConfig);
 }
 

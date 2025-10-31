@@ -43,14 +43,45 @@ export class ClientHandlers {
     const filters: ClientSearchFilters = {
       query: req.query.q as string,
       organizationId: req.query.organizationId as string,
-      branchId: req.query.branchId as string,
-      status: req.query.status ? (req.query.status as string).split(',') as ClientStatus[] : undefined,
-      programId: req.query.programId as string,
-      riskType: req.query.riskType ? (req.query.riskType as string).split(',') as RiskType[] : undefined,
-      minAge: req.query.minAge ? parseInt(req.query.minAge as string) : undefined,
-      maxAge: req.query.maxAge ? parseInt(req.query.maxAge as string) : undefined,
-      city: req.query.city as string,
-      state: req.query.state as string,
+      // Validate and sanitize client search parameters
+      branchId: typeof req.query.branchId === 'string' ? req.query.branchId.trim() : undefined,
+      
+      // Validate client status values
+      status: (() => {
+        if (typeof req.query.status !== 'string') return undefined;
+        const validStatuses: ClientStatus[] = ['INQUIRY', 'PENDING_INTAKE', 'ACTIVE', 'INACTIVE', 'ON_HOLD', 'DISCHARGED', 'DECEASED'];
+        const filtered = req.query.status.split(',')
+          .map(s => s.trim().toUpperCase())
+          .filter(s => validStatuses.includes(s as ClientStatus)) as ClientStatus[];
+        return filtered.length > 0 ? filtered : undefined;
+      })(),
+      
+      programId: typeof req.query.programId === 'string' ? req.query.programId.trim() : undefined,
+      
+      // Validate risk type values
+      riskType: (() => {
+        if (typeof req.query.riskType !== 'string') return undefined;
+        const validRiskTypes: RiskType[] = ['FALL_RISK', 'WANDERING', 'AGGRESSIVE_BEHAVIOR', 'INFECTION', 'MEDICATION_COMPLIANCE', 'DIETARY_RESTRICTION', 'ENVIRONMENTAL_HAZARD', 'SAFETY_CONCERN', 'ABUSE_NEGLECT_CONCERN', 'OTHER'];
+        const filtered = req.query.riskType.split(',')
+          .map(s => s.trim().toUpperCase())
+          .filter(s => validRiskTypes.includes(s as RiskType)) as RiskType[];
+        return filtered.length > 0 ? filtered : undefined;
+      })(),
+      
+      // Validate age ranges
+      minAge: (() => {
+        if (typeof req.query.minAge !== 'string') return undefined;
+        const age = parseInt(req.query.minAge, 10);
+        return !isNaN(age) && age >= 0 && age <= 150 ? age : undefined;
+      })(),
+      maxAge: (() => {
+        if (typeof req.query.maxAge !== 'string') return undefined;
+        const age = parseInt(req.query.maxAge, 10);
+        return !isNaN(age) && age >= 0 && age <= 150 ? age : undefined;
+      })(),
+      
+      city: typeof req.query.city === 'string' ? req.query.city.trim() : undefined,
+      state: typeof req.query.state === 'string' ? req.query.state.trim().toUpperCase() : undefined,
       hasActiveServices: req.query.hasActiveServices === 'true',
     };
 
