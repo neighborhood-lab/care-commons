@@ -256,7 +256,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
     // Count total
     const countQuery = `SELECT COUNT(*) FROM care_plans ${whereClause}`;
     const countResult = await this.database.query(countQuery, values);
-    const total = parseInt(countResult.rows[0].count, 10);
+    const total = parseInt(countResult.rows[0].count as string, 10);
 
     // Get paginated results
     const sortBy = pagination.sortBy || 'created_at';
@@ -540,7 +540,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
     // Count total
     const countQuery = `SELECT COUNT(*) FROM task_instances ${whereClause}`;
     const countResult = await this.database.query(countQuery, values);
-    const total = parseInt(countResult.rows[0].count, 10);
+    const total = parseInt(countResult.rows[0].count as string, 10);
 
     // Get paginated results
     const sortBy = pagination.sortBy || 'scheduled_date';
