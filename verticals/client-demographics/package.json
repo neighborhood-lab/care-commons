@@ -2,6 +2,7 @@
   "name": "@care-commons/client-demographics",
   "version": "0.1.0",
   "description": "Client & Demographics Management vertical for Care Commons - comprehensive client information management",
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

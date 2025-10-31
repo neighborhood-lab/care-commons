@@ -18,7 +18,7 @@ import { UUID } from '@care-commons/core';
  * Database interface for executing queries
  */
 export interface DatabaseConnection {
-  query(text: string, params?: any[]): Promise<{ rows: any[] }>;
+  query(text: string, params?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
 }
 
 export interface ClientAccessAuditEntry {
@@ -159,7 +159,7 @@ export class ClientAuditService {
   async queryAuditLog(query: AuditQuery): Promise<AuditReport> {
     // Build WHERE clause
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramIndex = 1;
     
     if (query.clientId) {
@@ -200,7 +200,7 @@ export class ClientAuditService {
       `SELECT COUNT(*) as total FROM client_access_audit ${whereClause}`,
       params
     );
-    const totalCount = parseInt(countResult.rows[0].total, 10);
+    const totalCount = parseInt(countResult.rows[0].total as string, 10);
     
     // Get entries with pagination
     const limit = query.limit || 100;
@@ -219,7 +219,7 @@ export class ClientAuditService {
        ${whereClause}${whereClause ? ' AND' : 'WHERE'} access_type = 'DISCLOSURE'`,
       params
     );
-    const disclosureCount = parseInt(disclosureResult.rows[0].count, 10);
+    const disclosureCount = parseInt(disclosureResult.rows[0].count as string, 10);
     
     return {
       entries: entriesResult.rows.map(this.mapRowToEntry),
@@ -416,20 +416,20 @@ export class ClientAuditService {
   /**
    * Map database row to audit entry
    */
-  private mapRowToEntry(row: any): ClientAccessAuditEntry {
+  private mapRowToEntry(row: Record<string, unknown>): ClientAccessAuditEntry {
     return {
-      id: row.id,
-      clientId: row.client_id,
-      accessedBy: row.accessed_by,
-      accessType: row.access_type,
-      accessTimestamp: row.access_timestamp,
-      accessReason: row.access_reason,
-      ipAddress: row.ip_address,
-      userAgent: row.user_agent,
-      disclosureRecipient: row.disclosure_recipient,
-      disclosureMethod: row.disclosure_method,
-      authorizationReference: row.authorization_reference,
-      informationDisclosed: row.information_disclosed,
+      id: row.id as string,
+      clientId: row.client_id as string,
+      accessedBy: row.accessed_by as string,
+      accessType: row.access_type as AccessType,
+      accessTimestamp: row.access_timestamp as Date,
+      accessReason: row.access_reason as string | undefined,
+      ipAddress: row.ip_address as string | undefined,
+      userAgent: row.user_agent as string | undefined,
+      disclosureRecipient: row.disclosure_recipient as string | undefined,
+      disclosureMethod: row.disclosure_method as DisclosureMethod | undefined,
+      authorizationReference: row.authorization_reference as string | undefined,
+      informationDisclosed: row.information_disclosed as string | undefined,
     };
   }
 }
