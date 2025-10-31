@@ -1,59 +1,35 @@
-name: Security and Dependencies
+name: Security & Audits
 
 on:
+  push:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - '**.md'
   schedule:
-    - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
-  workflow_dispatch:
+    # Run once a week at 3:30 AM UTC on Tuesday
+    - cron: '30 3 * * 2'
 
 env:
   NODE_VERSION: '20'
 
 jobs:
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      pull-requests: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run security audit
-        run: npm audit --audit-level=moderate
-        continue-on-error: true
-
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          languages: javascript
-          queries: security-extended
-
+  # -------------------------------------------------------------------------
+  # Job 1: Dependency Update Check
+  # -------------------------------------------------------------------------
   dependency-update:
-    name: Update Dependencies
+    name: Dependency Update Check
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -64,49 +40,59 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check for outdated packages
+      - name: Check for outdated dependencies
         run: npm outdated || true
 
-      - name: Update patch and minor versions
-        run: |
-          npm update
-          npm audit fix --audit-level=moderate || true
+# -------------------------------------------------------------------------
+# Job 2: Snyk Dependency Scan
+# -------------------------------------------------------------------------
+snyk-dependency-scan:
+  name: Snyk Dependency Scan
+  runs-on: ubuntu-latest
+  permissions:
+    contents: read
+    security-events: write
 
-      - name: Run tests after update
-        run: |
-          npm run typecheck
-          npm run lint
-          npm run test
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Create Pull Request
-        if: ${{ success() }}
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update dependencies'
-          title: 'chore: update dependencies'
-          body: |
-            ## Automated Dependency Update
-            
-            This PR updates dependencies to their latest patch and minor versions.
-            
-            ### Changes
-            - Updated npm packages to latest compatible versions
-            - Fixed any moderate security vulnerabilities
-            - All tests pass after updates
-            
-            ### Verification
-            - [x] Type checking passes
-            - [x] Linting passes  
-            - [x] Tests pass
-            - [x] No breaking changes introduced
-            
-            Please review the changes and merge if everything looks good.
-          branch: chore/update-dependencies
-          delete-branch: true
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
 
-  snyk-security-scan:
-    name: Snyk Security Scan
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Snyk to check for dependency vulnerabilities
+      id: snyk-deps
+      continue-on-error: true
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        command: test
+        args: --org=brian.mabry.edwards --all-projects --include-ignores --report --sarif --sarif-file-output=snyk-deps.sarif
+
+    - name: Upload Snyk dependency results to GitHub Code Scanning
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: snyk-deps.sarif
+        category: snyk-dependencies
+
+    - name: Fail job if Snyk found dependency issues
+      if: ${{ steps.snyk-deps.outcome == 'failure' }}
+      run: |
+        echo "Snyk found dependency issues. Failing job as required."
+        exit 1
+
+  # -------------------------------------------------------------------------
+  # Job 3: Snyk Code Scan (SAST)
+  # -------------------------------------------------------------------------
+  snyk-code-scan:
+    name: Snyk Code Scan (SAST)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -125,10 +111,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Snyk to check for vulnerabilities
-        if: ${{ secrets.SNYK_TOKEN != '' }}
+      - name: Run Snyk Code to check for code vulnerabilities
+        id: snyk-code
+        continue-on-error: true
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high
+          command: code test
+          args: --org=brian.mabry.edwards --all-projects --include-ignores --report --sarif --sarif-file-output=snyk-code.sarif
+
+      - name: Upload Snyk Code results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-code.sarif
+          category: snyk-code
+
+      - name: Fail job if Snyk Code found issues
+        if: ${{ steps.snyk-code.outcome == 'failure' }}
+        run: |
+          echo "Snyk Code found issues. Failing job as required."
+          exit 1
+

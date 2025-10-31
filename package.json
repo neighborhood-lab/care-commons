@@ -17,6 +17,7 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
+    "snyk": "dotenv -- snyk code test --all-projects --include-ignores && dotenv -- snyk test --all-projects --include-ignores",
     "db:migrate": "cd packages/core && npm run db:migrate",
     "db:migrate:rollback": "cd packages/core && npm run db:migrate:rollback",
     "db:migrate:status": "cd packages/core && npm run db:migrate:status",
@@ -25,6 +26,8 @@
     "db:nuke": "cd packages/core && npm run db:nuke"
   },
   "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "snyk": "^1.1300.2",
     "turbo": "^2.6.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.6"
