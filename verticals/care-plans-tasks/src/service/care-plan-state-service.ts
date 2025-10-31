@@ -57,7 +57,7 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
         errors.push('FL AHCA 59A-8.0095: RN supervisor required for this service type');
       }
       // FL: Plan review every 60-90 days per Florida Statute 400.487
-      if (!plan.plan_review_interval_days || plan.plan_review_interval_days > 90) {
+      if (!plan.plan_review_interval_days || (plan.plan_review_interval_days as number) > 90) {
         errors.push('FL Statute 400.487: Plan review interval must be ≤90 days');
       }
     }
@@ -82,12 +82,12 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
 
     const plan = result.rows[0];
     const now = new Date();
-    const nextDue = plan.next_supervisory_visit_due ? new Date(plan.next_supervisory_visit_due) : null;
+    const nextDue = plan.next_supervisory_visit_due ? new Date(plan.next_supervisory_visit_due as string) : null;
 
     return {
       required: true,
       overdue: nextDue ? nextDue < now : false,
-      lastVisitDate: plan.last_supervisory_visit_date,
+      lastVisitDate: plan.last_supervisory_visit_date ? new Date(plan.last_supervisory_visit_date as string) : undefined,
       nextDueDate: nextDue
     };
   }
@@ -123,7 +123,7 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
     }
 
     const auth = result.rows[0];
-    if (auth.units_remaining <= 0) {
+    if ((auth.units_remaining as number) <= 0) {
       throw new Error(`Service authorization exhausted. Units remaining: ${auth.units_remaining}`);
     }
 
