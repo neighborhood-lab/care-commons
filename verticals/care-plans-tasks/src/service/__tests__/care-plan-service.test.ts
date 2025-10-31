@@ -74,6 +74,7 @@ describe('CarePlanService', () => {
   let service: CarePlanService;
   let mockRepository: any;
   let mockPermissions: any;
+  let mockUserRepository: any;
   let mockValidator: any;
   let mockContext: UserContext;
 
@@ -103,6 +104,16 @@ describe('CarePlanService', () => {
       hasPermission: vi.fn().mockReturnValue(true),
     } as any;
 
+    mockUserRepository = {
+      getUserById: vi.fn().mockResolvedValue({
+        id: uuid(),
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test.user@example.com',
+      }),
+      getUsersByIds: vi.fn().mockResolvedValue([]),
+    } as any;
+
     mockValidator = CarePlanValidator as any;
     
     // Mock all validation methods to return input by default
@@ -117,7 +128,7 @@ describe('CarePlanService', () => {
     mockValidator.validateVitalSigns = vi.fn(() => ({ valid: true, warnings: [] }));
     mockValidator.validateCarePlanActivation = vi.fn(() => ({ valid: true, errors: [] }));
 
-    service = new CarePlanService(mockRepository, mockPermissions);
+    service = new CarePlanService(mockRepository, mockPermissions, mockUserRepository);
 
     mockContext = {
       userId: uuid(),
