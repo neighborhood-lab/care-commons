@@ -8,8 +8,7 @@
 import dotenv from "dotenv";
 import knex, { Knex } from 'knex';
 import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 // import * as readline from 'readline';
 
 dotenv.config({ path: '.env', quiet: true });
