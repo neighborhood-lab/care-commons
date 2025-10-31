@@ -6,10 +6,9 @@ import type { EVVRecord } from '../types';
 
 interface EVVRecordCardProps {
   record: EVVRecord;
-  compact?: boolean;
 }
 
-export const EVVRecordCard: React.FC<EVVRecordCardProps> = ({ record, compact = false }) => {
+export const EVVRecordCard: React.FC<EVVRecordCardProps> = ({ record }) => {
   const statusColors = {
     IN_PROGRESS: 'bg-blue-100 text-blue-800',
     COMPLETED: 'bg-green-100 text-green-800',

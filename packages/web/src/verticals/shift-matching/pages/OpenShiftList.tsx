@@ -3,7 +3,7 @@ import { Grid, List } from 'lucide-react';
 import { LoadingSpinner, EmptyState, ErrorMessage } from '@/core/components';
 import { useOpenShifts, useMatchingMetrics } from '../hooks';
 import { OpenShiftCard, MatchingMetricsCard } from '../components';
-import type { OpenShiftSearchFilters } from '../types';
+import type { OpenShiftSearchFilters, MatchingStatus, ShiftPriority } from '../types';
 
 export const OpenShiftList: React.FC = () => {
   const [filters, setFilters] = useState<OpenShiftSearchFilters>({});
@@ -73,7 +73,7 @@ export const OpenShiftList: React.FC = () => {
             </label>
             <select
               value={filters.matchingStatus || ''}
-              onChange={(e) => setFilters({ ...filters, matchingStatus: e.target.value as any })}
+              onChange={(e) => setFilters({ ...filters, matchingStatus: e.target.value as MatchingStatus })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Statuses</option>
@@ -91,7 +91,7 @@ export const OpenShiftList: React.FC = () => {
             </label>
             <select
               value={filters.priority || ''}
-              onChange={(e) => setFilters({ ...filters, priority: e.target.value as any })}
+              onChange={(e) => setFilters({ ...filters, priority: e.target.value as ShiftPriority })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Priorities</option>

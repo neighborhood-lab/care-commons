@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Send } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { Button, LoadingSpinner, ErrorMessage } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { useOpenShift, useMatchCandidates, useMatchShift, useCreateProposal } from '../hooks';
@@ -29,11 +29,7 @@ export const OpenShiftDetail: React.FC = () => {
     return (
       <ErrorMessage
         message="Failed to load open shift"
-        action={
-          <Button onClick={() => navigate('/shift-matching')}>
-            Back to List
-          </Button>
-        }
+        retry={() => navigate('/shift-matching')}
       />
     );
   }

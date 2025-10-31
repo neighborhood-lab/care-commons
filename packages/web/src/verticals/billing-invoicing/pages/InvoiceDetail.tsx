@@ -35,11 +35,7 @@ export const InvoiceDetail: React.FC = () => {
     return (
       <ErrorMessage
         message="Failed to load invoice"
-        action={
-          <Button onClick={() => navigate('/billing')}>
-            Back to List
-          </Button>
-        }
+        retry={() => navigate('/billing')}
       />
     );
   }
@@ -98,7 +94,7 @@ export const InvoiceDetail: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => {
-                if (confirm('Are you sure you want to void this invoice?')) {
+                if (window.confirm('Are you sure you want to void this invoice?')) {
                   voidInvoice.mutate(invoice.id);
                 }
               }}

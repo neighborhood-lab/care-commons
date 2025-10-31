@@ -7,10 +7,9 @@ import { formatCurrency, getInvoiceStatusColor, isInvoiceOverdue } from '../util
 
 interface InvoiceCardProps {
   invoice: Invoice;
-  compact?: boolean;
 }
 
-export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice, compact = false }) => {
+export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice }) => {
   const statusColor = getInvoiceStatusColor(invoice.status);
   const overdue = isInvoiceOverdue(invoice.dueDate, invoice.status);
 

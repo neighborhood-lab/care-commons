@@ -7,10 +7,9 @@ import { formatCurrency, formatHours, getPayRunStatusColor } from '../utils';
 
 interface PayRunCardProps {
   payRun: PayRun;
-  compact?: boolean;
 }
 
-export const PayRunCard: React.FC<PayRunCardProps> = ({ payRun, compact = false }) => {
+export const PayRunCard: React.FC<PayRunCardProps> = ({ payRun }) => {
   const statusColor = getPayRunStatusColor(payRun.status);
 
   return (

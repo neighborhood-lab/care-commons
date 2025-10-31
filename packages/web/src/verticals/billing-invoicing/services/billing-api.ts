@@ -10,6 +10,8 @@ import type {
   BillingSummary
 } from '../types';
 
+
+
 export interface BillingApiService {
   getInvoices(filters?: BillingSearchFilters): Promise<InvoiceListResponse>;
   getInvoiceById(id: string): Promise<Invoice>;
@@ -23,7 +25,7 @@ export interface BillingApiService {
   createPayment(input: CreatePaymentInput): Promise<Payment>;
 
   getBillingSummary(filters?: { startDate?: string; endDate?: string }): Promise<BillingSummary>;
-  generateInvoicePdf(id: string): Promise<Blob>;
+  generateInvoicePdf(id: string): Promise<globalThis.Blob>;
 }
 
 export const createBillingApiService = (apiClient: ApiClient): BillingApiService => {
@@ -86,18 +88,18 @@ export const createBillingApiService = (apiClient: ApiClient): BillingApiService
       return apiClient.get<BillingSummary>(url);
     },
 
-    generateInvoicePdf: async (id: string) => {
-      const response = await fetch(`/api/billing/invoices/${id}/pdf`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+  generateInvoicePdf: async (id: string) => {
+    const response = await fetch(`/api/billing/invoices/${id}/pdf`, {
+      headers: {
+        'Authorization': `Bearer ${globalThis.localStorage.getItem('token')}`,
+      },
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
+    if (!response.ok) {
+      throw new Error('Failed to generate PDF');
+    }
 
-      return response.blob();
-    },
+    return response.blob();
+  },
   };
 };
