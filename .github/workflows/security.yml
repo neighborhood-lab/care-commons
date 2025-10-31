@@ -43,50 +43,50 @@ jobs:
       - name: Check for outdated dependencies
         run: npm outdated || true
 
-# -------------------------------------------------------------------------
-# Job 2: Snyk Dependency Scan
-# -------------------------------------------------------------------------
-snyk-dependency-scan:
-  name: Snyk Dependency Scan
-  runs-on: ubuntu-latest
-  permissions:
-    contents: read
-    security-events: write
+  # -------------------------------------------------------------------------
+  # Job 2: Snyk Dependency Scan
+  # -------------------------------------------------------------------------
+  snyk-dependency-scan:
+    name: Snyk Dependency Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run Snyk to check for dependency vulnerabilities
-      id: snyk-deps
-      continue-on-error: true
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        command: test
-        args: --org=brian.mabry.edwards --all-projects --include-ignores --report --sarif --sarif-file-output=snyk-deps.sarif
+      - name: Run Snyk to check for dependency vulnerabilities
+        id: snyk-deps
+        continue-on-error: true
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --org=brian.mabry.edwards --all-projects --include-ignores --report --sarif --sarif-file-output=snyk-deps.sarif
 
-    - name: Upload Snyk dependency results to GitHub Code Scanning
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: snyk-deps.sarif
-        category: snyk-dependencies
+      - name: Upload Snyk dependency results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-deps.sarif
+          category: snyk-dependencies
 
-    - name: Fail job if Snyk found dependency issues
-      if: ${{ steps.snyk-deps.outcome == 'failure' }}
-      run: |
-        echo "Snyk found dependency issues. Failing job as required."
-        exit 1
+      - name: Fail job if Snyk found dependency issues
+        if: ${{ steps.snyk-deps.outcome == 'failure' }}
+        run: |
+          echo "Snyk found dependency issues. Failing job as required."
+          exit 1
 
   # -------------------------------------------------------------------------
   # Job 3: Snyk Code Scan (SAST)
