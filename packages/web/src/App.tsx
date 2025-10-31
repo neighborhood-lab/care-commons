@@ -11,6 +11,7 @@ import { CreateCarePlanPage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
+import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -96,14 +97,21 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/scheduling/*"
+        path="/shift-matching"
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Scheduling Module</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <OpenShiftList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shift-matching/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <OpenShiftDetail />
             </AppShell>
           </ProtectedRoute>
         }
