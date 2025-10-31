@@ -5,6 +5,7 @@
 import { Repository } from '../../db/repository';
 import { Entity, UserContext, NotFoundError, ConflictError } from '../../types/base';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import crypto from 'node:crypto';
 
 interface MockDatabase {
   query: ReturnType<typeof vi.fn>;
