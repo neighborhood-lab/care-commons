@@ -6,7 +6,7 @@
 
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from 'uuid';
-import { Database, initializeDatabase } from '../src/db/connection';
+import { initializeDatabase } from '../src/db/connection';
 
 dotenv.config({ path: '.env', quiet: true });
 

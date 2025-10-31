@@ -9,7 +9,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { Database } from '../src/db/connection';
+import { initializeDatabase } from '../src/db/connection';
 
 // IDs for reference
 const ORG_ID = uuidv4();
@@ -17,8 +17,20 @@ const BRANCH_TX_ID = uuidv4();
 const BRANCH_FL_ID = uuidv4();
 const SYSTEM_USER_ID = uuidv4();
 
-export async function seedStateSpecificData(db: Database) {
+export async function seedStateSpecificData(db?: ReturnType<typeof initializeDatabase>) {
   console.log('🌱 Seeding Texas and Florida state-specific data...');
+
+  // Initialize database connection if not provided
+  if (!db) {
+    db = initializeDatabase({
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database: process.env.DB_NAME || 'care_commons',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      ssl: process.env.DB_SSL === 'true',
+    });
+  }
 
   // Create organization
   await db.query(
@@ -59,7 +71,7 @@ export async function seedStateSpecificData(db: Database) {
   console.log('✅ State-specific seed data complete!');
 }
 
-async function seedTexasClients(db: Database) {
+async function seedTexasClients(db: ReturnType<typeof initializeDatabase>) {
   console.log('  → Creating Texas clients...');
 
   // Client 1: STAR+PLUS waiver, active services
@@ -284,7 +296,7 @@ async function seedTexasClients(db: Database) {
   console.log(`    ✓ Created ${2} Texas clients`);
 }
 
-async function seedFloridaClients(db: Database) {
+async function seedFloridaClients(db: ReturnType<typeof initializeDatabase>) {
   console.log('  → Creating Florida clients...');
 
   // Client 1: SMMC LTC with RN supervision
@@ -511,7 +523,7 @@ async function seedFloridaClients(db: Database) {
   console.log(`    ✓ Created ${2} Florida clients`);
 }
 
-async function seedTexasCaregivers(db: Database) {
+async function seedTexasCaregivers(db: ReturnType<typeof initializeDatabase>) {
   console.log('  → Creating Texas caregivers...');
 
   // Caregiver 1: CNA with all checks complete
@@ -684,7 +696,7 @@ async function seedTexasCaregivers(db: Database) {
   console.log(`    ✓ Created ${1} Texas caregiver`);
 }
 
-async function seedFloridaCaregivers(db: Database) {
+async function seedFloridaCaregivers(db: ReturnType<typeof initializeDatabase>) {
   console.log('  → Creating Florida caregivers...');
 
   // Caregiver 1: RN with Level 2 screening
@@ -857,16 +869,12 @@ async function seedFloridaCaregivers(db: Database) {
 }
 
 // CLI execution
-if (require.main === module) {
-  const { database } = require('../src/db/connection');
-  
-  seedStateSpecificData(database)
-    .then(() => {
-      console.log('✅ Seed complete!');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('❌ Seed failed:', error);
-      process.exit(1);
-    });
-}
+seedStateSpecificData()
+  .then(() => {
+    console.log('✅ Seed complete!');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('❌ Seed failed:', error);
+    process.exit(1);
+  });
