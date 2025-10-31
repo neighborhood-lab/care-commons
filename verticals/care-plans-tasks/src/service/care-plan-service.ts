@@ -27,21 +27,26 @@ import {
 } from '../types/care-plan';
 import { CarePlanRepository } from '../repository/care-plan-repository';
 import { CarePlanValidator } from '../validation/care-plan-validator';
+import { IUserRepository } from '@care-commons/core/src/repository/user-repository';
+import { StateComplianceValidator } from '../validation/state-compliance-validator';
+import { StateJurisdiction, StateSpecificCarePlanData } from '../types/state-specific';
 
 export class CarePlanService {
   private repository: CarePlanRepository;
   private permissions: PermissionService;
+  private userRepository: IUserRepository;
 
-  constructor(repository: CarePlanRepository, permissions: PermissionService) {
+  constructor(repository: CarePlanRepository, permissions: PermissionService, userRepository: IUserRepository) {
     this.repository = repository;
     this.permissions = permissions;
+    this.userRepository = userRepository;
   }
 
   /**
    * Create a new care plan
    */
   async createCarePlan(
-    input: CreateCarePlanInput,
+    input: CreateCarePlanInput & Partial<StateSpecificCarePlanData>,
     context: UserContext
   ): Promise<CarePlan> {
     // Validate permissions
@@ -49,16 +54,45 @@ export class CarePlanService {
       throw new PermissionError('Insufficient permissions to create care plans');
     }
 
+    // State compliance validation for TX/FL
+    if (input.stateJurisdiction && ['TX', 'FL'].includes(input.stateJurisdiction)) {
+      const validation = StateComplianceValidator.validateCarePlanCompliance(
+        input as any,
+        input.stateJurisdiction
+      );
+      
+      const blockingErrors = validation.errors.filter(e => e.severity === 'BLOCKING');
+      if (blockingErrors.length > 0) {
+        throw new Error(`Care plan does not meet ${input.stateJurisdiction} requirements: ${
+          blockingErrors.map(e => e.message).join('; ')
+        }`);
+      }
+    }
+
+    // Calculate next review due date based on state requirements
+    const reviewIntervalDays = input.planReviewIntervalDays || 
+      (input.stateJurisdiction === 'TX' ? 60 : input.stateJurisdiction === 'FL' ? 60 : 90);
+    
+    const nextReviewDue = new Date(input.effectiveDate);
+    nextReviewDue.setDate(nextReviewDue.getDate() + reviewIntervalDays);
+
     // Validate input
     const validatedInput = CarePlanValidator.validateCreateCarePlan(input);
 
     // Generate plan number
     const planNumber = await this.generatePlanNumber(input.organizationId);
 
-    // Create care plan
-    const carePlan = await this.repository.createCarePlan({
+    const carePlanData = {
       ...validatedInput,
       planNumber,
+      planReviewIntervalDays: reviewIntervalDays,
+      nextReviewDue,
+      status: 'DRAFT' as const,
+    };
+
+    // Create care plan
+    const carePlan = await this.repository.createCarePlan({
+      ...carePlanData,
       createdBy: context.userId,
     });
 
@@ -137,6 +171,19 @@ export class CarePlanService {
     }
 
     const carePlan = await this.getCarePlanById(id, context);
+
+    // State compliance check before activation
+    if ((carePlan as any).stateJurisdiction && ['TX', 'FL'].includes((carePlan as any).stateJurisdiction)) {
+      const validation = StateComplianceValidator.validateCarePlanCompliance(
+        carePlan as any,
+        (carePlan as any).stateJurisdiction
+      );
+      
+      const blockingErrors = validation.errors.filter(e => e.severity === 'BLOCKING');
+      if (blockingErrors.length > 0) {
+        throw new Error(`Cannot activate: ${blockingErrors.map(e => e.message).join('; ')}`);
+      }
+    }
 
     // Validate plan is ready for activation
     const validation = CarePlanValidator.validateCarePlanActivation(carePlan);
@@ -557,6 +604,14 @@ export class CarePlanService {
       throw new PermissionError('Insufficient permissions to create progress notes');
     }
 
+    // Fetch real author name from user repository
+    const author = await this.userRepository.getUserById(context.userId);
+    if (!author) {
+      throw new Error('User not found');
+    }
+
+    const authorName = `${author.firstName} ${author.lastName}`;
+
     // Validate input
     const validatedInput = CarePlanValidator.validateCreateProgressNote(input);
 
@@ -566,41 +621,24 @@ export class CarePlanService {
     // If your Timestamp is an ISO string alias, use: const makeTs = () => new Date().toISOString() as Timestamp;
     const makeTs = () => now as unknown as Timestamp;
 
-    const normalizedObservations: CreateProgressNoteInput['observations'] =
-      validatedInput.observations?.map(observation => ({
-        ...observation,
-        timestamp: new Date(),
-      }));
+    // Add timestamp to observations
+    const observationsWithTimestamp = input.observations?.map(obs => ({
+      ...obs,
+      timestamp: obs.timestamp || new Date(),
+    }));
 
-    const signature: CreateProgressNoteInput['signature'] = validatedInput.signature
-      ? { ...validatedInput.signature }
-      : undefined;
-
-    const noteInput: CreateProgressNoteInput = {
-      carePlanId: validatedInput.carePlanId,
-      clientId: validatedInput.clientId,
-      visitId: validatedInput.visitId,
-      noteType: validatedInput.noteType,
-      content: validatedInput.content,
-      goalProgress: validatedInput.goalProgress,
-      observations: normalizedObservations,
-      concerns: validatedInput.concerns,
-      recommendations: validatedInput.recommendations,
-      signature,
-    };
-
-    // Get user details for author
-    // Extract role and construct author name from context
-    const authorRole = context.roles?.[0] || 'CAREGIVER';
-    // In production, this would be fetched from a user repository
-    // For now, construct from available context data
-    const authorName = context.userId ? `User ${context.userId.substring(0, 8)}` : 'System User';
-
-    const note = await this.repository.createProgressNote({
-      ...noteInput,
+    const noteData = {
+      ...validatedInput,
       authorId: context.userId,
       authorName,
-      authorRole: String(authorRole),
+      observations: observationsWithTimestamp,
+    };
+
+    const note = await this.repository.createProgressNote({
+      ...noteData,
+      authorId: context.userId,
+      authorName,
+      authorRole: String(context.roles?.[0] || 'CAREGIVER'),
       noteDate: now,
     });
 
