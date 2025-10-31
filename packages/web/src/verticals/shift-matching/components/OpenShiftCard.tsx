@@ -7,16 +7,17 @@ import { getShiftPriorityColor, getMatchingStatusColor, formatDuration } from '.
 
 interface OpenShiftCardProps {
   shift: OpenShift;
+  compact?: boolean;
 }
 
-export const OpenShiftCard: React.FC<OpenShiftCardProps> = ({ shift }) => {
+export const OpenShiftCard: React.FC<OpenShiftCardProps> = ({ shift, compact = false }) => {
   const priorityColor = getShiftPriorityColor(shift.priority);
   const statusColor = getMatchingStatusColor(shift.matchingStatus);
 
   return (
     <Link
       to={`/shift-matching/${shift.id}`}
-      className="block bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
+      className={`block bg-white rounded-lg shadow hover:shadow-md transition-shadow ${compact ? 'p-3' : 'p-6'}`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">

@@ -7,16 +7,17 @@ import { formatCurrency, getInvoiceStatusColor, isInvoiceOverdue } from '../util
 
 interface InvoiceCardProps {
   invoice: Invoice;
+  compact?: boolean;
 }
 
-export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice }) => {
+export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice, compact = false }) => {
   const statusColor = getInvoiceStatusColor(invoice.status);
   const overdue = isInvoiceOverdue(invoice.dueDate, invoice.status);
 
   return (
     <Link
       to={`/billing/${invoice.id}`}
-      className="block bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
+      className={`block bg-white rounded-lg shadow hover:shadow-md transition-shadow ${compact ? 'p-3' : 'p-6'}`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">

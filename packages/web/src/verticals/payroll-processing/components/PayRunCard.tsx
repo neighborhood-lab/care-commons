@@ -7,15 +7,16 @@ import { formatCurrency, formatHours, getPayRunStatusColor } from '../utils';
 
 interface PayRunCardProps {
   payRun: PayRun;
+  compact?: boolean;
 }
 
-export const PayRunCard: React.FC<PayRunCardProps> = ({ payRun }) => {
+export const PayRunCard: React.FC<PayRunCardProps> = ({ payRun, compact = false }) => {
   const statusColor = getPayRunStatusColor(payRun.status);
 
   return (
     <Link
       to={`/payroll/runs/${payRun.id}`}
-      className="block bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
+      className={`block bg-white rounded-lg shadow hover:shadow-md transition-shadow ${compact ? 'p-3' : 'p-6'}`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
