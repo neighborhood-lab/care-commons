@@ -108,7 +108,6 @@ jobs:
   snyk-security-scan:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
-    if: ${{ secrets.SNYK_TOKEN != '' }}
     permissions:
       contents: read
       security-events: write
@@ -127,6 +126,7 @@ jobs:
         run: npm ci
 
       - name: Run Snyk to check for vulnerabilities
+        if: ${{ secrets.SNYK_TOKEN != '' }}
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
