@@ -286,7 +286,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
     // Count total
     const countQuery = `SELECT COUNT(*) FROM ${this.tableName} WHERE ${whereClause}`;
     const countResult = await this.database.query(countQuery, params);
-    const total = parseInt(countResult.rows[0].count);
+    const total = parseInt(String(countResult.rows[0].count));
 
     // Get paginated results
     const offset = (pagination.page - 1) * pagination.limit;
@@ -455,7 +455,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
       return '1001'; // Start at 1001
     }
 
-    const lastNumber = parseInt(result.rows[0].employee_number);
+    const lastNumber = parseInt(String(result.rows[0].employee_number));
     return (lastNumber + 1).toString();
   }
 }
