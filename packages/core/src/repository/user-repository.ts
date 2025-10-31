@@ -13,12 +13,12 @@ export interface IUserRepository {
 }
 
 export class UserRepository implements IUserRepository {
-  async getUserById(id: UUID): Promise<User | null> {
+  async getUserById(_id: UUID): Promise<User | null> {
     // Implementation stub - replace with actual database query
     throw new Error('getUserById not implemented - integrate with actual users table');
   }
 
-  async getUsersByIds(ids: UUID[]): Promise<User[]> {
+  async getUsersByIds(_ids: UUID[]): Promise<User[]> {
     // Implementation stub - replace with actual database query
     throw new Error('getUsersByIds not implemented - integrate with actual users table');
   }
