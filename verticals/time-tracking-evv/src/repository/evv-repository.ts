@@ -181,7 +181,7 @@ export class EVVRepository {
       record.updatedBy,
     ]);
 
-    return this.mapEVVRecord(result.rows[0]);
+    return this.mapEVVRecord(result.rows[0] as unknown as EVVRecordRow);
   }
 
   /**
@@ -190,7 +190,7 @@ export class EVVRepository {
   async getEVVRecordById(id: UUID): Promise<EVVRecord | null> {
     const query = 'SELECT * FROM evv_records WHERE id = $1';
     const result = await this.database.query(query, [id]);
-    return result.rows[0] ? this.mapEVVRecord(result.rows[0]) : null;
+    return result.rows[0] ? this.mapEVVRecord(result.rows[0] as unknown as EVVRecordRow) : null;
   }
 
   /**
@@ -199,7 +199,7 @@ export class EVVRepository {
   async getEVVRecordByVisitId(visitId: UUID): Promise<EVVRecord | null> {
     const query = 'SELECT * FROM evv_records WHERE visit_id = $1';
     const result = await this.database.query(query, [visitId]);
-    return result.rows[0] ? this.mapEVVRecord(result.rows[0]) : null;
+    return result.rows[0] ? this.mapEVVRecord(result.rows[0] as unknown as EVVRecordRow) : null;
   }
 
   /**
@@ -251,7 +251,7 @@ export class EVVRepository {
       throw new Error(`EVV record ${id} not found`);
     }
 
-    return this.mapEVVRecord(result.rows[0]);
+    return this.mapEVVRecord(result.rows[0] as unknown as EVVRecordRow);
   }
 
   /**
@@ -348,7 +348,7 @@ export class EVVRepository {
     // Get total count
     const countQuery = `SELECT COUNT(*) FROM evv_records ${whereClause}`;
     const countResult = await this.database.query(countQuery, values);
-    const total = parseInt(countResult.rows[0].count);
+    const total = parseInt(countResult.rows[0].count as string);
 
     // Get paginated results
     const sortBy = pagination.sortBy || 'service_date';
@@ -367,7 +367,7 @@ export class EVVRepository {
     const result = await this.database.query(dataQuery, values);
 
     return {
-      items: result.rows.map(row => this.mapEVVRecord(row)),
+      items: result.rows.map(row => this.mapEVVRecord(row as unknown as EVVRecordRow)),
       total,
       page: pagination.page,
       limit: pagination.limit,
@@ -420,7 +420,7 @@ export class EVVRepository {
       entry.updatedBy,
     ]);
 
-    return this.mapTimeEntry(result.rows[0]);
+    return this.mapTimeEntry(result.rows[0] as unknown as TimeEntryRow);
   }
 
   /**
@@ -433,7 +433,7 @@ export class EVVRepository {
       ORDER BY entry_timestamp ASC
     `;
     const result = await this.database.query(query, [visitId]);
-    return result.rows.map(row => this.mapTimeEntry(row));
+    return result.rows.map(row => this.mapTimeEntry(row as unknown as TimeEntryRow));
   }
 
   /**
@@ -448,7 +448,7 @@ export class EVVRepository {
       LIMIT $2
     `;
     const result = await this.database.query(query, [organizationId, limit]);
-    return result.rows.map(row => this.mapTimeEntry(row));
+    return result.rows.map(row => this.mapTimeEntry(row as unknown as TimeEntryRow));
   }
 
   /**
@@ -457,7 +457,7 @@ export class EVVRepository {
   async getTimeEntryById(id: UUID): Promise<TimeEntry | null> {
     const query = 'SELECT * FROM time_entries WHERE id = $1';
     const result = await this.database.query(query, [id]);
-    return result.rows[0] ? this.mapTimeEntry(result.rows[0]) : null;
+    return result.rows[0] ? this.mapTimeEntry(result.rows[0] as unknown as TimeEntryRow) : null;
   }
 
   /**
@@ -509,7 +509,7 @@ export class EVVRepository {
       throw new Error(`Time entry ${id} not found`);
     }
 
-    return this.mapTimeEntry(result.rows[0]);
+    return this.mapTimeEntry(result.rows[0] as unknown as TimeEntryRow);
   }
 
   /**
@@ -546,7 +546,7 @@ export class EVVRepository {
       throw new Error(`Time entry ${id} not found`);
     }
 
-    return this.mapTimeEntry(result.rows[0]);
+    return this.mapTimeEntry(result.rows[0] as unknown as TimeEntryRow);
   }
 
   /**
