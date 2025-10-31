@@ -296,6 +296,34 @@ async function createOpenShifts(pool: Pool, context: SeedContext, visitIds: stri
   return openShiftIds;
 }
 
+async function createStateSpecificShifts(pool: Pool, context: SeedContext): Promise<void> {
+  console.log('  Creating TX/FL state-specific shifts...');
+
+  // TX Shift requiring EVV-enrolled caregiver
+  const txShiftId = uuidv4();
+  await pool.query(`
+    INSERT INTO shift_requirements (
+      id, client_id, service_type, start_time, end_time,
+      required_skills, required_certifications, state, status, created_by
+    ) VALUES (
+      $1, $2, 'PERSONAL_CARE', '2025-02-01 08:00:00', '2025-02-01 12:00:00',
+      ARRAY['TRANSFER', 'MOBILITY'], ARRAY['CNA'], 'TX', 'OPEN', $3
+    )
+  `, [txShiftId, context.clientIds[0], context.systemUserId]);
+
+  // FL Shift requiring Level 2 cleared RN
+  const flShiftId = uuidv4();
+  await pool.query(`
+    INSERT INTO shift_requirements (
+      id, client_id, service_type, start_time, end_time,
+      required_skills, required_certifications, language_preference, state, status, created_by
+    ) VALUES (
+      $1, $2, 'SKILLED_NURSING', '2025-02-01 14:00:00', '2025-02-01 16:00:00',
+      ARRAY['WOUND_CARE'], ARRAY['RN'], 'SPANISH', 'FL', 'OPEN', $3
+    )
+  `, [flShiftId, context.clientIds[1] || context.clientIds[0], context.systemUserId]);
+}
+
 async function createCaregiverPreferences(pool: Pool, context: SeedContext): Promise<void> {
   console.log('  Creating caregiver preferences...');
 
@@ -352,6 +380,9 @@ async function createProposalScenarios(
   openShiftIds: string[]
 ): Promise<void> {
   console.log('  Creating proposal scenarios...');
+
+  // Add TX/FL state-specific shift requirements
+  await createStateSpecificShifts(pool, context);
 
   // Scenario 1: Accepted proposal
   if (openShiftIds.length > 0 && context.caregiverIds.length > 0) {

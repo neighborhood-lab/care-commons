@@ -35,14 +35,21 @@ import {
   IClientProvider,
   ICaregiverProvider,
 } from '../interfaces/visit-provider';
+import { TexasEVVProvider } from '../providers/texas-evv-provider';
+import { FloridaEVVProvider } from '../providers/florida-evv-provider';
+import { Database } from '@care-commons/core';
 
 export class EVVService {
+  private texasProvider?: TexasEVVProvider;
+  private floridaProvider?: FloridaEVVProvider;
+
   constructor(
     private repository: EVVRepository,
     private integrationService: IntegrationService,
     private visitProvider: IVisitProvider,
     private clientProvider: IClientProvider,
     private caregiverProvider: ICaregiverProvider,
+    private database: Database,
     private validator: EVVValidator = new EVVValidator()
   ) { }
 
@@ -655,9 +662,53 @@ export class EVVService {
   }
 
   /**
-   * Helper: Generate checksum
-   */
+    * Submit EVV record to state aggregator(s)
+    * SOLID: Open/Closed - extends functionality without modifying core clock-in/out
+    */
+  async submitToStateAggregator(
+    evvRecordId: UUID,
+    userContext: UserContext
+  ): Promise<SubmissionResult> {
+    const evvRecord = await this.repository.getEVVRecordById(evvRecordId);
+    if (!evvRecord) {
+      throw new Error('EVV record not found');
+    }
+
+    // Get client's state
+    const client = await this.database.query(`
+      SELECT state FROM clients WHERE id = $1
+    `, [evvRecord.clientId]);
+    
+    const state = client.rows[0]?.state;
+
+    if (state === 'TX') {
+      if (!this.texasProvider) {
+        this.texasProvider = new TexasEVVProvider(this.database);
+      }
+      const submission = await this.texasProvider.submitToAggregator(evvRecord);
+      return { submissions: [submission], state: 'TX' };
+    }
+
+    if (state === 'FL') {
+      if (!this.floridaProvider) {
+        this.floridaProvider = new FloridaEVVProvider(this.database);
+      }
+      const submissions = await this.floridaProvider.submitToAggregators(evvRecord);
+      return { submissions, state: 'FL' };
+    }
+
+    throw new Error(`State ${state} does not have EVV aggregator configured`);
+  }
+
+  /**
+    * Helper: Generate checksum
+    */
   private generateChecksum(data: any): string {
     return CryptoUtils.generateChecksum(data);
   }
+}
+
+interface SubmissionResult {
+  submissions: any[];
+  state: string;
 }
