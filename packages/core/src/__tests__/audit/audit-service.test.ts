@@ -6,6 +6,15 @@ import { AuditService, AuditEventType } from '../../audit/audit-service';
 import { UserContext } from '../../types/base';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
+interface MockDatabase {
+  query: ReturnType<typeof vi.fn>;
+  getClient: ReturnType<typeof vi.fn>;
+  transaction: ReturnType<typeof vi.fn>;
+  close: ReturnType<typeof vi.fn>;
+  healthCheck: ReturnType<typeof vi.fn>;
+  pool: unknown; // Add pool property to match Database interface
+}
+
 const createMockUserContext = (overrides = {}) => ({
   userId: 'test-user-id',
   roles: ['COORDINATOR' as const],
@@ -25,7 +34,7 @@ vi.mock('uuid', () => ({
 
 describe('AuditService', () => {
   let auditService: AuditService;
-  let mockDatabase: any;
+  let mockDatabase: MockDatabase;
   let mockUserContext: UserContext;
 
   beforeEach(() => {

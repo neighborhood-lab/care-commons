@@ -9,6 +9,8 @@ import knex, { Knex } from 'knex';
 
 dotenv.config({ path: '.env', quiet: true });
 
+type MigrationInfo = string | { file?: string; name?: string };
+
 async function showMigrationStatus() {
   console.log('📊 Checking migration status...\n');
 
@@ -49,7 +51,7 @@ async function showMigrationStatus() {
 
     if (completed.length > 0) {
       console.log('✅ Completed migrations:');
-      completed.forEach((migration: any) => {
+      completed.forEach((migration: MigrationInfo) => {
         const name = typeof migration === 'string' ? migration : migration.file || migration.name;
         console.log(`   ${name}`);
       });
@@ -59,7 +61,7 @@ async function showMigrationStatus() {
 
     if (pending.length > 0) {
       console.log('\n⏳ Pending migrations:');
-      pending.forEach((migration: any) => {
+      pending.forEach((migration: MigrationInfo) => {
         const name = typeof migration === 'string' ? migration : migration.file || migration.name;
         console.log(`   ${name}`);
       });

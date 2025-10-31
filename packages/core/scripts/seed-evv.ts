@@ -12,6 +12,23 @@
 import { v4 as uuidv4 } from 'uuid';
 import { initializeDatabase } from '../src/db/connection';
 
+interface Geofence {
+  id: string;
+  clientId: string;
+  latitude: number;
+  longitude: number;
+}
+
+interface Visit {
+  id: string;
+  clientId: string;
+  caregiverId: string;
+  date: Date;
+  geofence?: Geofence;
+  scenario?: string;
+  [key: string]: unknown; // Allow additional properties
+}
+
 async function seedEVVData() {
   console.log('🌱 Seeding EVV data...\n');
 
@@ -59,7 +76,7 @@ async function seedEVVData() {
 
       // Create geofences for client locations
       console.log('Creating geofences...');
-      const geofences: any[] = [];
+      const geofences: Geofence[] = [];
 
       for (const client of clients) {
         const address = typeof client.primary_address === 'string' 
@@ -107,7 +124,7 @@ async function seedEVVData() {
 
       // Create visits
       console.log('Creating visits...');
-      const visits: any[] = [];
+      const visits: Visit[] = [];
 
       // Visit 1: Completed yesterday - fully compliant
       const visit1Id = uuidv4();
@@ -274,8 +291,8 @@ async function seedEVVData() {
           : client.primary_address;
 
         // Calculate clock-in location based on scenario
-        let clockInLat = geofence.latitude;
-        let clockInLon = geofence.longitude;
+        let clockInLat = geofence?.latitude || 39.7817;
+        let clockInLon = geofence?.longitude || -89.6501;
         let clockInAccuracy = 15; // meters
         let isWithinGeofence = true;
 
@@ -384,7 +401,7 @@ async function seedEVVData() {
             isWithinGeofence ? 1 : 0,
             isWithinGeofence ? 0 : 1,
             clockInAccuracy,
-            geofence.id,
+            geofence?.id || '',
           ]
         );
 
@@ -462,7 +479,7 @@ async function seedEVVData() {
                 updated_at = NOW()
             WHERE id = $2
           `,
-            [clockInAccuracy, geofence.id]
+            [clockInAccuracy, geofence?.id || '']
           );
 
           // Calculate duration

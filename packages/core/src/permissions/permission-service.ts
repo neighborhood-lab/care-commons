@@ -10,7 +10,7 @@ export interface PermissionRule {
   conditions?: PermissionCondition[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 
 export interface PermissionCondition {
   field: string;
