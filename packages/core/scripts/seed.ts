@@ -6,21 +6,58 @@
 
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from 'uuid';
-import { initializeDatabase } from '../src/db/connection';
+import { Database, DatabaseConfig } from '../src/db/connection';
+import { Pool, PoolClient } from 'pg';
 
 dotenv.config({ path: '.env', quiet: true });
 
 async function seedDatabase() {
   console.log('🌱 Seeding database...\n');
 
-  const db = initializeDatabase({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'care_commons',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    ssl: process.env.DB_SSL === 'true',
-  });
+  const env = process.env.NODE_ENV || 'development';
+  const dbName = process.env.DB_NAME || 'care_commons';
+
+  let db: Database | { transaction: (callback: (client: PoolClient) => Promise<void>) => Promise<void>; close: () => Promise<void> };
+
+  // Use DATABASE_URL if provided (for CI/CD and production)
+  if (process.env.DATABASE_URL) {
+    console.log('📝 Using DATABASE_URL for seeding\n');
+    
+    // Parse DATABASE_URL to extract connection details
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    
+    // Create a Database-like wrapper to work with the existing seed code
+    db = {
+      transaction: async (callback: (client: PoolClient) => Promise<void>) => {
+        const client = await pool.connect();
+        try {
+          await client.query('BEGIN');
+          await callback(client);
+          await client.query('COMMIT');
+        } catch (error) {
+          await client.query('ROLLBACK');
+          throw error;
+        } finally {
+          client.release();
+        }
+      },
+      close: async () => await pool.end(),
+    };
+  } else {
+    // Use individual DB_* variables for local development
+    const database = env === 'test' ? `${dbName}_test` : dbName;
+    
+    const config: DatabaseConfig = {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database,
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      ssl: process.env.DB_SSL === 'true',
+    };
+    
+    db = new Database(config);
+  }
 
   try {
     await db.transaction(async (client) => {
