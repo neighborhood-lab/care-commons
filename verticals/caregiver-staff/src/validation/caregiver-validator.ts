@@ -6,9 +6,6 @@ import { z } from 'zod';
 import {
   CreateCaregiverInput,
   UpdateCaregiverInput,
-  EmploymentType,
-  CaregiverRole,
-  CaregiverStatus,
 } from '../types/caregiver';
 
 // Base schemas

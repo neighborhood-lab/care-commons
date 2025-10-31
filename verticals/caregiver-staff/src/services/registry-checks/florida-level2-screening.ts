@@ -122,8 +122,7 @@ export class FloridaLevel2ScreeningService {
    */
   async initiateRescreen(
     caregiverId: UUID,
-    currentScreening: FloridaBackgroundScreening,
-    initiatedBy: UUID
+    currentScreening: FloridaBackgroundScreening
   ): Promise<{ submissionId: string; estimatedCompletionDate: Date }> {
     // Verify current screening exists and is eligible for rescreen
     const eligibility = this.checkRescreenEligibility(currentScreening);
@@ -201,10 +200,7 @@ export class FloridaLevel2ScreeningService {
    * 
    * Returns list of caregivers whose screening is expiring or expired
    */
-  async getCaregiversNeedingRescreen(
-    organizationId: UUID,
-    daysAhead: number = 90
-  ): Promise<RescreenNotification[]> {
+  async getCaregiversNeedingRescreen(): Promise<RescreenNotification[]> {
     // In production, this would query the database for caregivers
     // with Level 2 screenings expiring within the specified window
     
@@ -224,9 +220,7 @@ export class FloridaLevel2ScreeningService {
     caregiverId: UUID,
     screening: FloridaBackgroundScreening,
     offense: DisqualifyingOffense,
-    justification: string,
-    supportingDocuments: string[],
-    requestedBy: UUID
+    justification: string
   ): Promise<{
     exemptionRequestId: string;
     status: 'SUBMITTED' | 'UNDER_REVIEW';

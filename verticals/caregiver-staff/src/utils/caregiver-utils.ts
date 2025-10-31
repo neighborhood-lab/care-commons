@@ -11,6 +11,7 @@ import {
   CaregiverStatus,
   ComplianceStatus,
   Phone,
+  ShiftType,
 } from '../types/caregiver';
 
 /**
@@ -476,10 +477,11 @@ export function compareCaregivers(
   sortBy: 'name' | 'hireDate' | 'employeeNumber' | 'reliability' = 'name'
 ): number {
   switch (sortBy) {
-    case 'name':
+    case 'name': {
       const nameA = `${a.lastName} ${a.firstName}`.toLowerCase();
       const nameB = `${b.lastName} ${b.firstName}`.toLowerCase();
       return nameA.localeCompare(nameB);
+    }
       
     case 'hireDate':
       return new Date(a.hireDate).getTime() - new Date(b.hireDate).getTime();
@@ -521,6 +523,6 @@ export function filterByShiftPreference(
       return true; // No preference means available for any shift
     }
     
-    return caregiver.workPreferences.preferredShiftTypes.includes(shiftType as any);
+    return caregiver.workPreferences.preferredShiftTypes.includes(shiftType as ShiftType);
   });
 }

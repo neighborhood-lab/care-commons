@@ -20,6 +20,7 @@ import {
   CaregiverEligibility,
   EligibilityReason,
   ComplianceStatus,
+  PayRate,
 } from '../types/caregiver';
 import { CaregiverValidator } from '../validation/caregiver-validator';
 
@@ -268,9 +269,7 @@ export class CaregiverService {
     const caregivers = await this.repository.findAvailableForShift(
       organizationId,
       branchId,
-      dayOfWeek,
-      shiftStart,
-      shiftEnd
+      dayOfWeek
     );
 
     return caregivers.map((c) => this.filterSensitiveData(c, context));
@@ -547,8 +546,8 @@ export class CaregiverService {
       return {
         ...caregiver,
         ssn: undefined,
-        dateOfBirth: undefined as any, // Keep for age calculation but should be masked in API
-        payRate: undefined as any,
+        dateOfBirth: undefined as unknown as Date, // Keep for age calculation but should be masked in API
+        payRate: undefined as unknown as PayRate,
         alternatePayRates: undefined,
         payrollInfo: undefined,
       };
