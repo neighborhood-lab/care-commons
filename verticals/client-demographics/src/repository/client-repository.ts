@@ -235,7 +235,7 @@ export class ClientRepository extends Repository<Client> {
     // Count total
     const countQuery = `SELECT COUNT(*) FROM ${this.tableName} WHERE ${whereClause}`;
     const countResult = await this.database.query(countQuery, params);
-    const total = parseInt(countResult.rows[0].count);
+    const total = parseInt(String(countResult.rows[0].count));
 
     // Get paginated results
     const offset = (pagination.page - 1) * pagination.limit;
