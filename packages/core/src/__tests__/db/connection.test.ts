@@ -40,8 +40,14 @@ const mockPool: MockPool = {
 };
 
 vi.mock('pg', () => ({
-  Pool: vi.fn().mockImplementation(() => mockPool),
+  Pool: vi.fn().mockImplementation(function() {
+    return mockPool;
+  }),
 }));
+
+// Mock console methods
+vi.spyOn(console, 'log').mockImplementation(() => {});
+vi.spyOn(console, 'error').mockImplementation(() => {});
 
 import { Pool } from 'pg';
 
