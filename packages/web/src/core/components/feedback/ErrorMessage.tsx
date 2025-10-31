@@ -6,6 +6,7 @@ export interface ErrorMessageProps {
   title?: string;
   message: string;
   retry?: () => void;
+  action?: React.ReactNode;
   className?: string;
 }
 
@@ -13,6 +14,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   title = 'Error',
   message,
   retry,
+  action,
   className,
 }) => {
   return (
@@ -38,6 +40,11 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
               >
                 Try again
               </button>
+            </div>
+          )}
+          {action && (
+            <div className="mt-4">
+              {action}
             </div>
           )}
         </div>

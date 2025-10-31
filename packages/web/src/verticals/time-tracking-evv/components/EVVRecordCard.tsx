@@ -6,9 +6,10 @@ import type { EVVRecord } from '../types';
 
 interface EVVRecordCardProps {
   record: EVVRecord;
+  compact?: boolean;
 }
 
-export const EVVRecordCard: React.FC<EVVRecordCardProps> = ({ record }) => {
+export const EVVRecordCard: React.FC<EVVRecordCardProps> = ({ record, compact = false }) => {
   const statusColors = {
     IN_PROGRESS: 'bg-blue-100 text-blue-800',
     COMPLETED: 'bg-green-100 text-green-800',
@@ -21,7 +22,7 @@ export const EVVRecordCard: React.FC<EVVRecordCardProps> = ({ record }) => {
   return (
     <Link
       to={`/time-tracking/${record.id}`}
-      className="block bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
+      className={`block bg-white rounded-lg shadow hover:shadow-md transition-shadow ${compact ? 'p-3' : 'p-6'}`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
