@@ -164,22 +164,45 @@ export const useDownloadPayStubPdf = () => {
 
       // Sanitize the id to prevent XSS
       const sanitizedId = id.replace(/[^a-zA-Z0-9-_]/g, '');
-      const url = window.URL.createObjectURL(blob);
       
-      // Use a safer approach to trigger download without DOM manipulation
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `paystub-${sanitizedId}.pdf`;
-      link.style.display = 'none';
-      
-      // Use a single appendChild and immediately remove to minimize DOM exposure
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up the object URL to prevent memory leaks
-      window.setTimeout(() => window.URL.revokeObjectURL(url), 100);
-      window.URL.revokeObjectURL(url);
+      // Use modern download API without DOM manipulation
+      if ('showSaveFilePicker' in window && typeof window.showSaveFilePicker === 'function') {
+        type FilePickerOptions = {
+          suggestedName: string;
+          types: Array<{
+            description: string;
+            accept: Record<string, string[]>;
+          }>;
+        };
+        
+        type FileSystemFileHandle = {
+          createWritable(): Promise<FileSystemWritableFileStream>;
+        };
+        
+        type FileSystemWritableFileStream = {
+          write(data: globalThis.Blob): Promise<void>;
+          close(): Promise<void>;
+        };
+        
+        const fileHandle = await (window as unknown as {
+          showSaveFilePicker(options: FilePickerOptions): Promise<FileSystemFileHandle>;
+        }).showSaveFilePicker({
+          suggestedName: `paystub-${sanitizedId}.pdf`,
+          types: [{
+            description: 'PDF files',
+            accept: { 'application/pdf': ['.pdf'] }
+          }]
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        // Fallback: inform user to use modern browser
+        throw new Error(
+          'PDF download requires a modern browser with File System Access API support. ' +
+          'Please update your browser or contact support for assistance.'
+        );
+      }
     },
     onSuccess: () => {
       toast.success('Pay stub PDF downloaded');
