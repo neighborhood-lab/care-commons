@@ -5,6 +5,17 @@
 import { Database } from '../../db/connection';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
+interface MockClient {
+  query: ReturnType<typeof vi.fn>;
+  release: ReturnType<typeof vi.fn>;
+}
+
+interface MockPool {
+  query: ReturnType<typeof vi.fn>;
+  connect: ReturnType<typeof vi.fn>;
+  end: ReturnType<typeof vi.fn>;
+}
+
 const createMockDatabaseConfig = () => ({
   host: 'localhost',
   port: 5432,
@@ -18,11 +29,11 @@ const createMockDatabaseConfig = () => ({
 
 // Mock the 'pg' module
 const mockQuery = vi.fn();
-const mockClient = {
+const mockClient: MockClient = {
   query: vi.fn(),
   release: vi.fn(),
 };
-const mockPool = {
+const mockPool: MockPool = {
   query: mockQuery,
   connect: vi.fn().mockResolvedValue(mockClient),
   end: vi.fn().mockResolvedValue(undefined),
@@ -157,7 +168,7 @@ describe('Database Connection', () => {
   describe('Client Management', () => {
     it('should get a client from pool', async () => {
       const mockClient = { query: vi.fn(), release: vi.fn() };
-      (mockPool.connect as any).mockResolvedValue(mockClient);
+      (mockPool.connect as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
 
       const client = await database.getClient();
 
@@ -167,14 +178,14 @@ describe('Database Connection', () => {
   });
 
   describe('Transaction Management', () => {
-    let mockClient: any;
+    let mockClient: MockClient;
 
     beforeEach(() => {
       mockClient = {
         query: vi.fn(),
         release: vi.fn(),
       };
-      (mockPool.connect as any).mockResolvedValue(mockClient);
+      (mockPool.connect as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
     });
 
     it('should execute successful transaction', async () => {

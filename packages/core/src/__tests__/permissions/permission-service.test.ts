@@ -6,6 +6,10 @@ import { PermissionService, getPermissionService } from '../../permissions/permi
 import { PermissionError, Role } from '../../types/base';
 import { describe, it, expect, beforeEach } from 'vitest';
 
+declare global {
+  var permissionServiceInstance: PermissionService | null;
+}
+
 const createMockUserContext = (overrides = {}) => ({
   userId: 'test-user-id',
   roles: ['COORDINATOR' as const],
@@ -20,7 +24,7 @@ describe('PermissionService', () => {
 
   beforeEach(() => {
     // Reset singleton for each test
-    (global as any).permissionServiceInstance = null;
+    global.permissionServiceInstance = null;
     permissionService = new PermissionService();
   });
 
@@ -416,7 +420,7 @@ describe('PermissionService', () => {
 describe('PermissionService Singleton', () => {
   beforeEach(() => {
     // Reset singleton
-    (global as any).permissionServiceInstance = null;
+    global.permissionServiceInstance = null;
   });
 
   it('should return singleton instance', () => {

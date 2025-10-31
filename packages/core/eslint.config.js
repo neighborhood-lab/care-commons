@@ -56,6 +56,12 @@ export default [
     },
   },
   {
+    files: ['**/__tests__/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' in test mocks
+    },
+  },
+  {
     ignores: [
       'dist/',
       '*.js',
