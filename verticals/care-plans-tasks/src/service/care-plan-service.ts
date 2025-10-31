@@ -5,9 +5,8 @@
  */
 
 import { UserContext, PaginationParams, PaginatedResult, UUID, NotFoundError, ValidationError, PermissionError } from '@care-commons/core';
-import { PermissionService, Timestamp } from '@care-commons/core';
-import { v4 as uuid } from 'uuid';
-import { addDays, isBefore, isAfter } from 'date-fns';
+import { PermissionService } from '@care-commons/core';
+import { addDays, isBefore } from 'date-fns';
 import {
   CarePlan,
   CreateCarePlanInput,
@@ -20,16 +19,16 @@ import {
   ProgressNote,
   CreateProgressNoteInput,
   CarePlanStatus,
-  TaskStatus,
   CarePlanAnalytics,
   TaskCompletionMetrics,
   TaskTemplate,
+  TaskCategory,
 } from '../types/care-plan';
 import { CarePlanRepository } from '../repository/care-plan-repository';
 import { CarePlanValidator } from '../validation/care-plan-validator';
 import { IUserRepository } from '@care-commons/core/src/repository/user-repository';
 import { StateComplianceValidator } from '../validation/state-compliance-validator';
-import { StateJurisdiction, StateSpecificCarePlanData } from '../types/state-specific';
+import { StateSpecificCarePlanData } from '../types/state-specific';
 
 export class CarePlanService {
   private repository: CarePlanRepository;
@@ -57,7 +56,7 @@ export class CarePlanService {
     // State compliance validation for TX/FL
     if (input.stateJurisdiction && ['TX', 'FL'].includes(input.stateJurisdiction)) {
       const validation = StateComplianceValidator.validateCarePlanCompliance(
-        input as any,
+        input as CarePlan & Partial<StateSpecificCarePlanData>,
         input.stateJurisdiction
       );
       
@@ -80,7 +79,7 @@ export class CarePlanService {
     const validatedInput = CarePlanValidator.validateCreateCarePlan(input);
 
     // Generate plan number
-    const planNumber = await this.generatePlanNumber(input.organizationId);
+    const planNumber = await this.generatePlanNumber();
 
     const carePlanData = {
       ...validatedInput,
@@ -173,10 +172,12 @@ export class CarePlanService {
     const carePlan = await this.getCarePlanById(id, context);
 
     // State compliance check before activation
-    if ((carePlan as any).stateJurisdiction && ['TX', 'FL'].includes((carePlan as any).stateJurisdiction)) {
+    const carePlanWithState = carePlan as CarePlan & Partial<StateSpecificCarePlanData>;
+    if (carePlanWithState.stateJurisdiction && 
+        ['TX', 'FL'].includes(carePlanWithState.stateJurisdiction)) {
       const validation = StateComplianceValidator.validateCarePlanCompliance(
-        carePlan as any,
-        (carePlan as any).stateJurisdiction
+        carePlanWithState,
+        carePlanWithState.stateJurisdiction
       );
       
       const blockingErrors = validation.errors.filter(e => e.severity === 'BLOCKING');
@@ -541,7 +542,7 @@ export class CarePlanService {
       throw new PermissionError('Insufficient permissions to report task issues');
     }
 
-    const task = await this.getTaskInstanceById(id, context);
+    await this.getTaskInstanceById(id, context);
 
     const updated = await this.repository.updateTaskInstance(
       id,
@@ -618,8 +619,7 @@ export class CarePlanService {
     const now = new Date();
 
     // If Timestamp is a Date, this is fine.
-    // If your Timestamp is an ISO string alias, use: const makeTs = () => new Date().toISOString() as Timestamp;
-    const makeTs = () => now as unknown as Timestamp;
+    // If your Timestamp is an ISO string alias, use: const now = new Date().toISOString() as unknown as Timestamp;
 
     // Add timestamp to observations
     const observationsWithTimestamp = input.observations?.map(obs => ({
@@ -768,7 +768,7 @@ export class CarePlanService {
       missedTasks: missed.length,
       completionRate: tasks.total > 0 ? (completed.length / tasks.total) * 100 : 0,
       averageCompletionTime: avgCompletionTime,
-      tasksByCategory: tasksByCategory as any,
+      tasksByCategory: tasksByCategory as Record<TaskCategory, number>,
       issuesReported: issues.length,
     };
   }
@@ -776,7 +776,7 @@ export class CarePlanService {
   /**
    * Helper: Generate unique plan number
    */
-  private async generatePlanNumber(organizationId: UUID): Promise<string> {
+  private async generatePlanNumber(): Promise<string> {
     const prefix = 'CP';
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -795,6 +795,7 @@ export class CarePlanService {
     }
 
     if (frequency.pattern === 'WEEKLY' && frequency.specificDays) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return frequency.specificDays.includes(dayOfWeek as any);
     }
 

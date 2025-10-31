@@ -96,7 +96,7 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
    * TX HHSC Form 4100 / FL Service Authorization validation
    * Ensures tasks align with authorized services
    */
-  async validateServiceAuthorization(taskInstance: TaskInstance, stateCode: string): Promise<boolean> {
+  async validateServiceAuthorization(taskInstance: TaskInstance): Promise<boolean> {
     const query = `
       SELECT sa.status, sa.units_authorized, sa.units_consumed, sa.units_remaining,
              sa.authorization_start_date, sa.authorization_end_date, sa.service_code

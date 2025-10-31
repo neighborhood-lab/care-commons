@@ -1,13 +1,7 @@
-import { PoolClient } from 'pg';
-import { Repository, RepositoryConfig } from '@care-commons/core/src/db/repository';
+import { Repository } from '@care-commons/core/src/db/repository';
 import { Database } from '@care-commons/core/src/db/connection';
 import { UUID, UserContext } from '@care-commons/core';
-import {
-  ServiceAuthorization,
-  CreateServiceAuthorizationInput,
-  ServiceAuthorizationFilters,
-  AuthorizationStatus,
-} from '../types/state-specific';
+import { ServiceAuthorization } from '../types/state-specific';
 
 export class ServiceAuthorizationRepository extends Repository<ServiceAuthorization> {
   constructor(database: Database) {
@@ -19,6 +13,7 @@ export class ServiceAuthorizationRepository extends Repository<ServiceAuthorizat
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected mapRowToEntity(row: any): ServiceAuthorization {
     return {
       id: row.id,
@@ -54,6 +49,7 @@ export class ServiceAuthorizationRepository extends Repository<ServiceAuthorizat
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected mapEntityToRow(entity: Partial<ServiceAuthorization>): Record<string, any> {
     return {
       care_plan_id: entity.carePlanId,
@@ -100,6 +96,7 @@ export class ServiceAuthorizationRepository extends Repository<ServiceAuthorizat
     `;
 
     const result = await this.database.query(query, [clientId, serviceCode]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return result.rows.map((row: any) => this.mapRowToEntity(row));
   }
 
