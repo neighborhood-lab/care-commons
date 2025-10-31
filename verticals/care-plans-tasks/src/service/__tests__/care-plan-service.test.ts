@@ -4,8 +4,6 @@
  */
 
 import { CarePlanService } from '../care-plan-service';
-import { CarePlanRepository } from '../../repository/care-plan-repository';
-import { PermissionService } from '@care-commons/core';
 import { CarePlanValidator } from '../../validation/care-plan-validator';
 import {
   CarePlan,
@@ -18,7 +16,6 @@ import {
   TaskStatus,
   ProgressNote,
   CreateProgressNoteInput,
-  CarePlanAnalytics,
   TaskCompletionMetrics,
   CarePlanType,
   Priority,
@@ -38,7 +35,7 @@ vi.mock('uuid', () => ({
   }),
 }));
 
-const { v4: uuid } = require('uuid');
+import { v4 as uuid } from 'uuid';
 
 // Mock dependencies
 vi.mock('../../repository/care-plan-repository');
@@ -50,7 +47,7 @@ vi.mock('@care-commons/core', () => ({
   UUID: vi.fn(),
   Timestamp: vi.fn(),
   ValidationError: class extends Error {
-    constructor(message: string, details?: any) {
+    constructor(message: string) {
       super(message);
       this.name = 'ValidationError';
     }
@@ -62,7 +59,7 @@ vi.mock('@care-commons/core', () => ({
     }
   },
   NotFoundError: class extends Error {
-    constructor(message: string, details?: any) {
+    constructor(message: string) {
       super(message);
       this.name = 'NotFoundError';
     }
@@ -72,9 +69,13 @@ vi.mock('../../validation/care-plan-validator');
 
 describe('CarePlanService', () => {
   let service: CarePlanService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockRepository: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockPermissions: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockUserRepository: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockValidator: any;
   let mockContext: UserContext;
 
@@ -98,10 +99,12 @@ describe('CarePlanService', () => {
       getTasksByVisitId: vi.fn(),
       createProgressNote: vi.fn(),
       getProgressNotesByCarePlanId: vi.fn(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     mockPermissions = {
       hasPermission: vi.fn().mockReturnValue(true),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     mockUserRepository = {
@@ -112,17 +115,26 @@ describe('CarePlanService', () => {
         email: 'test.user@example.com',
       }),
       getUsersByIds: vi.fn().mockResolvedValue([]),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator = CarePlanValidator as any;
     
     // Mock all validation methods to return input by default
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateCreateCarePlan = vi.fn((input: any) => input);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateUpdateCarePlan = vi.fn((input: any) => input);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateCreateTaskInstance = vi.fn((input: any) => input);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateCompleteTask = vi.fn((input: any) => input);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateCreateProgressNote = vi.fn((input: any) => input);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateCarePlanSearchFilters = vi.fn((input: any) => input);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateTaskInstanceSearchFilters = vi.fn((input: any) => input);
     mockValidator.validateTaskCompletion = vi.fn(() => ({ valid: true, errors: [] }));
     mockValidator.validateVitalSigns = vi.fn(() => ({ valid: true, warnings: [] }));
@@ -1000,6 +1012,7 @@ describe('CarePlanService', () => {
       };
 
       // Mock the private method by spying on the service
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.spyOn(service as any, 'getTaskCompletionMetrics').mockResolvedValue(mockTaskMetrics);
 
       // Act

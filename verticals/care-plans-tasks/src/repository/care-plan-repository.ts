@@ -17,7 +17,6 @@ import {
   ProgressNote,
   CreateProgressNoteInput,
   TaskStatus,
-  CarePlanStatus,
 } from '../types/care-plan';
 
 export class CarePlanRepository extends Repository<CarePlan> {
@@ -26,10 +25,12 @@ export class CarePlanRepository extends Repository<CarePlan> {
   }
 
   // satisfy abstract methods (delegate / stub)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected mapRowToEntity(row: any): CarePlan {
     return this.mapRowToCarePlan(row);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   protected mapEntityToRow(_entity: Partial<CarePlan>): Record<string, any> {
     throw new Error('mapEntityToRow not implemented for CarePlanRepository');
   }
@@ -658,6 +659,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
   /**
    * Helper: Map database row to CarePlan entity
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToCarePlan(row: any): CarePlan {
     return {
       id: row.id,
@@ -720,6 +722,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
   /**
    * Helper: Map database row to TaskInstance entity
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToTaskInstance(row: any): TaskInstance {
     return {
       id: row.id,
@@ -767,6 +770,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
   /**
    * Helper: Map database row to ProgressNote entity
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToProgressNote(row: any): ProgressNote {
     return {
       id: row.id,

@@ -6,8 +6,6 @@
 
 import {
   CarePlan,
-  CreateCarePlanInput,
-  UpdateCarePlanInput,
 } from '../types/care-plan';
 import {
   StateJurisdiction,
@@ -245,7 +243,7 @@ export class StateComplianceValidator {
     }
 
     // RN delegation for delegated nursing tasks (59A-8.0216)
-    const hasDelegatedTasks = carePlan.interventions?.some((intervention: any) =>
+    const hasDelegatedTasks = carePlan.interventions?.some((intervention) =>
       ['MEDICATION_ADMINISTRATION', 'WOUND_CARE', 'VITAL_SIGNS_MONITORING'].includes(
         intervention.category
       )

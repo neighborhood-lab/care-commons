@@ -6,7 +6,33 @@
 
 import { Request, Response } from 'express';
 import { CarePlanService } from '../service/care-plan-service';
-import { UserContext } from '@care-commons/core';
+import { UserContext, Role, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
+import { CarePlanStatus, CarePlanType, TaskStatus, TaskCategory } from '../types/care-plan';
+
+/**
+ * Type guard to check if error is a known domain error
+ */
+function isDomainError(error: unknown): error is ValidationError | PermissionError | NotFoundError {
+  return error instanceof ValidationError || error instanceof PermissionError || error instanceof NotFoundError;
+}
+
+/**
+ * Handle errors consistently across all handlers
+ */
+function handleError(error: unknown, res: Response, operation: string): void {
+  if (isDomainError(error)) {
+    if (error instanceof ValidationError) {
+      res.status(400).json({ error: error.message, details: error.context });
+    } else if (error instanceof PermissionError) {
+      res.status(403).json({ error: error.message });
+    } else if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+    }
+  } else {
+    console.error(`Error ${operation}:`, error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 /**
  * Extract user context from request
@@ -19,7 +45,7 @@ function getUserContext(req: Request): UserContext {
     userId: req.header('X-User-Id') || 'system',
     organizationId: req.header('X-Organization-Id') || '',
     branchIds: branchId ? [branchId] : [],
-    roles: (req.header('X-User-Roles') || 'CAREGIVER').split(',') as any[],
+    roles: (req.header('X-User-Roles') || 'CAREGIVER').split(',') as Role[],
     permissions: (req.header('X-User-Permissions') || '').split(',').filter(Boolean),
   };
 }
@@ -38,15 +64,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const carePlan = await service.createCarePlan(req.body, context);
         res.status(201).json(carePlan);
-      } catch (error: any) {
-        if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message, details: error.details });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error creating care plan:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'creating care plan');
       }
     },
 
@@ -59,15 +78,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const carePlan = await service.getCarePlanById(req.params.id, context);
         res.json(carePlan);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching care plan:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching care plan');
       }
     },
 
@@ -80,17 +92,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const carePlan = await service.updateCarePlan(req.params.id, req.body, context);
         res.json(carePlan);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message, details: error.details });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error updating care plan:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'updating care plan');
       }
     },
 
@@ -103,17 +106,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const carePlan = await service.activateCarePlan(req.params.id, context);
         res.json(carePlan);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message, details: error.details });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error activating care plan:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'activating care plan');
       }
     },
 
@@ -127,8 +121,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const filters = {
           query: req.query.query as string,
           clientId: req.query.clientId as string,
-          status: req.query.status ? (req.query.status as string).split(',') as any[] : undefined,
-          planType: req.query.planType ? (req.query.planType as string).split(',') as any[] : undefined,
+          status: req.query.status ? (req.query.status as string).split(',') as CarePlanStatus[] : undefined,
+          planType: req.query.planType ? (req.query.planType as string).split(',') as CarePlanType[] : undefined,
           coordinatorId: req.query.coordinatorId as string,
           expiringWithinDays: req.query.expiringWithinDays ? parseInt(req.query.expiringWithinDays as string) : undefined,
           needsReview: req.query.needsReview === 'true',
@@ -141,13 +135,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         };
         const result = await service.searchCarePlans(filters, pagination, context);
         res.json(result);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error searching care plans:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'searching care plans');
       }
     },
 
@@ -160,13 +149,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const plans = await service.getCarePlansByClientId(req.params.clientId, context);
         res.json(plans);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching client care plans:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching client care plans');
       }
     },
 
@@ -183,13 +167,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         } else {
           res.json(plan);
         }
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching active care plan:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching active care plan');
       }
     },
 
@@ -203,13 +182,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const days = parseInt(req.query.days as string) || 30;
         const plans = await service.getExpiringCarePlans(days, context);
         res.json(plans);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching expiring care plans:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching expiring care plans');
       }
     },
 
@@ -222,17 +196,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         await service.deleteCarePlan(req.params.id, context);
         res.status(204).send();
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error deleting care plan:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'deleting care plan');
       }
     },
 
@@ -251,17 +216,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
           context
         );
         res.status(201).json(tasks);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error creating tasks:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'creating tasks');
       }
     },
 
@@ -274,15 +230,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const task = await service.createTaskInstance(req.body, context);
         res.status(201).json(task);
-      } catch (error: any) {
-        if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message, details: error.details });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error creating task:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'creating task');
       }
     },
 
@@ -295,15 +244,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const task = await service.getTaskInstanceById(req.params.id, context);
         res.json(task);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching task:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching task');
       }
     },
 
@@ -316,17 +258,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const task = await service.completeTask(req.params.id, req.body, context);
         res.json(task);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message, details: error.details });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error completing task:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'completing task');
       }
     },
 
@@ -340,17 +273,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const { reason, note } = req.body;
         const task = await service.skipTask(req.params.id, reason, note, context);
         res.json(task);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error skipping task:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'skipping task');
       }
     },
 
@@ -364,15 +288,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const { issueDescription } = req.body;
         const task = await service.reportTaskIssue(req.params.id, issueDescription, context);
         res.json(task);
-      } catch (error: any) {
-        if (error.name === 'NotFoundError') {
-          res.status(404).json({ error: error.message });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error reporting task issue:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'reporting task issue');
       }
     },
 
@@ -388,8 +305,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
           clientId: req.query.clientId as string,
           assignedCaregiverId: req.query.assignedCaregiverId as string,
           visitId: req.query.visitId as string,
-          status: req.query.status ? (req.query.status as string).split(',') as any[] : undefined,
-          category: req.query.category ? (req.query.category as string).split(',') as any[] : undefined,
+          status: req.query.status ? (req.query.status as string).split(',') as TaskStatus[] : undefined,
+          category: req.query.category ? (req.query.category as string).split(',') as TaskCategory[] : undefined,
           scheduledDateFrom: req.query.scheduledDateFrom ? new Date(req.query.scheduledDateFrom as string) : undefined,
           scheduledDateTo: req.query.scheduledDateTo ? new Date(req.query.scheduledDateTo as string) : undefined,
           overdue: req.query.overdue === 'true',
@@ -403,13 +320,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         };
         const result = await service.searchTaskInstances(filters, pagination, context);
         res.json(result);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error searching tasks:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'searching tasks');
       }
     },
 
@@ -422,13 +334,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const tasks = await service.getTasksByVisitId(req.params.visitId, context);
         res.json(tasks);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching visit tasks:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching visit tasks');
       }
     },
 
@@ -441,15 +348,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const note = await service.createProgressNote(req.body, context);
         res.status(201).json(note);
-      } catch (error: any) {
-        if (error.name === 'ValidationError') {
-          res.status(400).json({ error: error.message, details: error.details });
-        } else if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error creating progress note:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'creating progress note');
       }
     },
 
@@ -462,13 +362,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const notes = await service.getProgressNotesByCarePlanId(req.params.id, context);
         res.json(notes);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching progress notes:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching progress notes');
       }
     },
 
@@ -481,13 +376,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const analytics = await service.getCarePlanAnalytics(context.organizationId, context);
         res.json(analytics);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching analytics:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching analytics');
       }
     },
 
@@ -506,13 +396,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
           organizationId: context.organizationId,
         }, context);
         res.json(metrics);
-      } catch (error: any) {
-        if (error.name === 'PermissionError') {
-          res.status(403).json({ error: error.message });
-        } else {
-          console.error('Error fetching task metrics:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
+      } catch (error: unknown) {
+        handleError(error, res, 'fetching task metrics');
       }
     },
   };

@@ -1,12 +1,7 @@
 import { Repository } from '@care-commons/core/src/db/repository';
 import { Database } from '@care-commons/core/src/db/connection';
-import { UUID, UserContext } from '@care-commons/core';
-import {
-  RNDelegation,
-  CreateRNDelegationInput,
-  RNDelegationFilters,
-  DelegationStatus,
-} from '../types/state-specific';
+import { UUID } from '@care-commons/core';
+import { RNDelegation } from '../types/state-specific';
 
 export class RNDelegationRepository extends Repository<RNDelegation> {
   constructor(database: Database) {
@@ -18,6 +13,7 @@ export class RNDelegationRepository extends Repository<RNDelegation> {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected mapRowToEntity(row: any): RNDelegation {
     return {
       id: row.id,
@@ -63,6 +59,7 @@ export class RNDelegationRepository extends Repository<RNDelegation> {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected mapEntityToRow(entity: Partial<RNDelegation>): Record<string, any> {
     return {
       care_plan_id: entity.carePlanId,
@@ -115,6 +112,7 @@ export class RNDelegationRepository extends Repository<RNDelegation> {
         AND deleted_at IS NULL
     `;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [caregiverId];
 
     if (taskCategory) {
@@ -125,6 +123,7 @@ export class RNDelegationRepository extends Repository<RNDelegation> {
     query += ` ORDER BY effective_date DESC`;
 
     const result = await this.database.query(query, params);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return result.rows.map((row: any) => this.mapRowToEntity(row));
   }
 }
