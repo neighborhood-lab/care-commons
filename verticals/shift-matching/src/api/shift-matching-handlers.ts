@@ -7,7 +7,7 @@
  * - Administrative functions (configure matching rules, view analytics)
  */
 
-import { UserContext, PaginationParams } from '@care-commons/core';
+import { UserContext, PaginationParams, NotFoundError, ValidationError } from '@care-commons/core';
 import { ShiftMatchingService } from '../service/shift-matching-service';
 import { ShiftMatchingRepository } from '../repository/shift-matching-repository';
 import { MatchingAlgorithm } from '../utils/matching-algorithm';
@@ -110,6 +110,21 @@ export class ShiftMatchingHandlers {
     input: CreateProposalInput,
     context: UserContext
   ) {
+    // Validate open shift exists
+    const openShift = await this.repository.getOpenShift(input.openShiftId);
+    if (!openShift) {
+      throw new Error('Open shift not found');
+    }
+
+    // Validate configuration exists
+    const config = await this.repository.getDefaultConfiguration(
+      context.organizationId,
+      openShift.branchId
+    );
+    if (!config) {
+      throw new Error('No matching configuration found');
+    }
+
     // For manual proposals, create a minimal candidate since we're bypassing the algorithm
     const manualCandidate: any = {
         caregiverId: input.caregiverId,
@@ -142,10 +157,6 @@ export class ShiftMatchingHandlers {
         }],
         computedAt: new Date() as any,
       } as any;
-
-
-
-
 
     return this.service.createProposal(input, manualCandidate, context);
   }

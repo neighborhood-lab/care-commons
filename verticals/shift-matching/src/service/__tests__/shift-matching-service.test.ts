@@ -82,7 +82,9 @@ describe('ShiftMatchingService', () => {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    service = new ShiftMatchingService(mockRepository as any, mockCaregiverService as any);
+    service = new ShiftMatchingService(mockPool, mockCaregiverService as any);
+    // Replace the repository with our mock
+    (service as any).repository = mockRepository;
   });
 
   describe('createOpenShift', () => {
