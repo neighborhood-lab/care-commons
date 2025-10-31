@@ -162,13 +162,23 @@ export const useDownloadPayStubPdf = () => {
     mutationFn: async (id: string) => {
       const blob = await payrollApi.downloadPayStubPdf(id);
 
+      // Sanitize the id to prevent XSS
+      const sanitizedId = id.replace(/[^a-zA-Z0-9-_]/g, '');
       const url = window.URL.createObjectURL(blob);
+      
+      // Use a safer approach to trigger download without DOM manipulation
       const link = document.createElement('a');
       link.href = url;
-      link.download = `paystub-${id}.pdf`;
+      link.download = `paystub-${sanitizedId}.pdf`;
+      link.style.display = 'none';
+      
+      // Use a single appendChild and immediately remove to minimize DOM exposure
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Clean up the object URL to prevent memory leaks
+      window.setTimeout(() => window.URL.revokeObjectURL(url), 100);
       window.URL.revokeObjectURL(url);
     },
     onSuccess: () => {

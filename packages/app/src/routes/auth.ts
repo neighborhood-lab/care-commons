@@ -9,12 +9,18 @@ import { Router } from 'express';
 
 const router = Router();
 
-// Mock user database
+// Mock user database - for development only
+// In production, use proper authentication with hashed passwords
+const MOCK_USER_PASSWORD = process.env.MOCK_USER_PASSWORD;
+if (!MOCK_USER_PASSWORD) {
+  throw new Error('MOCK_USER_PASSWORD environment variable is required for development authentication');
+}
+
 const users = [
   {
     id: 'admin-001',
     email: 'admin@example.com',
-    password: 'password123',
+    password: MOCK_USER_PASSWORD,
     name: 'Admin User',
     roles: ['ADMIN'],
     organizationId: 'org-001',
@@ -22,7 +28,7 @@ const users = [
   {
     id: 'caregiver-001',
     email: 'caregiver@example.com',
-    password: 'password123',
+    password: MOCK_USER_PASSWORD,
     name: 'Caregiver User',
     roles: ['CAREGIVER'],
     organizationId: 'org-001',

@@ -118,13 +118,47 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async searchCarePlans(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
+        // Validate and sanitize query parameters
+        const query = typeof req.query.query === 'string' ? req.query.query.trim() : undefined;
+        const clientId = typeof req.query.clientId === 'string' ? req.query.clientId.trim() : undefined;
+        const coordinatorId = typeof req.query.coordinatorId === 'string' ? req.query.coordinatorId.trim() : undefined;
+        
+        // Validate status values
+        let status: CarePlanStatus[] | undefined;
+        if (typeof req.query.status === 'string') {
+          const validStatuses: CarePlanStatus[] = ['DRAFT', 'PENDING_APPROVAL', 'ACTIVE', 'ON_HOLD', 'EXPIRED', 'DISCONTINUED', 'COMPLETED'];
+          status = req.query.status.split(',')
+            .map(s => s.trim().toUpperCase())
+            .filter(s => validStatuses.includes(s as CarePlanStatus)) as CarePlanStatus[];
+          if (status.length === 0) status = undefined;
+        }
+        
+        // Validate plan type values
+        let planType: CarePlanType[] | undefined;
+        if (typeof req.query.planType === 'string') {
+          const validPlanTypes: CarePlanType[] = ['PERSONAL_CARE', 'COMPANION', 'SKILLED_NURSING', 'THERAPY', 'HOSPICE', 'RESPITE', 'LIVE_IN', 'CUSTOM'];
+          planType = req.query.planType.split(',')
+            .map(s => s.trim().toUpperCase())
+            .filter(s => validPlanTypes.includes(s as CarePlanType)) as CarePlanType[];
+          if (planType.length === 0) planType = undefined;
+        }
+        
+        // Validate expiringWithinDays
+        let expiringWithinDays: number | undefined;
+        if (typeof req.query.expiringWithinDays === 'string') {
+          const days = parseInt(req.query.expiringWithinDays, 10);
+          if (!isNaN(days) && days > 0 && days <= 365) {
+            expiringWithinDays = days;
+          }
+        }
+
         const filters = {
-          query: req.query.query as string,
-          clientId: req.query.clientId as string,
-          status: req.query.status ? (req.query.status as string).split(',') as CarePlanStatus[] : undefined,
-          planType: req.query.planType ? (req.query.planType as string).split(',') as CarePlanType[] : undefined,
-          coordinatorId: req.query.coordinatorId as string,
-          expiringWithinDays: req.query.expiringWithinDays ? parseInt(req.query.expiringWithinDays as string) : undefined,
+          query,
+          clientId,
+          status,
+          planType,
+          coordinatorId,
+          expiringWithinDays,
           needsReview: req.query.needsReview === 'true',
         };
         const pagination = {
@@ -303,12 +337,42 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const filters = {
           carePlanId: req.query.carePlanId as string,
           clientId: req.query.clientId as string,
-          assignedCaregiverId: req.query.assignedCaregiverId as string,
-          visitId: req.query.visitId as string,
-          status: req.query.status ? (req.query.status as string).split(',') as TaskStatus[] : undefined,
-          category: req.query.category ? (req.query.category as string).split(',') as TaskCategory[] : undefined,
-          scheduledDateFrom: req.query.scheduledDateFrom ? new Date(req.query.scheduledDateFrom as string) : undefined,
-          scheduledDateTo: req.query.scheduledDateTo ? new Date(req.query.scheduledDateTo as string) : undefined,
+          // Validate and sanitize task search parameters
+          assignedCaregiverId: typeof req.query.assignedCaregiverId === 'string' ? req.query.assignedCaregiverId.trim() : undefined,
+          visitId: typeof req.query.visitId === 'string' ? req.query.visitId.trim() : undefined,
+          
+          // Validate task status values
+          status: (() => {
+            if (typeof req.query.status !== 'string') return undefined;
+            const validStatuses: TaskStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'MISSED', 'CANCELLED', 'ISSUE_REPORTED'];
+            const filtered = req.query.status.split(',')
+              .map(s => s.trim().toUpperCase())
+              .filter(s => validStatuses.includes(s as TaskStatus)) as TaskStatus[];
+            return filtered.length > 0 ? filtered : undefined;
+          })(),
+          
+          // Validate task category values
+          category: (() => {
+            if (typeof req.query.category !== 'string') return undefined;
+            const validCategories: TaskCategory[] = ['PERSONAL_HYGIENE', 'BATHING', 'DRESSING', 'GROOMING', 'TOILETING', 'MOBILITY', 'TRANSFERRING', 'AMBULATION', 'MEDICATION', 'MEAL_PREPARATION', 'FEEDING', 'HOUSEKEEPING', 'LAUNDRY', 'SHOPPING', 'TRANSPORTATION', 'COMPANIONSHIP', 'MONITORING', 'DOCUMENTATION', 'OTHER'];
+            const filtered = req.query.category.split(',')
+              .map(s => s.trim().toUpperCase())
+              .filter(s => validCategories.includes(s as TaskCategory)) as TaskCategory[];
+            return filtered.length > 0 ? filtered : undefined;
+          })(),
+          
+          // Validate date ranges
+          scheduledDateFrom: (() => {
+            if (typeof req.query.scheduledDateFrom !== 'string') return undefined;
+            const date = new Date(req.query.scheduledDateFrom);
+            return !isNaN(date.getTime()) ? date : undefined;
+          })(),
+          scheduledDateTo: (() => {
+            if (typeof req.query.scheduledDateTo !== 'string') return undefined;
+            const date = new Date(req.query.scheduledDateTo);
+            return !isNaN(date.getTime()) ? date : undefined;
+          })(),
+          
           overdue: req.query.overdue === 'true',
           requiresSignature: req.query.requiresSignature === 'true' ? true : undefined,
         };
