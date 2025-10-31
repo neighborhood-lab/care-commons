@@ -9,23 +9,23 @@ import dotenv from "dotenv";
 import knex, { Knex } from 'knex';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import * as readline from 'readline';
+// import * as readline from 'readline';
 
 dotenv.config({ path: '.env', quiet: true });
 
-async function confirmNuke(): Promise<boolean> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
+// async function confirmNuke(): Promise<boolean> {
+//   const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout
+//   });
 
-  return new Promise((resolve) => {
-    rl.question('⚠️  WARNING: This will DROP ALL TABLES! Type "NUKE" to confirm: ', (answer) => {
-      rl.close();
-      resolve(answer === 'NUKE');
-    });
-  });
-}
+//   return new Promise((resolve) => {
+//     rl.question('⚠️  WARNING: This will DROP ALL TABLES! Type "NUKE" to confirm: ', (answer) => {
+//       rl.close();
+//       resolve(answer === 'NUKE');
+//     });
+//   });
+// }
 
 async function nukeDatabase() {
   // Determine environment
@@ -39,14 +39,14 @@ async function nukeDatabase() {
   console.log(`Database: ${dbName}`);
   console.log(`Host: ${process.env.DB_HOST || 'localhost'}\n`);
 
-  // Confirm with user
-  if (process.env.FORCE_NUKE !== 'true') {
-    const confirmed = await confirmNuke();
-    if (!confirmed) {
-      console.log('\n❌ Nuke cancelled. Database is safe.');
-      process.exit(0);
-    }
-  }
+  // // Confirm with user
+  // if (process.env.FORCE_NUKE !== 'true') {
+  //   const confirmed = await confirmNuke();
+  //   if (!confirmed) {
+  //     console.log('\n❌ Nuke cancelled. Database is safe.');
+  //     process.exit(0);
+  //   }
+  // }
 
   // Build Knex config
   const config: Knex.Config = {
