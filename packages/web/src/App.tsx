@@ -8,6 +8,7 @@ import { Dashboard, Login, NotFound } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage } from './verticals/care-plans';
+import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -146,14 +147,21 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/time-tracking/*"
+        path="/time-tracking"
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Time Tracking Module</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <EVVRecordList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/time-tracking/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <EVVRecordDetail />
             </AppShell>
           </ProtectedRoute>
         }
