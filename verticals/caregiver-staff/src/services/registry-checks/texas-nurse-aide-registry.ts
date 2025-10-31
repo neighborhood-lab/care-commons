@@ -322,7 +322,7 @@ export class TexasNurseAideRegistryService {
   /**
    * Determine recommended action based on check result
    */
-  private determineRecommendedAction(apiResponse: any): 'APPROVE' | 'REJECT' | 'REVIEW' {
+  private determineRecommendedAction(apiResponse: Record<string, unknown>): 'APPROVE' | 'REJECT' | 'REVIEW' {
     // If not found or not certified, needs review
     if (!apiResponse.found || !apiResponse.certified) {
       return 'REVIEW';
@@ -350,7 +350,7 @@ export class TexasNurseAideRegistryService {
   /**
    * Build detailed notes from API response
    */
-  private buildDetailedNotes(apiResponse: any): string {
+  private buildDetailedNotes(apiResponse: Record<string, unknown>): string {
     const notes: string[] = [];
     
     if (apiResponse.certified) {
@@ -358,11 +358,11 @@ export class TexasNurseAideRegistryService {
       notes.push(`Certification Status: ${apiResponse.certificationStatus}`);
       
       if (apiResponse.certificationDate) {
-        notes.push(`Certified Since: ${apiResponse.certificationDate.toLocaleDateString()}`);
+        notes.push(`Certified Since: ${(apiResponse.certificationDate as Date).toLocaleDateString()}`);
       }
       
       if (apiResponse.certificationExpiration) {
-        notes.push(`Expires: ${apiResponse.certificationExpiration.toLocaleDateString()}`);
+        notes.push(`Expires: ${(apiResponse.certificationExpiration as Date).toLocaleDateString()}`);
       }
     } else {
       notes.push('Not certified as a CNA in Texas');

@@ -3,7 +3,7 @@
  */
 
 import { Repository, Database, UserContext, PaginatedResult } from '@care-commons/core';
-import { Caregiver, CaregiverSearchFilters } from '../types/caregiver';
+import { Caregiver, CaregiverSearchFilters, ComplianceStatus, Gender, ContactMethod, EmploymentType, EmploymentStatus, CaregiverRole, CaregiverStatus } from '../types/caregiver';
 
 export class CaregiverRepository extends Repository<Caregiver> {
   constructor(database: Database) {
@@ -18,88 +18,88 @@ export class CaregiverRepository extends Repository<Caregiver> {
   /**
    * Map database row to Caregiver entity
    */
-  protected mapRowToEntity(row: any): Caregiver {
+  protected mapRowToEntity(row: Record<string, unknown>): Caregiver {
     return {
-      id: row.id,
-      organizationId: row.organization_id,
-      branchIds: row.branch_ids || [],
-      primaryBranchId: row.primary_branch_id,
-      employeeNumber: row.employee_number,
-      firstName: row.first_name,
-      middleName: row.middle_name,
-      lastName: row.last_name,
-      preferredName: row.preferred_name,
-      dateOfBirth: row.date_of_birth,
-      ssn: row.ssn,
-      gender: row.gender,
-      pronouns: row.pronouns,
-      primaryPhone: JSON.parse(row.primary_phone),
-      alternatePhone: row.alternate_phone ? JSON.parse(row.alternate_phone) : undefined,
-      email: row.email,
-      preferredContactMethod: row.preferred_contact_method,
+      id: row.id as string,
+      organizationId: row.organization_id as string,
+      branchIds: (row.branch_ids as string[]) || [],
+      primaryBranchId: row.primary_branch_id as string,
+      employeeNumber: row.employee_number as string,
+      firstName: row.first_name as string,
+      middleName: row.middle_name as string,
+      lastName: row.last_name as string,
+      preferredName: row.preferred_name as string | undefined,
+      dateOfBirth: row.date_of_birth as Date,
+      ssn: row.ssn as string | undefined,
+      gender: row.gender as Gender,
+      pronouns: row.pronouns as string | undefined,
+      primaryPhone: JSON.parse(row.primary_phone as string),
+      alternatePhone: row.alternate_phone ? JSON.parse(row.alternate_phone as string) : undefined,
+      email: row.email as string,
+      preferredContactMethod: row.preferred_contact_method as ContactMethod,
       communicationPreferences: row.communication_preferences
-        ? JSON.parse(row.communication_preferences)
+        ? JSON.parse(row.communication_preferences as string)
         : undefined,
-      language: row.language,
-      languages: row.languages || [],
-      ethnicity: row.ethnicity,
-      race: row.race || [],
-      primaryAddress: JSON.parse(row.primary_address),
-      mailingAddress: row.mailing_address ? JSON.parse(row.mailing_address) : undefined,
-      emergencyContacts: JSON.parse(row.emergency_contacts || '[]'),
-      employmentType: row.employment_type,
-      employmentStatus: row.employment_status,
-      hireDate: row.hire_date,
-      terminationDate: row.termination_date,
-      terminationReason: row.termination_reason,
-      rehireEligible: row.rehire_eligible,
-      role: row.role,
-      permissions: row.permissions || [],
-      supervisorId: row.supervisor_id,
-      credentials: JSON.parse(row.credentials || '[]'),
-      backgroundCheck: row.background_check ? JSON.parse(row.background_check) : undefined,
-      drugScreening: row.drug_screening ? JSON.parse(row.drug_screening) : undefined,
-      healthScreening: row.health_screening ? JSON.parse(row.health_screening) : undefined,
-      training: JSON.parse(row.training || '[]'),
-      skills: JSON.parse(row.skills || '[]'),
-      specializations: row.specializations || [],
-      availability: JSON.parse(row.availability),
-      workPreferences: row.work_preferences ? JSON.parse(row.work_preferences) : undefined,
-      maxHoursPerWeek: row.max_hours_per_week,
-      minHoursPerWeek: row.min_hours_per_week,
-      willingToTravel: row.willing_to_travel,
-      maxTravelDistance: row.max_travel_distance,
-      payRate: JSON.parse(row.pay_rate),
-      alternatePayRates: row.alternate_pay_rates ? JSON.parse(row.alternate_pay_rates) : undefined,
-      payrollInfo: row.payroll_info ? JSON.parse(row.payroll_info) : undefined,
-      performanceRating: row.performance_rating,
-      lastReviewDate: row.last_review_date,
-      nextReviewDate: row.next_review_date,
-      complianceStatus: row.compliance_status,
-      lastComplianceCheck: row.last_compliance_check,
-      reliabilityScore: row.reliability_score,
-      preferredClients: row.preferred_clients || [],
-      restrictedClients: row.restricted_clients || [],
-      status: row.status,
-      statusReason: row.status_reason,
-      documents: row.documents ? JSON.parse(row.documents) : undefined,
-      notes: row.notes,
-      customFields: row.custom_fields ? JSON.parse(row.custom_fields) : undefined,
-      createdAt: row.created_at,
-      createdBy: row.created_by,
-      updatedAt: row.updated_at,
-      updatedBy: row.updated_by,
-      version: row.version,
-      deletedAt: row.deleted_at,
-      deletedBy: row.deleted_by,
+      language: row.language as string | undefined,
+      languages: (row.languages as string[]) || [],
+      ethnicity: row.ethnicity as string | undefined,
+      race: (row.race as string[]) || [],
+      primaryAddress: JSON.parse(row.primary_address as string),
+      mailingAddress: row.mailing_address ? JSON.parse(row.mailing_address as string) : undefined,
+      emergencyContacts: JSON.parse((row.emergency_contacts as string) || '[]'),
+      employmentType: row.employment_type as EmploymentType,
+      employmentStatus: row.employment_status as EmploymentStatus,
+      hireDate: row.hire_date as Date,
+      terminationDate: row.termination_date as Date | undefined,
+      terminationReason: row.termination_reason as string | undefined,
+      rehireEligible: row.rehire_eligible as boolean | undefined,
+      role: row.role as CaregiverRole,
+      permissions: (row.permissions as string[]) || [],
+      supervisorId: row.supervisor_id as string | undefined,
+      credentials: JSON.parse((row.credentials as string) || '[]'),
+      backgroundCheck: row.background_check ? JSON.parse(row.background_check as string) : undefined,
+      drugScreening: row.drug_screening ? JSON.parse(row.drug_screening as string) : undefined,
+      healthScreening: row.health_screening ? JSON.parse(row.health_screening as string) : undefined,
+      training: JSON.parse((row.training as string) || '[]'),
+      skills: JSON.parse((row.skills as string) || '[]'),
+      specializations: (row.specializations as string[]) || [],
+      availability: JSON.parse(row.availability as string),
+      workPreferences: row.work_preferences ? JSON.parse(row.work_preferences as string) : undefined,
+      maxHoursPerWeek: row.max_hours_per_week as number | undefined,
+      minHoursPerWeek: row.min_hours_per_week as number | undefined,
+      willingToTravel: row.willing_to_travel as boolean | undefined,
+      maxTravelDistance: row.max_travel_distance as number | undefined,
+      payRate: JSON.parse(row.pay_rate as string),
+      alternatePayRates: row.alternate_pay_rates ? JSON.parse(row.alternate_pay_rates as string) : undefined,
+      payrollInfo: row.payroll_info ? JSON.parse(row.payroll_info as string) : undefined,
+      performanceRating: row.performance_rating as number | undefined,
+      lastReviewDate: row.last_review_date as Date | undefined,
+      nextReviewDate: row.next_review_date as Date | undefined,
+      complianceStatus: row.compliance_status as ComplianceStatus,
+      lastComplianceCheck: row.last_compliance_check as Date | undefined,
+      reliabilityScore: row.reliability_score as number | undefined,
+      preferredClients: (row.preferred_clients as string[]) || [],
+      restrictedClients: (row.restricted_clients as string[]) || [],
+      status: row.status as CaregiverStatus,
+      statusReason: row.status_reason as string | undefined,
+      documents: row.documents ? JSON.parse(row.documents as string) : undefined,
+      notes: row.notes as string | undefined,
+      customFields: row.custom_fields ? JSON.parse(row.custom_fields as string) : undefined,
+      createdAt: row.created_at as Date,
+      createdBy: row.created_by as string,
+      updatedAt: row.updated_at as Date,
+      updatedBy: row.updated_by as string,
+      version: row.version as number,
+      deletedAt: row.deleted_at as Date | null,
+      deletedBy: row.deleted_by as string | null,
     };
   }
 
   /**
    * Map Caregiver entity to database row
    */
-  protected mapEntityToRow(entity: Partial<Caregiver>): Record<string, any> {
-    const row: Record<string, any> = {};
+  protected mapEntityToRow(entity: Partial<Caregiver>): Record<string, unknown> {
+    const row: Record<string, unknown> = {};
 
     if (entity.organizationId !== undefined) row.organization_id = entity.organizationId;
     if (entity.branchIds !== undefined) row.branch_ids = entity.branchIds;
@@ -198,7 +198,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
     pagination: { page: number; limit: number }
   ): Promise<PaginatedResult<Caregiver>> {
     const whereClauses: string[] = ['deleted_at IS NULL'];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramIndex = 1;
 
     if (filters.query) {
@@ -397,9 +397,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
   async findAvailableForShift(
     organizationId: string,
     branchId: string,
-    dayOfWeek: string,
-    shiftStart: string,
-    shiftEnd: string
+    dayOfWeek: string
   ): Promise<Caregiver[]> {
     const query = `
       SELECT * FROM ${this.tableName}
@@ -432,7 +430,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
     return this.update(
       caregiverId,
       {
-        complianceStatus: complianceStatus as any,
+        complianceStatus: complianceStatus as ComplianceStatus,
         lastComplianceCheck: new Date(),
       },
       context

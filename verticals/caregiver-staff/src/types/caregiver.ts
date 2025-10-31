@@ -13,9 +13,7 @@
 import {
   Entity,
   SoftDeletable,
-  LifecycleStatus,
   UUID,
-  Timestamp,
 } from '@care-commons/core';
 
 /**
