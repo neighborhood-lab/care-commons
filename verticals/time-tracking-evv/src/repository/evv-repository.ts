@@ -692,6 +692,40 @@ export class EVVRepository {
   }
 
   /**
+   * Helper: Map database row to Geofence
+   */
+  private mapGeofence(row: any): Geofence {
+    return {
+      id: row.id,
+      organizationId: row.organization_id,
+      clientId: row.client_id,
+      addressId: row.address_id,
+      centerLatitude: row.center_latitude,
+      centerLongitude: row.center_longitude,
+      radiusMeters: row.radius_meters,
+      radiusType: row.radius_type,
+      shape: row.shape,
+      polygonPoints: row.polygon_points ? JSON.parse(row.polygon_points) : undefined,
+      isActive: row.is_active,
+      allowedVariance: row.allowed_variance,
+      calibratedAt: row.calibrated_at,
+      calibratedBy: row.calibrated_by,
+      calibrationMethod: row.calibration_method,
+      calibrationNotes: row.calibration_notes,
+      verificationCount: row.verification_count,
+      successfulVerifications: row.successful_verifications,
+      failedVerifications: row.failed_verifications,
+      averageAccuracy: row.average_accuracy,
+      status: row.status,
+      createdAt: row.created_at,
+      createdBy: row.created_by,
+      updatedAt: row.updated_at,
+      updatedBy: row.updated_by,
+      version: row.version,
+    };
+  }
+
+  /**
    * Helper: Map database row to TimeEntry
    */
   private mapTimeEntry(row: TimeEntryRow): TimeEntry {
