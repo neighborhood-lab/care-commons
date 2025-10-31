@@ -7,10 +7,105 @@ import {
   EVVRecord,
   TimeEntry,
   Geofence,
-  EVVComplianceReport,
   EVVRecordSearchFilters,
-  TimeEntrySearchFilters,
+  EVVRecordStatus,
+  VerificationLevel,
+  PayorApprovalStatus,
+  TimeEntryStatus,
 } from '../types/evv';
+
+interface EVVRecordRow {
+  id: string;
+  visit_id: string;
+  organization_id: string;
+  branch_id: string;
+  client_id: string;
+  caregiver_id: string;
+  service_type_code: string;
+  service_type_name: string;
+  client_name: string;
+  client_medicaid_id: string | null;
+  caregiver_name: string;
+  caregiver_employee_id: string;
+  caregiver_npi: string | null;
+  service_date: Date;
+  service_address: string;
+  clock_in_time: Date | null;
+  clock_out_time: Date | null;
+  total_duration: number | null;
+  clock_in_verification: string;
+  clock_out_verification: string | null;
+  mid_visit_checks: string | null;
+  pause_events: string | null;
+  exception_events: string | null;
+  record_status: string;
+  verification_level: string;
+  compliance_flags: string;
+  integrity_hash: string;
+  integrity_checksum: string;
+  recorded_at: Date;
+  recorded_by: string;
+  sync_metadata: string;
+  submitted_to_payor: Date | null;
+  payor_approval_status: string | null;
+  state_specific_data: string | null;
+  caregiver_attestation: string | null;
+  client_attestation: string | null;
+  supervisor_review: string | null;
+  created_at: Date;
+  created_by: string;
+  updated_at: Date;
+  updated_by: string;
+  version: number;
+}
+
+interface TimeEntryRow {
+  id: string;
+  visit_id: string;
+  evv_record_id: string | null;
+  organization_id: string;
+  caregiver_id: string;
+  client_id: string;
+  entry_type: string;
+  entry_timestamp: Date;
+  status: string;
+  verification_passed: boolean;
+  location: string;
+  device_id: string;
+  device_info: string;
+  verification_method: string;
+  location_source: string;
+  location_accuracy: number | null;
+  is_within_geofence: boolean;
+  distance_from_address: number | null;
+  integrity_hash: string;
+  server_received_at: Date;
+  sync_metadata: string;
+  offline_recorded: boolean;
+  offline_recorded_at: Date | null;
+  verification_issues: string | null;
+  manual_override: string | null;
+  created_at: Date;
+  created_by: string;
+  updated_at: Date;
+  updated_by: string;
+  version: number;
+}
+
+interface GeofenceRow {
+  id: string;
+  client_id: string;
+  service_address: string;
+  latitude: number;
+  longitude: number;
+  radius_meters: number;
+  active: boolean;
+  created_at: Date;
+  created_by: string;
+  updated_at: Date;
+  updated_by: string;
+  version: number;
+}
 
 export class EVVRepository {
   constructor(private database: Database) { }
@@ -116,7 +211,7 @@ export class EVVRepository {
     updatedBy: UUID
   ): Promise<EVVRecord> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     // Build dynamic update query
@@ -167,7 +262,7 @@ export class EVVRepository {
     pagination: PaginationParams
   ): Promise<PaginatedResult<EVVRecord>> {
     const conditions: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     if (filters.organizationId) {
@@ -374,7 +469,7 @@ export class EVVRepository {
     updatedBy: UUID
   ): Promise<TimeEntry> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     // Build dynamic update query
@@ -549,7 +644,7 @@ export class EVVRepository {
   /**
    * Helper: Map database row to EVVRecord
    */
-  private mapEVVRecord(row: any): EVVRecord {
+  private mapEVVRecord(row: EVVRecordRow): EVVRecord {
     return {
       id: row.id,
       visitId: row.visit_id,
@@ -560,30 +655,30 @@ export class EVVRepository {
       serviceTypeCode: row.service_type_code,
       serviceTypeName: row.service_type_name,
       clientName: row.client_name,
-      clientMedicaidId: row.client_medicaid_id,
+      clientMedicaidId: row.client_medicaid_id || undefined,
       caregiverName: row.caregiver_name,
       caregiverEmployeeId: row.caregiver_employee_id,
-      caregiverNationalProviderId: row.caregiver_npi,
+      caregiverNationalProviderId: row.caregiver_npi || undefined,
       serviceDate: row.service_date,
       serviceAddress: JSON.parse(row.service_address),
-      clockInTime: row.clock_in_time,
+      clockInTime: row.clock_in_time!,
       clockOutTime: row.clock_out_time,
-      totalDuration: row.total_duration,
+      totalDuration: row.total_duration || undefined,
       clockInVerification: JSON.parse(row.clock_in_verification),
       clockOutVerification: row.clock_out_verification ? JSON.parse(row.clock_out_verification) : undefined,
       midVisitChecks: row.mid_visit_checks ? JSON.parse(row.mid_visit_checks) : undefined,
       pauseEvents: row.pause_events ? JSON.parse(row.pause_events) : undefined,
       exceptionEvents: row.exception_events ? JSON.parse(row.exception_events) : undefined,
-      recordStatus: row.record_status,
-      verificationLevel: row.verification_level,
+      recordStatus: row.record_status as EVVRecordStatus,
+      verificationLevel: row.verification_level as VerificationLevel,
       complianceFlags: JSON.parse(row.compliance_flags),
       integrityHash: row.integrity_hash,
       integrityChecksum: row.integrity_checksum,
       recordedAt: row.recorded_at,
       recordedBy: row.recorded_by,
       syncMetadata: JSON.parse(row.sync_metadata),
-      submittedToPayor: row.submitted_to_payor,
-      payorApprovalStatus: row.payor_approval_status,
+      submittedToPayor: row.submitted_to_payor || undefined,
+      payorApprovalStatus: (row.payor_approval_status as PayorApprovalStatus) || undefined,
       stateSpecificData: row.state_specific_data ? JSON.parse(row.state_specific_data) : undefined,
       caregiverAttestation: row.caregiver_attestation ? JSON.parse(row.caregiver_attestation) : undefined,
       clientAttestation: row.client_attestation ? JSON.parse(row.client_attestation) : undefined,
@@ -599,15 +694,17 @@ export class EVVRepository {
   /**
    * Helper: Map database row to TimeEntry
    */
-  private mapTimeEntry(row: any): TimeEntry {
+  private mapTimeEntry(row: TimeEntryRow): TimeEntry {
     return {
       id: row.id,
       visitId: row.visit_id,
-      evvRecordId: row.evv_record_id,
+      evvRecordId: row.evv_record_id || undefined,
       organizationId: row.organization_id,
       caregiverId: row.caregiver_id,
       clientId: row.client_id,
-      entryType: row.entry_type,
+      
+      // Entry details
+      entryType: row.entry_type as TimeEntry['entryType'],
       entryTimestamp: row.entry_timestamp,
       location: JSON.parse(row.location),
       deviceId: row.device_id,
@@ -616,45 +713,11 @@ export class EVVRepository {
       serverReceivedAt: row.server_received_at,
       syncMetadata: JSON.parse(row.sync_metadata),
       offlineRecorded: row.offline_recorded,
-      offlineRecordedAt: row.offline_recorded_at,
-      status: row.status,
+      offlineRecordedAt: row.offline_recorded_at || undefined,
+      
+      // Status
+      status: row.status as TimeEntryStatus,
       verificationPassed: row.verification_passed,
-      verificationIssues: row.verification_issues ? JSON.parse(row.verification_issues) : undefined,
-      manualOverride: row.manual_override ? JSON.parse(row.manual_override) : undefined,
-      createdAt: row.created_at,
-      createdBy: row.created_by,
-      updatedAt: row.updated_at,
-      updatedBy: row.updated_by,
-      version: row.version,
-    };
-  }
-
-  /**
-   * Helper: Map database row to Geofence
-   */
-  private mapGeofence(row: any): Geofence {
-    return {
-      id: row.id,
-      organizationId: row.organization_id,
-      clientId: row.client_id,
-      addressId: row.address_id,
-      centerLatitude: row.center_latitude,
-      centerLongitude: row.center_longitude,
-      radiusMeters: row.radius_meters,
-      radiusType: row.radius_type,
-      shape: row.shape,
-      polygonPoints: row.polygon_points ? JSON.parse(row.polygon_points) : undefined,
-      isActive: row.is_active,
-      allowedVariance: row.allowed_variance,
-      calibratedAt: row.calibrated_at,
-      calibratedBy: row.calibrated_by,
-      calibrationMethod: row.calibration_method,
-      calibrationNotes: row.calibration_notes,
-      verificationCount: row.verification_count,
-      successfulVerifications: row.successful_verifications,
-      failedVerifications: row.failed_verifications,
-      averageAccuracy: row.average_accuracy,
-      status: row.status,
       createdAt: row.created_at,
       createdBy: row.created_by,
       updatedAt: row.updated_at,
