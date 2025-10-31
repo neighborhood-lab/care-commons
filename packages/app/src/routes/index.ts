@@ -5,7 +5,7 @@
  */
 
 import { Express, Router } from 'express';
-import { Database, PermissionService } from '@care-commons/core';
+import { Database, PermissionService, UserRepository } from '@care-commons/core';
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
@@ -31,7 +31,8 @@ export function setupRoutes(app: Express, db: Database): void {
   // Care Plans & Tasks routes
   const carePlanRepository = new CarePlanRepository(db);
   const permissionService = new PermissionService();
-  const carePlanService = new CarePlanService(carePlanRepository, permissionService);
+  const userRepository = new UserRepository(db);
+  const carePlanService = new CarePlanService(carePlanRepository, permissionService, userRepository);
   const carePlanHandlers = createCarePlanHandlers(carePlanService);
   const carePlanRouter = createCarePlanRouter(carePlanHandlers);
   app.use('/api', carePlanRouter);
