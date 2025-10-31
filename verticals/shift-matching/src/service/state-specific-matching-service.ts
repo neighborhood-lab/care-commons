@@ -79,7 +79,7 @@ export class StateSpecificMatchingService {
 
     // Skills match
     const hasAllSkills = shift.requiredSkills.every((skill: string) =>
-      (caregiver.certifications || []).includes(skill)
+      (caregiver.certifications as string[] || []).includes(skill)
     );
     if (hasAllSkills) {
       score += 20;
@@ -90,7 +90,7 @@ export class StateSpecificMatchingService {
 
     // Language match
     if (shift.languagePreference) {
-      if ((caregiver.languages_spoken || []).includes(shift.languagePreference)) {
+      if ((caregiver.languages_spoken as string[] || []).includes(shift.languagePreference)) {
         score += 15;
         reasons.push(`Speaks ${shift.languagePreference}`);
       }
@@ -98,7 +98,7 @@ export class StateSpecificMatchingService {
 
     // State-specific compliance (TX/FL)
     if (shift.state === 'TX') {
-      const txData = caregiver.state_specific?.texas;
+      const txData = (caregiver.state_specific as any)?.texas;
       if (txData?.employee_misconduct_check?.status === 'CLEAR') {
         score += 10;
         reasons.push('TX Employee Misconduct Registry: CLEAR');
@@ -110,7 +110,7 @@ export class StateSpecificMatchingService {
     }
 
     if (shift.state === 'FL') {
-      const flData = caregiver.state_specific?.florida;
+      const flData = (caregiver.state_specific as any)?.florida;
       if (flData?.level2_screening?.status === 'CLEARED') {
         score += 10;
         reasons.push('FL Level 2 screening: CLEARED');
@@ -139,14 +139,14 @@ export class StateSpecificMatchingService {
     }
 
     if (shift.state === 'TX') {
-      const txData = caregiver.rows[0].state_specific?.texas;
+      const txData = (caregiver.rows[0].state_specific as any)?.texas;
       if (!txData?.employee_misconduct_check || txData.employee_misconduct_check.status !== 'CLEAR') {
         throw new Error('TX: Caregiver must have clear Employee Misconduct Registry check');
       }
     }
 
     if (shift.state === 'FL') {
-      const flData = caregiver.rows[0].state_specific?.florida;
+      const flData = (caregiver.rows[0].state_specific as any)?.florida;
       if (!flData?.level2_screening || flData.level2_screening.status !== 'CLEARED') {
         throw new Error('FL: Caregiver must have cleared Level 2 background screening');
       }
