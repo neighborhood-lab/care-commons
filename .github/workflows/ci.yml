@@ -82,6 +82,7 @@ jobs:
       - name: Setup test database
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/care_commons_test
+          NODE_ENV: test
         run: |
           npm run db:migrate
           npm run db:seed
