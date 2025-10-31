@@ -9,6 +9,8 @@ import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
+import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
+import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -167,14 +169,41 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/billing/*"
+        path="/billing"
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Billing Module</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <InvoiceList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/billing/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <InvoiceDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayRunList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/runs/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayRunDetail />
             </AppShell>
           </ProtectedRoute>
         }
