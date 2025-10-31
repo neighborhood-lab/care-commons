@@ -10,7 +10,7 @@ import { Pool, PoolClient } from 'pg';
 import { v4 as uuid } from 'uuid';
 import { UUID } from '@care-commons/core';
 import { PayrollRepository } from '../repository/payroll-repository';
-import { EVVRecord, EVVRecordStatus } from '@care-commons/time-tracking-evv';
+
 import {
   PayPeriod,
   PayRun,
@@ -19,26 +19,51 @@ import {
   TimeSheetEntry,
   TimeSheetAdjustment,
   Deduction,
-  PaymentRecord,
   PayPeriodType,
   PayRunType,
   DiscrepancyFlag,
-  DiscrepancyType,
   PayRateMultiplier,
 } from '../types/payroll';
-import {
-  calculateOvertimeHours,
-  calculateOvertimePay,
-  calculateTotalCompensation,
-  roundToTwoDecimals,
-  applyRateMultipliers,
-} from '../utils/pay-calculations';
+
 import {
   calculateFederalIncomeTax,
   calculateStateIncomeTax,
   calculateSocialSecurityTax,
   calculateMedicareTax,
 } from '../utils/tax-calculations';
+
+/**
+ * Mock EVV Record interface for internal use
+ */
+interface MockEVVRecord {
+  id: UUID;
+  visitId: UUID;
+  organizationId: UUID;
+  branchId: UUID;
+  clientId: UUID;
+  caregiverId: UUID;
+  serviceTypeCode: string;
+  serviceTypeName: string;
+  clientName: string;
+  caregiverName: string;
+  caregiverEmployeeId: string;
+  serviceDate: Date;
+  clockInTime: Date;
+  clockOutTime: Date;
+  totalDuration: number;
+  recordStatus: 'COMPLETE';
+  verificationLevel: 'FULL';
+  complianceFlags: never[];
+  integrityHash: string;
+  integrityChecksum: string;
+  recordedAt: Date;
+  recordedBy: UUID;
+  syncMetadata: {
+    version: number;
+    lastSyncAt: Date;
+    conflictResolved: boolean;
+  };
+}
 
 /**
  * Input for creating a pay period
@@ -153,7 +178,7 @@ export class PayrollService {
     const earningsCalculation = this.calculateEarnings(hoursCalculation, input.regularRate);
     
     // Calculate overtime based on weekly hours
-    const overtimeCalculation = this.calculateOvertime(hoursCalculation, input.regularRate);
+    const overtimeCalculation = this.calculateOvertime(hoursCalculation);
     
     // Detect discrepancies
     const discrepancies = this.detectTimeSheetDiscrepancies(
@@ -485,16 +510,47 @@ export class PayrollService {
     // Get caregiver's tax configuration
     // In a real implementation, we'd fetch from caregiver record
     const taxConfig = {
-      federalExempt: false,
-      stateExempt: false,
+      id: uuid(),
+      organizationId: timesheet.organizationId,
+      caregiverId: timesheet.caregiverId,
+      createdAt: new Date(),
+      createdBy: userId,
+      updatedAt: new Date(),
+      updatedBy: userId,
+      version: 1,
+      
+      // Federal
       federalFilingStatus: 'SINGLE' as const,
+      federalAllowances: 0,
+      federalExtraWithholding: 0,
+      federalExempt: false,
+      
+      // W-4 fields (2020+ format)
+      w4Step2: false,
       w4Step3Dependents: 0,
       w4Step4aOtherIncome: 0,
       w4Step4bDeductions: 0,
       w4Step4cExtraWithholding: 0,
-      stateFilingStatus: 'SINGLE',
+      
+      // State
+      stateFilingStatus: 'SINGLE' as const,
       stateAllowances: 0,
-      stateAdditionalWithholding: 0,
+      stateExtraWithholding: 0,
+      stateExempt: false,
+      stateResidence: 'TX',
+      
+      // Local
+      localExempt: false,
+      
+      // Status
+      effectiveFrom: new Date(),
+      lastUpdated: new Date(),
+      
+      // W-4 form
+      w4OnFile: false,
+      
+      // State form
+      stateFormOnFile: false,
     };
 
     // Calculate federal taxes
@@ -506,14 +562,14 @@ export class PayrollService {
     const federalIncomeTax = calculateFederalIncomeTax(
       grossPay,
       periodTypeForTax,
-      taxConfig as any // Simplified for MVP - would construct full TaxConfiguration
+      taxConfig // Simplified for MVP - would construct full TaxConfiguration
     );
 
     // Calculate state taxes (TX has no state income tax)
     const stateIncomeTax = calculateStateIncomeTax(
       grossPay,
       'TX', // Would come from organization/caregiver record
-      taxConfig as any // Simplified for MVP
+      taxConfig // Simplified for MVP
     );
 
     // Calculate FICA taxes (YTD would come from caregiver records)
@@ -769,7 +825,7 @@ export class PayrollService {
   /**
    * Fetch EVV records for timesheet compilation
    */
-  private async fetchEVVRecords(input: CompileTimeSheetInput): Promise<any[]> {
+  private async fetchEVVRecords(input: CompileTimeSheetInput): Promise<MockEVVRecord[]> {
     // In a real implementation, this would call the EVV service
     // For now, we'll simulate fetching EVV records
     const mockEVVRecords = input.evvRecordIds.map(id => ({
@@ -809,7 +865,7 @@ export class PayrollService {
    * Convert EVV records to timesheet entries
    */
   private async convertEVVToTimeSheetEntries(
-    evvRecords: any[],
+    evvRecords: MockEVVRecord[],
     input: CompileTimeSheetInput
   ): Promise<TimeSheetEntry[]> {
     return evvRecords.map(evvRecord => {
@@ -954,8 +1010,7 @@ export class PayrollService {
    * Calculate overtime with proper hour distribution
    */
   private calculateOvertime(
-    hoursCalculation: ReturnType<typeof this.calculateHours>,
-    regularRate: number
+    hoursCalculation: ReturnType<typeof this.calculateHours>
   ): {
     totalHours: number;
     regularHours: number;

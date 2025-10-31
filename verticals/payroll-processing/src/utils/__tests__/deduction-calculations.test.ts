@@ -15,7 +15,7 @@ import {
   getRemainingDeductionLimit,
   groupDeductionsByCategory,
 } from '../deduction-calculations';
-import { Deduction, GarnishmentOrder } from '../../types/payroll';
+import { Deduction } from '../../types/payroll';
 import { describe, it, expect } from 'vitest';
 
 describe('Deduction Calculation Utilities', () => {
@@ -524,25 +524,7 @@ describe('Deduction Calculation Utilities', () => {
       deductionType: 'FEDERAL_INCOME_TAX',
     };
 
-    const benefitDeduction: Deduction = {
-      ...mockDeduction,
-      deductionType: 'HEALTH_INSURANCE',
-    };
 
-    const loanDeduction: Deduction = {
-      ...mockDeduction,
-      deductionType: 'LOAN_REPAYMENT',
-    };
-
-    const retirementDeduction: Deduction = {
-      ...mockDeduction,
-      deductionType: 'RETIREMENT_401K',
-    };
-
-    const otherDeduction: Deduction = {
-      ...mockDeduction,
-      deductionType: 'OTHER',
-    };
 
     const healthInsuranceDeduction = {
       ...mockDeduction,

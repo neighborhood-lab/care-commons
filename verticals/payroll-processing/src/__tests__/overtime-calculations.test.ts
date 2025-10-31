@@ -13,7 +13,7 @@ import {
   calculateBlendedOvertimeRate,
   calculateSeventhDayOvertime,
 } from '../utils/pay-calculations';
-import { v4 as uuid } from 'uuid';
+
 import { describe, it, expect } from 'vitest';
 
 describe('Overtime Calculations and Edge Cases', () => {
