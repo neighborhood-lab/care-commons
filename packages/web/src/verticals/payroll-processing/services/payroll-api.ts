@@ -14,6 +14,8 @@ import type {
   ApprovePayRunInput,
 } from '../types';
 
+
+
 export interface PayrollApiService {
   getPayPeriods(filters?: PayrollSearchFilters): Promise<PayPeriodListResponse>;
   getPayPeriodById(id: string): Promise<PayPeriod>;
@@ -25,7 +27,7 @@ export interface PayrollApiService {
   processPayRun(id: string): Promise<PayRun>;
   getPayStubs(filters?: PayStubSearchFilters): Promise<PayStubListResponse>;
   getPayStubById(id: string): Promise<PayStub>;
-  downloadPayStubPdf(id: string): Promise<Blob>;
+  downloadPayStubPdf(id: string): Promise<globalThis.Blob>;
   getPayrollSummary(): Promise<PayrollSummary>;
 }
 
@@ -102,7 +104,7 @@ export const createPayrollApiService = (apiClient: ApiClient): PayrollApiService
     downloadPayStubPdf: async (id: string) => {
       const response = await fetch(`/api/payroll/stubs/${id}/pdf`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${globalThis.localStorage.getItem('token')}`,
         },
       });
 

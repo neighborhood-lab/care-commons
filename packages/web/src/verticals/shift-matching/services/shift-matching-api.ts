@@ -1,7 +1,6 @@
 import type { ApiClient } from '@/core/services';
 import type {
   OpenShift,
-  MatchCandidate,
   AssignmentProposal,
   MatchingMetrics,
   OpenShiftListResponse,

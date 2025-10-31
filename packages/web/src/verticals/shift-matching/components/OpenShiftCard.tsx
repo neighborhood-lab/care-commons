@@ -7,10 +7,9 @@ import { getShiftPriorityColor, getMatchingStatusColor, formatDuration } from '.
 
 interface OpenShiftCardProps {
   shift: OpenShift;
-  compact?: boolean;
 }
 
-export const OpenShiftCard: React.FC<OpenShiftCardProps> = ({ shift, compact = false }) => {
+export const OpenShiftCard: React.FC<OpenShiftCardProps> = ({ shift }) => {
   const priorityColor = getShiftPriorityColor(shift.priority);
   const statusColor = getMatchingStatusColor(shift.matchingStatus);
 

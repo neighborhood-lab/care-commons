@@ -35,11 +35,7 @@ export const PayRunDetail: React.FC = () => {
     return (
       <ErrorMessage
         message="Failed to load pay run"
-        action={
-          <Button onClick={() => navigate('/payroll')}>
-            Back to List
-          </Button>
-        }
+        retry={() => navigate('/payroll')}
       />
     );
   }
@@ -98,7 +94,7 @@ export const PayRunDetail: React.FC = () => {
           {can('payroll:process') && payRun.status === 'APPROVED' && (
             <Button
               onClick={() => {
-                if (confirm('Are you sure you want to process this pay run? This will generate payments.')) {
+                if (window.confirm('Are you sure you want to process this pay run? This will generate payments.')) {
                   processPayRun.mutate(payRun.id);
                 }
               }}
