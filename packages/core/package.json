@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "vitest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts --max-warnings 0",
     "db:migrate": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate.ts",
