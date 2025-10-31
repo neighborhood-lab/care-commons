@@ -8,7 +8,8 @@
 import dotenv from "dotenv";
 import knex, { Knex } from 'knex';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 // import * as readline from 'readline';
 
 dotenv.config({ path: '.env', quiet: true });
@@ -68,7 +69,7 @@ async function nukeDatabase() {
     console.log('\n🔄 Reading nuke.sql script...');
 
     // Read the nuke.sql file
-    const nukeSqlPath = join(__dirname, 'nuke.sql');
+    const nukeSqlPath = join(process.cwd(), 'packages/core/scripts/nuke.sql');
     const nukeSql = readFileSync(nukeSqlPath, 'utf-8');
 
     console.log('💥 Executing DROP statements...\n');
