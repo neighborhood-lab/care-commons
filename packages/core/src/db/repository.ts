@@ -44,12 +44,12 @@ export abstract class Repository<T extends Entity> {
   /**
    * Map database row to domain entity
    */
-  protected abstract mapRowToEntity(row: any): T;
+  protected abstract mapRowToEntity(row: Record<string, unknown>): T;
 
   /**
    * Map domain entity to database row
    */
-  protected abstract mapEntityToRow(entity: Partial<T>): Record<string, any>;
+  protected abstract mapEntityToRow(entity: Partial<T>): Record<string, unknown>;
 
   /**
    * Create a new entity
@@ -59,7 +59,7 @@ export abstract class Repository<T extends Entity> {
     const now = new Date();
 
     const row = this.mapEntityToRow(entity);
-    const fullRow: Record<string, any> = {
+    const fullRow: Record<string, unknown> = {
       ...row,
       id,
       created_at: now,
@@ -123,7 +123,7 @@ export abstract class Repository<T extends Entity> {
 
     const countQuery = `SELECT COUNT(*) FROM ${this.tableName} ${whereClause}`;
     const countResult = await this.database.query(countQuery);
-    const total = parseInt(countResult.rows[0].count);
+    const total = parseInt(countResult.rows[0].count as string);
 
     const query = `
       SELECT * FROM ${this.tableName}
@@ -250,7 +250,7 @@ export abstract class Repository<T extends Entity> {
     entityId: string,
     operation: 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE',
     changes: Record<string, { from: unknown; to: unknown }>,
-    newData: Record<string, any>,
+    newData: Record<string, unknown>,
     context: UserContext
   ): Promise<void> {
     const revisionId = uuidv4();
@@ -281,8 +281,8 @@ export abstract class Repository<T extends Entity> {
    * Compute changes between old and new entity
    */
   private computeChanges(
-    oldRow: Record<string, any>,
-    newRow: Record<string, any>
+    oldRow: Record<string, unknown>,
+    newRow: Record<string, unknown>
   ): Record<string, { from: unknown; to: unknown }> {
     const changes: Record<string, { from: unknown; to: unknown }> = {};
 
@@ -312,13 +312,13 @@ export abstract class Repository<T extends Entity> {
     const result = await this.database.query(query, [entityId, this.tableName]);
 
     return result.rows.map((row) => ({
-      revisionId: row.revision_id,
-      timestamp: row.timestamp,
-      userId: row.user_id,
-      operation: row.operation,
-      changes: JSON.parse(row.changes),
-      ipAddress: row.ip_address,
-      userAgent: row.user_agent,
+      revisionId: row.revision_id as string,
+      timestamp: row.timestamp as Date,
+      userId: row.user_id as string,
+      operation: row.operation as 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE',
+      changes: JSON.parse(row.changes as string),
+      ipAddress: row.ip_address as string | undefined,
+      userAgent: row.user_agent as string | undefined,
     }));
   }
 }

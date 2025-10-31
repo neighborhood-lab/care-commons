@@ -47,10 +47,10 @@ describe('AuditService', () => {
       transaction: vi.fn(),
       close: vi.fn(),
       healthCheck: vi.fn(),
-    } as any;
+    } as unknown as MockDatabase;
 
     // Create audit service instance
-    auditService = new AuditService(mockDatabase);
+    auditService = new AuditService(mockDatabase as any);
 
     mockUserContext = createMockUserContext();
   });

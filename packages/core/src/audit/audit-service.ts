@@ -154,18 +154,18 @@ export class AuditService {
     ]);
 
     return result.rows.map((row) => ({
-      eventId: row.event_id,
-      timestamp: row.timestamp,
-      userId: row.user_id,
-      organizationId: row.organization_id,
-      eventType: row.event_type,
-      resource: row.resource,
-      resourceId: row.resource_id,
-      action: row.action,
-      result: row.result,
-      metadata: JSON.parse(row.metadata || '{}'),
-      ipAddress: row.ip_address,
-      userAgent: row.user_agent,
+      eventId: row.event_id as string,
+      timestamp: row.timestamp as Date,
+      userId: row.user_id as string,
+      organizationId: row.organization_id as string,
+      eventType: row.event_type as AuditEventType,
+      resource: row.resource as string,
+      resourceId: row.resource_id as string,
+      action: row.action as string,
+      result: row.result as 'SUCCESS' | 'FAILURE',
+      metadata: JSON.parse((row.metadata as string) || '{}'),
+      ipAddress: row.ip_address as string | undefined,
+      userAgent: row.user_agent as string | undefined,
     }));
   }
 }

@@ -6,6 +6,15 @@ import { Repository } from '../../db/repository';
 import { Entity, UserContext, NotFoundError, ConflictError } from '../../types/base';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
+interface MockDatabase {
+  query: ReturnType<typeof vi.fn>;
+  getClient: ReturnType<typeof vi.fn>;
+  transaction: ReturnType<typeof vi.fn>;
+  close: ReturnType<typeof vi.fn>;
+  healthCheck: ReturnType<typeof vi.fn>;
+  pool: unknown;
+}
+
 const createMockUserContext = (overrides = {}) => ({
   userId: 'test-user-id',
   roles: ['COORDINATOR' as const],
@@ -32,22 +41,22 @@ interface TestEntity extends Entity {
 
 // Test repository implementation
 class TestRepository extends Repository<TestEntity> {
-  protected mapRowToEntity(row: any): TestEntity {
+  protected mapRowToEntity(row: Record<string, unknown>): TestEntity {
     return {
-      id: row.id,
-      name: row.name,
-      email: row.email,
-      status: row.status,
-      createdAt: row.created_at,
-      createdBy: row.created_by,
-      updatedAt: row.updated_at,
-      updatedBy: row.updated_by,
-      version: row.version,
+      id: row.id as string,
+      name: row.name as string,
+      email: row.email as string,
+      status: row.status as 'ACTIVE' | 'INACTIVE',
+      createdAt: row.created_at as Date,
+      createdBy: row.created_by as string,
+      updatedAt: row.updated_at as Date,
+      updatedBy: row.updated_by as string,
+      version: row.version as number,
     };
   }
 
-  protected mapEntityToRow(entity: Partial<TestEntity>): Record<string, any> {
-    const row: Record<string, any> = {};
+  protected mapEntityToRow(entity: Partial<TestEntity>): Record<string, unknown> {
+    const row: Record<string, unknown> = {};
     if (entity.name !== undefined) row.name = entity.name;
     if (entity.email !== undefined) row.email = entity.email;
     if (entity.status !== undefined) row.status = entity.status;
@@ -58,7 +67,7 @@ class TestRepository extends Repository<TestEntity> {
 
 describe('Repository Pattern', () => {
   let repository: TestRepository;
-  let mockDatabase: any;
+  let mockDatabase: MockDatabase;
   let mockUserContext: UserContext;
 
   beforeEach(() => {
@@ -76,7 +85,7 @@ describe('Repository Pattern', () => {
     // Create repository instance
     repository = new TestRepository({
       tableName: 'test_entities',
-      database: mockDatabase,
+      database: mockDatabase as any,
       enableAudit: true,
       enableSoftDelete: true,
     });
@@ -92,7 +101,7 @@ describe('Repository Pattern', () => {
     it('should use default values when not provided', () => {
       const repo = new TestRepository({
         tableName: 'test_entities',
-        database: mockDatabase,
+        database: mockDatabase as any,
       });
 
       expect(repo).toBeInstanceOf(Repository);
@@ -167,7 +176,7 @@ describe('Repository Pattern', () => {
     it('should create entity without audit when disabled', async () => {
       const repo = new TestRepository({
         tableName: 'test_entities',
-        database: mockDatabase,
+        database: mockDatabase as any,
         enableAudit: false,
       });
 
@@ -487,7 +496,7 @@ describe('Repository Pattern', () => {
     it('should return empty array when audit is disabled', async () => {
       const repo = new TestRepository({
         tableName: 'test_entities',
-        database: mockDatabase,
+        database: mockDatabase as any,
         enableAudit: false,
       });
 
