@@ -106,19 +106,19 @@ export class IntegrationService {
     );
 
     return {
-      visitId: row.visit_id,
-      organizationId: row.organization_id,
-      branchId: row.branch_id,
-      clientId: row.client_id,
+      visitId: row.visit_id as UUID,
+      organizationId: row.organization_id as UUID,
+      branchId: row.branch_id as UUID,
+      clientId: row.client_id as UUID,
       clientName,
-      clientMedicaidId: row.medicaid_number,
-      caregiverId: row.assigned_caregiver_id,
-      serviceTypeCode: row.service_type_code,
-      serviceTypeName: row.service_type_name,
-      serviceDate: row.scheduled_date,
-      scheduledStartTime: this.combineDateTime(row.scheduled_date, row.scheduled_start_time),
-      scheduledEndTime: this.combineDateTime(row.scheduled_date, row.scheduled_end_time),
-      scheduledDuration: row.scheduled_duration,
+      clientMedicaidId: row.medicaid_number as string | undefined,
+      caregiverId: row.assigned_caregiver_id as UUID | undefined,
+      serviceTypeCode: row.service_type_code as string,
+      serviceTypeName: row.service_type_name as string,
+      serviceDate: row.scheduled_date as Date,
+      scheduledStartTime: this.combineDateTime(row.scheduled_date as Date, row.scheduled_start_time as string),
+      scheduledEndTime: this.combineDateTime(row.scheduled_date as Date, row.scheduled_end_time as string),
+      scheduledDuration: row.scheduled_duration as number,
       serviceAddress: {
         line1: serviceAddress.line1,
         line2: serviceAddress.line2,
@@ -179,9 +179,9 @@ export class IntegrationService {
     }
 
     return {
-      caregiverId: row.id,
+      caregiverId: row.id as UUID,
       caregiverName,
-      employeeNumber: row.employee_number,
+      employeeNumber: row.employee_number as string,
       npi,
     };
   }

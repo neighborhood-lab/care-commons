@@ -48,7 +48,7 @@ export class FloridaEVVProvider implements IFloridaEVVProvider {
     `, [evvRecord.id, aggregator, JSON.stringify(payload), evvRecord.recordedBy]);
 
     return [{
-      submissionId: submissionId.rows[0].id,
+      submissionId: submissionId.rows[0].id as UUID,
       status: 'PENDING',
       aggregator,
       submittedAt: new Date()
@@ -65,7 +65,7 @@ export class FloridaEVVProvider implements IFloridaEVVProvider {
       WHERE id = $1
     `, [clientId]);
 
-    return result.rows[0]?.aggregator || 'HHAEEXCHANGE';
+    return (result.rows[0]?.aggregator as string) || 'HHAEEXCHANGE';
   }
 }
 
