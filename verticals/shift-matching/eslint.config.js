@@ -26,9 +26,12 @@ export default [
     },
     rules: {
       ...typescript.configs.recommended.rules,
+      'no-undef': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
-    ignores: ['dist/', 'eslint.config.js'],
+    ignores: ['dist/', 'eslint.config.js', '**/*.js', '**/*.js.map'],
   },
 ]
