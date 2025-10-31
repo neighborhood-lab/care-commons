@@ -115,7 +115,7 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
     const result = await this.database.query(query, [shiftId]);
     
     return result.rows.map(row => ({
-      caregiverId: row.id,
+      caregiverId: row.id as string,
       score: Number(row.compliance_score) || 0,
       matchReasons: [],
       blockers: [],
