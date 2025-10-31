@@ -13,3 +13,4 @@ npm run build
 npm run lint
 npm run typecheck
 npm test
+npm run snyk
