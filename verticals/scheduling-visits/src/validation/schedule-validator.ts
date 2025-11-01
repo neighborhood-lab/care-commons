@@ -9,7 +9,7 @@ import { z } from 'zod';
 // Base validators
 const uuidSchema = z.string().uuid();
 const dateSchema = z.coerce.date();
-const timeSchema = z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, 'Must be in HH:MM format');
+const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Must be in HH:MM format');
 
 // Enums
 const patternTypeSchema = z.enum([
@@ -122,7 +122,7 @@ export const signatureDataSchema = z.object({
   signatureImageUrl: z.string().url().optional(),
   signatureDataUrl: z.string().optional(),
   deviceId: z.string().optional(),
-  ipAddress: z.string().regex(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, 'Invalid IP address').optional(),
+  ipAddress: z.string().regex(/^(\d{1,3}\.){3}\d{1,3}$/, 'Invalid IP address').optional(),
 });
 
 // Input validators
@@ -323,39 +323,39 @@ export const caregiverAvailabilityQuerySchema = z.object({
  */
 
 export class ScheduleValidator {
-  static validateServicePattern(input: unknown) {
+  static validateServicePattern(input: unknown): z.infer<typeof createServicePatternInputSchema> {
     return createServicePatternInputSchema.parse(input);
   }
 
-  static validateUpdatePattern(input: unknown) {
+  static validateUpdatePattern(input: unknown): z.infer<typeof updateServicePatternInputSchema> {
     return updateServicePatternInputSchema.parse(input);
   }
 
-  static validateVisit(input: unknown) {
+  static validateVisit(input: unknown): z.infer<typeof createVisitInputSchema> {
     return createVisitInputSchema.parse(input);
   }
 
-  static validateAssignment(input: unknown) {
+  static validateAssignment(input: unknown): z.infer<typeof assignVisitInputSchema> {
     return assignVisitInputSchema.parse(input);
   }
 
-  static validateStatusUpdate(input: unknown) {
+  static validateStatusUpdate(input: unknown): z.infer<typeof updateVisitStatusInputSchema> {
     return updateVisitStatusInputSchema.parse(input);
   }
 
-  static validateCompletion(input: unknown) {
+  static validateCompletion(input: unknown): z.infer<typeof completeVisitInputSchema> {
     return completeVisitInputSchema.parse(input);
   }
 
-  static validateGenerationOptions(input: unknown) {
+  static validateGenerationOptions(input: unknown): z.infer<typeof scheduleGenerationOptionsSchema> {
     return scheduleGenerationOptionsSchema.parse(input);
   }
 
-  static validateSearchFilters(input: unknown) {
+  static validateSearchFilters(input: unknown): z.infer<typeof visitSearchFiltersSchema> {
     return visitSearchFiltersSchema.parse(input);
   }
 
-  static validateAvailabilityQuery(input: unknown) {
+  static validateAvailabilityQuery(input: unknown): z.infer<typeof caregiverAvailabilityQuerySchema> {
     return caregiverAvailabilityQuerySchema.parse(input);
   }
 }
