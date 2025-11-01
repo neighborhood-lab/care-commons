@@ -335,13 +335,9 @@ export abstract class Repository<T extends Entity> {
         userId: row['user_id'] as string,
         operation: row['operation'] as 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE',
         changes: JSON.parse(row['changes'] as string),
+        ipAddress: row['ip_address'] as string | null,
+        userAgent: row['user_agent'] as string | null,
       };
-      if (row['ip_address']) {
-        revision.ipAddress = row['ip_address'] as string;
-      }
-      if (row['user_agent']) {
-        revision.userAgent = row['user_agent'] as string;
-      }
       return revision;
     });
   }
