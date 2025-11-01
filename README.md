@@ -1,5 +1,9 @@
 # Care Commons
 
+[![CI](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml/badge.svg)](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/neighborhood-lab/care-commons/branch/main/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/care-commons)
+[![Known Vulnerabilities](https://snyk.io/test/github/neighborhood-lab/care-commons/badge.svg)](https://snyk.io/test/github/neighborhood-lab/care-commons)
+
 > Shared care software, community owned.
 
 **Care Commons** is a modular, self-hostable software platform designed to support the administration and daily operations of home-based care services. Built by the people at **Neighborhood Lab**.
@@ -146,12 +150,26 @@ npm run build
 # Run tests
 npm test
 
+# Run tests with coverage
+npm run test:coverage
+
 # Type checking
 npm run typecheck
 
 # Lint code
 npm run lint
 ```
+
+### Code Coverage
+
+This project uses Codecov for tracking code coverage. Coverage reports are automatically generated and uploaded during CI runs. The project maintains a minimum coverage threshold of 70% across all packages.
+
+To generate coverage reports locally:
+```bash
+npm run test:coverage
+```
+
+Coverage reports are available in the `coverage/` directory of each package.
 
 ## GitHub Actions
 

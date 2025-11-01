@@ -9,6 +9,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts --max-warnings 0"
   },
@@ -27,6 +28,7 @@
     "@typescript-eslint/parser": "^8.46.2",
     "eslint": "^9.39.0",
     "typescript": "^5.9.3",
+    "@vitest/coverage-v8": "^4.0.6",
     "vitest": "^4.0.6"
   },
   "keywords": [

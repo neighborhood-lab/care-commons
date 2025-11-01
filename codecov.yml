@@ -1,0 +1,38 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  
+  status:
+    project:
+      default:
+        target: 70%
+        threshold: 1%
+        if_ci_failed: error
+    
+    patch:
+      default:
+        target: 70%
+        threshold: 5%
+
+comment:
+  layout: "reach,diff,flags,tree,footer"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+ignore:
+  - "**/__tests__/**"
+  - "**/__mocks__/**"
+  - "**/*.d.ts"
+  - "**/index.ts"
+  - "scripts/**"
+  - "migrations/**"
+  - "**/*.config.ts"
+  - "**/*.config.js"
