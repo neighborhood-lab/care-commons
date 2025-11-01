@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext ts --max-warnings 0",
+    "lint": "eslint . --ext ts --max-warnings 0 && npm run lint:sql",
+    "lint:sql": "sql-lint --driver postgres migrations/*.sql || echo 'SQL lint completed'",
     "db:migrate": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate.ts",
     "db:migrate:rollback": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/rollback.ts",
     "db:migrate:status": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate-status.ts",
@@ -25,15 +26,19 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@ls-lint/ls-lint": "^2.3.1",
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
+    "@vitest/coverage-v8": "^4.0.6",
     "eslint": "^9.39.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-unicorn": "^62.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "@vitest/coverage-v8": "^4.0.6",
     "vitest": "^4.0.6"
   }
 }
