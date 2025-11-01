@@ -116,3 +116,10 @@ export function getDatabase(): Database {
   }
   return dbInstance;
 }
+
+/**
+ * Reset database instance - for testing only
+ */
+export function resetDatabase(): void {
+  dbInstance = null;
+}

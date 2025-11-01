@@ -410,6 +410,43 @@ describe('Repository Pattern', () => {
         repository.update('test-id', { version: 1 }, mockUserContext)
       ).rejects.toThrow(ConflictError);
     });
+
+    it('should throw ConflictError when update query returns no rows', async () => {
+      const mockFindResult = {
+        rows: [{
+          id: 'test-id',
+          name: 'Old Name',
+          email: 'old@example.com',
+          status: 'ACTIVE',
+          created_at: new Date(),
+          created_by: 'user-id',
+          updated_at: new Date(),
+          updated_by: 'user-id',
+          version: 1,
+        }],
+        rowCount: 1,
+        command: 'SELECT' as const,
+        oid: 0,
+        fields: [],
+      };
+
+      const mockUpdateResult = {
+        rows: [],
+        rowCount: 0,
+        command: 'UPDATE' as const,
+        oid: 0,
+        fields: [],
+      };
+
+      mockDatabase.query
+        .mockResolvedValueOnce(mockFindResult) // findById
+        .mockResolvedValueOnce(mockUpdateResult); // UPDATE (empty result)
+
+      await expect(
+        repository.update('test-id', { name: 'New Name', version: 1 }, mockUserContext)
+      ).rejects.toThrow(ConflictError);
+      expect(mockDatabase.query).toHaveBeenCalledTimes(2); // findById + UPDATE
+    });
   });
 
   describe('Delete Operations', () => {
@@ -446,6 +483,17 @@ describe('Repository Pattern', () => {
       );
 
       expect(mockDatabase.query).toHaveBeenCalledTimes(3); // findById + UPDATE + audit
+    });
+
+    it('should throw error when soft delete is disabled', async () => {
+      const repo = new TestRepository({
+        tableName: 'test_entities',
+        database: mockDatabase as any,
+        enableSoftDelete: false,
+      });
+
+      await expect(repo.delete('test-id', mockUserContext))
+        .rejects.toThrow('Hard delete not supported. Use deleteHard() instead.');
     });
 
     it('should throw NotFoundError when deleting non-existent entity', async () => {
@@ -512,6 +560,128 @@ describe('Repository Pattern', () => {
 
       expect(history).toEqual([]);
       expect(mockDatabase.query).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Repository Configuration Edge Cases', () => {
+    it('should work with audit disabled', async () => {
+      const repo = new TestRepository({
+        tableName: 'test_entities',
+        database: mockDatabase as any,
+        enableAudit: false,
+      });
+
+      const entityData = {
+        name: 'Test Entity',
+        email: TEST_EMAIL,
+        status: 'ACTIVE' as const,
+      };
+
+      const mockResult = {
+        rows: [{
+          id: 'test-entity-id',
+          name: 'Test Entity',
+          email: TEST_EMAIL,
+          status: 'ACTIVE',
+          created_at: new Date(),
+          created_by: mockUserContext.userId,
+          updated_at: new Date(),
+          updated_by: mockUserContext.userId,
+          version: 1,
+          deleted_at: null,
+          deleted_by: null,
+        }],
+        rowCount: 1,
+        command: 'INSERT' as const,
+        oid: 0,
+        fields: [],
+      };
+
+      mockDatabase.query.mockResolvedValue(mockResult);
+
+      const result = await repo.create(entityData, mockUserContext);
+
+      expect(mockDatabase.query).toHaveBeenCalledTimes(1); // Only INSERT, no audit
+      expect(result).toBeTruthy();
+    });
+
+    it('should work with soft delete disabled', async () => {
+      const repo = new TestRepository({
+        tableName: 'test_entities',
+        database: mockDatabase as any,
+        enableSoftDelete: false,
+      });
+
+      // Test that findById query doesn't include soft delete condition
+      const mockResult = {
+        rows: [{
+          id: 'test-id',
+          name: 'Test Entity',
+          email: 'test@example.com',
+          status: 'ACTIVE',
+          created_at: new Date(),
+          created_by: 'user-id',
+          updated_at: new Date(),
+          updated_by: 'user-id',
+          version: 1,
+        }],
+        rowCount: 1,
+        command: 'SELECT' as const,
+        oid: 0,
+        fields: [],
+      };
+
+      mockDatabase.query.mockResolvedValue(mockResult);
+
+      const result = await repo.findById('test-id');
+
+      expect(mockDatabase.query).toHaveBeenCalledWith(
+        'SELECT * FROM test_entities WHERE id = $1', // No deleted_at condition
+        ['test-id']
+      );
+      expect(result).toBeTruthy();
+    });
+  });
+
+  describe('Edge Cases and Error Scenarios', () => {
+    it('should throw error when create query returns no rows', async () => {
+      const entityData = {
+        name: 'Test Entity',
+        email: TEST_EMAIL,
+        status: 'ACTIVE' as const,
+      };
+
+      const mockResult = {
+        rows: [], // No rows returned
+        rowCount: 0,
+        command: 'INSERT' as const,
+        oid: 0,
+        fields: [],
+      };
+
+      mockDatabase.query.mockResolvedValue(mockResult);
+
+      await expect(repository.create(entityData, mockUserContext))
+        .rejects.toThrow('Create failed - no row returned');
+    });
+
+    it('should throw error when findAll count query returns no rows', async () => {
+      const mockCountResult = { 
+        rows: [], // No rows returned from count query
+        rowCount: 0,
+        command: 'SELECT' as const,
+        oid: 0,
+        fields: [],
+      };
+
+      mockDatabase.query.mockResolvedValueOnce(mockCountResult);
+
+      await expect(repository.findAll({
+        page: 1,
+        limit: 10,
+        sortBy: 'name',
+        sortOrder: 'asc',
+      })).rejects.toThrow('Count query returned no rows');
     });
   });
 });
