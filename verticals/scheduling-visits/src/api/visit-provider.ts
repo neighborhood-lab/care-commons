@@ -50,12 +50,17 @@ export class VisitProvider implements IVisitProvider {
     }
 
     // Validate visit has required data for EVV
+<<<<<<< HEAD
+=======
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- database JSONB field may be null
+>>>>>>> 8bd6455186eee93501a56c1f98b82bd1b157d1ed
     if (visit.address == null) {
       throw new ValidationError('Visit does not have a service address', { visitId });
     }
 
     // Validate address has required geolocation data
     if (visit.address.latitude == null || visit.address.longitude == null) {
+<<<<<<< HEAD
       throw new ValidationError(
         'Visit address does not have required geolocation data',
         { visitId }
@@ -65,6 +70,8 @@ export class VisitProvider implements IVisitProvider {
     // Validate address has required geolocation data
     if (visit.address.latitude === null || visit.address.latitude === undefined ||
         visit.address.longitude === null || visit.address.longitude === undefined) {
+=======
+>>>>>>> 8bd6455186eee93501a56c1f98b82bd1b157d1ed
       throw new ValidationError(
         'Visit address must be geocoded before EVV operations',
         { visitId, address: visit.address }
@@ -150,7 +157,7 @@ export class VisitProvider implements IVisitProvider {
     }
 
     // Check if visit is assigned to this caregiver
-    if (visit.assignedCaregiverId === null || visit.assignedCaregiverId === undefined) {
+    if (visit.assignedCaregiverId == null) {
       throw new ValidationError('Visit is not assigned to any caregiver', { visitId });
     }
 
@@ -208,7 +215,7 @@ export class VisitProvider implements IVisitProvider {
     }
 
     // Check if visit is assigned to this caregiver
-    if (visit.assignedCaregiverId === null || visit.assignedCaregiverId === undefined) {
+    if (visit.assignedCaregiverId == null) {
       throw new ValidationError('Visit is not assigned to any caregiver', { visitId });
     }
 
@@ -269,7 +276,12 @@ export class VisitProvider implements IVisitProvider {
    * Private helper: Generate deterministic address ID
    * 
    * Creates a consistent UUID based on address components for geofence tracking.
+<<<<<<< HEAD
    * FIXME: Replace with actual address table lookup once address management is implemented.
+=======
+   * NOTE: This is a temporary implementation. Replace with actual address table lookup
+   * once address management is implemented.
+>>>>>>> 8bd6455186eee93501a56c1f98b82bd1b157d1ed
    */
   private generateAddressId(address: { line1: string; city: string; state: string; postalCode: string }): UUID {
     // Create deterministic ID from address components
@@ -291,7 +303,11 @@ export class VisitProvider implements IVisitProvider {
    * Private helper: Fetch client data from database
    * 
    * This is a temporary implementation that queries basic client data.
+<<<<<<< HEAD
    * FIXME: Replace with IClientProvider once client-demographics API is implemented.
+=======
+   * NOTE: Replace with IClientProvider once client-demographics API is implemented.
+>>>>>>> 8bd6455186eee93501a56c1f98b82bd1b157d1ed
    */
   private async getClientData(clientId: UUID): Promise<{
     name: string;
@@ -323,6 +339,7 @@ export class VisitProvider implements IVisitProvider {
 
     const row = result.rows[0];
     
+<<<<<<< HEAD
     // FIXME: Fetch authorization data from care plans once that integration is complete
     return {
       name: `${row.first_name} ${row.last_name}`,
@@ -333,6 +350,18 @@ export class VisitProvider implements IVisitProvider {
       authorizedStartDate: undefined, // FIXME: Get from care plan
       authorizedEndDate: undefined, // FIXME: Get from care plan
       fundingSource: row.state_code !== undefined ? `${row.state_code}_MEDICAID` : undefined,
+=======
+    // NOTE: Fetch authorization data from care plans once that integration is complete
+    return {
+      name: `${row.first_name} ${row.last_name}`,
+      medicaidId: row.medicaid_id,
+      serviceTypeCode: undefined, // Get from service type lookup
+      authorizationId: undefined, // Get from care plan
+      authorizedUnits: undefined, // Get from care plan
+      authorizedStartDate: undefined, // Get from care plan
+      authorizedEndDate: undefined, // Get from care plan
+      fundingSource: (row.state_code != null) ? `${row.state_code}_MEDICAID` : undefined,
+>>>>>>> 8bd6455186eee93501a56c1f98b82bd1b157d1ed
       carePlanId: row.active_care_plan_id,
     };
   }
