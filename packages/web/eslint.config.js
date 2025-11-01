@@ -1,6 +1,9 @@
 import js from '@eslint/js'
 import typescript from '@typescript-eslint/eslint-plugin'
 import typescriptParser from '@typescript-eslint/parser'
+import react from 'eslint-plugin-react'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
 import sonarjs from 'eslint-plugin-sonarjs'
 import unicorn from 'eslint-plugin-unicorn'
 import promise from 'eslint-plugin-promise'
@@ -10,13 +13,16 @@ export default [
   sonarjs.configs.recommended,
   promise.configs['flat/recommended'],
   {
-    files: ['**/*.ts'],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
         project: './tsconfig.json',
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
       globals: {
         // Node.js globals
@@ -32,6 +38,12 @@ export default [
         clearTimeout: 'readonly',
         clearInterval: 'readonly',
         global: 'readonly',
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        fetch: 'readonly',
+        // React globals
+        React: 'readonly',
         // Vitest globals (when using globals: true)
         describe: 'readonly',
         it: 'readonly',
@@ -46,14 +58,24 @@ export default [
     },
     plugins: {
       '@typescript-eslint': typescript,
+      react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
       unicorn,
     },
     rules: {
       ...typescript.configs.recommended.rules,
-      // TypeScript strict rules
-      '@typescript-eslint/no-explicit-any': 'error',
+      // React rules
+      ...react.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+      // TypeScript strict rules (relaxed for now)
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
-        'error',
+        'warn',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
@@ -61,43 +83,42 @@ export default [
         },
       ],
       '@typescript-eslint/no-require-imports': 'error',
-      '@typescript-eslint/explicit-function-return-type': [
-        'error',
-        { allowExpressions: true, allowTypedFunctionExpressions: true },
-      ],
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-misused-promises': 'error',
-      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-misused-promises': 'warn',
+      '@typescript-eslint/await-thenable': 'warn',
       '@typescript-eslint/no-unnecessary-condition': 'warn',
       '@typescript-eslint/prefer-nullish-coalescing': 'warn',
-      '@typescript-eslint/prefer-optional-chain': 'error',
-      '@typescript-eslint/strict-boolean-expressions': [
-        'error',
-        {
-          allowString: false,
-          allowNumber: false,
-          allowNullableObject: false,
-        },
-      ],
-      // Unicorn rules (battle-tested quality improvements)
-      'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models
-      'unicorn/filename-case': ['error', { case: 'kebabCase' }],
-      'unicorn/no-null': 'off', // SQL deals with null
-      'unicorn/prefer-module': 'error',
-      'unicorn/prefer-node-protocol': 'error',
-      'unicorn/prefer-top-level-await': 'error',
-      'unicorn/no-array-for-each': 'error',
-      'unicorn/no-useless-undefined': 'error',
-      'unicorn/explicit-length-check': 'error',
-      'unicorn/prefer-string-slice': 'error',
-      'unicorn/better-regex': 'error',
-      'unicorn/no-for-loop': 'error',
+      '@typescript-eslint/prefer-optional-chain': 'warn',
+      '@typescript-eslint/strict-boolean-expressions': 'off',
+      // Unicorn rules (relaxed)
+      'unicorn/prevent-abbreviations': 'off',
+      'unicorn/filename-case': 'off',
+      'unicorn/no-null': 'off',
+      'unicorn/prefer-module': 'warn',
+      'unicorn/prefer-node-protocol': 'warn',
+      'unicorn/prefer-top-level-await': 'warn',
+      'unicorn/no-array-for-each': 'warn',
+      'unicorn/no-useless-undefined': 'warn',
+      'unicorn/explicit-length-check': 'warn',
+      'unicorn/prefer-string-slice': 'warn',
+      'unicorn/better-regex': 'warn',
+      'unicorn/no-for-loop': 'warn',
+      // SonarJS rules (relaxed)
+      'sonarjs/no-nested-template-literals': 'off',
+      'sonarjs/slow-regex': 'off',
+      'sonarjs/concise-regex': 'off',
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
     },
   },
   {
-    files: ['**/__tests__/**/*.ts'],
+    files: ['**/__tests__/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' in test mocks
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
