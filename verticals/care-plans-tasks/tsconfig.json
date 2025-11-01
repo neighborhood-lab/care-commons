@@ -6,10 +6,20 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "types": ["vitest/globals"]
+    "types": [
+      "vitest/globals"
+    ]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "references": [
-    { "path": "../../packages/core" }
+    {
+      "path": "../../packages/core"
+    }
   ]
 }
