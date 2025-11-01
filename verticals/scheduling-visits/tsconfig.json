@@ -2,24 +2,14 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "types": [
-      "vitest/globals"
-    ]
+    "isolatedModules": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
+  "include": ["src/**/*", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist"],
   "references": [
-    {
-      "path": "../../packages/core"
-    }
+    { "path": "../../packages/core" }
   ]
 }
