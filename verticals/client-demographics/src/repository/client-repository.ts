@@ -19,7 +19,19 @@ export class ClientRepository extends Repository<Client> {
    * Map database row to Client entity
    */
   protected mapRowToEntity(row: Record<string, unknown>): Client {
-    const entity: Client = {
+    const entity: Client = this.mapRequiredFields(row);
+    this.mapOptionalPersonalFields(row, entity);
+    this.mapOptionalContactFields(row, entity);
+    this.mapOptionalMedicalFields(row, entity);
+    this.mapOptionalAdministrativeFields(row, entity);
+    return entity;
+  }
+
+  /**
+   * Map required client fields from database row
+   */
+  private mapRequiredFields(row: Record<string, unknown>): Client {
+    return {
       id: row['id'] as string,
       organizationId: row['organization_id'] as string,
       branchId: row['branch_id'] as string,
@@ -28,11 +40,11 @@ export class ClientRepository extends Repository<Client> {
       lastName: row['last_name'] as string,
       dateOfBirth: row['date_of_birth'] as Date,
       primaryAddress: JSON.parse(row['primary_address'] as string),
-      emergencyContacts: JSON.parse((row['emergency_contacts'] as string) || '[]'),
-      authorizedContacts: JSON.parse((row['authorized_contacts'] as string) || '[]'),
-      programs: JSON.parse((row['programs'] as string) || '[]'),
+      emergencyContacts: JSON.parse((row['emergency_contacts'] as string | null) ?? '[]'),
+      authorizedContacts: JSON.parse((row['authorized_contacts'] as string | null) ?? '[]'),
+      programs: JSON.parse((row['programs'] as string | null) ?? '[]'),
       serviceEligibility: JSON.parse(row['service_eligibility'] as string),
-      riskFlags: JSON.parse((row['risk_flags'] as string) || '[]'),
+      riskFlags: JSON.parse((row['risk_flags'] as string | null) ?? '[]'),
       status: row['status'] as ClientStatus,
       createdAt: row['created_at'] as Date,
       createdBy: row['created_by'] as string,
@@ -42,8 +54,12 @@ export class ClientRepository extends Repository<Client> {
       deletedAt: row['deleted_at'] as Date | null,
       deletedBy: row['deleted_by'] as string | null,
     };
+  }
 
-    // Handle optional properties properly for exactOptionalPropertyTypes
+  /**
+   * Map optional personal and demographic fields
+   */
+  private mapOptionalPersonalFields(row: Record<string, unknown>, entity: Client): void {
     const middleName = row['middle_name'] as string | undefined;
     if (middleName !== undefined) entity.middleName = middleName;
 
@@ -59,6 +75,26 @@ export class ClientRepository extends Repository<Client> {
     const pronouns = row['pronouns'] as string | undefined;
     if (pronouns !== undefined) entity.pronouns = pronouns;
 
+    const language = row['language'] as string | undefined;
+    if (language !== undefined) entity.language = language;
+
+    const ethnicity = row['ethnicity'] as string | undefined;
+    if (ethnicity !== undefined) entity.ethnicity = ethnicity;
+
+    const race = row['race'] as string | undefined;
+    if (race !== undefined) entity.race = JSON.parse(race);
+
+    const maritalStatus = row['marital_status'] as MaritalStatus | undefined;
+    if (maritalStatus !== undefined) entity.maritalStatus = maritalStatus;
+
+    const veteranStatus = row['veteran_status'] as boolean | undefined;
+    if (veteranStatus !== undefined) entity.veteranStatus = veteranStatus;
+  }
+
+  /**
+   * Map optional contact fields
+   */
+  private mapOptionalContactFields(row: Record<string, unknown>, entity: Client): void {
     const primaryPhone = row['primary_phone'] as string | undefined;
     if (primaryPhone !== undefined) entity.primaryPhone = JSON.parse(primaryPhone);
 
@@ -74,21 +110,6 @@ export class ClientRepository extends Repository<Client> {
     const communicationPreferences = row['communication_preferences'] as string | undefined;
     if (communicationPreferences !== undefined) entity.communicationPreferences = JSON.parse(communicationPreferences);
 
-    const language = row['language'] as string | undefined;
-    if (language !== undefined) entity.language = language;
-
-    const ethnicity = row['ethnicity'] as string | undefined;
-    if (ethnicity !== undefined) entity.ethnicity = ethnicity;
-
-    const race = row['race'] as string | undefined;
-    if (race !== undefined) entity.race = JSON.parse(race);
-
-    const maritalStatus = row['marital_status'] as MaritalStatus | undefined;
-    if (maritalStatus !== undefined) entity.maritalStatus = maritalStatus;
-
-    const veteranStatus = row['veteran_status'] as boolean | undefined;
-    if (veteranStatus !== undefined) entity.veteranStatus = veteranStatus;
-
     const secondaryAddresses = row['secondary_addresses'] as string | undefined;
     if (secondaryAddresses !== undefined) entity.secondaryAddresses = JSON.parse(secondaryAddresses);
 
@@ -98,6 +119,14 @@ export class ClientRepository extends Repository<Client> {
     const mobilityInfo = row['mobility_info'] as string | undefined;
     if (mobilityInfo !== undefined) entity.mobilityInfo = JSON.parse(mobilityInfo);
 
+    const accessInstructions = row['access_instructions'] as string | undefined;
+    if (accessInstructions !== undefined) entity.accessInstructions = accessInstructions;
+  }
+
+  /**
+   * Map optional medical fields
+   */
+  private mapOptionalMedicalFields(row: Record<string, unknown>, entity: Client): void {
     const primaryPhysician = row['primary_physician'] as string | undefined;
     if (primaryPhysician !== undefined) entity.primaryPhysician = JSON.parse(primaryPhysician);
 
@@ -118,10 +147,12 @@ export class ClientRepository extends Repository<Client> {
 
     const specialInstructions = row['special_instructions'] as string | undefined;
     if (specialInstructions !== undefined) entity.specialInstructions = specialInstructions;
+  }
 
-    const accessInstructions = row['access_instructions'] as string | undefined;
-    if (accessInstructions !== undefined) entity.accessInstructions = accessInstructions;
-
+  /**
+   * Map optional administrative and status fields
+   */
+  private mapOptionalAdministrativeFields(row: Record<string, unknown>, entity: Client): void {
     const intakeDate = row['intake_date'] as Date | undefined;
     if (intakeDate !== undefined) entity.intakeDate = intakeDate;
 
@@ -139,8 +170,6 @@ export class ClientRepository extends Repository<Client> {
 
     const customFields = row['custom_fields'] as string | undefined;
     if (customFields !== undefined) entity.customFields = JSON.parse(customFields);
-
-    return entity;
   }
 
   /**
@@ -149,6 +178,21 @@ export class ClientRepository extends Repository<Client> {
   protected mapEntityToRow(entity: Partial<Client>): Record<string, unknown> {
     const row: Record<string, unknown> = {};
 
+    this.mapBasicFields(entity, row);
+    this.mapContactFields(entity, row);
+    this.mapDemographicFields(entity, row);
+    this.mapAddressFields(entity, row);
+    this.mapMedicalFields(entity, row);
+    this.mapProgramFields(entity, row);
+    this.mapStatusFields(entity, row);
+
+    return row;
+  }
+
+  /**
+   * Map basic identification fields
+   */
+  private mapBasicFields(entity: Partial<Client>, row: Record<string, unknown>): void {
     if (entity.organizationId !== undefined) row['organization_id'] = entity.organizationId;
     if (entity.branchId !== undefined) row['branch_id'] = entity.branchId;
     if (entity.clientNumber !== undefined) row['client_number'] = entity.clientNumber;
@@ -158,8 +202,12 @@ export class ClientRepository extends Repository<Client> {
     if (entity.preferredName !== undefined) row['preferred_name'] = entity.preferredName;
     if (entity.dateOfBirth !== undefined) row['date_of_birth'] = entity.dateOfBirth;
     if (entity.ssn !== undefined) row['ssn'] = entity.ssn;
-    if (entity.gender !== undefined) row['gender'] = entity.gender;
-    if (entity.pronouns !== undefined) row['pronouns'] = entity.pronouns;
+  }
+
+  /**
+   * Map contact and communication fields
+   */
+  private mapContactFields(entity: Partial<Client>, row: Record<string, unknown>): void {
     if (entity.primaryPhone !== undefined)
       row['primary_phone'] = JSON.stringify(entity.primaryPhone);
     if (entity.alternatePhone !== undefined)
@@ -169,11 +217,29 @@ export class ClientRepository extends Repository<Client> {
       row['preferred_contact_method'] = entity.preferredContactMethod;
     if (entity.communicationPreferences !== undefined)
       row['communication_preferences'] = JSON.stringify(entity.communicationPreferences);
+    if (entity.emergencyContacts !== undefined)
+      row['emergency_contacts'] = JSON.stringify(entity.emergencyContacts);
+    if (entity.authorizedContacts !== undefined)
+      row['authorized_contacts'] = JSON.stringify(entity.authorizedContacts);
+  }
+
+  /**
+   * Map demographic fields
+   */
+  private mapDemographicFields(entity: Partial<Client>, row: Record<string, unknown>): void {
+    if (entity.gender !== undefined) row['gender'] = entity.gender;
+    if (entity.pronouns !== undefined) row['pronouns'] = entity.pronouns;
     if (entity.language !== undefined) row['language'] = entity.language;
     if (entity.ethnicity !== undefined) row['ethnicity'] = entity.ethnicity;
     if (entity.race !== undefined) row['race'] = JSON.stringify(entity.race);
     if (entity.maritalStatus !== undefined) row['marital_status'] = entity.maritalStatus;
     if (entity.veteranStatus !== undefined) row['veteran_status'] = entity.veteranStatus;
+  }
+
+  /**
+   * Map address and living situation fields
+   */
+  private mapAddressFields(entity: Partial<Client>, row: Record<string, unknown>): void {
     if (entity.primaryAddress !== undefined)
       row['primary_address'] = JSON.stringify(entity.primaryAddress);
     if (entity.secondaryAddresses !== undefined)
@@ -182,27 +248,41 @@ export class ClientRepository extends Repository<Client> {
       row['living_arrangement'] = JSON.stringify(entity.livingArrangement);
     if (entity.mobilityInfo !== undefined)
       row['mobility_info'] = JSON.stringify(entity.mobilityInfo);
-    if (entity.emergencyContacts !== undefined)
-      row['emergency_contacts'] = JSON.stringify(entity.emergencyContacts);
-    if (entity.authorizedContacts !== undefined)
-      row['authorized_contacts'] = JSON.stringify(entity.authorizedContacts);
+    if (entity.accessInstructions !== undefined)
+      row['access_instructions'] = entity.accessInstructions;
+  }
+
+  /**
+   * Map medical and health-related fields
+   */
+  private mapMedicalFields(entity: Partial<Client>, row: Record<string, unknown>): void {
     if (entity.primaryPhysician !== undefined)
       row['primary_physician'] = JSON.stringify(entity.primaryPhysician);
     if (entity.pharmacy !== undefined) row['pharmacy'] = JSON.stringify(entity.pharmacy);
     if (entity.insurance !== undefined) row['insurance'] = JSON.stringify(entity.insurance);
     if (entity.medicalRecordNumber !== undefined)
       row['medical_record_number'] = entity.medicalRecordNumber;
+    if (entity.allergies !== undefined) row['allergies'] = JSON.stringify(entity.allergies);
+    if (entity.riskFlags !== undefined) row['risk_flags'] = JSON.stringify(entity.riskFlags);
+    if (entity.specialInstructions !== undefined)
+      row['special_instructions'] = entity.specialInstructions;
+  }
+
+  /**
+   * Map program and service fields
+   */
+  private mapProgramFields(entity: Partial<Client>, row: Record<string, unknown>): void {
     if (entity.programs !== undefined) row['programs'] = JSON.stringify(entity.programs);
     if (entity.serviceEligibility !== undefined)
       row['service_eligibility'] = JSON.stringify(entity.serviceEligibility);
     if (entity.fundingSources !== undefined)
       row['funding_sources'] = JSON.stringify(entity.fundingSources);
-    if (entity.riskFlags !== undefined) row['risk_flags'] = JSON.stringify(entity.riskFlags);
-    if (entity.allergies !== undefined) row['allergies'] = JSON.stringify(entity.allergies);
-    if (entity.specialInstructions !== undefined)
-      row['special_instructions'] = entity.specialInstructions;
-    if (entity.accessInstructions !== undefined)
-      row['access_instructions'] = entity.accessInstructions;
+  }
+
+  /**
+   * Map status and administrative fields
+   */
+  private mapStatusFields(entity: Partial<Client>, row: Record<string, unknown>): void {
     if (entity.status !== undefined) row['status'] = entity.status;
     if (entity.intakeDate !== undefined) row['intake_date'] = entity.intakeDate;
     if (entity.dischargeDate !== undefined) row['discharge_date'] = entity.dischargeDate;
@@ -211,8 +291,6 @@ export class ClientRepository extends Repository<Client> {
     if (entity.notes !== undefined) row['notes'] = entity.notes;
     if (entity.customFields !== undefined)
       row['custom_fields'] = JSON.stringify(entity.customFields);
-
-    return row;
   }
 
   /**
@@ -249,7 +327,7 @@ export class ClientRepository extends Repository<Client> {
     const params: unknown[] = [];
     let paramIndex = 1;
 
-    if (filters.query) {
+    if (typeof filters.query === 'string' && filters.query !== '') {
       whereClauses.push(`(
         first_name ILIKE $${paramIndex} OR 
         last_name ILIKE $${paramIndex} OR 
@@ -259,31 +337,31 @@ export class ClientRepository extends Repository<Client> {
       paramIndex++;
     }
 
-    if (filters.organizationId) {
+    if (typeof filters.organizationId === 'string' && filters.organizationId !== '') {
       whereClauses.push(`organization_id = $${paramIndex}`);
       params.push(filters.organizationId);
       paramIndex++;
     }
 
-    if (filters.branchId) {
+    if (typeof filters.branchId === 'string' && filters.branchId !== '') {
       whereClauses.push(`branch_id = $${paramIndex}`);
       params.push(filters.branchId);
       paramIndex++;
     }
 
-    if (filters.status && filters.status.length > 0) {
+    if (filters.status !== null && filters.status !== undefined && filters.status.length > 0) {
       whereClauses.push(`status = ANY($${paramIndex})`);
       params.push(filters.status);
       paramIndex++;
     }
 
-    if (filters.city) {
+    if (typeof filters.city === 'string' && filters.city !== '') {
       whereClauses.push(`primary_address::jsonb->>'city' ILIKE $${paramIndex}`);
       params.push(`%${filters.city}%`);
       paramIndex++;
     }
 
-    if (filters.state) {
+    if (typeof filters.state === 'string' && filters.state !== '') {
       whereClauses.push(`primary_address::jsonb->>'state' = $${paramIndex}`);
       params.push(filters.state);
       paramIndex++;
