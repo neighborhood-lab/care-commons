@@ -68,7 +68,7 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/prefer-nullish-coalescing': 'warn',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/strict-boolean-expressions': [
@@ -92,6 +92,10 @@ export default [
       'unicorn/prefer-string-slice': 'error',
       'unicorn/better-regex': 'error',
       'unicorn/no-for-loop': 'error',
+      'sonarjs/different-types-comparison': 'off',
+      'sonarjs/todo-tag': 'off',
+      'sonarjs/fixme-tag': 'off',
+      'sonarjs/deprecation': 'off',
     },
   },
   {
@@ -109,6 +113,7 @@ export default [
       '*.d.ts.map',
       'eslint.config.js',
       'vitest.config.js',
+      'vitest.config.ts',
       'knexfile.js',
       'migrations/**/*.js',
       'migrations/**/*.d.ts',

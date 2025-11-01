@@ -122,7 +122,7 @@ export const signatureDataSchema = z.object({
   signatureImageUrl: z.string().url().optional(),
   signatureDataUrl: z.string().optional(),
   deviceId: z.string().optional(),
-  ipAddress: z.string().regex(/^(\d{1,3}\.){3}\d{1,3}$/, 'Invalid IP address').optional(),
+  ipAddress: z.string().regex(/^(\d{1,3}\.){3}\d{1,3}$/).optional(),
 });
 
 // Input validators
@@ -168,13 +168,13 @@ export const createServicePatternInputSchema = z.object({
   caregiverInstructions: z.string().max(2000).optional(),
   notes: z.string().max(2000).optional(),
 }).refine(
-  (data) => !data.effectiveTo || data.effectiveFrom <= data.effectiveTo,
+  (data) => data.effectiveTo === undefined || data.effectiveFrom <= data.effectiveTo,
   {
     message: 'effectiveTo must be after effectiveFrom',
     path: ['effectiveTo'],
   }
 ).refine(
-  (data) => !data.authorizationEndDate || !data.authorizationStartDate || 
+  (data) => data.authorizationEndDate === undefined || data.authorizationStartDate === undefined || 
              data.authorizationStartDate <= data.authorizationEndDate,
   {
     message: 'authorizationEndDate must be after authorizationStartDate',

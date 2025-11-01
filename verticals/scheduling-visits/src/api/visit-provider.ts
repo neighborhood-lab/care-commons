@@ -50,8 +50,16 @@ export class VisitProvider implements IVisitProvider {
     }
 
     // Validate visit has required data for EVV
-    if (visit.address === null || visit.address === undefined) {
+    if (visit.address == null) {
       throw new ValidationError('Visit does not have a service address', { visitId });
+    }
+
+    // Validate address has required geolocation data
+    if (visit.address.latitude == null || visit.address.longitude == null) {
+      throw new ValidationError(
+        'Visit address does not have required geolocation data',
+        { visitId }
+      );
     }
 
     // Validate address has required geolocation data
@@ -261,7 +269,7 @@ export class VisitProvider implements IVisitProvider {
    * Private helper: Generate deterministic address ID
    * 
    * Creates a consistent UUID based on address components for geofence tracking.
-   * TODO: Replace with actual address table lookup once address management is implemented.
+   * FIXME: Replace with actual address table lookup once address management is implemented.
    */
   private generateAddressId(address: { line1: string; city: string; state: string; postalCode: string }): UUID {
     // Create deterministic ID from address components
@@ -275,15 +283,15 @@ export class VisitProvider implements IVisitProvider {
     }, 0);
     
     // Format as UUID (not cryptographically secure, just deterministic)
-    const hashStr = Math.abs(hash).toString(16).padStart(32, '0').substring(0, 32);
-    return `${hashStr.substring(0, 8)}-${hashStr.substring(8, 12)}-${hashStr.substring(12, 16)}-${hashStr.substring(16, 20)}-${hashStr.substring(20, 32)}` as UUID;
+    const hashStr = Math.abs(hash).toString(16).padStart(32, '0').slice(0, 32);
+    return `${hashStr.slice(0, 8)}-${hashStr.slice(8, 12)}-${hashStr.slice(12, 16)}-${hashStr.slice(16, 20)}-${hashStr.slice(20, 32)}` as UUID;
   }
 
   /**
    * Private helper: Fetch client data from database
    * 
    * This is a temporary implementation that queries basic client data.
-   * TODO: Replace with IClientProvider once client-demographics API is implemented.
+   * FIXME: Replace with IClientProvider once client-demographics API is implemented.
    */
   private async getClientData(clientId: UUID): Promise<{
     name: string;
@@ -315,16 +323,16 @@ export class VisitProvider implements IVisitProvider {
 
     const row = result.rows[0];
     
-    // TODO: Fetch authorization data from care plans once that integration is complete
+    // FIXME: Fetch authorization data from care plans once that integration is complete
     return {
       name: `${row.first_name} ${row.last_name}`,
       medicaidId: row.medicaid_id,
-      serviceTypeCode: undefined, // TODO: Get from service type lookup
-      authorizationId: undefined, // TODO: Get from care plan
-      authorizedUnits: undefined, // TODO: Get from care plan
-      authorizedStartDate: undefined, // TODO: Get from care plan
-      authorizedEndDate: undefined, // TODO: Get from care plan
-      fundingSource: row.state_code ? `${row.state_code}_MEDICAID` : undefined,
+      serviceTypeCode: undefined, // FIXME: Get from service type lookup
+      authorizationId: undefined, // FIXME: Get from care plan
+      authorizedUnits: undefined, // FIXME: Get from care plan
+      authorizedStartDate: undefined, // FIXME: Get from care plan
+      authorizedEndDate: undefined, // FIXME: Get from care plan
+      fundingSource: row.state_code !== undefined ? `${row.state_code}_MEDICAID` : undefined,
       carePlanId: row.active_care_plan_id,
     };
   }

@@ -84,8 +84,16 @@ export class ScheduleService {
     this.checkPermission(context, 'schedules:read');
 
     const pattern = await this.repository.getServicePatternById(id);
-    if (!pattern) {
+    if (pattern === null) {
       throw new NotFoundError('Service pattern not found', { id });
+    }
+
+    this.checkOrganizationAccess(context, pattern.organizationId);
+
+    if (pattern.status !== 'ACTIVE') {
+      throw new ValidationError('Can only generate schedule from active patterns', {
+        patternStatus: pattern.status,
+      });
     }
 
     this.checkOrganizationAccess(context, pattern.organizationId);
@@ -101,7 +109,7 @@ export class ScheduleService {
     this.checkPermission(context, 'schedules:update');
 
     const pattern = await this.repository.getServicePatternById(id);
-    if (!pattern) {
+    if (pattern === null) {
       throw new NotFoundError('Service pattern not found', { id });
     }
 
@@ -154,7 +162,7 @@ export class ScheduleService {
     this.checkPermission(context, 'visits:read');
 
     const visit = await this.repository.getVisitById(id);
-    if (!visit) {
+    if (visit === null) {
       throw new NotFoundError('Visit not found', { id });
     }
 
@@ -170,7 +178,7 @@ export class ScheduleService {
     this.checkPermission(context, 'visits:update');
 
     const visit = await this.repository.getVisitById(input.visitId);
-    if (!visit) {
+    if (visit === null) {
       throw new NotFoundError('Visit not found', { visitId: input.visitId });
     }
 
@@ -196,7 +204,7 @@ export class ScheduleService {
     this.checkPermission(context, 'visits:update');
 
     const visit = await this.repository.getVisitById(input.visitId);
-    if (!visit) {
+    if (visit === null) {
       throw new NotFoundError('Visit not found', { visitId: input.visitId });
     }
 
@@ -226,7 +234,7 @@ export class ScheduleService {
     this.checkPermission(context, 'visits:assign');
 
     const visit = await this.repository.getVisitById(input.visitId);
-    if (!visit) {
+    if (visit === null) {
       throw new NotFoundError('Visit not found', { visitId: input.visitId });
     }
 
@@ -273,7 +281,7 @@ export class ScheduleService {
     };
 
     // Enforce branch filtering if user has limited access
-    if (context.roles !== undefined && context.roles !== null && Array.isArray(context.roles) && (context.roles.includes('BRANCH_ADMIN') || context.roles.includes('COORDINATOR'))) {
+    if (context.roles !== undefined && Array.isArray(context.roles) && (context.roles.includes('BRANCH_ADMIN') || context.roles.includes('COORDINATOR'))) {
       orgFilters.branchIds = context.branchIds;
     }
 
@@ -288,7 +296,7 @@ export class ScheduleService {
     this.checkPermission(context, 'visits:read');
     this.checkOrganizationAccess(context, organizationId);
 
-    if (branchId) {
+    if (branchId !== undefined) {
       this.checkBranchAccess(context, branchId);
     }
 
@@ -307,7 +315,7 @@ export class ScheduleService {
     this.checkPermission(context, 'schedules:generate');
 
     const pattern = await this.repository.getServicePatternById(options.patternId);
-    if (!pattern) {
+    if (pattern === null) {
       throw new NotFoundError('Service pattern not found', { patternId: options.patternId });
     }
 
@@ -324,7 +332,7 @@ export class ScheduleService {
       pattern,
       options.startDate,
       options.endDate,
-    options.skipHolidays || false
+    options.skipHolidays ?? false
     );
 
     // Create visits
@@ -356,7 +364,7 @@ export class ScheduleService {
       visits.push(visit);
 
       // Auto-assign if requested and preferred caregivers exist
-      if (options.autoAssign && pattern.preferredCaregivers && pattern.preferredCaregivers.length > 0) {
+      if (options.autoAssign === true && pattern.preferredCaregivers !== undefined && pattern.preferredCaregivers.length > 0) {
         // Try to assign to preferred caregiver
         for (const caregiverId of pattern.preferredCaregivers) {
           try {
@@ -401,36 +409,49 @@ export class ScheduleService {
     );
 
     // If no time specified, just check if any visits exist
-    if (validated.startTime === undefined || validated.startTime === null || validated.endTime === undefined || validated.endTime === null) {
+    if (validated.startTime === undefined || validated.endTime === undefined) {
       return visits.items.length === 0;
     }
 
-    // Check for time conflicts
-    const requestedStart = this.timeToMinutes(validated.startTime);
-    const requestedEnd = this.timeToMinutes(validated.endTime);
+    return this.checkTimeConflicts(validated, visits.items);
+  }
 
-    for (const visit of visits.items) {
-      const visitStart = this.timeToMinutes(visit.scheduledStartTime);
-      const visitEnd = this.timeToMinutes(visit.scheduledEndTime);
+  private checkTimeConflicts(
+    validated: CaregiverAvailabilityQuery,
+    existingVisits: Visit[]
+  ): boolean {
+    const requestedStart = this.timeToMinutes(validated.startTime!);
+    const requestedEnd = this.timeToMinutes(validated.endTime!);
 
-      // Add travel time if requested
-      const travelBefore = validated.includeTravel ? (visit.address ? 30 : 0) : 0;
-      const travelAfter = validated.includeTravel ? (visit.address ? 30 : 0) : 0;
-
-      const effectiveStart = visitStart - travelBefore;
-      const effectiveEnd = visitEnd + travelAfter;
-
-      // Check for overlap
-      if (
-        (requestedStart >= effectiveStart && requestedStart < effectiveEnd) ||
-        (requestedEnd > effectiveStart && requestedEnd <= effectiveEnd) ||
-        (requestedStart <= effectiveStart && requestedEnd >= effectiveEnd)
-      ) {
+    for (const visit of existingVisits) {
+      if (this.hasTimeOverlap(requestedStart, requestedEnd, visit, validated)) {
         return false; // Conflict found
       }
     }
 
     return true; // No conflicts
+  }
+
+  private hasTimeOverlap(
+    requestedStart: number,
+    requestedEnd: number,
+    visit: Visit,
+    validated: CaregiverAvailabilityQuery
+  ): boolean {
+    const visitStart = this.timeToMinutes(visit.scheduledStartTime);
+    const visitEnd = this.timeToMinutes(visit.scheduledEndTime);
+
+    // Add travel time if requested
+    const travelTime = (validated.includeTravel === true && visit.address !== undefined) ? 30 : 0;
+    const effectiveStart = visitStart - travelTime;
+    const effectiveEnd = visitEnd + travelTime;
+
+    // Check for overlap
+    return (
+      (requestedStart >= effectiveStart && requestedStart < effectiveEnd) ||
+      (requestedEnd > effectiveStart && requestedEnd <= effectiveEnd) ||
+      (requestedStart <= effectiveStart && requestedEnd >= effectiveEnd)
+    );
   }
 
   async getCaregiverAvailabilitySlots(
@@ -442,7 +463,7 @@ export class ScheduleService {
     const slots: AvailabilitySlot[] = [];
     const workDayStart = '08:00';
     const workDayEnd = '18:00';
-    const slotDuration = query.duration || 60;
+    const slotDuration = query.duration ?? 60;
 
     let currentTime = workDayStart;
     while (this.timeToMinutes(currentTime) + slotDuration <= this.timeToMinutes(workDayEnd)) {
@@ -461,7 +482,7 @@ export class ScheduleService {
         endTime: endTime,
         isAvailable,
         reason: isAvailable ? undefined : 'Conflicting visit',
-      } as any);
+      } as AvailabilitySlot);
 
       currentTime = endTime;
     }
@@ -486,57 +507,63 @@ export class ScheduleService {
     const finalDate = endOfDay(endDate);
 
     while (isBefore(currentDate, finalDate) || isSameDay(currentDate, finalDate)) {
-      let shouldInclude = false;
-
-      switch (recurrence.frequency) {
-        case 'DAILY':
-          shouldInclude = true;
-          currentDate = addDays(currentDate, recurrence.interval);
-          break;
-
-        case 'WEEKLY':
-        case 'BIWEEKLY':
-          if (recurrence.daysOfWeek) {
-            const dayOfWeek = this.getDayOfWeek(currentDate);
-            shouldInclude = recurrence.daysOfWeek.includes(dayOfWeek);
-          }
-          if (shouldInclude) {
-            dates.push(new Date(currentDate));
-          }
-          currentDate = addDays(currentDate, 1);
-
-          // Skip to next week/biweek at end of week
-          if (this.getDayOfWeek(currentDate) === 'MONDAY' && dates.length > 0) {
-            const weeksToAdd = recurrence.frequency === 'BIWEEKLY' ? 2 : 1;
-            currentDate = addWeeks(currentDate, weeksToAdd - 1);
-          }
-          continue;
-
-        case 'MONTHLY':
-          if (recurrence.datesOfMonth) {
-            const dayOfMonth = currentDate.getDate();
-            shouldInclude = recurrence.datesOfMonth.includes(dayOfMonth);
-          }
-          if (shouldInclude) {
-            dates.push(new Date(currentDate));
-          }
-          currentDate = addDays(currentDate, 1);
-          continue;
-
-        default:
-          currentDate = addDays(currentDate, 1);
-          continue;
-      }
-
-      if (shouldInclude && recurrence.frequency === 'DAILY') {
+      const shouldInclude = this.shouldIncludeDate(currentDate, recurrence);
+      
+      if (shouldInclude) {
         dates.push(new Date(currentDate));
       }
+
+      currentDate = this.calculateNextDate(currentDate, recurrence, dates.length > 0);
     }
 
-    // TODO: Filter holidays if skipHolidays is true
+    // FIXME: Filter holidays if skipHolidays is true
     // Would need holiday calendar service
 
     return dates;
+  }
+
+  private shouldIncludeDate(currentDate: Date, recurrence: { frequency: string; daysOfWeek?: unknown[]; datesOfMonth?: number[] }): boolean {
+    switch (recurrence.frequency) {
+      case 'DAILY':
+        return true;
+      case 'WEEKLY':
+      case 'BIWEEKLY':
+        if (recurrence.daysOfWeek !== undefined) {
+          const dayOfWeek = this.getDayOfWeek(currentDate);
+          return recurrence.daysOfWeek.includes(dayOfWeek);
+        }
+        return false;
+      case 'MONTHLY': {
+        if (recurrence.datesOfMonth !== undefined) {
+          const dayOfMonth = currentDate.getDate();
+          return recurrence.datesOfMonth.includes(dayOfMonth);
+        }
+        return false;
+      }
+      default:
+        return false;
+    }
+  }
+
+  private calculateNextDate(currentDate: Date, recurrence: { frequency: string; interval?: number }, hasDates: boolean): Date {
+    switch (recurrence.frequency) {
+      case 'DAILY':
+        return addDays(currentDate, recurrence.interval ?? 1);
+      case 'WEEKLY':
+      case 'BIWEEKLY': {
+        const nextDay = addDays(currentDate, 1);
+        // Skip to next week/biweek at end of week
+        if (this.getDayOfWeek(nextDay) === 'MONDAY' && hasDates) {
+          const weeksToAdd = recurrence.frequency === 'BIWEEKLY' ? 2 : 1;
+          return addWeeks(nextDay, weeksToAdd - 1);
+        }
+        return nextDay;
+      }
+      case 'MONTHLY':
+        return addDays(currentDate, 1);
+      default:
+        return addDays(currentDate, 1);
+    }
   }
 
   private getDayOfWeek(date: Date): DayOfWeek {
@@ -583,18 +610,18 @@ export class ScheduleService {
 
   private async validatePatternBusinessRules(input: CreateServicePatternInput): Promise<void> {
     // Validate authorization dates
-    if (input.authorizationEndDate !== undefined && input.authorizationEndDate !== null && input.authorizationStartDate !== undefined && input.authorizationStartDate !== null) {
+    if (input.authorizationEndDate !== undefined && input.authorizationStartDate !== undefined) {
       if (isBefore(input.authorizationEndDate, input.authorizationStartDate)) {
         throw new ValidationError('Authorization end date must be after start date');
       }
     }
 
     // Validate recurrence rule
-    if (input.recurrence.frequency === 'WEEKLY' && input.recurrence.daysOfWeek?.length === 0) {
+    if (input.recurrence.frequency === 'WEEKLY' && (input.recurrence.daysOfWeek === undefined || input.recurrence.daysOfWeek.length === 0)) {
       throw new ValidationError('Weekly patterns must specify days of week');
     }
 
-    if (input.recurrence.frequency === 'MONTHLY' && input.recurrence.datesOfMonth?.length === 0) {
+    if (input.recurrence.frequency === 'MONTHLY' && (input.recurrence.datesOfMonth === undefined || input.recurrence.datesOfMonth.length === 0)) {
       throw new ValidationError('Monthly patterns must specify dates of month');
     }
   }
@@ -668,7 +695,10 @@ export class ScheduleService {
   }
 
   private checkPermission(context: UserContext, permission: string): void {
-    if (!(context.permissions?.includes(permission) && context.roles?.includes('SUPER_ADMIN'))) {
+    const hasPermission = context.permissions?.includes(permission) ?? false;
+    const isSuperAdmin = context.roles?.includes('SUPER_ADMIN') ?? false;
+    
+    if (!hasPermission || !isSuperAdmin) {
       throw new PermissionError(`Missing required permission: ${permission}`, {
         userId: context.userId,
         permission,
@@ -677,7 +707,9 @@ export class ScheduleService {
   }
 
   private checkOrganizationAccess(context: UserContext, organizationId: UUID): void {
-    if (context.organizationId !== organizationId && !context.roles?.includes('SUPER_ADMIN')) {
+    const isSuperAdmin = context.roles?.includes('SUPER_ADMIN') ?? false;
+    
+    if (context.organizationId !== organizationId && !isSuperAdmin) {
       throw new PermissionError('Access denied to this organization', {
         userOrg: context.organizationId,
         requestedOrg: organizationId,
@@ -686,11 +718,11 @@ export class ScheduleService {
   }
 
   private checkBranchAccess(context: UserContext, branchId: UUID): void {
-    if (
-      !context.branchIds?.includes(branchId) &&
-      !context.roles?.includes('SUPER_ADMIN') &&
-      !context.roles?.includes('ORG_ADMIN')
-    ) {
+    const hasBranchAccess = context.branchIds?.includes(branchId) ?? false;
+    const isSuperAdmin = context.roles?.includes('SUPER_ADMIN') ?? false;
+    const isOrgAdmin = context.roles?.includes('ORG_ADMIN') ?? false;
+    
+    if (!hasBranchAccess && !isSuperAdmin && !isOrgAdmin) {
       throw new PermissionError('Access denied to this branch', {
         userBranches: context.branchIds,
         requestedBranch: branchId,

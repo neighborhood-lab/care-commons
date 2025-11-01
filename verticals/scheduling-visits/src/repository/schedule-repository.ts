@@ -36,7 +36,15 @@ export class ScheduleRepository {
     input: CreateServicePatternInput,
     context: UserContext
   ): Promise<ServicePattern> {
-    const query = `
+    const query = this.buildCreatePatternQuery();
+    const values = this.buildCreatePatternValues(input, context);
+
+    const result = await this.pool.query(query, values);
+    return this.mapRowToServicePattern(result.rows[0]);
+  }
+
+  private buildCreatePatternQuery(): string {
+    return `
       INSERT INTO service_patterns (
         id, organization_id, branch_id, client_id, name, description,
         pattern_type, service_type_id, service_type_name, recurrence,
@@ -56,46 +64,45 @@ export class ScheduleRepository {
       )
       RETURNING *
     `;
+  }
 
-    const values = [
+  private buildCreatePatternValues(input: CreateServicePatternInput, context: UserContext): unknown[] {
+    return [
       input.organizationId,
       input.branchId,
       input.clientId,
       input.name,
-      input.description != null ? input.description : null,
+      input.description ?? null,
       input.patternType,
       input.serviceTypeId,
       input.serviceTypeName,
       JSON.stringify(input.recurrence),
       input.duration,
-      input.flexibilityWindow != null ? input.flexibilityWindow : null,
-      input.requiredSkills != null ? JSON.stringify(input.requiredSkills) : null,
-      input.requiredCertifications != null ? JSON.stringify(input.requiredCertifications) : null,
-      input.preferredCaregivers != null ? JSON.stringify(input.preferredCaregivers) : null,
-      input.blockedCaregivers != null ? JSON.stringify(input.blockedCaregivers ?? []) : null,
-      input.genderPreference != null ? input.genderPreference : null,
-      input.languagePreference != null ? input.languagePreference : null,
-      input.preferredTimeOfDay != null ? input.preferredTimeOfDay : null,
-      input.mustStartBy != null ? input.mustStartBy : null,
-      input.mustEndBy != null ? input.mustEndBy : null,
-      input.authorizedHoursPerWeek != null ? input.authorizedHoursPerWeek : null,
-      input.authorizedVisitsPerWeek != null ? input.authorizedVisitsPerWeek : null,
-      input.authorizationStartDate != null ? input.authorizationStartDate : null,
-      input.authorizationEndDate != null ? input.authorizationEndDate : null,
-      input.fundingSourceId != null ? input.fundingSourceId : null,
-      input.travelTimeBefore != null ? input.travelTimeBefore : null,
-      input.travelTimeAfter != null ? input.travelTimeAfter : null,
-      input.allowBackToBack != null ? input.allowBackToBack : false,
+      input.flexibilityWindow ?? null,
+      input.requiredSkills !== undefined ? JSON.stringify(input.requiredSkills) : null,
+      input.requiredCertifications !== undefined ? JSON.stringify(input.requiredCertifications) : null,
+      input.preferredCaregivers !== undefined ? JSON.stringify(input.preferredCaregivers) : null,
+      input.blockedCaregivers !== undefined ? JSON.stringify(input.blockedCaregivers) : null,
+      input.genderPreference ?? null,
+      input.languagePreference ?? null,
+      input.preferredTimeOfDay ?? null,
+      input.mustStartBy ?? null,
+      input.mustEndBy ?? null,
+      input.authorizedHoursPerWeek ?? null,
+      input.authorizedVisitsPerWeek ?? null,
+      input.authorizationStartDate ?? null,
+      input.authorizationEndDate ?? null,
+      input.fundingSourceId ?? null,
+      input.travelTimeBefore ?? null,
+      input.travelTimeAfter ?? null,
+      input.allowBackToBack ?? false,
       input.effectiveFrom,
-      input.effectiveTo != null ? input.effectiveTo : null,
-      input.notes != null ? input.notes : null,
-      input.clientInstructions != null ? input.clientInstructions : null,
-      input.caregiverInstructions != null ? input.caregiverInstructions : null,
+      input.effectiveTo ?? null,
+      input.notes ?? null,
+      input.clientInstructions ?? null,
+      input.caregiverInstructions ?? null,
       context.userId,
     ];
-
-    const result = await this.pool.query(query, values);
-    return this.mapRowToServicePattern(result.rows[0]);
   }
 
   async getServicePatternById(id: UUID): Promise<ServicePattern | null> {
@@ -104,7 +111,7 @@ export class ScheduleRepository {
       WHERE id = $1 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id]);
-    return result.rows[0] ? this.mapRowToServicePattern(result.rows[0]) : null;
+    return result.rows[0] !== undefined ? this.mapRowToServicePattern(result.rows[0]) : null;
   }
 
   async updateServicePattern(
@@ -113,7 +120,7 @@ export class ScheduleRepository {
     context: UserContext
   ): Promise<ServicePattern> {
     const pattern = await this.getServicePatternById(id);
-    if (!pattern) {
+    if (pattern === null) {
       throw new NotFoundError('Service pattern not found', { id });
     }
 
@@ -121,27 +128,27 @@ export class ScheduleRepository {
     const values: unknown[] = [];
     let paramCount = 1;
 
-    if (input.name !== undefined && input.name !== null) {
+    if (input.name !== undefined) {
       updates.push(`name = $${paramCount++}`);
       values.push(input.name);
     }
-    if (input.description !== undefined && input.description !== null) {
+    if (input.description !== undefined) {
       updates.push(`description = $${paramCount++}`);
       values.push(input.description);
     }
-    if (input.recurrence !== undefined && input.recurrence !== null) {
+    if (input.recurrence !== undefined) {
       updates.push(`recurrence = $${paramCount++}`);
       values.push(JSON.stringify(input.recurrence));
     }
-    if (input.duration !== undefined && input.duration !== null) {
+    if (input.duration !== undefined) {
       updates.push(`duration = $${paramCount++}`);
       values.push(input.duration);
     }
-    if (input.status !== undefined && input.status !== null) {
+    if (input.status !== undefined) {
       updates.push(`status = $${paramCount++}`);
       values.push(input.status);
     }
-    if (input.effectiveTo !== undefined && input.effectiveTo !== null) {
+    if (input.effectiveTo !== undefined) {
       updates.push(`effective_to = $${paramCount++}`);
       values.push(input.effectiveTo);
     }
@@ -226,13 +233,13 @@ export class ScheduleRepository {
       input.scheduledEndTime,
       scheduledDuration,
       JSON.stringify(input.address),
-      input.taskIds ? JSON.stringify(input.taskIds) : null,
-      input.requiredSkills ? JSON.stringify(input.requiredSkills) : null,
-      input.requiredCertifications ? JSON.stringify(input.requiredCertifications) : null,
+      input.taskIds !== undefined ? JSON.stringify(input.taskIds) : null,
+      input.requiredSkills !== undefined ? JSON.stringify(input.requiredSkills) : null,
+      input.requiredCertifications !== undefined ? JSON.stringify(input.requiredCertifications) : null,
       input.isUrgent ?? false,
       input.isPriority ?? false,
       input.requiresSupervision ?? false,
-      input.riskFlags ? JSON.stringify(input.riskFlags) : null,
+      input.riskFlags !== undefined ? JSON.stringify(input.riskFlags) : null,
       input.clientInstructions ?? null,
       input.caregiverInstructions ?? null,
       input.internalNotes ?? null,
@@ -249,7 +256,7 @@ export class ScheduleRepository {
       WHERE id = $1 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id]);
-    return result.rows[0] ? this.mapRowToVisit(result.rows[0]) : null;
+    return result.rows[0] !== undefined ? this.mapRowToVisit(result.rows[0]) : null;
   }
 
   async updateVisitStatus(
@@ -260,7 +267,7 @@ export class ScheduleRepository {
     reason?: string
   ): Promise<Visit> {
     const visit = await this.getVisitById(id);
-    if (!visit) {
+    if (visit === null) {
       throw new NotFoundError('Visit not found', { id });
     }
 
@@ -302,7 +309,7 @@ export class ScheduleRepository {
     context: UserContext
   ): Promise<Visit> {
     const visit = await this.getVisitById(input.visitId);
-    if (!visit) {
+    if (visit === null) {
       throw new NotFoundError('Visit not found', { visitId: input.visitId });
     }
 
@@ -373,70 +380,121 @@ export class ScheduleRepository {
     };
   }
 
-  private buildSearchConditions(filters: VisitSearchFilters) {
+  private buildSearchConditions(filters: VisitSearchFilters): { conditions: string[]; values: unknown[]; paramCount: number } {
     const conditions: string[] = ['deleted_at IS NULL'];
     const values: unknown[] = [];
     let paramCount = 1;
 
-    if (filters.organizationId !== undefined && filters.organizationId !== null) {
+    paramCount = this.addBasicFilterConditions(filters, conditions, values, paramCount);
+    paramCount = this.addArrayFilterConditions(filters, conditions, values, paramCount);
+    paramCount = this.addDateFilterConditions(filters, conditions, values, paramCount);
+    paramCount = this.addBooleanFilterConditions(filters, conditions, values, paramCount);
+    paramCount = this.addTextSearchConditions(filters, conditions, values, paramCount);
+
+    return { conditions, values, paramCount };
+  }
+
+  private addBasicFilterConditions(
+    filters: VisitSearchFilters,
+    conditions: string[],
+    values: unknown[],
+    paramCount: number
+  ): number {
+    if (filters.organizationId !== undefined) {
       conditions.push(`organization_id = $${paramCount++}`);
       values.push(filters.organizationId);
     }
 
-    if (filters.branchId !== undefined && filters.branchId !== null) {
+    if (filters.branchId !== undefined) {
       conditions.push(`branch_id = $${paramCount++}`);
       values.push(filters.branchId);
     }
 
-    if (filters.branchIds !== undefined && filters.branchIds !== null && filters.branchIds.length > 0) {
-      conditions.push(`branch_id = ANY($${paramCount++})`);
-      values.push(filters.branchIds);
-    }
-
-    if (filters.clientId !== undefined && filters.clientId !== null) {
+    if (filters.clientId !== undefined) {
       conditions.push(`client_id = $${paramCount++}`);
       values.push(filters.clientId);
     }
 
-    if (filters.clientIds !== undefined && filters.clientIds !== null && filters.clientIds.length > 0) {
-      conditions.push(`client_id = ANY($${paramCount++})`);
-      values.push(filters.clientIds);
-    }
-
-    if (filters.caregiverId !== undefined && filters.caregiverId !== null) {
+    if (filters.caregiverId !== undefined) {
       conditions.push(`assigned_caregiver_id = $${paramCount++}`);
       values.push(filters.caregiverId);
     }
 
-    if (filters.status !== undefined && filters.status !== null && filters.status.length > 0) {
+    return paramCount;
+  }
+
+  private addArrayFilterConditions(
+    filters: VisitSearchFilters,
+    conditions: string[],
+    values: unknown[],
+    paramCount: number
+  ): number {
+    if (filters.branchIds !== undefined && filters.branchIds.length > 0) {
+      conditions.push(`branch_id = ANY($${paramCount++})`);
+      values.push(filters.branchIds);
+    }
+
+    if (filters.clientIds !== undefined && filters.clientIds.length > 0) {
+      conditions.push(`client_id = ANY($${paramCount++})`);
+      values.push(filters.clientIds);
+    }
+
+    if (filters.status !== undefined && filters.status.length > 0) {
       conditions.push(`status = ANY($${paramCount++})`);
       values.push(filters.status);
     }
 
-    if (filters.visitType !== undefined && filters.visitType !== null && filters.visitType.length > 0) {
+    if (filters.visitType !== undefined && filters.visitType.length > 0) {
       conditions.push(`visit_type = ANY($${paramCount++})`);
       values.push(filters.visitType);
     }
 
-    if (filters.dateFrom !== undefined && filters.dateFrom !== null) {
+    return paramCount;
+  }
+
+  private addDateFilterConditions(
+    filters: VisitSearchFilters,
+    conditions: string[],
+    values: unknown[],
+    paramCount: number
+  ): number {
+    if (filters.dateFrom !== undefined) {
       conditions.push(`scheduled_date >= $${paramCount++}`);
       values.push(filters.dateFrom);
     }
 
-    if (filters.dateTo !== undefined && filters.dateTo !== null) {
+    if (filters.dateTo !== undefined) {
       conditions.push(`scheduled_date <= $${paramCount++}`);
       values.push(filters.dateTo);
     }
 
-    if (filters.isUnassigned !== undefined && filters.isUnassigned !== null && filters.isUnassigned) {
+    return paramCount;
+  }
+
+  private addBooleanFilterConditions(
+    filters: VisitSearchFilters,
+    conditions: string[],
+    _values: unknown[],
+    paramCount: number
+  ): number {
+    if (filters.isUnassigned !== undefined && filters.isUnassigned) {
       conditions.push(`assigned_caregiver_id IS NULL`);
     }
 
-    if (filters.isUrgent !== undefined && filters.isUrgent !== null && filters.isUrgent) {
+    if (filters.isUrgent !== undefined && filters.isUrgent) {
       conditions.push(`is_urgent = true`);
     }
 
-    if (filters.query !== undefined && filters.query !== null && filters.query !== '') {
+    return paramCount;
+  }
+
+  private addTextSearchConditions(
+    filters: VisitSearchFilters,
+    conditions: string[],
+    values: unknown[],
+    paramCount: number
+  ): number {
+    if (filters.query !== undefined && filters.query !== '') {
       conditions.push(`(
         visit_number ILIKE $${paramCount} OR
         to_tsvector('english', client_instructions || ' ' || caregiver_instructions) 
@@ -446,7 +504,7 @@ export class ScheduleRepository {
       paramCount++;
     }
 
-    return { conditions, values, paramCount };
+    return paramCount;
   }
 
   async getVisitsByDateRange(
@@ -488,7 +546,7 @@ export class ScheduleRepository {
     `;
     const values: unknown[] = [organizationId];
 
-    if (branchId != null) {
+    if (branchId !== undefined) {
       query += ` AND branch_id = $2`;
       values.push(branchId);
     }

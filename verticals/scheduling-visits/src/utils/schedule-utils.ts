@@ -562,7 +562,7 @@ export function formatAddress(address: {
 }): string {
   const parts = [address.line1];
   
-  if (address.line2) {
+  if (address.line2 !== undefined) {
     parts.push(address.line2);
   }
   
@@ -632,9 +632,7 @@ export function groupVisitsByDate<T extends Pick<Visit, 'scheduledDate' | 'sched
       ? visit.scheduledDate
       : format(visit.scheduledDate, 'yyyy-MM-dd');
       
-    if (!groups[date]) {
-      groups[date] = [];
-    }
+    groups[date] ??= [];
     
     groups[date].push(visit);
   }
