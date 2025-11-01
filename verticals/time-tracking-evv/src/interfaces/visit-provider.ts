@@ -33,6 +33,7 @@ export interface EVVVisitData {
   
   // Location
   serviceAddress: {
+    addressId?: UUID; // Database ID of the address record
     line1: string;
     line2?: string;
     city: string;

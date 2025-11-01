@@ -121,13 +121,14 @@ export class EVVService {
 
     // Get or create geofence for location
     const geofenceRadius = visitData.serviceAddress.geofenceRadius || 100; // Default 100m
+    const addressId = visitData.serviceAddress.addressId || this.generateFallbackAddressId(visitData.serviceAddress);
     const geofence = await this.getOrCreateGeofence(
       visitData.serviceAddress.latitude,
       visitData.serviceAddress.longitude,
       geofenceRadius,
       visitData.organizationId,
       visitData.clientId,
-      'address-id-123', // TODO: Get actual address ID from visit
+      addressId,
       userContext
     );
 
@@ -707,6 +708,18 @@ export class EVVService {
    */
   private generateUUID(): UUID {
     return CryptoUtils.generateSecureId();
+  }
+
+  /**
+   * Helper: Generate fallback address ID if not provided by visit
+   */
+  private generateFallbackAddressId(address: { line1: string; city: string; state: string; postalCode: string }): UUID {
+    const addressString = `${address.line1}|${address.city}|${address.state}|${address.postalCode}`.toLowerCase();
+    const hash = addressString.split('').reduce((acc, char) => {
+      return ((acc << 5) - acc) + char.charCodeAt(0);
+    }, 0);
+    const hashStr = Math.abs(hash).toString(16).padStart(32, '0').substring(0, 32);
+    return `${hashStr.substring(0, 8)}-${hashStr.substring(8, 12)}-${hashStr.substring(12, 16)}-${hashStr.substring(16, 20)}-${hashStr.substring(20, 32)}` as UUID;
   }
 
   /**
