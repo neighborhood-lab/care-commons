@@ -2,9 +2,8 @@
  * Tests for ClientSearchBuilder and Search Templates
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ClientSearchBuilder, createClientSearch, ClientSearchTemplates } from '../../utils/search-builder';
-import { ClientStatus, RiskType } from '../../types/client';
 
 describe('ClientSearchBuilder', () => {
   let builder: ClientSearchBuilder;

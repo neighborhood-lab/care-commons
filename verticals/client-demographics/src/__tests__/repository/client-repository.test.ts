@@ -4,8 +4,7 @@
 
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ClientRepository } from '../../repository/client-repository';
-import { Client } from '../../types/client';
-import { Database } from '@care-commons/core';
+import { Client, ClientStatus } from '../../types/client';
 
 interface MockDatabase {
   query: ReturnType<typeof vi.fn>;
@@ -372,7 +371,7 @@ describe('ClientRepository', () => {
         .mockResolvedValueOnce(countResult) // First call for count
         .mockResolvedValueOnce(mockResult); // Second call for data
 
-      const filters = { query: 'John', status: ['ACTIVE'] };
+      const filters = { query: 'John', status: ['ACTIVE' as ClientStatus] };
       const pagination = { page: 1, limit: 10 };
 
       const result = await repository.search(filters, pagination);
@@ -396,7 +395,7 @@ describe('ClientRepository', () => {
 
       mockDatabase.query.mockResolvedValue(countResult);
 
-      const filters = { query: 'John', status: ['ACTIVE'] };
+      const filters = { query: 'John', status: ['ACTIVE' as ClientStatus] };
       const pagination = { page: 1, limit: 10 };
 
       await expect(repository.search(filters, pagination)).rejects.toThrow('Count query returned no rows');
@@ -426,7 +425,7 @@ describe('ClientRepository', () => {
       const filters = { city: 'Springfield' };
       const pagination = { page: 1, limit: 10 };
 
-      const result = await repository.search(filters, pagination);
+      await repository.search(filters, pagination);
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining("primary_address::jsonb->>'city' ILIKE $"),
@@ -458,7 +457,7 @@ describe('ClientRepository', () => {
       const filters = { state: 'IL' };
       const pagination = { page: 1, limit: 10 };
 
-      const result = await repository.search(filters, pagination);
+      await repository.search(filters, pagination);
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining("primary_address::jsonb->>'state' = $"),

@@ -4,7 +4,7 @@
  * RESTful endpoints for client CRUD operations and specialized workflows
  */
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, Router } from 'express';
 import { UserContext } from '@care-commons/core';
 import { ClientService } from '../service/client-service';
 import { CreateClientInput, UpdateClientInput, ClientSearchFilters, ClientStatus, RiskType } from '../types/client';
@@ -625,10 +625,10 @@ export class ClientHandlers {
 /**
  * Create router with all client endpoints
  */
-export function createClientRouter(clientService: ClientService): unknown {
+export function createClientRouter(clientService: ClientService): Router {
   // eslint-disable-next-line @typescript-eslint/no-require-imports, unicorn/prefer-module
   const express = require('express');
-  const router = express.Router();
+  const router: Router = express.Router();
   const handlers = new ClientHandlers(clientService);
 
   // Main CRUD endpoints

@@ -2,7 +2,7 @@
  * Tests for StateSpecificClientValidator
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { StateSpecificClientValidator } from '../../validation/state-specific-validator';
 import { StateSpecificClientData, TexasClientData, FloridaClientData } from '../../types/client';
 
