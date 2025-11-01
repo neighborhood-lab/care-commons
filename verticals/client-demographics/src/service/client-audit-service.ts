@@ -106,7 +106,7 @@ export class ClientAuditService {
         entry.clientId,
         entry.accessedBy,
         entry.accessType,
-        entry.accessTimestamp || new Date(),
+        entry.accessTimestamp ?? new Date(),
         entry.accessReason,
         entry.ipAddress,
         entry.userAgent,
@@ -190,7 +190,7 @@ export class ClientAuditService {
       params.push(query.endDate);
     }
     
-    if (query.disclosuresOnly) {
+    if (query.disclosuresOnly === true) {
       conditions.push(`access_type = 'DISCLOSURE'`);
     }
     
@@ -206,8 +206,8 @@ export class ClientAuditService {
     const totalCount = parseInt(countResult.rows[0]?.['total'] as string, 10);
     
     // Get entries with pagination
-    const limit = query.limit || 100;
-    const offset = query.offset || 0;
+    const limit = query.limit ?? 100;
+    const offset = query.offset ?? 0;
     
     const entriesResult = await this.db.query(
       `SELECT * FROM client_access_audit ${whereClause}
@@ -228,14 +228,14 @@ export class ClientAuditService {
       entries: entriesResult.rows.map(this.mapRowToEntry),
       totalCount,
       dateRange: {
-        start: query.startDate || new Date(0),
-        end: query.endDate || new Date(),
+        start: query.startDate ?? new Date(0),
+        end: query.endDate ?? new Date(),
       },
       disclosureCount,
       accessCount: totalCount - disclosureCount,
     };
     
-    if (query.clientId !== undefined) {
+    if (query.clientId) {
       report.clientId = query.clientId;
     }
     
@@ -258,8 +258,8 @@ export class ClientAuditService {
     const report = await this.queryAuditLog({
       clientId,
       accessType: ['DISCLOSURE'],
-      startDate: startDate || sixYearsAgo,
-      endDate: endDate || new Date(),
+      startDate: startDate ?? sixYearsAgo,
+      endDate: endDate ?? new Date(),
       limit: 1000, // HIPAA requires 6 years of disclosure history
     });
     
@@ -297,11 +297,11 @@ export class ClientAuditService {
     
     for (const entry of report.entries) {
       // Count by type
-      const typeCount = accessByType.get(entry.accessType) || 0;
+      const typeCount = accessByType.get(entry.accessType) ?? 0;
       accessByType.set(entry.accessType, typeCount + 1);
       
       // Count by user
-      const userCount = accessByUser.get(entry.accessedBy) || 0;
+      const userCount = accessByUser.get(entry.accessedBy) ?? 0;
       accessByUser.set(entry.accessedBy, userCount + 1);
     }
     
@@ -363,12 +363,12 @@ export class ClientAuditService {
       entry.clientId,
       entry.accessedBy,
       entry.accessType,
-      entry.accessReason || '',
-      entry.ipAddress || '',
-      entry.disclosureRecipient || '',
-      entry.disclosureMethod || '',
-      entry.authorizationReference || '',
-      entry.informationDisclosed || '',
+      entry.accessReason ?? '',
+      entry.ipAddress ?? '',
+      entry.disclosureRecipient ?? '',
+      entry.disclosureMethod ?? '',
+      entry.authorizationReference ?? '',
+      entry.informationDisclosed ?? '',
     ]);
     
     // Build CSV
@@ -379,7 +379,7 @@ export class ClientAuditService {
     
     // Log the export itself
     await this.logAccess({
-      clientId: query.clientId || ('00000000-0000-0000-0000-000000000000' as UUID),
+      clientId: query.clientId ?? ('00000000-0000-0000-0000-000000000000' as UUID),
       accessedBy: ('SYSTEM' as unknown) as UUID, // System export
       accessType: 'EXPORT',
       accessTimestamp: new Date(),
@@ -407,7 +407,7 @@ export class ClientAuditService {
     
     // Validate disclosure fields if disclosure type
     if (entry.accessType === 'DISCLOSURE') {
-      if (!entry.disclosureRecipient) {
+      if (!entry.disclosureRecipient || entry.disclosureRecipient === '') {
         throw new Error('Disclosure recipient is required for DISCLOSURE type');
       }
       
@@ -415,7 +415,7 @@ export class ClientAuditService {
         throw new Error('Disclosure method is required for DISCLOSURE type');
       }
       
-      if (!entry.informationDisclosed) {
+      if (!entry.informationDisclosed || entry.informationDisclosed === '') {
         throw new Error('Information disclosed is required for DISCLOSURE type');
       }
     }

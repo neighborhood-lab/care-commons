@@ -38,59 +38,102 @@ export class ClientHandlers {
    */
   listClients = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
+    const filters = this.buildClientSearchFilters(req);
+    const pagination = this.buildPagination(req);
 
-    // Extract query parameters
-    const q = req.query['q'];
-    const organizationIdParam = req.query['organizationId'];
-    const branchIdParam = req.query['branchId'];
-    const statusParam = req.query['status'];
-    const programIdParam = req.query['programId'];
-    const riskTypeParam = req.query['riskType'];
-    const minAgeParam = req.query['minAge'];
-    const maxAgeParam = req.query['maxAge'];
-    const cityParam = req.query['city'];
-    const stateParam = req.query['state'];
-    const hasActiveServicesParam = req.query['hasActiveServices'];
-    const pageParam = req.query['page'];
-    const limitParam = req.query['limit'];
+    const result = await this.clientService.searchClients(filters, pagination, context);
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  });
+
+  /**
+   * Build client search filters from request query parameters
+   */
+  private buildClientSearchFilters(req: Request): ClientSearchFilters {
+    const {
+      q,
+      organizationId: organizationIdParam,
+      branchId: branchIdParam,
+      status: statusParam,
+      programId: programIdParam,
+      riskType: riskTypeParam,
+      minAge: minAgeParam,
+      maxAge: maxAgeParam,
+      city: cityParam,
+      state: stateParam,
+      hasActiveServices: hasActiveServicesParam,
+    } = req.query;
 
     const filters: ClientSearchFilters = {
       query: q as string,
       organizationId: organizationIdParam as string,
     };
 
-    // Validate and sanitize client search parameters
     if (typeof branchIdParam === 'string') {
       filters.branchId = branchIdParam.trim();
     }
-      
-    // Validate client status values
-    if (typeof statusParam === 'string') {
-      const validStatuses: ClientStatus[] = ['INQUIRY', 'PENDING_INTAKE', 'ACTIVE', 'INACTIVE', 'ON_HOLD', 'DISCHARGED', 'DECEASED'];
-      const filtered = statusParam.split(',')
-        .map(s => s.trim().toUpperCase())
-        .filter(s => validStatuses.includes(s as ClientStatus)) as ClientStatus[];
-      if (filtered.length > 0) {
-        filters.status = filtered;
-      }
-    }
-      
+
+    this.parseStatusFilter(statusParam, filters);
+    this.parseRiskTypeFilter(riskTypeParam, filters);
+
     if (typeof programIdParam === 'string') {
       filters.programId = programIdParam.trim();
     }
-      
-    // Validate risk type values
-    if (typeof riskTypeParam === 'string') {
-      const validRiskTypes: RiskType[] = ['FALL_RISK', 'WANDERING', 'AGGRESSIVE_BEHAVIOR', 'INFECTION', 'MEDICATION_COMPLIANCE', 'DIETARY_RESTRICTION', 'ENVIRONMENTAL_HAZARD', 'SAFETY_CONCERN', 'ABUSE_NEGLECT_CONCERN', 'OTHER'];
-      const filtered = riskTypeParam.split(',')
-        .map(s => s.trim().toUpperCase())
-        .filter(s => validRiskTypes.includes(s as RiskType)) as RiskType[];
-      if (filtered.length > 0) {
-        filters.riskType = filtered;
-      }
+
+    this.parseAgeRangeFilters(minAgeParam, maxAgeParam, filters);
+
+    if (typeof cityParam === 'string') {
+      filters.city = cityParam.trim();
     }
-      
-    // Validate age ranges
+
+    if (typeof stateParam === 'string') {
+      filters.state = stateParam.trim().toUpperCase();
+    }
+
+    filters.hasActiveServices = hasActiveServicesParam === 'true';
+
+    return filters;
+  }
+
+  /**
+   * Parse status filter from query parameter
+   */
+  private parseStatusFilter(statusParam: unknown, filters: ClientSearchFilters): void {
+    if (typeof statusParam !== 'string') return;
+
+    const validStatuses: ClientStatus[] = ['INQUIRY', 'PENDING_INTAKE', 'ACTIVE', 'INACTIVE', 'ON_HOLD', 'DISCHARGED', 'DECEASED'];
+    const filtered = statusParam.split(',')
+      .map(s => s.trim().toUpperCase())
+      .filter(s => validStatuses.includes(s as ClientStatus)) as ClientStatus[];
+    
+    if (filtered.length > 0) {
+      filters.status = filtered;
+    }
+  }
+
+  /**
+   * Parse risk type filter from query parameter
+   */
+  private parseRiskTypeFilter(riskTypeParam: unknown, filters: ClientSearchFilters): void {
+    if (typeof riskTypeParam !== 'string') return;
+
+    const validRiskTypes: RiskType[] = ['FALL_RISK', 'WANDERING', 'AGGRESSIVE_BEHAVIOR', 'INFECTION', 'MEDICATION_COMPLIANCE', 'DIETARY_RESTRICTION', 'ENVIRONMENTAL_HAZARD', 'SAFETY_CONCERN', 'ABUSE_NEGLECT_CONCERN', 'OTHER'];
+    const filtered = riskTypeParam.split(',')
+      .map(s => s.trim().toUpperCase())
+      .filter(s => validRiskTypes.includes(s as RiskType)) as RiskType[];
+    
+    if (filtered.length > 0) {
+      filters.riskType = filtered;
+    }
+  }
+
+  /**
+   * Parse age range filters from query parameters
+   */
+  private parseAgeRangeFilters(minAgeParam: unknown, maxAgeParam: unknown, filters: ClientSearchFilters): void {
     if (typeof minAgeParam === 'string') {
       const age = parseInt(minAgeParam, 10);
       if (!isNaN(age) && age >= 0 && age <= 150) {
@@ -104,29 +147,22 @@ export class ClientHandlers {
         filters.maxAge = age;
       }
     }
-      
-    if (typeof cityParam === 'string') {
-      filters.city = cityParam.trim();
-    }
+  }
 
-    if (typeof stateParam === 'string') {
-      filters.state = stateParam.trim().toUpperCase();
-    }
+  /**
+   * Build pagination parameters from request query
+   */
+  private buildPagination(req: Request): { page: number; limit: number } {
+    const { page: pageParam, limit: limitParam } = req.query;
 
-    filters.hasActiveServices = hasActiveServicesParam === 'true';
+    const parsedPage = typeof pageParam === 'string' ? parseInt(pageParam, 10) : NaN;
+    const parsedLimit = typeof limitParam === 'string' ? parseInt(limitParam, 10) : NaN;
 
-    const pagination = {
-      page: parseInt(pageParam as string) || 1,
-      limit: parseInt(limitParam as string) || 20,
+    return {
+      page: (!isNaN(parsedPage) && parsedPage > 0) ? parsedPage : 1,
+      limit: (!isNaN(parsedLimit) && parsedLimit > 0) ? parsedLimit : 20,
     };
-
-    const result = await this.clientService.searchClients(filters, pagination, context);
-
-    res.json({
-      success: true,
-      data: result,
-    });
-  });
+  }
 
   /**
    * GET /api/clients/:id
@@ -136,7 +172,7 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id } = req.params;
 
-    if (!id) {
+    if (typeof id !== 'string' || id === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID is required',
@@ -159,9 +195,9 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { clientNumber } = req.params;
     const orgIdFromQuery = req.query['organizationId'];
-    const organizationId = (typeof orgIdFromQuery === 'string' ? orgIdFromQuery : context.organizationId) || context.organizationId;
+    const organizationId = (typeof orgIdFromQuery === 'string' && orgIdFromQuery !== '') ? orgIdFromQuery : context.organizationId;
 
-    if (!clientNumber || !organizationId) {
+    if (typeof clientNumber !== 'string' || clientNumber === '' || typeof organizationId !== 'string' || organizationId === '') {
       return res.status(400).json({
         success: false,
         error: 'Client number and organization ID are required',
@@ -206,7 +242,7 @@ export class ClientHandlers {
     const { id } = req.params;
     const updates: UpdateClientInput = req.body;
 
-    if (!id) {
+    if (typeof id !== 'string' || id === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID is required',
@@ -230,7 +266,7 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id } = req.params;
 
-    if (!id) {
+    if (typeof id !== 'string' || id === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID is required',
@@ -254,7 +290,7 @@ export class ClientHandlers {
     const { id } = req.params;
     const contact = req.body;
 
-    if (!id) {
+    if (typeof id !== 'string' || id === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID is required',
@@ -279,7 +315,7 @@ export class ClientHandlers {
     const { id, contactId } = req.params;
     const updates = req.body;
 
-    if (!id || !contactId) {
+    if (typeof id !== 'string' || id === '' || typeof contactId !== 'string' || contactId === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID and contact ID are required',
@@ -308,7 +344,7 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id, contactId } = req.params;
 
-    if (!id || !contactId) {
+    if (typeof id !== 'string' || id === '' || typeof contactId !== 'string' || contactId === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID and contact ID are required',
@@ -333,7 +369,7 @@ export class ClientHandlers {
     const { id } = req.params;
     const riskFlag = req.body;
 
-    if (!id) {
+    if (typeof id !== 'string' || id === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID is required',
@@ -357,7 +393,7 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id, flagId } = req.params;
 
-    if (!id || !flagId) {
+    if (typeof id !== 'string' || id === '' || typeof flagId !== 'string' || flagId === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID and flag ID are required',
@@ -382,7 +418,7 @@ export class ClientHandlers {
     const { id } = req.params;
     const { status, reason } = req.body;
 
-    if (!id) {
+    if (typeof id !== 'string' || id === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID is required',
@@ -406,7 +442,7 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id } = req.params;
 
-    if (!id) {
+    if (typeof id !== 'string' || id === '') {
       return res.status(400).json({
         success: false,
         error: 'Client ID is required',
@@ -428,18 +464,18 @@ export class ClientHandlers {
       gender: client.gender,
       status: client.status,
       primaryPhone: client.primaryPhone?.number,
-      primaryContact: client.emergencyContacts.find((c) => c.isPrimary),
-      activeRiskFlags: client.riskFlags.filter((f) => !f.resolvedDate).length,
+      primaryContact: client.emergencyContacts.find((c) => c.isPrimary) ?? null,
+      activeRiskFlags: client.riskFlags.filter((f) => f.resolvedDate === null || f.resolvedDate === undefined).length,
       criticalRiskFlags: client.riskFlags.filter(
-        (f) => !f.resolvedDate && f.severity === 'CRITICAL'
+        (f) => (f.resolvedDate === null || f.resolvedDate === undefined) && f.severity === 'CRITICAL'
       ),
-      address: {
+      address: client.primaryAddress ? {
         line1: client.primaryAddress.line1,
         city: client.primaryAddress.city,
         state: client.primaryAddress.state,
-      },
+      } : null,
       programs: client.programs.filter((p) => p.status === 'ACTIVE'),
-      hasAllergies: (client.allergies?.length || 0) > 0,
+      hasAllergies: (client.allergies?.length ?? 0) > 0,
       specialInstructions: client.specialInstructions,
       accessInstructions: client.accessInstructions,
     };
@@ -460,7 +496,7 @@ export class ClientHandlers {
     const activeOnlyParam = req.query['activeOnly'];
     const activeOnly = activeOnlyParam !== 'false';
 
-    if (!branchId) {
+    if (typeof branchId !== 'string' || branchId === '') {
       return res.status(400).json({
         success: false,
         error: 'Branch ID is required',
@@ -569,8 +605,8 @@ export class ClientHandlers {
         c.riskFlags.some((f) => !f.resolvedDate && (f.severity === 'HIGH' || f.severity === 'CRITICAL'))
       ).length,
       newThisMonth: allClients.items.filter((c) => {
-        const intakeDate = c.intakeDate ? new Date(c.intakeDate) : null;
-        if (!intakeDate) return false;
+        if (!c.intakeDate) return false;
+        const intakeDate = new Date(c.intakeDate);
         const now = new Date();
         return (
           intakeDate.getMonth() === now.getMonth() &&
@@ -589,8 +625,8 @@ export class ClientHandlers {
 /**
  * Create router with all client endpoints
  */
-export function createClientRouter(clientService: ClientService) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+export function createClientRouter(clientService: ClientService): unknown {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports, unicorn/prefer-module
   const express = require('express');
   const router = express.Router();
   const handlers = new ClientHandlers(clientService);
