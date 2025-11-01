@@ -1,5 +1,6 @@
 .turbo/
 .idea/
+.sarif/
 
 # Logs
 logs
