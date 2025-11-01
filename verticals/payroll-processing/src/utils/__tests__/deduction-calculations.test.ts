@@ -331,8 +331,9 @@ describe('Deduction Calculation Utilities', () => {
       );
 
       const calculated = result.calculatedDeductions[0];
-      expect(calculated.id).toBe(preTaxDeduction.id);
-      expect(calculated.calculatedAmount).toBe(100);
+      expect(calculated).toBeDefined();
+      expect(calculated!.id).toBe(preTaxDeduction.id);
+      expect(calculated!.calculatedAmount).toBe(100);
     });
 
     it('should handle empty deduction arrays', () => {
@@ -372,10 +373,10 @@ describe('Deduction Calculation Utilities', () => {
 
       const sorted = sortGarnishmentsByPriority(garnishments);
 
-      expect(sorted[0].deductionType).toBe('GARNISHMENT_CHILD_SUPPORT');
-      expect(sorted[1].deductionType).toBe('GARNISHMENT_TAX_LEVY');
-      expect(sorted[2].deductionType).toBe('GARNISHMENT_STUDENT_LOAN');
-      expect(sorted[3].deductionType).toBe('GARNISHMENT_CREDITOR');
+      expect(sorted[0]!.deductionType).toBe('GARNISHMENT_CHILD_SUPPORT');
+      expect(sorted[1]!.deductionType).toBe('GARNISHMENT_TAX_LEVY');
+      expect(sorted[2]!.deductionType).toBe('GARNISHMENT_STUDENT_LOAN');
+      expect(sorted[3]!.deductionType).toBe('GARNISHMENT_CREDITOR');
     });
 
     it('should handle garnishments without priority using default mapping', () => {
@@ -394,8 +395,8 @@ describe('Deduction Calculation Utilities', () => {
 
       const sorted = sortGarnishmentsByPriority(garnishments);
 
-      expect(sorted[0].deductionType).toBe('GARNISHMENT_CHILD_SUPPORT');
-      expect(sorted[1].deductionType).toBe('GARNISHMENT_CREDITOR');
+      expect(sorted[0]!.deductionType).toBe('GARNISHMENT_CHILD_SUPPORT');
+      expect(sorted[1]!.deductionType).toBe('GARNISHMENT_CREDITOR');
     });
 
     it('should handle non-garnishment deductions', () => {
@@ -407,7 +408,7 @@ describe('Deduction Calculation Utilities', () => {
       const sorted = sortGarnishmentsByPriority(deductions);
 
       // Non-garnishments should get high priority (999)
-      expect(sorted[1].deductionType).toBe('HEALTH_INSURANCE');
+      expect(sorted[1]!.deductionType).toBe('HEALTH_INSURANCE');
     });
   });
 
@@ -562,19 +563,19 @@ describe('Deduction Calculation Utilities', () => {
       const result = groupDeductionsByCategory(deductions);
 
       expect(result.taxes).toHaveLength(1);
-      expect(result.taxes[0].deductionType).toBe('FEDERAL_INCOME_TAX');
+      expect(result.taxes[0]!.deductionType).toBe('FEDERAL_INCOME_TAX');
 
       expect(result.benefits).toHaveLength(1);
-      expect(result.benefits[0].deductionType).toBe('HEALTH_INSURANCE');
+      expect(result.benefits[0]!.deductionType).toBe('HEALTH_INSURANCE');
 
       expect(result.retirement).toHaveLength(1);
-      expect(result.retirement[0].deductionType).toBe('RETIREMENT_401K');
+      expect(result.retirement[0]!.deductionType).toBe('RETIREMENT_401K');
 
       expect(result.garnishments).toHaveLength(1);
-      expect(result.garnishments[0].deductionType).toBe('GARNISHMENT_CHILD_SUPPORT');
+      expect(result.garnishments[0]!.deductionType).toBe('GARNISHMENT_CHILD_SUPPORT');
 
       expect(result.other).toHaveLength(1);
-      expect(result.other[0].deductionType).toBe('UNIFORM');
+      expect(result.other[0]!.deductionType).toBe('UNIFORM');
     });
 
     it('should handle Social Security and Medicare as taxes', () => {
@@ -617,7 +618,7 @@ describe('Deduction Calculation Utilities', () => {
       const result = groupDeductionsByCategory([retirement403b]);
 
       expect(result.retirement).toHaveLength(1);
-      expect(result.retirement[0].deductionType).toBe('RETIREMENT_403B');
+      expect(result.retirement[0]!.deductionType).toBe('RETIREMENT_403B');
     });
   });
 

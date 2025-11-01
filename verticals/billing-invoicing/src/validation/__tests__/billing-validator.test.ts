@@ -440,11 +440,15 @@ describe('Rate Schedule Validation', () => {
     });
 
     it('should reject invalid minimum/maximum units', () => {
-      const input = {
+      const input: CreateRateScheduleInput = {
         ...validRateSchedule,
         rates: [
           {
-            ...validRateSchedule.rates[0],
+            serviceTypeId: 'service-1' as any,
+            serviceTypeCode: 'S5100',
+            serviceTypeName: 'Personal Care',
+            unitType: 'HOUR',
+            unitRate: 25.5,
             minimumUnits: 5,
             maximumUnits: 2,
           },
