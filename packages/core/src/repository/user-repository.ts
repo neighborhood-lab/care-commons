@@ -17,17 +17,57 @@ import { Database } from '../db/connection';
 export class UserRepository implements IUserRepository {
   constructor(private db: Database) {}
 
-  async getUserById(_id: UUID): Promise<User | null> {
-    // Implementation stub - replace with actual database query
-    // TODO: Implement using this.db when users table is available
-    void this.db; // Suppress unused variable warning
-    throw new Error('getUserById not implemented - integrate with actual users table');
+  async getUserById(id: UUID): Promise<User | null> {
+    const query = `
+      SELECT id, first_name, last_name, email
+      FROM users
+      WHERE id = $1 AND deleted_at IS NULL
+    `;
+
+    const result = await this.db.query<{
+      id: string;
+      first_name: string;
+      last_name: string;
+      email: string;
+    }>(query, [id]);
+
+    const row = result.rows[0];
+    if (row === undefined) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+    };
   }
 
-  async getUsersByIds(_ids: UUID[]): Promise<User[]> {
-    // Implementation stub - replace with actual database query
-    // TODO: Implement using this.db when users table is available
-    void this.db; // Suppress unused variable warning
-    throw new Error('getUsersByIds not implemented - integrate with actual users table');
+  async getUsersByIds(ids: UUID[]): Promise<User[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const query = `
+      SELECT id, first_name, last_name, email
+      FROM users
+      WHERE id = ANY($1) AND deleted_at IS NULL
+      ORDER BY last_name, first_name
+    `;
+
+    const result = await this.db.query<{
+      id: string;
+      first_name: string;
+      last_name: string;
+      email: string;
+    }>(query, [ids]);
+
+    return result.rows.map((row) => ({
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+    }));
   }
 }
