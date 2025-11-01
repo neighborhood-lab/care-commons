@@ -21,7 +21,7 @@ const createMockDatabaseConfig = () => ({
   port: 5432,
   database: 'test_db',
   user: 'test_user',
-  password: process.env.TEST_DB_PASSWORD || 'test_password',
+  password: process.env['TEST_DB_PASSWORD'] || 'test_password',
   ssl: false,
   max: 5,
   idleTimeoutMillis: 1000,
@@ -104,7 +104,7 @@ describe('Database Connection', () => {
         port: 5432,
         database: 'test',
         user: 'user',
-        password: process.env.TEST_DB_PASSWORD || 'test_password',
+        password: process.env['TEST_DB_PASSWORD'] || 'test_password',
       };
 
       new Database(config);

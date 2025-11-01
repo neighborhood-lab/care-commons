@@ -24,17 +24,17 @@ export function authContextMiddleware(
   next: NextFunction
 ): void {
   // Extract from headers (set by frontend or API gateway)
-  const userId = req.header('X-User-Id') || 'system';
-  const organizationId = req.header('X-Organization-Id') || '';
+  const userId = req.header('X-User-Id') ?? 'system';
+  const organizationId = req.header('X-Organization-Id') ?? '';
   const branchId = req.header('X-Branch-Id');
-  const roles = (req.header('X-User-Roles') || 'CAREGIVER').split(',') as Role[];
-  const permissions = (req.header('X-User-Permissions') || '').split(',').filter(Boolean);
+  const roles = (req.header('X-User-Roles') ?? 'CAREGIVER').split(',') as Role[];
+  const permissions = (req.header('X-User-Permissions') ?? '').split(',').filter(Boolean);
 
   // Set user context on request
   req.userContext = {
     userId,
     organizationId,
-    branchIds: branchId ? [branchId] : [],
+    branchIds: branchId !== undefined ? [branchId] : [],
     roles,
     permissions,
   };
@@ -51,7 +51,7 @@ export function requireAuth(
   res: Response,
   next: NextFunction
 ): void {
-  if (!req.userContext || !req.userContext.userId) {
+  if (req.userContext?.userId === undefined) {
     res.status(401).json({
       success: false,
       error: 'Authentication required',

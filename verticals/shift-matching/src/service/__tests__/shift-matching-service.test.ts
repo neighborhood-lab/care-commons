@@ -9,11 +9,8 @@
  * - Error handling and edge cases
  */
 
-import { Pool } from 'pg';
-import { ShiftMatchingService, MatchShiftResult } from '../shift-matching-service';
-import { ShiftMatchingRepository } from '../../repository/shift-matching-repository';
-import { MatchingAlgorithm, CaregiverContext } from '../../utils/matching-algorithm';
-import { CaregiverService } from '@care-commons/caregiver-staff';
+import { ShiftMatchingService } from '../shift-matching-service';
+import { MatchingAlgorithm } from '../../utils/matching-algorithm';
 import {
   OpenShift,
   MatchCandidate,
@@ -21,12 +18,11 @@ import {
   AssignmentProposal,
   CreateOpenShiftInput,
   MatchShiftInput,
-  CreateProposalInput,
   RespondToProposalInput,
   ProposalStatus,
   MatchingStatus,
 } from '../../types/shift-matching';
-import { UserContext, UUID, NotFoundError, ValidationError, ConflictError } from '@care-commons/core';
+import { UserContext, NotFoundError, ValidationError, ConflictError } from '@care-commons/core';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock dependencies
@@ -403,7 +399,7 @@ beforeEach(() => {
       const result = await service.matchShift(input, mockContext);
 
       expect(result.candidates).toHaveLength(1);
-      expect(result.candidates[0].caregiverId).toBe('cg-456');
+      expect(result.candidates[0]?.caregiverId).toBe('cg-456');
     });
   });
 
@@ -577,7 +573,7 @@ beforeEach(() => {
       const result = await service.getAvailableShiftsForCaregiver('cg-123', mockContext);
 
       expect(result).toHaveLength(1);
-      expect(result[0].caregiverId).toBe('cg-123');
+      expect(result[0]?.caregiverId).toBe('cg-123');
     });
 
     it('should return empty array if no configuration', async () => {

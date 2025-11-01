@@ -1,4 +1,4 @@
-import { UUID, PermissionService } from '@care-commons/core';
+import { UUID } from '@care-commons/core';
 import { CarePlan, TaskInstance } from '../types/care-plan';
 import { Database } from '@care-commons/core';
 
@@ -15,8 +15,7 @@ export interface StateSpecificCarePlanRules {
 
 export class CarePlanStateService implements StateSpecificCarePlanRules {
   constructor(
-    private database: Database,
-    private permissionService: PermissionService
+    private database: Database
   ) {}
 
   /**
@@ -41,11 +40,11 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
 
     if (stateCode === 'TX') {
       // TX requires physician order for plan initiation
-      if (!plan.ordering_provider_name || !plan.ordering_provider_npi) {
+      if (!plan['ordering_provider_name'] || !plan['ordering_provider_npi']) {
         errors.push('TX compliance: Physician order with NPI required (26 TAC §558.287)');
       }
       // TX: Plan review every 60 days minimum
-      if (!plan.next_review_due) {
+      if (!plan['next_review_due']) {
         errors.push('TX compliance: Next review date required');
       }
     }
@@ -53,11 +52,11 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
     if (stateCode === 'FL') {
       // FL requires RN supervisor for skilled services
       const needsRNSupervision = await this.checkIfNeedsRNSupervision(carePlan.id);
-      if (needsRNSupervision && !plan.rn_supervisor_id) {
+      if (needsRNSupervision && !plan['rn_supervisor_id']) {
         errors.push('FL AHCA 59A-8.0095: RN supervisor required for this service type');
       }
       // FL: Plan review every 60-90 days per Florida Statute 400.487
-      if (!plan.plan_review_interval_days || (plan.plan_review_interval_days as number) > 90) {
+      if (!plan['plan_review_interval_days'] || (plan['plan_review_interval_days'] as number) > 90) {
         errors.push('FL Statute 400.487: Plan review interval must be ≤90 days');
       }
     }
@@ -74,22 +73,25 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
       FROM care_plans
       WHERE id = $1 AND deleted_at IS NULL
     `;
-    const result = await this.database.query(query, [carePlan.id]);
+    const queryResult = await this.database.query(query, [carePlan.id]);
     
-    if (!result.rows[0] || result.rows[0].state_jurisdiction !== 'FL') {
+    if (!queryResult.rows[0] || queryResult.rows[0]['state_jurisdiction'] !== 'FL') {
       return { required: false, overdue: false };
     }
 
-    const plan = result.rows[0];
+    const plan = queryResult.rows[0] as Record<string, unknown>;
     const now = new Date();
-    const nextDue = plan.next_supervisory_visit_due ? new Date(plan.next_supervisory_visit_due as string) : null;
+    const nextDue = plan['next_supervisory_visit_due'] ? new Date(plan['next_supervisory_visit_due'] as string) : null;
 
-    return {
+    const checkResult: SupervisoryVisitCheck = {
       required: true,
       overdue: nextDue ? nextDue < now : false,
-      lastVisitDate: plan.last_supervisory_visit_date ? new Date(plan.last_supervisory_visit_date as string) : undefined,
       nextDueDate: nextDue
     };
+    if (plan['last_supervisory_visit_date']) {
+      checkResult.lastVisitDate = new Date(plan['last_supervisory_visit_date'] as string);
+    }
+    return checkResult;
   }
 
   /**
@@ -123,8 +125,8 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
     }
 
     const auth = result.rows[0];
-    if ((auth.units_remaining as number) <= 0) {
-      throw new Error(`Service authorization exhausted. Units remaining: ${auth.units_remaining}`);
+    if ((auth['units_remaining'] as number) <= 0) {
+      throw new Error(`Service authorization exhausted. Units remaining: ${auth['units_remaining']}`);
     }
 
     return true;

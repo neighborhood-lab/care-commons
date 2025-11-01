@@ -92,20 +92,8 @@ interface TimeEntryRow {
   version: number;
 }
 
-interface GeofenceRow {
-  id: string;
-  client_id: string;
-  service_address: string;
-  latitude: number;
-  longitude: number;
-  radius_meters: number;
-  active: boolean;
-  created_at: Date;
-  created_by: string;
-  updated_at: Date;
-  updated_by: string;
-  version: number;
-}
+
+
 
 export class EVVRepository {
   constructor(private database: Database) { }
@@ -348,7 +336,7 @@ export class EVVRepository {
     // Get total count
     const countQuery = `SELECT COUNT(*) FROM evv_records ${whereClause}`;
     const countResult = await this.database.query(countQuery, values);
-    const total = parseInt(countResult.rows[0].count as string);
+    const total = parseInt(countResult.rows[0]!['count'] as string);
 
     // Get paginated results with whitelisted sort parameters to prevent SQL injection
     const allowedSortFields = ['serviceDate', 'createdAt', 'updatedAt', 'clockInTime', 'clockOutTime', 'recordStatus', 'verificationLevel'];
@@ -664,7 +652,7 @@ export class EVVRepository {
    * Helper: Map database row to EVVRecord
    */
   private mapEVVRecord(row: EVVRecordRow): EVVRecord {
-    return {
+    const baseRecord = {
       id: row.id,
       visitId: row.visit_id,
       organizationId: row.organization_id,
@@ -674,20 +662,12 @@ export class EVVRepository {
       serviceTypeCode: row.service_type_code,
       serviceTypeName: row.service_type_name,
       clientName: row.client_name,
-      clientMedicaidId: row.client_medicaid_id || undefined,
       caregiverName: row.caregiver_name,
       caregiverEmployeeId: row.caregiver_employee_id,
-      caregiverNationalProviderId: row.caregiver_npi || undefined,
       serviceDate: row.service_date,
       serviceAddress: JSON.parse(row.service_address),
       clockInTime: row.clock_in_time!,
-      clockOutTime: row.clock_out_time,
-      totalDuration: row.total_duration || undefined,
       clockInVerification: JSON.parse(row.clock_in_verification),
-      clockOutVerification: row.clock_out_verification ? JSON.parse(row.clock_out_verification) : undefined,
-      midVisitChecks: row.mid_visit_checks ? JSON.parse(row.mid_visit_checks) : undefined,
-      pauseEvents: row.pause_events ? JSON.parse(row.pause_events) : undefined,
-      exceptionEvents: row.exception_events ? JSON.parse(row.exception_events) : undefined,
       recordStatus: row.record_status as EVVRecordStatus,
       verificationLevel: row.verification_level as VerificationLevel,
       complianceFlags: JSON.parse(row.compliance_flags),
@@ -696,18 +676,35 @@ export class EVVRepository {
       recordedAt: row.recorded_at,
       recordedBy: row.recorded_by,
       syncMetadata: JSON.parse(row.sync_metadata),
-      submittedToPayor: row.submitted_to_payor || undefined,
-      payorApprovalStatus: (row.payor_approval_status as PayorApprovalStatus) || undefined,
-      stateSpecificData: row.state_specific_data ? JSON.parse(row.state_specific_data) : undefined,
-      caregiverAttestation: row.caregiver_attestation ? JSON.parse(row.caregiver_attestation) : undefined,
-      clientAttestation: row.client_attestation ? JSON.parse(row.client_attestation) : undefined,
-      supervisorReview: row.supervisor_review ? JSON.parse(row.supervisor_review) : undefined,
       createdAt: row.created_at,
       createdBy: row.created_by,
       updatedAt: row.updated_at,
       updatedBy: row.updated_by,
       version: row.version,
     };
+
+    const optionalFields = {
+      clientMedicaidId: row.client_medicaid_id,
+      caregiverNationalProviderId: row.caregiver_npi,
+      clockOutTime: row.clock_out_time,
+      totalDuration: row.total_duration,
+      clockOutVerification: row.clock_out_verification ? JSON.parse(row.clock_out_verification) : undefined,
+      midVisitChecks: row.mid_visit_checks ? JSON.parse(row.mid_visit_checks) : undefined,
+      pauseEvents: row.pause_events ? JSON.parse(row.pause_events) : undefined,
+      exceptionEvents: row.exception_events ? JSON.parse(row.exception_events) : undefined,
+      submittedToPayor: row.submitted_to_payor,
+      payorApprovalStatus: row.payor_approval_status as PayorApprovalStatus,
+      stateSpecificData: row.state_specific_data ? JSON.parse(row.state_specific_data) : undefined,
+      caregiverAttestation: row.caregiver_attestation ? JSON.parse(row.caregiver_attestation) : undefined,
+      clientAttestation: row.client_attestation ? JSON.parse(row.client_attestation) : undefined,
+      supervisorReview: row.supervisor_review ? JSON.parse(row.supervisor_review) : undefined,
+    };
+
+    const filteredOptional = Object.fromEntries(
+      Object.entries(optionalFields).filter(([_, value]) => value !== undefined && value !== null)
+    );
+
+    return { ...baseRecord, ...filteredOptional } as EVVRecord;
   }
 
   /**
@@ -748,10 +745,9 @@ export class EVVRepository {
    * Helper: Map database row to TimeEntry
    */
   private mapTimeEntry(row: TimeEntryRow): TimeEntry {
-    return {
+    const baseEntry = {
       id: row.id,
       visitId: row.visit_id,
-      evvRecordId: row.evv_record_id || undefined,
       organizationId: row.organization_id,
       caregiverId: row.caregiver_id,
       clientId: row.client_id,
@@ -766,7 +762,6 @@ export class EVVRepository {
       serverReceivedAt: row.server_received_at,
       syncMetadata: JSON.parse(row.sync_metadata),
       offlineRecorded: row.offline_recorded,
-      offlineRecordedAt: row.offline_recorded_at || undefined,
       
       // Status
       status: row.status as TimeEntryStatus,
@@ -777,6 +772,19 @@ export class EVVRepository {
       updatedBy: row.updated_by,
       version: row.version,
     };
+
+    const optionalFields = {
+      evvRecordId: row.evv_record_id,
+      offlineRecordedAt: row.offline_recorded_at,
+      verificationIssues: row.verification_issues ? JSON.parse(row.verification_issues) : undefined,
+      manualOverride: row.manual_override ? JSON.parse(row.manual_override) : undefined,
+    };
+
+    const filteredOptional = Object.fromEntries(
+      Object.entries(optionalFields).filter(([_, value]) => value !== undefined && value !== null)
+    );
+
+    return { ...baseEntry, ...filteredOptional } as TimeEntry;
   }
 
   /**

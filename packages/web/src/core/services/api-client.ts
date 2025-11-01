@@ -37,7 +37,7 @@ class ApiClientImpl implements ApiClient {
       const response = await fetch(`${this.baseUrl}${url}`, {
         ...fetchOptions,
         headers,
-        signal: config?.signal,
+        ...(config?.signal !== undefined && { signal: config.signal }),
       });
 
       if (!response.ok) {
@@ -61,14 +61,17 @@ class ApiClientImpl implements ApiClient {
   }
 
   async get<T>(url: string, config?: RequestConfig): Promise<T> {
-    return this.request<T>(url, { method: 'GET', config });
+    return this.request<T>(url, { 
+      method: 'GET', 
+      ...(config !== undefined && { config: config }) 
+    });
   }
 
   async post<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T> {
     return this.request<T>(url, {
       method: 'POST',
       body: JSON.stringify(data),
-      config,
+      ...(config !== undefined && { config: config }),
     });
   }
 
@@ -76,7 +79,7 @@ class ApiClientImpl implements ApiClient {
     return this.request<T>(url, {
       method: 'PATCH',
       body: JSON.stringify(data),
-      config,
+      ...(config !== undefined && { config: config }),
     });
   }
 
@@ -84,12 +87,15 @@ class ApiClientImpl implements ApiClient {
     return this.request<T>(url, {
       method: 'PUT',
       body: JSON.stringify(data),
-      config,
+      ...(config !== undefined && { config: config }),
     });
   }
 
   async delete<T>(url: string, config?: RequestConfig): Promise<T> {
-    return this.request<T>(url, { method: 'DELETE', config });
+    return this.request<T>(url, { 
+      method: 'DELETE', 
+      ...(config !== undefined && { config: config }) 
+    });
   }
 }
 

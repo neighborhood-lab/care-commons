@@ -18,14 +18,14 @@ export class StateSpecificMatchingService {
    */
   async findMatches(
     shiftId: UUID,
-    userContext: UserContext
+    _userContext: UserContext
   ): Promise<CaregiverMatch[]> {
     // Get eligible caregivers (registry checks applied in repository)
     const eligible = await this.repository.findEligibleCaregivers(shiftId);
     
     // Get shift details
     const shift = await this.repository.findById(shiftId);
-    if (!shift) {
+    if (shift === null) {
       throw new Error('Shift not found');
     }
 
@@ -52,7 +52,7 @@ export class StateSpecificMatchingService {
 
     // Validate state-specific requirements
     const shift = await this.repository.findById(shiftId);
-    if (!shift) {
+    if (shift === null) {
       throw new Error('Shift not found');
     }
 
@@ -73,13 +73,13 @@ export class StateSpecificMatchingService {
       SELECT * FROM caregivers WHERE id = $1
     `, [match.caregiverId]);
 
-    if (!cg.rows[0]) return match;
+    if (cg.rows[0] === undefined) return match;
 
     const caregiver = cg.rows[0];
 
     // Skills match
     const hasAllSkills = shift.requiredSkills.every((skill: string) =>
-      (caregiver.certifications as string[] || []).includes(skill)
+      ((caregiver['certifications'] as string[]) || []).includes(skill)
     );
     if (hasAllSkills) {
       score += 20;
@@ -90,7 +90,7 @@ export class StateSpecificMatchingService {
 
     // Language match
     if (shift.languagePreference) {
-      if ((caregiver.languages_spoken as string[] || []).includes(shift.languagePreference)) {
+      if (((caregiver['languages_spoken'] as string[]) || []).includes(shift.languagePreference)) {
         score += 15;
         reasons.push(`Speaks ${shift.languagePreference}`);
       }
@@ -98,7 +98,7 @@ export class StateSpecificMatchingService {
 
     // State-specific compliance (TX/FL)
     if (shift.state === 'TX') {
-      const txData = (caregiver.state_specific as any)?.texas;
+      const txData = (caregiver['state_specific'] as any)?.texas;
       if (txData?.employee_misconduct_check?.status === 'CLEAR') {
         score += 10;
         reasons.push('TX Employee Misconduct Registry: CLEAR');
@@ -110,7 +110,7 @@ export class StateSpecificMatchingService {
     }
 
     if (shift.state === 'FL') {
-      const flData = (caregiver.state_specific as any)?.florida;
+      const flData = (caregiver['state_specific'] as any)?.florida;
       if (flData?.level2_screening?.status === 'CLEARED') {
         score += 10;
         reasons.push('FL Level 2 screening: CLEARED');
@@ -134,20 +134,20 @@ export class StateSpecificMatchingService {
       SELECT state_specific FROM caregivers WHERE id = $1
     `, [caregiverId]);
 
-    if (!caregiver.rows[0]) {
+    if (caregiver.rows[0] === undefined) {
       throw new Error('Caregiver not found');
     }
 
     if (shift.state === 'TX') {
-      const txData = (caregiver.rows[0].state_specific as any)?.texas;
-      if (!txData?.employee_misconduct_check || txData.employee_misconduct_check.status !== 'CLEAR') {
+      const txData = (caregiver.rows[0]['state_specific'] as any)?.texas;
+      if (txData === undefined || txData.employee_misconduct_check === undefined || txData.employee_misconduct_check.status !== 'CLEAR') {
         throw new Error('TX: Caregiver must have clear Employee Misconduct Registry check');
       }
     }
 
     if (shift.state === 'FL') {
-      const flData = (caregiver.rows[0].state_specific as any)?.florida;
-      if (!flData?.level2_screening || flData.level2_screening.status !== 'CLEARED') {
+      const flData = (caregiver.rows[0]['state_specific'] as any)?.florida;
+      if (flData === undefined || flData.level2_screening === undefined || flData.level2_screening.status !== 'CLEARED') {
         throw new Error('FL: Caregiver must have cleared Level 2 background screening');
       }
     }

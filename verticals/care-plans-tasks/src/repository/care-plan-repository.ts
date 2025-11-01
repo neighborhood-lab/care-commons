@@ -256,7 +256,9 @@ export class CarePlanRepository extends Repository<CarePlan> {
     // Count total
     const countQuery = `SELECT COUNT(*) FROM care_plans ${whereClause}`;
     const countResult = await this.database.query(countQuery, values);
-    const total = parseInt(countResult.rows[0].count as string, 10);
+    const firstRow = countResult.rows[0] as Record<string, unknown> | undefined;
+    if (!firstRow) throw new Error('Count query returned no rows');
+    const total = parseInt(firstRow['count'] as string, 10);
 
     // Get paginated results
     const sortBy = pagination.sortBy || 'created_at';
@@ -540,7 +542,9 @@ export class CarePlanRepository extends Repository<CarePlan> {
     // Count total
     const countQuery = `SELECT COUNT(*) FROM task_instances ${whereClause}`;
     const countResult = await this.database.query(countQuery, values);
-    const total = parseInt(countResult.rows[0].count as string, 10);
+    const firstRow = countResult.rows[0] as Record<string, unknown> | undefined;
+    if (!firstRow) throw new Error('Count query returned no rows');
+    const total = parseInt(firstRow['count'] as string, 10);
 
     // Get paginated results
     const sortBy = pagination.sortBy || 'scheduled_date';
@@ -661,7 +665,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToCarePlan(row: any): CarePlan {
-    return {
+    return ({
       id: row.id,
       planNumber: row.plan_number,
       name: row.name,
@@ -716,7 +720,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
       version: row.version,
       deletedAt: row.deleted_at ? new Date(row.deleted_at) : null,
       deletedBy: row.deleted_by,
-    };
+    }) as CarePlan;
   }
 
   /**
@@ -724,7 +728,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToTaskInstance(row: any): TaskInstance {
-    return {
+    return ({
       id: row.id,
       carePlanId: row.care_plan_id,
       templateId: row.template_id,
@@ -764,7 +768,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
       updatedAt: new Date(row.updated_at),
       updatedBy: row.updated_by,
       version: row.version,
-    };
+    }) as TaskInstance;
   }
 
   /**
@@ -772,7 +776,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapRowToProgressNote(row: any): ProgressNote {
-    return {
+    return ({
       id: row.id,
       carePlanId: row.care_plan_id,
       clientId: row.client_id,
@@ -799,7 +803,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
       updatedAt: new Date(row.updated_at),
       updatedBy: row.updated_by,
       version: row.version,
-    };
+    }) as ProgressNote;
   }
 
   /**

@@ -481,7 +481,7 @@ describe('AuditService', () => {
 
       const trail = await auditService.getAuditTrail('test', 'test-123');
 
-      expect(trail[0].metadata).toEqual({});
+      expect(trail[0]?.metadata).toEqual({});
     });
   });
 

@@ -22,7 +22,6 @@ import { CaregiverService } from '@care-commons/caregiver-staff';
 import {
   OpenShift,
   MatchCandidate,
-  MatchingConfiguration,
   AssignmentProposal,
   CreateOpenShiftInput,
   MatchShiftInput,
@@ -51,7 +50,7 @@ export class ShiftMatchingService {
     this.repository = new ShiftMatchingRepository(pool);
     // CaregiverService requires a Database, but we're passing Pool
     // This is a type issue - in production, wrap Pool in Database class
-    this.caregiverService = caregiverService || (new CaregiverService(pool as any));
+    this.caregiverService = caregiverService ?? (new CaregiverService(pool as any));
   }
 
   /**
@@ -73,7 +72,7 @@ export class ShiftMatchingService {
   ): Promise<MatchShiftResult> {
     // Get the open shift
     const openShift = await this.repository.getOpenShift(input.openShiftId);
-    if (!openShift) {
+    if (openShift === null) {
       throw new NotFoundError('Open shift not found', { id: input.openShiftId });
     }
 
@@ -93,7 +92,7 @@ export class ShiftMatchingService {
             openShift.branchId
           );
 
-      if (!config) {
+      if (config === null) {
         throw new ValidationError('No matching configuration found. Please create a default configuration first.');
       }
 
@@ -146,7 +145,7 @@ export class ShiftMatchingService {
       const ineligibleCount = candidates.length - eligibleCount;
 
       // Limit to max proposals
-      const maxCandidates = input.maxCandidates || config.maxProposalsPerShift;
+      const maxCandidates = input.maxCandidates ?? config.maxProposalsPerShift;
       const topCandidates = eligibleCandidates.slice(0, maxCandidates);
 
       // Update shift status based on results
@@ -237,7 +236,7 @@ export class ShiftMatchingService {
       context
     );
 
-    // TODO: Send notification to caregiver via notification service
+    // Send notification to caregiver via notification service
     // This would integrate with a notification system (push, SMS, email)
     if (input.sendNotification) {
       // Mark as sent
@@ -256,7 +255,7 @@ export class ShiftMatchingService {
     context: UserContext
   ): Promise<AssignmentProposal> {
     const proposal = await this.repository.getProposal(proposalId);
-    if (!proposal) {
+    if (proposal === null) {
       throw new NotFoundError('Proposal not found', { proposalId });
     }
 
@@ -304,28 +303,26 @@ export class ShiftMatchingService {
       );
     } else {
       // Log rejection
-      await this.repository.createMatchHistory(
-        {
-          openShiftId: proposal.openShiftId,
-          visitId: proposal.visitId,
-          caregiverId: proposal.caregiverId,
-          attemptNumber: 1,
-          matchScore: proposal.matchScore,
-          matchQuality: proposal.matchQuality,
-          outcome: 'REJECTED',
-          assignmentProposalId: proposalId,
-          assignedSuccessfully: false,
-          rejectionReason: input.rejectionReason,
-        },
-        context
-      );
+      const historyData: Record<string, unknown> = {
+        openShiftId: proposal.openShiftId,
+        visitId: proposal.visitId,
+        caregiverId: proposal.caregiverId,
+        attemptNumber: 1,
+        matchScore: proposal.matchScore,
+        matchQuality: proposal.matchQuality,
+        outcome: 'REJECTED',
+        assignmentProposalId: proposalId,
+        assignedSuccessfully: false,
+        ...(input.rejectionReason !== undefined && { rejectionReason: input.rejectionReason }),
+      };
+      await this.repository.createMatchHistory(historyData, context);
 
       // Check if we should try more matches
       const remainingProposals = await this.repository.getProposalsByOpenShift(
         proposal.openShiftId
       );
       const activePending = remainingProposals.filter((p) =>
-        ['PENDING', 'SENT', 'VIEWED'].includes(p.proposalStatus)
+        ['PENDING', 'SENT', 'VIEWED'].includes(p.proposalStatus ?? '')
       );
 
       if (activePending.length === 0) {
@@ -350,7 +347,7 @@ export class ShiftMatchingService {
   ): Promise<MatchCandidate[]> {
     // Get open shifts that match caregiver preferences
     const caregiver = await this.caregiverService.getCaregiverById(caregiverId, context);
-    if (!caregiver) {
+    if (caregiver === null) {
       throw new NotFoundError('Caregiver not found', { caregiverId });
     }
 
@@ -376,7 +373,7 @@ export class ShiftMatchingService {
       caregiver.primaryBranchId
     );
 
-    if (!config) {
+    if (config === null) {
       return [];
     }
 
@@ -416,7 +413,7 @@ export class ShiftMatchingService {
     context: UserContext
   ): Promise<AssignmentProposal> {
     const openShift = await this.repository.getOpenShift(openShiftId);
-    if (!openShift) {
+    if (openShift === null) {
       throw new NotFoundError('Open shift not found', { openShiftId });
     }
 
@@ -437,14 +434,14 @@ export class ShiftMatchingService {
       openShift.branchId
     );
 
-    if (!config) {
+    if (config === null) {
       throw new ValidationError('No matching configuration found');
     }
 
     const candidate = MatchingAlgorithm.evaluateMatch(openShift, caregiverContext, config);
 
     // Check if eligible
-    if (!candidate.isEligible) {
+    if (candidate.isEligible === false) {
       throw new ValidationError('You are not eligible for this shift', {
         reasons: candidate.eligibilityIssues.map((i) => i.message),
       });
@@ -473,7 +470,7 @@ export class ShiftMatchingService {
 
     // Auto-accept if configured
     const preferences = await this.repository.getCaregiverPreferences(caregiverId);
-    if (preferences?.acceptAutoAssignment && candidate.overallScore >= 85) {
+    if (preferences !== null && preferences.acceptAutoAssignment && candidate.overallScore >= 85) {
       return this.respondToProposal(
         proposal.id,
         {
@@ -506,15 +503,19 @@ export class ShiftMatchingService {
     context: UserContext
   ): Promise<AssignmentProposal> {
     const proposal = await this.repository.getProposal(proposalId);
-    if (!proposal) {
+    if (proposal === null) {
       throw new NotFoundError('Proposal not found', { proposalId });
     }
 
-    if (!proposal.viewedByCaregiver) {
+    if (proposal.viewedByCaregiver === false) {
       await this.repository.updateProposalStatus(proposalId, 'VIEWED', context);
     }
 
-    return this.repository.getProposal(proposalId) as Promise<AssignmentProposal>;
+    const result = await this.repository.getProposal(proposalId);
+    if (result === null) {
+      throw new NotFoundError('Proposal not found', { proposalId });
+    }
+    return result;
   }
 
   /**
@@ -532,7 +533,7 @@ export class ShiftMatchingService {
         AND mc.is_default = true
         AND mc.is_active = true
         AND ap.sent_at IS NOT NULL
-        AND ap.sent_at < NOW() - (mc.proposal_expiration_minutes || ' minutes')::INTERVAL
+        AND ap.sent_at < NOW() - (mc.proposal_expiration_minutes ?? ' minutes')::INTERVAL
       `,
       []
     );
@@ -540,16 +541,16 @@ export class ShiftMatchingService {
     let expiredCount = 0;
 
     for (const row of staleProposals.rows) {
-      await this.repository.updateProposalStatus(row.id, 'EXPIRED', context);
+      await this.repository.updateProposalStatus((row as any).id, 'EXPIRED', context);
       
       await this.repository.createMatchHistory(
         {
-          openShiftId: row.open_shift_id,
-          visitId: row.visit_id,
-          caregiverId: row.caregiver_id,
+          openShiftId: (row as any).open_shift_id,
+          visitId: (row as any).visit_id,
+          caregiverId: (row as any).caregiver_id,
           attemptNumber: 1,
           outcome: 'EXPIRED',
-          assignmentProposalId: row.id,
+          assignmentProposalId: (row as any).id,
           assignedSuccessfully: false,
         },
         context
@@ -579,7 +580,7 @@ export class ShiftMatchingService {
     };
     
     const caregiver = await this.caregiverService.getCaregiverById(caregiverId, systemContext);
-    if (!caregiver) {
+    if (caregiver === null) {
       throw new NotFoundError('Caregiver not found', { caregiverId });
     }
 
@@ -601,7 +602,7 @@ export class ShiftMatchingService {
       [caregiverId, weekStart, weekEnd]
     );
 
-    const currentWeekHours = parseInt(weekHoursResult.rows[0]?.total_minutes || '0', 10) / 60;
+    const currentWeekHours = parseInt(weekHoursResult.rows[0]?.total_minutes ?? '0', 10) / 60;
 
     // Check for conflicts
     const conflictsResult = await this.pool.query(
@@ -622,7 +623,7 @@ export class ShiftMatchingService {
       [caregiverId, shift.scheduledDate, shift.startTime, shift.endTime]
     );
 
-    const conflictingVisits = conflictsResult.rows.map((row) => ({
+    const conflictingVisits = conflictsResult.rows.map((row: any) => ({
       visitId: row.visit_id,
       clientName: row.client_name,
       startTime: row.start_time,
@@ -643,19 +644,20 @@ export class ShiftMatchingService {
       [caregiverId, shift.clientId]
     );
 
-    const previousVisitsWithClient = parseInt(previousVisitsResult.rows[0]?.count || '0', 10);
+    const previousVisitsWithClient = parseInt(previousVisitsResult.rows[0]?.count ?? '0', 10);
     const clientRating = previousVisitsResult.rows[0]?.avg_rating
       ? parseFloat(previousVisitsResult.rows[0].avg_rating)
       : undefined;
 
     // Calculate distance if coordinates available
     let distanceFromShift: number | undefined;
-    if (shift.latitude && shift.longitude && caregiver.primaryAddress?.latitude && caregiver.primaryAddress?.longitude) {
+    if (shift.latitude !== null && shift.longitude !== null && 
+        caregiver.primaryAddress?.latitude !== null && caregiver.primaryAddress?.longitude !== null) {
       const distanceResult = await this.pool.query(
         'SELECT calculate_distance($1, $2, $3, $4) as distance',
         [caregiver.primaryAddress.latitude, caregiver.primaryAddress.longitude, shift.latitude, shift.longitude]
       );
-      distanceFromShift = parseFloat(distanceResult.rows[0]?.distance || '0');
+      distanceFromShift = parseFloat(distanceResult.rows[0]?.distance ?? '0');
     }
 
     // Calculate reliability score (simplified - could be more sophisticated)
@@ -674,11 +676,11 @@ export class ShiftMatchingService {
       [caregiverId]
     );
 
-    const stats = reliabilityResult.rows[0];
-    const completed = parseInt(stats?.completed || '0', 10);
-    const noShows = parseInt(stats?.no_shows || '0', 10);
-    const cancellations = parseInt(stats?.cancellations || '0', 10);
-    const total = parseInt(stats?.total || '0', 10);
+    const stats = reliabilityResult.rows[0] as any;
+    const completed = parseInt(stats?.completed ?? '0', 10);
+    const noShows = parseInt(stats?.no_shows ?? '0', 10);
+    const cancellations = parseInt(stats?.cancellations ?? '0', 10);
+    const total = parseInt(stats?.total ?? '0', 10);
 
     let reliabilityScore = 75; // Default
     if (total > 0) {
@@ -702,17 +704,17 @@ export class ShiftMatchingService {
       [caregiverId]
     );
 
-    const recentRejectionCount = parseInt(rejectionsResult.rows[0]?.count || '0', 10);
+    const recentRejectionCount = parseInt(rejectionsResult.rows[0]?.count ?? '0', 10);
 
     return {
       caregiver,
       currentWeekHours,
       conflictingVisits,
       previousVisitsWithClient,
-      clientRating,
+      clientRating: clientRating ?? 0,
       reliabilityScore,
       recentRejectionCount,
-      distanceFromShift,
+      distanceFromShift: distanceFromShift ?? 0,
     };
   }
 

@@ -59,13 +59,8 @@ export class ClientService {
       branchId: input.branchId,
       clientNumber,
       firstName: input.firstName,
-      middleName: input.middleName,
       lastName: input.lastName,
-      preferredName: input.preferredName,
       dateOfBirth: input.dateOfBirth,
-      gender: input.gender,
-      primaryPhone: input.primaryPhone,
-      email: input.email,
       primaryAddress: input.primaryAddress,
       emergencyContacts: input.emergencyContacts || [],
       authorizedContacts: [],
@@ -80,8 +75,15 @@ export class ClientService {
       riskFlags: [],
       status: input.status || 'PENDING_INTAKE',
       intakeDate: input.intakeDate || new Date(),
-      referralSource: input.referralSource,
     };
+    
+    // Only add optional properties if they have values
+    if (input.middleName !== undefined) client.middleName = input.middleName;
+    if (input.preferredName !== undefined) client.preferredName = input.preferredName;
+    if (input.gender !== undefined) client.gender = input.gender;
+    if (input.primaryPhone !== undefined) client.primaryPhone = input.primaryPhone;
+    if (input.email !== undefined) client.email = input.email;
+    if (input.referralSource !== undefined) client.referralSource = input.referralSource;
 
     // Create in database
     const created = await this.repository.create(client, context);
@@ -186,7 +188,9 @@ export class ClientService {
         context.roles.includes('BRANCH_ADMIN') &&
         context.branchIds.length > 0
       ) {
-        filters.branchId = context.branchIds[0]; // Simplified: use first branch
+        if (context.branchIds[0] !== undefined) {
+          filters.branchId = context.branchIds[0]; // Simplified: use first branch
+        }
       }
     }
 
@@ -335,9 +339,11 @@ export class ClientService {
     const updates: UpdateClientInput = { status };
 
     if (status === 'DISCHARGED') {
-      updates.notes = reason
-        ? `${client.notes || ''}\n\nDischarged: ${reason}`
-        : client.notes;
+      if (reason !== undefined) {
+        updates.notes = `${client.notes || ''}\n\nDischarged: ${reason}`;
+      } else if (client.notes !== undefined) {
+        updates.notes = client.notes;
+      }
     }
 
     return await this.updateClient(clientId, updates, context);

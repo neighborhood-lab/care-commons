@@ -58,7 +58,7 @@ export function formatVisitTime(startTime: string, endTime: string): string {
     return `${displayHour}:${min.toString().padStart(2, '0')} ${period}`;
   };
   
-  return `${formatTime(startHour, startMin)} - ${formatTime(endHour, endMin)}`;
+  return `${formatTime(startHour ?? 0, startMin ?? 0)} - ${formatTime(endHour ?? 0, endMin ?? 0)}`;
 }
 
 /**
@@ -68,8 +68,8 @@ export function getVisitDuration(startTime: string, endTime: string): number {
   const [startHour, startMin] = startTime.split(':').map(Number);
   const [endHour, endMin] = endTime.split(':').map(Number);
   
-  const startMinutes = startHour * 60 + startMin;
-  const endMinutes = endHour * 60 + endMin;
+  const startMinutes = (startHour ?? 0) * 60 + (startMin ?? 0);
+  const endMinutes = (endHour ?? 0) * 60 + (endMin ?? 0);
   
   return endMinutes - startMinutes;
 }
@@ -330,7 +330,7 @@ export function getTimeUntilVisit(
   const [hours, minutes] = startTime.split(':').map(Number);
   
   const visitDateTime = new Date(visitDate);
-  visitDateTime.setHours(hours, minutes, 0, 0);
+  visitDateTime.setHours(hours ?? 0, minutes ?? 0, 0, 0);
   
   return formatDistanceToNow(visitDateTime, { addSuffix: true });
 }
@@ -372,7 +372,7 @@ export function hasTimeConflict(
  */
 function timeToMinutes(time: string): number {
   const [hours, mins] = time.split(':').map(Number);
-  return hours * 60 + mins;
+  return (hours ?? 0) * 60 + (mins ?? 0);
 }
 
 /**
@@ -380,7 +380,7 @@ function timeToMinutes(time: string): number {
  */
 export function addMinutesToTime(time: string, minutesToAdd: number): string {
   const [hours, mins] = time.split(':').map(Number);
-  const totalMinutes = hours * 60 + mins + minutesToAdd;
+  const totalMinutes = (hours ?? 0) * 60 + (mins ?? 0) + minutesToAdd;
   
   const newHours = Math.floor(totalMinutes / 60) % 24;
   const newMins = totalMinutes % 60;
@@ -441,7 +441,7 @@ export function getDayOfWeek(date: Date | string): DayOfWeek {
     'FRIDAY',
     'SATURDAY',
   ];
-  return days[d.getDay()];
+  return days[d.getDay()] ?? 'MONDAY';
 }
 
 /**
@@ -481,7 +481,7 @@ export function isPatternActiveOnDate(
  * Get time of day from time string
  */
 export function getTimeOfDay(time: string): TimeOfDay {
-  const hour = parseInt(time.split(':')[0]);
+  const hour = parseInt(time.split(':')[0] ?? '0');
   
   if (hour >= 5 && hour < 8) {
     return 'EARLY_MORNING';
@@ -634,7 +634,7 @@ export function groupVisitsByDate<T extends Pick<Visit, 'scheduledDate' | 'sched
   
   // Sort each group by time
   Object.keys(groups).forEach(date => {
-    groups[date] = sortVisitsByTime(groups[date]) as T[];
+    groups[date] = sortVisitsByTime(groups[date] || []) as T[];
   });
   
   return groups;
@@ -691,7 +691,7 @@ export function isVisitOverdue(
     
   const [hours, minutes] = visit.scheduledStartTime.split(':').map(Number);
   const scheduledStart = new Date(visitDate);
-  scheduledStart.setHours(hours, minutes, 0, 0);
+  scheduledStart.setHours(hours ?? 0, minutes ?? 0, 0, 0);
   
   return isBefore(scheduledStart, new Date());
 }

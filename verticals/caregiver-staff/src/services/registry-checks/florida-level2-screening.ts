@@ -121,7 +121,7 @@ export class FloridaLevel2ScreeningService {
    * Florida requires rescreening every 5 years
    */
   async initiateRescreen(
-    caregiverId: UUID,
+    _caregiverId: UUID,
     currentScreening: FloridaBackgroundScreening
   ): Promise<{ submissionId: string; estimatedCompletionDate: Date }> {
     // Verify current screening exists and is eligible for rescreen
@@ -217,8 +217,8 @@ export class FloridaLevel2ScreeningService {
    * under specific circumstances (Chapter 435.07)
    */
   async requestExemption(
-    caregiverId: UUID,
-    screening: FloridaBackgroundScreening,
+    _caregiverId: UUID,
+    _screening: FloridaBackgroundScreening,
     offense: DisqualifyingOffense,
     justification: string
   ): Promise<{
@@ -309,11 +309,16 @@ export class FloridaLevel2ScreeningService {
         restrictions.push(`Screening expires in ${daysUntilExpiration} days - initiate rescreen`);
       }
       
-      return {
+      const result: { cleared: boolean; canWork: boolean; reason?: string; restrictions?: string[] } = {
         cleared: true,
         canWork: true,
-        restrictions: restrictions.length > 0 ? restrictions : undefined,
       };
+      
+      if (restrictions.length > 0) {
+        result.restrictions = restrictions;
+      }
+      
+      return result;
     }
     
     return {
@@ -378,7 +383,8 @@ export class FloridaLevel2ScreeningService {
    * Calculate estimated completion date for screening
    * Typical processing time is 5-10 business days for electronic submission
    */
-  private calculateEstimatedCompletion(submissionDate: Date): Date {
+  // @ts-expect-error - Utility function kept for future use
+  private _calculateEstimatedCompletion(submissionDate: Date): Date {
     const estimated = new Date(submissionDate);
     estimated.setDate(estimated.getDate() + 10); // 10 business days
     return estimated;
