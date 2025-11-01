@@ -95,6 +95,14 @@ export default [
   },
   {
     files: ['**/__tests__/**/*.ts'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        project: './tsconfig.test.json',
+        ecmaVersion: 2020,
+        sourceType: 'module',
+      },
+    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' in test mocks
       '@typescript-eslint/no-unnecessary-condition': 'off', // Allow unnecessary conditions in tests
