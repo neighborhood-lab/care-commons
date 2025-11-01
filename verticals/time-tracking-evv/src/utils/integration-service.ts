@@ -90,48 +90,71 @@ export class IntegrationService {
     }
 
     const row = result.rows[0];
-    const address = typeof row.address === 'string' 
-      ? JSON.parse(row.address) 
-      : row.address;
+    const address = typeof row['address'] === 'string' 
+      ? JSON.parse(row['address']) 
+      : row['address'];
 
     // Build client full name
-    const nameParts = [row.first_name, row.middle_name, row.last_name].filter(Boolean);
+    const nameParts = [row['first_name'], row['middle_name'], row['last_name']].filter(Boolean);
     const clientName = nameParts.join(' ');
 
     // Extract address from visit or fall back to client primary address
     const serviceAddress = address || (
-      typeof row.primary_address === 'string' 
-        ? JSON.parse(row.primary_address) 
-        : row.primary_address
+      typeof row['primary_address'] === 'string' 
+        ? JSON.parse(row['primary_address']) 
+        : row['primary_address']
+    );
+
+    const visitDataBase = {
+      visitId: row['visit_id'] as UUID,
+      organizationId: row['organization_id'] as UUID,
+      branchId: row['branch_id'] as UUID,
+      clientId: row['client_id'] as UUID,
+      clientName,
+      serviceTypeCode: row['service_type_code'] as string,
+      serviceTypeName: row['service_type_name'] as string,
+      serviceDate: row['scheduled_date'] as Date,
+      scheduledStartTime: this.combineDateTime(row['scheduled_date'] as Date, row['scheduled_start_time'] as string),
+      scheduledEndTime: this.combineDateTime(row['scheduled_date'] as Date, row['scheduled_end_time'] as string),
+      scheduledDuration: row['scheduled_duration'] as number,
+    };
+
+    const visitDataOptional = {
+      caregiverId: row['assigned_caregiver_id'] as UUID | undefined,
+      clientMedicaidId: row['medicaid_number'] as string | undefined,
+    };
+
+    const visitDataFilteredOptional = Object.fromEntries(
+      Object.entries(visitDataOptional).filter(([_, value]) => value !== undefined)
     );
 
     return {
-      visitId: row.visit_id as UUID,
-      organizationId: row.organization_id as UUID,
-      branchId: row.branch_id as UUID,
-      clientId: row.client_id as UUID,
-      clientName,
-      clientMedicaidId: row.medicaid_number as string | undefined,
-      caregiverId: row.assigned_caregiver_id as UUID | undefined,
-      serviceTypeCode: row.service_type_code as string,
-      serviceTypeName: row.service_type_name as string,
-      serviceDate: row.scheduled_date as Date,
-      scheduledStartTime: this.combineDateTime(row.scheduled_date as Date, row.scheduled_start_time as string),
-      scheduledEndTime: this.combineDateTime(row.scheduled_date as Date, row.scheduled_end_time as string),
-      scheduledDuration: row.scheduled_duration as number,
-      serviceAddress: {
-        line1: serviceAddress.line1,
-        line2: serviceAddress.line2,
-        city: serviceAddress.city,
-        state: serviceAddress.state,
-        postalCode: serviceAddress.postalCode,
-        country: serviceAddress.country || 'US',
-        latitude: serviceAddress.latitude || 0,
-        longitude: serviceAddress.longitude || 0,
-        geofenceRadius: serviceAddress.geofenceRadius || 100,
-        addressVerified: serviceAddress.addressVerified || false,
-        addressId: this.generateAddressId(serviceAddress),
-      },
+      ...visitDataBase,
+      ...visitDataFilteredOptional,
+      serviceAddress: (() => {
+        const baseAddress = {
+          line1: serviceAddress.line1,
+          city: serviceAddress.city,
+          state: serviceAddress.state,
+          postalCode: serviceAddress.postalCode,
+          country: serviceAddress.country || 'US',
+          latitude: serviceAddress.latitude || 0,
+          longitude: serviceAddress.longitude || 0,
+          geofenceRadius: serviceAddress.geofenceRadius || 100,
+          addressVerified: serviceAddress.addressVerified || false,
+          addressId: this.generateAddressId(serviceAddress),
+        };
+
+        const optionalFields = {
+          line2: serviceAddress.line2,
+        };
+
+        const filteredOptional = Object.fromEntries(
+          Object.entries(optionalFields).filter(([_, value]) => value !== undefined)
+        );
+
+        return { ...baseAddress, ...filteredOptional };
+      })(),
     };
   }
 
@@ -158,15 +181,15 @@ export class IntegrationService {
     }
 
     const row = result.rows[0];
-    const nameParts = [row.first_name, row.middle_name, row.last_name].filter(Boolean);
+    const nameParts = [row['first_name'], row['middle_name'], row['last_name']].filter(Boolean);
     const caregiverName = nameParts.join(' ');
 
     // Extract NPI from credentials if available
     let npi: string | undefined;
     try {
-      const credentials = typeof row.credentials === 'string'
-        ? JSON.parse(row.credentials)
-        : row.credentials;
+      const credentials = typeof row['credentials'] === 'string'
+        ? JSON.parse(row['credentials'])
+        : row['credentials'];
       
       if (Array.isArray(credentials)) {
         const npiCred = credentials.find(c => c.type === 'NPI' || c.type === 'PROVIDER_ID');
@@ -178,11 +201,23 @@ export class IntegrationService {
       // Ignore parsing errors
     }
 
-    return {
-      caregiverId: row.id as UUID,
+    const caregiverDataBase = {
+      caregiverId: row['id'] as UUID,
       caregiverName,
-      employeeNumber: row.employee_number as string,
+      employeeNumber: row['employee_number'] as string,
+    };
+
+    const caregiverDataOptional = {
       npi,
+    };
+
+    const caregiverDataFilteredOptional = Object.fromEntries(
+      Object.entries(caregiverDataOptional).filter(([_, value]) => value !== undefined)
+    );
+
+    return {
+      ...caregiverDataBase,
+      ...caregiverDataFilteredOptional,
     };
   }
 

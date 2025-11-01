@@ -20,7 +20,6 @@ import {
   CaregiverEligibility,
   EligibilityReason,
   ComplianceStatus,
-  PayRate,
 } from '../types/caregiver';
 import { CaregiverValidator } from '../validation/caregiver-validator';
 
@@ -260,8 +259,8 @@ export class CaregiverService {
     organizationId: string,
     branchId: string,
     dayOfWeek: string,
-    shiftStart: string,
-    shiftEnd: string,
+    _shiftStart: string,
+    _shiftEnd: string,
     context: UserContext
   ): Promise<Caregiver[]> {
     this.checkPermission(context, 'caregivers:read');
@@ -281,7 +280,7 @@ export class CaregiverService {
   async checkEligibilityForAssignment(
     caregiverId: string,
     clientId: string,
-    shiftDate: Date,
+    _shiftDate: Date,
     context: UserContext
   ): Promise<CaregiverEligibility> {
     this.checkPermission(context, 'caregivers:read');
@@ -542,14 +541,17 @@ export class CaregiverService {
       context.roles.includes('SUPER_ADMIN');
 
     if (!canViewSensitive) {
-      // Remove sensitive fields
+      // Mask sensitive fields but keep required structure
+      const { ssn, alternatePayRates, payrollInfo, ...safeCaregiver } = caregiver;
       return {
-        ...caregiver,
-        ssn: undefined,
-        dateOfBirth: undefined as unknown as Date, // Keep for age calculation but should be masked in API
-        payRate: undefined as unknown as PayRate,
-        alternatePayRates: undefined,
-        payrollInfo: undefined,
+        ...safeCaregiver,
+        payRate: {
+          id: 'masked',
+          rateType: 'BASE' as const,
+          amount: 0,
+          unit: 'HOURLY' as const,
+          effectiveDate: new Date(),
+        },
       };
     }
 

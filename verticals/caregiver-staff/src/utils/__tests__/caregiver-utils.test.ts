@@ -112,7 +112,7 @@ describe('Caregiver Utilities', () => {
     });
 
     it('should return first name if no preferred name', () => {
-      const caregiver = { firstName: 'Sarah', preferredName: undefined };
+      const caregiver = { firstName: 'Sarah' };
       expect(getDisplayName(caregiver)).toBe('Sarah');
     });
   });
@@ -245,7 +245,7 @@ describe('Caregiver Utilities', () => {
 
       const expiring = getExpiringCredentials(caregiver, 30);
       expect(expiring).toHaveLength(1);
-      expect(expiring[0].type).toBe('CNA');
+      expect(expiring[0]!.type).toBe('CNA');
     });
   });
 
@@ -274,7 +274,7 @@ describe('Caregiver Utilities', () => {
 
       const expired = getExpiredCredentials(caregiver);
       expect(expired).toHaveLength(1);
-      expect(expired[0].type).toBe('CNA');
+      expect(expired[0]!.type).toBe('CNA');
     });
   });
 
@@ -328,7 +328,7 @@ describe('Caregiver Utilities', () => {
     it('should filter by category', () => {
       const safety = getCompletedTraining(caregiver, 'SAFETY');
       expect(safety).toHaveLength(1);
-      expect(safety[0].name).toBe('CPR Training');
+      expect(safety[0]!.name).toBe('CPR Training');
     });
   });
 
@@ -606,7 +606,7 @@ describe('Caregiver Utilities', () => {
     it('should require all languages', () => {
       const multiLingual = filterByLanguages(caregivers as Caregiver[], ['Spanish', 'French']);
       expect(multiLingual).toHaveLength(1);
-      expect(multiLingual[0].firstName).toBe('Carlos');
+      expect(multiLingual[0]!.firstName).toBe('Carlos');
     });
   });
 });

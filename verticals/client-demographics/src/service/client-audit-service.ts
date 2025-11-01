@@ -117,7 +117,7 @@ export class ClientAuditService {
       ]
     );
     
-    return result.rows[0].id as UUID;
+    return result.rows[0]?.['id'] as UUID;
   }
 
   /**
@@ -136,19 +136,22 @@ export class ClientAuditService {
     ipAddress?: string,
     userAgent?: string
   ): Promise<UUID> {
-    return this.logAccess({
+    const entry: ClientAccessAuditEntry = {
       clientId,
       accessedBy,
       accessType: 'DISCLOSURE',
       accessTimestamp: new Date(),
-      accessReason: reason,
-      ipAddress,
-      userAgent,
       disclosureRecipient: recipient,
       disclosureMethod: method,
-      authorizationReference: authorizationRef,
       informationDisclosed,
-    });
+    };
+    
+    if (reason !== undefined) entry.accessReason = reason;
+    if (ipAddress !== undefined) entry.ipAddress = ipAddress;
+    if (userAgent !== undefined) entry.userAgent = userAgent;
+    if (authorizationRef !== undefined) entry.authorizationReference = authorizationRef;
+    
+    return this.logAccess(entry);
   }
 
   /**
@@ -200,7 +203,7 @@ export class ClientAuditService {
       `SELECT COUNT(*) as total FROM client_access_audit ${whereClause}`,
       params
     );
-    const totalCount = parseInt(countResult.rows[0].total as string, 10);
+    const totalCount = parseInt(countResult.rows[0]?.['total'] as string, 10);
     
     // Get entries with pagination
     const limit = query.limit || 100;
@@ -219,12 +222,11 @@ export class ClientAuditService {
        ${whereClause}${whereClause ? ' AND' : 'WHERE'} access_type = 'DISCLOSURE'`,
       params
     );
-    const disclosureCount = parseInt(disclosureResult.rows[0].count as string, 10);
+    const disclosureCount = parseInt(disclosureResult.rows[0]?.['count'] as string, 10);
     
-    return {
+    const report: AuditReport = {
       entries: entriesResult.rows.map(this.mapRowToEntry),
       totalCount,
-      clientId: query.clientId,
       dateRange: {
         start: query.startDate || new Date(0),
         end: query.endDate || new Date(),
@@ -232,6 +234,12 @@ export class ClientAuditService {
       disclosureCount,
       accessCount: totalCount - disclosureCount,
     };
+    
+    if (query.clientId !== undefined) {
+      report.clientId = query.clientId;
+    }
+    
+    return report;
   }
 
   /**
@@ -417,19 +425,37 @@ export class ClientAuditService {
    * Map database row to audit entry
    */
   private mapRowToEntry(row: Record<string, unknown>): ClientAccessAuditEntry {
-    return {
-      id: row.id as string,
-      clientId: row.client_id as string,
-      accessedBy: row.accessed_by as string,
-      accessType: row.access_type as AccessType,
-      accessTimestamp: row.access_timestamp as Date,
-      accessReason: row.access_reason as string | undefined,
-      ipAddress: row.ip_address as string | undefined,
-      userAgent: row.user_agent as string | undefined,
-      disclosureRecipient: row.disclosure_recipient as string | undefined,
-      disclosureMethod: row.disclosure_method as DisclosureMethod | undefined,
-      authorizationReference: row.authorization_reference as string | undefined,
-      informationDisclosed: row.information_disclosed as string | undefined,
+    const entry: ClientAccessAuditEntry = {
+      id: row['id'] as string,
+      clientId: row['client_id'] as string,
+      accessedBy: row['accessed_by'] as string,
+      accessType: row['access_type'] as AccessType,
+      accessTimestamp: row['access_timestamp'] as Date,
     };
+    
+    // Only add optional properties if they exist and are not undefined
+    if (row['access_reason'] !== undefined && row['access_reason'] !== null) {
+      entry.accessReason = row['access_reason'] as string;
+    }
+    if (row['ip_address'] !== undefined && row['ip_address'] !== null) {
+      entry.ipAddress = row['ip_address'] as string;
+    }
+    if (row['user_agent'] !== undefined && row['user_agent'] !== null) {
+      entry.userAgent = row['user_agent'] as string;
+    }
+    if (row['disclosure_recipient'] !== undefined && row['disclosure_recipient'] !== null) {
+      entry.disclosureRecipient = row['disclosure_recipient'] as string;
+    }
+    if (row['disclosure_method'] !== undefined && row['disclosure_method'] !== null) {
+      entry.disclosureMethod = row['disclosure_method'] as DisclosureMethod;
+    }
+    if (row['authorization_reference'] !== undefined && row['authorization_reference'] !== null) {
+      entry.authorizationReference = row['authorization_reference'] as string;
+    }
+    if (row['information_disclosed'] !== undefined && row['information_disclosed'] !== null) {
+      entry.informationDisclosed = row['information_disclosed'] as string;
+    }
+    
+    return entry;
   }
 }

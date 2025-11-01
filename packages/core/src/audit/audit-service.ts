@@ -83,14 +83,17 @@ export class AuditService {
     action: 'READ' | 'SEARCH',
     metadata?: Record<string, unknown>
   ): Promise<void> {
-    await this.logEvent(context, {
+    const eventData: Omit<AuditEvent, 'eventId' | 'timestamp' | 'userId' | 'organizationId'> = {
       eventType: 'DATA_ACCESS',
       resource,
       resourceId,
       action,
       result: 'SUCCESS',
-      metadata,
-    });
+    };
+    if (metadata) {
+      eventData.metadata = metadata;
+    }
+    await this.logEvent(context, eventData);
   }
 
   /**
@@ -103,14 +106,17 @@ export class AuditService {
     action: 'CREATE' | 'UPDATE' | 'DELETE',
     metadata?: Record<string, unknown>
   ): Promise<void> {
-    await this.logEvent(context, {
+    const eventData: Omit<AuditEvent, 'eventId' | 'timestamp' | 'userId' | 'organizationId'> = {
       eventType: 'DATA_MODIFICATION',
       resource,
       resourceId,
       action,
       result: 'SUCCESS',
-      metadata,
-    });
+    };
+    if (metadata) {
+      eventData.metadata = metadata;
+    }
+    await this.logEvent(context, eventData);
   }
 
   /**
@@ -122,14 +128,17 @@ export class AuditService {
     result: 'SUCCESS' | 'FAILURE',
     metadata?: Record<string, unknown>
   ): Promise<void> {
-    await this.logEvent(context, {
+    const eventData: Omit<AuditEvent, 'eventId' | 'timestamp' | 'userId' | 'organizationId'> = {
       eventType: 'SECURITY',
       resource: 'SECURITY',
       resourceId: context.userId,
       action,
       result,
-      metadata,
-    });
+    };
+    if (metadata) {
+      eventData.metadata = metadata;
+    }
+    await this.logEvent(context, eventData);
   }
 
   /**
@@ -153,19 +162,26 @@ export class AuditService {
       limit,
     ]);
 
-    return result.rows.map((row) => ({
-      eventId: row.event_id as string,
-      timestamp: row.timestamp as Date,
-      userId: row.user_id as string,
-      organizationId: row.organization_id as string,
-      eventType: row.event_type as AuditEventType,
-      resource: row.resource as string,
-      resourceId: row.resource_id as string,
-      action: row.action as string,
-      result: row.result as 'SUCCESS' | 'FAILURE',
-      metadata: JSON.parse((row.metadata as string) || '{}'),
-      ipAddress: row.ip_address as string | undefined,
-      userAgent: row.user_agent as string | undefined,
-    }));
+    return result.rows.map((row): AuditEvent => {
+      const event: AuditEvent = {
+        eventId: row['event_id'] as string,
+        timestamp: row['timestamp'] as Date,
+        userId: row['user_id'] as string,
+        organizationId: row['organization_id'] as string,
+        eventType: row['event_type'] as AuditEventType,
+        resource: row['resource'] as string,
+        resourceId: row['resource_id'] as string,
+        action: row['action'] as string,
+        result: row['result'] as 'SUCCESS' | 'FAILURE',
+        metadata: JSON.parse((row['metadata'] as string) || '{}'),
+      };
+      if (row['ip_address']) {
+        event.ipAddress = row['ip_address'] as string;
+      }
+      if (row['user_agent']) {
+        event.userAgent = row['user_agent'] as string;
+      }
+      return event;
+    });
   }
 }

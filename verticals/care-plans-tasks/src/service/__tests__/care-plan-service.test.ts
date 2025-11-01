@@ -699,11 +699,13 @@ describe('CarePlanService', () => {
         status: 'COMPLETED',
         completedAt: new Date(),
         completedBy: mockContext.userId,
-        completionNote: completeInput.completionNote,
-        completionSignature: {
-          ...completeInput.signature!,
-          signedAt: new Date(),
-        },
+        ...(completeInput.completionNote && { completionNote: completeInput.completionNote }),
+        ...(completeInput.signature && { 
+          completionSignature: {
+            ...completeInput.signature,
+            signedAt: new Date(),
+          }
+        }),
       };
       mockRepository.updateTaskInstance.mockResolvedValue(completedTask);
 

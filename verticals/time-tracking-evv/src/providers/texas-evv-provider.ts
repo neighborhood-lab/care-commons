@@ -41,7 +41,7 @@ export class TexasEVVProvider implements ITexasEVVProvider {
         method: evvRecord.clockInVerification.method
       },
       caregiverNPI: evvRecord.caregiverNationalProviderId,
-      programType: config.medicaid_program
+      programType: config['medicaid_program']
     };
 
     // TODO: Replace with actual HHAeXchange API call
@@ -66,7 +66,7 @@ export class TexasEVVProvider implements ITexasEVVProvider {
     `, [evvRecord.id, JSON.stringify(payload), evvRecord.recordedBy]);
 
     return {
-      submissionId: submissionId.rows[0].id as UUID,
+      submissionId: submissionId.rows[0]!['id'] as UUID,
       status: 'PENDING',
       aggregator: 'HHAEEXCHANGE',
       submittedAt: new Date()
@@ -88,7 +88,7 @@ export class TexasEVVProvider implements ITexasEVVProvider {
     `, [visitId, this.mapReasonToCode(reason), reason, requestedBy]);
 
     return {
-      id: vmurId.rows[0].id as UUID,
+      id: vmurId.rows[0]!['id'] as UUID,
       visitId,
       status: 'PENDING',
       requestedAt: new Date()

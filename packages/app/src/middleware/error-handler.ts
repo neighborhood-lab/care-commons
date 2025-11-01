@@ -17,11 +17,10 @@ export function errorHandler(
   err: AppError,
   _req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal server error';
+  const statusCode = err.statusCode ?? 500;
+  const message = err.message;
 
   console.error('Error:', {
     statusCode,
@@ -33,10 +32,10 @@ export function errorHandler(
   res.status(statusCode).json({
     success: false,
     error: message,
-    details: err.details || undefined,
-    ...(process.env.NODE_ENV === 'development' && {
+    details: err.details,
+    ...(process.env['NODE_ENV'] === 'development' ? {
       stack: err.stack,
-    }),
+    } : {}),
   });
 }
 

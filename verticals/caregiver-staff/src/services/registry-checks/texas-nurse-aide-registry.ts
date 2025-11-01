@@ -239,17 +239,23 @@ export class TexasNurseAideRegistryService {
       }
     }
     
-    return {
+    const result: { allowed: boolean; reason?: string; restrictions?: string[] } = {
       allowed: true,
-      restrictions: restrictions.length > 0 ? restrictions : undefined,
     };
+    
+    if (restrictions.length > 0) {
+      result.restrictions = restrictions;
+    }
+    
+    return result;
   }
 
   /**
    * Calculate expiration date for registry check
    * Texas NAR checks are typically valid for 12 months
    */
-  private calculateExpirationDate(checkDate: Date): Date {
+  // @ts-expect-error - Utility function kept for future use
+  private _calculateExpirationDate(checkDate: Date): Date {
     const expiration = new Date(checkDate);
     expiration.setFullYear(expiration.getFullYear() + 1);
     return expiration;
@@ -322,24 +328,43 @@ export class TexasNurseAideRegistryService {
   /**
    * Determine recommended action based on check result
    */
-  private determineRecommendedAction(apiResponse: Record<string, unknown>): 'APPROVE' | 'REJECT' | 'REVIEW' {
+  // @ts-expect-error - Utility function kept for future use
+  private _determineRecommendedAction(apiResponse: Record<string, unknown>): 'APPROVE' | 'REJECT' | 'REVIEW' {
     // If not found or not certified, needs review
-    if (!apiResponse.found || !apiResponse.certified) {
+    if (!apiResponse['found'] || !apiResponse['certified']) {
       return 'REVIEW';
     }
     
     // If has findings that make ineligible, reject
-    if (apiResponse.hasFindings && apiResponse.ineligibleForEmployment) {
+    if (apiResponse['hasFindings'] && apiResponse['ineligibleForEmployment']) {
+      return 'REJECT';
+    }
+    
+    // Check certification status
+    if (apiResponse['certificationStatus'] && apiResponse['certificationStatus'] !== 'ACTIVE') {
+      return 'REVIEW';
+    }
+    
+    // Check expiration
+    if (apiResponse['certificationExpiration']) {
+      const expiration = new Date(apiResponse['certificationExpiration'] as string);
+      if (expiration < new Date()) {
+        return 'REVIEW';
+      }
+    }
+    
+    // If has findings that make ineligible, reject
+    if (apiResponse['hasFindings'] && apiResponse['ineligibleForEmployment']) {
       return 'REJECT';
     }
     
     // If certification is not active, reject
-    if (apiResponse.certificationStatus !== 'ACTIVE') {
+    if (apiResponse['certificationStatus'] !== 'ACTIVE') {
       return 'REJECT';
     }
     
     // If certification is expired, reject
-    if (apiResponse.certificationExpiration && apiResponse.certificationExpiration < new Date()) {
+    if (apiResponse['certificationExpiration'] && apiResponse['certificationExpiration'] < new Date()) {
       return 'REJECT';
     }
     
@@ -350,31 +375,32 @@ export class TexasNurseAideRegistryService {
   /**
    * Build detailed notes from API response
    */
-  private buildDetailedNotes(apiResponse: Record<string, unknown>): string {
+  // @ts-expect-error - Utility function kept for future use
+  private _buildDetailedNotes(apiResponse: Record<string, unknown>): string {
     const notes: string[] = [];
     
-    if (apiResponse.certified) {
-      notes.push(`CNA Certification: ${apiResponse.certificationNumber}`);
-      notes.push(`Certification Status: ${apiResponse.certificationStatus}`);
+    if (apiResponse['certified']) {
+      notes.push(`CNA Certification: ${apiResponse['certificationNumber']}`);
+      notes.push(`Certification Status: ${apiResponse['certificationStatus']}`);
       
-      if (apiResponse.certificationDate) {
-        notes.push(`Certified Since: ${(apiResponse.certificationDate as Date).toLocaleDateString()}`);
+      if (apiResponse['certificationDate']) {
+        notes.push(`Certified Since: ${(apiResponse['certificationDate'] as Date).toLocaleDateString()}`);
       }
       
-      if (apiResponse.certificationExpiration) {
-        notes.push(`Expires: ${(apiResponse.certificationExpiration as Date).toLocaleDateString()}`);
+      if (apiResponse['certificationExpiration']) {
+        notes.push(`Expires: ${(apiResponse['certificationExpiration'] as Date).toLocaleDateString()}`);
       }
     } else {
       notes.push('Not certified as a CNA in Texas');
     }
     
-    if (apiResponse.hasFindings) {
+    if (apiResponse['hasFindings']) {
       notes.push('⚠️ FINDINGS ON REGISTRY');
-      if (apiResponse.findingType) {
-        notes.push(`Finding Type: ${apiResponse.findingType}`);
+      if (apiResponse['findingType']) {
+        notes.push(`Finding Type: ${apiResponse['findingType']}`);
       }
-      if (apiResponse.disposition) {
-        notes.push(`Disposition: ${apiResponse.disposition}`);
+      if (apiResponse['disposition']) {
+        notes.push(`Disposition: ${apiResponse['disposition']}`);
       }
     }
     

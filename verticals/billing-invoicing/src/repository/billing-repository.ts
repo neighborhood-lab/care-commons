@@ -990,10 +990,8 @@ export class BillingRepository {
       serviceTypeName: row.service_type_name,
       authorizedUnits: parseFloat(row.authorized_units),
       unitType: row.unit_type,
-      unitRate: row.unit_rate ? parseFloat(row.unit_rate) : undefined,
-      authorizedAmount: row.authorized_amount
-        ? parseFloat(row.authorized_amount)
-        : undefined,
+      ...(row.unit_rate ? { unitRate: parseFloat(row.unit_rate) } : {}),
+      ...(row.authorized_amount ? { authorizedAmount: parseFloat(row.authorized_amount) } : {}),
       effectiveFrom: row.effective_from,
       effectiveTo: row.effective_to,
       usedUnits: parseFloat(row.used_units),
@@ -1008,9 +1006,7 @@ export class BillingRepository {
       reviewedBy: row.reviewed_by,
       reviewedAt: row.reviewed_at,
       reviewNotes: row.review_notes,
-      lowUnitsThreshold: row.low_units_threshold
-        ? parseFloat(row.low_units_threshold)
-        : undefined,
+      ...(row.low_units_threshold ? { lowUnitsThreshold: parseFloat(row.low_units_threshold) } : {}),
       expirationWarningDays: row.expiration_warning_days,
       documentIds: row.document_ids,
       notes: row.notes,
@@ -1055,9 +1051,7 @@ export class BillingRepository {
       authorizationId: row.authorization_id,
       authorizationNumber: row.authorization_number,
       isAuthorized: row.is_authorized,
-      authorizationRemainingUnits: row.authorization_remaining_units
-        ? parseFloat(row.authorization_remaining_units)
-        : undefined,
+      ...(row.authorization_remaining_units ? { authorizationRemainingUnits: parseFloat(row.authorization_remaining_units) } : {}),
       payerId: row.payer_id,
       payerType: row.payer_type,
       payerName: row.payer_name,
@@ -1077,7 +1071,7 @@ export class BillingRepository {
       denialDate: row.denial_date,
       isAppealable: row.is_appealable,
       isPaid: row.is_paid,
-      paidAmount: row.paid_amount ? parseFloat(row.paid_amount) : undefined,
+      ...(row.paid_amount ? { paidAmount: parseFloat(row.paid_amount) } : {}),
       paidDate: row.paid_date,
       paymentId: row.payment_id,
       notes: row.notes,
@@ -1114,7 +1108,7 @@ export class BillingRepository {
       lineItems: row.line_items,
       subtotal: parseFloat(row.subtotal),
       taxAmount: parseFloat(row.tax_amount),
-      taxRate: row.tax_rate ? parseFloat(row.tax_rate) : undefined,
+      ...(row.tax_rate ? { taxRate: parseFloat(row.tax_rate) } : {}),
       discountAmount: parseFloat(row.discount_amount),
       adjustmentAmount: parseFloat(row.adjustment_amount),
       totalAmount: parseFloat(row.total_amount),
@@ -1127,7 +1121,7 @@ export class BillingRepository {
       submissionMethod: row.submission_method,
       submissionConfirmation: row.submission_confirmation,
       paymentTerms: row.payment_terms,
-      lateFeeRate: row.late_fee_rate ? parseFloat(row.late_fee_rate) : undefined,
+      ...(row.late_fee_rate ? { lateFeeRate: parseFloat(row.late_fee_rate) } : {}),
       payments: row.payments,
       pdfUrl: row.pdf_url,
       documentIds: row.document_ids,

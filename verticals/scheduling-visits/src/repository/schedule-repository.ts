@@ -190,7 +190,7 @@ export class ScheduleRepository {
     // Calculate scheduled duration
     const [startHour, startMin] = input.scheduledStartTime.split(':').map(Number);
     const [endHour, endMin] = input.scheduledEndTime.split(':').map(Number);
-    const scheduledDuration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+    const scheduledDuration = ((endHour ?? 0) * 60 + (endMin ?? 0)) - ((startHour ?? 0) * 60 + (startMin ?? 0));
 
     const query = `
       INSERT INTO visits (

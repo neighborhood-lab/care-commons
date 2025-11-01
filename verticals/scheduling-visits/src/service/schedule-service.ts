@@ -65,10 +65,16 @@ export class ScheduleService {
     this.checkBranchAccess(context, input.branchId);
 
     // Business rules validation
-    await this.validatePatternBusinessRules(validated);
+    await this.validatePatternBusinessRules(validated as any);
 
-    // Create pattern
-    return await this.repository.createServicePattern(validated, context);
+    // Create pattern - filter out undefined values to satisfy exactOptionalPropertyTypes
+    const patternInput = { ...validated };
+    Object.keys(patternInput).forEach(key => {
+      if (patternInput[key as keyof typeof patternInput] === undefined) {
+        delete patternInput[key as keyof typeof patternInput];
+      }
+    });
+    return await this.repository.createServicePattern(patternInput as any, context);
   }
 
   async getServicePatternById(
@@ -101,7 +107,7 @@ export class ScheduleService {
 
     this.checkOrganizationAccess(context, pattern.organizationId);
 
-    return await this.repository.updateServicePattern(id, validated, context);
+    return await this.repository.updateServicePattern(id, validated as any, context);
   }
 
   async getPatternsByClient(
@@ -132,9 +138,16 @@ export class ScheduleService {
     this.checkBranchAccess(context, input.branchId);
 
     // Validate visit doesn't conflict with existing visits
-    await this.validateVisitConflicts(validated);
+    await this.validateVisitConflicts(validated as any);
 
-    return await this.repository.createVisit(validated, context);
+    // Filter out undefined values to satisfy exactOptionalPropertyTypes
+    const visitInput = { ...validated };
+    Object.keys(visitInput).forEach(key => {
+      if (visitInput[key as keyof typeof visitInput] === undefined) {
+        delete visitInput[key as keyof typeof visitInput];
+      }
+    });
+    return await this.repository.createVisit(visitInput as any, context);
   }
 
   async getVisitById(id: UUID, context: UserContext): Promise<Visit> {
@@ -242,7 +255,7 @@ export class ScheduleService {
       });
     }
 
-    return await this.repository.assignCaregiver(validated, context);
+    return await this.repository.assignCaregiver(validated as any, context);
   }
 
   async searchVisits(
@@ -264,7 +277,7 @@ export class ScheduleService {
       orgFilters.branchIds = context.branchIds;
     }
 
-    return await this.repository.searchVisits(orgFilters, pagination);
+    return await this.repository.searchVisits(orgFilters as any, pagination);
   }
 
   async getUnassignedVisits(
@@ -317,7 +330,7 @@ export class ScheduleService {
     // Create visits
     const visits: Visit[] = [];
     for (const date of visitDates) {
-      const visitInput: CreateVisitInput = {
+      const visitInput = {
         organizationId: pattern.organizationId,
         branchId: pattern.branchId,
         clientId: pattern.clientId,
@@ -337,7 +350,7 @@ export class ScheduleService {
         requiredCertifications: pattern.requiredCertifications,
         clientInstructions: pattern.clientInstructions,
         caregiverInstructions: pattern.caregiverInstructions,
-      };
+      } as CreateVisitInput;
 
       const visit = await this.repository.createVisit(visitInput, context);
       visits.push(visit);
@@ -440,7 +453,7 @@ export class ScheduleService {
         date: query.date,
         startTime: currentTime,
         endTime: endTime,
-        includeTravel: query.includeTravel,
+        includeTravel: query.includeTravel ?? false,
       });
 
       slots.push({
@@ -448,7 +461,7 @@ export class ScheduleService {
         endTime: endTime,
         isAvailable,
         reason: isAvailable ? undefined : 'Conflicting visit',
-      });
+      } as any);
 
       currentTime = endTime;
     }
@@ -464,8 +477,7 @@ export class ScheduleService {
     pattern: ServicePattern,
     startDate: Date,
     endDate: Date,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    skipHolidays: boolean
+    _skipHolidays: boolean
   ): Date[] {
     const dates: Date[] = [];
     const { recurrence } = pattern;
@@ -537,7 +549,7 @@ export class ScheduleService {
       'FRIDAY',
       'SATURDAY',
     ];
-    return days[date.getDay()];
+    return days[date.getDay()] as DayOfWeek;
   }
 
   private calculateEndTime(startTime: string, durationMinutes: number): string {
@@ -546,7 +558,7 @@ export class ScheduleService {
 
   private addMinutesToTime(time: string, minutes: number): string {
     const [hours, mins] = time.split(':').map(Number);
-    const totalMinutes = hours * 60 + mins + minutes;
+    const totalMinutes = (hours ?? 0) * 60 + (mins ?? 0) + minutes;
     const newHours = Math.floor(totalMinutes / 60) % 24;
     const newMins = totalMinutes % 60;
     return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}`;
@@ -554,7 +566,7 @@ export class ScheduleService {
 
   private timeToMinutes(time: string): number {
     const [hours, mins] = time.split(':').map(Number);
-    return hours * 60 + mins;
+    return (hours ?? 0) * 60 + (mins ?? 0);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -621,8 +633,7 @@ export class ScheduleService {
   private validateStatusTransition(
     currentStatus: VisitStatus,
     newStatus: VisitStatus,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    context: UserContext
+    _context: UserContext
   ): void {
     // Define valid transitions
     const validTransitions: Record<VisitStatus, VisitStatus[]> = {

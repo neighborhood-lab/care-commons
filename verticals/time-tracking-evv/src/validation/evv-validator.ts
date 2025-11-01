@@ -15,7 +15,6 @@ import {
   VerificationLevel,
   ComplianceFlag,
   EVVRecord,
-  TimeEntry,
 } from '../types/evv';
 import { CryptoUtils } from '../utils/crypto-utils';
 
@@ -236,13 +235,25 @@ export class EVVValidator {
       reason = 'GPS accuracy makes verification uncertain - manual review recommended';
     }
 
-    return {
+    const resultBase = {
       isWithinGeofence,
       distanceFromCenter: distance,
       distanceFromAddress: distance, // Same as center for circular geofence
       accuracy: locationAccuracy,
       requiresManualReview,
+    };
+
+    const resultOptional = {
       reason,
+    };
+
+    const resultFilteredOptional = Object.fromEntries(
+      Object.entries(resultOptional).filter(([_, value]) => value !== undefined)
+    );
+
+    return {
+      ...resultBase,
+      ...resultFilteredOptional,
     };
   }
 
@@ -282,12 +293,24 @@ export class EVVValidator {
       issues.push('Checksum mismatch - record data may have been modified');
     }
 
-    return {
+    const integrityBase = {
       isValid: !tamperDetected,
       hashMatch,
       checksumMatch,
       tamperDetected,
+    };
+
+    const integrityOptional = {
       issues: issues.length > 0 ? issues : undefined,
+    };
+
+    const integrityFilteredOptional = Object.fromEntries(
+      Object.entries(integrityOptional).filter(([_, value]) => value !== undefined)
+    );
+
+    return {
+      ...integrityBase,
+      ...integrityFilteredOptional,
     };
   }
 
@@ -351,8 +374,7 @@ export class EVVValidator {
     }
 
     // Check for rooted/jailbroken device
-    const deviceInfo = evvRecord.clockInVerification.deviceId; // Would need full device info
-    // In real implementation, check device security
+    // In real implementation, check device security using evvRecord.clockInVerification.deviceId
 
     // Check visit duration anomalies
     if (evvRecord.totalDuration) {

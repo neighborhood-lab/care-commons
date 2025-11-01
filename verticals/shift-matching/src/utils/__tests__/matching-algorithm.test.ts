@@ -11,33 +11,13 @@
 
 import { MatchingAlgorithm, CaregiverContext } from '../matching-algorithm';
 import {
-  OpenShift,
   MatchCandidate,
-  MatchingConfiguration,
   MatchScores,
-  MatchQuality,
-  EligibilityIssue,
-  MatchReason,
   ConflictingVisit,
 } from '../../types/shift-matching';
-// // import { Caregiver } from '@care-commons/caregiver-staff';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-// Mock Caregiver interface for testing
-interface MockCaregiver {
-  id: string;
-  firstName: string;
-  lastName: string;
-  primaryPhone: { number: string; type: string; canReceiveSMS: boolean };
-  employmentType: string;
-  skills: Array<{ id: string; name: string; category: string; proficiencyLevel: string }>;
-  credentials: Array<{ id: string; type: string; status: string; expirationDate?: Date }>;
-  availability: {
-    schedule: Record<string, { available: boolean; timeSlots?: Array<{ startTime: string; endTime: string }> }>;
-  };
-  complianceStatus: string;
-  reliabilityScore?: number;
-}
+
 
 describe('MatchingAlgorithm', () => {
   const mockOpenShift: any = {
@@ -459,9 +439,9 @@ describe('MatchingAlgorithm', () => {
 
       const ranked = MatchingAlgorithm.rankCandidates(candidates);
 
-      expect(ranked[0].caregiverId).toBe('cg-2'); // Highest score
-      expect(ranked[1].caregiverId).toBe('cg-1'); // Middle score
-      expect(ranked[2].caregiverId).toBe('cg-3'); // Lowest score
+      expect(ranked[0]?.caregiverId).toBe('cg-2'); // Highest score
+      expect(ranked[1]?.caregiverId).toBe('cg-1'); // Middle score
+      expect(ranked[2]?.caregiverId).toBe('cg-3'); // Lowest score
     });
 
     it('should prioritize eligible over ineligible', () => {
@@ -504,8 +484,8 @@ describe('MatchingAlgorithm', () => {
 
       const ranked = MatchingAlgorithm.rankCandidates(candidates);
 
-      expect(ranked[0].caregiverId).toBe('cg-eligible'); // Eligible comes first despite lower score
-      expect(ranked[1].caregiverId).toBe('cg-ineligible');
+      expect(ranked[0]?.caregiverId).toBe('cg-eligible'); // Eligible comes first despite lower score
+      expect(ranked[1]?.caregiverId).toBe('cg-ineligible');
     });
 
     it('should handle empty array', () => {
@@ -607,7 +587,7 @@ describe('MatchingAlgorithm', () => {
       const contextWithNoAddress = {
         ...mockCaregiverContext,
         caregiver: caregiverWithNoAddress,
-        distanceFromShift: undefined,
+        distanceFromShift: 0,
       };
 
       const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithNoAddress, mockConfig);

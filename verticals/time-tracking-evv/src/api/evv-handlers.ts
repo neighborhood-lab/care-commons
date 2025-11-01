@@ -147,6 +147,15 @@ export class EVVHandlers {
   async getEVVRecord(req: APIRequest): Promise<APIResponse> {
     try {
       const { visitId } = req.params;
+      if (!visitId) {
+        return {
+          status: 400,
+          error: {
+            message: 'visitId is required',
+            code: 'MISSING_VISIT_ID',
+          },
+        };
+      }
       const evvRecord = await this.evvService.getEVVRecordByVisit(visitId, req.user);
 
       if (!evvRecord) {
@@ -185,6 +194,15 @@ export class EVVHandlers {
   async getTimeEntries(req: APIRequest): Promise<APIResponse> {
     try {
       const { visitId } = req.params;
+      if (!visitId) {
+        return {
+          status: 400,
+          error: {
+            message: 'visitId is required',
+            code: 'MISSING_VISIT_ID',
+          },
+        };
+      }
       const timeEntries = await this.evvService.getTimeEntriesByVisit(visitId, req.user);
 
       return {
@@ -227,48 +245,71 @@ export class EVVHandlers {
    */
   async searchEVVRecords(req: APIRequest): Promise<APIResponse> {
     try {
-      const filters: EVVRecordSearchFilters = {
-        organizationId: req.query.organizationId,
-        branchId: req.query.branchId,
-        clientId: req.query.clientId,
-        caregiverId: req.query.caregiverId,
-        visitId: req.query.visitId,
-        startDate: req.query.startDate ? new Date(req.query.startDate) : undefined,
-        endDate: req.query.endDate ? new Date(req.query.endDate) : undefined,
-        status: req.query.status ? [req.query.status as EVVRecordStatus] : undefined,
-        verificationLevel: req.query.verificationLevel 
-          ? [req.query.verificationLevel as VerificationLevel] 
-          : undefined,
-        hasComplianceFlags: req.query.hasComplianceFlags === 'true',
-        
-        // Validate compliance flags
-        complianceFlags: (() => {
-          if (typeof req.query.complianceFlags !== 'string') return undefined;
-          const validFlags: ComplianceFlag[] = ['COMPLIANT', 'GEOFENCE_VIOLATION', 'TIME_GAP', 'DEVICE_SUSPICIOUS', 'LOCATION_SUSPICIOUS', 'DUPLICATE_ENTRY', 'MISSING_SIGNATURE', 'LATE_SUBMISSION', 'MANUAL_OVERRIDE', 'AMENDED'];
-          const filtered = req.query.complianceFlags.split(',')
-            .map(s => s.trim().toUpperCase())
-            .filter(s => validFlags.includes(s as ComplianceFlag)) as ComplianceFlag[];
-          return filtered.length > 0 ? filtered : undefined;
-        })(),
-        
-        submittedToPayor: req.query.submittedToPayor 
-          ? req.query.submittedToPayor === 'true' 
-          : undefined,
-        
-        // Validate payor approval status
-        payorApprovalStatus: (() => {
-          if (typeof req.query.payorApprovalStatus !== 'string') return undefined;
-          const validStatuses: PayorApprovalStatus[] = ['PENDING', 'APPROVED', 'DENIED', 'PENDING_INFO', 'APPEALED'];
-          const status = req.query.payorApprovalStatus.trim().toUpperCase();
-          return validStatuses.includes(status as PayorApprovalStatus) ? [status as PayorApprovalStatus] : undefined;
-        })(),
-      };
+      // Build filters object, filtering out undefined values
+      const filterEntries: Array<[keyof EVVRecordSearchFilters, any]> = [];
+      
+      if (req['query']['organizationId']) {
+        filterEntries.push(['organizationId', req['query']['organizationId']]);
+      }
+      if (req['query']['branchId']) {
+        filterEntries.push(['branchId', req['query']['branchId']]);
+      }
+      if (req['query']['clientId']) {
+        filterEntries.push(['clientId', req['query']['clientId']]);
+      }
+      if (req['query']['caregiverId']) {
+        filterEntries.push(['caregiverId', req['query']['caregiverId']]);
+      }
+      if (req['query']['visitId']) {
+        filterEntries.push(['visitId', req['query']['visitId']]);
+      }
+      if (req['query']['startDate']) {
+        filterEntries.push(['startDate', new Date(req['query']['startDate'])]);
+      }
+      if (req['query']['endDate']) {
+        filterEntries.push(['endDate', new Date(req['query']['endDate'])]);
+      }
+      if (req['query']['status']) {
+        filterEntries.push(['status', [req['query']['status'] as EVVRecordStatus]]);
+      }
+      if (req['query']['verificationLevel']) {
+        filterEntries.push(['verificationLevel', [req['query']['verificationLevel'] as VerificationLevel]]);
+      }
+      if (req['query']['hasComplianceFlags'] === 'true') {
+        filterEntries.push(['hasComplianceFlags', true]);
+      }
+      
+      // Validate compliance flags
+      if (typeof req['query']['complianceFlags'] === 'string') {
+        const validFlags: ComplianceFlag[] = ['COMPLIANT', 'GEOFENCE_VIOLATION', 'TIME_GAP', 'DEVICE_SUSPICIOUS', 'LOCATION_SUSPICIOUS', 'DUPLICATE_ENTRY', 'MISSING_SIGNATURE', 'LATE_SUBMISSION', 'MANUAL_OVERRIDE', 'AMENDED'];
+        const filtered = req['query']['complianceFlags'].split(',')
+          .map(s => s.trim().toUpperCase())
+          .filter(s => validFlags.includes(s as ComplianceFlag)) as ComplianceFlag[];
+        if (filtered.length > 0) {
+          filterEntries.push(['complianceFlags', filtered]);
+        }
+      }
+      
+      if (req['query']['submittedToPayor']) {
+        filterEntries.push(['submittedToPayor', req['query']['submittedToPayor'] === 'true']);
+      }
+      
+      // Validate payor approval status
+      if (typeof req['query']['payorApprovalStatus'] === 'string') {
+        const validStatuses: PayorApprovalStatus[] = ['PENDING', 'APPROVED', 'DENIED', 'PENDING_INFO', 'APPEALED'];
+        const status = req['query']['payorApprovalStatus'].trim().toUpperCase();
+        if (validStatuses.includes(status as PayorApprovalStatus)) {
+          filterEntries.push(['payorApprovalStatus', [status as PayorApprovalStatus]]);
+        }
+      }
+      
+      const filters: EVVRecordSearchFilters = Object.fromEntries(filterEntries);
 
       const pagination = {
-        page: parseInt(req.query.page || '1'),
-        limit: parseInt(req.query.limit || '25'),
-        sortBy: req.query.sortBy || 'serviceDate',
-        sortOrder: (req.query.sortOrder || 'desc') as 'asc' | 'desc',
+        page: parseInt(req['query']['page'] || '1'),
+        limit: parseInt(req['query']['limit'] || '25'),
+        sortBy: req['query']['sortBy'] || 'serviceDate',
+        sortOrder: (req['query']['sortOrder'] || 'desc') as 'asc' | 'desc',
       };
 
       const result = await this.evvService.searchEVVRecords(filters, pagination, req.user);

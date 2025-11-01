@@ -223,8 +223,8 @@ export const createVisitInputSchema = z.object({
   (data) => {
     const start = data.scheduledStartTime.split(':').map(Number);
     const end = data.scheduledEndTime.split(':').map(Number);
-    const startMinutes = start[0] * 60 + start[1];
-    const endMinutes = end[0] * 60 + end[1];
+    const startMinutes = (start[0] ?? 0) * 60 + (start[1] ?? 0);
+    const endMinutes = (end[0] ?? 0) * 60 + (end[1] ?? 0);
     return startMinutes < endMinutes;
   },
   {
