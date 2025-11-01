@@ -48,8 +48,8 @@ export interface Revision {
   operation: 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE';
   changes: Record<string, { from: unknown; to: unknown }>;
   reason?: string;
-  ipAddress?: string;
-  userAgent?: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
 }
 
 /**
