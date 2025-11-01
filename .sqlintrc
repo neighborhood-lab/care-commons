@@ -1,0 +1,8 @@
+{
+  "driver": "postgres",
+  "rules": {
+    "no-trailing-whitespace": "error",
+    "keywords-upper-case": "error",
+    "no-tab": "error"
+  }
+}

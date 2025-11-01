@@ -16,32 +16,35 @@
     "lint": "eslint . --ext ts --max-warnings 0"
   },
   "dependencies": {
-    "@care-commons/core": "*",
     "@care-commons/billing-invoicing": "*",
     "@care-commons/care-plans-tasks": "*",
     "@care-commons/caregiver-staff": "*",
     "@care-commons/client-demographics": "*",
+    "@care-commons/core": "*",
     "@care-commons/payroll-processing": "*",
     "@care-commons/scheduling-visits": "*",
     "@care-commons/shift-matching": "*",
     "@care-commons/time-tracking-evv": "*",
-    "express": "^5.1.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "helmet": "^8.1.0",
-    "morgan": "^1.10.1",
-    "dotenv": "^17.2.3"
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
-    "@types/express": "^5.0.5",
     "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.9.2",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
+    "@vitest/coverage-v8": "^4.0.6",
     "eslint": "^9.39.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-unicorn": "^62.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "@vitest/coverage-v8": "^4.0.6",
     "vitest": "^4.0.6"
   }
 }

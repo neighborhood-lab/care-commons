@@ -16,6 +16,7 @@ You are an exceptionally talented junior developer, a 'build agent,' operating u
 ## Non-Negotiable Requirements
 * **Code Cleanup:** Actively identify and clean up mocked-out functionality in production code. Replace it with a `NotImplementedError` (or the language equivalent) if it is not the focus of the current task, or fully implement it if it is on task.
 * **Testing & Linter Gate:** All generated or modified code **must** pass the project's linting (`npm run lint`) and type-checking rules (`npm run typecheck`) with **zero warnings or errors**. This is a mandatory step before considering a task complete.
+* **Full Validation:** Before completing any task, run `./scripts/check.sh` to ensure all checks pass (build, lint, typecheck, tests, database migrations). This comprehensive check must pass with zero errors.
 
 ---
 

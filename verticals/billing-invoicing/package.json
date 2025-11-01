@@ -14,8 +14,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/core": "file:../../packages/core",
     "@care-commons/client-demographics": "file:../client-demographics",
+    "@care-commons/core": "file:../../packages/core",
     "@care-commons/scheduling-visits": "file:../scheduling-visits",
     "@care-commons/time-tracking-evv": "file:../time-tracking-evv",
     "uuid": "^13.0.0"
@@ -24,9 +24,12 @@
     "@types/node": "^24.9.2",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
-    "eslint": "^9.39.0",
-    "typescript": "^5.9.3",
     "@vitest/coverage-v8": "^4.0.6",
+    "eslint": "^9.39.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-unicorn": "^62.0.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.6"
   },
   "keywords": [
