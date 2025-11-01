@@ -151,7 +151,8 @@ export class TexasEmployeeMisconductRegistryService {
    * Calculate expiration date for registry check
    * Texas EMR checks are valid for 12 months from check date
    */
-  private calculateExpirationDate(checkDate: Date): Date {
+  // @ts-expect-error - Utility function kept for future use
+  private _calculateExpirationDate(checkDate: Date): Date {
     const expiration = new Date(checkDate);
     expiration.setFullYear(expiration.getFullYear() + 1);
     return expiration;

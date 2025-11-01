@@ -8,7 +8,7 @@
     "declarationMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"],
+  "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../../packages/core" },
     { "path": "../caregiver-staff" },

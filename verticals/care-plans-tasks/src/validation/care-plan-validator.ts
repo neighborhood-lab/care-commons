@@ -526,7 +526,76 @@ export class CarePlanValidator {
   }
 
   static validateCreateProgressNote(input: unknown): CreateProgressNoteInput {
-    return CreateProgressNoteInputSchema.parse(input);
+    const parsed = CreateProgressNoteInputSchema.parse(input);
+    // Create a new object with only defined properties to satisfy exactOptionalPropertyTypes
+    const result: CreateProgressNoteInput = {
+      carePlanId: parsed.carePlanId,
+      clientId: parsed.clientId,
+      noteType: parsed.noteType,
+      content: parsed.content,
+    };
+    
+    // Add optional properties only if they are defined
+    if (parsed.visitId !== undefined) result.visitId = parsed.visitId;
+    
+    if (parsed.goalProgress !== undefined) {
+      // Filter out undefined progressPercentage from goalProgress items
+      result.goalProgress = parsed.goalProgress.map(goal => {
+        const filteredGoal: any = {
+          goalId: goal.goalId,
+          goalName: goal.goalName,
+          status: goal.status,
+          progressDescription: goal.progressDescription,
+        };
+        if (goal.progressPercentage !== undefined) {
+          filteredGoal.progressPercentage = goal.progressPercentage;
+        }
+        if (goal.barriers !== undefined) {
+          filteredGoal.barriers = goal.barriers;
+        }
+        if (goal.nextSteps !== undefined) {
+          filteredGoal.nextSteps = goal.nextSteps;
+        }
+        return filteredGoal;
+      });
+    }
+    
+    if (parsed.observations !== undefined) {
+      // Filter out undefined severity from observation items
+      result.observations = parsed.observations.map(obs => {
+        const filteredObs: any = {
+          category: obs.category,
+          observation: obs.observation,
+          timestamp: obs.timestamp,
+        };
+        if (obs.severity !== undefined) {
+          filteredObs.severity = obs.severity;
+        }
+        return filteredObs;
+      });
+    }
+    
+    if (parsed.concerns !== undefined) result.concerns = parsed.concerns;
+    if (parsed.recommendations !== undefined) result.recommendations = parsed.recommendations;
+    
+    if (parsed.signature !== undefined) {
+      // Filter out undefined properties from signature
+      const filteredSig: any = {
+        signatureData: parsed.signature.signatureData,
+        signedBy: parsed.signature.signedBy,
+        signedByName: parsed.signature.signedByName,
+        signatureType: parsed.signature.signatureType,
+      };
+      if (parsed.signature.ipAddress !== undefined) {
+        filteredSig.ipAddress = parsed.signature.ipAddress;
+      }
+      if (parsed.signature.deviceInfo !== undefined) {
+        filteredSig.deviceInfo = parsed.signature.deviceInfo;
+      }
+      result.signature = filteredSig;
+    }
+    
+    return result;
   }
 
   static validateCarePlanSearchFilters(input: unknown) {

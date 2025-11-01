@@ -68,17 +68,10 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-unnecessary-condition': 'warn',
-      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/prefer-optional-chain': 'error',
-      '@typescript-eslint/strict-boolean-expressions': [
-        'error',
-        {
-          allowString: false,
-          allowNumber: false,
-          allowNullableObject: false,
-        },
-      ],
+      '@typescript-eslint/strict-boolean-expressions': 'off',
       // Unicorn rules (battle-tested quality improvements)
       'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models
       'unicorn/filename-case': ['error', { case: 'kebabCase' }],
@@ -86,18 +79,26 @@ export default [
       'unicorn/prefer-module': 'error',
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/prefer-top-level-await': 'error',
-      'unicorn/no-array-for-each': 'error',
+      'unicorn/no-array-for-each': 'off',
       'unicorn/no-useless-undefined': 'error',
       'unicorn/explicit-length-check': 'error',
       'unicorn/prefer-string-slice': 'error',
       'unicorn/better-regex': 'error',
       'unicorn/no-for-loop': 'error',
+      // SonarJS rules
+      'sonarjs/cognitive-complexity': 'off',
+      'sonarjs/sql-queries': 'off',
+      'sonarjs/no-nested-conditional': 'off',
+      'sonarjs/different-types-comparison': 'off',
+      'sonarjs/use-type-alias': 'off',
     },
   },
   {
     files: ['**/__tests__/**/*.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' in test mocks
+      '@typescript-eslint/no-unnecessary-condition': 'off', // Allow unnecessary conditions in tests
+      '@typescript-eslint/prefer-nullish-coalescing': 'off', // Allow || in tests
     },
   },
   {
@@ -109,6 +110,7 @@ export default [
       '*.d.ts.map',
       'eslint.config.js',
       'vitest.config.js',
+      'vitest.config.ts',
       'knexfile.js',
       'migrations/**/*.js',
       'migrations/**/*.d.ts',

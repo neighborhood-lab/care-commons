@@ -5,9 +5,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EVVRepository } from '../repository/evv-repository';
 import {
-  EVVRecord,
-  TimeEntry,
-  Geofence,
   EVVRecordSearchFilters,
 } from '../types/evv';
 import { UUID } from '@care-commons/core';
@@ -816,8 +813,7 @@ describe('EVVRepository', () => {
       offlineRecorded: false,
       status: 'VERIFIED' as const,
       verificationPassed: true,
-      verificationIssues: undefined,
-      manualOverride: undefined,
+      // verificationIssues and manualOverride are optional and will be set to defaults
       createdBy: 'user-123' as UUID,
       updatedBy: 'user-123' as UUID,
     };
@@ -937,8 +933,8 @@ describe('EVVRepository', () => {
       const result = await repository.getTimeEntriesByVisitId('visit-123');
 
       expect(result).toHaveLength(2);
-      expect(result[0].entryType).toBe('CLOCK_IN');
-      expect(result[1].entryType).toBe('CLOCK_OUT');
+      expect(result[0]!.entryType).toBe('CLOCK_IN');
+      expect(result[1]!.entryType).toBe('CLOCK_OUT');
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringMatching(/SELECT \* FROM time_entries\s+WHERE visit_id = \$1\s+ORDER BY entry_timestamp ASC/),

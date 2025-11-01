@@ -39,8 +39,8 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
       serviceType: row.service_type,
       startTime: row.start_time,
       endTime: row.end_time,
-      requiredSkills: row.required_skills || [],
-      requiredCertifications: row.required_certifications || [],
+      requiredSkills: row.required_skills ?? [],
+      requiredCertifications: row.required_certifications ?? [],
       languagePreference: row.language_preference,
       genderPreference: row.gender_preference,
       maxDistanceMiles: row.max_distance_miles,
@@ -55,7 +55,7 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
     };
   }
 
-  protected mapEntityToRow(entity: Partial<ShiftRequirement>): Record<string, any> {
+  protected mapEntityToRow(entity: Partial<ShiftRequirement>): Record<string, unknown> {
     return {
       client_id: entity.clientId,
       visit_id: entity.visitId,
@@ -114,9 +114,9 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
 
     const result = await this.database.query(query, [shiftId]);
     
-    return result.rows.map(row => ({
-      caregiverId: row.id as string,
-      score: Number(row.compliance_score) || 0,
+    return result.rows.map((row: any) => ({
+      caregiverId: row['id'] as string,
+      score: (Number(row['compliance_score']) > 0 ? Number(row['compliance_score']) : 0),
       matchReasons: [],
       blockers: [],
       warnings: []

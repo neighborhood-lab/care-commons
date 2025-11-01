@@ -51,24 +51,24 @@ interface TestEntity extends Entity {
 class TestRepository extends Repository<TestEntity> {
   protected mapRowToEntity(row: Record<string, unknown>): TestEntity {
     return {
-      id: row.id as string,
-      name: row.name as string,
-      email: row.email as string,
-      status: row.status as 'ACTIVE' | 'INACTIVE',
-      createdAt: row.created_at as Date,
-      createdBy: row.created_by as string,
-      updatedAt: row.updated_at as Date,
-      updatedBy: row.updated_by as string,
-      version: row.version as number,
+      id: row['id'] as string,
+      name: row['name'] as string,
+      email: row['email'] as string,
+      status: row['status'] as 'ACTIVE' | 'INACTIVE',
+      createdAt: row['created_at'] as Date,
+      createdBy: row['created_by'] as string,
+      updatedAt: row['updated_at'] as Date,
+      updatedBy: row['updated_by'] as string,
+      version: row['version'] as number,
     };
   }
 
   protected mapEntityToRow(entity: Partial<TestEntity>): Record<string, unknown> {
     const row: Record<string, unknown> = {};
-    if (entity.name !== undefined) row.name = entity.name;
-    if (entity.email !== undefined) row.email = entity.email;
-    if (entity.status !== undefined) row.status = entity.status;
-    if (entity.version !== undefined) row.version = entity.version;
+    if (entity.name !== undefined) row['name'] = entity.name;
+    if (entity.email !== undefined) row['email'] = entity.email;
+    if (entity.status !== undefined) row['status'] = entity.status;
+    if (entity.version !== undefined) row['version'] = entity.version;
     return row;
   }
 }

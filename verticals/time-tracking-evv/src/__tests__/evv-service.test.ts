@@ -4,20 +4,14 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EVVService } from '../service/evv-service';
-import { EVVRepository } from '../repository/evv-repository';
-import { EVVValidator } from '../validation/evv-validator';
-import { IntegrationService } from '../utils/integration-service';
-import { CryptoUtils } from '../utils/crypto-utils';
 import {
   EVVRecord,
-  TimeEntry,
   ClockInInput,
   ClockOutInput,
-  LocationVerification,
-  VerificationResult,
 } from '../types/evv';
+
 import { UUID } from '@care-commons/core';
-import { IVisitProvider, IClientProvider, ICaregiverProvider } from '../interfaces/visit-provider';
+
 import { Database, UserContext } from '@care-commons/core';
 import { ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
 

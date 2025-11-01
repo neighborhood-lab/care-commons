@@ -123,13 +123,13 @@ export class ShiftMatchingRepository {
       visit.gender_preference,
       visit.language_preference,
       address,
-      address?.latitude || null,
-      address?.longitude || null,
-      input.priority || 'NORMAL',
+      address?.latitude ?? null,
+      address?.longitude ?? null,
+      input.priority ?? 'NORMAL',
       false,
-      input.fillByDate || null,
+      input.fillByDate ?? null,
       visit.client_instructions,
-      input.internalNotes || null,
+      input.internalNotes ?? null,
       null,
       context.userId,
     ];
@@ -179,45 +179,45 @@ export class ShiftMatchingRepository {
     pagination: PaginationParams
   ): Promise<PaginatedResult<OpenShift>> {
     const conditions: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramCount = 0;
 
-    if (filters.organizationId) {
+    if (filters.organizationId !== undefined) {
       conditions.push(`organization_id = $${++paramCount}`);
       values.push(filters.organizationId);
     }
 
-    if (filters.branchId) {
+    if (filters.branchId !== undefined) {
       conditions.push(`branch_id = $${++paramCount}`);
       values.push(filters.branchId);
     }
 
-    if (filters.branchIds && filters.branchIds.length > 0) {
+    if (filters.branchIds !== undefined && filters.branchIds.length > 0) {
       conditions.push(`branch_id = ANY($${++paramCount})`);
       values.push(filters.branchIds);
     }
 
-    if (filters.clientId) {
+    if (filters.clientId !== undefined) {
       conditions.push(`client_id = $${++paramCount}`);
       values.push(filters.clientId);
     }
 
-    if (filters.dateFrom) {
+    if (filters.dateFrom !== undefined) {
       conditions.push(`scheduled_date >= $${++paramCount}`);
       values.push(filters.dateFrom);
     }
 
-    if (filters.dateTo) {
+    if (filters.dateTo !== undefined) {
       conditions.push(`scheduled_date <= $${++paramCount}`);
       values.push(filters.dateTo);
     }
 
-    if (filters.priority && filters.priority.length > 0) {
+    if (filters.priority !== undefined && filters.priority.length > 0) {
       conditions.push(`priority = ANY($${++paramCount})`);
       values.push(filters.priority);
     }
 
-    if (filters.matchingStatus && filters.matchingStatus.length > 0) {
+    if (filters.matchingStatus !== undefined && filters.matchingStatus.length > 0) {
       conditions.push(`matching_status = ANY($${++paramCount})`);
       values.push(filters.matchingStatus);
     }
@@ -227,7 +227,7 @@ export class ShiftMatchingRepository {
       values.push(filters.isUrgent);
     }
 
-    if (filters.serviceTypeId) {
+    if (filters.serviceTypeId !== undefined) {
       conditions.push(`service_type_id = $${++paramCount}`);
       values.push(filters.serviceTypeId);
     }
@@ -239,8 +239,8 @@ export class ShiftMatchingRepository {
     const total = parseInt(countResult.rows[0].count, 10);
 
     const offset = (pagination.page - 1) * pagination.limit;
-    const sortBy = pagination.sortBy || 'scheduled_date';
-    const sortOrder = pagination.sortOrder || 'asc';
+    const sortBy = pagination.sortBy ?? 'scheduled_date';
+    const sortOrder = pagination.sortOrder ?? 'asc';
 
     const dataQuery = `
       SELECT * FROM open_shifts
@@ -294,17 +294,17 @@ export class ShiftMatchingRepository {
 
     const values = [
       input.organizationId,
-      input.branchId || null,
+      input.branchId ?? null,
       input.name,
-      input.description || null,
+      input.description ?? null,
       JSON.stringify(input.weights),
-      input.maxTravelDistance || null,
-      input.maxTravelTime || null,
+      input.maxTravelDistance ?? null,
+      input.maxTravelTime ?? null,
       input.requireExactSkillMatch ?? false,
       input.requireActiveCertifications ?? true,
       input.respectGenderPreference ?? true,
       input.respectLanguagePreference ?? true,
-      input.autoAssignThreshold || null,
+      input.autoAssignThreshold ?? null,
       input.minScoreForProposal ?? 50,
       input.maxProposalsPerShift ?? 5,
       input.proposalExpirationMinutes ?? 120,
@@ -317,7 +317,7 @@ export class ShiftMatchingRepository {
       input.boostReliablePerformers ?? true,
       input.isActive ?? true,
       input.isDefault ?? false,
-      input.notes || null,
+      input.notes ?? null,
       context.userId,
     ];
 
@@ -345,8 +345,38 @@ export class ShiftMatchingRepository {
       LIMIT 1
     `;
     
-    const result = await this.pool.query(query, [organizationId, branchId || null]);
+    const result = await this.pool.query(query, [organizationId, branchId ?? null]);
     return result.rows.length > 0 ? this.mapRowToMatchingConfiguration(result.rows[0]) : null;
+  }
+
+  private buildUpdateSet(
+    input: UpdateMatchingConfigurationInput,
+    updates: string[],
+    values: unknown[],
+    paramCount: { value: number }
+  ): void {
+    const fieldMappings = [
+      { field: 'name', value: input.name },
+      { field: 'description', value: input.description },
+      { field: 'weights', value: input.weights, transform: JSON.stringify },
+      { field: 'max_travel_distance', value: input.maxTravelDistance },
+      { field: 'require_exact_skill_match', value: input.requireExactSkillMatch },
+      { field: 'auto_assign_threshold', value: input.autoAssignThreshold },
+      { field: 'min_score_for_proposal', value: input.minScoreForProposal },
+      { field: 'max_proposals_per_shift', value: input.maxProposalsPerShift },
+      { field: 'proposal_expiration_minutes', value: input.proposalExpirationMinutes },
+      { field: 'optimize_for', value: input.optimizeFor },
+      { field: 'is_active', value: input.isActive },
+      { field: 'is_default', value: input.isDefault },
+      { field: 'notes', value: input.notes },
+    ];
+
+    for (const mapping of fieldMappings) {
+      if (mapping.value !== undefined && mapping.value !== null) {
+        updates.push(`${mapping.field} = $${++paramCount.value}`);
+        values.push(mapping.transform ? mapping.transform(mapping.value) : mapping.value);
+      }
+    }
   }
 
   async updateMatchingConfiguration(
@@ -355,84 +385,21 @@ export class ShiftMatchingRepository {
     context: UserContext
   ): Promise<MatchingConfiguration> {
     const updates: string[] = [];
-    const values: any[] = [];
-    let paramCount = 0;
+    const values: unknown[] = [];
+    const paramCount = { value: 0 };
 
-    if (input.name !== undefined) {
-      updates.push(`name = $${++paramCount}`);
-      values.push(input.name);
-    }
-
-    if (input.description !== undefined) {
-      updates.push(`description = $${++paramCount}`);
-      values.push(input.description);
-    }
-
-    if (input.weights !== undefined) {
-      updates.push(`weights = $${++paramCount}`);
-      values.push(JSON.stringify(input.weights));
-    }
-
-    if (input.maxTravelDistance !== undefined) {
-      updates.push(`max_travel_distance = $${++paramCount}`);
-      values.push(input.maxTravelDistance);
-    }
-
-    if (input.requireExactSkillMatch !== undefined) {
-      updates.push(`require_exact_skill_match = $${++paramCount}`);
-      values.push(input.requireExactSkillMatch);
-    }
-
-    if (input.autoAssignThreshold !== undefined) {
-      updates.push(`auto_assign_threshold = $${++paramCount}`);
-      values.push(input.autoAssignThreshold);
-    }
-
-    if (input.minScoreForProposal !== undefined) {
-      updates.push(`min_score_for_proposal = $${++paramCount}`);
-      values.push(input.minScoreForProposal);
-    }
-
-    if (input.maxProposalsPerShift !== undefined) {
-      updates.push(`max_proposals_per_shift = $${++paramCount}`);
-      values.push(input.maxProposalsPerShift);
-    }
-
-    if (input.proposalExpirationMinutes !== undefined) {
-      updates.push(`proposal_expiration_minutes = $${++paramCount}`);
-      values.push(input.proposalExpirationMinutes);
-    }
-
-    if (input.optimizeFor !== undefined) {
-      updates.push(`optimize_for = $${++paramCount}`);
-      values.push(input.optimizeFor);
-    }
-
-    if (input.isActive !== undefined) {
-      updates.push(`is_active = $${++paramCount}`);
-      values.push(input.isActive);
-    }
-
-    if (input.isDefault !== undefined) {
-      updates.push(`is_default = $${++paramCount}`);
-      values.push(input.isDefault);
-    }
-
-    if (input.notes !== undefined) {
-      updates.push(`notes = $${++paramCount}`);
-      values.push(input.notes);
-    }
+    this.buildUpdateSet(input, updates, values, paramCount);
 
     if (updates.length === 0) {
       const existing = await this.getMatchingConfiguration(id);
-      if (!existing) {
+      if (existing === null) {
         throw new NotFoundError('Matching configuration not found', { id });
       }
       return existing;
     }
 
     updates.push(`updated_at = NOW()`);
-    updates.push(`updated_by = $${++paramCount}`);
+    updates.push(`updated_by = $${++paramCount.value}`);
     values.push(context.userId);
 
     values.push(id);
@@ -440,7 +407,7 @@ export class ShiftMatchingRepository {
     const query = `
       UPDATE matching_configurations
       SET ${updates.join(', ')}
-      WHERE id = $${++paramCount}
+      WHERE id = $${++paramCount.value}
       RETURNING *
     `;
 
@@ -462,7 +429,7 @@ export class ShiftMatchingRepository {
     input: CreateProposalInput,
     matchScore: number,
     matchQuality: string,
-    matchReasons: any[],
+    matchReasons: unknown[],
     context: UserContext
   ): Promise<AssignmentProposal> {
     // Get shift details for branch_id and visit_id
@@ -503,9 +470,9 @@ export class ShiftMatchingRepository {
       context.userId,
       input.proposalMethod,
       input.sendNotification ?? false,
-      input.notificationMethod || null,
+      input.notificationMethod ?? null,
       input.urgencyFlag ?? false,
-      input.notes || null,
+      input.notes ?? null,
       null,
     ];
 
@@ -566,8 +533,8 @@ export class ShiftMatchingRepository {
       const result = await this.pool.query(query, [
         now,
         context.userId,
-        input.responseMethod || 'WEB',
-        input.notes || null,
+        input.responseMethod ?? 'WEB',
+        input.notes ?? null,
         id,
       ]);
       
@@ -596,10 +563,10 @@ export class ShiftMatchingRepository {
       const result = await this.pool.query(query, [
         now,
         context.userId,
-        input.rejectionReason || null,
-        input.rejectionCategory || null,
-        input.responseMethod || 'WEB',
-        input.notes || null,
+        input.rejectionReason ?? null,
+        input.rejectionCategory ?? null,
+        input.responseMethod ?? 'WEB',
+        input.notes ?? null,
         id,
       ]);
       
@@ -620,9 +587,9 @@ export class ShiftMatchingRepository {
       WHERE caregiver_id = $1 AND deleted_at IS NULL
     `;
     
-    const values: any[] = [caregiverId];
+    const values: unknown[] = [caregiverId];
     
-    if (statuses && statuses.length > 0) {
+    if (statuses !== undefined && statuses.length > 0) {
       query += ' AND proposal_status = ANY($2)';
       values.push(statuses);
     }
@@ -651,36 +618,36 @@ export class ShiftMatchingRepository {
     pagination: PaginationParams
   ): Promise<PaginatedResult<AssignmentProposal>> {
     const conditions: string[] = ['deleted_at IS NULL'];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramCount = 0;
 
-    if (filters.organizationId) {
+    if (filters.organizationId !== undefined) {
       conditions.push(`organization_id = $${++paramCount}`);
       values.push(filters.organizationId);
     }
 
-    if (filters.branchId) {
+    if (filters.branchId !== undefined) {
       conditions.push(`branch_id = $${++paramCount}`);
       values.push(filters.branchId);
     }
 
-    if (filters.caregiverId) {
+    if (filters.caregiverId !== undefined) {
       conditions.push(`caregiver_id = $${++paramCount}`);
       values.push(filters.caregiverId);
     }
 
-    if (filters.openShiftId) {
+    if (filters.openShiftId !== undefined) {
       conditions.push(`open_shift_id = $${++paramCount}`);
       values.push(filters.openShiftId);
     }
 
-    if (filters.proposalStatus && filters.proposalStatus.length > 0) {
+    if (filters.proposalStatus !== undefined && filters.proposalStatus.length > 0) {
       conditions.push(`proposal_status = ANY($${++paramCount})`);
       values.push(filters.proposalStatus);
     }
 
-    if (filters.matchQuality && filters.matchQuality.length > 0) {
-      conditions.push(`match_quality = ANY($${++paramCount})`);
+    if (filters.matchQuality !== undefined && filters.matchQuality.length > 0) {
+      conditions.push(`match_quality = ANY($${++paramCount}`);
       values.push(filters.matchQuality);
     }
 
@@ -691,8 +658,8 @@ export class ShiftMatchingRepository {
     const total = parseInt(countResult.rows[0].count, 10);
 
     const offset = (pagination.page - 1) * pagination.limit;
-    const sortBy = pagination.sortBy || 'proposed_at';
-    const sortOrder = pagination.sortOrder || 'desc';
+    const sortBy = pagination.sortBy ?? 'proposed_at';
+    const sortOrder = pagination.sortOrder ?? 'desc';
 
     const dataQuery = `
       SELECT * FROM assignment_proposals
@@ -771,26 +738,26 @@ export class ShiftMatchingRepository {
     const values = [
       caregiverId,
       organizationId,
-      input.preferredDaysOfWeek ? JSON.stringify(input.preferredDaysOfWeek) : null,
-      input.preferredTimeRanges ? JSON.stringify(input.preferredTimeRanges) : null,
+      input.preferredDaysOfWeek !== undefined ? JSON.stringify(input.preferredDaysOfWeek) : null,
+      input.preferredTimeRanges !== undefined ? JSON.stringify(input.preferredTimeRanges) : null,
       null,
       null,
       null,
       null,
-      input.maxTravelDistance || null,
+      input.maxTravelDistance ?? null,
       null,
       null,
       null,
-      input.maxShiftsPerWeek || null,
-      input.maxHoursPerWeek || null,
+      input.maxShiftsPerWeek ?? null,
+      input.maxHoursPerWeek ?? null,
       null,
       input.willingToAcceptUrgentShifts ?? true,
       input.willingToWorkWeekends ?? true,
       input.willingToWorkHolidays ?? false,
       input.acceptAutoAssignment ?? false,
-      input.notificationMethods ? JSON.stringify(input.notificationMethods) : JSON.stringify(['PUSH', 'SMS']),
-      input.quietHoursStart || null,
-      input.quietHoursEnd || null,
+      input.notificationMethods !== undefined ? JSON.stringify(input.notificationMethods) : JSON.stringify(['PUSH', 'SMS']),
+      input.quietHoursStart ?? null,
+      input.quietHoursEnd ?? null,
       context.userId,
     ];
 
@@ -823,14 +790,14 @@ export class ShiftMatchingRepository {
 
     const values = [
       input.organizationId,
-      input.branchId || null,
+      input.branchId ?? null,
       input.dateFrom,
       input.dateTo,
-      input.openShiftIds ? JSON.stringify(input.openShiftIds) : null,
-      input.configurationId || null,
-      input.optimizationGoal || null,
+      input.openShiftIds !== undefined ? JSON.stringify(input.openShiftIds) : null,
+      input.configurationId ?? null,
+      input.optimizationGoal ?? null,
       context.userId,
-      input.notes || null,
+      input.notes ?? null,
     ];
 
     const result = await this.pool.query(query, values);
@@ -859,14 +826,14 @@ export class ShiftMatchingRepository {
     `;
 
     const values = [
-      updates.status || null,
-      updates.startedAt || null,
-      updates.completedAt || null,
+      updates.status ?? null,
+      updates.startedAt ?? null,
+      updates.completedAt ?? null,
       updates.totalShifts ?? null,
       updates.matchedShifts ?? null,
       updates.unmatchedShifts ?? null,
       updates.proposalsGenerated ?? null,
-      updates.errorMessage || null,
+      updates.errorMessage ?? null,
       context.userId,
       id,
     ];
@@ -906,16 +873,16 @@ export class ShiftMatchingRepository {
     const values = [
       data.openShiftId,
       data.visitId,
-      data.caregiverId || null,
+      data.caregiverId ?? null,
       data.attemptNumber,
       context.userId,
-      data.matchScore || null,
-      data.matchQuality || null,
+      data.matchScore ?? null,
+      data.matchQuality ?? null,
       data.outcome,
-      data.assignmentProposalId || null,
-      data.configurationId || null,
-      data.configurationSnapshot ? JSON.stringify(data.configurationSnapshot) : null,
-      data.notes || null,
+      data.assignmentProposalId ?? null,
+      data.configurationId ?? null,
+      data.configurationSnapshot !== undefined ? JSON.stringify(data.configurationSnapshot) : null,
+      data.notes ?? null,
     ];
 
     const result = await this.pool.query(query, values);
@@ -929,7 +896,7 @@ export class ShiftMatchingRepository {
    */
 
   private mapRowToOpenShift(row: any): OpenShift {
-    return {
+    const base = {
       id: row.id,
       organizationId: row.organization_id,
       branchId: row.branch_id,
@@ -950,8 +917,8 @@ export class ShiftMatchingRepository {
       genderPreference: row.gender_preference,
       languagePreference: row.language_preference,
       address: row.address,
-      latitude: row.latitude ? parseFloat(row.latitude) : undefined,
-      longitude: row.longitude ? parseFloat(row.longitude) : undefined,
+      latitude: row.latitude !== null && row.latitude !== undefined ? parseFloat(row.latitude) : 0,
+      longitude: row.longitude !== null && row.longitude !== undefined ? parseFloat(row.longitude) : 0,
       priority: row.priority,
       isUrgent: row.is_urgent,
       fillByDate: row.fill_by_date,
@@ -969,6 +936,7 @@ export class ShiftMatchingRepository {
       updatedBy: row.updated_by,
       version: row.version,
     };
+    return base;
   }
 
   private mapRowToMatchingConfiguration(row: any): MatchingConfiguration {

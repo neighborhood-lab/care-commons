@@ -20,7 +20,6 @@ import {
   ConflictingVisit,
 } from '../types/shift-matching';
 import { Caregiver } from '@care-commons/caregiver-staff';
-import { UUID } from '@care-commons/core';
 
 export interface CaregiverContext {
   caregiver: Caregiver;
@@ -65,7 +64,7 @@ export class MatchingAlgorithm {
       .filter((issue) => issue.severity === 'WARNING')
       .map((issue) => issue.message);
     
-    return {
+    const base: MatchCandidate = {
       caregiverId: caregiver.id,
       openShiftId: shift.id,
       caregiverName: `${caregiver.firstName} ${caregiver.lastName}`,
@@ -77,23 +76,24 @@ export class MatchingAlgorithm {
       isEligible,
       eligibilityIssues,
       warnings,
-      distanceFromShift: caregiverContext.distanceFromShift,
-      estimatedTravelTime: caregiverContext.distanceFromShift
-        ? Math.ceil(caregiverContext.distanceFromShift * 2) // Rough estimate: 2 min/mile
-        : undefined,
+      distanceFromShift: caregiverContext.distanceFromShift ?? 0,
+      ...(caregiverContext.distanceFromShift !== undefined && {
+        estimatedTravelTime: Math.ceil(caregiverContext.distanceFromShift * 2)
+      }),
       hasConflict: caregiverContext.conflictingVisits.length > 0,
-      conflictingVisits: caregiverContext.conflictingVisits.length > 0
-        ? caregiverContext.conflictingVisits
-        : undefined,
+      ...(caregiverContext.conflictingVisits.length > 0 && {
+        conflictingVisits: caregiverContext.conflictingVisits
+      }),
       availableHours: caregiver.maxHoursPerWeek
         ? caregiver.maxHoursPerWeek - caregiverContext.currentWeekHours
         : 0,
       previousVisitsWithClient: caregiverContext.previousVisitsWithClient,
-      clientRating: caregiverContext.clientRating,
+      ...(caregiverContext.clientRating !== undefined && { clientRating: caregiverContext.clientRating }),
       reliabilityScore: caregiverContext.reliabilityScore,
       matchReasons,
       computedAt: new Date(),
     };
+    return base;
   }
 
   /**
@@ -146,7 +146,7 @@ export class MatchingAlgorithm {
   /**
    * Score availability (no conflicts)
    */
-  private static scoreAvailability(shift: OpenShift, context: CaregiverContext): number {
+  private static scoreAvailability(_shift: OpenShift, context: CaregiverContext): number {
     if (context.conflictingVisits.length === 0) {
       return 100; // Perfect availability
     }
@@ -159,7 +159,7 @@ export class MatchingAlgorithm {
    * Score proximity to shift location
    */
   private static scoreProximity(
-    shift: OpenShift,
+    _shift: OpenShift,
     context: CaregiverContext,
     config: MatchingConfiguration
   ): number {
@@ -222,7 +222,7 @@ export class MatchingAlgorithm {
   /**
    * Score experience with client and service type
    */
-  private static scoreExperience(shift: OpenShift, context: CaregiverContext): number {
+  private static scoreExperience(_shift: OpenShift, context: CaregiverContext): number {
     let score = 50; // Start neutral
     
     // Previous visits with this client
@@ -293,7 +293,6 @@ export class MatchingAlgorithm {
     }
     
     // Score based on how much capacity remains after this shift
-    const remainingAfterShift = availableHours - shiftHours;
     const utilizationRate = (context.currentWeekHours + shiftHours) / caregiver.maxHoursPerWeek;
     
     // Prefer moderate utilization (60-80%)
@@ -404,7 +403,7 @@ export class MatchingAlgorithm {
     
     // Check distance
     if (config.maxTravelDistance && context.distanceFromShift) {
-      if (context.distanceFromShift > config.maxTravelDistance) {
+      if (context.distanceFromShift && context.distanceFromShift > config.maxTravelDistance) {
         issues.push({
           type: 'DISTANCE_TOO_FAR',
           severity: 'BLOCKING',

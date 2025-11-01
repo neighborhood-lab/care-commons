@@ -135,11 +135,14 @@ export function validateCreateBillableItem(
     );
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -207,11 +210,14 @@ export function validateCreateInvoice(
     warnings.push('clientId recommended for private pay invoices');
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -277,11 +283,14 @@ export function validateCreatePayment(
     warnings.push('Reference number (check number) recommended for check payments');
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -333,11 +342,14 @@ export function validateAllocatePayment(
     );
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -381,41 +393,48 @@ export function validateCreateRateSchedule(
   }
 
   // Validate rates
-  for (let i = 0; i < (input.rates?.length || 0); i++) {
-    const rate = input.rates![i];
-    const ratePrefix = `Rate ${i + 1}`;
+  if (input.rates) {
+    for (let i = 0; i < input.rates.length; i++) {
+      const rate = input.rates[i];
+      if (!rate) continue;
+      
+      const ratePrefix = `Rate ${i + 1}`;
 
-    if (!rate.serviceTypeId) {
-      errors.push(`${ratePrefix}: serviceTypeId is required`);
-    }
-    if (!rate.serviceTypeCode) {
-      errors.push(`${ratePrefix}: serviceTypeCode is required`);
-    }
-    if (!rate.serviceTypeName) {
-      errors.push(`${ratePrefix}: serviceTypeName is required`);
-    }
-    if (!rate.unitType) {
-      errors.push(`${ratePrefix}: unitType is required`);
-    }
-    if (rate.unitRate === undefined || rate.unitRate < 0) {
-      errors.push(`${ratePrefix}: unitRate must be >= 0`);
-    }
+      if (!rate.serviceTypeId) {
+        errors.push(`${ratePrefix}: serviceTypeId is required`);
+      }
+      if (!rate.serviceTypeCode) {
+        errors.push(`${ratePrefix}: serviceTypeCode is required`);
+      }
+      if (!rate.serviceTypeName) {
+        errors.push(`${ratePrefix}: serviceTypeName is required`);
+      }
+      if (!rate.unitType) {
+        errors.push(`${ratePrefix}: unitType is required`);
+      }
+      if (rate.unitRate === undefined || rate.unitRate < 0) {
+        errors.push(`${ratePrefix}: unitRate must be >= 0`);
+      }
 
-    // Validate minimum/maximum
-    if (
-      rate.minimumUnits !== undefined &&
-      rate.maximumUnits !== undefined &&
-      rate.minimumUnits > rate.maximumUnits
-    ) {
-      errors.push(`${ratePrefix}: minimumUnits cannot exceed maximumUnits`);
+      // Validate minimum/maximum
+      if (
+        rate.minimumUnits !== undefined &&
+        rate.maximumUnits !== undefined &&
+        rate.minimumUnits > rate.maximumUnits
+      ) {
+        errors.push(`${ratePrefix}: minimumUnits cannot exceed maximumUnits`);
+      }
     }
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -460,11 +479,14 @@ export function validateCreatePayer(input: CreatePayerInput): ValidationResult {
     errors.push('Invalid email address');
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -541,11 +563,14 @@ export function validateCreateAuthorization(
     warnings.push('Referral number recommended when referral is required');
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -590,11 +615,14 @@ export function validateSubmitClaim(input: SubmitClaimInput): ValidationResult {
     }
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -637,11 +665,14 @@ export function validateBillableStatusTransition(
     );
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**
@@ -677,11 +708,14 @@ export function validateInvoiceStatusTransition(
     );
   }
 
-  return {
+  const result: ValidationResult = {
     valid: errors.length === 0,
     errors,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  return result;
 }
 
 /**

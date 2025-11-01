@@ -70,8 +70,8 @@ export abstract class Repository<T extends Entity> {
     };
 
     if (this.enableSoftDelete) {
-      fullRow.deleted_at = null;
-      fullRow.deleted_by = null;
+      fullRow['deleted_at'] = null;
+      fullRow['deleted_by'] = null;
     }
 
     const columns = Object.keys(fullRow);
@@ -85,7 +85,11 @@ export abstract class Repository<T extends Entity> {
     `;
 
     const result = await this.database.query(query, values);
-    const created = this.mapRowToEntity(result.rows[0]);
+    const createdRow = result.rows[0] as Record<string, unknown> | undefined;
+    if (!createdRow) {
+      throw new Error('Create failed - no row returned');
+    }
+    const created = this.mapRowToEntity(createdRow);
 
     if (this.enableAudit) {
       await this.createRevision(id, 'CREATE', {}, fullRow, context);
@@ -109,7 +113,12 @@ export abstract class Repository<T extends Entity> {
       return null;
     }
 
-    return this.mapRowToEntity(result.rows[0]);
+    const foundRow = result.rows[0] as Record<string, unknown> | undefined;
+    if (!foundRow) {
+      return null;
+    }
+
+    return this.mapRowToEntity(foundRow);
   }
 
   /**
@@ -123,7 +132,11 @@ export abstract class Repository<T extends Entity> {
 
     const countQuery = `SELECT COUNT(*) FROM ${this.tableName} ${whereClause}`;
     const countResult = await this.database.query(countQuery);
-    const total = parseInt(countResult.rows[0].count as string);
+    const firstRow = countResult.rows[0] as Record<string, unknown> | undefined;
+    if (!firstRow) {
+      throw new Error('Count query returned no rows');
+    }
+    const total = parseInt(firstRow['count'] as string);
 
     const query = `
       SELECT * FROM ${this.tableName}
@@ -133,10 +146,9 @@ export abstract class Repository<T extends Entity> {
     `;
 
     const result = await this.database.query(query, [limit, offset]);
-    const items = result.rows.map((row) => this.mapRowToEntity(row));
 
     return {
-      items,
+      items: result.rows.map((row) => this.mapRowToEntity(row as Record<string, unknown>)),
       total,
       page,
       limit,
@@ -197,7 +209,12 @@ export abstract class Repository<T extends Entity> {
       throw new ConflictError('Update failed due to version conflict');
     }
 
-    const updated = this.mapRowToEntity(result.rows[0]);
+    const updatedRow = result.rows[0] as Record<string, unknown> | undefined;
+    if (!updatedRow) {
+      throw new ConflictError('Update failed - no row returned');
+    }
+
+    const updated = this.mapRowToEntity(updatedRow);
 
     if (this.enableAudit) {
       const changes = this.computeChanges(
@@ -311,14 +328,21 @@ export abstract class Repository<T extends Entity> {
 
     const result = await this.database.query(query, [entityId, this.tableName]);
 
-    return result.rows.map((row) => ({
-      revisionId: row.revision_id as string,
-      timestamp: row.timestamp as Date,
-      userId: row.user_id as string,
-      operation: row.operation as 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE',
-      changes: JSON.parse(row.changes as string),
-      ipAddress: row.ip_address as string | undefined,
-      userAgent: row.user_agent as string | undefined,
-    }));
+    return result.rows.map((row): Revision => {
+      const revision: Revision = {
+        revisionId: row['revision_id'] as string,
+        timestamp: row['timestamp'] as Date,
+        userId: row['user_id'] as string,
+        operation: row['operation'] as 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE',
+        changes: JSON.parse(row['changes'] as string),
+      };
+      if (row['ip_address']) {
+        revision.ipAddress = row['ip_address'] as string;
+      }
+      if (row['user_agent']) {
+        revision.userAgent = row['user_agent'] as string;
+      }
+      return revision;
+    });
   }
 }

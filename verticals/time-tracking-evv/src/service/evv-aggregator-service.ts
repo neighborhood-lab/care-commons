@@ -12,7 +12,6 @@ import {
   UUID,
   NotFoundError,
   ValidationError,
-  ConflictError,
 } from '@care-commons/core';
 import { EVVRecord } from '../types/evv';
 import {
@@ -157,25 +156,39 @@ export class EVVAggregatorService {
       );
 
       if (response.success) {
-        await this.submissionRepository.updateSubmission(submission.id, {
+        const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: 'ACCEPTED',
           aggregatorResponse: response,
-          aggregatorConfirmationId: response.confirmationId,
           aggregatorReceivedAt: new Date(),
-        });
+        };
+
+        if (response.confirmationId !== undefined) {
+          updateData.aggregatorConfirmationId = response.confirmationId;
+        }
+
+        await this.submissionRepository.updateSubmission(submission.id, updateData);
       } else {
-        await this.submissionRepository.updateSubmission(submission.id, {
+        const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: response.requiresRetry ? 'RETRY' : 'REJECTED',
-          errorCode: response.errorCode,
-          errorMessage: response.errorMessage,
           errorDetails: response,
           retryCount: 0,
-          nextRetryAt: response.requiresRetry ? this.calculateNextRetry(0) : undefined,
-        });
+        };
+
+        if (response.errorCode !== undefined) {
+          updateData.errorCode = response.errorCode;
+        }
+        if (response.errorMessage !== undefined) {
+          updateData.errorMessage = response.errorMessage;
+        }
+        if (response.requiresRetry) {
+          updateData.nextRetryAt = this.calculateNextRetry(0);
+        }
+
+        await this.submissionRepository.updateSubmission(submission.id, updateData);
       }
     } catch (error: any) {
       await this.submissionRepository.updateSubmission(submission.id, {
-        submissionStatus: 'RETRY',
+        submissionStatus: 'RETRY' as const,
         errorCode: 'NETWORK_ERROR',
         errorMessage: error.message,
         retryCount: 0,
@@ -233,21 +246,35 @@ export class EVVAggregatorService {
       );
 
       if (response.success) {
-        await this.submissionRepository.updateSubmission(submission.id, {
+        const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: 'ACCEPTED',
           aggregatorResponse: response,
-          aggregatorConfirmationId: response.confirmationId,
           aggregatorReceivedAt: new Date(),
-        });
+        };
+
+        if (response.confirmationId !== undefined) {
+          updateData.aggregatorConfirmationId = response.confirmationId;
+        }
+
+        await this.submissionRepository.updateSubmission(submission.id, updateData);
       } else {
-        await this.submissionRepository.updateSubmission(submission.id, {
+        const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: response.requiresRetry ? 'RETRY' : 'REJECTED',
-          errorCode: response.errorCode,
-          errorMessage: response.errorMessage,
           errorDetails: response,
           retryCount: 0,
-          nextRetryAt: response.requiresRetry ? this.calculateNextRetry(0) : undefined,
-        });
+        };
+
+        if (response.errorCode !== undefined) {
+          updateData.errorCode = response.errorCode;
+        }
+        if (response.errorMessage !== undefined) {
+          updateData.errorMessage = response.errorMessage;
+        }
+        if (response.requiresRetry) {
+          updateData.nextRetryAt = this.calculateNextRetry(0);
+        }
+
+        await this.submissionRepository.updateSubmission(submission.id, updateData);
       }
     } catch (error: any) {
       await this.submissionRepository.updateSubmission(submission.id, {
@@ -289,26 +316,35 @@ export class EVVAggregatorService {
    */
   private buildHHAeXchangePayload(
     evvRecord: EVVRecord,
-    stateCode: StateCode
+    _stateCode: StateCode
   ): HHAeXchangePayload {
-    return {
+    const basePayload = {
       visitId: evvRecord.visitId,
-      memberId: evvRecord.clientMedicaidId || evvRecord.clientId,
+      memberId: evvRecord.clientMedicaidId ?? evvRecord.clientId,
       memberName: evvRecord.clientName,
       providerId: evvRecord.caregiverEmployeeId,
       providerName: evvRecord.caregiverName,
       serviceCode: evvRecord.serviceTypeCode,
-      serviceDate: evvRecord.serviceDate.toISOString().split('T')[0],
+      serviceDate: evvRecord.serviceDate.toISOString().split('T')[0]!,
       clockInTime: evvRecord.clockInTime.toISOString(),
-      clockOutTime: evvRecord.clockOutTime?.toISOString(),
       clockInLatitude: evvRecord.clockInVerification.latitude,
       clockInLongitude: evvRecord.clockInVerification.longitude,
-      clockOutLatitude: evvRecord.clockOutVerification?.latitude,
-      clockOutLongitude: evvRecord.clockOutVerification?.longitude,
       clockMethod: evvRecord.clockInVerification.method,
       duration: evvRecord.totalDuration,
       verificationStatus: this.mapVerificationStatus(evvRecord),
     };
+
+    const optionalFields = {
+      clockOutTime: evvRecord.clockOutTime?.toISOString(),
+      clockOutLatitude: evvRecord.clockOutVerification?.latitude,
+      clockOutLongitude: evvRecord.clockOutVerification?.longitude,
+    };
+
+    const filteredOptional = Object.fromEntries(
+      Object.entries(optionalFields).filter(([_, value]) => value !== undefined)
+    );
+
+    return { ...basePayload, ...filteredOptional } as HHAeXchangePayload;
   }
 
   /**
@@ -421,7 +457,7 @@ export class EVVAggregatorService {
   private calculateNextRetry(retryCount: number): Date {
     // Exponential backoff: 1min, 5min, 30min
     const delays = [60, 300, 1800]; // seconds
-    const delay = delays[Math.min(retryCount, delays.length - 1)];
+    const delay = delays[Math.min(retryCount, delays.length - 1)]!;
     return new Date(Date.now() + delay * 1000);
   }
 }

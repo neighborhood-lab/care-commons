@@ -131,7 +131,7 @@ export class PayrollService {
   ): Promise<PayPeriod> {
     const payPeriod: Omit<PayPeriod, 'id' | 'createdAt' | 'updatedAt' | 'version'> = {
       organizationId: input.organizationId,
-      branchId: input.branchId,
+      ...(input.branchId !== undefined && { branchId: input.branchId }),
       periodNumber: input.periodNumber,
       periodYear: input.periodYear,
       periodType: input.periodType,
@@ -149,9 +149,9 @@ export class PayrollService {
           reason: 'Pay period created',
         },
       ],
-      cutoffDate: input.cutoffDate,
-      approvalDeadline: input.approvalDeadline,
-      notes: input.notes,
+      ...(input.cutoffDate !== undefined && { cutoffDate: input.cutoffDate }),
+      ...(input.approvalDeadline !== undefined && { approvalDeadline: input.approvalDeadline }),
+      ...(input.notes !== undefined && { notes: input.notes }),
       createdBy: userId,
       updatedBy: userId,
     };
@@ -332,7 +332,7 @@ export class PayrollService {
       timestamp: new Date(),
       changedBy: userId,
       reason: 'Timesheet approved for payroll',
-      notes: input.approvalNotes,
+      ...(input.approvalNotes !== undefined && { notes: input.approvalNotes }),
     };
 
     await this.repository.updateTimeSheet(input.timeSheetId, {
@@ -340,7 +340,7 @@ export class PayrollService {
       statusHistory: [...timeSheet.statusHistory, statusChange],
       approvedAt: new Date(),
       approvedBy: userId,
-      approvalNotes: input.approvalNotes,
+      ...(input.approvalNotes !== undefined && { approvalNotes: input.approvalNotes }),
     });
   }
 
@@ -422,7 +422,7 @@ export class PayrollService {
       // Create pay run
       const payRun: Omit<PayRun, 'id' | 'createdAt' | 'updatedAt' | 'version'> = {
         organizationId: input.organizationId,
-        branchId: input.branchId,
+        ...(input.branchId !== undefined && { branchId: input.branchId }),
         payPeriodId: input.payPeriodId,
         payPeriodStartDate: payPeriod.startDate,
         payPeriodEndDate: payPeriod.endDate,
@@ -468,7 +468,7 @@ export class PayrollService {
         cashAmount: 0,
         compliancePassed: true,
         hasErrors: false,
-        notes: input.notes,
+        ...(input.notes !== undefined && { notes: input.notes }),
         createdBy: userId,
         updatedBy: userId,
       };
@@ -602,7 +602,6 @@ export class PayrollService {
       caregiverId: timesheet.caregiverId,
       caregiverName: timesheet.caregiverName,
       caregiverEmployeeId: timesheet.caregiverEmployeeId,
-      checkNumber: undefined, // Will be set when check is printed
       stubNumber: this.generateStubNumber(payPeriod, timesheet.caregiverId),
       payDate: payPeriod.payDate,
       payPeriodStartDate: payPeriod.startDate,
@@ -706,7 +705,9 @@ export class PayrollService {
     const dailyHours = new Map<string, number>();
     entries.forEach(entry => {
       const dateKey = entry.workDate.toISOString().split('T')[0];
-      dailyHours.set(dateKey, (dailyHours.get(dateKey) || 0) + entry.totalHours);
+      if (dateKey) {
+        dailyHours.set(dateKey, (dailyHours.get(dateKey) || 0) + entry.totalHours);
+      }
     });
 
     dailyHours.forEach((hours, date) => {
@@ -727,7 +728,7 @@ export class PayrollService {
     for (let i = 0; i < sortedEntries.length - 1; i++) {
       const current = sortedEntries[i];
       const next = sortedEntries[i + 1];
-      if (current.clockOutTime > next.clockInTime) {
+      if (current && next && current.clockOutTime > next.clockInTime) {
         flags.push({
           flagType: 'OVERLAPPING_SHIFTS',
           severity: 'CRITICAL',
@@ -818,7 +819,7 @@ export class PayrollService {
    */
   private generateStubNumber(payPeriod: PayPeriod, caregiverId: UUID): string {
     const periodCode = `${payPeriod.periodYear}-${String(payPeriod.periodNumber).padStart(2, '0')}`;
-    const caregiverCode = caregiverId.substring(0, 8);
+    const caregiverCode = caregiverId.slice(0, 8);
     return `${periodCode}-${caregiverCode}`;
   }
 
@@ -846,7 +847,7 @@ export class PayrollService {
       totalDuration: 480, // 8 hours in minutes
       recordStatus: 'COMPLETE' as const,
       verificationLevel: 'FULL' as const,
-      complianceFlags: [],
+      complianceFlags: [] as never[],
       integrityHash: 'mock-hash',
       integrityChecksum: 'mock-checksum',
       recordedAt: new Date(),
@@ -915,6 +916,8 @@ export class PayrollService {
         effectiveRate *= 1.5;
       }
       
+      const reviewReason = evvRecord.complianceFlags.length > 0 ? evvRecord.complianceFlags.join(', ') : undefined;
+      
       return {
         id: uuid(),
         visitId: evvRecord.visitId,
@@ -941,7 +944,7 @@ export class PayrollService {
         serviceCode: evvRecord.serviceTypeCode,
         isBillable: true,
         requiresReview: evvRecord.complianceFlags.length > 0,
-        reviewReason: evvRecord.complianceFlags.length > 0 ? evvRecord.complianceFlags.join(', ') : undefined,
+        ...(reviewReason !== undefined && { reviewReason }),
       };
     });
   }
