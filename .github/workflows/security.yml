@@ -79,12 +79,12 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: .snyk/snyk-deps-*.sarif
+          sarif_file: .snyk/snyk-dependency.sarif
           category: snyk-dependencies
 
       - name: Upload code SARIF files
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: .snyk/snyk-code-*.sarif
+          sarif_file: .snyk/snyk-code.sarif
           category: snyk-code
