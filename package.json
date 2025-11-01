@@ -17,7 +17,6 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "snyk": "dotenv -- snyk code test --all-projects --include-ignores && dotenv -- snyk test --all-projects --include-ignores",
     "db:migrate": "cd packages/core && npm run db:migrate",
     "db:migrate:rollback": "cd packages/core && npm run db:migrate:rollback",
     "db:migrate:status": "cd packages/core && npm run db:migrate:status",
