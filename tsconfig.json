@@ -1,32 +1,16 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020"],
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "removeComments": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    // Strict type checking
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "exactOptionalPropertyTypes": true,
-    // Quality checks
-    "allowUnusedLabels": false,
-    "allowUnreachableCode": false,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "bundler"
-  },
-  "exclude": ["node_modules", "dist", "**/dist"]
+  "files": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/app" },
+    { "path": "./packages/web" },
+    { "path": "./verticals/billing-invoicing" },
+    { "path": "./verticals/care-plans-tasks" },
+    { "path": "./verticals/caregiver-staff" },
+    { "path": "./verticals/client-demographics" },
+    { "path": "./verticals/payroll-processing" },
+    { "path": "./verticals/scheduling-visits" },
+    { "path": "./verticals/shift-matching" },
+    { "path": "./verticals/time-tracking-evv" }
+  ]
 }
