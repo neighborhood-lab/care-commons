@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - main
-      - master
     paths-ignore:
       - '**.md'
   pull_request:
     branches:
       - main
-      - master
     paths-ignore:
       - '**.md'
   schedule:
@@ -21,9 +19,30 @@ env:
   NODE_VERSION: '20'
 
 jobs:
-  # -------------------------------------------------------------------------
-  # Job 1: Dependency Update Check
-  # -------------------------------------------------------------------------
+  codeql:
+    name: CodeQL Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4      
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v3
+
+  npm-audit:
+    name: NPM Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm audit --production
+
   dependency-update:
     name: Dependency Update Check
     runs-on: ubuntu-latest
@@ -43,45 +62,35 @@ jobs:
       - name: Check for outdated dependencies
         run: npm outdated || true
 
-  # -------------------------------------------------------------------------
-  # Job 2: Snyk Security Scans (Dependencies + Code)
-  # -------------------------------------------------------------------------
   snyk-scan:
     name: Snyk Security Scans
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Make scan script executable
         run: chmod +x ./scripts/snyk-scan-all.sh
-
       - name: Run Snyk scans for all projects
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: ./scripts/snyk-scan-all.sh
-
       - name: Upload dependency SARIF files
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: .snyk/snyk-dependency.sarif
           category: snyk-dependencies
-
       - name: Upload code SARIF files
         if: always()
         uses: github/codeql-action/upload-sarif@v3

@@ -5,6 +5,7 @@ find . -type f -name "package-lock.json" -exec rm -f {} +
 find . -type d -name "node_modules" -exec rm -rf {} +
 ncu -u --packageFile '**/package.json'
 npm install
+npm outdated
 npm run db:nuke
 npm run db:migrate
 npm run db:seed
