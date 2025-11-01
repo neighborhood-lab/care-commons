@@ -178,7 +178,9 @@ describe('Client Utilities', () => {
       const birthDate = new Date(today);
       birthDate.setFullYear(today.getFullYear() - 30);
       
-      const age = calculateAge(birthDate.toISOString().split('T')[0]);
+      const dateString = birthDate.toISOString().split('T')[0];
+      if (!dateString) throw new Error('Invalid date string');
+      const age = calculateAge(dateString);
       expect(age).toBe(30);
     });
   });

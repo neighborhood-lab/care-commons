@@ -370,9 +370,9 @@ describe('Schedule Utils', () => {
       ];
       
       const sorted = sortVisitsByTime(visits as Visit[]);
-      expect(sorted[0].scheduledStartTime).toBe('08:00');
-      expect(sorted[1].scheduledStartTime).toBe('09:00');
-      expect(sorted[2].scheduledStartTime).toBe('10:00');
+      expect(sorted[0]!.scheduledStartTime).toBe('08:00');
+      expect(sorted[1]!.scheduledStartTime).toBe('09:00');
+      expect(sorted[2]!.scheduledStartTime).toBe('10:00');
     });
   });
 
