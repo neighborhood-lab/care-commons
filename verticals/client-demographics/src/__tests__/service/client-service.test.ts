@@ -5,9 +5,8 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ClientService } from '../../service/client-service';
 import { ClientRepository } from '../../repository/client-repository';
-import { CreateClientInput, UpdateClientInput, Client, ClientStatus } from '../../types/client';
+import { CreateClientInput, UpdateClientInput, Client, ClientStatus, RiskType } from '../../types/client';
 import { UserContext, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
-import { PermissionService } from '@care-commons/core';
 
 // Mock UUID for consistent test results
 vi.mock('uuid', () => ({
@@ -24,7 +23,7 @@ const mockPermissionService = {
 } as any;
 
 vi.mock('@care-commons/core', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     getPermissionService: vi.fn(() => mockPermissionService),
@@ -35,7 +34,6 @@ describe('ClientService', () => {
   let service: ClientService;
   let mockRepository: ClientRepository;
   let mockUserContext: UserContext;
-  const mockPermissionServiceLocal = mockPermissionService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -655,7 +653,7 @@ describe('ClientService', () => {
         relationship: 'Spouse',
         phone: {
           number: '555-123-4567',
-          type: 'MOBILE',
+          type: 'MOBILE' as 'MOBILE' | 'HOME' | 'WORK',
           canReceiveSMS: true,
         },
         isPrimary: true,
@@ -692,7 +690,7 @@ describe('ClientService', () => {
             relationship: 'Spouse',
             phone: {
               number: '555-123-4567',
-              type: 'MOBILE',
+              type: 'MOBILE' as 'MOBILE' | 'HOME' | 'WORK',
               canReceiveSMS: true,
             },
             isPrimary: true,
@@ -703,7 +701,7 @@ describe('ClientService', () => {
 
       vi.mocked(mockRepository.findById).mockResolvedValue(clientWithContact);
 
-      const updatedClient = {
+      const updatedClient: Client = {
         ...clientWithContact,
         emergencyContacts: [
           {
@@ -712,7 +710,7 @@ describe('ClientService', () => {
             relationship: 'Daughter',
             phone: {
               number: '555-123-4567',
-              type: 'MOBILE',
+              type: 'MOBILE' as 'MOBILE' | 'HOME' | 'WORK',
               canReceiveSMS: true,
             },
             isPrimary: true,
@@ -739,7 +737,7 @@ describe('ClientService', () => {
             relationship: 'Spouse',
             phone: {
               number: '555-123-4567',
-              type: 'MOBILE',
+              type: 'MOBILE' as 'MOBILE' | 'HOME' | 'WORK',
               canReceiveSMS: true,
             },
             isPrimary: true,
@@ -807,10 +805,11 @@ describe('ClientService', () => {
 
     it('should add a risk flag', async () => {
       const newRiskFlag = {
-        type: 'FALL_RISK',
-        severity: 'HIGH',
+        type: 'FALL_RISK' as RiskType,
+        severity: 'HIGH' as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
         description: 'History of falls',
         requiresAcknowledgment: true,
+        identifiedDate: new Date(),
       };
 
       const updatedClient = {
@@ -834,8 +833,8 @@ describe('ClientService', () => {
         riskFlags: [
           {
             id: 'risk-1',
-            type: 'FALL_RISK',
-            severity: 'HIGH',
+            type: 'FALL_RISK' as RiskType,
+            severity: 'HIGH' as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
             description: 'History of falls',
             identifiedDate: new Date(),
             requiresAcknowledgment: true,
@@ -850,8 +849,8 @@ describe('ClientService', () => {
         riskFlags: [
           {
             id: 'risk-1',
-            type: 'FALL_RISK',
-            severity: 'HIGH',
+            type: 'FALL_RISK' as RiskType,
+            severity: 'HIGH' as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
             description: 'History of falls',
             identifiedDate: new Date(),
             resolvedDate: expect.any(Date),

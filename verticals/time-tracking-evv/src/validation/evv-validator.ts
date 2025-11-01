@@ -487,5 +487,24 @@ export class EVVValidator {
     return R * c;
   }
 
+  /**
+   * Validate state-specific requirements (not yet implemented)
+   * @throws {Error} Method not yet implemented
+   */
+  validateStateRequirements(_stateCode: string, _config: unknown, _record: EVVRecord): unknown {
+    throw new Error('State-specific validation not yet implemented');
+  }
 
+  /**
+   * Validate geographic location with state-specific tolerance (not yet implemented)
+   * @throws {Error} Method not yet implemented
+   */
+  validateGeographicWithStateTolerance(
+    _stateCode: string,
+    _config: unknown,
+    _record: EVVRecord,
+    _expectedLocation: unknown
+  ): unknown {
+    throw new Error('Geographic validation with state tolerance not yet implemented');
+  }
 }

@@ -2,36 +2,35 @@
  * Tests for ClientHandlers
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
 import { Request, Response } from 'express';
 import { UserContext } from '@care-commons/core';
 import { ClientHandlers } from '../../api/client-handlers';
 import { ClientService } from '../../service/client-service';
-import { ClientSearchFilters, ClientStatus } from '../../types/client';
 
 interface MockRequest extends Request {
   userContext?: UserContext;
 }
 
 interface MockResponse extends Response {
-  json: vi.Mock;
-  status: vi.Mock;
+  json: Mock;
+  status: Mock;
 }
 
 interface MockClientService {
-  createClient: vi.Mock;
-  getClientById: vi.Mock;
-  getClientByNumber: vi.Mock;
-  updateClient: vi.Mock;
-  deleteClient: vi.Mock;
-  searchClients: vi.Mock;
-  addEmergencyContact: vi.Mock;
-  updateEmergencyContact: vi.Mock;
-  removeEmergencyContact: vi.Mock;
-  addRiskFlag: vi.Mock;
-  resolveRiskFlag: vi.Mock;
-  updateClientStatus: vi.Mock;
-  getClientsByBranch: vi.Mock;
+  createClient: Mock;
+  getClientById: Mock;
+  getClientByNumber: Mock;
+  updateClient: Mock;
+  deleteClient: Mock;
+  searchClients: Mock;
+  addEmergencyContact: Mock;
+  updateEmergencyContact: Mock;
+  removeEmergencyContact: Mock;
+  addRiskFlag: Mock;
+  resolveRiskFlag: Mock;
+  updateClientStatus: Mock;
+  getClientsByBranch: Mock;
 }
 
 describe('ClientHandlers', () => {
@@ -39,7 +38,7 @@ describe('ClientHandlers', () => {
   let mockClientService: MockClientService;
   let mockReq: MockRequest;
   let mockRes: MockResponse;
-  let mockNext: vi.Mock;
+  let mockNext: Mock;
 
   const mockUserContext: UserContext = {
     userId: 'user-1',
@@ -101,7 +100,7 @@ describe('ClientHandlers', () => {
 
       await handlers.listClients(mockReq, mockRes, mockNext);
 
-      const calledFilters = mockClientService.searchClients.mock.calls[0][0];
+      const calledFilters = mockClientService.searchClients.mock.calls[0]?.[0];
       expect(calledFilters).toHaveProperty('organizationId', mockUserContext.organizationId);
       expect(mockClientService.searchClients).toHaveBeenCalledWith(
         expect.any(Object),
@@ -125,13 +124,6 @@ describe('ClientHandlers', () => {
         limit: '50',
       };
 
-      const expectedFilters: ClientSearchFilters = {
-        query: 'john',
-        status: ['ACTIVE', 'PENDING_INTAKE' as ClientStatus],
-        city: 'Springfield',
-        state: 'IL',
-      };
-
       const mockSearchResult = {
         items: [],
         total: 0,
@@ -144,7 +136,7 @@ describe('ClientHandlers', () => {
 
       await handlers.listClients(mockReq, mockRes, mockNext);
 
-      const calledFilters = mockClientService.searchClients.mock.calls[0][0];
+      const calledFilters = mockClientService.searchClients.mock.calls[0]?.[0];
       expect(calledFilters.query).toBe('john');
       expect(calledFilters.status).toEqual(['ACTIVE', 'PENDING_INTAKE']);
       expect(calledFilters.city).toBe('Springfield');
@@ -163,11 +155,6 @@ describe('ClientHandlers', () => {
         maxAge: '65',
       };
 
-      const expectedFilters: ClientSearchFilters = {
-        minAge: 18,
-        maxAge: 65,
-      };
-
       const mockSearchResult = {
         items: [],
         total: 0,
@@ -180,7 +167,7 @@ describe('ClientHandlers', () => {
 
       await handlers.listClients(mockReq, mockRes, mockNext);
 
-      const calledFilters = mockClientService.searchClients.mock.calls[0][0];
+      const calledFilters = mockClientService.searchClients.mock.calls[0]?.[0];
       expect(calledFilters.minAge).toBe(18);
       expect(calledFilters.maxAge).toBe(65);
       expect(mockClientService.searchClients).toHaveBeenCalledWith(
@@ -366,7 +353,7 @@ describe('ClientHandlers', () => {
       mockReq.userContext = mockUserContext;
       mockReq.params = { id: 'client-1' };
 
-      mockClientService.deleteClient.mockResolvedValue();
+      mockClientService.deleteClient.mockResolvedValue(undefined);
 
       await handlers.deleteClient(mockReq, mockRes, mockNext);
 
@@ -596,12 +583,10 @@ describe('ClientHandlers', () => {
 
       mockClientService.getClientById.mockResolvedValue(mockClient);
 
-      const mockAge = 44; // Age as of 2024 (current year - 1980)
-
       await handlers.getClientSummary(mockReq, mockRes, mockNext);
 
       expect(mockClientService.getClientById).toHaveBeenCalledWith('client-1', mockUserContext);
-      const expectedData = mockRes.json.mock.calls[0][0].data;
+      const expectedData = mockRes.json.mock.calls[0]?.[0]?.data;
       expect(expectedData.id).toBe('client-1');
       expect(expectedData.clientNumber).toBe('CL-001');
       expect(expectedData.fullName).toBe('John Doe');
@@ -662,7 +647,7 @@ describe('ClientHandlers', () => {
       mockReq.params = { branchId: 'branch-1' };
       mockReq.query = { activeOnly: 'false' };
 
-      const mockClients = [];
+      const mockClients: never[] = [];
 
       mockClientService.getClientsByBranch.mockResolvedValue(mockClients);
 
@@ -709,7 +694,7 @@ describe('ClientHandlers', () => {
           message: 'Imported 2 clients, 0 failed',
         })
       );
-      const callData = mockRes.json.mock.calls[0][0].data;
+      const callData = mockRes.json.mock.calls[0]?.[0]?.data;
       expect(callData.successful).toHaveLength(2);
       expect(callData.failed).toHaveLength(0);
     });
@@ -745,7 +730,7 @@ describe('ClientHandlers', () => {
           message: 'Imported 1 clients, 1 failed',
         })
       );
-      const callData = mockRes.json.mock.calls[0][0].data;
+      const callData = mockRes.json.mock.calls[0]?.[0]?.data;
       expect(callData.successful).toHaveLength(1);
       expect(callData.failed).toHaveLength(1);
       expect(callData.failed[0]).toEqual(

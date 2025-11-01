@@ -3,7 +3,7 @@
  */
 
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { ClientAuditService, ClientAccessAuditEntry, AuditQuery, DisclosureMethod } from '../../service/client-audit-service';
+import { ClientAuditService, ClientAccessAuditEntry, AuditQuery, DisclosureMethod, AccessType } from '../../service/client-audit-service';
 
 interface MockDatabaseConnection {
   query: ReturnType<typeof vi.fn>;
@@ -228,14 +228,14 @@ describe('ClientAuditService', () => {
             id: 'audit-1',
             clientId: 'client-1',
             accessedBy: 'user-1',
-            accessType: 'VIEW',
+            accessType: 'VIEW' as AccessType,
             accessTimestamp: new Date(),
           },
           {
             id: 'audit-2',
             clientId: 'client-1',
             accessedBy: 'user-1',
-            accessType: 'DISCLOSURE',
+            accessType: 'DISCLOSURE' as AccessType,
             accessTimestamp: new Date(),
           },
         ],
@@ -263,7 +263,7 @@ describe('ClientAuditService', () => {
         id: `audit-${i}`,
         clientId: 'client-1',
         accessedBy: 'user-1',
-        accessType: 'VIEW',
+        accessType: 'VIEW' as AccessType,
         accessTimestamp: new Date(),
       }));
 
@@ -292,14 +292,10 @@ describe('ClientAuditService', () => {
             id: 'audit-1',
             clientId: 'client-1',
             accessedBy: 'user-1',
-            accessType: 'VIEW',
+            accessType: 'VIEW' as AccessType,
             accessTimestamp: new Date('2024-01-01T10:00:00.000Z'),
             accessReason: 'Routine check',
             ipAddress: '192.168.1.1',
-            disclosureRecipient: null,
-            disclosureMethod: null,
-            authorizationReference: null,
-            informationDisclosed: null,
           }
         ],
         totalCount: 1,
