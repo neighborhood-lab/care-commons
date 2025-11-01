@@ -50,6 +50,7 @@ vi.spyOn(console, 'log').mockImplementation(() => {});
 vi.spyOn(console, 'error').mockImplementation(() => {});
 
 import { Pool } from 'pg';
+import { initializeDatabase, getDatabase, resetDatabase } from '../../db/connection';
 
 describe('Database Connection', () => {
   let database: Database;
@@ -256,4 +257,44 @@ describe('Database Connection', () => {
 
   // Note: Singleton pattern tests are complex to test due to module caching
   // These would require more sophisticated test setup to properly reset module state
+});
+
+describe('Database Singleton', () => {
+  beforeEach(() => {
+    // Reset singleton instance before each test
+    resetDatabase();
+  });
+
+  it('should initialize database successfully', () => {
+    const config = createMockDatabaseConfig();
+    const database = initializeDatabase(config);
+
+    expect(database).toBeInstanceOf(Database);
+  });
+
+  it('should throw error when trying to initialize already initialized database', () => {
+    const config = createMockDatabaseConfig();
+    initializeDatabase(config);
+
+    expect(() => {
+      initializeDatabase(config);
+    }).toThrow('Database already initialized');
+  });
+
+  it('should get initialized database instance', () => {
+    const config = createMockDatabaseConfig();
+    const firstInstance = initializeDatabase(config);
+    
+    const retrievedInstance = getDatabase();
+    
+    expect(retrievedInstance).toBe(firstInstance);
+  });
+
+  it('should throw error when getting database before initialization', () => {
+    resetDatabase(); // Ensure no instance exists
+    
+    expect(() => {
+      getDatabase();
+    }).toThrow('Database not initialized. Call initializeDatabase first.');
+  });
 });
