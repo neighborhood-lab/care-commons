@@ -461,7 +461,7 @@ export class ScheduleService {
         endTime: endTime,
         isAvailable,
         reason: isAvailable ? undefined : 'Conflicting visit',
-      } as any);
+      });
 
       currentTime = endTime;
     }
