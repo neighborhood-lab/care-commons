@@ -27,3 +27,6 @@ export { ScheduleValidator } from './validation/schedule-validator';
 
 // Utilities
 export * from './utils/schedule-utils';
+
+// API / Integration
+export { VisitProvider, createVisitProvider } from './api/visit-provider';
