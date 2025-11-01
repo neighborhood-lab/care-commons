@@ -542,7 +542,8 @@ export class CaregiverService {
 
     if (!canViewSensitive) {
       // Mask sensitive fields but keep required structure
-      const { ssn, alternatePayRates, payrollInfo, ...safeCaregiver } = caregiver;
+      // eslint-disable-next-line sonarjs/no-unused-vars -- Intentionally destructure to exclude sensitive fields
+      const { ssn: _ssn, alternatePayRates: _alternatePayRates, payrollInfo: _payrollInfo, ...safeCaregiver } = caregiver;
       return {
         ...safeCaregiver,
         payRate: {

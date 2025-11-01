@@ -101,7 +101,7 @@ export function formatPhoneNumber(phone: string | Phone): string {
 /**
  * Get primary emergency contact
  */
-export function getPrimaryEmergencyContact(caregiver: Pick<Caregiver, 'emergencyContacts'>) {
+export function getPrimaryEmergencyContact(caregiver: Pick<Caregiver, 'emergencyContacts'>): Caregiver['emergencyContacts'][0] | undefined {
   return caregiver.emergencyContacts.find(contact => contact.isPrimary) || caregiver.emergencyContacts[0];
 }
 
