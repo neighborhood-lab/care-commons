@@ -6,7 +6,7 @@
  */
 
 import { Pool } from 'pg';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import {
   UUID,
   PaginationParams,
@@ -62,35 +62,35 @@ export class ScheduleRepository {
       input.branchId,
       input.clientId,
       input.name,
-      input.description || null,
+      input.description != null ? input.description : null,
       input.patternType,
       input.serviceTypeId,
       input.serviceTypeName,
       JSON.stringify(input.recurrence),
       input.duration,
-      input.flexibilityWindow || null,
-      input.requiredSkills ? JSON.stringify(input.requiredSkills) : null,
-      input.requiredCertifications ? JSON.stringify(input.requiredCertifications) : null,
-      input.preferredCaregivers ? JSON.stringify(input.preferredCaregivers) : null,
-      input.blockedCaregivers ? JSON.stringify(input.blockedCaregivers || []) : null,
-      input.genderPreference || null,
-      input.languagePreference || null,
-      input.preferredTimeOfDay || null,
-      input.mustStartBy || null,
-      input.mustEndBy || null,
-      input.authorizedHoursPerWeek || null,
-      input.authorizedVisitsPerWeek || null,
-      input.authorizationStartDate || null,
-      input.authorizationEndDate || null,
-      input.fundingSourceId || null,
-      input.travelTimeBefore || null,
-      input.travelTimeAfter || null,
-      input.allowBackToBack || false,
+      input.flexibilityWindow != null ? input.flexibilityWindow : null,
+      input.requiredSkills != null ? JSON.stringify(input.requiredSkills) : null,
+      input.requiredCertifications != null ? JSON.stringify(input.requiredCertifications) : null,
+      input.preferredCaregivers != null ? JSON.stringify(input.preferredCaregivers) : null,
+      input.blockedCaregivers != null ? JSON.stringify(input.blockedCaregivers ?? []) : null,
+      input.genderPreference != null ? input.genderPreference : null,
+      input.languagePreference != null ? input.languagePreference : null,
+      input.preferredTimeOfDay != null ? input.preferredTimeOfDay : null,
+      input.mustStartBy != null ? input.mustStartBy : null,
+      input.mustEndBy != null ? input.mustEndBy : null,
+      input.authorizedHoursPerWeek != null ? input.authorizedHoursPerWeek : null,
+      input.authorizedVisitsPerWeek != null ? input.authorizedVisitsPerWeek : null,
+      input.authorizationStartDate != null ? input.authorizationStartDate : null,
+      input.authorizationEndDate != null ? input.authorizationEndDate : null,
+      input.fundingSourceId != null ? input.fundingSourceId : null,
+      input.travelTimeBefore != null ? input.travelTimeBefore : null,
+      input.travelTimeAfter != null ? input.travelTimeAfter : null,
+      input.allowBackToBack != null ? input.allowBackToBack : false,
       input.effectiveFrom,
-      input.effectiveTo || null,
-      input.notes || null,
-      input.clientInstructions || null,
-      input.caregiverInstructions || null,
+      input.effectiveTo != null ? input.effectiveTo : null,
+      input.notes != null ? input.notes : null,
+      input.clientInstructions != null ? input.clientInstructions : null,
+      input.caregiverInstructions != null ? input.caregiverInstructions : null,
       context.userId,
     ];
 
@@ -121,27 +121,27 @@ export class ScheduleRepository {
     const values: unknown[] = [];
     let paramCount = 1;
 
-    if (input.name !== undefined) {
+    if (input.name !== undefined && input.name !== null) {
       updates.push(`name = $${paramCount++}`);
       values.push(input.name);
     }
-    if (input.description !== undefined) {
+    if (input.description !== undefined && input.description !== null) {
       updates.push(`description = $${paramCount++}`);
       values.push(input.description);
     }
-    if (input.recurrence !== undefined) {
+    if (input.recurrence !== undefined && input.recurrence !== null) {
       updates.push(`recurrence = $${paramCount++}`);
       values.push(JSON.stringify(input.recurrence));
     }
-    if (input.duration !== undefined) {
+    if (input.duration !== undefined && input.duration !== null) {
       updates.push(`duration = $${paramCount++}`);
       values.push(input.duration);
     }
-    if (input.status !== undefined) {
+    if (input.status !== undefined && input.status !== null) {
       updates.push(`status = $${paramCount++}`);
       values.push(input.status);
     }
-    if (input.effectiveTo !== undefined) {
+    if (input.effectiveTo !== undefined && input.effectiveTo !== null) {
       updates.push(`effective_to = $${paramCount++}`);
       values.push(input.effectiveTo);
     }
@@ -216,7 +216,7 @@ export class ScheduleRepository {
       input.organizationId,
       input.branchId,
       input.clientId,
-      input.patternId || null,
+      input.patternId ?? null,
       visitNumber,
       input.visitType,
       input.serviceTypeId,
@@ -229,13 +229,13 @@ export class ScheduleRepository {
       input.taskIds ? JSON.stringify(input.taskIds) : null,
       input.requiredSkills ? JSON.stringify(input.requiredSkills) : null,
       input.requiredCertifications ? JSON.stringify(input.requiredCertifications) : null,
-      input.isUrgent || false,
-      input.isPriority || false,
-      input.requiresSupervision || false,
+      input.isUrgent ?? false,
+      input.isPriority ?? false,
+      input.requiresSupervision ?? false,
       input.riskFlags ? JSON.stringify(input.riskFlags) : null,
-      input.clientInstructions || null,
-      input.caregiverInstructions || null,
-      input.internalNotes || null,
+      input.clientInstructions ?? null,
+      input.caregiverInstructions ?? null,
+      input.internalNotes ?? null,
       context.userId,
     ];
 
@@ -271,8 +271,8 @@ export class ScheduleRepository {
       toStatus: newStatus,
       timestamp: new Date(),
       changedBy: context.userId,
-      reason: reason || null,
-      notes: notes || null,
+      reason: reason ?? null,
+      notes: notes ?? null,
       automatic: false,
     };
 
@@ -339,78 +339,8 @@ export class ScheduleRepository {
     filters: VisitSearchFilters,
     pagination: PaginationParams
   ): Promise<PaginatedResult<Visit>> {
-    const conditions: string[] = ['deleted_at IS NULL'];
-    const values: unknown[] = [];
-    let paramCount = 1;
-
-    if (filters.organizationId) {
-      conditions.push(`organization_id = $${paramCount++}`);
-      values.push(filters.organizationId);
-    }
-
-    if (filters.branchId) {
-      conditions.push(`branch_id = $${paramCount++}`);
-      values.push(filters.branchId);
-    }
-
-    if (filters.branchIds && filters.branchIds.length > 0) {
-      conditions.push(`branch_id = ANY($${paramCount++})`);
-      values.push(filters.branchIds);
-    }
-
-    if (filters.clientId) {
-      conditions.push(`client_id = $${paramCount++}`);
-      values.push(filters.clientId);
-    }
-
-    if (filters.clientIds && filters.clientIds.length > 0) {
-      conditions.push(`client_id = ANY($${paramCount++})`);
-      values.push(filters.clientIds);
-    }
-
-    if (filters.caregiverId) {
-      conditions.push(`assigned_caregiver_id = $${paramCount++}`);
-      values.push(filters.caregiverId);
-    }
-
-    if (filters.status && filters.status.length > 0) {
-      conditions.push(`status = ANY($${paramCount++})`);
-      values.push(filters.status);
-    }
-
-    if (filters.visitType && filters.visitType.length > 0) {
-      conditions.push(`visit_type = ANY($${paramCount++})`);
-      values.push(filters.visitType);
-    }
-
-    if (filters.dateFrom) {
-      conditions.push(`scheduled_date >= $${paramCount++}`);
-      values.push(filters.dateFrom);
-    }
-
-    if (filters.dateTo) {
-      conditions.push(`scheduled_date <= $${paramCount++}`);
-      values.push(filters.dateTo);
-    }
-
-    if (filters.isUnassigned) {
-      conditions.push(`assigned_caregiver_id IS NULL`);
-    }
-
-    if (filters.isUrgent) {
-      conditions.push(`is_urgent = true`);
-    }
-
-    if (filters.query) {
-      conditions.push(`(
-        visit_number ILIKE $${paramCount} OR
-        to_tsvector('english', client_instructions || ' ' || caregiver_instructions) 
-        @@ plainto_tsquery('english', $${paramCount})
-      )`);
-      values.push(`%${filters.query}%`);
-      paramCount++;
-    }
-
+    const { conditions, values, paramCount } = this.buildSearchConditions(filters);
+    
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Count total
@@ -420,8 +350,8 @@ export class ScheduleRepository {
 
     // Get paginated results
     const offset = (pagination.page - 1) * pagination.limit;
-    const sortBy = pagination.sortBy || 'scheduled_date';
-    const sortOrder = pagination.sortOrder || 'asc';
+    const sortBy = pagination.sortBy ?? 'scheduled_date';
+    const sortOrder = pagination.sortOrder ?? 'asc';
 
     const dataQuery = `
       SELECT * FROM visits
@@ -443,6 +373,82 @@ export class ScheduleRepository {
     };
   }
 
+  private buildSearchConditions(filters: VisitSearchFilters) {
+    const conditions: string[] = ['deleted_at IS NULL'];
+    const values: unknown[] = [];
+    let paramCount = 1;
+
+    if (filters.organizationId !== undefined && filters.organizationId !== null) {
+      conditions.push(`organization_id = $${paramCount++}`);
+      values.push(filters.organizationId);
+    }
+
+    if (filters.branchId !== undefined && filters.branchId !== null) {
+      conditions.push(`branch_id = $${paramCount++}`);
+      values.push(filters.branchId);
+    }
+
+    if (filters.branchIds !== undefined && filters.branchIds !== null && filters.branchIds.length > 0) {
+      conditions.push(`branch_id = ANY($${paramCount++})`);
+      values.push(filters.branchIds);
+    }
+
+    if (filters.clientId !== undefined && filters.clientId !== null) {
+      conditions.push(`client_id = $${paramCount++}`);
+      values.push(filters.clientId);
+    }
+
+    if (filters.clientIds !== undefined && filters.clientIds !== null && filters.clientIds.length > 0) {
+      conditions.push(`client_id = ANY($${paramCount++})`);
+      values.push(filters.clientIds);
+    }
+
+    if (filters.caregiverId !== undefined && filters.caregiverId !== null) {
+      conditions.push(`assigned_caregiver_id = $${paramCount++}`);
+      values.push(filters.caregiverId);
+    }
+
+    if (filters.status !== undefined && filters.status !== null && filters.status.length > 0) {
+      conditions.push(`status = ANY($${paramCount++})`);
+      values.push(filters.status);
+    }
+
+    if (filters.visitType !== undefined && filters.visitType !== null && filters.visitType.length > 0) {
+      conditions.push(`visit_type = ANY($${paramCount++})`);
+      values.push(filters.visitType);
+    }
+
+    if (filters.dateFrom !== undefined && filters.dateFrom !== null) {
+      conditions.push(`scheduled_date >= $${paramCount++}`);
+      values.push(filters.dateFrom);
+    }
+
+    if (filters.dateTo !== undefined && filters.dateTo !== null) {
+      conditions.push(`scheduled_date <= $${paramCount++}`);
+      values.push(filters.dateTo);
+    }
+
+    if (filters.isUnassigned !== undefined && filters.isUnassigned !== null && filters.isUnassigned) {
+      conditions.push(`assigned_caregiver_id IS NULL`);
+    }
+
+    if (filters.isUrgent !== undefined && filters.isUrgent !== null && filters.isUrgent) {
+      conditions.push(`is_urgent = true`);
+    }
+
+    if (filters.query !== undefined && filters.query !== null && filters.query !== '') {
+      conditions.push(`(
+        visit_number ILIKE $${paramCount} OR
+        to_tsvector('english', client_instructions || ' ' || caregiver_instructions) 
+        @@ plainto_tsquery('english', $${paramCount})
+      )`);
+      values.push(`%${filters.query}%`);
+      paramCount++;
+    }
+
+    return { conditions, values, paramCount };
+  }
+
   async getVisitsByDateRange(
     organizationId: UUID,
     startDate: Date,
@@ -458,7 +464,7 @@ export class ScheduleRepository {
     `;
     const values: unknown[] = [organizationId, startDate, endDate];
 
-    if (branchIds && branchIds.length > 0) {
+    if (branchIds != null && branchIds.length > 0) {
       query += ` AND branch_id = ANY($4)`;
       values.push(branchIds);
     }
@@ -482,7 +488,7 @@ export class ScheduleRepository {
     `;
     const values: unknown[] = [organizationId];
 
-    if (branchId) {
+    if (branchId != null) {
       query += ` AND branch_id = $2`;
       values.push(branchId);
     }
@@ -546,7 +552,7 @@ export class ScheduleRepository {
       requiredSkills: row.required_skills,
       requiredCertifications: row.required_certifications,
       status: row.status,
-      statusHistory: row.status_history || [],
+      statusHistory: row.status_history ?? [],
       isUrgent: row.is_urgent,
       isPriority: row.is_priority,
       requiresSupervision: row.requires_supervision,

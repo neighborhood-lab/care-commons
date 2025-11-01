@@ -323,11 +323,11 @@ describe('Schedule Utils', () => {
   describe('getAssignmentMethodDisplay', () => {
     it('should return display text for all methods', () => {
       const methods = ['MANUAL', 'AUTO_MATCH', 'SELF_ASSIGN', 'PREFERRED', 'OVERFLOW'];
-      methods.forEach(method => {
+      for (const method of methods) {
         const display = getAssignmentMethodDisplay(method as AssignmentMethod);
         expect(typeof display).toBe('string');
         expect(display.length).toBeGreaterThan(0);
-      });
+      }
     });
   });
 
@@ -453,7 +453,7 @@ describe('Schedule Utils', () => {
     it('should identify overdue assigned visits', () => {
       const visit = {
         scheduledDate: pastTime,
-        scheduledStartTime: pastTime.toTimeString().substring(0, 5),
+        scheduledStartTime: pastTime.toTimeString().slice(0, 5),
         status: 'ASSIGNED' as VisitStatus
       };
       expect(isVisitOverdue(visit as Visit)).toBe(true);
@@ -462,7 +462,7 @@ describe('Schedule Utils', () => {
     it('should not flag future visits as overdue', () => {
       const visit = {
         scheduledDate: futureTime,
-        scheduledStartTime: futureTime.toTimeString().substring(0, 5),
+        scheduledStartTime: futureTime.toTimeString().slice(0, 5),
         status: 'ASSIGNED' as VisitStatus
       };
       expect(isVisitOverdue(visit as Visit)).toBe(false);
@@ -471,7 +471,7 @@ describe('Schedule Utils', () => {
     it('should not flag completed visits as overdue', () => {
       const visit = {
         scheduledDate: pastTime,
-        scheduledStartTime: pastTime.toTimeString().substring(0, 5),
+        scheduledStartTime: pastTime.toTimeString().slice(0, 5),
         status: 'COMPLETED' as VisitStatus
       };
       expect(isVisitOverdue(visit as Visit)).toBe(false);

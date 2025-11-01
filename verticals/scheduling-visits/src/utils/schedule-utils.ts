@@ -52,9 +52,16 @@ export function formatVisitTime(startTime: string, endTime: string): string {
   const [startHour, startMin] = startTime.split(':').map(Number);
   const [endHour, endMin] = endTime.split(':').map(Number);
   
-  const formatTime = (hour: number, min: number) => {
+  const formatTime = (hour: number, min: number): string => {
     const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    let displayHour: number;
+    if (hour === 0) {
+      displayHour = 12;
+    } else if (hour > 12) {
+      displayHour = hour - 12;
+    } else {
+      displayHour = hour;
+    }
     return `${displayHour}:${min.toString().padStart(2, '0')} ${period}`;
   };
   
@@ -464,7 +471,7 @@ export function isPatternActiveOnDate(
     return false;
   }
   
-  if (pattern.effectiveTo) {
+  if (pattern.effectiveTo != null) {
     const effectiveTo = typeof pattern.effectiveTo === 'string'
       ? parseISO(pattern.effectiveTo)
       : pattern.effectiveTo;
@@ -506,9 +513,9 @@ export function calculateVisitsPerWeek(pattern: Pick<ServicePattern, 'recurrence
     case 'DAILY':
       return 7 / interval;
     case 'WEEKLY':
-      return (daysOfWeek?.length || 1) / interval;
+      return (daysOfWeek?.length ?? 1) / interval;
     case 'BIWEEKLY':
-      return (daysOfWeek?.length || 1) / (2 * interval);
+      return (daysOfWeek?.length ?? 1) / (2 * interval);
     case 'MONTHLY':
       return 1 / (4 * interval); // Approximate
     default:
@@ -581,11 +588,11 @@ export function calculateTaskCompletionPercentage(
   tasksCompleted?: number,
   tasksTotal?: number
 ): number {
-  if (!tasksTotal || tasksTotal === 0) {
+  if (tasksTotal == null || tasksTotal === 0) {
     return 0;
   }
   
-  return Math.round(((tasksCompleted || 0) / tasksTotal) * 100);
+  return Math.round(((tasksCompleted ?? 0) / tasksTotal) * 100);
 }
 
 /**
@@ -620,7 +627,7 @@ export function groupVisitsByDate<T extends Pick<Visit, 'scheduledDate' | 'sched
 ): Record<string, T[]> {
   const groups: Record<string, T[]> = {};
   
-  visits.forEach(visit => {
+  for (const visit of visits) {
     const date = typeof visit.scheduledDate === 'string'
       ? visit.scheduledDate
       : format(visit.scheduledDate, 'yyyy-MM-dd');
@@ -630,12 +637,12 @@ export function groupVisitsByDate<T extends Pick<Visit, 'scheduledDate' | 'sched
     }
     
     groups[date].push(visit);
-  });
+  }
   
   // Sort each group by time
-  Object.keys(groups).forEach(date => {
-    groups[date] = sortVisitsByTime(groups[date] || []) as T[];
-  });
+  for (const date of Object.keys(groups)) {
+    groups[date] = sortVisitsByTime(groups[date] ?? []) as T[];
+  }
   
   return groups;
 }
@@ -671,7 +678,7 @@ export function getUnassignedCount(
   visits: Pick<Visit, 'status' | 'assignedCaregiverId'>[]
 ): number {
   return visits.filter(
-    v => v.status === 'UNASSIGNED' || !v.assignedCaregiverId
+    v => v.status === 'UNASSIGNED' || v.assignedCaregiverId == null
   ).length;
 }
 

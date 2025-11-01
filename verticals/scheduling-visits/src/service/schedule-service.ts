@@ -65,16 +65,16 @@ export class ScheduleService {
     this.checkBranchAccess(context, input.branchId);
 
     // Business rules validation
-    await this.validatePatternBusinessRules(validated as any);
+    await this.validatePatternBusinessRules(validated);
 
     // Create pattern - filter out undefined values to satisfy exactOptionalPropertyTypes
     const patternInput = { ...validated };
-    Object.keys(patternInput).forEach(key => {
+    for (const key of Object.keys(patternInput)) {
       if (patternInput[key as keyof typeof patternInput] === undefined) {
         delete patternInput[key as keyof typeof patternInput];
       }
-    });
-    return await this.repository.createServicePattern(patternInput as any, context);
+    }
+    return await this.repository.createServicePattern(patternInput, context);
   }
 
   async getServicePatternById(
@@ -107,7 +107,7 @@ export class ScheduleService {
 
     this.checkOrganizationAccess(context, pattern.organizationId);
 
-    return await this.repository.updateServicePattern(id, validated as any, context);
+    return await this.repository.updateServicePattern(id, validated, context);
   }
 
   async getPatternsByClient(
@@ -138,16 +138,16 @@ export class ScheduleService {
     this.checkBranchAccess(context, input.branchId);
 
     // Validate visit doesn't conflict with existing visits
-    await this.validateVisitConflicts(validated as any);
+    await this.validateVisitConflicts(validated);
 
     // Filter out undefined values to satisfy exactOptionalPropertyTypes
     const visitInput = { ...validated };
-    Object.keys(visitInput).forEach(key => {
+    for (const key of Object.keys(visitInput)) {
       if (visitInput[key as keyof typeof visitInput] === undefined) {
         delete visitInput[key as keyof typeof visitInput];
       }
-    });
-    return await this.repository.createVisit(visitInput as any, context);
+    }
+    return await this.repository.createVisit(visitInput, context);
   }
 
   async getVisitById(id: UUID, context: UserContext): Promise<Visit> {
@@ -255,7 +255,7 @@ export class ScheduleService {
       });
     }
 
-    return await this.repository.assignCaregiver(validated as any, context);
+    return await this.repository.assignCaregiver(validated, context);
   }
 
   async searchVisits(
@@ -273,11 +273,11 @@ export class ScheduleService {
     };
 
     // Enforce branch filtering if user has limited access
-    if (context.roles.includes('BRANCH_ADMIN') || context.roles.includes('COORDINATOR')) {
+    if (context.roles !== undefined && context.roles !== null && Array.isArray(context.roles) && (context.roles.includes('BRANCH_ADMIN') || context.roles.includes('COORDINATOR'))) {
       orgFilters.branchIds = context.branchIds;
     }
 
-    return await this.repository.searchVisits(orgFilters as any, pagination);
+    return await this.repository.searchVisits(orgFilters, pagination);
   }
 
   async getUnassignedVisits(
@@ -401,7 +401,7 @@ export class ScheduleService {
     );
 
     // If no time specified, just check if any visits exist
-    if (!validated.startTime || !validated.endTime) {
+    if (validated.startTime !== undefined && validated.startTime !== null && validated.endTime !== undefined && validated.endTime !== null) {
       return visits.items.length === 0;
     }
 
@@ -583,18 +583,18 @@ export class ScheduleService {
 
   private async validatePatternBusinessRules(input: CreateServicePatternInput): Promise<void> {
     // Validate authorization dates
-    if (input.authorizationEndDate && input.authorizationStartDate) {
+    if (input.authorizationEndDate !== undefined && input.authorizationEndDate !== null && input.authorizationStartDate !== undefined && input.authorizationStartDate !== null) {
       if (isBefore(input.authorizationEndDate, input.authorizationStartDate)) {
         throw new ValidationError('Authorization end date must be after start date');
       }
     }
 
     // Validate recurrence rule
-    if (input.recurrence.frequency === 'WEEKLY' && !input.recurrence.daysOfWeek) {
+    if (input.recurrence.frequency === 'WEEKLY' && input.recurrence.daysOfWeek?.length === 0) {
       throw new ValidationError('Weekly patterns must specify days of week');
     }
 
-    if (input.recurrence.frequency === 'MONTHLY' && !input.recurrence.datesOfMonth) {
+    if (input.recurrence.frequency === 'MONTHLY' && input.recurrence.datesOfMonth?.length === 0) {
       throw new ValidationError('Monthly patterns must specify dates of month');
     }
   }
@@ -635,6 +635,16 @@ export class ScheduleService {
     newStatus: VisitStatus,
     _context: UserContext
   ): void {
+    // Check if transition is valid
+    if (!this.isValidStatusTransition(currentStatus, newStatus)) {
+      throw new ValidationError(`Invalid status transition from ${currentStatus} to ${newStatus}`, {
+        currentStatus,
+        requestedStatus: newStatus,
+      });
+    }
+  }
+
+  private isValidStatusTransition(currentStatus: VisitStatus, newStatus: VisitStatus): boolean {
     // Define valid transitions
     const validTransitions: Record<VisitStatus, VisitStatus[]> = {
       DRAFT: ['SCHEDULED', 'CANCELLED'],
@@ -654,16 +664,11 @@ export class ScheduleService {
       REJECTED: ['ASSIGNED'], // Can reassign
     };
 
-    if (!validTransitions[currentStatus]?.includes(newStatus)) {
-      throw new ValidationError(`Invalid status transition from ${currentStatus} to ${newStatus}`, {
-        currentStatus,
-        requestedStatus: newStatus,
-      });
-    }
+    return validTransitions[currentStatus]?.includes(newStatus) || false;
   }
 
   private checkPermission(context: UserContext, permission: string): void {
-    if (!context.permissions.includes(permission) && !context.roles.includes('SUPER_ADMIN')) {
+    if (!(context.permissions?.includes(permission) && context.roles?.includes('SUPER_ADMIN'))) {
       throw new PermissionError(`Missing required permission: ${permission}`, {
         userId: context.userId,
         permission,
@@ -672,7 +677,7 @@ export class ScheduleService {
   }
 
   private checkOrganizationAccess(context: UserContext, organizationId: UUID): void {
-    if (context.organizationId !== organizationId && !context.roles.includes('SUPER_ADMIN')) {
+    if (context.organizationId !== organizationId && !context.roles?.includes('SUPER_ADMIN')) {
       throw new PermissionError('Access denied to this organization', {
         userOrg: context.organizationId,
         requestedOrg: organizationId,
@@ -682,9 +687,9 @@ export class ScheduleService {
 
   private checkBranchAccess(context: UserContext, branchId: UUID): void {
     if (
-      !context.branchIds.includes(branchId) &&
-      !context.roles.includes('SUPER_ADMIN') &&
-      !context.roles.includes('ORG_ADMIN')
+      !context.branchIds?.includes(branchId) &&
+      !context.roles?.includes('SUPER_ADMIN') &&
+      !context.roles?.includes('ORG_ADMIN')
     ) {
       throw new PermissionError('Access denied to this branch', {
         userBranches: context.branchIds,
