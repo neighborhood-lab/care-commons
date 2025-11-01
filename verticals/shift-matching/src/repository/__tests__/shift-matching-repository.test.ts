@@ -10,27 +10,18 @@
  * - Match history tracking
  */
 
-import { Pool } from 'pg';
 import { ShiftMatchingRepository } from '../shift-matching-repository';
 import {
-  OpenShift,
-  MatchingConfiguration,
-  AssignmentProposal,
-  CaregiverPreferenceProfile,
-  BulkMatchRequest,
-  MatchHistory,
   CreateOpenShiftInput,
   CreateProposalInput,
   RespondToProposalInput,
   CreateBulkMatchInput,
   UpdateMatchingConfigurationInput,
   UpdateCaregiverPreferencesInput,
-  ProposalStatus,
-  MatchingStatus,
   OpenShiftFilters,
   ProposalFilters,
 } from '../../types/shift-matching';
-import { UserContext, UUID, PaginationParams } from '@care-commons/core';
+import { UserContext, PaginationParams } from '@care-commons/core';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock dependencies
@@ -480,7 +471,7 @@ beforeEach(() => {
         const result = await repository.getProposalsByCaregiver('cg-123');
 
         expect(result).toHaveLength(1);
-        expect(result[0].caregiverId).toBe('cg-123');
+        expect(result[0]?.caregiverId).toBe('cg-123');
       });
 
       it('should filter by status', async () => {

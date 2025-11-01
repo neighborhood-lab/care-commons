@@ -40,54 +40,84 @@ export class ClientHandlers {
     const context = getUserContext(req);
 
     // Extract query parameters
+    const q = req.query['q'];
+    const organizationIdParam = req.query['organizationId'];
+    const branchIdParam = req.query['branchId'];
+    const statusParam = req.query['status'];
+    const programIdParam = req.query['programId'];
+    const riskTypeParam = req.query['riskType'];
+    const minAgeParam = req.query['minAge'];
+    const maxAgeParam = req.query['maxAge'];
+    const cityParam = req.query['city'];
+    const stateParam = req.query['state'];
+    const hasActiveServicesParam = req.query['hasActiveServices'];
+    const pageParam = req.query['page'];
+    const limitParam = req.query['limit'];
+
     const filters: ClientSearchFilters = {
-      query: req.query.q as string,
-      organizationId: req.query.organizationId as string,
-      // Validate and sanitize client search parameters
-      branchId: typeof req.query.branchId === 'string' ? req.query.branchId.trim() : undefined,
-      
-      // Validate client status values
-      status: (() => {
-        if (typeof req.query.status !== 'string') return undefined;
-        const validStatuses: ClientStatus[] = ['INQUIRY', 'PENDING_INTAKE', 'ACTIVE', 'INACTIVE', 'ON_HOLD', 'DISCHARGED', 'DECEASED'];
-        const filtered = req.query.status.split(',')
-          .map(s => s.trim().toUpperCase())
-          .filter(s => validStatuses.includes(s as ClientStatus)) as ClientStatus[];
-        return filtered.length > 0 ? filtered : undefined;
-      })(),
-      
-      programId: typeof req.query.programId === 'string' ? req.query.programId.trim() : undefined,
-      
-      // Validate risk type values
-      riskType: (() => {
-        if (typeof req.query.riskType !== 'string') return undefined;
-        const validRiskTypes: RiskType[] = ['FALL_RISK', 'WANDERING', 'AGGRESSIVE_BEHAVIOR', 'INFECTION', 'MEDICATION_COMPLIANCE', 'DIETARY_RESTRICTION', 'ENVIRONMENTAL_HAZARD', 'SAFETY_CONCERN', 'ABUSE_NEGLECT_CONCERN', 'OTHER'];
-        const filtered = req.query.riskType.split(',')
-          .map(s => s.trim().toUpperCase())
-          .filter(s => validRiskTypes.includes(s as RiskType)) as RiskType[];
-        return filtered.length > 0 ? filtered : undefined;
-      })(),
-      
-      // Validate age ranges
-      minAge: (() => {
-        if (typeof req.query.minAge !== 'string') return undefined;
-        const age = parseInt(req.query.minAge, 10);
-        return !isNaN(age) && age >= 0 && age <= 150 ? age : undefined;
-      })(),
-      maxAge: (() => {
-        if (typeof req.query.maxAge !== 'string') return undefined;
-        const age = parseInt(req.query.maxAge, 10);
-        return !isNaN(age) && age >= 0 && age <= 150 ? age : undefined;
-      })(),
-      
-      city: typeof req.query.city === 'string' ? req.query.city.trim() : undefined,
-      state: typeof req.query.state === 'string' ? req.query.state.trim().toUpperCase() : undefined,
-      hasActiveServices: req.query.hasActiveServices === 'true',
+      query: q as string,
+      organizationId: organizationIdParam as string,
     };
 
+    // Validate and sanitize client search parameters
+    if (typeof branchIdParam === 'string') {
+      filters.branchId = branchIdParam.trim();
+    }
+      
+    // Validate client status values
+    if (typeof statusParam === 'string') {
+      const validStatuses: ClientStatus[] = ['INQUIRY', 'PENDING_INTAKE', 'ACTIVE', 'INACTIVE', 'ON_HOLD', 'DISCHARGED', 'DECEASED'];
+      const filtered = statusParam.split(',')
+        .map(s => s.trim().toUpperCase())
+        .filter(s => validStatuses.includes(s as ClientStatus)) as ClientStatus[];
+      if (filtered.length > 0) {
+        filters.status = filtered;
+      }
+    }
+      
+    if (typeof programIdParam === 'string') {
+      filters.programId = programIdParam.trim();
+    }
+      
+    // Validate risk type values
+    if (typeof riskTypeParam === 'string') {
+      const validRiskTypes: RiskType[] = ['FALL_RISK', 'WANDERING', 'AGGRESSIVE_BEHAVIOR', 'INFECTION', 'MEDICATION_COMPLIANCE', 'DIETARY_RESTRICTION', 'ENVIRONMENTAL_HAZARD', 'SAFETY_CONCERN', 'ABUSE_NEGLECT_CONCERN', 'OTHER'];
+      const filtered = riskTypeParam.split(',')
+        .map(s => s.trim().toUpperCase())
+        .filter(s => validRiskTypes.includes(s as RiskType)) as RiskType[];
+      if (filtered.length > 0) {
+        filters.riskType = filtered;
+      }
+    }
+      
+    // Validate age ranges
+    if (typeof minAgeParam === 'string') {
+      const age = parseInt(minAgeParam, 10);
+      if (!isNaN(age) && age >= 0 && age <= 150) {
+        filters.minAge = age;
+      }
+    }
+
+    if (typeof maxAgeParam === 'string') {
+      const age = parseInt(maxAgeParam, 10);
+      if (!isNaN(age) && age >= 0 && age <= 150) {
+        filters.maxAge = age;
+      }
+    }
+      
+    if (typeof cityParam === 'string') {
+      filters.city = cityParam.trim();
+    }
+
+    if (typeof stateParam === 'string') {
+      filters.state = stateParam.trim().toUpperCase();
+    }
+
+    filters.hasActiveServices = hasActiveServicesParam === 'true';
+
     const pagination = {
-      page: parseInt(req.query.page as string) || 1,
-      limit: parseInt(req.query.limit as string) || 20,
+      page: parseInt(pageParam as string) || 1,
+      limit: parseInt(limitParam as string) || 20,
     };
 
     const result = await this.clientService.searchClients(filters, pagination, context);
@@ -106,9 +136,16 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id } = req.params;
 
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
     const client = await this.clientService.getClientById(id, context);
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
     });
@@ -121,7 +158,15 @@ export class ClientHandlers {
   getClientByNumber = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
     const { clientNumber } = req.params;
-    const organizationId = req.query.organizationId as string || context.organizationId;
+    const orgIdFromQuery = req.query['organizationId'];
+    const organizationId = (typeof orgIdFromQuery === 'string' ? orgIdFromQuery : context.organizationId) || context.organizationId;
+
+    if (!clientNumber || !organizationId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client number and organization ID are required',
+      });
+    }
 
     const client = await this.clientService.getClientByNumber(
       clientNumber,
@@ -129,7 +174,7 @@ export class ClientHandlers {
       context
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
     });
@@ -145,7 +190,7 @@ export class ClientHandlers {
 
     const client = await this.clientService.createClient(input, context);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: client,
       message: 'Client created successfully',
@@ -161,9 +206,16 @@ export class ClientHandlers {
     const { id } = req.params;
     const updates: UpdateClientInput = req.body;
 
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
     const client = await this.clientService.updateClient(id, updates, context);
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
       message: 'Client updated successfully',
@@ -178,9 +230,16 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id } = req.params;
 
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
     await this.clientService.deleteClient(id, context);
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Client deleted successfully',
     });
@@ -195,9 +254,16 @@ export class ClientHandlers {
     const { id } = req.params;
     const contact = req.body;
 
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
     const client = await this.clientService.addEmergencyContact(id, contact, context);
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
       message: 'Emergency contact added successfully',
@@ -213,6 +279,13 @@ export class ClientHandlers {
     const { id, contactId } = req.params;
     const updates = req.body;
 
+    if (!id || !contactId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID and contact ID are required',
+      });
+    }
+
     const client = await this.clientService.updateEmergencyContact(
       id,
       contactId,
@@ -220,7 +293,7 @@ export class ClientHandlers {
       context
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
       message: 'Emergency contact updated successfully',
@@ -235,9 +308,16 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id, contactId } = req.params;
 
+    if (!id || !contactId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID and contact ID are required',
+      });
+    }
+
     const client = await this.clientService.removeEmergencyContact(id, contactId, context);
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
       message: 'Emergency contact removed successfully',
@@ -253,9 +333,16 @@ export class ClientHandlers {
     const { id } = req.params;
     const riskFlag = req.body;
 
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
     const client = await this.clientService.addRiskFlag(id, riskFlag, context);
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
       message: 'Risk flag added successfully',
@@ -270,9 +357,16 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { id, flagId } = req.params;
 
+    if (!id || !flagId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID and flag ID are required',
+      });
+    }
+
     const client = await this.clientService.resolveRiskFlag(id, flagId, context);
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
       message: 'Risk flag resolved successfully',
@@ -288,9 +382,16 @@ export class ClientHandlers {
     const { id } = req.params;
     const { status, reason } = req.body;
 
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
     const client = await this.clientService.updateClientStatus(id, status, context, reason);
 
-    res.json({
+    return res.json({
       success: true,
       data: client,
       message: `Client status updated to ${status}`,
@@ -304,6 +405,13 @@ export class ClientHandlers {
   getClientSummary = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
     const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
 
     const client = await this.clientService.getClientById(id, context);
 
@@ -336,7 +444,7 @@ export class ClientHandlers {
       accessInstructions: client.accessInstructions,
     };
 
-    res.json({
+    return res.json({
       success: true,
       data: summary,
     });
@@ -349,11 +457,19 @@ export class ClientHandlers {
   getClientsByBranch = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
     const { branchId } = req.params;
-    const activeOnly = req.query.activeOnly !== 'false';
+    const activeOnlyParam = req.query['activeOnly'];
+    const activeOnly = activeOnlyParam !== 'false';
+
+    if (!branchId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Branch ID is required',
+      });
+    }
 
     const clients = await this.clientService.getClientsByBranch(branchId, context, activeOnly);
 
-    res.json({
+    return res.json({
       success: true,
       data: clients,
       count: clients.length,
@@ -421,13 +537,16 @@ export class ClientHandlers {
    */
   getDashboardStats = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
-    const { branchId } = req.query;
+    const branchIdParam = req.query['branchId'];
 
     // Get clients for the branch or organization
     const filters: ClientSearchFilters = {
       organizationId: context.organizationId,
-      branchId: branchId as string,
     };
+
+    if (typeof branchIdParam === 'string') {
+      filters.branchId = branchIdParam;
+    }
 
     const allClients = await this.clientService.searchClients(
       filters,

@@ -46,7 +46,7 @@ export class ServiceAuthorizationRepository extends Repository<ServiceAuthorizat
       updatedAt: row.updated_at,
       updatedBy: row.updated_by,
       version: row.version,
-    };
+    } as ServiceAuthorization;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,7 +67,7 @@ export class ServiceAuthorizationRepository extends Repository<ServiceAuthorizat
       effective_date: entity.effectiveDate,
       expiration_date: entity.expirationDate,
       units_used: entity.unitsUsed || 0,
-      units_remaining: entity.authorizedUnits || 0,
+      units_remaining: entity.unitsRemaining,
       last_usage_date: entity.lastUsageDate,
       form_number: entity.formNumber,
       mco_id: entity.mcoId,

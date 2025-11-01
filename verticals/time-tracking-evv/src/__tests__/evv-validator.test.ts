@@ -4,12 +4,10 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { EVVValidator } from '../validation/evv-validator';
-import { ValidationError as CoreValidationError } from '@care-commons/core';
 import { CryptoUtils } from '../utils/crypto-utils';
 import { 
   ClockInInput, 
   ClockOutInput, 
-  LocationVerificationInput, 
   CreateGeofenceInput,
   EVVRecord,
   VerificationMethod
@@ -417,21 +415,39 @@ describe('EVVValidator', () => {
       },
       clockInTime: new Date(),
       clockOutTime: new Date(),
-      clockInVerification: {
-        latitude: 40.7128,
-        longitude: -74.0060,
-        accuracy: 10,
-        timestamp: new Date(),
-        timestampSource: 'DEVICE',
-        isWithinGeofence: true,
-        distanceFromAddress: 5,
-        geofencePassed: true,
-        deviceId: 'device-123',
-        method: 'GPS' as VerificationMethod,
-        locationSource: 'GPS_SATELLITE',
-        mockLocationDetected: false,
-        verificationPassed: true,
-      },
+      clockInVerification: (() => {
+        const baseVerification = {
+          latitude: 40.7128,
+          longitude: -74.0060,
+          accuracy: 10,
+          timestamp: new Date(),
+          timestampSource: 'DEVICE' as const,
+          isWithinGeofence: true,
+          distanceFromAddress: 5,
+          geofencePassed: true,
+          deviceId: 'device-123',
+          method: 'GPS' as VerificationMethod,
+          locationSource: 'GPS_SATELLITE' as const,
+          mockLocationDetected: false,
+          verificationPassed: true,
+        };
+
+        const optionalFields = {
+          altitude: undefined,
+          heading: undefined,
+          speed: undefined,
+          photoUrl: undefined,
+          biometricVerified: undefined,
+          biometricMethod: undefined,
+          verificationFailureReasons: undefined,
+        };
+
+        const filteredOptional = Object.fromEntries(
+          Object.entries(optionalFields).filter(([_, value]) => value !== undefined)
+        );
+
+        return { ...baseVerification, ...filteredOptional };
+      })(),
       recordStatus: 'COMPLETE',
       verificationLevel: 'FULL',
       complianceFlags: ['COMPLIANT'],
@@ -535,21 +551,39 @@ describe('EVVValidator', () => {
       clockInTime: new Date(),
       clockOutTime: new Date(),
       totalDuration: 120,
-      clockInVerification: {
-        latitude: 40.7128,
-        longitude: -74.0060,
-        accuracy: 10,
-        timestamp: new Date(),
-        timestampSource: 'DEVICE',
-        isWithinGeofence: true,
-        distanceFromAddress: 5,
-        geofencePassed: true,
-        deviceId: 'device-123',
-        method: 'GPS' as VerificationMethod,
-        locationSource: 'GPS_SATELLITE',
-        mockLocationDetected: false,
-        verificationPassed: true,
-      },
+      clockInVerification: (() => {
+        const baseVerification = {
+          latitude: 40.7128,
+          longitude: -74.0060,
+          accuracy: 10,
+          timestamp: new Date(),
+          timestampSource: 'DEVICE' as const,
+          isWithinGeofence: true,
+          distanceFromAddress: 5,
+          geofencePassed: true,
+          deviceId: 'device-123',
+          method: 'GPS' as VerificationMethod,
+          locationSource: 'GPS_SATELLITE' as const,
+          mockLocationDetected: false,
+          verificationPassed: true,
+        };
+
+        const optionalFields = {
+          altitude: undefined,
+          heading: undefined,
+          speed: undefined,
+          photoUrl: undefined,
+          biometricVerified: undefined,
+          biometricMethod: undefined,
+          verificationFailureReasons: undefined,
+        };
+
+        const filteredOptional = Object.fromEntries(
+          Object.entries(optionalFields).filter(([_, value]) => value !== undefined)
+        );
+
+        return { ...baseVerification, ...filteredOptional };
+      })(),
       recordStatus: 'COMPLETE',
       verificationLevel: 'FULL',
       complianceFlags: ['COMPLIANT'],
@@ -699,10 +733,10 @@ describe('EVVValidator', () => {
     });
 
     it('should detect missing clock-out', () => {
-      const recordWithoutClockOut = {
-        ...mockEVVRecord,
+      const { totalDuration, ...recordWithoutClockOut } = mockEVVRecord;
+      const recordForTest = {
+        ...recordWithoutClockOut,
         clockOutTime: null,
-        totalDuration: undefined,
       };
 
       const geofenceCheck = {
@@ -713,7 +747,7 @@ describe('EVVValidator', () => {
         requiresManualReview: false,
       };
 
-      const result = validator.performVerification(recordWithoutClockOut, geofenceCheck);
+      const result = validator.performVerification(recordForTest, geofenceCheck);
 
       expect(result.issues).toContainEqual({
         issueType: 'MISSING_CLOCK_OUT',

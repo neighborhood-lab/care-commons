@@ -209,7 +209,7 @@ describe('Base Types', () => {
       };
 
       expect(auditable.revisionHistory).toHaveLength(1);
-      expect(auditable.revisionHistory[0].operation).toBe('CREATE');
+      expect(auditable.revisionHistory[0]?.operation).toBe('CREATE');
     });
   });
 

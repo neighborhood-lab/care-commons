@@ -9,10 +9,7 @@
  * - Error handling and validation
  */
 
-import { Pool } from 'pg';
 import { ShiftMatchingHandlers } from '../shift-matching-handlers';
-import { ShiftMatchingService } from '../../service/shift-matching-service';
-import { ShiftMatchingRepository } from '../../repository/shift-matching-repository';
 import {
   CreateOpenShiftInput,
   MatchShiftInput,
@@ -26,7 +23,7 @@ import {
   MatchingConfiguration,
   CaregiverPreferenceProfile,
 } from '../../types/shift-matching';
-import { UserContext, UUID, PaginationParams } from '@care-commons/core';
+import { UserContext, PaginationParams } from '@care-commons/core';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock dependencies
@@ -541,7 +538,26 @@ describe('ShiftMatchingHandlers', () => {
             complianceMatch: 5,
             capacityMatch: 5,
           },
-        };
+          requireExactSkillMatch: false,
+          requireActiveCertifications: true,
+          respectGenderPreference: true,
+          respectLanguagePreference: true,
+          maxTravelDistance: 50,
+          requireMinimumExperience: 0,
+          requireBackgroundCheck: true,
+          requireReferences: false,
+          autoAssignThreshold: 90,
+          maxCandidatesPerShift: 10,
+          proposalExpirationHours: 24,
+          allowOverbooking: false,
+          respectTimeoffRequests: true,
+          respectAvailabilityPreferences: true,
+          requireComplianceTraining: true,
+          maxWeeklyHours: 40,
+          requireMinimumRating: 0,
+          prioritizeRegularCaregivers: true,
+          allowEmergencyOverrides: false,
+        } as any;
 
         const mockConfig: MatchingConfiguration = {
           id: 'config-123',

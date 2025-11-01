@@ -76,7 +76,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getCarePlanById(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const carePlan = await service.getCarePlanById(req.params.id, context);
+        const carePlan = await service.getCarePlanById(req.params['id'] as string as string as string, context);
         res.json(carePlan);
       } catch (error: unknown) {
         handleError(error, res, 'fetching care plan');
@@ -90,7 +90,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async updateCarePlan(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const carePlan = await service.updateCarePlan(req.params.id, req.body, context);
+        const carePlan = await service.updateCarePlan(req.params['id'] as string as string as string, req.body, context);
         res.json(carePlan);
       } catch (error: unknown) {
         handleError(error, res, 'updating care plan');
@@ -104,7 +104,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async activateCarePlan(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const carePlan = await service.activateCarePlan(req.params.id, context);
+        const carePlan = await service.activateCarePlan(req.params['id'] as string as string as string, context);
         res.json(carePlan);
       } catch (error: unknown) {
         handleError(error, res, 'activating care plan');
@@ -119,15 +119,15 @@ export function createCarePlanHandlers(service: CarePlanService) {
       try {
         const context = getUserContext(req);
         // Validate and sanitize query parameters
-        const query = typeof req.query.query === 'string' ? req.query.query.trim() : undefined;
-        const clientId = typeof req.query.clientId === 'string' ? req.query.clientId.trim() : undefined;
-        const coordinatorId = typeof req.query.coordinatorId === 'string' ? req.query.coordinatorId.trim() : undefined;
+        const query = typeof req.query['query'] === 'string' ? req.query['query'].trim() : undefined;
+        const clientId = typeof req.query['clientId'] === 'string' ? req.query['clientId'].trim() : undefined;
+        const coordinatorId = typeof req.query['coordinatorId'] === 'string' ? req.query['coordinatorId'].trim() : undefined;
         
         // Validate status values
         let status: CarePlanStatus[] | undefined;
-        if (typeof req.query.status === 'string') {
+        if (typeof req.query['status'] === 'string') {
           const validStatuses: CarePlanStatus[] = ['DRAFT', 'PENDING_APPROVAL', 'ACTIVE', 'ON_HOLD', 'EXPIRED', 'DISCONTINUED', 'COMPLETED'];
-          status = req.query.status.split(',')
+          status = req.query['status'].split(',')
             .map(s => s.trim().toUpperCase())
             .filter(s => validStatuses.includes(s as CarePlanStatus)) as CarePlanStatus[];
           if (status.length === 0) status = undefined;
@@ -135,9 +135,9 @@ export function createCarePlanHandlers(service: CarePlanService) {
         
         // Validate plan type values
         let planType: CarePlanType[] | undefined;
-        if (typeof req.query.planType === 'string') {
+        if (typeof req.query['planType'] === 'string') {
           const validPlanTypes: CarePlanType[] = ['PERSONAL_CARE', 'COMPANION', 'SKILLED_NURSING', 'THERAPY', 'HOSPICE', 'RESPITE', 'LIVE_IN', 'CUSTOM'];
-          planType = req.query.planType.split(',')
+          planType = req.query['planType'].split(',')
             .map(s => s.trim().toUpperCase())
             .filter(s => validPlanTypes.includes(s as CarePlanType)) as CarePlanType[];
           if (planType.length === 0) planType = undefined;
@@ -145,27 +145,28 @@ export function createCarePlanHandlers(service: CarePlanService) {
         
         // Validate expiringWithinDays
         let expiringWithinDays: number | undefined;
-        if (typeof req.query.expiringWithinDays === 'string') {
-          const days = parseInt(req.query.expiringWithinDays, 10);
+        if (typeof req.query['expiringWithinDays'] === 'string') {
+          const days = parseInt(req.query['expiringWithinDays'], 10);
           if (!isNaN(days) && days > 0 && days <= 365) {
             expiringWithinDays = days;
           }
         }
 
-        const filters = {
-          query,
-          clientId,
-          status,
-          planType,
-          coordinatorId,
-          expiringWithinDays,
-          needsReview: req.query.needsReview === 'true',
+        const filters: any = {
+          needsReview: req.query['needsReview'] === 'true',
         };
+        if (query) filters.query = query;
+        if (clientId) filters.clientId = clientId;
+        if (status) filters.status = status;
+        if (planType) filters.planType = planType;
+        if (coordinatorId) filters.coordinatorId = coordinatorId;
+        if (expiringWithinDays) filters.expiringWithinDays = expiringWithinDays;
+        
         const pagination = {
-          page: parseInt(req.query.page as string) || 1,
-          limit: parseInt(req.query.limit as string) || 20,
-          sortBy: req.query.sortBy as string,
-          sortOrder: (req.query.sortOrder as 'asc' | 'desc') || 'desc',
+          page: parseInt(req.query['page'] as string) || 1,
+          limit: parseInt(req.query['limit'] as string) || 20,
+          sortBy: req.query['sortBy'] as string,
+          sortOrder: (req.query['sortOrder'] as 'asc' | 'desc') || 'desc',
         };
         const result = await service.searchCarePlans(filters, pagination, context);
         res.json(result);
@@ -181,7 +182,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getCarePlansByClientId(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const plans = await service.getCarePlansByClientId(req.params.clientId, context);
+        const plans = await service.getCarePlansByClientId(req.params['clientId'] as string as string, context);
         res.json(plans);
       } catch (error: unknown) {
         handleError(error, res, 'fetching client care plans');
@@ -195,7 +196,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getActiveCarePlanForClient(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const plan = await service.getActiveCarePlanForClient(req.params.clientId, context);
+        const plan = await service.getActiveCarePlanForClient(req.params['clientId'] as string as string, context);
         if (!plan) {
           res.status(404).json({ error: 'No active care plan found' });
         } else {
@@ -213,7 +214,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getExpiringCarePlans(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const days = parseInt(req.query.days as string) || 30;
+        const days = parseInt(req.query['days'] as string) || 30;
         const plans = await service.getExpiringCarePlans(days, context);
         res.json(plans);
       } catch (error: unknown) {
@@ -228,7 +229,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async deleteCarePlan(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        await service.deleteCarePlan(req.params.id, context);
+        await service.deleteCarePlan(req.params['id'] as string as string, context);
         res.status(204).send();
       } catch (error: unknown) {
         handleError(error, res, 'deleting care plan');
@@ -244,7 +245,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const context = getUserContext(req);
         const { visitId, visitDate } = req.body;
         const tasks = await service.createTasksForVisit(
-          req.params.id,
+          req.params['id'] as string,
           visitId,
           new Date(visitDate),
           context
@@ -276,7 +277,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getTaskInstanceById(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const task = await service.getTaskInstanceById(req.params.id, context);
+        const task = await service.getTaskInstanceById(req.params['id'] as string as string, context);
         res.json(task);
       } catch (error: unknown) {
         handleError(error, res, 'fetching task');
@@ -290,7 +291,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async completeTask(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const task = await service.completeTask(req.params.id, req.body, context);
+        const task = await service.completeTask(req.params['id'] as string as string, req.body, context);
         res.json(task);
       } catch (error: unknown) {
         handleError(error, res, 'completing task');
@@ -305,7 +306,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
       try {
         const context = getUserContext(req);
         const { reason, note } = req.body;
-        const task = await service.skipTask(req.params.id, reason, note, context);
+        const task = await service.skipTask(req.params['id'] as string as string, reason, note, context);
         res.json(task);
       } catch (error: unknown) {
         handleError(error, res, 'skipping task');
@@ -320,7 +321,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
       try {
         const context = getUserContext(req);
         const { issueDescription } = req.body;
-        const task = await service.reportTaskIssue(req.params.id, issueDescription, context);
+        const task = await service.reportTaskIssue(req.params['id'] as string as string, issueDescription, context);
         res.json(task);
       } catch (error: unknown) {
         handleError(error, res, 'reporting task issue');
@@ -334,53 +335,55 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async searchTaskInstances(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const filters = {
-          carePlanId: req.query.carePlanId as string,
-          clientId: req.query.clientId as string,
-          // Validate and sanitize task search parameters
-          assignedCaregiverId: typeof req.query.assignedCaregiverId === 'string' ? req.query.assignedCaregiverId.trim() : undefined,
-          visitId: typeof req.query.visitId === 'string' ? req.query.visitId.trim() : undefined,
-          
-          // Validate task status values
-          status: (() => {
-            if (typeof req.query.status !== 'string') return undefined;
-            const validStatuses: TaskStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'MISSED', 'CANCELLED', 'ISSUE_REPORTED'];
-            const filtered = req.query.status.split(',')
-              .map(s => s.trim().toUpperCase())
-              .filter(s => validStatuses.includes(s as TaskStatus)) as TaskStatus[];
-            return filtered.length > 0 ? filtered : undefined;
-          })(),
-          
-          // Validate task category values
-          category: (() => {
-            if (typeof req.query.category !== 'string') return undefined;
-            const validCategories: TaskCategory[] = ['PERSONAL_HYGIENE', 'BATHING', 'DRESSING', 'GROOMING', 'TOILETING', 'MOBILITY', 'TRANSFERRING', 'AMBULATION', 'MEDICATION', 'MEAL_PREPARATION', 'FEEDING', 'HOUSEKEEPING', 'LAUNDRY', 'SHOPPING', 'TRANSPORTATION', 'COMPANIONSHIP', 'MONITORING', 'DOCUMENTATION', 'OTHER'];
-            const filtered = req.query.category.split(',')
-              .map(s => s.trim().toUpperCase())
-              .filter(s => validCategories.includes(s as TaskCategory)) as TaskCategory[];
-            return filtered.length > 0 ? filtered : undefined;
-          })(),
-          
-          // Validate date ranges
-          scheduledDateFrom: (() => {
-            if (typeof req.query.scheduledDateFrom !== 'string') return undefined;
-            const date = new Date(req.query.scheduledDateFrom);
-            return !isNaN(date.getTime()) ? date : undefined;
-          })(),
-          scheduledDateTo: (() => {
-            if (typeof req.query.scheduledDateTo !== 'string') return undefined;
-            const date = new Date(req.query.scheduledDateTo);
-            return !isNaN(date.getTime()) ? date : undefined;
-          })(),
-          
-          overdue: req.query.overdue === 'true',
-          requiresSignature: req.query.requiresSignature === 'true' ? true : undefined,
+        const filters: any = {
+          carePlanId: req.query['carePlanId'] as string,
+          clientId: req.query['clientId'] as string,
+          overdue: req.query['overdue'] === 'true',
         };
+        
+        // Validate and sanitize task search parameters
+        const assignedCaregiverId = typeof req.query['assignedCaregiverId'] === 'string' ? req.query['assignedCaregiverId'].trim() : undefined;
+        if (assignedCaregiverId) filters.assignedCaregiverId = assignedCaregiverId;
+        
+        const visitId = typeof req.query['visitId'] === 'string' ? req.query['visitId'].trim() : undefined;
+        if (visitId) filters.visitId = visitId;
+        
+        // Validate task status values
+        if (typeof req.query['status'] === 'string') {
+          const validStatuses: TaskStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'MISSED', 'CANCELLED', 'ISSUE_REPORTED'];
+          const status = req.query['status'].split(',')
+            .map(s => s.trim().toUpperCase())
+            .filter(s => validStatuses.includes(s as TaskStatus)) as TaskStatus[];
+          if (status.length > 0) filters.status = status;
+        }
+        
+        // Validate task category values
+        if (typeof req.query['category'] === 'string') {
+          const validCategories: TaskCategory[] = ['PERSONAL_HYGIENE', 'BATHING', 'DRESSING', 'GROOMING', 'TOILETING', 'MOBILITY', 'TRANSFERRING', 'AMBULATION', 'MEDICATION', 'MEAL_PREPARATION', 'FEEDING', 'HOUSEKEEPING', 'LAUNDRY', 'SHOPPING', 'TRANSPORTATION', 'COMPANIONSHIP', 'MONITORING', 'DOCUMENTATION', 'OTHER'];
+          const category = req.query['category'].split(',')
+            .map(s => s.trim().toUpperCase())
+            .filter(s => validCategories.includes(s as TaskCategory)) as TaskCategory[];
+          if (category.length > 0) filters.category = category;
+        }
+        
+        // Validate date ranges
+        if (typeof req.query['scheduledDateFrom'] === 'string') {
+          const date = new Date(req.query['scheduledDateFrom']);
+          if (!isNaN(date.getTime())) filters.scheduledDateFrom = date;
+        }
+        if (typeof req.query['scheduledDateTo'] === 'string') {
+          const date = new Date(req.query['scheduledDateTo']);
+          if (!isNaN(date.getTime())) filters.scheduledDateTo = date;
+        }
+        
+        if (req.query['requiresSignature'] === 'true') {
+          filters.requiresSignature = true;
+        }
         const pagination = {
-          page: parseInt(req.query.page as string) || 1,
-          limit: parseInt(req.query.limit as string) || 20,
-          sortBy: req.query.sortBy as string,
-          sortOrder: (req.query.sortOrder as 'asc' | 'desc') || 'asc',
+          page: parseInt(req.query['page'] as string) || 1,
+          limit: parseInt(req.query['limit'] as string) || 20,
+          sortBy: req.query['sortBy'] as string,
+          sortOrder: (req.query['sortOrder'] as 'asc' | 'desc') || 'asc',
         };
         const result = await service.searchTaskInstances(filters, pagination, context);
         res.json(result);
@@ -396,7 +399,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getTasksByVisitId(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const tasks = await service.getTasksByVisitId(req.params.visitId, context);
+        const tasks = await service.getTasksByVisitId(req.params['visitId'] as string as string, context);
         res.json(tasks);
       } catch (error: unknown) {
         handleError(error, res, 'fetching visit tasks');
@@ -424,7 +427,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getProgressNotesByCarePlanId(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const notes = await service.getProgressNotesByCarePlanId(req.params.id, context);
+        const notes = await service.getProgressNotesByCarePlanId(req.params['id'] as string as string, context);
         res.json(notes);
       } catch (error: unknown) {
         handleError(error, res, 'fetching progress notes');
@@ -452,8 +455,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getTaskCompletionMetrics(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const dateFrom = req.query.dateFrom ? new Date(req.query.dateFrom as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        const dateTo = req.query.dateTo ? new Date(req.query.dateTo as string) : new Date();
+        const dateFrom = req.query['dateFrom'] ? new Date(req.query['dateFrom'] as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const dateTo = req.query['dateTo'] ? new Date(req.query['dateTo'] as string) : new Date();
         const metrics = await service.getTaskCompletionMetrics({
           dateFrom,
           dateTo,

@@ -17,26 +17,26 @@ import { setupRoutes } from './routes/index';
 dotenv.config({ path: '../../.env', quiet: true });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = Number(process.env['PORT'] ?? 3000);
+const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 
 /**
  * Initialize database connection
  */
-function initDb() {
+function initDb(): ReturnType<typeof initializeDatabase> {
   // Retrieve database password from environment
-  const dbPassword = process.env.DB_PASSWORD;
-  if (!dbPassword) {
+  const dbPassword = process.env['DB_PASSWORD'];
+  if (dbPassword === undefined) {
     throw new Error('DB_PASSWORD environment variable is required');
   }
 
   const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'care_commons4',
-    user: process.env.DB_USER || 'postgres',
+    host: process.env['DB_HOST'] ?? 'localhost',
+    port: Number(process.env['DB_PORT'] ?? 5432),
+    database: process.env['DB_NAME'] ?? 'care_commons4',
+    user: process.env['DB_USER'] ?? 'postgres',
     password: dbPassword,
-    ssl: process.env.DB_SSL === 'true',
+    ssl: process.env['DB_SSL'] === 'true' ? true : false,
     max: 20,
     idleTimeoutMillis: 30000,
   };
@@ -48,7 +48,7 @@ function initDb() {
     database: dbConfig.database, 
     user: dbConfig.user, 
     ssl: dbConfig.ssl,
-    hasPassword: !!dbPassword
+    hasPassword: Boolean(dbPassword)
   });
   return initializeDatabase(dbConfig);
 }
@@ -56,13 +56,13 @@ function initDb() {
 /**
  * Configure Express middleware
  */
-function setupMiddleware() {
+function setupMiddleware(): void {
   // Security headers
   app.use(helmet());
 
   // CORS
   app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env['CORS_ORIGIN'] ?? '*',
     credentials: true,
   }));
 
@@ -80,7 +80,7 @@ function setupMiddleware() {
 /**
  * Setup API routes
  */
-function setupApiRoutes() {
+function setupApiRoutes(): void {
   const db = getDatabase();
 
   // Health check endpoint (no auth required)
@@ -132,7 +132,7 @@ function setupApiRoutes() {
 /**
  * Start the server
  */
-async function start() {
+async function start(): Promise<void> {
   try {
     console.log(`Starting Care Commons API Server (${NODE_ENV})`);
 
@@ -166,19 +166,23 @@ async function start() {
 /**
  * Graceful shutdown
  */
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   console.log('\nReceived SIGTERM, shutting down gracefully...');
-  const db = getDatabase();
-  await db.close();
-  process.exit(0);
+  void (async () => {
+    const db = getDatabase();
+    await db.close();
+    process.exit(0);
+  })();
 });
 
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log('\nReceived SIGINT, shutting down gracefully...');
-  const db = getDatabase();
-  await db.close();
-  process.exit(0);
+  void (async () => {
+    const db = getDatabase();
+    await db.close();
+    process.exit(0);
+  })();
 });
 
 // Start the server
-start();
+await start();

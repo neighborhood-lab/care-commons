@@ -128,7 +128,7 @@ export class BillingService {
       subtotal,
       finalAmount,
       isAuthorized,
-      authorizationRemainingUnits,
+      ...(authorizationRemainingUnits !== undefined ? { authorizationRemainingUnits } : {}),
       status: 'PENDING',
       statusHistory: [
         {
@@ -228,25 +228,27 @@ export class BillingService {
       );
 
       // Create line items
-      const lineItems: InvoiceLineItem[] = items.map((item) => ({
-        id: uuid(),
-        billableItemId: item.id,
-        serviceDate: item.serviceDate,
-        serviceCode: item.serviceTypeCode,
-        serviceDescription: item.serviceTypeName,
-        providerName: item.caregiverName,
-        providerNPI: item.providerNPI,
-        unitType: item.unitType,
-        units: item.units,
-        unitRate: item.unitRate,
-        subtotal: item.subtotal,
-        adjustments: 0,
-        total: item.finalAmount,
-        clientName: undefined,
-        clientId: item.clientId,
-        modifiers: item.modifiers,
-        authorizationNumber: item.authorizationNumber,
-      }));
+      const lineItems: InvoiceLineItem[] = items.map((item) => {
+        const lineItem: InvoiceLineItem = {
+          id: uuid(),
+          billableItemId: item.id,
+          serviceDate: item.serviceDate,
+          serviceCode: item.serviceTypeCode,
+          serviceDescription: item.serviceTypeName,
+          unitType: item.unitType,
+          units: item.units,
+          unitRate: item.unitRate,
+          subtotal: item.subtotal,
+          adjustments: 0,
+          total: item.finalAmount,
+          clientId: item.clientId,
+        };
+        if (item.caregiverName) lineItem.providerName = item.caregiverName;
+        if (item.providerNPI) lineItem.providerNPI = item.providerNPI;
+        if (item.modifiers) lineItem.modifiers = item.modifiers;
+        if (item.authorizationNumber) lineItem.authorizationNumber = item.authorizationNumber;
+        return lineItem;
+      });
 
       // Get payer info
       const payer = await this.repository.findPayerById(input.payerId);
@@ -269,9 +271,8 @@ export class BillingService {
         payerId: input.payerId,
         payerType: input.payerType,
         payerName: input.payerName,
-        payerAddress: payer.billingAddress || payer.address,
-        clientId: input.clientId,
-        clientName: input.clientId ? undefined : undefined,
+        ...(payer.billingAddress ? { payerAddress: payer.billingAddress } : (payer.address ? { payerAddress: payer.address } : {})),
+        ...(input.clientId ? { clientId: input.clientId } : {}),
         periodStart: input.periodStart,
         periodEnd: input.periodEnd,
         invoiceDate: input.invoiceDate,
@@ -280,7 +281,6 @@ export class BillingService {
         lineItems,
         subtotal,
         taxAmount,
-        taxRate: undefined,
         discountAmount: 0,
         adjustmentAmount: 0,
         totalAmount,
@@ -298,7 +298,7 @@ export class BillingService {
           },
         ],
         payments: [],
-        notes: input.notes,
+        ...(input.notes ? { notes: input.notes } : {}),
         createdBy: userId,
         updatedBy: userId,
       };
@@ -372,7 +372,7 @@ export class BillingService {
       paymentDate: input.paymentDate,
       receivedDate: input.receivedDate,
       paymentMethod: input.paymentMethod,
-      referenceNumber: input.referenceNumber,
+      ...(input.referenceNumber ? { referenceNumber: input.referenceNumber } : {}),
       allocations: [],
       unappliedAmount: input.amount,
       status: 'RECEIVED',
@@ -387,7 +387,7 @@ export class BillingService {
         },
       ],
       isReconciled: false,
-      notes: input.notes,
+      ...(input.notes ? { notes: input.notes } : {}),
       createdBy: userId,
       updatedBy: userId,
     };

@@ -64,7 +64,7 @@ export const Login: React.FC = () => {
               type="email"
               label="Email address"
               placeholder="you@example.com"
-              error={errors.email?.message}
+              {...(errors.email?.message !== undefined && { error: errors.email.message })}
               autoComplete="email"
               required
             />
@@ -73,7 +73,7 @@ export const Login: React.FC = () => {
               type="password"
               label="Password"
               placeholder="••••••••"
-              error={errors.password?.message}
+              {...(errors.password?.message !== undefined && { error: errors.password.message })}
               autoComplete="current-password"
               required
             />

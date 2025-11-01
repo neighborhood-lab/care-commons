@@ -246,7 +246,7 @@ describe('PermissionService', () => {
       const filtered = permissionService.filterByScope(context, entities);
 
       expect(filtered).toHaveLength(1);
-      expect(filtered[0].name).toBe('Entity 2');
+      expect(filtered[0]?.name).toBe('Entity 2');
     });
 
     it('should filter by branch when branch IDs are provided', () => {
@@ -282,7 +282,7 @@ describe('PermissionService', () => {
       const filtered = permissionService.filterByScope(context, entities);
 
       expect(filtered).toHaveLength(1);
-      expect(filtered[0].name).toBe('Entity 1');
+      expect(filtered[0]?.name).toBe('Entity 1');
     });
 
     it('should handle empty branch IDs array', () => {

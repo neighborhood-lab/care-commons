@@ -24,7 +24,8 @@
     "db:migrate:status": "cd packages/core && npm run db:migrate:status",
     "db:seed": "cd packages/core && npm run db:seed",
     "db:seed:billing": "cd packages/core && node --import tsx --no-warnings scripts/seed-billing.ts",
-    "db:nuke": "cd packages/core && npm run db:nuke"
+    "db:nuke": "cd packages/core && npm run db:nuke",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.6",
@@ -32,6 +33,7 @@
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
+    "husky": "^9.1.7",
     "snyk": "^1.1300.2",
     "sql-lint": "^1.0.2",
     "turbo": "^2.6.0",
