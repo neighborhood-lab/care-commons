@@ -9,8 +9,8 @@
     "verticals/*"
   ],
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "dev:server": "cd packages/app && npm run dev:server",
+    "dev": "turbo run dev --parallel --filter=@care-commons/app --filter=@care-commons/web",
+    "dev:server": "cd packages/app && npm run dev",
     "dev:web": "cd packages/web && npm run dev",
     "build": "turbo run build",
     "build:ts": "tsc -b",
@@ -29,7 +29,8 @@
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
-    "vercel:build": "npm run build",
+    "vercel:build": "npm run build && npm run vercel:prepare",
+    "vercel:prepare": "mkdir -p api/_server && cp -r packages/app/dist/* api/_server/ && cp -r verticals/*/dist api/_server/ 2>/dev/null || true && cp -r packages/core/dist api/_server/ 2>/dev/null || true",
     "prepare": "husky"
   },
   "devDependencies": {
