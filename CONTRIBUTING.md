@@ -73,7 +73,7 @@ This project enforces strict quality standards at two levels:
 - ✅ Build all packages (`npm run build`)
 - ✅ Run linters (`npm run lint`) - must have zero warnings
 - ✅ Run type checking (`npm run typecheck`) - must have zero errors
-- ✅ Run tests (`npm test`) - all tests must pass
+- ✅ Run tests with coverage (`npm run test:coverage`) - all tests must pass and meet coverage thresholds
 
 **⚠️ CRITICAL**: These checks are **MANDATORY** and **CANNOT BE BYPASSED**. Do not use:
 - ❌ `git commit --no-verify`
@@ -108,7 +108,11 @@ This project enforces strict quality standards at two levels:
 
 - Write unit tests for business logic
 - Write integration tests for API endpoints
-- Aim for >80% code coverage
+- **Meet coverage thresholds** (enforced by pre-commit and CI):
+  - Lines: 82%
+  - Statements: 82%
+  - Branches: 70%
+  - Functions: 87%
 - Test edge cases and error conditions
 - **Write deterministic tests** - no flaky tests that depend on:
   - ❌ Multiple `new Date()` calls in assertions (use a single timestamp variable)

@@ -21,15 +21,23 @@ Care Commons uses GitHub Actions to automate:
 - Pushes to `main` and `develop` branches
 
 **Jobs:**
-- **lint** - Runs `npm run lint` across all packages
-- **typecheck** - Runs `npm run typecheck` for TypeScript validation
-- **test** - Runs full test suite with PostgreSQL database
-- **build** - Builds all packages and uploads artifacts
+- **lint** - Runs `npm run lint` across all packages - must have **zero warnings**
+- **typecheck** - Runs `npm run typecheck` for TypeScript validation - must have **zero errors**
+- **test** - Runs `npm run test:coverage` with PostgreSQL database - must pass **all tests** and meet **coverage thresholds**:
+  - Lines: 82%
+  - Statements: 82%
+  - Branches: 70%
+  - Functions: 87%
+- **build** - Builds all packages and uploads artifacts - depends on all above jobs passing
 
 **Environment:**
 - Uses PostgreSQL service for integration tests
 - Uploads coverage reports to Codecov (if token configured)
 - Caches npm dependencies for faster builds
+
+**Branch Protection:**
+- All jobs must pass before PRs can be merged to `main`
+- This ensures no code with linting errors, type errors, failing tests, or insufficient coverage makes it to production
 
 ### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
 
@@ -197,6 +205,61 @@ The security workflow automatically:
 4. **Check Dependencies** - Verify npm packages are compatible
 5. **Review Changes** - Identify what changed since last success
 
+## Pre-commit Hooks
+
+Care Commons uses Husky to enforce quality gates **before code is committed**. This ensures that broken code never makes it into the repository.
+
+### What Gets Checked
+
+Every `git commit` automatically runs (via `.husky/pre-commit` → `./scripts/brief-check.sh`):
+
+1. **Build** (`npm run build`) - Ensures all TypeScript compiles
+2. **Lint** (`npm run lint`) - Enforces code style with zero warnings
+3. **Type Check** (`npm run typecheck`) - Validates TypeScript types with zero errors
+4. **Test Coverage** (`npm run test:coverage`) - Runs all tests and validates coverage thresholds
+
+### Coverage Requirements
+
+Tests must meet these minimum thresholds (configured in each package's `vitest.config.ts`):
+
+- **Lines**: 82%
+- **Statements**: 82%
+- **Branches**: 70%
+- **Functions**: 87%
+
+If coverage falls below these thresholds, the commit is **blocked**.
+
+### Important Rules
+
+⚠️ **NEVER bypass pre-commit hooks:**
+
+```bash
+# ❌ WRONG - Do not do this!
+git commit --no-verify -m "quick fix"
+git commit -n -m "skip checks"
+
+# ✅ CORRECT - Let hooks run
+git commit -m "fix issue"
+```
+
+If pre-commit checks fail:
+1. **Fix the issue** (linting error, type error, failing test, low coverage)
+2. **Stage the fixes** (`git add .`)
+3. **Commit again** - hooks will run automatically
+
+### Why This Matters
+
+Pre-commit hooks catch issues **before they're committed**, which:
+- ✅ Prevents broken code from entering the repository
+- ✅ Catches linting and type errors immediately
+- ✅ Ensures test coverage doesn't decrease
+- ✅ Reduces CI build failures
+- ✅ Keeps the codebase clean and maintainable
+
+**Two-Level Protection:**
+1. **Local (Pre-commit)** - Catches issues before commit
+2. **Remote (CI)** - Validates before merge to `main`
+
 ## Best Practices
 
 ### Development Workflow
@@ -204,8 +267,9 @@ The security workflow automatically:
 1. **Feature Development**
    - Create feature branch from `develop`
    - Make changes with proper testing
+   - **Commit triggers pre-commit hooks** - all checks must pass
    - Open pull request to `develop`
-   - CI workflow validates changes automatically
+   - **CI workflow validates changes automatically**
 
 2. **Release Preparation**
    - Ensure all tests pass on `develop`
