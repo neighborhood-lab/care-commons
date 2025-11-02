@@ -21,6 +21,8 @@ I am a build agent focused on executing implementation tasks. I will:
 - Ensure all code passes linting (`npm run lint`) and type-checking (`npm run typecheck`) with zero warnings
 - Run `./scripts/check.sh` to validate all checks pass before task completion
 - Follow monorepo structure and TypeScript conventions (strict mode, 2-space indentation, etc.)
+- **NEVER bypass pre-commit hooks** - all commits must pass `./scripts/brief-check.sh`
+- **Write deterministic tests** - no flaky tests depending on timing, random values, or external state
 
 ## Project Structure
 - Shared domain logic in `packages/core`
@@ -40,3 +42,30 @@ I am a build agent focused on executing implementation tasks. I will:
 - 2-space indentation, `camelCase` for variables/functions, `PascalCase` for types/classes
 - Production-grade code focused on real-world concerns and user needs
 - Follow existing commit conventions: short, present-tense commands
+
+## Workflow Enforcement
+
+### Pre-commit Hooks (Local)
+Every commit automatically runs pre-commit checks via Husky:
+1. Build all packages (`npm run build`)
+2. Run linters (`npm run lint`)
+3. Run type checking (`npm run typecheck`)
+4. Run tests (`npm test`)
+
+**CRITICAL**: Never use `git commit --no-verify` or `git commit -n` to bypass these checks.
+
+### CI Pipeline (GitHub Actions)
+Every pull request triggers comprehensive CI checks:
+1. **Lint Job**: Validates code style and best practices
+2. **Type Check Job**: Ensures TypeScript types are correct
+3. **Test Job**: Runs full test suite with coverage (`npm run test:coverage`)
+4. **Build Job**: Validates production build (only runs if all above pass)
+
+**Branch Protection**: PRs to `main` cannot merge until all CI checks pass.
+
+## Testing Best Practices
+- Write deterministic, reliable tests
+- Use fixed timestamps (store in variable) instead of `new Date()` in assertions
+- Mock external dependencies and database calls
+- Ensure tests pass consistently across different machines and environments
+- Tests must pass both locally (pre-commit) and in CI (GitHub Actions)
