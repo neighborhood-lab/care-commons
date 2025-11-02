@@ -92,6 +92,16 @@ jobs:
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
+      - name: Verify Database URL
+        run: |
+          if [ -z "${{ secrets.PREVIEW_DATABASE_URL }}" ]; then
+            echo "❌ ERROR: PREVIEW_DATABASE_URL secret is not set"
+            echo "Please add PREVIEW_DATABASE_URL to GitHub Secrets:"
+            echo "Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          echo "✅ Database URL is configured"
+
       - name: Run Database Migrations (Preview)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
@@ -148,6 +158,16 @@ jobs:
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify Database URL
+        run: |
+          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
+            echo "❌ ERROR: DATABASE_URL secret is not set"
+            echo "Please add DATABASE_URL to GitHub Secrets:"
+            echo "Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          echo "✅ Database URL is configured"
 
       - name: Run Database Migrations (Production)
         env:
