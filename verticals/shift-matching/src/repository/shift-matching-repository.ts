@@ -46,19 +46,26 @@ export class ShiftMatchingRepository {
     input: CreateOpenShiftInput,
     context: UserContext
   ): Promise<OpenShift> {
-    // First, get visit details
+    // Optimized query: Single query with LEFT JOIN and existence check
+    // Uses the idx_visits_pattern_join covering index for optimal performance
     const visitQuery = `
+      WITH visit_data AS (
+        SELECT 
+          v.id, v.organization_id, v.branch_id, v.client_id,
+          v.scheduled_date, v.scheduled_start_time, v.scheduled_end_time,
+          v.scheduled_duration, v.timezone, v.service_type_id, v.service_type_name,
+          v.address, v.task_ids, v.required_skills, v.required_certifications,
+          v.client_instructions,
+          sp.preferred_caregivers, sp.blocked_caregivers,
+          sp.gender_preference, sp.language_preference
+        FROM visits v
+        LEFT JOIN service_patterns sp ON v.pattern_id = sp.id
+        WHERE v.id = $1 AND v.deleted_at IS NULL
+      )
       SELECT 
-        v.id, v.organization_id, v.branch_id, v.client_id,
-        v.scheduled_date, v.scheduled_start_time, v.scheduled_end_time,
-        v.scheduled_duration, v.timezone, v.service_type_id, v.service_type_name,
-        v.address, v.task_ids, v.required_skills, v.required_certifications,
-        v.client_instructions,
-        sp.preferred_caregivers, sp.blocked_caregivers,
-        sp.gender_preference, sp.language_preference
-      FROM visits v
-      LEFT JOIN service_patterns sp ON v.pattern_id = sp.id
-      WHERE v.id = $1 AND v.deleted_at IS NULL
+        vd.*,
+        EXISTS(SELECT 1 FROM open_shifts os WHERE os.visit_id = vd.id) AS has_open_shift
+      FROM visit_data vd
     `;
     
     const visitResult = await this.pool.query(visitQuery, [input.visitId]);
@@ -68,16 +75,16 @@ export class ShiftMatchingRepository {
     
     const visit = visitResult.rows[0];
     
-    // Check if open shift already exists for this visit
-    const existingCheck = await this.pool.query(
-      'SELECT id FROM open_shifts WHERE visit_id = $1',
-      [input.visitId]
-    );
-    
-    if (existingCheck.rows.length > 0) {
+    // Check if open shift already exists (from EXISTS subquery)
+    if (visit.has_open_shift === true) {
+      // Fetch the existing shift ID only if needed
+      const existingShift = await this.pool.query(
+        'SELECT id FROM open_shifts WHERE visit_id = $1',
+        [input.visitId]
+      );
       throw new ConflictError('Open shift already exists for this visit', {
         visitId: input.visitId,
-        openShiftId: existingCheck.rows[0].id,
+        openShiftId: existingShift.rows[0].id,
       });
     }
     
