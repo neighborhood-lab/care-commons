@@ -22,7 +22,8 @@ function getUserContext(req: Request): UserContext {
  */
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>) {
   return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    // eslint-disable-next-line promise/no-callback-in-promise
+    void Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
 
@@ -561,6 +562,7 @@ export class ClientHandlers {
    * GET /api/clients/:id/audit-trail
    * Get full audit history for a client (requires auditor role)
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getClientAuditTrail = asyncHandler(async (_req: Request, _res: Response) => {
     // This would typically query the audit_log table
     // For now, return a placeholder
@@ -626,7 +628,7 @@ export class ClientHandlers {
  * Create router with all client endpoints
  */
 export function createClientRouter(clientService: ClientService): Router {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports, unicorn/prefer-module
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const express = require('express');
   const router: Router = express.Router();
   const handlers = new ClientHandlers(clientService);
