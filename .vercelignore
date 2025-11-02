@@ -1,0 +1,21 @@
+# Vercel Ignore File
+# This overrides .gitignore for Vercel deployments
+# We need to include built dist files even though they're gitignored
+
+# Don't ignore dist directories - we need them for deployment
+!packages/*/dist
+!packages/*/dist/**
+!verticals/*/dist
+!verticals/*/dist/**
+
+# Don't ignore compiled migration files
+!packages/core/migrations/*.js
+
+# Still ignore these
+node_modules
+.env
+.env.local
+*.log
+.DS_Store
+*.png
+Screenshot*.png
