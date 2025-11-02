@@ -287,6 +287,8 @@ process.on('SIGINT', () => {
 
 // Only start the server if this file is run directly (not imported)
 // This allows Vercel to import createApp() without starting a server
-if (import.meta.url === `file://${process.argv[1]}`) {
-  await start();
+// Check if running in Vercel environment
+if (process.env['VERCEL'] === undefined && process.env['VERCEL_ENV'] === undefined) {
+  // Not in Vercel, start the server for local development
+  void start().catch(console.error);
 }
