@@ -11,6 +11,10 @@
 # Don't ignore compiled migration files
 !packages/core/migrations/*.js
 
+# Don't ignore api/_server directory created during build
+!api/_server
+!api/_server/**
+
 # Still ignore these
 node_modules
 .env

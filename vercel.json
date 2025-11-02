@@ -5,11 +5,6 @@
   "installCommand": "npm ci",
   "outputDirectory": "packages/web/dist",
   "framework": null,
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "packages/app/dist/**"
-    }
-  },
   "env": {
     "NODE_ENV": "production"
   },

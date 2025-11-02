@@ -12,9 +12,10 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// Import the Express app creator (will be compiled before deployment)
-// @ts-ignore - This file is generated during build
-import { createApp } from '../packages/app/dist/server.js';
+// Import the Express app creator from copied dist files
+// These are copied during vercel:build process
+// @ts-ignore - This directory is created during build
+import { createApp } from './_server/server.js';
 
 // Cache the initialized app across invocations
 let app: any = null;
