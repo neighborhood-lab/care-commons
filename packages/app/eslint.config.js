@@ -85,7 +85,7 @@ export default [
       'unicorn/no-null': 'off', // SQL deals with null
       'unicorn/prefer-module': 'error',
       'unicorn/prefer-node-protocol': 'error',
-      'unicorn/prefer-top-level-await': 'error',
+      'unicorn/prefer-top-level-await': 'off', // Not compatible with CommonJS builds
       'unicorn/no-array-for-each': 'error',
       'unicorn/no-useless-undefined': 'error',
       'unicorn/explicit-length-check': 'error',
@@ -103,6 +103,7 @@ export default [
   {
     ignores: [
       'dist/',
+      'dist-vercel/',
       '*.js',
       '*.d.ts',
       '*.js.map',
