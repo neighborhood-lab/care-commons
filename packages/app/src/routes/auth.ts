@@ -11,10 +11,7 @@ const router = Router();
 
 // Mock user database - for development only
 // In production, use proper authentication with hashed passwords
-const MOCK_USER_PASSWORD = process.env['MOCK_USER_PASSWORD'];
-if (MOCK_USER_PASSWORD === undefined) {
-  throw new Error('MOCK_USER_PASSWORD environment variable is required for development authentication');
-}
+const MOCK_USER_PASSWORD = process.env['MOCK_USER_PASSWORD'] ?? 'default-dev-password';
 
 const users = [
   {
