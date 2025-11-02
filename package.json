@@ -48,8 +48,8 @@
     "vitest": "^4.0.6"
   },
   "engines": {
-    "node": "22.x",
-    "npm": "~11.6.0"
+    "node": ">=22.x",
+    "npm": ">=11.6.0"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.6"
