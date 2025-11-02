@@ -373,7 +373,7 @@ export class ScheduleRepository {
     };
   }
 
-  private buildSearchConditions(filters: VisitSearchFilters) {
+  private buildSearchConditions(filters: VisitSearchFilters): { conditions: string[]; values: unknown[]; paramCount: number } {
     const conditions: string[] = ['deleted_at IS NULL'];
     const values: unknown[] = [];
     let paramCount = 1;

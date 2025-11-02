@@ -173,10 +173,11 @@ describe('Client Utilities', () => {
     });
 
     it('should handle string dates', () => {
-      // Use a date that's exactly 30 years ago from today
+      // Use a date that's exactly 30 years and 1 day ago to avoid day-of-month edge cases
       const today = new Date();
       const birthDate = new Date(today);
       birthDate.setFullYear(today.getFullYear() - 30);
+      birthDate.setDate(today.getDate() - 1); // Go back one more day to ensure we've passed the birthday
       
       const dateString = birthDate.toISOString().split('T')[0];
       if (!dateString) throw new Error('Invalid date string');

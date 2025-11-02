@@ -31,6 +31,14 @@ export type AuditEventType =
   | 'COMPLIANCE';
 
 /**
+ * Type for creating audit events (omits server-generated fields)
+ */
+export type CreateAuditEvent = Omit<
+  AuditEvent,
+  'eventId' | 'timestamp' | 'userId' | 'organizationId'
+>;
+
+/**
  * Audit service for tracking security and compliance events
  */
 export class AuditService {
@@ -45,7 +53,7 @@ export class AuditService {
    */
   async logEvent(
     context: UserContext,
-    event: Omit<AuditEvent, 'eventId' | 'timestamp' | 'userId' | 'organizationId'>
+    event: CreateAuditEvent
   ): Promise<void> {
     const eventId = uuidv4();
     const timestamp = new Date();
@@ -67,7 +75,7 @@ export class AuditService {
       event.resourceId,
       event.action,
       event.result,
-      JSON.stringify(event.metadata || {}),
+      JSON.stringify(event.metadata ?? {}),
       event.ipAddress,
       event.userAgent,
     ]);
@@ -83,14 +91,14 @@ export class AuditService {
     action: 'READ' | 'SEARCH',
     metadata?: Record<string, unknown>
   ): Promise<void> {
-    const eventData: Omit<AuditEvent, 'eventId' | 'timestamp' | 'userId' | 'organizationId'> = {
+    const eventData: CreateAuditEvent = {
       eventType: 'DATA_ACCESS',
       resource,
       resourceId,
       action,
       result: 'SUCCESS',
     };
-    if (metadata) {
+    if (metadata !== undefined) {
       eventData.metadata = metadata;
     }
     await this.logEvent(context, eventData);
@@ -106,14 +114,14 @@ export class AuditService {
     action: 'CREATE' | 'UPDATE' | 'DELETE',
     metadata?: Record<string, unknown>
   ): Promise<void> {
-    const eventData: Omit<AuditEvent, 'eventId' | 'timestamp' | 'userId' | 'organizationId'> = {
+    const eventData: CreateAuditEvent = {
       eventType: 'DATA_MODIFICATION',
       resource,
       resourceId,
       action,
       result: 'SUCCESS',
     };
-    if (metadata) {
+    if (metadata !== undefined) {
       eventData.metadata = metadata;
     }
     await this.logEvent(context, eventData);
@@ -128,14 +136,14 @@ export class AuditService {
     result: 'SUCCESS' | 'FAILURE',
     metadata?: Record<string, unknown>
   ): Promise<void> {
-    const eventData: Omit<AuditEvent, 'eventId' | 'timestamp' | 'userId' | 'organizationId'> = {
+    const eventData: CreateAuditEvent = {
       eventType: 'SECURITY',
       resource: 'SECURITY',
       resourceId: context.userId,
       action,
       result,
     };
-    if (metadata) {
+    if (metadata !== undefined) {
       eventData.metadata = metadata;
     }
     await this.logEvent(context, eventData);
@@ -173,13 +181,20 @@ export class AuditService {
         resourceId: row['resource_id'] as string,
         action: row['action'] as string,
         result: row['result'] as 'SUCCESS' | 'FAILURE',
-        metadata: JSON.parse((row['metadata'] as string) || '{}'),
+        metadata: JSON.parse(
+          (row['metadata'] as string | null) !== null &&
+            (row['metadata'] as string).length > 0
+            ? (row['metadata'] as string)
+            : '{}'
+        ),
       };
-      if (row['ip_address']) {
-        event.ipAddress = row['ip_address'] as string;
+      const ipAddress = row['ip_address'];
+      if (typeof ipAddress === 'string' && ipAddress.length > 0) {
+        event.ipAddress = ipAddress;
       }
-      if (row['user_agent']) {
-        event.userAgent = row['user_agent'] as string;
+      const userAgent = row['user_agent'];
+      if (typeof userAgent === 'string' && userAgent.length > 0) {
+        event.userAgent = userAgent;
       }
       return event;
     });

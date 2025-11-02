@@ -50,7 +50,6 @@ export class VisitProvider implements IVisitProvider {
     }
 
     // Validate visit has required data for EVV
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- database JSONB field may be null
     if (visit.address == null) {
       throw new ValidationError('Visit does not have a service address', { visitId });
     }

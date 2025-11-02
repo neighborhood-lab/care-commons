@@ -2,7 +2,7 @@
  * Base repository pattern with audit and sync support
  */
 
-// import { PoolClient } from 'pg';
+
 import { v4 as uuidv4 } from 'uuid';
 import {
   Entity,
@@ -86,7 +86,7 @@ export abstract class Repository<T extends Entity> {
 
     const result = await this.database.query(query, values);
     const createdRow = result.rows[0] as Record<string, unknown> | undefined;
-    if (!createdRow) {
+    if (createdRow === undefined) {
       throw new Error('Create failed - no row returned');
     }
     const created = this.mapRowToEntity(createdRow);
@@ -114,7 +114,7 @@ export abstract class Repository<T extends Entity> {
     }
 
     const foundRow = result.rows[0] as Record<string, unknown> | undefined;
-    if (!foundRow) {
+    if (foundRow === undefined) {
       return null;
     }
 
@@ -133,10 +133,10 @@ export abstract class Repository<T extends Entity> {
     const countQuery = `SELECT COUNT(*) FROM ${this.tableName} ${whereClause}`;
     const countResult = await this.database.query(countQuery);
     const firstRow = countResult.rows[0] as Record<string, unknown> | undefined;
-    if (!firstRow) {
+    if (firstRow === undefined) {
       throw new Error('Count query returned no rows');
     }
-    const total = parseInt(firstRow['count'] as string);
+    const total = parseInt(firstRow['count'] as string, 10);
 
     const query = `
       SELECT * FROM ${this.tableName}
@@ -165,12 +165,12 @@ export abstract class Repository<T extends Entity> {
     context: UserContext
   ): Promise<T> {
     const existing = await this.findById(id);
-    if (!existing) {
+    if (existing === null) {
       throw new NotFoundError(`Entity not found: ${id}`);
     }
 
     // Optimistic locking check
-    if (updates.version && updates.version !== existing.version) {
+    if (updates.version !== undefined && updates.version !== existing.version) {
       throw new ConflictError(
         `Version conflict: expected ${existing.version}, got ${updates.version}`
       );
@@ -210,7 +210,7 @@ export abstract class Repository<T extends Entity> {
     }
 
     const updatedRow = result.rows[0] as Record<string, unknown> | undefined;
-    if (!updatedRow) {
+    if (updatedRow === undefined) {
       throw new ConflictError('Update failed - no row returned');
     }
 
@@ -236,7 +236,7 @@ export abstract class Repository<T extends Entity> {
     }
 
     const existing = await this.findById(id);
-    if (!existing) {
+    if (existing === null) {
       throw new NotFoundError(`Entity not found: ${id}`);
     }
 
