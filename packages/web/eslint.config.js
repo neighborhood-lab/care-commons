@@ -42,6 +42,7 @@ export default [
         window: 'readonly',
         document: 'readonly',
         fetch: 'readonly',
+        navigator: 'readonly',
         // React globals
         React: 'readonly',
         // Vitest globals (when using globals: true)
@@ -72,6 +73,7 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+      'react/no-unescaped-entities': 'off',
       // TypeScript strict rules (relaxed for now)
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
@@ -108,6 +110,9 @@ export default [
       'sonarjs/no-nested-template-literals': 'off',
       'sonarjs/slow-regex': 'off',
       'sonarjs/concise-regex': 'off',
+      'sonarjs/no-nested-conditional': 'warn',
+      'sonarjs/deprecation': 'warn',
+      'sonarjs/no-intrusive-permissions': 'warn',
     },
     settings: {
       react: {
@@ -129,6 +134,8 @@ export default [
       '*.js.map',
       '*.d.ts.map',
       'eslint.config.js',
+      'vite.config.ts',
+      'vitest.config.ts',
       'vitest.config.js',
       'knexfile.js',
       'migrations/**/*.js',

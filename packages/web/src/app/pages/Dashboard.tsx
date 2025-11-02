@@ -40,7 +40,7 @@ export const Dashboard: React.FC = () => {
           Welcome back, {user?.name?.split(' ')[0]}
         </h1>
         <p className="mt-1 text-gray-600">
-          Here's what's happening with your care operations today.
+          Here&apos;s what&apos;s happening with your care operations today.
         </p>
       </div>
 

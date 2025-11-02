@@ -12,7 +12,7 @@ export const NotFound: React.FC = () => {
           Page not found
         </h2>
         <p className="mt-2 text-gray-600">
-          Sorry, we couldn't find the page you're looking for.
+          Sorry, we couldn&apos;t find the page you&apos;re looking for.
         </p>
         <div className="mt-6">
           <Link to="/">
