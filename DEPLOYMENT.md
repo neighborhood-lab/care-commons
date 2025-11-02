@@ -1,6 +1,6 @@
 # Cloud Deployment Guide
 
-This document provides a complete guide for deploying Care Commons to production using **Vercel** and **Neon PostgreSQL**.
+This document provides a complete guide for deploying Care Commons to production using **Vercel Hobby Plan** and **Neon PostgreSQL**.
 
 ## Overview
 
@@ -9,7 +9,11 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 - **Frontend & API**: Deployed on Vercel (serverless functions)
 - **Database**: Neon PostgreSQL (serverless database with connection pooling)
 - **CI/CD**: GitHub Actions for automated deployments
-- **Environments**: Preview (PR), Staging (develop branch), Production (main branch)
+- **Environments (Vercel Hobby Plan)**:
+  - **Production** (Vercel production environment) ← `main` branch (pushes only)
+  - **Preview** (Vercel preview environment) ← `develop` branch (pushes only)
+  - **Development** (local only, not deployed) ← linked to local machine via `vercel dev`
+  - **Note**: Pull requests do NOT trigger deployments
 
 ## Architecture
 
@@ -54,8 +58,8 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 1. Sign up at [console.neon.tech](https://console.neon.tech)
 2. Create a new project: `care-commons`
 3. Create two branches in Neon:
-   - `staging` - For staging environment
-   - `production` - For production environment
+   - `preview` - For preview environment (develop branch and PRs)
+   - `production` - For production environment (main branch)
 
 #### Configure Connection Pooling
 1. In each database branch, enable **Connection Pooling**
@@ -122,7 +126,7 @@ vercel env add JWT_SECRET preview
 # Paste: (same or different secret for staging)
 
 vercel env add ENCRYPTION_KEY preview
-# Paste: (same or different key for staging)
+# Paste: (same or different key for preview)
 ```
 
 ### 3. GitHub Repository Setup
@@ -136,7 +140,7 @@ Add these in: **Settings → Secrets and variables → Actions → New repositor
 | **`VERCEL_ORG_ID`** | ⚠️ **REQUIRED** - Your Vercel organization/team ID | From `vercel link` output or Vercel dashboard URL |
 | **`VERCEL_PROJECT_ID`** | ⚠️ **REQUIRED** - Your Vercel project ID | From `vercel link` output or Project Settings |
 | **`DATABASE_URL`** | ⚠️ **REQUIRED** - Production database connection | Neon production pooled connection string |
-| **`STAGING_DATABASE_URL`** | ⚠️ **REQUIRED** - Staging database connection | Neon staging pooled connection string |
+| **`PREVIEW_DATABASE_URL`** | ⚠️ **REQUIRED** - Preview database connection | Neon preview pooled connection string |
 
 **Environment Variable Names:**
 ```bash
@@ -147,11 +151,11 @@ VERCEL_PROJECT_ID         # Project ID (e.g., prj_xxxx)
 
 # Database Connections
 DATABASE_URL              # Neon production pooled connection string
-STAGING_DATABASE_URL      # Neon staging pooled connection string
+PREVIEW_DATABASE_URL      # Neon preview pooled connection string
 
 # Application Secrets (Optional for basic deployment)
 JWT_SECRET                # openssl rand -hex 32
-STAGING_JWT_SECRET        # openssl rand -hex 32 (can be same or different)
+PREVIEW_JWT_SECRET        # openssl rand -hex 32 (can be same or different)
 ENCRYPTION_KEY            # openssl rand -hex 32
 ```
 
@@ -208,55 +212,60 @@ npm run db:seed:demo
 
 ### Deployment Triggers
 
-| Branch | Event | Deployment |
-|--------|-------|------------|
-| `main` | Push | ✅ **Production** |
-| `develop` | Push | ✅ **Staging** |
-| `feature/*` | Push | ❌ **None** (only CI checks) |
-| Any → `main`/`develop` | PR | ✅ **Preview** |
+| Branch | Event | Vercel Environment | Database |
+|--------|-------|-------------------|----------|
+| `main` | Push | ✅ **Production** | Production (Neon) |
+| `develop` | Push | ✅ **Preview** | Preview (Neon) |
+| `feature/*` | Push | ❌ **None** (only CI checks) | N/A |
+| Any | Pull Request | ❌ **None** (only CI checks) | N/A |
 
-**Important:** Feature branches do NOT trigger deployments. Only `main` and `develop` branches trigger automatic deployments.
+**Important:** 
+- Vercel Hobby Plan supports **Production** and **Preview** environments only
+- **Pull requests do NOT trigger deployments** - only pushes to `main` or `develop`
+- Feature branches do NOT trigger deployments
+- Only `main` (production) and `develop` (preview) trigger automatic deployments on push
+- PRs are only accepted to `develop`, not `main`
 
-### Preview Deployments (Pull Requests)
-- **Trigger**: Pull request to `main` or `develop` branch
-- **Environment**: Preview (uses staging database)
+### Preview Deployments (develop branch only)
+- **Trigger**: 
+  - Push to `develop` branch only
+- **Vercel Environment**: Preview
+- **Database**: Preview (Neon)
 - **Features**:
-  - Automatic deployment on every PR commit
-  - Unique preview URL for each PR
-  - PR comment with preview URL
-  - Runs tests before deployment
-- **Does NOT trigger on**: PRs to feature branches
-
-### Staging Deployments
-- **Trigger**: Push to `develop` branch ONLY
-- **Environment**: Staging
-- **Features**:
-  - Automatic database migrations
-  - Health check validation
-  - Persistent staging URL
-- **Does NOT trigger on**: PRs, feature branches, or manual pushes to other branches
+  - Automatic deployment when code is merged to develop
+  - Persistent preview environment
+  - Runs database migrations
+  - Health checks
+  - Tests run in CI before merge
+- **Does NOT trigger on**: Pull requests or feature branches
 
 ### Production Deployments
-- **Trigger**: Push to `main` branch ONLY
-- **Environment**: Production
+- **Trigger**: 
+  - Push to `main` branch ONLY
+  - Manual workflow dispatch
+- **Vercel Environment**: Production
+- **Database**: Production (Neon)
 - **Features**:
   - Automatic database migrations
   - Health check validation
   - Production URL with custom domain support
   - Optional demo data seeding (manual workflow dispatch)
-- **Does NOT trigger on**: PRs, feature branches, or manual pushes to other branches
+- **Does NOT trigger on**: PRs or feature branches
+
+### Development Environment (Local Only)
+- **Setup**: `vercel dev` (links to local machine)
+- **Not deployed**: Development environment is NOT deployed to Vercel
+- **Database**: Local PostgreSQL or development database
+- **Purpose**: Local testing and development
 
 ## Deployment Commands
 
 ### Using NPM Scripts
 ```bash
-# Preview deployment
+# Preview deployment (for develop branch)
 npm run deploy:preview
 
-# Staging deployment
-npm run deploy:staging
-
-# Production deployment
+# Production deployment (for main branch)
 npm run deploy:production
 ```
 
@@ -355,6 +364,7 @@ npm run db:migrate:rollback
    - Old token may have expired or been revoked
    - Go to [vercel.com/account/tokens](https://vercel.com/account/tokens)
    - Click "Create Token"
+   - Scope: **Full Account**
    - Copy the new token
    - Update GitHub Secret with new value
 
@@ -452,7 +462,7 @@ npm run typecheck
 
 ### Database
 1. **Always use pooled connections** - Essential for serverless
-2. **Test migrations on staging first** - Never test on production
+2. **Test migrations on preview first** - Never test on production
 3. **Backup before major changes** - Use Neon point-in-time recovery
 4. **Monitor connection counts** - Avoid exhaustion
 5. **Use prepared statements** - Prevent SQL injection

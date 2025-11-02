@@ -4,12 +4,7 @@ on:
   push:
     branches:
       - main      # Production deployments
-      - develop   # Staging deployments
-  pull_request:
-    branches:
-      - main      # Preview deployments only for PRs to main
-      - develop   # Preview deployments only for PRs to develop
-    types: [opened, synchronize, reopened]
+      - develop   # Preview deployments (develop branch uses Vercel preview environment)
   workflow_dispatch:
     inputs:
       environment:
@@ -18,7 +13,6 @@ on:
         default: 'production'
         type: choice
         options:
-          - staging
           - production
 
 env:
@@ -67,14 +61,13 @@ jobs:
     name: Deploy Preview
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     environment:
       name: preview
       url: ${{ steps.deploy.outputs.url }}
     permissions:
       contents: read
       deployments: write
-      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -96,70 +89,16 @@ jobs:
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy to Vercel Preview
-        id: deploy
-        run: |
-          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.STAGING_DATABASE_URL }}")
-          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          echo "Deployed to: $DEPLOYMENT_URL"
-
-      - name: Comment PR with Preview URL
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '🚀 Preview deployment ready!\n\n' +
-                    `**Preview URL:** ${{ steps.deploy.outputs.url }}\n\n` +
-                    `**Health Check:** ${{ steps.deploy.outputs.url }}/health`
-            })
-
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: build
-    if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
-    environment:
-      name: staging
-      url: ${{ steps.deploy.outputs.url }}
-    permissions:
-      contents: read
-      deployments: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=staging --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Run Database Migrations (Staging)
+      - name: Run Database Migrations (Preview)
         env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
           npm run db:migrate
 
-      - name: Deploy to Vercel Staging
+      - name: Deploy to Vercel Preview
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.STAGING_DATABASE_URL }}" --env NODE_ENV="staging")
+          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOYMENT_URL"
 
@@ -174,7 +113,7 @@ jobs:
     needs: build
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+      (github.event_name == 'workflow_dispatch')
     environment:
       name: production
       url: ${{ steps.deploy.outputs.url }}
