@@ -131,9 +131,10 @@ beforeEach(() => {
           internalNotes: 'Urgent shift',
         };
 
+        // Mock the optimized visit query with CTE and EXISTS subquery
+        const visitRowWithCheck = { ...mockVisitRow, has_open_shift: false };
         (mockPool.query as any)
-          .mockResolvedValueOnce({ rows: [mockVisitRow] }) // Visit query
-          .mockResolvedValueOnce({ rows: [] }) // Existing check
+          .mockResolvedValueOnce({ rows: [visitRowWithCheck] }) // Visit query with EXISTS check
           .mockResolvedValueOnce({ rows: [mockOpenShiftRow] }); // Insert
 
         const result = await repository.createOpenShift(input, mockContext);
@@ -145,7 +146,7 @@ beforeEach(() => {
           matchingStatus: 'NEW',
         }));
 
-        expect(mockPool.query).toHaveBeenCalledTimes(3);
+        expect(mockPool.query).toHaveBeenCalledTimes(2); // Reduced from 3 to 2 due to optimization
       });
 
       it('should throw error if visit not found', async () => {
@@ -160,9 +161,11 @@ beforeEach(() => {
       it('should throw error if open shift already exists', async () => {
         const input: CreateOpenShiftInput = { visitId: 'visit-123' };
 
+        // Mock visit query with has_open_shift = true
+        const visitRowWithExisting = { ...mockVisitRow, has_open_shift: true };
         (mockPool.query as any)
-          .mockResolvedValueOnce({ rows: [mockVisitRow] })
-          .mockResolvedValueOnce({ rows: [{ id: 'existing-shift' }] });
+          .mockResolvedValueOnce({ rows: [visitRowWithExisting] }) // Visit query indicates existing shift
+          .mockResolvedValueOnce({ rows: [{ id: 'existing-shift' }] }); // Fetch existing shift ID
 
         await expect(repository.createOpenShift(input, mockContext))
           .rejects.toThrow('Open shift already exists for this visit');
