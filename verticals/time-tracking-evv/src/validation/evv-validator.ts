@@ -488,23 +488,147 @@ export class EVVValidator {
   }
 
   /**
-   * Validate state-specific requirements (not yet implemented)
-   * @throws {Error} Method not yet implemented
+   * Validate state-specific requirements for TX and FL
    */
-  validateStateRequirements(_stateCode: string, _config: unknown, _record: EVVRecord): unknown {
-    throw new Error('State-specific validation not yet implemented');
+  validateStateRequirements(
+    stateCode: string,
+    config: { geoPerimeterTolerance?: number; clockInGracePeriodMinutes?: number; clockOutGracePeriodMinutes?: number },
+    record: EVVRecord
+  ): {
+    passed: boolean;
+    issues: VerificationIssue[];
+    complianceFlags: ComplianceFlag[];
+  } {
+    const issues: VerificationIssue[] = [];
+    const complianceFlags: ComplianceFlag[] = ['COMPLIANT'];
+
+    // Validate state code
+    if (stateCode !== 'TX' && stateCode !== 'FL') {
+      throw new ValidationError(`Unsupported state code: ${stateCode}. Only TX and FL are supported.`);
+    }
+
+    // Texas-specific validations
+    if (stateCode === 'TX') {
+      // Validate GPS requirements for mobile visits
+      if (record.clockInVerification.method !== 'GPS' && record.clockInVerification.method !== 'BIOMETRIC') {
+        issues.push({
+          issueType: 'LOCATION_UNCERTAIN',
+          severity: 'HIGH',
+          description: 'Texas requires GPS verification for mobile visits',
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('MANUAL_OVERRIDE');
+      }
+
+      // Check if clock-in is within grace period
+      const clockInGracePeriod = config.clockInGracePeriodMinutes ?? 10;
+      // For simplicity, we'll just note this requirement exists
+      // In production, you'd compare against scheduled time
+      if (clockInGracePeriod > 15) {
+        issues.push({
+          issueType: 'VISIT_TOO_SHORT',
+          severity: 'MEDIUM',
+          description: `Clock-in grace period exceeds Texas HHSC guidelines (${clockInGracePeriod} > 15 min)`,
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+      }
+
+      // Validate geofence tolerance
+      const geoTolerance = config.geoPerimeterTolerance ?? 100;
+      if (!record.clockInVerification.geofencePassed && record.clockInVerification.distanceFromAddress > geoTolerance) {
+        issues.push({
+          issueType: 'GEOFENCE_VIOLATION',
+          severity: 'CRITICAL',
+          description: `Location exceeds Texas geofence tolerance: ${record.clockInVerification.distanceFromAddress}m > ${geoTolerance}m`,
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('GEOFENCE_VIOLATION');
+      }
+    }
+
+    // Florida-specific validations
+    if (stateCode === 'FL') {
+      // Florida has more lenient requirements
+      const geoTolerance = config.geoPerimeterTolerance ?? 150;
+      
+      if (!record.clockInVerification.geofencePassed && record.clockInVerification.distanceFromAddress > geoTolerance) {
+        issues.push({
+          issueType: 'GEOFENCE_VIOLATION',
+          severity: 'HIGH',
+          description: `Location exceeds Florida geofence tolerance: ${record.clockInVerification.distanceFromAddress}m > ${geoTolerance}m`,
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('GEOFENCE_VIOLATION');
+      }
+
+      // Check verification method - Florida allows telephony fallback
+      if (record.clockInVerification.method === 'PHONE') {
+        issues.push({
+          issueType: 'LOCATION_UNCERTAIN',
+          severity: 'MEDIUM',
+          description: 'Phone verification used - lower verification level',
+          canBeOverridden: true,
+          requiresSupervisor: false,
+        });
+      }
+    }
+
+    // Remove COMPLIANT flag if there are any other flags
+    if (complianceFlags.length > 1) {
+      const index = complianceFlags.indexOf('COMPLIANT');
+      if (index > -1) {
+        complianceFlags.splice(index, 1);
+      }
+    }
+
+    return {
+      passed: issues.length === 0,
+      issues,
+      complianceFlags,
+    };
   }
 
   /**
-   * Validate geographic location with state-specific tolerance (not yet implemented)
-   * @throws {Error} Method not yet implemented
+   * Validate geographic location with state-specific tolerance
    */
   validateGeographicWithStateTolerance(
-    _stateCode: string,
-    _config: unknown,
-    _record: EVVRecord,
-    _expectedLocation: unknown
-  ): unknown {
-    throw new Error('Geographic validation with state tolerance not yet implemented');
+    stateCode: string,
+    config: { geoPerimeterTolerance?: number },
+    record: EVVRecord,
+    expectedLocation: { latitude: number; longitude: number; radiusMeters: number }
+  ): GeofenceCheckResult {
+    // Validate state code
+    if (stateCode !== 'TX' && stateCode !== 'FL') {
+      throw new ValidationError(`Unsupported state code: ${stateCode}. Only TX and FL are supported.`);
+    }
+
+    // Get state-specific tolerance
+    const stateTolerance = config.geoPerimeterTolerance ?? (stateCode === 'TX' ? 100 : 150);
+
+    // Use the standard geofence check with state-specific tolerance
+    const geofenceCheck = this.checkGeofence(
+      record.clockInVerification.latitude,
+      record.clockInVerification.longitude,
+      record.clockInVerification.accuracy,
+      expectedLocation.latitude,
+      expectedLocation.longitude,
+      expectedLocation.radiusMeters,
+      stateTolerance
+    );
+
+    // Add state-specific context to the result
+    let reason = geofenceCheck.reason;
+    if (!geofenceCheck.isWithinGeofence) {
+      reason = `${stateCode} geofence validation failed: ${geofenceCheck.distanceFromCenter}m from center (tolerance: ${stateTolerance}m)`;
+    }
+
+    return {
+      ...geofenceCheck,
+      reason,
+    };
   }
 }

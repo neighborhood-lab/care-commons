@@ -562,11 +562,65 @@ export class ClientHandlers {
    * GET /api/clients/:id/audit-trail
    * Get full audit history for a client (requires auditor role)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getClientAuditTrail = asyncHandler(async (_req: Request, _res: Response) => {
-    // This would typically query the audit_log table
-    // For now, return a placeholder
-    throw new Error('Audit trail retrieval not yet implemented');
+  getClientAuditTrail = asyncHandler(async (req: Request, res: Response) => {
+    const context = getUserContext(req);
+    const { id } = req.params;
+
+    if (typeof id !== 'string' || id === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
+    // Extract query parameters for filtering
+    const {
+      accessType: accessTypeParam,
+      accessedBy: accessedByParam,
+      startDate: startDateParam,
+      endDate: endDateParam,
+      disclosuresOnly: disclosuresOnlyParam,
+      page: pageParam,
+      limit: limitParam,
+    } = req.query;
+
+    // Build audit query filters - handle accessType as array
+    let accessType: ('VIEW' | 'UPDATE' | 'CREATE' | 'DELETE' | 'DISCLOSURE' | 'EXPORT' | 'PRINT')[] | undefined;
+    if (typeof accessTypeParam === 'string' && accessTypeParam !== '') {
+      const types = accessTypeParam.split(',').map(t => t.trim().toUpperCase());
+      const validTypes = ['VIEW', 'UPDATE', 'CREATE', 'DELETE', 'DISCLOSURE', 'EXPORT', 'PRINT'];
+      accessType = types.filter(t => validTypes.includes(t)) as typeof accessType;
+    }
+
+    const accessedBy = typeof accessedByParam === 'string' && accessedByParam !== '' ? accessedByParam : undefined;
+    const startDate = typeof startDateParam === 'string' && startDateParam !== '' ? new Date(startDateParam) : undefined;
+    const endDate = typeof endDateParam === 'string' && endDateParam !== '' ? new Date(endDateParam) : undefined;
+    const disclosuresOnly = disclosuresOnlyParam === 'true';
+
+    // Parse pagination
+    const page = typeof pageParam === 'string' ? parseInt(pageParam, 10) : 1;
+    const limit = typeof limitParam === 'string' ? parseInt(limitParam, 10) : 50;
+    const offset = (page - 1) * limit;
+
+    // Get audit trail from service
+    const auditTrail = await this.clientService.getClientAuditTrail(
+      id,
+      {
+        accessType,
+        accessedBy,
+        startDate,
+        endDate,
+        disclosuresOnly,
+        limit,
+        offset,
+      },
+      context
+    );
+
+    return res.json({
+      success: true,
+      data: auditTrail,
+    });
   });
 
   /**
