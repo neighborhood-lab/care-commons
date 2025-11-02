@@ -28,8 +28,8 @@ npm run lint
 echo "🔎 Running type checks..."
 npm run typecheck
 
-echo "🧪 Running tests..."
-npm test
+echo "🧪 Running tests with coverage..."
+npm run test:coverage
 
 echo "🔒 Running security scan..."
 ./scripts/snyk-scan-all.sh || echo "⚠️  Security scan completed with warnings"
