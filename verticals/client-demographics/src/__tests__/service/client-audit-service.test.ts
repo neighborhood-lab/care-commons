@@ -362,12 +362,13 @@ describe('ClientAuditService', () => {
     });
 
     it('should handle null values in optional fields', () => {
+      const timestamp = new Date();
       const mockRow = {
         id: 'audit-1',
         client_id: 'client-1',
         accessed_by: 'user-1',
         access_type: 'VIEW',
-        access_timestamp: new Date(),
+        access_timestamp: timestamp,
         // Optional fields are null
         access_reason: null,
         ip_address: null,
@@ -384,7 +385,7 @@ describe('ClientAuditService', () => {
       expect(result.clientId).toBe('client-1');
       expect(result.accessedBy).toBe('user-1');
       expect(result.accessType).toBe('VIEW');
-      expect(result.accessTimestamp).toEqual(new Date());
+      expect(result.accessTimestamp).toEqual(timestamp);
       // Optional fields should not be set if they are null
       expect(result.accessReason).toBeUndefined();
       expect(result.ipAddress).toBeUndefined();

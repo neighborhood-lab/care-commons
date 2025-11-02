@@ -15,7 +15,7 @@ echo "🔎 Running type checks..."
 npm run typecheck
 
 echo "🧪 Running tests..."
-npm test -- --run
+npm test
 
 echo ""
 echo "✅ All brief checks passed!"
