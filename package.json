@@ -48,7 +48,7 @@
     "vitest": "^4.0.6"
   },
   "engines": {
-    "node": ">=22.x",
+    "node": "22.x",
     "npm": ">=11.6.0"
   },
   "dependencies": {
