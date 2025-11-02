@@ -6,57 +6,15 @@
   "devCommand": "npm run dev",
   "outputDirectory": "packages/web/dist",
   "framework": null,
-  "builds": [
-    {
-      "src": "packages/app/dist/server.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60,
-        "includeFiles": [
-          "packages/*/dist/**",
-          "packages/core/migrations/**"
-        ]
-      }
-    },
-    {
-      "src": "packages/web/dist/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "packages/app/dist/server.js",
-      "headers": {
-        "cache-control": "no-cache, no-store, must-revalidate"
-      }
-    },
-    {
-      "src": "/health",
-      "dest": "packages/app/dist/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "packages/web/dist/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
   "env": {
     "NODE_ENV": "production",
     "PORT": "3000"
   },
   "regions": ["iad1"],
   "functions": {
-    "packages/app/dist/server.js": {
+    "api/**/*.js": {
       "memory": 1024,
-      "maxDuration": 60,
-      "runtime": "nodejs20.x"
+      "maxDuration": 60
     }
   },
   "headers": [

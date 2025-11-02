@@ -128,23 +128,55 @@ vercel env add ENCRYPTION_KEY preview
 ### 3. GitHub Repository Setup
 
 #### Required Secrets
-Add these in: Settings → Secrets and variables → Actions → New repository secret
+Add these in: **Settings → Secrets and variables → Actions → New repository secret**
 
+| Secret Name | Description | How to Get It |
+|------------|-------------|---------------|
+| **`VERCEL_TOKEN`** | ⚠️ **REQUIRED** - Vercel authentication token | 1. Go to [vercel.com/account/tokens](https://vercel.com/account/tokens)<br>2. Click "Create Token"<br>3. Name: `care-commons-github-actions`<br>4. Scope: **Full Account**<br>5. Copy token immediately (can't view again)<br>6. Add to GitHub Secrets |
+| **`VERCEL_ORG_ID`** | ⚠️ **REQUIRED** - Your Vercel organization/team ID | From `vercel link` output or Vercel dashboard URL |
+| **`VERCEL_PROJECT_ID`** | ⚠️ **REQUIRED** - Your Vercel project ID | From `vercel link` output or Project Settings |
+| **`DATABASE_URL`** | ⚠️ **REQUIRED** - Production database connection | Neon production pooled connection string |
+| **`STAGING_DATABASE_URL`** | ⚠️ **REQUIRED** - Staging database connection | Neon staging pooled connection string |
+
+**Environment Variable Names:**
 ```bash
-# Vercel Integration
-VERCEL_TOKEN              # From vercel.com/account/tokens
-VERCEL_ORG_ID             # From vercel link output or dashboard
-VERCEL_PROJECT_ID         # From vercel link output or dashboard
+# Vercel Integration (CRITICAL - deployment will fail without these)
+VERCEL_TOKEN              # Authentication token from vercel.com/account/tokens
+VERCEL_ORG_ID             # Organization/team ID (e.g., team_xxxx)
+VERCEL_PROJECT_ID         # Project ID (e.g., prj_xxxx)
 
 # Database Connections
 DATABASE_URL              # Neon production pooled connection string
 STAGING_DATABASE_URL      # Neon staging pooled connection string
 
-# Application Secrets
+# Application Secrets (Optional for basic deployment)
 JWT_SECRET                # openssl rand -hex 32
 STAGING_JWT_SECRET        # openssl rand -hex 32 (can be same or different)
 ENCRYPTION_KEY            # openssl rand -hex 32
 ```
+
+#### Creating the VERCEL_TOKEN
+
+The `VERCEL_TOKEN` is **critical** - without it, deployments will fail with:
+```
+Error: No existing credentials found. Please run `vercel login` or pass "--token"
+```
+
+**Step-by-step:**
+1. **Go to** [vercel.com/account/tokens](https://vercel.com/account/tokens)
+2. **Click** "Create Token" button
+3. **Configure**:
+   - Token Name: `care-commons-github-actions`
+   - Scope: **Full Account** (required for deployments)
+   - Expiration: No Expiration (or set based on security policy)
+4. **Click** "Create"
+5. **IMPORTANT**: Copy the token **immediately** - you won't see it again!
+6. **Add to GitHub**:
+   - Go to GitHub repository → Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `VERCEL_TOKEN`
+   - Value: Paste the token
+   - Click "Add secret"
 
 #### Optional Secrets
 ```bash
@@ -290,6 +322,58 @@ npm run db:migrate:rollback
 ```
 
 ## Troubleshooting
+
+### Common Deployment Errors
+
+#### Error: "No existing credentials found. Please run `vercel login` or pass "--token""
+
+**Cause:** Missing or invalid `VERCEL_TOKEN` in GitHub Secrets
+
+**Solution:**
+1. **Verify** the secret exists:
+   - Go to GitHub → Settings → Secrets and variables → Actions
+   - Check if `VERCEL_TOKEN` is listed
+   - If not, create it following the steps above
+
+2. **If it exists, create a new token:**
+   - Old token may have expired or been revoked
+   - Go to [vercel.com/account/tokens](https://vercel.com/account/tokens)
+   - Click "Create Token"
+   - Copy the new token
+   - Update GitHub Secret with new value
+
+3. **Check token permissions:**
+   - Token must have **Full Account** scope
+   - Tokens with limited scope won't work for deployments
+
+4. **Verify workflow file:**
+   - Check `.github/workflows/deploy.yml`
+   - Ensure it uses `${{ secrets.VERCEL_TOKEN }}`
+   - NOT `${{ env.VERCEL_TOKEN }}` (wrong!)
+
+#### Error: "Project not found" or "Invalid project"
+
+**Cause:** Invalid `VERCEL_PROJECT_ID` or `VERCEL_ORG_ID`
+
+**Solution:**
+1. **Get correct IDs** by running locally:
+   ```bash
+   vercel link
+   cat .vercel/project.json
+   ```
+   
+2. **Update GitHub Secrets** with values from `.vercel/project.json`:
+   ```json
+   {
+     "orgId": "team_xxxxxxxxxxxxxxxxxxxx",
+     "projectId": "prj_xxxxxxxxxxxxxxxxxxxx"
+   }
+   ```
+
+3. **Alternative** - Get from Vercel Dashboard:
+   - Project Settings → General
+   - Copy Project ID
+   - Org ID is in the URL: `vercel.com/<org-id>/...`
 
 ### Deployment Failures
 
