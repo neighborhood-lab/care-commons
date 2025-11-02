@@ -14,7 +14,7 @@ CREATE TABLE shift_requirements (
   state VARCHAR(2) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'OPEN',
   assigned_caregiver_id UUID REFERENCES caregivers(id),
-  
+
   -- Audit
   created_by UUID NOT NULL REFERENCES users(id),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -22,7 +22,7 @@ CREATE TABLE shift_requirements (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP,
   version INTEGER NOT NULL DEFAULT 1,
-  
+
   CONSTRAINT chk_status CHECK (status IN ('OPEN', 'ASSIGNED', 'FULFILLED', 'CANCELLED'))
 );
 
