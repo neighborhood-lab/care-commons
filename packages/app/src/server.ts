@@ -113,32 +113,6 @@ function setupMiddleware(): void {
 function setupApiRoutes(): void {
   const db = getDatabase();
 
-  // Health check endpoint (no auth required)
-  app.get('/health', async (_req, res) => {
-    const startTime = Date.now();
-    const dbHealthy = await db.healthCheck();
-    const responseTime = Date.now() - startTime;
-    
-    const status = dbHealthy === true ? 'healthy' : 'unhealthy';
-    const httpStatus = dbHealthy === true ? 200 : 503;
-    
-    res.status(httpStatus).json({
-      status,
-      timestamp: new Date().toISOString(),
-      environment: NODE_ENV,
-      uptime: process.uptime(),
-      responseTime,
-      database: {
-        status: dbHealthy === true ? 'connected' : 'disconnected',
-        responseTime,
-      },
-      memory: {
-        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-      },
-    });
-  });
-
   // Root endpoint - API overview
   app.get('/', (_req, res) => {
     res.json({
@@ -179,6 +153,43 @@ function setupApiRoutes(): void {
  */
 export async function createApp(): Promise<express.Express> {
   console.log(`Initializing Care Commons API (${NODE_ENV})`);
+
+  // Health check endpoint FIRST - before any middleware or auth
+  // This ensures it's always accessible for monitoring
+  app.get('/health', async (_req, res) => {
+    try {
+      const startTime = Date.now();
+      const db = getDatabase();
+      const dbHealthy = await db.healthCheck();
+      const responseTime = Date.now() - startTime;
+      
+      const status = dbHealthy === true ? 'healthy' : 'unhealthy';
+      const httpStatus = dbHealthy === true ? 200 : 503;
+      
+      res.status(httpStatus).json({
+        status,
+        timestamp: new Date().toISOString(),
+        environment: NODE_ENV,
+        uptime: process.uptime(),
+        responseTime,
+        database: {
+          status: dbHealthy === true ? 'connected' : 'disconnected',
+          responseTime,
+        },
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+        },
+      });
+    } catch (error) {
+      // Health check should never fail catastrophically
+      res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
 
   // Initialize database
   const db = initDb();
