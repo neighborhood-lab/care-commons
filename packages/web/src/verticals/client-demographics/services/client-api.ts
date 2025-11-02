@@ -15,7 +15,7 @@ export const createClientApiService = (apiClient: ApiClient): ClientApiService =
     async getClients(filters?: ClientSearchFilters & SearchParams): Promise<PaginatedResult<Client>> {
       const params = new URLSearchParams();
       if (filters?.query) params.append('query', filters.query);
-      if (filters?.status) filters.status.forEach(s => params.append('status', s));
+      if (filters?.status) for (const s of filters.status) params.append('status', s);
       if (filters?.city) params.append('city', filters.city);
       if (filters?.state) params.append('state', filters.state);
       if (filters?.page) params.append('page', filters.page.toString());

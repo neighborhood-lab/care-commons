@@ -4,7 +4,7 @@ export const isEmail = (email: string): boolean => {
 };
 
 export const isPhone = (phone: string): boolean => {
-  const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  const phoneRegex = /^\(?(\d{3})\)?[ .-]?(\d{3})[ .-]?(\d{4})$/;
   return phoneRegex.test(phone);
 };
 

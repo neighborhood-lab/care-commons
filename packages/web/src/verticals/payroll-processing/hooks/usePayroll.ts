@@ -163,7 +163,7 @@ export const useDownloadPayStubPdf = () => {
       const blob = await payrollApi.downloadPayStubPdf(id);
 
       // Sanitize the id to prevent XSS
-      const sanitizedId = id.replace(/[^a-zA-Z0-9-_]/g, '');
+      const sanitizedId = id.replace(/[^\w-]/g, '');
       
       // Use modern download API without DOM manipulation
       if ('showSaveFilePicker' in window && typeof window.showSaveFilePicker === 'function') {
