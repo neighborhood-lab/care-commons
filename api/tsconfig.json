@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": ".vercel/output",
+    "rootDir": ".",
+    "baseUrl": "..",
+    "paths": {
+      "@care-commons/*": ["packages/*/src", "verticals/*/src"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", ".vercel"]
+}
