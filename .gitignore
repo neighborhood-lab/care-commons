@@ -173,3 +173,4 @@ packages/core/migrations/*.d.ts.map
 .DS_Store
 *.png
 api/_server/
+dist-vercel/
