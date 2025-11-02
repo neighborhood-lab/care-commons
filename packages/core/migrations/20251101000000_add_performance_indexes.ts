@@ -24,15 +24,13 @@ export async function up(knex: Knex): Promise<void> {
   // Optimize searchOpenShifts queries with organization + date range + status filters
   await knex.raw(`
     CREATE INDEX idx_open_shifts_org_date_status 
-    ON open_shifts(organization_id, scheduled_date, matching_status) 
-    WHERE deleted_at IS NULL
+    ON open_shifts(organization_id, scheduled_date, matching_status)
   `);
   
   // Optimize queries filtering by branch + date range + status
   await knex.raw(`
     CREATE INDEX idx_open_shifts_branch_date_status 
-    ON open_shifts(branch_id, scheduled_date, matching_status) 
-    WHERE deleted_at IS NULL
+    ON open_shifts(branch_id, scheduled_date, matching_status)
   `);
   
   // Optimize urgent shift queries with priority and date
@@ -46,14 +44,13 @@ export async function up(knex: Knex): Promise<void> {
   await knex.raw(`
     CREATE INDEX idx_open_shifts_org_priority_status 
     ON open_shifts(organization_id, priority DESC, matching_status) 
-    WHERE deleted_at IS NULL AND matching_status IN ('NEW', 'MATCHING', 'NO_MATCH', 'PROPOSED')
+    WHERE matching_status IN ('NEW', 'MATCHING', 'NO_MATCH', 'PROPOSED')
   `);
   
   // Optimize client-specific shift lookups
   await knex.raw(`
     CREATE INDEX idx_open_shifts_client_date 
-    ON open_shifts(client_id, scheduled_date DESC) 
-    WHERE deleted_at IS NULL
+    ON open_shifts(client_id, scheduled_date DESC)
   `);
   
   // Optimize service type filtering (common in matching algorithms)
@@ -184,21 +181,14 @@ export async function up(knex: Knex): Promise<void> {
   // Clients state_specific data queries
   await knex.raw(`
     CREATE INDEX idx_clients_state_specific_gin 
-    ON clients USING GIN(state_specific_data) 
+    ON clients USING GIN(state_specific) 
     WHERE deleted_at IS NULL
   `);
   
   // Caregivers state_specific data queries
   await knex.raw(`
     CREATE INDEX idx_caregivers_state_specific_gin 
-    ON caregivers USING GIN(state_specific_data) 
-    WHERE deleted_at IS NULL
-  `);
-  
-  // Visits state_specific data queries
-  await knex.raw(`
-    CREATE INDEX idx_visits_state_specific_gin 
-    ON visits USING GIN(state_specific_data) 
+    ON caregivers USING GIN(state_specific) 
     WHERE deleted_at IS NULL
   `);
   
@@ -269,7 +259,6 @@ export async function down(knex: Knex): Promise<void> {
   await knex.raw('DROP INDEX IF EXISTS idx_open_shifts_required_skills_gin');
   
   // State-specific data
-  await knex.raw('DROP INDEX IF EXISTS idx_visits_state_specific_gin');
   await knex.raw('DROP INDEX IF EXISTS idx_caregivers_state_specific_gin');
   await knex.raw('DROP INDEX IF EXISTS idx_clients_state_specific_gin');
   
