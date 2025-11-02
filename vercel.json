@@ -3,20 +3,22 @@
   "version": 2,
   "buildCommand": "npm run build",
   "installCommand": "npm ci",
-  "devCommand": "npm run dev",
   "outputDirectory": "packages/web/dist",
   "framework": null,
   "env": {
-    "NODE_ENV": "production",
-    "PORT": "3000"
+    "NODE_ENV": "production"
   },
   "regions": ["iad1"],
-  "functions": {
-    "api/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 60
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api"
+    },
+    {
+      "source": "/health",
+      "destination": "/api"
     }
-  },
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
@@ -55,16 +57,6 @@
           "value": "1; mode=block"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "packages/app/dist/server.js"
-    },
-    {
-      "source": "/health",
-      "destination": "packages/app/dist/server.js"
     }
   ],
   "cleanUrls": true,
