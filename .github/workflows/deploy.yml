@@ -16,7 +16,7 @@ on:
           - production
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   NPM_VERSION: '10'
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -111,7 +111,7 @@ jobs:
       - name: Deploy to Vercel Preview
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}")
+          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}" --env NODE_ENV="preview")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "✅ Preview deployment complete: $DEPLOYMENT_URL"
           echo "Note: Health checks skipped due to Vercel password protection on preview deployments"
