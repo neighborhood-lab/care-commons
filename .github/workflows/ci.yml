@@ -6,6 +6,9 @@ on:
   push:
     branches: [main, develop]
 
+# Ensure this workflow is required for PRs to merge
+# Configure branch protection rules to require this workflow to pass
+
 env:
   NODE_VERSION: '20'
   NPM_VERSION: '10'
@@ -115,6 +118,8 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    # This job depends on all quality checks passing
+    # If any check fails, the build will not run and PR cannot be merged
     needs: [lint, typecheck, test]
     steps:
       - name: Checkout code
