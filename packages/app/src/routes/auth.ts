@@ -37,7 +37,23 @@ const users = [
  * Authenticate user and return user info
  */
 router.post('/login', (req, res) => {
+  // Validate request body exists
+  if (req.body === undefined || req.body === null || typeof req.body !== 'object') {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid request body',
+    });
+  }
+
   const { email, password } = req.body;
+
+  // Validate required fields
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({
+      success: false,
+      error: 'Email and password are required',
+    });
+  }
 
   // Find user by email
   const user = users.find(u => u.email === email && u.password === password);
