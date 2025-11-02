@@ -340,12 +340,13 @@ describe('ClientAuditService', () => {
 
   describe('mapRowToEntry', () => {
     it('should map database row to audit entry', () => {
+      const timestamp = new Date();
       const mockRow = {
         id: 'audit-1',
         client_id: 'client-1',
         accessed_by: 'user-1',
         access_type: 'VIEW',
-        access_timestamp: new Date(),
+        access_timestamp: timestamp,
         access_reason: 'Routine check',
         ip_address: '192.168.1.1',
       };
@@ -356,7 +357,7 @@ describe('ClientAuditService', () => {
       expect(result.clientId).toBe('client-1');
       expect(result.accessedBy).toBe('user-1');
       expect(result.accessType).toBe('VIEW');
-      expect(result.accessTimestamp).toEqual(new Date());
+      expect(result.accessTimestamp).toEqual(timestamp);
       expect(result.accessReason).toBe('Routine check');
       expect(result.ipAddress).toBe('192.168.1.1');
     });
