@@ -2,16 +2,21 @@
 
 This document explains when and how deployments happen in the Care Commons project.
 
+**Note:** This project uses **Vercel Hobby Plan** with two environments:
+- **Production** (Vercel production environment) ← `main` branch
+- **Preview** (Vercel preview environment) ← `develop` branch
+- **Development** (local only) ← not deployed to Vercel
+
 ## Deployment Triggers
 
 ### ✅ What Triggers Deployments
 
-| Event | Branch | Deployment Type | Environment |
+| Event | Branch | Deployment Type | Vercel Environment |
 |-------|--------|----------------|-------------|
 | Push to `main` | `main` | **Production** | Production |
-| Push to `develop` | `develop` | **Staging** | Staging |
-| PR to `main` or `develop` | Any | **Preview** | Preview |
-| Manual workflow dispatch | Any | **User Choice** | Production or Staging |
+| Push to `develop` | `develop` | **Preview** | Preview |
+| PR to `develop` | Any | **Preview** | Preview |
+| Manual workflow dispatch | Any | **Production** | Production |
 
 ### ❌ What Does NOT Trigger Deployments
 
@@ -19,6 +24,7 @@ This document explains when and how deployments happen in the Care Commons proje
 |-------|-----|
 | Push to feature branches | Feature branches are not deployment targets |
 | PR to feature branches | Feature→Feature PRs don't need deployments |
+| PR to `main` | Not configured - merge develop to main instead |
 | Push to any branch except `main` or `develop` | Only main/develop are deployment branches |
 
 ## Workflow Behavior
@@ -38,11 +44,11 @@ git push origin feature/new-feature
 
 **Result:** No deployment. Only CI checks run.
 
-### Pull Request to main or develop
+### Pull Request to develop
 
 ```bash
-# Create PR from feature branch to main
-gh pr create --base main --head feature/new-feature
+# Create PR from feature branch to develop
+gh pr create --base develop --head feature/new-feature
 
 # ✅ Preview deployment created
 # ✅ CI checks run
@@ -51,18 +57,18 @@ gh pr create --base main --head feature/new-feature
 
 **Result:** Preview deployment created at `https://care-commons-<hash>.vercel.app`
 
-### Merge to develop (Staging Deployment)
+### Merge to develop (Preview Deployment)
 
 ```bash
 # Merge PR to develop
 gh pr merge <pr-number> --squash
 
-# ✅ Push to develop triggers staging deployment
+# ✅ Push to develop triggers preview deployment
 # ✅ Database migrations run
 # ✅ Health check performed
 ```
 
-**Result:** Staging deployment at configured staging URL
+**Result:** Preview deployment at Vercel preview environment URL
 
 ### Merge to main (Production Deployment)
 
@@ -109,38 +115,21 @@ gh workflow run deploy.yml -f environment=staging
 
 **Runs when:**
 ```yaml
-if: github.event_name == 'pull_request'
+if: |
+  (github.event_name == 'pull_request' && github.base_ref == 'develop') ||
+  (github.event_name == 'push' && github.ref == 'refs/heads/develop')
 ```
 
 **Conditions:**
-- ✅ Only on pull requests
-- ✅ PRs to `main` or `develop` only
-- ❌ NOT on pushes
+- ✅ PRs to `develop` only
+- ✅ Pushes to `develop` branch
+- ❌ NOT on PRs to `main`
 
 **Purpose:**
 - Deploy preview for testing changes
-- Post URL as PR comment
+- Post URL as PR comment (for PRs)
+- Run database migrations (for pushes to develop)
 - Allow reviewers to test live
-
-### Deploy Staging Job
-
-**Runs when:**
-```yaml
-if: |
-  (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
-  (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
-```
-
-**Conditions:**
-- ✅ Push to `develop` branch
-- ✅ Manual dispatch with `staging` environment
-- ❌ NOT on pull requests
-- ❌ NOT on feature branches
-
-**Purpose:**
-- Deploy latest `develop` code to staging
-- Run database migrations
-- Health check verification
 
 ### Deploy Production Job
 
@@ -148,12 +137,12 @@ if: |
 ```yaml
 if: |
   (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-  (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+  (github.event_name == 'workflow_dispatch')
 ```
 
 **Conditions:**
 - ✅ Push to `main` branch
-- ✅ Manual dispatch with `production` environment
+- ✅ Manual workflow dispatch
 - ❌ NOT on pull requests
 - ❌ NOT on feature branches
 
@@ -198,19 +187,18 @@ gh pr create --base develop --head feature/add-reporting
 # 1. Merge PR
 gh pr merge <pr-number> --squash
 
-# Result: ✅ Staging deployment triggered
+# Result: ✅ Preview deployment triggered (on develop branch)
 #         ✅ Database migrations run
-#         ✅ Available at staging URL
+#         ✅ Available at preview URL
 ```
 
-### Scenario 4: Merging develop to main
+### Scenario 4: Promoting develop to main (Production)
 
 ```bash
-# 1. Create PR from develop to main
-gh pr create --base main --head develop
-
-# 2. Review and merge
-gh pr merge <pr-number> --squash
+# 1. Create PR from develop to main (or merge directly)
+git checkout main
+git merge develop
+git push origin main
 
 # Result: ✅ Production deployment triggered
 #         ✅ Database migrations run
@@ -261,19 +249,20 @@ gh workflow run deploy.yml -f environment=production
 **Set in GitHub:**
 Settings → Environments → production → Add protection rules
 
-### Staging Environment
-
-**Protection rules recommended:**
-- ✅ Restrict to `develop` branch only
-- ✅ Require status checks to pass
-- ⚠️  Reviewers optional (faster iteration)
-
 ### Preview Environment
 
-**Protection rules:**
-- ✅ No restrictions (for testing)
-- ✅ Temporary deployments
-- ✅ Auto-deleted after PR close
+**Protection rules recommended:**
+- ✅ Restrict to `develop` branch and PRs to develop
+- ✅ Require status checks to pass
+- ⚠️  Reviewers optional (faster iteration)
+- ✅ Used for testing before production
+
+### Development Environment
+
+**Local only:**
+- ⚠️  Not deployed to Vercel
+- ✅ Linked to local machine via `vercel dev`
+- ✅ Uses local database or development database
 
 ## Verification
 
@@ -286,7 +275,7 @@ Before pushing, verify what will happen:
 git branch --show-current
 
 # If on main → Production deployment
-# If on develop → Staging deployment  
+# If on develop → Preview deployment  
 # If on feature/* → No deployment
 ```
 
@@ -334,9 +323,9 @@ gh run view <run-id> --log
    - Get code review
    - Test in preview deployment first
 
-2. **Test in staging before production**
+2. **Test in preview before production**
    - Merge to `develop` first
-   - Verify in staging environment
+   - Verify in preview environment
    - Then merge to `main`
 
 3. **Use feature branches**
@@ -356,13 +345,13 @@ gh run view <run-id> --log
 
 ## Summary
 
-| Branch Type | Push | PR Created | PR Merged | Deployment |
+| Branch Type | Push | PR Created | PR Merged | Vercel Environment |
 |------------|------|------------|-----------|------------|
-| `feature/*` | ❌ No | ✅ Preview | - | None on push |
-| `develop` | ✅ Staging | ✅ Preview | ✅ Staging | Staging |
-| `main` | ✅ Production | ✅ Preview | ✅ Production | Production |
+| `feature/*` | ❌ No | ✅ Preview (to develop) | - | None on push |
+| `develop` | ✅ Preview | ✅ Preview | ✅ Preview | Preview |
+| `main` | ✅ Production | ❌ No | ✅ Production | Production |
 
-**Key Principle:** Only `main` and `develop` branches trigger automatic deployments on push. Feature branches never auto-deploy.
+**Key Principle:** Only `main` (production) and `develop` (preview) branches trigger automatic deployments on push. Feature branches never auto-deploy. PRs are only accepted to `develop`, not `main`.
 
 ---
 

@@ -33,19 +33,27 @@ Care Commons uses GitHub Actions to automate:
 
 ### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
 
+**Vercel Hobby Plan Configuration:**
+- Production environment ← `main` branch
+- Preview environment ← `develop` branch and PRs to develop
+- Development environment ← local only (not in workflows)
+
 **Triggers:**
 - Pushes to `main` branch (production deployment)
-- Pushes to `develop` branch (staging deployment)
-- Manual workflow dispatch
+- Pushes to `develop` branch (preview deployment)
+- Pull requests to `develop` branch (preview deployment)
+- Manual workflow dispatch (production only)
 
 **Jobs:**
-- **build-and-deploy** - Production deployment
-- **deploy-staging** - Staging deployment (develop branch only)
+- **build** - Builds and tests all packages
+- **deploy-preview** - Preview deployment (develop branch and PRs to develop)
+- **deploy-production** - Production deployment (main branch only)
 
 **Features:**
 - Runs database migrations before deployment
 - Supports environment-specific configuration
-- Includes deployment placeholders for various platforms
+- Health checks after deployment
+- PR comments with preview URLs
 
 ### 3. Database Operations Workflow (`.github/workflows/database.yml`)
 
@@ -105,13 +113,18 @@ Care Commons uses GitHub Actions to automate:
 Configure these repository secrets in GitHub Settings:
 
 ```bash
+# Vercel Configuration (REQUIRED)
+VERCEL_TOKEN=your-vercel-token
+VERCEL_ORG_ID=team_xxxx
+VERCEL_PROJECT_ID=prj_xxxx
+
 # Database Configuration
 DATABASE_URL=postgresql://user:pass@host:port/db
-STAGING_DATABASE_URL=postgresql://user:pass@host:port/staging_db
+PREVIEW_DATABASE_URL=postgresql://user:pass@host:port/preview_db
 
 # Application Secrets
 JWT_SECRET=your-jwt-secret-key
-STAGING_JWT_SECRET=your-staging-jwt-secret-key
+PREVIEW_JWT_SECRET=your-preview-jwt-secret-key
 
 # Optional Integrations
 CODECOV_TOKEN=your-codecov-token
@@ -121,15 +134,22 @@ GITHUB_TOKEN=ghp_your_github_token
 
 ### Environment-Specific Settings
 
-**Production Environment:**
+**Production Environment (Vercel Production):**
+- Branch: `main`
 - Uses `DATABASE_URL` and `JWT_SECRET`
 - Requires approval for deployments
 - Runs full migration and seed process
 
-**Staging Environment:**
-- Uses `STAGING_DATABASE_URL` and `STAGING_JWT_SECRET`
-- Automatic deployments from develop branch
+**Preview Environment (Vercel Preview):**
+- Branches: `develop` (persistent) and PRs to develop (temporary)
+- Uses `PREVIEW_DATABASE_URL` and `PREVIEW_JWT_SECRET`
+- Automatic deployments from develop branch and PRs
 - Isolated from production data
+
+**Development Environment:**
+- Local only (not deployed to Vercel)
+- Use `vercel dev` to link to local machine
+- Local database or development database
 
 ## Usage Examples
 
@@ -204,20 +224,22 @@ The security workflow automatically:
 1. **Feature Development**
    - Create feature branch from `develop`
    - Make changes with proper testing
-   - Open pull request to `develop`
+   - Open pull request to `develop` (triggers preview deployment)
    - CI workflow validates changes automatically
+   - Review preview deployment before merging
 
 2. **Release Preparation**
    - Ensure all tests pass on `develop`
+   - Verify preview deployment works correctly
    - Update documentation as needed
-   - Create release using git tag or workflow
-   - Monitor deployment to production
+   - Merge `develop` to `main` (triggers production deployment)
+   - Monitor production deployment
 
 3. **Hotfix Process**
    - Create hotfix branch from `main`
    - Fix issue with minimal changes
-   - Open pull request to `main`
-   - Create release tag after merge
+   - Merge directly to `main` (no PR workflow configured)
+   - Backport to `develop` to keep branches in sync
 
 ### Security Practices
 
