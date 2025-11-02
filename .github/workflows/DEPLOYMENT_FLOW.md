@@ -15,7 +15,6 @@ This document explains when and how deployments happen in the Care Commons proje
 |-------|--------|----------------|-------------|
 | Push to `main` | `main` | **Production** | Production |
 | Push to `develop` | `develop` | **Preview** | Preview |
-| PR to `develop` | Any | **Preview** | Preview |
 | Manual workflow dispatch | Any | **Production** | Production |
 
 ### ❌ What Does NOT Trigger Deployments
@@ -23,8 +22,7 @@ This document explains when and how deployments happen in the Care Commons proje
 | Event | Why |
 |-------|-----|
 | Push to feature branches | Feature branches are not deployment targets |
-| PR to feature branches | Feature→Feature PRs don't need deployments |
-| PR to `main` | Not configured - merge develop to main instead |
+| Pull requests (any branch) | PRs do not trigger deployments - only merges/pushes to main or develop |
 | Push to any branch except `main` or `develop` | Only main/develop are deployment branches |
 
 ## Workflow Behavior
@@ -50,12 +48,11 @@ git push origin feature/new-feature
 # Create PR from feature branch to develop
 gh pr create --base develop --head feature/new-feature
 
-# ✅ Preview deployment created
-# ✅ CI checks run
-# ✅ PR comment posted with preview URL
+# ❌ NO deployment happens
+# ✅ CI checks run (lint, test, build)
 ```
 
-**Result:** Preview deployment created at `https://care-commons-<hash>.vercel.app`
+**Result:** No deployment - PRs do not trigger deployments
 
 ### Merge to develop (Preview Deployment)
 
@@ -115,21 +112,19 @@ gh workflow run deploy.yml -f environment=staging
 
 **Runs when:**
 ```yaml
-if: |
-  (github.event_name == 'pull_request' && github.base_ref == 'develop') ||
-  (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 ```
 
 **Conditions:**
-- ✅ PRs to `develop` only
-- ✅ Pushes to `develop` branch
-- ❌ NOT on PRs to `main`
+- ✅ Only on pushes to `develop` branch
+- ❌ NOT on pull requests
+- ❌ NOT on feature branches
 
 **Purpose:**
-- Deploy preview for testing changes
-- Post URL as PR comment (for PRs)
-- Run database migrations (for pushes to develop)
-- Allow reviewers to test live
+- Deploy preview environment when code is merged to develop
+- Run database migrations
+- Health check verification
+- Test changes before promoting to production
 
 ### Deploy Production Job
 
@@ -176,9 +171,9 @@ git push origin feature/add-reporting
 # 1. Create PR
 gh pr create --base develop --head feature/add-reporting
 
-# Result: ✅ Preview deployment created
-#         ✅ URL posted in PR comment
-#         ✅ Can test before merging
+# Result: ❌ No deployment
+#         ✅ CI checks run (lint, test, build)
+#         ✅ Can review code before merging
 ```
 
 ### Scenario 3: Merging PR to develop
@@ -347,11 +342,15 @@ gh run view <run-id> --log
 
 | Branch Type | Push | PR Created | PR Merged | Vercel Environment |
 |------------|------|------------|-----------|------------|
-| `feature/*` | ❌ No | ✅ Preview (to develop) | - | None on push |
-| `develop` | ✅ Preview | ✅ Preview | ✅ Preview | Preview |
+| `feature/*` | ❌ No | ❌ No | - | None |
+| `develop` | ✅ Preview | ❌ No | ✅ Preview | Preview |
 | `main` | ✅ Production | ❌ No | ✅ Production | Production |
 
-**Key Principle:** Only `main` (production) and `develop` (preview) branches trigger automatic deployments on push. Feature branches never auto-deploy. PRs are only accepted to `develop`, not `main`.
+**Key Principles:** 
+- Only `main` (production) and `develop` (preview) branches trigger automatic deployments on push
+- **Pull requests do NOT trigger deployments** - only actual merges/pushes to main or develop
+- Feature branches never auto-deploy
+- PRs are only accepted to `develop`, not `main`
 
 ---
 

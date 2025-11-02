@@ -1,9 +1,10 @@
 # Deployment Flow Diagram
 
 **Vercel Hobby Plan Configuration:**
-- **Production** environment ← `main` branch
-- **Preview** environment ← `develop` branch and PRs to develop
+- **Production** environment ← `main` branch (pushes only)
+- **Preview** environment ← `develop` branch (pushes only)
 - **Development** environment ← local only (not in GitHub workflows)
+- **Note:** Pull requests do NOT trigger deployments
 
 ## Visual Overview
 
@@ -37,9 +38,9 @@ PULL REQUEST WORKFLOW (to develop only):
          │
          ▼
     ┌─────────┐
-    │   PR    │ → ✅ Preview Deployment (Vercel Preview)
-    │  Open   │ → ✅ CI Checks
-    └────┬────┘ → ✅ PR Comment with URL
+    │   PR    │ → ❌ NO Deployment
+    │  Open   │ → ✅ CI Checks (lint, test, build)
+    └────┬────┘
          │
          │ Review & Approve
          │
@@ -178,11 +179,7 @@ Event Type          │ main   │ develop │ feature/* │ Vercel Environment
 ────────────────────┼────────┼─────────┼───────────┼───────────────────
 Push                │   ✅   │   ✅    │    ❌     │ Production/Preview/None
 ────────────────────┼────────┼─────────┼───────────┼───────────────────
-PR to develop       │   ❌   │    -    │    ✅     │ Preview
-────────────────────┼────────┼─────────┼───────────┼───────────────────
-PR to main          │   -    │   ❌    │    ❌     │ None (not configured)
-────────────────────┼────────┼─────────┼───────────┼───────────────────
-PR to feature       │   ❌   │   ❌    │    ❌     │ None
+Pull Request        │   ❌   │   ❌    │    ❌     │ None (CI only)
 ────────────────────┼────────┼─────────┼───────────┼───────────────────
 Manual Workflow     │   ✅   │   ❌    │    ❌     │ Production only
 ────────────────────┴────────┴─────────┴───────────┴───────────────────
@@ -190,13 +187,13 @@ Manual Workflow     │   ✅   │   ❌    │    ❌     │ Production only
 Legend:
   ✅ = Deployment happens
   ❌ = No deployment (CI only)
-  - = N/A (can't PR to self)
 
 Notes:
   - Vercel Hobby Plan supports Production and Preview environments only
   - develop branch uses Vercel Preview environment (not a separate staging)
-  - PRs to develop also deploy to Vercel Preview environment
+  - **Pull requests do NOT trigger deployments** - only pushes to main/develop
   - PRs to main are not configured (merge develop to main directly)
+  - Use CI checks to validate PRs before merging
 ```
 
 ## Common Workflows
@@ -223,9 +220,11 @@ Developer                    GitHub                     Vercel
                  │                │
                  │                │
 4. Create PR to │                │
-   develop      │──────────▶ Preview Deploy ──────▶ preview-abc.vercel.app
-                 │            + CI Checks
-                 │                │
+   develop      │──────────▶ CI Checks Only
+                 │            ├─ Lint    ✅
+                 │            ├─ Test    ✅
+                 │            └─ Build   ✅
+                 │            (NO Deployment)
                  │                │
 5. Review & OK  │                │
                  │                │
@@ -308,17 +307,11 @@ Production (Vercel Production Environment):
   Trigger: Push to main
 
 Preview (Vercel Preview Environment):
-  URL: https://care-commons-<hash>.vercel.app
-  Branch: develop (persistent preview)
+  URL: https://care-commons-preview.vercel.app
+  Branch: develop
   Database: Preview (Neon)
   Trigger: Push to develop
-
-Preview (Vercel Preview Environment):
-  URL: https://care-commons-<pr-hash>.vercel.app
-  Branch: Any (via PR to develop)
-  Database: Preview (Neon)
-  Trigger: PR to develop
-  Lifecycle: Deleted when PR closes
+  Note: Persistent preview environment
 
 Development (Local Only):
   URL: http://localhost:3000
@@ -336,9 +329,9 @@ git checkout -b feature/my-feature
 git push origin feature/my-feature
 # Result: CI checks only ✅
 
-# PR to develop - Preview + Staging deployment
+# PR to develop - NO deployment
 gh pr create --base develop
-# Result: Preview deployment ✅
+# Result: CI checks only (NO deployment) ✅
 
 # After merge - Preview deployment
 # Result: Automatic preview deployment ✅
@@ -358,8 +351,8 @@ gh workflow run deploy.yml
 
 **Key Takeaway:** 
 - Vercel Hobby Plan supports **Production** and **Preview** environments only
-- `main` branch → Vercel Production environment
-- `develop` branch → Vercel Preview environment  
-- PRs to `develop` → Vercel Preview environment (temporary)
+- `main` branch → Vercel Production environment (pushes only)
+- `develop` branch → Vercel Preview environment (pushes only)
+- **Pull requests do NOT trigger deployments** - only CI checks run
 - Local development → Not deployed to Vercel (use `vercel dev` locally)
 - Feature branches never auto-deploy
