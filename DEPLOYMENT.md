@@ -204,31 +204,47 @@ npm run db:seed:demo
 
 ## Deployment Workflows
 
+> **📖 Detailed Guide:** See [.github/workflows/DEPLOYMENT_FLOW.md](.github/workflows/DEPLOYMENT_FLOW.md) for complete workflow documentation.
+
+### Deployment Triggers
+
+| Branch | Event | Deployment |
+|--------|-------|------------|
+| `main` | Push | ✅ **Production** |
+| `develop` | Push | ✅ **Staging** |
+| `feature/*` | Push | ❌ **None** (only CI checks) |
+| Any → `main`/`develop` | PR | ✅ **Preview** |
+
+**Important:** Feature branches do NOT trigger deployments. Only `main` and `develop` branches trigger automatic deployments.
+
 ### Preview Deployments (Pull Requests)
-- **Trigger**: Opening or updating a pull request
+- **Trigger**: Pull request to `main` or `develop` branch
 - **Environment**: Preview (uses staging database)
 - **Features**:
   - Automatic deployment on every PR commit
   - Unique preview URL for each PR
   - PR comment with preview URL
   - Runs tests before deployment
+- **Does NOT trigger on**: PRs to feature branches
 
 ### Staging Deployments
-- **Trigger**: Push to `develop` branch
+- **Trigger**: Push to `develop` branch ONLY
 - **Environment**: Staging
 - **Features**:
   - Automatic database migrations
   - Health check validation
   - Persistent staging URL
+- **Does NOT trigger on**: PRs, feature branches, or manual pushes to other branches
 
 ### Production Deployments
-- **Trigger**: Push to `main` branch
+- **Trigger**: Push to `main` branch ONLY
 - **Environment**: Production
 - **Features**:
   - Automatic database migrations
   - Health check validation
   - Production URL with custom domain support
   - Optional demo data seeding (manual workflow dispatch)
+- **Does NOT trigger on**: PRs, feature branches, or manual pushes to other branches
 
 ## Deployment Commands
 
