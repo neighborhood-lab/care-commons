@@ -162,7 +162,7 @@ export class PermissionService {
     // Check role-based permissions
     for (const role of context.roles) {
       const rolePerms = this.rolePermissions.get(role);
-      if (!rolePerms) continue;
+      if (rolePerms === undefined) continue;
 
       // Wildcard check
       if (rolePerms.has('*:*')) {
@@ -229,7 +229,11 @@ export class PermissionService {
       }
 
       // Branch-level filtering
-      if (entity.branchId && context.branchIds.length > 0) {
+      if (
+        entity.branchId !== undefined &&
+        entity.branchId.length > 0 &&
+        context.branchIds.length > 0
+      ) {
         return context.branchIds.includes(entity.branchId);
       }
 
@@ -244,8 +248,6 @@ export class PermissionService {
 let permissionServiceInstance: PermissionService | null = null;
 
 export function getPermissionService(): PermissionService {
-  if (!permissionServiceInstance) {
-    permissionServiceInstance = new PermissionService();
-  }
+  permissionServiceInstance ??= new PermissionService();
   return permissionServiceInstance;
 }

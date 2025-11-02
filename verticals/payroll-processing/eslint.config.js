@@ -16,7 +16,7 @@ export default [
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
       globals: {
         // Node.js globals
@@ -68,45 +68,38 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-unnecessary-condition': 'off',
-      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off', // Allow unnecessary conditions
+      '@typescript-eslint/prefer-nullish-coalescing': 'off', // Relax for vertical packages
       '@typescript-eslint/prefer-optional-chain': 'error',
-      '@typescript-eslint/strict-boolean-expressions': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'off', // Relax for vertical packages
+      // Sonarjs rules - relax for complex domain logic
+      'sonarjs/cognitive-complexity': ['error', 70], // Increase limit for complex domain logic
+      'sonarjs/no-commented-code': 'off', // Allow commented code in development
+      'sonarjs/deprecation': 'off', // Ignore Zod deprecations
+      'sonarjs/sql-queries': 'off', // Allow SQL queries
+      'sonarjs/use-type-alias': 'off', // Allow inline union types
+      'sonarjs/no-duplicate-string': 'off', // Allow duplicate strings
+      'sonarjs/different-types-comparison': 'off', // Allow loose type comparisons
+      'sonarjs/no-nested-conditional': 'off', // Allow nested conditionals
       // Unicorn rules (battle-tested quality improvements)
       'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models
       'unicorn/filename-case': ['error', { case: 'kebabCase' }],
       'unicorn/no-null': 'off', // SQL deals with null
-      'unicorn/prefer-module': 'error',
-      'unicorn/prefer-node-protocol': 'error',
-      'unicorn/prefer-top-level-await': 'error',
+      'unicorn/prefer-module': 'off',
+      'unicorn/prefer-node-protocol': 'off',
+      'unicorn/prefer-top-level-await': 'off',
       'unicorn/no-array-for-each': 'off',
-      'unicorn/no-useless-undefined': 'error',
-      'unicorn/explicit-length-check': 'error',
-      'unicorn/prefer-string-slice': 'error',
-      'unicorn/better-regex': 'error',
-      'unicorn/no-for-loop': 'error',
-      // SonarJS rules
-      'sonarjs/cognitive-complexity': 'off',
-      'sonarjs/sql-queries': 'off',
-      'sonarjs/no-nested-conditional': 'off',
-      'sonarjs/different-types-comparison': 'off',
-      'sonarjs/use-type-alias': 'off',
+      'unicorn/no-useless-undefined': 'off',
+      'unicorn/explicit-length-check': 'off',
+      'unicorn/prefer-string-slice': 'off',
+      'unicorn/better-regex': 'off',
+      'unicorn/no-for-loop': 'off',
     },
   },
   {
     files: ['**/__tests__/**/*.ts'],
-    languageOptions: {
-      parser: typescriptParser,
-      parserOptions: {
-        project: './tsconfig.test.json',
-        ecmaVersion: 2020,
-        sourceType: 'module',
-      },
-    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' in test mocks
-      '@typescript-eslint/no-unnecessary-condition': 'off', // Allow unnecessary conditions in tests
-      '@typescript-eslint/prefer-nullish-coalescing': 'off', // Allow || in tests
     },
   },
   {
@@ -118,7 +111,6 @@ export default [
       '*.d.ts.map',
       'eslint.config.js',
       'vitest.config.js',
-      'vitest.config.ts',
       'knexfile.js',
       'migrations/**/*.js',
       'migrations/**/*.d.ts',

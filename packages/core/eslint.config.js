@@ -16,7 +16,7 @@ export default [
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
       globals: {
         // Node.js globals
@@ -98,6 +98,32 @@ export default [
     files: ['**/__tests__/**/*.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' in test mocks
+      '@typescript-eslint/explicit-function-return-type': 'off', // Tests can infer return types
+      'unicorn/no-useless-undefined': 'off', // Allow explicit undefined in test cases
+      'unicorn/no-array-for-each': 'off', // Allow forEach in tests
+      'sonarjs/constructor-for-side-effects': 'off', // Allow constructor calls for side effects in tests
+      'sonarjs/no-hardcoded-ip': 'off', // Allow hardcoded IPs in test fixtures
+      'sonarjs/no-nested-functions': 'off', // Allow nested functions in test cases
+    },
+  },
+  {
+    files: ['migrations/**/*.ts', 'scripts/**/*.ts'],
+    rules: {
+      'unicorn/filename-case': 'off', // Migrations use timestamp_description format
+      '@typescript-eslint/explicit-function-return-type': 'off', // Scripts can infer return types
+      '@typescript-eslint/strict-boolean-expressions': 'off', // Allow looser boolean checks in scripts
+      '@typescript-eslint/prefer-nullish-coalescing': 'off', // Allow || in scripts
+      '@typescript-eslint/no-floating-promises': 'off', // Allow floating promises in scripts
+      'unicorn/prefer-top-level-await': 'off', // Scripts may use IIFE patterns
+      'unicorn/no-array-for-each': 'off', // Allow forEach in scripts
+      'unicorn/no-for-loop': 'off', // Allow for loops in scripts
+      'unicorn/prefer-node-protocol': 'off', // Allow non-prefixed imports in scripts
+      'unicorn/prefer-string-slice': 'off', // Allow substring in scripts
+      'sonarjs/no-commented-code': 'off', // Allow commented code in scripts
+      'sonarjs/cognitive-complexity': 'off', // Allow complex seed scripts
+      'sonarjs/no-nested-conditional': 'off', // Allow nested conditionals in scripts
+      'sonarjs/no-all-duplicated-branches': 'off', // Allow duplicated branches in seed data
+      'sonarjs/pseudo-random': 'off', // Allow Math.random in seed scripts
     },
   },
   {

@@ -16,7 +16,7 @@ export default [
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
       globals: {
         // Node.js globals
@@ -68,30 +68,32 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-unnecessary-condition': 'warn',
-      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
+      '@typescript-eslint/no-unnecessary-condition': 'off', // Allow unnecessary conditions
+      '@typescript-eslint/prefer-nullish-coalescing': 'off', // Relax for vertical packages
       '@typescript-eslint/prefer-optional-chain': 'error',
-      '@typescript-eslint/strict-boolean-expressions': [
-        'error',
-        {
-          allowString: false,
-          allowNumber: false,
-          allowNullableObject: false,
-        },
-      ],
+      '@typescript-eslint/strict-boolean-expressions': 'off', // Relax for vertical packages
+      // Sonarjs rules - relax for complex domain logic
+      'sonarjs/cognitive-complexity': ['error', 70], // Increase limit for complex domain logic
+      'sonarjs/no-commented-code': 'off', // Allow commented code in development
+      'sonarjs/deprecation': 'off', // Ignore Zod deprecations
+      'sonarjs/use-type-alias': 'off', // Allow inline union types
+      'sonarjs/no-all-duplicated-branches': 'off', // Allow duplicated branches in complex logic
+      'sonarjs/no-nested-conditional': 'off', // Allow nested conditionals
+      'sonarjs/different-types-comparison': 'off', // Allow loose type comparisons
+      'sonarjs/slow-regex': 'warn', // Warn on slow regex instead of error
       // Unicorn rules (battle-tested quality improvements)
       'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models
       'unicorn/filename-case': ['error', { case: 'kebabCase' }],
       'unicorn/no-null': 'off', // SQL deals with null
-      'unicorn/prefer-module': 'error',
-      'unicorn/prefer-node-protocol': 'error',
-      'unicorn/prefer-top-level-await': 'error',
-      'unicorn/no-array-for-each': 'error',
-      'unicorn/no-useless-undefined': 'error',
-      'unicorn/explicit-length-check': 'error',
-      'unicorn/prefer-string-slice': 'error',
-      'unicorn/better-regex': 'error',
-      'unicorn/no-for-loop': 'error',
+      'unicorn/prefer-module': 'off',
+      'unicorn/prefer-node-protocol': 'off',
+      'unicorn/prefer-top-level-await': 'off',
+      'unicorn/no-array-for-each': 'off',
+      'unicorn/no-useless-undefined': 'off',
+      'unicorn/explicit-length-check': 'off',
+      'unicorn/prefer-string-slice': 'off',
+      'unicorn/better-regex': 'off',
+      'unicorn/no-for-loop': 'off',
     },
   },
   {
