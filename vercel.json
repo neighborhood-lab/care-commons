@@ -9,6 +9,12 @@
     "NODE_ENV": "production"
   },
   "regions": ["iad1"],
+  "functions": {
+    "api/index.ts": {
+      "runtime": "nodejs22.x",
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",
