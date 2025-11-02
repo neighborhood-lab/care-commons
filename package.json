@@ -9,8 +9,8 @@
     "verticals/*"
   ],
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "dev:server": "cd packages/app && npm run dev:server",
+    "dev": "turbo run dev --parallel --filter=@care-commons/app --filter=@care-commons/web",
+    "dev:server": "cd packages/app && npm run dev",
     "dev:web": "cd packages/web && npm run dev",
     "build": "turbo run build",
     "build:ts": "tsc -b",
