@@ -237,7 +237,188 @@ npm run db:migrate
 
 # Seed database with sample data
 npm run db:seed
+
+# Seed TX/FL demo data (idempotent)
+npm run db:seed:demo
+
+# Check migration status
+npm run db:migrate:status
+
+# Rollback last migration
+npm run db:migrate:rollback
 ```
+
+## Cloud Deployment
+
+Care Commons supports deployment to **Vercel** with **Neon PostgreSQL** for production-ready, serverless hosting.
+
+### Prerequisites for Cloud Deployment
+
+1. **Vercel Account** - Sign up at [vercel.com](https://vercel.com)
+2. **Neon PostgreSQL** - Create a database at [neon.tech](https://neon.tech)
+3. **Vercel CLI** - Install globally: `npm install -g vercel`
+
+### Neon PostgreSQL Setup
+
+1. Create a new project at [console.neon.tech](https://console.neon.tech)
+2. Create two databases:
+   - `care_commons_staging` (for staging environment)
+   - `care_commons_production` (for production environment)
+3. Enable connection pooling for each database
+4. Copy the connection strings (with pooling enabled)
+
+### Vercel Project Setup
+
+1. Install Vercel CLI:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. Login to Vercel:
+   ```bash
+   vercel login
+   ```
+
+3. Link your project:
+   ```bash
+   vercel link
+   ```
+
+4. Add environment variables to Vercel:
+   ```bash
+   # For production
+   vercel env add DATABASE_URL production
+   # Paste your Neon production connection string (with pooling)
+   
+   # For staging
+   vercel env add DATABASE_URL preview
+   # Paste your Neon staging connection string (with pooling)
+   
+   # Add other secrets
+   vercel env add JWT_SECRET production
+   vercel env add ENCRYPTION_KEY production
+   ```
+
+### Deployment Commands
+
+```bash
+# Deploy to preview (automatic on PRs)
+npm run deploy:preview
+
+# Deploy to staging
+npm run deploy:staging
+
+# Deploy to production
+npm run deploy:production
+```
+
+### GitHub Actions Deployment
+
+The project includes automated deployment workflows:
+
+#### Preview Deployments
+- Automatically deploy on every pull request
+- Preview URL posted as PR comment
+- Uses staging database
+
+#### Staging Deployments
+- Deploy to staging on `develop` branch pushes
+- Runs database migrations automatically
+- Health check validation
+
+#### Production Deployments
+- Deploy to production on `main` branch pushes
+- Runs database migrations automatically
+- Health check validation
+- Optional demo data seeding
+
+### Required GitHub Secrets
+
+Add these secrets in your repository settings (Settings → Secrets and variables → Actions):
+
+```bash
+# Vercel
+VERCEL_TOKEN=<your-vercel-token>
+VERCEL_ORG_ID=<your-vercel-org-id>
+VERCEL_PROJECT_ID=<your-vercel-project-id>
+
+# Database
+DATABASE_URL=<neon-production-connection-string>
+STAGING_DATABASE_URL=<neon-staging-connection-string>
+
+# Application
+JWT_SECRET=<random-secret-string>
+STAGING_JWT_SECRET=<random-secret-string>
+ENCRYPTION_KEY=<32-byte-random-string>
+```
+
+### Health Check Endpoint
+
+After deployment, verify your application:
+
+```bash
+# Check production health
+curl https://your-app.vercel.app/health
+
+# Expected response
+{
+  "status": "healthy",
+  "timestamp": "2025-11-01T12:00:00.000Z",
+  "environment": "production",
+  "uptime": 3600,
+  "responseTime": 45,
+  "database": {
+    "status": "connected",
+    "responseTime": 45
+  },
+  "memory": {
+    "used": 128,
+    "total": 256
+  }
+}
+```
+
+### Database Migrations on Vercel
+
+Migrations run automatically during deployment via GitHub Actions. To run manually:
+
+```bash
+# Set DATABASE_URL environment variable
+export DATABASE_URL="your-neon-connection-string"
+
+# Run migrations
+npm run db:migrate
+
+# Seed demo data (optional)
+npm run db:seed:demo
+```
+
+### Monitoring and Logging
+
+- **Vercel Dashboard**: View deployment logs and metrics
+- **Neon Console**: Monitor database performance and queries
+- **Health Endpoint**: `/health` for uptime monitoring
+- **Error Tracking**: Configure Sentry DSN in environment variables (optional)
+
+### Rollback
+
+To rollback a deployment:
+
+```bash
+# List recent deployments
+vercel ls
+
+# Promote a previous deployment to production
+vercel promote <deployment-url> --scope <team-name>
+```
+
+### Best Practices
+
+1. **Database Pooling**: Always use Neon's pooled connection string for serverless environments
+2. **Environment Variables**: Never commit secrets to git - use Vercel environment variables
+3. **Migrations**: Test migrations on staging before deploying to production
+4. **Health Checks**: Monitor the `/health` endpoint for database connectivity
+5. **Preview Deployments**: Review changes on preview URLs before merging to main
 
 ## Documentation
 
