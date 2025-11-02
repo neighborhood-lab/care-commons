@@ -170,3 +170,5 @@ packages/core/migrations/*.js.map
 packages/core/migrations/*.d.ts
 packages/core/migrations/*.d.ts.map
 .vercel
+.DS_Store
+*.png
