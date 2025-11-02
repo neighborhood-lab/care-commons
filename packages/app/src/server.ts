@@ -4,7 +4,10 @@
  * Main Express application that integrates all vertical route handlers
  */
 
+// Load environment variables FIRST, before any other imports
 import dotenv from "dotenv";
+dotenv.config({ path: '../../.env', quiet: true });
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -13,8 +16,6 @@ import { authContextMiddleware } from './middleware/auth-context';
 import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index';
-
-dotenv.config({ path: '../../.env', quiet: true });
 
 const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);

@@ -11,26 +11,40 @@ const router = Router();
 
 // Mock user database - for development only
 // In production, use proper authentication with hashed passwords
-const MOCK_USER_PASSWORD = process.env['MOCK_USER_PASSWORD'] ?? 'default-dev-password';
+function getMockPassword(): string {
+  return process.env['MOCK_USER_PASSWORD'] ?? 'default-dev-password';
+}
 
-const users = [
-  {
-    id: 'admin-001',
-    email: 'admin@example.com',
-    password: MOCK_USER_PASSWORD,
-    name: 'Admin User',
-    roles: ['ADMIN'],
-    organizationId: 'org-001',
-  },
-  {
-    id: 'caregiver-001',
-    email: 'caregiver@example.com',
-    password: MOCK_USER_PASSWORD,
-    name: 'Caregiver User',
-    roles: ['CAREGIVER'],
-    organizationId: 'org-001',
-  },
-];
+interface MockUser {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  roles: string[];
+  organizationId: string;
+}
+
+function getUsers(): MockUser[] {
+  const password = getMockPassword();
+  return [
+    {
+      id: 'admin-001',
+      email: 'admin@example.com',
+      password,
+      name: 'Admin User',
+      roles: ['ADMIN'],
+      organizationId: 'org-001',
+    },
+    {
+      id: 'caregiver-001',
+      email: 'caregiver@example.com',
+      password,
+      name: 'Caregiver User',
+      roles: ['CAREGIVER'],
+      organizationId: 'org-001',
+    },
+  ];
+}
 
 /**
  * POST /api/auth/login
@@ -56,6 +70,7 @@ router.post('/login', (req, res) => {
   }
 
   // Find user by email
+  const users = getUsers();
   const user = users.find(u => u.email === email && u.password === password);
 
   if (user === undefined) {
