@@ -6,8 +6,8 @@
   "description": "Care Commons API server",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsc --watch",
-    "dev:server": "node --watch --import tsx --no-warnings src/server.ts",
+    "dev": "node --watch --import tsx --no-warnings src/server.ts",
+    "dev:watch": "tsc --watch",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest run",
