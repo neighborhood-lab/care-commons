@@ -110,19 +110,25 @@ export class ShiftMatchingService {
       // Evaluate each caregiver
       const candidates: MatchCandidate[] = [];
       
-      for (const caregiver of allCaregivers.items) {
-        // Skip if blocked by client
-        if (openShift.blockedCaregivers?.includes(caregiver.id)) {
-          continue;
+      // Filter out blocked caregivers upfront
+      const eligibleCaregivers = allCaregivers.items.filter(
+        (cg) => !openShift.blockedCaregivers?.includes(cg.id)
+      );
+      
+      // Batch load all caregiver contexts to avoid N+1 queries
+      const caregiverContexts = await this.batchBuildCaregiverContexts(
+        eligibleCaregivers,
+        openShift,
+        context
+      );
+
+      // Evaluate each caregiver with pre-loaded context
+      for (let i = 0; i < eligibleCaregivers.length; i++) {
+        const caregiverContext = caregiverContexts[i];
+        if (caregiverContext === undefined) {
+          continue; // Skip if context couldn't be built
         }
-
-        // Build caregiver context
-        const caregiverContext = await this.buildCaregiverContext(
-          caregiver.id,
-          openShift,
-          context
-        );
-
+        
         // Evaluate match
         const candidate = MatchingAlgorithm.evaluateMatch(
           openShift,
@@ -563,7 +569,274 @@ export class ShiftMatchingService {
   }
 
   /**
-   * Private helper: Build caregiver context for matching
+   * Private helper: Batch build caregiver contexts for matching (optimized)
+   * Avoids N+1 queries by fetching all data in batched queries
+   */
+  private async batchBuildCaregiverContexts(
+    caregivers: Array<{id: UUID; primaryAddress?: {latitude?: number | null; longitude?: number | null}}>,
+    shift: OpenShift,
+    _context: UserContext
+  ): Promise<CaregiverContext[]> {
+    if (caregivers.length === 0) {
+      return [];
+    }
+
+    // Context for getting caregiver details
+    const systemContext: UserContext = {
+      userId: _context.userId,
+      organizationId: _context.organizationId,
+      branchIds: [],
+      roles: ['SUPER_ADMIN'],
+      permissions: ['caregivers:read'],
+    };
+    
+    const caregiverIds = caregivers.map(cg => cg.id);
+    
+    // Batch fetch full caregiver details
+    const fullCaregivers = await this.caregiverService.searchCaregivers(
+      {
+        organizationId: _context.organizationId,
+        branchId: shift.branchId,
+      },
+      { page: 1, limit: 1000 },
+      systemContext
+    );
+    
+    // Create caregiver map for quick lookup, filtered to requested IDs
+    const caregiverIdSet = new Set(caregiverIds);
+    const caregiverMap = new Map(
+      fullCaregivers.items
+        .filter(cg => caregiverIdSet.has(cg.id))
+        .map(cg => [cg.id, cg])
+    );
+
+    // Get week boundaries
+    const weekStart = new Date(shift.scheduledDate);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    // Batch query: Get current week hours for all caregivers
+    const weekHoursResult = await this.pool.query(
+      `
+      SELECT 
+        assigned_caregiver_id,
+        COALESCE(SUM(scheduled_duration), 0) as total_minutes
+      FROM visits
+      WHERE assigned_caregiver_id = ANY($1)
+        AND scheduled_date BETWEEN $2 AND $3
+        AND deleted_at IS NULL
+        AND status NOT IN ('CANCELLED', 'NO_SHOW_CAREGIVER', 'REJECTED')
+      GROUP BY assigned_caregiver_id
+      `,
+      [caregiverIds, weekStart, weekEnd]
+    );
+
+    const weekHoursMap = new Map(
+      weekHoursResult.rows.map((row: any) => [
+        row.assigned_caregiver_id,
+        parseInt(row.total_minutes, 10) / 60
+      ])
+    );
+
+    // Batch query: Check for scheduling conflicts
+    const conflictsResult = await this.pool.query(
+      `
+      SELECT 
+        v.assigned_caregiver_id,
+        v.id as visit_id,
+        c.first_name || ' ' || c.last_name as client_name,
+        v.scheduled_start_time as start_time,
+        v.scheduled_end_time as end_time
+      FROM visits v
+      JOIN clients c ON v.client_id = c.id
+      WHERE v.assigned_caregiver_id = ANY($1)
+        AND v.scheduled_date = $2
+        AND v.deleted_at IS NULL
+        AND v.status NOT IN ('CANCELLED', 'NO_SHOW_CAREGIVER', 'REJECTED')
+        AND (v.scheduled_start_time, v.scheduled_end_time) OVERLAPS ($3, $4)
+      `,
+      [caregiverIds, shift.scheduledDate, shift.startTime, shift.endTime]
+    );
+
+    const conflictsMap = new Map<UUID, any[]>();
+    for (const row of conflictsResult.rows) {
+      const cid = (row as any).assigned_caregiver_id;
+      if (!conflictsMap.has(cid)) {
+        conflictsMap.set(cid, []);
+      }
+      conflictsMap.get(cid)?.push({
+        visitId: (row as any).visit_id,
+        clientName: (row as any).client_name,
+        startTime: (row as any).start_time,
+        endTime: (row as any).end_time,
+        includesTravel: false,
+      });
+    }
+
+    // Batch query: Get previous visits with this client
+    const previousVisitsResult = await this.pool.query(
+      `
+      SELECT 
+        assigned_caregiver_id,
+        COUNT(*) as count,
+        AVG(client_rating) as avg_rating
+      FROM visits
+      WHERE assigned_caregiver_id = ANY($1)
+        AND client_id = $2
+        AND deleted_at IS NULL
+        AND status = 'COMPLETED'
+      GROUP BY assigned_caregiver_id
+      `,
+      [caregiverIds, shift.clientId]
+    );
+
+    const previousVisitsMap = new Map(
+      previousVisitsResult.rows.map((row: any) => [
+        row.assigned_caregiver_id,
+        {
+          count: parseInt(row.count, 10),
+          avgRating: row.avg_rating ? parseFloat(row.avg_rating) : undefined,
+        }
+      ])
+    );
+
+    // Batch query: Calculate reliability scores
+    const reliabilityResult = await this.pool.query(
+      `
+      SELECT 
+        assigned_caregiver_id,
+        COUNT(*) FILTER (WHERE status = 'COMPLETED') as completed,
+        COUNT(*) FILTER (WHERE status = 'NO_SHOW_CAREGIVER') as no_shows,
+        COUNT(*) FILTER (WHERE status = 'CANCELLED_BY_CAREGIVER') as cancellations,
+        COUNT(*) as total
+      FROM visits
+      WHERE assigned_caregiver_id = ANY($1)
+        AND deleted_at IS NULL
+        AND scheduled_date >= NOW() - INTERVAL '90 days'
+      GROUP BY assigned_caregiver_id
+      `,
+      [caregiverIds]
+    );
+
+    const reliabilityMap = new Map(
+      reliabilityResult.rows.map((row: any) => {
+        const completed = parseInt(row.completed ?? '0', 10);
+        const noShows = parseInt(row.no_shows ?? '0', 10);
+        const cancellations = parseInt(row.cancellations ?? '0', 10);
+        const total = parseInt(row.total ?? '0', 10);
+
+        let score = 75; // Default
+        if (total > 0) {
+          const completionRate = completed / total;
+          score = Math.round(completionRate * 100);
+          score -= noShows * 10;
+          score -= cancellations * 5;
+          score = Math.max(0, Math.min(100, score));
+        }
+
+        return [row.assigned_caregiver_id, score];
+      })
+    );
+
+    // Batch query: Get recent rejections
+    const rejectionsResult = await this.pool.query(
+      `
+      SELECT 
+        caregiver_id,
+        COUNT(*) as count
+      FROM assignment_proposals
+      WHERE caregiver_id = ANY($1)
+        AND proposal_status = 'REJECTED'
+        AND deleted_at IS NULL
+        AND proposed_at >= NOW() - INTERVAL '30 days'
+      GROUP BY caregiver_id
+      `,
+      [caregiverIds]
+    );
+
+    const rejectionsMap = new Map(
+      rejectionsResult.rows.map((row: any) => [
+        row.caregiver_id,
+        parseInt(row.count ?? '0', 10)
+      ])
+    );
+
+    // Batch calculate distances if coordinates available
+    const distancesMap = new Map<UUID, number>();
+    if (shift.latitude !== null && shift.longitude !== null) {
+      // Build array of caregiver coordinates for batch distance calculation
+      const caregiverCoords: Array<{id: UUID; lat: number; lng: number}> = [];
+      
+      for (const [id, caregiver] of caregiverMap) {
+        if (caregiver.primaryAddress?.latitude !== null && 
+            caregiver.primaryAddress?.latitude !== undefined &&
+            caregiver.primaryAddress?.longitude !== null &&
+            caregiver.primaryAddress?.longitude !== undefined) {
+          caregiverCoords.push({
+            id,
+            lat: caregiver.primaryAddress.latitude,
+            lng: caregiver.primaryAddress.longitude,
+          });
+        }
+      }
+
+      if (caregiverCoords.length > 0) {
+        // Use unnest for batch distance calculation
+        const distanceResult = await this.pool.query(
+          `
+          SELECT 
+            coords.id,
+            calculate_distance(coords.lat, coords.lng, $1, $2) as distance
+          FROM unnest($3::uuid[], $4::numeric[], $5::numeric[]) 
+            AS coords(id, lat, lng)
+          `,
+          [
+            shift.latitude,
+            shift.longitude,
+            caregiverCoords.map(c => c.id),
+            caregiverCoords.map(c => c.lat),
+            caregiverCoords.map(c => c.lng),
+          ]
+        );
+
+        for (const row of distanceResult.rows) {
+          distancesMap.set((row as any).id, parseFloat((row as any).distance ?? '0'));
+        }
+      }
+    }
+
+    // Build contexts for all caregivers
+    return caregiverIds.map((caregiverId) => {
+      const caregiver = caregiverMap.get(caregiverId);
+      if (caregiver === null || caregiver === undefined) {
+        throw new NotFoundError('Caregiver not found in batch', { caregiverId });
+      }
+
+      const currentWeekHours = weekHoursMap.get(caregiverId) ?? 0;
+      const conflictingVisits = conflictsMap.get(caregiverId) ?? [];
+      const previousVisits = previousVisitsMap.get(caregiverId);
+      const previousVisitsWithClient = previousVisits?.count ?? 0;
+      const clientRating = previousVisits?.avgRating ?? 0;
+      const reliabilityScore = reliabilityMap.get(caregiverId) ?? 75;
+      const recentRejectionCount = rejectionsMap.get(caregiverId) ?? 0;
+      const distanceFromShift = distancesMap.get(caregiverId) ?? 0;
+
+      return {
+        caregiver,
+        currentWeekHours,
+        conflictingVisits,
+        previousVisitsWithClient,
+        clientRating,
+        reliabilityScore,
+        recentRejectionCount,
+        distanceFromShift,
+      };
+    });
+  }
+
+  /**
+   * Private helper: Build caregiver context for matching (single caregiver)
    */
   private async buildCaregiverContext(
     caregiverId: UUID,
