@@ -20,8 +20,11 @@ const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
 const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 
+
+
 /**
  * Initialize database connection
+ * Supports both DATABASE_URL (Vercel) and individual config (local dev)
  */
 function initDb(): ReturnType<typeof initializeDatabase> {
   // Check for DATABASE_URL first (Vercel/production style)
@@ -63,7 +66,7 @@ function initDb(): ReturnType<typeof initializeDatabase> {
   const dbConfig = {
     host: process.env['DB_HOST'] ?? 'localhost',
     port: Number(process.env['DB_PORT'] ?? 5432),
-    database: process.env['DB_NAME'] ?? 'care_commons4',
+    database: process.env['DB_NAME'] ?? 'care_commons',
     user: process.env['DB_USER'] ?? 'postgres',
     password: dbPassword,
     ssl: process.env['DB_SSL'] === 'true' ? true : false,
@@ -71,15 +74,7 @@ function initDb(): ReturnType<typeof initializeDatabase> {
     idleTimeoutMillis: 30000,
   };
 
-  console.log(`Initializing database connection to ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
-  console.log('Database config:', { 
-    host: dbConfig.host, 
-    port: dbConfig.port, 
-    database: dbConfig.database, 
-    user: dbConfig.user, 
-    ssl: dbConfig.ssl,
-    hasPassword: Boolean(dbPassword)
-  });
+  console.log(`Initializing database: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
   return initializeDatabase(dbConfig);
 }
 
@@ -87,12 +82,48 @@ function initDb(): ReturnType<typeof initializeDatabase> {
  * Configure Express middleware
  */
 function setupMiddleware(): void {
-  // Security headers
-  app.use(helmet());
+  // Security headers - use default secure configuration
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+  }));
 
-  // CORS
+  // CORS - restrict to allowed origins in production
+  const allowedOrigins = process.env['CORS_ORIGIN']?.split(',') ?? [];
+  
   app.use(cors({
-    origin: process.env['CORS_ORIGIN'] ?? '*',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (typeof origin !== 'string') {
+        callback(null, true);
+        return;
+      }
+
+      // In development, allow all origins
+      if (NODE_ENV === 'development') {
+        callback(null, true);
+        return;
+      }
+
+      // In production, only allow specified origins
+      if (allowedOrigins.length === 0) {
+        console.warn('⚠️  No CORS_ORIGIN configured - blocking all browser requests');
+        callback(new Error('CORS not configured'), false);
+        return;
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+      }
+    },
     credentials: true,
   }));
 
@@ -208,13 +239,15 @@ export async function createApp(): Promise<express.Express> {
   return app;
 }
 
+
+
 /**
  * Start the server (for local development)
  */
 async function start(): Promise<void> {
   try {
     console.log(`Starting Care Commons API Server (${NODE_ENV})`);
-
+    
     await createApp();
 
     // Start listening
@@ -251,5 +284,8 @@ process.on('SIGINT', () => {
   })();
 });
 
-// Start the server
-await start();
+// Only start the server if this file is run directly (not imported)
+// This allows Vercel to import createApp() without starting a server
+if (import.meta.url === `file://${process.argv[1]}`) {
+  await start();
+}

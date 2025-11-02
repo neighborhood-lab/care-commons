@@ -107,6 +107,34 @@ describe('EVVValidator', () => {
       expect(() => validator.validateClockOut(invalidInput))
         .toThrow(ValidationError);
     });
+
+    it('should throw ValidationError when visitId is missing from clock-out', () => {
+      const invalidInput = { ...validClockOutInput, visitId: '' };
+      
+      expect(() => validator.validateClockOut(invalidInput))
+        .toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError when caregiverId is missing from clock-out', () => {
+      const invalidInput = { ...validClockOutInput, caregiverId: '' };
+      
+      expect(() => validator.validateClockOut(invalidInput))
+        .toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError when location is missing from clock-out', () => {
+      const invalidInput = { ...validClockOutInput, location: undefined as any };
+      
+      expect(() => validator.validateClockOut(invalidInput))
+        .toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError when deviceInfo is missing from clock-out', () => {
+      const invalidInput = { ...validClockOutInput, deviceInfo: undefined as any };
+      
+      expect(() => validator.validateClockOut(invalidInput))
+        .toThrow(ValidationError);
+    });
   });
 
   describe('validateLocation', () => {
@@ -214,6 +242,36 @@ describe('EVVValidator', () => {
       validator.validateLocation(invalidLocation, errors);
       expect(errors).toContain('mock location/GPS spoofing detected - verification failed');
     });
+
+    it('should add error when timestamp is missing', () => {
+      const invalidLocation = {
+        latitude: 40.7128,
+        longitude: -74.0060,
+        accuracy: 10,
+        timestamp: undefined as any,
+        method: 'GPS' as VerificationMethod,
+        mockLocationDetected: false,
+      };
+
+      const errors: string[] = [];
+      validator.validateLocation(invalidLocation, errors);
+      expect(errors).toContain('location timestamp is required');
+    });
+
+    it('should add error when verification method is missing', () => {
+      const invalidLocation = {
+        latitude: 40.7128,
+        longitude: -74.0060,
+        accuracy: 10,
+        timestamp: new Date(),
+        method: undefined as any,
+        mockLocationDetected: false,
+      };
+
+      const errors: string[] = [];
+      validator.validateLocation(invalidLocation, errors);
+      expect(errors).toContain('verification method is required');
+    });
   });
 
   describe('validateDeviceInfo', () => {
@@ -242,6 +300,45 @@ describe('EVVValidator', () => {
       const errors: string[] = [];
       validator.validateDeviceInfo(invalidDeviceInfo, errors);
       expect(errors).toContain('deviceId is required');
+    });
+
+    it('should add error for missing deviceModel', () => {
+      const invalidDeviceInfo = {
+        deviceId: 'device-123',
+        deviceOS: 'iOS',
+        osVersion: '16.0',
+        appVersion: '1.0.0',
+      };
+
+      const errors: string[] = [];
+      validator.validateDeviceInfo(invalidDeviceInfo, errors);
+      expect(errors).toContain('deviceModel is required');
+    });
+
+    it('should add error for missing deviceOS', () => {
+      const invalidDeviceInfo = {
+        deviceId: 'device-123',
+        deviceModel: 'iPhone 14',
+        osVersion: '16.0',
+        appVersion: '1.0.0',
+      };
+
+      const errors: string[] = [];
+      validator.validateDeviceInfo(invalidDeviceInfo, errors);
+      expect(errors).toContain('deviceOS is required');
+    });
+
+    it('should add error for missing appVersion', () => {
+      const invalidDeviceInfo = {
+        deviceId: 'device-123',
+        deviceModel: 'iPhone 14',
+        deviceOS: 'iOS',
+        osVersion: '16.0',
+      };
+
+      const errors: string[] = [];
+      validator.validateDeviceInfo(invalidDeviceInfo, errors);
+      expect(errors).toContain('appVersion is required');
     });
 
     it('should add error for rooted device', () => {
@@ -289,8 +386,43 @@ describe('EVVValidator', () => {
       expect(() => validator.validateGeofence(validGeofenceInput)).not.toThrow();
     });
 
+    it('should throw ValidationError when organizationId is missing', () => {
+      const invalidInput = { ...validGeofenceInput, organizationId: '' };
+      
+      expect(() => validator.validateGeofence(invalidInput))
+        .toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError when clientId is missing', () => {
+      const invalidInput = { ...validGeofenceInput, clientId: '' };
+      
+      expect(() => validator.validateGeofence(invalidInput))
+        .toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError when addressId is missing', () => {
+      const invalidInput = { ...validGeofenceInput, addressId: '' };
+      
+      expect(() => validator.validateGeofence(invalidInput))
+        .toThrow(ValidationError);
+    });
+
     it('should throw ValidationError for invalid latitude', () => {
       const invalidInput = { ...validGeofenceInput, centerLatitude: 91 };
+      
+      expect(() => validator.validateGeofence(invalidInput))
+        .toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError for invalid longitude', () => {
+      const invalidInput = { ...validGeofenceInput, centerLongitude: 181 };
+      
+      expect(() => validator.validateGeofence(invalidInput))
+        .toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError for negative radius', () => {
+      const invalidInput = { ...validGeofenceInput, radiusMeters: -10 };
       
       expect(() => validator.validateGeofence(invalidInput))
         .toThrow(ValidationError);

@@ -16,6 +16,7 @@ export * from './repository/client-repository';
 
 // Business logic
 export * from './service/client-service';
+export * from './service/client-audit-service';
 
 // Validation
 export * from './validation/client-validator';

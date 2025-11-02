@@ -14,15 +14,18 @@ import { getPermissionService } from '@care-commons/core';
 import { Client, CreateClientInput, UpdateClientInput, ClientSearchFilters } from '../types/client';
 import { ClientRepository } from '../repository/client-repository';
 import { ClientValidator } from '../validation/client-validator';
+import type { ClientAuditService, AuditQuery, AuditReport } from './client-audit-service';
 
 export class ClientService {
   private repository: ClientRepository;
   private validator: ClientValidator;
   private permissionService = getPermissionService();
+  private auditService?: ClientAuditService;
 
-  constructor(repository: ClientRepository) {
+  constructor(repository: ClientRepository, auditService?: ClientAuditService) {
     this.repository = repository;
     this.validator = new ClientValidator();
+    this.auditService = auditService;
   }
 
   /**
@@ -359,6 +362,35 @@ export class ClientService {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `CL-${timestamp}-${random}`;
+  }
+
+  /**
+   * Get audit trail for a client
+   * Requires auditor role or compliance permissions
+   */
+  async getClientAuditTrail(
+    clientId: string,
+    query: Omit<AuditQuery, 'clientId'>,
+    context: UserContext
+  ): Promise<AuditReport> {
+    // Require elevated permissions for audit access
+    this.permissionService.requirePermission(context, 'clients:audit');
+
+    // Verify client exists and check access
+    await this.getClientById(clientId, context);
+
+    // Check if audit service is available
+    if (!this.auditService) {
+      throw new Error('Audit service not configured');
+    }
+
+    // Query audit log
+    const auditReport = await this.auditService.queryAuditLog({
+      ...query,
+      clientId,
+    });
+
+    return auditReport;
   }
 
   /**
