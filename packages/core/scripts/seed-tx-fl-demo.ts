@@ -106,6 +106,8 @@ async function main() {
 
 /**
  * Helper to insert data only if it doesn't exist (idempotent)
+ * 
+ * Note: tableName and idColumn are validated against allowed values to prevent SQL injection
  */
 async function insertIfNotExists(
   tableName: string,
@@ -114,6 +116,19 @@ async function insertIfNotExists(
   insertQuery: string,
   params: unknown[]
 ): Promise<boolean> {
+  // Validate table and column names against allowlist to prevent SQL injection
+  const allowedTables = ['organizations', 'branches', 'care_plans', 'service_patterns', 'visits', 'evv_records', 'exception_queue'];
+  const allowedColumns = ['id'];
+  
+  if (!allowedTables.includes(tableName)) {
+    throw new Error(`Invalid table name: ${tableName}`);
+  }
+  if (!allowedColumns.includes(idColumn)) {
+    throw new Error(`Invalid column name: ${idColumn}`);
+  }
+  
+  // Safe to use string interpolation here because tableName and idColumn are validated against allowlist above
+  // eslint-disable-next-line sonarjs/sql-queries
   const existsResult = await pool.query(
     `SELECT 1 FROM ${tableName} WHERE ${idColumn} = $1`,
     [id]
@@ -134,9 +149,7 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
   console.log('📋 Seeding organizations...');
   
   let txOrgCreated = false;
-  let txBranchCreated = false;
   let flOrgCreated = false;
-  let flBranchCreated = false;
   
   // Texas Organization - STAR+PLUS provider
   txOrgCreated = await insertIfNotExists(
@@ -157,7 +170,7 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     [ctx.texasOrgId, ctx.texasAdminId]
   );
   
-  txBranchCreated = await insertIfNotExists(
+  await insertIfNotExists(
     'branches',
     'id',
     ctx.texasBranchId,
@@ -194,7 +207,7 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     [ctx.floridaOrgId, ctx.floridaAdminId]
   );
   
-  flBranchCreated = await insertIfNotExists(
+  await insertIfNotExists(
     'branches',
     'id',
     ctx.floridaBranchId,
