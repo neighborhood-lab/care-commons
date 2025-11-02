@@ -120,10 +120,12 @@ describe('Base Types', () => {
       const successResult: Result<string> = { success: true, value: 'test' };
       const failureResult: Result<string> = { success: false, error: new ValidationError('fail') };
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Type guard for discriminated union
       if (successResult.success) {
         expect(successResult.value).toBe('test');
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Type guard for discriminated union
       if (!failureResult.success) {
         expect(failureResult.error).toBeInstanceOf(Error);
       }

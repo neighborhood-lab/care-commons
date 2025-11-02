@@ -25,7 +25,7 @@ export class Database {
       database: config.database,
       user: config.user,
       password: config.password,
-      ssl: config.ssl ? { rejectUnauthorized: false } : false,
+      ssl: config.ssl === true ? { rejectUnauthorized: false } : false,
       max: config.max ?? 20,
       idleTimeoutMillis: config.idleTimeoutMillis ?? 30000,
     });
@@ -103,7 +103,7 @@ export class Database {
 let dbInstance: Database | null = null;
 
 export function initializeDatabase(config: DatabaseConfig): Database {
-  if (dbInstance) {
+  if (dbInstance !== null) {
     throw new Error('Database already initialized');
   }
   dbInstance = new Database(config);
@@ -111,7 +111,7 @@ export function initializeDatabase(config: DatabaseConfig): Database {
 }
 
 export function getDatabase(): Database {
-  if (!dbInstance) {
+  if (dbInstance === null) {
     throw new Error('Database not initialized. Call initializeDatabase first.');
   }
   return dbInstance;

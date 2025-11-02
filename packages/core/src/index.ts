@@ -10,4 +10,3 @@ export * from './db/repository';
 export * from './permissions/permission-service';
 export * from './audit/audit-service';
 export * from './repository/user-repository';
-export * from './interfaces/evv-provider-interfaces';

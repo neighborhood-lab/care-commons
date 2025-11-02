@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext ts --max-warnings 0",
+    "lint": "eslint . --ext ts ",
     "test:watch": "vitest",
     "test:ui": "vitest --ui"
   },

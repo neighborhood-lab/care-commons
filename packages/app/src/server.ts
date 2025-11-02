@@ -86,11 +86,11 @@ function setupApiRoutes(): void {
   // Health check endpoint (no auth required)
   app.get('/health', async (_req, res) => {
     const dbHealthy = await db.healthCheck();
-    res.status(dbHealthy ? 200 : 503).json({
-      status: dbHealthy ? 'healthy' : 'unhealthy',
+    res.status(dbHealthy === true ? 200 : 503).json({
+      status: dbHealthy === true ? 'healthy' : 'unhealthy',
       timestamp: new Date().toISOString(),
       environment: NODE_ENV,
-      database: dbHealthy ? 'connected' : 'disconnected',
+      database: dbHealthy === true ? 'connected' : 'disconnected',
     });
   });
 
@@ -141,7 +141,7 @@ async function start(): Promise<void> {
 
     // Check database connection
     const isHealthy = await db.healthCheck();
-    if (!isHealthy) {
+    if (isHealthy !== true) {
       throw new Error('Database health check failed');
     }
     console.log('Database connection established');

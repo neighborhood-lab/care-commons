@@ -488,7 +488,7 @@ describe('EVVValidator', () => {
       record.integrityHash = computedHash;
       
       // Compute checksum excluding integrity fields (to match validator behavior)
-      const { integrityHash, integrityChecksum, ...recordWithoutIntegrity } = record;
+      const { integrityHash: _integrityHash, integrityChecksum: _integrityChecksum, ...recordWithoutIntegrity } = record;
       const computedChecksum = CryptoUtils.generateChecksum(recordWithoutIntegrity);
       record.integrityChecksum = computedChecksum;
 
@@ -733,7 +733,7 @@ describe('EVVValidator', () => {
     });
 
     it('should detect missing clock-out', () => {
-      const { totalDuration, ...recordWithoutClockOut } = mockEVVRecord;
+      const { totalDuration: _totalDuration, ...recordWithoutClockOut } = mockEVVRecord;
       const recordForTest = {
         ...recordWithoutClockOut,
         clockOutTime: null,

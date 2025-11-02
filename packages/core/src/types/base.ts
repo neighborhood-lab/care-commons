@@ -8,6 +8,7 @@
  * - Error handling
  */
 
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- UUID provides semantic meaning
 export type UUID = string;
 export type Timestamp = Date;
 
@@ -93,6 +94,7 @@ export type Role =
 /**
  * Fine-grained permissions
  */
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- Permission provides semantic meaning
 export type Permission = string; // e.g., "clients:read", "clients:write", "clients:delete"
 
 /**

@@ -206,7 +206,7 @@ export function getPrimaryFundingSource(client: Client) {
       return source;
     }
     return primary;
-  });
+  }, client.fundingSources[0]);
 }
 
 /**
@@ -269,12 +269,18 @@ export function generateClientSummary(client: Client): {
   const activeRisks = getActiveRiskFlags(client);
   const activePrograms = getActivePrograms(client);
 
+  const phoneInfo = client.primaryPhone
+    ? `, Phone: ${formatPhoneNumber(client.primaryPhone.number)}`
+    : '';
+  const programList = activePrograms.map((p) => p.programName).join(', ') || 'None';
+  const riskList = activeRisks.map((r) => `${r.type} (${r.severity})`).join(', ');
+
   return {
     basicInfo: `${getFullName(client, true)}, ${age} years old, ${client.gender || 'Gender not specified'}`,
-    contactInfo: `${formatAddressSingleLine(client.primaryAddress)}${client.primaryPhone ? `, Phone: ${formatPhoneNumber(client.primaryPhone.number)}` : ''}`,
-    careInfo: `Programs: ${activePrograms.map((p) => p.programName).join(', ') || 'None'}`,
+    contactInfo: `${formatAddressSingleLine(client.primaryAddress)}${phoneInfo}`,
+    careInfo: `Programs: ${programList}`,
     riskInfo: activeRisks.length > 0
-      ? `Active risk flags: ${activeRisks.map((r) => `${r.type} (${r.severity})`).join(', ')}`
+      ? `Active risk flags: ${riskList}`
       : 'No active risk flags',
   };
 }
@@ -288,11 +294,11 @@ export function validateClientData(client: Partial<Client>): {
 } {
   const errors: string[] = [];
 
-  if (client.firstName && client.firstName.trim().length === 0) {
+  if (client.firstName?.trim().length === 0) {
     errors.push('First name cannot be empty');
   }
 
-  if (client.lastName && client.lastName.trim().length === 0) {
+  if (client.lastName?.trim().length === 0) {
     errors.push('Last name cannot be empty');
   }
 
@@ -310,6 +316,7 @@ export function validateClientData(client: Partial<Client>): {
     }
   }
 
+  // eslint-disable-next-line sonarjs/slow-regex
   if (client.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) {
     errors.push('Invalid email format');
   }

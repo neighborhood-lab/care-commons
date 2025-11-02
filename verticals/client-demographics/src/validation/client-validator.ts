@@ -153,6 +153,7 @@ export class ClientValidator {
    * Validate email
    */
   validateEmail(email: string): boolean {
+    // eslint-disable-next-line sonarjs/slow-regex
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
