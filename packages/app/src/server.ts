@@ -24,10 +24,40 @@ const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
  * Initialize database connection
  */
 function initDb(): ReturnType<typeof initializeDatabase> {
-  // Retrieve database password from environment
+  // Check for DATABASE_URL first (Vercel/production style)
+  const databaseUrl = process.env['DATABASE_URL'];
+  
+  if (databaseUrl !== undefined && databaseUrl !== '') {
+    console.log('Using DATABASE_URL for connection');
+    // Parse DATABASE_URL (format: postgresql://user:pass@host:port/db?sslmode=require)
+    const url = new globalThis.URL(databaseUrl);
+    const port = Number(url.port);
+    const dbConfig = {
+      host: url.hostname,
+      port: port !== 0 ? port : 5432,
+      database: url.pathname.slice(1), // Remove leading /
+      user: url.username,
+      password: url.password,
+      ssl: url.searchParams.get('sslmode') === 'require',
+      max: 20,
+      idleTimeoutMillis: 30000,
+    };
+    
+    console.log('Database config:', { 
+      host: dbConfig.host, 
+      port: dbConfig.port, 
+      database: dbConfig.database, 
+      user: dbConfig.user, 
+      ssl: dbConfig.ssl,
+      hasPassword: Boolean(dbConfig.password)
+    });
+    return initializeDatabase(dbConfig);
+  }
+  
+  // Fall back to individual environment variables
   const dbPassword = process.env['DB_PASSWORD'];
   if (dbPassword === undefined) {
-    throw new Error('DB_PASSWORD environment variable is required');
+    throw new Error('DATABASE_URL or DB_PASSWORD environment variable is required');
   }
 
   const dbConfig = {
@@ -145,25 +175,36 @@ function setupApiRoutes(): void {
 }
 
 /**
- * Start the server
+ * Create and configure the Express app (for Vercel serverless)
+ */
+export async function createApp(): Promise<express.Express> {
+  console.log(`Initializing Care Commons API (${NODE_ENV})`);
+
+  // Initialize database
+  const db = initDb();
+
+  // Check database connection
+  const isHealthy = await db.healthCheck();
+  if (isHealthy !== true) {
+    throw new Error('Database health check failed');
+  }
+  console.log('Database connection established');
+
+  // Setup middleware and routes
+  setupMiddleware();
+  setupApiRoutes();
+
+  return app;
+}
+
+/**
+ * Start the server (for local development)
  */
 async function start(): Promise<void> {
   try {
     console.log(`Starting Care Commons API Server (${NODE_ENV})`);
 
-    // Initialize database
-    const db = initDb();
-
-    // Check database connection
-    const isHealthy = await db.healthCheck();
-    if (isHealthy !== true) {
-      throw new Error('Database health check failed');
-    }
-    console.log('Database connection established');
-
-    // Setup middleware and routes
-    setupMiddleware();
-    setupApiRoutes();
+    await createApp();
 
     // Start listening
     app.listen(PORT, () => {
