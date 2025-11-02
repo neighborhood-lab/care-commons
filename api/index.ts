@@ -60,14 +60,18 @@ export default async function handler(
     // Security headers and CORS are applied by the Express app
     return expressApp(req, res);
   } catch (error) {
-    console.error('Handler error:', error);
+    console.error('Handler error during initialization:', error);
+    console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Environment check:', {
+      hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+      nodeEnv: process.env.NODE_ENV,
+    });
     
     // Return error response
     res.status(500).json({
       error: 'Internal Server Error',
-      message: process.env.NODE_ENV === 'development' 
-        ? (error instanceof Error ? error.message : 'Unknown error')
-        : 'An error occurred while processing your request'
+      message: error instanceof Error ? error.message : 'Unknown error',
+      type: error instanceof Error ? error.constructor.name : typeof error,
     });
   }
 }
