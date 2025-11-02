@@ -20,22 +20,7 @@ const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
 const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 
-/**
- * Parse DATABASE_URL into individual components
- */
-function parseDatabaseUrl(url: string): { host: string; port: number; database: string; user: string; password: string; ssl: boolean } {
-  // eslint-disable-next-line no-undef
-  const parsed = new URL(url);
-  const port = Number(parsed.port);
-  return {
-    host: parsed.hostname,
-    port: port !== 0 ? port : 5432,
-    database: parsed.pathname.slice(1), // Remove leading /
-    user: parsed.username,
-    password: parsed.password,
-    ssl: true, // Always use SSL for cloud databases
-  };
-}
+
 
 /**
  * Initialize database connection
@@ -254,22 +239,7 @@ export async function createApp(): Promise<express.Express> {
   return app;
 }
 
-/**
- * Start the server (for local development)
- */
-export async function createApp(): Promise<express.Application> {
-  try {
-    console.log(`Initializing Care Commons API (${NODE_ENV})`);
 
-    await createApp();
-
-    console.log('✅ Express app configured');
-    return app;
-  } catch (error) {
-    console.error('❌ Failed to initialize app:', error);
-    throw error;
-  }
-}
 
 /**
  * Start the server (for local development)
