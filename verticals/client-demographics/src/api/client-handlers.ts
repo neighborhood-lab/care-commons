@@ -682,9 +682,7 @@ export class ClientHandlers {
  * Create router with all client endpoints
  */
 export function createClientRouter(clientService: ClientService): Router {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const express = require('express');
-  const router: Router = express.Router();
+  const router = Router();
   const handlers = new ClientHandlers(clientService);
 
   // Main CRUD endpoints
