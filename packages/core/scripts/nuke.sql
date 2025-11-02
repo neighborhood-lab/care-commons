@@ -73,6 +73,7 @@ DROP TABLE IF EXISTS clients CASCADE;
 DROP TABLE IF EXISTS programs CASCADE;
 DROP TABLE IF EXISTS audit_revisions CASCADE;
 DROP TABLE IF EXISTS audit_events CASCADE;
+DROP TABLE IF EXISTS invite_tokens CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS branches CASCADE;
 DROP TABLE IF EXISTS organizations CASCADE;
@@ -131,5 +132,6 @@ DROP FUNCTION IF EXISTS update_visits_updated_at() CASCADE;
 
 -- The extensions themselves (if you want a *complete* reset)
 -- NOTE: You may not need to drop extensions, but including for completeness.
-DROP EXTENSION IF EXISTS "uuid-ossp";
-DROP EXTENSION IF EXISTS "pgcrypto";
+-- Using CASCADE to handle any remaining dependencies
+DROP EXTENSION IF EXISTS "uuid-ossp" CASCADE;
+DROP EXTENSION IF EXISTS "pgcrypto" CASCADE;
