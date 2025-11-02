@@ -125,6 +125,7 @@ export default [
       'scripts/**/*.js',
       'scripts/**/*.d.ts',
       'scripts/**/*.js.map',
+      'src/**/*.d.ts',
     ],
   },
 ]
