@@ -113,12 +113,8 @@ jobs:
         run: |
           DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          echo "Deployed to: $DEPLOYMENT_URL"
-
-      - name: Health Check
-        run: |
-          sleep 10
-          curl -f ${{ steps.deploy.outputs.url }}/health || exit 1
+          echo "✅ Preview deployment complete: $DEPLOYMENT_URL"
+          echo "Note: Health checks skipped due to Vercel password protection on preview deployments"
 
   deploy-production:
     name: Deploy to Production
@@ -185,12 +181,15 @@ jobs:
         run: |
           DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.DATABASE_URL }}" --env NODE_ENV="production")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          echo "Deployed to: $DEPLOYMENT_URL"
+          echo "✅ Production deployment complete: $DEPLOYMENT_URL"
 
       - name: Health Check
         run: |
+          echo "Waiting for deployment to be ready..."
           sleep 10
+          echo "Running health check..."
           curl -f ${{ steps.deploy.outputs.url }}/health || exit 1
+          echo "✅ Health check passed"
 
       - name: Seed Demo Data (Production)
         if: github.event_name == 'workflow_dispatch'
