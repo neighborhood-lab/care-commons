@@ -352,6 +352,7 @@ export class ClientService {
   /**
    * Generate unique client number
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async generateClientNumber(_organizationId: string): Promise<string> {
     // Simple implementation: timestamp-based
     // Production would use a more sophisticated approach
