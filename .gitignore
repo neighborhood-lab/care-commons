@@ -1,6 +1,7 @@
 .turbo/
 .idea/
 .snyk/
+claude/
 
 # Logs
 logs
