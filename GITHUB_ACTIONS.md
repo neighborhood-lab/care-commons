@@ -34,26 +34,26 @@ Care Commons uses GitHub Actions to automate:
 ### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
 
 **Vercel Hobby Plan Configuration:**
-- Production environment ← `main` branch
-- Preview environment ← `develop` branch and PRs to develop
+- Production environment ← `main` branch (pushes only)
+- Preview environment ← `develop` branch (pushes only)
 - Development environment ← local only (not in workflows)
+- **Note**: Pull requests do NOT trigger deployments
 
 **Triggers:**
 - Pushes to `main` branch (production deployment)
 - Pushes to `develop` branch (preview deployment)
-- Pull requests to `develop` branch (preview deployment)
 - Manual workflow dispatch (production only)
 
 **Jobs:**
 - **build** - Builds and tests all packages
-- **deploy-preview** - Preview deployment (develop branch and PRs to develop)
+- **deploy-preview** - Preview deployment (develop branch pushes only)
 - **deploy-production** - Production deployment (main branch only)
 
 **Features:**
 - Runs database migrations before deployment
 - Supports environment-specific configuration
 - Health checks after deployment
-- PR comments with preview URLs
+- CI checks run on all PRs (but no deployments)
 
 ### 3. Database Operations Workflow (`.github/workflows/database.yml`)
 
@@ -141,10 +141,11 @@ GITHUB_TOKEN=ghp_your_github_token
 - Runs full migration and seed process
 
 **Preview Environment (Vercel Preview):**
-- Branches: `develop` (persistent) and PRs to develop (temporary)
+- Branch: `develop` (pushes only)
 - Uses `PREVIEW_DATABASE_URL` and `PREVIEW_JWT_SECRET`
-- Automatic deployments from develop branch and PRs
+- Automatic deployments when code is merged to develop
 - Isolated from production data
+- **No deployments for PRs** - only CI checks run
 
 **Development Environment:**
 - Local only (not deployed to Vercel)
@@ -224,9 +225,11 @@ The security workflow automatically:
 1. **Feature Development**
    - Create feature branch from `develop`
    - Make changes with proper testing
-   - Open pull request to `develop` (triggers preview deployment)
+   - Open pull request to `develop` (triggers CI checks only)
    - CI workflow validates changes automatically
-   - Review preview deployment before merging
+   - Review code and CI results
+   - Merge to `develop` (triggers preview deployment)
+   - Verify preview deployment works correctly
 
 2. **Release Preparation**
    - Ensure all tests pass on `develop`
@@ -238,7 +241,7 @@ The security workflow automatically:
 3. **Hotfix Process**
    - Create hotfix branch from `main`
    - Fix issue with minimal changes
-   - Merge directly to `main` (no PR workflow configured)
+   - Merge directly to `main` (triggers production deployment)
    - Backport to `develop` to keep branches in sync
 
 ### Security Practices

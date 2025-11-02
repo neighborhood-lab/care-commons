@@ -10,9 +10,10 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 - **Database**: Neon PostgreSQL (serverless database with connection pooling)
 - **CI/CD**: GitHub Actions for automated deployments
 - **Environments (Vercel Hobby Plan)**:
-  - **Production** (Vercel production environment) ← `main` branch
-  - **Preview** (Vercel preview environment) ← `develop` branch and PRs to develop
+  - **Production** (Vercel production environment) ← `main` branch (pushes only)
+  - **Preview** (Vercel preview environment) ← `develop` branch (pushes only)
   - **Development** (local only, not deployed) ← linked to local machine via `vercel dev`
+  - **Note**: Pull requests do NOT trigger deployments
 
 ## Architecture
 
@@ -216,28 +217,27 @@ npm run db:seed:demo
 | `main` | Push | ✅ **Production** | Production (Neon) |
 | `develop` | Push | ✅ **Preview** | Preview (Neon) |
 | `feature/*` | Push | ❌ **None** (only CI checks) | N/A |
-| Any → `develop` | PR | ✅ **Preview** | Preview (Neon) |
+| Any | Pull Request | ❌ **None** (only CI checks) | N/A |
 
 **Important:** 
 - Vercel Hobby Plan supports **Production** and **Preview** environments only
+- **Pull requests do NOT trigger deployments** - only pushes to `main` or `develop`
 - Feature branches do NOT trigger deployments
-- Only `main` (production) and `develop` (preview) trigger automatic deployments
+- Only `main` (production) and `develop` (preview) trigger automatic deployments on push
 - PRs are only accepted to `develop`, not `main`
 
-### Preview Deployments (develop branch and PRs)
+### Preview Deployments (develop branch only)
 - **Trigger**: 
-  - Pull request to `develop` branch
-  - Push to `develop` branch
+  - Push to `develop` branch only
 - **Vercel Environment**: Preview
 - **Database**: Preview (Neon)
 - **Features**:
-  - Automatic deployment on every PR commit to develop
-  - Unique preview URL for each PR
-  - PR comment with preview URL
-  - Runs database migrations (for pushes to develop)
-  - Health checks (for pushes to develop)
-  - Runs tests before deployment
-- **Does NOT trigger on**: PRs to `main` or feature branches
+  - Automatic deployment when code is merged to develop
+  - Persistent preview environment
+  - Runs database migrations
+  - Health checks
+  - Tests run in CI before merge
+- **Does NOT trigger on**: Pull requests or feature branches
 
 ### Production Deployments
 - **Trigger**: 

@@ -3,9 +3,10 @@
 **5-minute setup guide for Care Commons deployments**
 
 **Note:** This guide is for **Vercel Hobby Plan** which supports:
-- **Production** environment (main branch)
-- **Preview** environment (develop branch and PRs to develop)
+- **Production** environment (main branch - pushes only)
+- **Preview** environment (develop branch - pushes only)
 - **Development** environment (local only, not deployed to Vercel)
+- **Important**: Pull requests do NOT trigger deployments
 
 ## Prerequisites Checklist
 
@@ -151,18 +152,19 @@ SNYK_TOKEN
 ## Deployment Workflow
 
 **Vercel Hobby Plan Environments:**
-- Production = `main` branch
-- Preview = `develop` branch and PRs to develop
+- Production = `main` branch (pushes only)
+- Preview = `develop` branch (pushes only)
 - Development = local only (not deployed)
+- **Note**: PRs do NOT trigger deployments
 
-### Preview (PR to develop)
+### Pull Request (to develop)
 ```
-Open PR to develop → Auto deploy → Comment with URL
+Open PR to develop → CI checks only (NO deployment)
 ```
 
 ### Preview (develop branch)
 ```
-Push to develop → Auto deploy → Run migrations → Health check
+Merge PR to develop → Auto deploy → Run migrations → Health check
 ```
 
 ### Production (main branch)
