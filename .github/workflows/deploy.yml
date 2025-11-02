@@ -2,36 +2,70 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main      # Production deployments
+      - develop   # Preview deployments (develop branch uses Vercel preview environment)
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   NPM_VERSION: '10'
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
-    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: packages/*/dist
+          retention-days: 1
+
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
     permissions:
       contents: read
       deployments: write
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: care_commons
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
       - name: Checkout code
@@ -46,36 +80,52 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run database migrations
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify Database URL
+        run: |
+          if [ -z "${{ secrets.PREVIEW_DATABASE_URL }}" ]; then
+            echo "❌ ERROR: PREVIEW_DATABASE_URL secret is not set"
+            echo "Please add PREVIEW_DATABASE_URL to GitHub Secrets:"
+            echo "Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          echo "✅ Database URL is configured"
+
+      - name: Run Database Migrations (Preview)
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/care_commons' }}
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
           npm run db:migrate
 
-      - name: Build packages
-        run: npm run build
-
-      - name: Deploy API server
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          API_PORT: ${{ secrets.API_PORT || 3000 }}
+      - name: Deploy to Vercel Preview
+        id: deploy
         run: |
-          echo "Deploying API server..."
-          # Add your deployment commands here
-          # Example: docker build and push, or deploy to Vercel, Railway, etc.
+          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}" --env NODE_ENV="preview")
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "✅ Preview deployment complete: $DEPLOYMENT_URL"
+          echo "Note: Health checks skipped due to Vercel password protection on preview deployments"
 
-      - name: Deploy web application
-        run: |
-          echo "Deploying web application..."
-          # Add your deployment commands here
-          # Example: npm run build && deploy to Vercel/Netlify
-
-  deploy-staging:
-    name: Deploy to Staging
+  deploy-production:
+    name: Deploy to Production
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
+    needs: build
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch')
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
     permissions:
       contents: read
       deployments: write
@@ -93,14 +143,50 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build packages
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify Database URL
+        run: |
+          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
+            echo "❌ ERROR: DATABASE_URL secret is not set"
+            echo "Please add DATABASE_URL to GitHub Secrets:"
+            echo "Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          echo "✅ Database URL is configured"
+
+      - name: Run Database Migrations (Production)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          npm run db:migrate
+
+      - name: Build for Production
+        env:
+          NODE_ENV: production
         run: npm run build
 
-      - name: Deploy to staging
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
-          API_PORT: ${{ secrets.STAGING_API_PORT || 3001 }}
+      - name: Deploy to Vercel Production
+        id: deploy
         run: |
-          echo "Deploying to staging environment..."
-          # Add your staging deployment commands here
+          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.DATABASE_URL }}" --env NODE_ENV="production")
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "✅ Production deployment complete: $DEPLOYMENT_URL"
+          echo "Note: Health checks skipped due to Vercel password protection"
+
+      - name: Seed Demo Data (Production)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          node --import tsx --no-warnings packages/core/scripts/seed-tx-fl-demo.ts

@@ -21,9 +21,14 @@ describe('UserRepository', () => {
     it('should return user when found', async () => {
       const mockUser = {
         id: '123e4567-e89b-12d3-a456-426614174000',
+        organization_id: 'org-123',
         first_name: 'John',
         last_name: 'Doe',
         email: 'john.doe@example.com',
+        username: 'johndoe',
+        roles: ['CAREGIVER'],
+        branch_ids: ['branch-1'],
+        status: 'ACTIVE',
       };
 
       vi.spyOn(mockDb, 'query').mockResolvedValue({
@@ -38,13 +43,18 @@ describe('UserRepository', () => {
 
       expect(result).toEqual({
         id: '123e4567-e89b-12d3-a456-426614174000',
+        organizationId: 'org-123',
         firstName: 'John',
         lastName: 'Doe',
         email: 'john.doe@example.com',
+        username: 'johndoe',
+        roles: ['CAREGIVER'],
+        branchIds: ['branch-1'],
+        status: 'ACTIVE',
       });
 
       expect(mockDb.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT id, first_name, last_name, email'),
+        expect.stringContaining('organization_id'),
         ['123e4567-e89b-12d3-a456-426614174000']
       );
     });
@@ -93,15 +103,25 @@ describe('UserRepository', () => {
       const mockUsers = [
         {
           id: 'id-1',
+          organization_id: 'org-123',
           first_name: 'John',
           last_name: 'Doe',
           email: 'john@example.com',
+          username: 'johndoe',
+          roles: ['CAREGIVER'],
+          branch_ids: ['branch-1'],
+          status: 'ACTIVE',
         },
         {
           id: 'id-2',
+          organization_id: 'org-123',
           first_name: 'Jane',
           last_name: 'Smith',
           email: 'jane@example.com',
+          username: 'janesmith',
+          roles: ['ADMIN'],
+          branch_ids: ['branch-2'],
+          status: 'ACTIVE',
         },
       ];
 
@@ -118,15 +138,25 @@ describe('UserRepository', () => {
       expect(result).toEqual([
         {
           id: 'id-1',
+          organizationId: 'org-123',
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
+          username: 'johndoe',
+          roles: ['CAREGIVER'],
+          branchIds: ['branch-1'],
+          status: 'ACTIVE',
         },
         {
           id: 'id-2',
+          organizationId: 'org-123',
           firstName: 'Jane',
           lastName: 'Smith',
           email: 'jane@example.com',
+          username: 'janesmith',
+          roles: ['ADMIN'],
+          branchIds: ['branch-2'],
+          status: 'ACTIVE',
         },
       ]);
 

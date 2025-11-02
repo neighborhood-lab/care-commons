@@ -168,7 +168,7 @@ export const useDownloadInvoicePdf = () => {
       const blob = await billingApi.generateInvoicePdf(id);
 
       // Sanitize the id to prevent XSS
-      const sanitizedId = id.replace(/[^a-zA-Z0-9-_]/g, '');
+      const sanitizedId = id.replace(/[^\w-]/g, '');
       
       // Use modern download API without DOM manipulation
       if ('showSaveFilePicker' in window && typeof window.showSaveFilePicker === 'function') {

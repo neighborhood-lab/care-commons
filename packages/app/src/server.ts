@@ -42,23 +42,40 @@ function parseDatabaseUrl(url: string): { host: string; port: number; database: 
  * Supports both DATABASE_URL (Vercel) and individual config (local dev)
  */
 function initDb(): ReturnType<typeof initializeDatabase> {
-  // Check for DATABASE_URL first (used by Vercel and other cloud platforms)
+  // Check for DATABASE_URL first (Vercel/production style)
   const databaseUrl = process.env['DATABASE_URL'];
   
-  if (databaseUrl !== undefined) {
-    console.log('Using DATABASE_URL for database connection');
-    const dbConfig = parseDatabaseUrl(databaseUrl);
-    return initializeDatabase({
-      ...dbConfig,
-      max: NODE_ENV === 'production' ? 10 : 20, // Lower pool for serverless
-      idleTimeoutMillis: NODE_ENV === 'production' ? 10000 : 30000,
+  if (databaseUrl !== undefined && databaseUrl !== '') {
+    console.log('Using DATABASE_URL for connection');
+    // Parse DATABASE_URL (format: postgresql://user:pass@host:port/db?sslmode=require)
+    const url = new globalThis.URL(databaseUrl);
+    const port = Number(url.port);
+    const dbConfig = {
+      host: url.hostname,
+      port: port !== 0 ? port : 5432,
+      database: url.pathname.slice(1), // Remove leading /
+      user: url.username,
+      password: url.password,
+      ssl: url.searchParams.get('sslmode') === 'require',
+      max: 20,
+      idleTimeoutMillis: 30000,
+    };
+    
+    console.log('Database config:', { 
+      host: dbConfig.host, 
+      port: dbConfig.port, 
+      database: dbConfig.database, 
+      user: dbConfig.user, 
+      ssl: dbConfig.ssl,
+      hasPassword: Boolean(dbConfig.password)
     });
+    return initializeDatabase(dbConfig);
   }
-
-  // Fallback to individual environment variables (local development)
+  
+  // Fall back to individual environment variables
   const dbPassword = process.env['DB_PASSWORD'];
   if (dbPassword === undefined) {
-    throw new Error('DB_PASSWORD environment variable is required (or use DATABASE_URL)');
+    throw new Error('DATABASE_URL or DB_PASSWORD environment variable is required');
   }
 
   const dbConfig = {
@@ -142,17 +159,6 @@ function setupMiddleware(): void {
 function setupApiRoutes(): void {
   const db = getDatabase();
 
-  // Health check endpoint (no auth required)
-  app.get('/health', async (_req, res) => {
-    const dbHealthy = await db.healthCheck();
-    res.status(dbHealthy === true ? 200 : 503).json({
-      status: dbHealthy === true ? 'healthy' : 'unhealthy',
-      timestamp: new Date().toISOString(),
-      environment: NODE_ENV,
-      database: dbHealthy === true ? 'connected' : 'disconnected',
-    });
-  });
-
   // Root endpoint - API overview
   app.get('/', (_req, res) => {
     res.json({
@@ -189,26 +195,73 @@ function setupApiRoutes(): void {
 }
 
 /**
- * Initialize and configure the Express app
- * This is exported for use in Vercel serverless functions
+ * Create and configure the Express app (for Vercel serverless)
+ */
+export async function createApp(): Promise<express.Express> {
+  console.log(`Initializing Care Commons API (${NODE_ENV})`);
+
+  // Health check endpoint FIRST - before any middleware or auth
+  // This ensures it's always accessible for monitoring
+  app.get('/health', async (_req, res) => {
+    try {
+      const startTime = Date.now();
+      const db = getDatabase();
+      const dbHealthy = await db.healthCheck();
+      const responseTime = Date.now() - startTime;
+      
+      const status = dbHealthy === true ? 'healthy' : 'unhealthy';
+      const httpStatus = dbHealthy === true ? 200 : 503;
+      
+      res.status(httpStatus).json({
+        status,
+        timestamp: new Date().toISOString(),
+        environment: NODE_ENV,
+        uptime: process.uptime(),
+        responseTime,
+        database: {
+          status: dbHealthy === true ? 'connected' : 'disconnected',
+          responseTime,
+        },
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+        },
+      });
+    } catch (error) {
+      // Health check should never fail catastrophically
+      res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Initialize database
+  const db = initDb();
+
+  // Check database connection
+  const isHealthy = await db.healthCheck();
+  if (isHealthy !== true) {
+    throw new Error('Database health check failed');
+  }
+  console.log('Database connection established');
+
+  // Setup middleware and routes
+  setupMiddleware();
+  setupApiRoutes();
+
+  return app;
+}
+
+/**
+ * Start the server (for local development)
  */
 export async function createApp(): Promise<express.Application> {
   try {
     console.log(`Initializing Care Commons API (${NODE_ENV})`);
 
-    // Initialize database
-    const db = initDb();
-
-    // Check database connection
-    const isHealthy = await db.healthCheck();
-    if (isHealthy !== true) {
-      throw new Error('Database health check failed');
-    }
-    console.log('✅ Database connection established');
-
-    // Setup middleware and routes
-    setupMiddleware();
-    setupApiRoutes();
+    await createApp();
 
     console.log('✅ Express app configured');
     return app;

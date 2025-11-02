@@ -10,6 +10,7 @@ import { createClientRouter, ClientService, ClientRepository } from '@care-commo
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import authRoutes from './auth';
+import { createOrganizationRouter } from './organizations';
 
 /**
  * Setup all API routes for the application
@@ -20,6 +21,11 @@ export function setupRoutes(app: Express, db: Database): void {
   // Authentication routes
   app.use('/api/auth', authRoutes);
   console.log('  ✓ Authentication routes registered');
+
+  // Organization & Invitation routes
+  const organizationRouter = createOrganizationRouter(db);
+  app.use('/api', organizationRouter);
+  console.log('  ✓ Organization & Invitation routes registered');
 
   // Client Demographics routes
   const clientRepository = new ClientRepository(db);

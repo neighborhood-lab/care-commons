@@ -3,6 +3,11 @@
  * 
  * This handler wraps the Express app to work with Vercel's serverless functions.
  * The Express app is initialized once and reused across requests (warm starts).
+ * 
+ * Security:
+ * - Helmet CSP is properly configured in server.ts (not disabled)
+ * - CORS is restricted to allowed origins in production
+ * - No wildcard origins in production mode
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -29,7 +34,7 @@ async function getApp(): Promise<any> {
     return initializationPromise;
   }
 
-  // Initialize the app
+  // Initialize the app (which has security middleware configured)
   initializationPromise = createApp();
   app = await initializationPromise;
   initializationPromise = null;
@@ -39,26 +44,34 @@ async function getApp(): Promise<any> {
 
 /**
  * Vercel serverless function handler
+ * 
+ * Note: Security middleware (Helmet, CORS) is configured in the Express app
+ * created by createApp(). This handler simply forwards requests to that app.
  */
 export default async function handler(
   req: any,
   res: any
 ): Promise<void> {
   try {
-    // Get or initialize the Express app
+    // Get or initialize the Express app (with security middleware)
     const expressApp = await getApp();
 
     // Handle the request with Express
+    // Security headers and CORS are applied by the Express app
     return expressApp(req, res);
   } catch (error) {
-    console.error('Handler error:', error);
+    console.error('Handler error during initialization:', error);
+    console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Environment check:', {
+      hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+      nodeEnv: process.env.NODE_ENV,
+    });
     
     // Return error response
     res.status(500).json({
       error: 'Internal Server Error',
-      message: process.env.NODE_ENV === 'development' 
-        ? (error instanceof Error ? error.message : 'Unknown error')
-        : 'An error occurred while processing your request'
+      message: error instanceof Error ? error.message : 'Unknown error',
+      type: error instanceof Error ? error.constructor.name : typeof error,
     });
   }
 }
