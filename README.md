@@ -1,7 +1,7 @@
 # Care Commons
 
-[![CI](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml/badge.svg)](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/neighborhood-lab/care-commons/branch/main/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/care-commons)
+[![CI](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/neighborhood-lab/care-commons/branch/develop/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/care-commons/tree/develop)
 [![Known Vulnerabilities](https://snyk.io/test/github/neighborhood-lab/care-commons/badge.svg)](https://snyk.io/test/github/neighborhood-lab/care-commons)
 
 > Shared care software, community owned.
