@@ -2,6 +2,7 @@
   "name": "@care-commons/platform",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Shared care software, community owned",
   "packageManager": "npm@11.6.2",
   "workspaces": [
@@ -29,8 +30,8 @@
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
-    "vercel:build": "npm run build && cd packages/app && npm run build:vercel && cd ../.. && npm run vercel:prepare",
-    "vercel:prepare": "mkdir -p api/_server && cp -r packages/app/dist-vercel/src/* api/_server/ && cp -r verticals/*/dist api/_server/ 2>/dev/null || true && cp -r packages/core/dist api/_server/ 2>/dev/null || true",
+    "vercel:build": "npm run build && npm run vercel:prepare",
+    "vercel:prepare": "mkdir -p api/_server && cp -r packages/app/dist/src/* api/_server/ && cp -r verticals/*/dist api/_server/ 2>/dev/null || true && cp -r packages/core/dist api/_server/ 2>/dev/null || true",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -1,0 +1,11 @@
+{
+  "name": "@care-commons/api-serverless",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Serverless API handler for Care Commons Vercel deployment",
+  "main": "index.ts",
+  "dependencies": {
+    "@care-commons/app": "*"
+  }
+}
