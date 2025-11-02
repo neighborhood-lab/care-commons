@@ -3,17 +3,32 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env', quiet: true });
 
+/**
+ * Get database connection configuration
+ * Supports both traditional connection params and DATABASE_URL for cloud deployments
+ */
+function getConnectionConfig(): string {
+  // Prefer DATABASE_URL for cloud deployments (Neon, etc.)
+  const databaseUrl = process.env.DATABASE_URL;
+  if (databaseUrl !== undefined && databaseUrl !== '') {
+    return databaseUrl;
+  }
+
+  // Fall back to individual connection parameters
+  const host = process.env.DB_HOST ?? 'localhost';
+  const port = process.env.DB_PORT ?? '5432';
+  const database = process.env.DB_NAME ?? 'care_commons';
+  const user = process.env.DB_USER ?? 'postgres';
+  const password = process.env.DB_PASSWORD ?? 'postgres';
+  const ssl = process.env.DB_SSL === 'true';
+  
+  return `postgresql://${user}:${password}@${host}:${port}/${database}${ssl ? '?sslmode=require' : ''}`;
+}
+
 const config: { [key: string]: Knex.Config } = {
   development: {
     client: 'postgresql',
-    connection: {
-      host: process.env.DB_HOST ?? 'localhost',
-      port: parseInt(process.env.DB_PORT ?? '5432'),
-      database: process.env.DB_NAME ?? 'care_commons',
-      user: process.env.DB_USER ?? 'postgres',
-      password: process.env.DB_PASSWORD ?? 'postgres',
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    },
+    connection: getConnectionConfig(),
     migrations: {
       directory: './packages/core/migrations',
       tableName: 'knex_migrations',
@@ -25,16 +40,9 @@ const config: { [key: string]: Knex.Config } = {
     },
   },
 
-  production: {
+  staging: {
     client: 'postgresql',
-    connection: {
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT ?? '5432'),
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    },
+    connection: getConnectionConfig(),
     migrations: {
       directory: './packages/core/migrations',
       tableName: 'knex_migrations',
@@ -45,14 +53,48 @@ const config: { [key: string]: Knex.Config } = {
       directory: './seeds',
     },
     pool: {
-      min: 2,
-      max: 10,
+      // Optimized for Neon serverless with connection pooling
+      min: 0, // No minimum connections in serverless
+      max: 1, // Single connection per serverless function
+      acquireTimeoutMillis: 10000,
+      createTimeoutMillis: 10000,
+      destroyTimeoutMillis: 5000,
+      idleTimeoutMillis: 1000, // Quick cleanup in serverless
+      reapIntervalMillis: 1000,
+      createRetryIntervalMillis: 200,
+      propagateCreateError: false,
+    },
+  },
+
+  production: {
+    client: 'postgresql',
+    connection: getConnectionConfig(),
+    migrations: {
+      directory: './packages/core/migrations',
+      tableName: 'knex_migrations',
+      extension: 'ts',
+      loadExtensions: ['.ts'],
+    },
+    seeds: {
+      directory: './seeds',
+    },
+    pool: {
+      // Optimized for Neon serverless with connection pooling
+      min: 0, // No minimum connections in serverless
+      max: 1, // Single connection per serverless function
+      acquireTimeoutMillis: 10000,
+      createTimeoutMillis: 10000,
+      destroyTimeoutMillis: 5000,
+      idleTimeoutMillis: 1000, // Quick cleanup in serverless
+      reapIntervalMillis: 1000,
+      createRetryIntervalMillis: 200,
+      propagateCreateError: false,
     },
   },
 
   test: {
     client: 'postgresql',
-    connection: {
+    connection: process.env.DATABASE_URL ?? {
       host: process.env.DB_HOST ?? 'localhost',
       port: parseInt(process.env.DB_PORT ?? '5432'),
       database: (process.env.DB_NAME ?? 'care_commons') + '_test',
