@@ -11,7 +11,6 @@
   "regions": ["iad1"],
   "functions": {
     "api/index.ts": {
-      "runtime": "nodejs20.x",
       "maxDuration": 10
     }
   },
