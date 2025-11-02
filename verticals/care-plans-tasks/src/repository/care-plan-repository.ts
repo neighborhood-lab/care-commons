@@ -30,9 +30,73 @@ export class CarePlanRepository extends Repository<CarePlan> {
     return this.mapRowToCarePlan(row);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  protected mapEntityToRow(_entity: Partial<CarePlan>): Record<string, any> {
-    throw new Error('mapEntityToRow not implemented for CarePlanRepository');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected mapEntityToRow(entity: Partial<CarePlan>): Record<string, any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const row: Record<string, any> = {};
+
+    // Map all entity properties to snake_case database columns
+    if (entity.id !== undefined) row.id = entity.id;
+    if (entity.planNumber !== undefined) row.plan_number = entity.planNumber;
+    if (entity.name !== undefined) row.name = entity.name;
+    if (entity.clientId !== undefined) row.client_id = entity.clientId;
+    if (entity.organizationId !== undefined) row.organization_id = entity.organizationId;
+    if (entity.branchId !== undefined) row.branch_id = entity.branchId;
+    if (entity.planType !== undefined) row.plan_type = entity.planType;
+    if (entity.status !== undefined) row.status = entity.status;
+    if (entity.priority !== undefined) row.priority = entity.priority;
+    if (entity.effectiveDate !== undefined) row.effective_date = entity.effectiveDate;
+    if (entity.expirationDate !== undefined) row.expiration_date = entity.expirationDate;
+    if (entity.reviewDate !== undefined) row.review_date = entity.reviewDate;
+    if (entity.lastReviewedDate !== undefined) row.last_reviewed_date = entity.lastReviewedDate;
+    if (entity.primaryCaregiverId !== undefined) row.primary_caregiver_id = entity.primaryCaregiverId;
+    if (entity.coordinatorId !== undefined) row.coordinator_id = entity.coordinatorId;
+    if (entity.supervisorId !== undefined) row.supervisor_id = entity.supervisorId;
+    if (entity.physicianId !== undefined) row.physician_id = entity.physicianId;
+    if (entity.assessmentSummary !== undefined) row.assessment_summary = entity.assessmentSummary;
+    if (entity.medicalDiagnosis !== undefined) row.medical_diagnosis = entity.medicalDiagnosis;
+    if (entity.functionalLimitations !== undefined) row.functional_limitations = entity.functionalLimitations;
+    
+    // Handle JSONB fields
+    if (entity.goals !== undefined) row.goals = JSON.stringify(entity.goals);
+    if (entity.interventions !== undefined) row.interventions = JSON.stringify(entity.interventions);
+    if (entity.taskTemplates !== undefined) row.task_templates = JSON.stringify(entity.taskTemplates);
+    if (entity.serviceFrequency !== undefined) row.service_frequency = JSON.stringify(entity.serviceFrequency);
+    
+    if (entity.estimatedHoursPerWeek !== undefined) row.estimated_hours_per_week = entity.estimatedHoursPerWeek;
+    if (entity.authorizedBy !== undefined) row.authorized_by = entity.authorizedBy;
+    if (entity.authorizedDate !== undefined) row.authorized_date = entity.authorizedDate;
+    if (entity.authorizationNumber !== undefined) row.authorization_number = entity.authorizationNumber;
+    if (entity.payerSource !== undefined) row.payer_source = entity.payerSource;
+    if (entity.authorizationHours !== undefined) row.authorization_hours = entity.authorizationHours;
+    if (entity.authorizationStartDate !== undefined) row.authorization_start_date = entity.authorizationStartDate;
+    if (entity.authorizationEndDate !== undefined) row.authorization_end_date = entity.authorizationEndDate;
+    if (entity.requiredDocumentation !== undefined) row.required_documentation = entity.requiredDocumentation;
+    if (entity.signatureRequirements !== undefined) row.signature_requirements = entity.signatureRequirements;
+    if (entity.restrictions !== undefined) row.restrictions = entity.restrictions;
+    if (entity.precautions !== undefined) row.precautions = entity.precautions;
+    if (entity.allergies !== undefined) row.allergies = entity.allergies;
+    if (entity.contraindications !== undefined) row.contraindications = entity.contraindications;
+    if (entity.progressNotes !== undefined) row.progress_notes = entity.progressNotes;
+    if (entity.outcomesMeasured !== undefined) row.outcomes_measured = entity.outcomesMeasured;
+    if (entity.regulatoryRequirements !== undefined) row.regulatory_requirements = entity.regulatoryRequirements;
+    if (entity.complianceStatus !== undefined) row.compliance_status = entity.complianceStatus;
+    if (entity.lastComplianceCheck !== undefined) row.last_compliance_check = entity.lastComplianceCheck;
+    if (entity.modificationHistory !== undefined) row.modification_history = entity.modificationHistory;
+    if (entity.notes !== undefined) row.notes = entity.notes;
+    if (entity.tags !== undefined) row.tags = entity.tags;
+    if (entity.customFields !== undefined) row.custom_fields = entity.customFields;
+    
+    // Audit fields
+    if (entity.createdAt !== undefined) row.created_at = entity.createdAt;
+    if (entity.createdBy !== undefined) row.created_by = entity.createdBy;
+    if (entity.updatedAt !== undefined) row.updated_at = entity.updatedAt;
+    if (entity.updatedBy !== undefined) row.updated_by = entity.updatedBy;
+    if (entity.version !== undefined) row.version = entity.version;
+    if (entity.deletedAt !== undefined) row.deleted_at = entity.deletedAt;
+    if (entity.deletedBy !== undefined) row.deleted_by = entity.deletedBy;
+
+    return row;
   }
 
   /**
