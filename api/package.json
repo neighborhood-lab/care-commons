@@ -4,8 +4,5 @@
   "type": "module",
   "private": true,
   "description": "Serverless API handler for Care Commons Vercel deployment",
-  "main": "index.ts",
-  "dependencies": {
-    "@care-commons/app": "*"
-  }
+  "main": "index.ts"
 }
