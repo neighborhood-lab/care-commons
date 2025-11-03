@@ -30,26 +30,40 @@ export function createSeedAdminRouter(db: Database): Router {
         });
       }
 
-      // Create organization first
-      const orgId = uuidv4();
-      await db.query(
-        `INSERT INTO organizations (id, name, code, status, created_at, updated_at)
-         VALUES ($1, $2, $3, 'ACTIVE', NOW(), NOW())`,
-        [orgId, 'Care Commons', 'CARE001']
-      );
-
-      // Create admin user
+      // Create admin user ID first (needed for organization creation)
       const userId = uuidv4();
       const passwordHash = PasswordUtils.hashPassword('Admin123!');
+
+      // Create organization with required fields
+      const orgId = uuidv4();
+      await db.query(
+        `INSERT INTO organizations (
+          id, name, primary_address, status, 
+          created_at, created_by, updated_at, updated_by, version
+        )
+         VALUES ($1, $2, $3::jsonb, 'ACTIVE', NOW(), $4, NOW(), $4, 1)`,
+        [
+          orgId, 
+          'Care Commons', 
+          JSON.stringify({
+            street: '123 Main St',
+            city: 'Austin',
+            state: 'TX',
+            zip: '78701',
+            country: 'USA'
+          }),
+          userId // Use the admin user ID for created_by and updated_by
+        ]
+      );
 
       await db.query(
         `INSERT INTO users (
           id, organization_id, email, username, password_hash, 
           first_name, last_name, roles, permissions, status,
-          created_at, updated_at
+          created_at, created_by, updated_at, updated_by, version
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8::text[], $9::text[], 'ACTIVE',
-          NOW(), NOW()
+          NOW(), $1, NOW(), $1, 1
         )`,
         [
           userId,
