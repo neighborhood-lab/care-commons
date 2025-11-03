@@ -30,8 +30,10 @@ The following environment variables **MUST** be set in Vercel for production dep
 
 ✅ Node.js version: 22.x (specified in package.json engines)
 ✅ ESM architecture: Maintained throughout (.mts entry point, type: module)
-✅ Build command: `npm run build`
+✅ Build command: `npm run build && npm run build:vercel`
+✅ Static assets: Frontend built to `/public` directory
 ✅ Serverless function: `/api/index.mts` configured in vercel.json
+✅ Function runtime: nodejs22.x explicitly configured
 ✅ Health endpoint: `/health` rewrite configured
 ✅ API routes: `/api/:path*` rewrite configured
 

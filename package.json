@@ -33,6 +33,7 @@
     "db:seed:billing": "cd packages/core && node --import tsx --no-warnings scripts/seed-billing.ts",
     "db:seed:demo": "cd packages/core && node --import tsx --no-warnings scripts/seed-tx-fl-demo.ts",
     "db:nuke": "cd packages/core && npm run db:nuke",
+    "build:vercel": "mkdir -p public && cp -r packages/web/dist/* ./public/",
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",

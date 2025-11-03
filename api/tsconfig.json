@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
-    "outDir": "./.vercel/output",
+    "outDir": "./dist",
     "rootDir": ".",
     "baseUrl": "..",
     "paths": {
@@ -12,5 +12,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.mts"],
-  "exclude": ["node_modules", ".vercel"]
+  "exclude": ["node_modules", ".vercel", "dist"]
 }
