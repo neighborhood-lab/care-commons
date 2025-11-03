@@ -489,11 +489,17 @@ export class EVVValidator {
 
   /**
    * Validate state-specific requirements for TX and FL
+   * Comprehensive validation including grace periods, geofencing, clock methods
    */
   validateStateRequirements(
     stateCode: string,
-    config: { geoPerimeterTolerance?: number; clockInGracePeriodMinutes?: number; clockOutGracePeriodMinutes?: number },
-    record: EVVRecord
+    config: { 
+      geoPerimeterTolerance?: number; 
+      clockInGracePeriodMinutes?: number; 
+      clockOutGracePeriodMinutes?: number;
+    },
+    record: EVVRecord,
+    scheduledStartTime?: Date
   ): {
     passed: boolean;
     issues: VerificationIssue[];
@@ -507,73 +513,148 @@ export class EVVValidator {
       throw new ValidationError(`Unsupported state code: ${stateCode}. Only TX and FL are supported.`);
     }
 
-    // Texas-specific validations
+    // Texas-specific validations (26 TAC §558 - HHSC)
     if (stateCode === 'TX') {
-      // Validate GPS requirements for mobile visits
+      // 1. GPS requirement for mobile visits per HHSC
       if (record.clockInVerification.method !== 'GPS' && record.clockInVerification.method !== 'BIOMETRIC') {
         issues.push({
           issueType: 'LOCATION_UNCERTAIN',
           severity: 'HIGH',
-          description: 'Texas requires GPS verification for mobile visits',
+          description: 'Texas HHSC requires GPS verification for mobile visits (26 TAC §558)',
           canBeOverridden: true,
           requiresSupervisor: true,
         });
         complianceFlags.push('MANUAL_OVERRIDE');
       }
 
-      // Check if clock-in is within grace period
+      // 2. Grace period validation
       const clockInGracePeriod = config.clockInGracePeriodMinutes ?? 10;
-      // For simplicity, we'll just note this requirement exists
-      // In production, you'd compare against scheduled time
-      if (clockInGracePeriod > 15) {
-        issues.push({
-          issueType: 'VISIT_TOO_SHORT',
-          severity: 'MEDIUM',
-          description: `Clock-in grace period exceeds Texas HHSC guidelines (${clockInGracePeriod} > 15 min)`,
-          canBeOverridden: true,
-          requiresSupervisor: true,
-        });
+      if (scheduledStartTime) {
+        const minutesEarly = (scheduledStartTime.getTime() - record.clockInTime.getTime()) / 60000;
+        if (minutesEarly > clockInGracePeriod) {
+          issues.push({
+            issueType: 'VISIT_TOO_SHORT',
+            severity: 'MEDIUM',
+            description: `Clock-in is ${Math.round(minutesEarly)} minutes early. Texas allows maximum ${clockInGracePeriod} minutes early clock-in.`,
+            canBeOverridden: true,
+            requiresSupervisor: true,
+          });
+          complianceFlags.push('TIME_GAP');
+        }
       }
 
-      // Validate geofence tolerance
+      // 3. Geofence validation: 100m base + GPS accuracy tolerance (HHSC guidance)
       const geoTolerance = config.geoPerimeterTolerance ?? 100;
-      if (!record.clockInVerification.geofencePassed && record.clockInVerification.distanceFromAddress > geoTolerance) {
+      const distance = record.clockInVerification.distanceFromAddress || 0;
+      const gpsAccuracy = record.clockInVerification.accuracy || 0;
+      const totalAllowance = geoTolerance + gpsAccuracy;
+
+      if (!record.clockInVerification.geofencePassed && distance > totalAllowance) {
         issues.push({
           issueType: 'GEOFENCE_VIOLATION',
           severity: 'CRITICAL',
-          description: `Location exceeds Texas geofence tolerance: ${record.clockInVerification.distanceFromAddress}m > ${geoTolerance}m`,
+          description: `Location exceeds Texas geofence tolerance: ${Math.round(distance)}m from address. ` +
+                       `Allowed: ${geoTolerance}m base + ${Math.round(gpsAccuracy)}m GPS accuracy = ${Math.round(totalAllowance)}m total.`,
           canBeOverridden: true,
           requiresSupervisor: true,
         });
         complianceFlags.push('GEOFENCE_VIOLATION');
+      }
+
+      // 4. GPS accuracy requirement (≤100m per HHSC standards)
+      if (record.clockInVerification.accuracy > 100) {
+        issues.push({
+          issueType: 'LOW_GPS_ACCURACY',
+          severity: 'HIGH',
+          description: `GPS accuracy ${Math.round(record.clockInVerification.accuracy)}m exceeds Texas requirement of ≤100m.`,
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('LOCATION_SUSPICIOUS');
+      }
+
+      // 5. Mock location detection (security violation)
+      if (record.clockInVerification.mockLocationDetected) {
+        issues.push({
+          issueType: 'GPS_SPOOFING',
+          severity: 'CRITICAL',
+          description: 'Mock/simulated location detected - not allowed for EVV compliance per Texas HHSC policy.',
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('LOCATION_SUSPICIOUS');
       }
     }
 
-    // Florida-specific validations
+    // Florida-specific validations (Chapter 59A-8 AHCA)
     if (stateCode === 'FL') {
-      // Florida has more lenient requirements
+      // 1. More lenient geofence (150m base + GPS accuracy)
       const geoTolerance = config.geoPerimeterTolerance ?? 150;
+      const distance = record.clockInVerification.distanceFromAddress || 0;
+      const gpsAccuracy = record.clockInVerification.accuracy || 0;
+      const totalAllowance = geoTolerance + gpsAccuracy;
       
-      if (!record.clockInVerification.geofencePassed && record.clockInVerification.distanceFromAddress > geoTolerance) {
+      if (!record.clockInVerification.geofencePassed && distance > totalAllowance) {
         issues.push({
           issueType: 'GEOFENCE_VIOLATION',
           severity: 'HIGH',
-          description: `Location exceeds Florida geofence tolerance: ${record.clockInVerification.distanceFromAddress}m > ${geoTolerance}m`,
+          description: `Location exceeds Florida geofence tolerance: ${Math.round(distance)}m from address. ` +
+                       `Allowed: ${geoTolerance}m base + ${Math.round(gpsAccuracy)}m GPS accuracy = ${Math.round(totalAllowance)}m total.`,
           canBeOverridden: true,
           requiresSupervisor: true,
         });
         complianceFlags.push('GEOFENCE_VIOLATION');
       }
 
-      // Check verification method - Florida allows telephony fallback
+      // 2. Grace period validation (Florida allows 15 minutes)
+      const clockInGracePeriod = config.clockInGracePeriodMinutes ?? 15;
+      if (scheduledStartTime) {
+        const minutesEarly = (scheduledStartTime.getTime() - record.clockInTime.getTime()) / 60000;
+        if (minutesEarly > clockInGracePeriod) {
+          issues.push({
+            issueType: 'VISIT_TOO_SHORT',
+            severity: 'MEDIUM',
+            description: `Clock-in is ${Math.round(minutesEarly)} minutes early. Florida allows maximum ${clockInGracePeriod} minutes early clock-in.`,
+            canBeOverridden: true,
+            requiresSupervisor: true,
+          });
+          complianceFlags.push('TIME_GAP');
+        }
+      }
+
+      // 3. Verification method - Florida allows telephony fallback
       if (record.clockInVerification.method === 'PHONE') {
         issues.push({
           issueType: 'LOCATION_UNCERTAIN',
           severity: 'MEDIUM',
-          description: 'Phone verification used - lower verification level',
+          description: 'Phone verification used - lower verification level. GPS preferred for AHCA compliance.',
           canBeOverridden: true,
           requiresSupervisor: false,
         });
+      }
+
+      // 4. GPS accuracy (Florida allows ≤150m)
+      if (record.clockInVerification.accuracy > 150) {
+        issues.push({
+          issueType: 'LOW_GPS_ACCURACY',
+          severity: 'MEDIUM',
+          description: `GPS accuracy ${Math.round(record.clockInVerification.accuracy)}m exceeds Florida guideline of ≤150m.`,
+          canBeOverridden: true,
+          requiresSupervisor: false,
+        });
+        complianceFlags.push('LOCATION_SUSPICIOUS');
+      }
+
+      // 5. Mock location detection
+      if (record.clockInVerification.mockLocationDetected) {
+        issues.push({
+          issueType: 'GPS_SPOOFING',
+          severity: 'CRITICAL',
+          description: 'Mock/simulated location detected - not allowed for EVV compliance per Florida AHCA policy.',
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('LOCATION_SUSPICIOUS');
       }
     }
 
