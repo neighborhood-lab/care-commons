@@ -11,11 +11,11 @@ dotenv.config({ path: '../../.env', quiet: true });
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { createRequestLogger } from './middleware/request-logger';
-import { authContextMiddleware } from './middleware/auth-context';
-import { errorHandler, notFoundHandler } from './middleware/error-handler';
+import { createRequestLogger } from './middleware/request-logger.js';
+import { authContextMiddleware } from './middleware/auth-context.js';
+import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
-import { setupRoutes } from './routes/index';
+import { setupRoutes } from './routes/index.js';
 
 const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
