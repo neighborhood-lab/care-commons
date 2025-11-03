@@ -1,9 +1,9 @@
 {
   "name": "@care-commons/scheduling-visits",
   "version": "0.1.0",
-  "//": "════════════════════════════════════════════════════════════════",
-  "//": "⚠️  ESM VERTICAL - type:module required",
-  "//": "════════════════════════════════════════════════════════════════",
+  "//1": "════════════════════════════════════════════════════════════════",
+  "//2": "⚠️  ESM VERTICAL - type:module required",
+  "//1": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "description": "Scheduling & Visit Management vertical for Care Commons",
   "engines": {

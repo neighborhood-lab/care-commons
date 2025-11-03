@@ -2,9 +2,9 @@
   "name": "@care-commons/payroll-processing",
   "version": "0.1.0",
   "description": "Payroll Processing - Accurate caregiver compensation from time tracking to payment distribution",
-  "//": "════════════════════════════════════════════════════════════════",
-  "//": "⚠️  ESM VERTICAL - type:module required",
-  "//": "════════════════════════════════════════════════════════════════",
+  "//1": "════════════════════════════════════════════════════════════════",
+  "//2": "⚠️  ESM VERTICAL - type:module required",
+  "//1": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "dist/index.js",
   "engines": {

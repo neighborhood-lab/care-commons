@@ -2,9 +2,9 @@
   "name": "@care-commons/shift-matching",
   "version": "0.1.0",
   "description": "Shift Matching & Assignment vertical for Care Commons",
-  "//": "════════════════════════════════════════════════════════════════",
-  "//": "⚠️  ESM VERTICAL - type:module required",
-  "//": "════════════════════════════════════════════════════════════════",
+  "//1": "════════════════════════════════════════════════════════════════",
+  "//2": "⚠️  ESM VERTICAL - type:module required",
+  "//1": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "dist/index.js",
   "engines": {
