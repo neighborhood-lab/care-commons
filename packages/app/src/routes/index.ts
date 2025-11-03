@@ -9,8 +9,10 @@ import { Database, PermissionService, UserRepository } from '@care-commons/core'
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
-import authRoutes from './auth';
-import { createOrganizationRouter } from './organizations';
+import authRoutes from './auth.js';
+import { createOrganizationRouter } from './organizations.js';
+import { createMobileRouter } from './mobile.js';
+import { createSyncRouter } from './sync.js';
 
 /**
  * Setup all API routes for the application
@@ -43,6 +45,13 @@ export function setupRoutes(app: Express, db: Database): void {
   const carePlanRouter = createCarePlanRouter(carePlanHandlers);
   app.use('/api', carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered');
+
+  // Mobile & Sync routes
+  const mobileRouter = createMobileRouter(db);
+  const syncRouter = createSyncRouter(db);
+  app.use('/api', mobileRouter);
+  app.use('/api', syncRouter);
+  console.log('  ✓ Mobile & Sync routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
