@@ -192,8 +192,3 @@ packages/core/migrations/*.d.ts.map
 .vercel
 .DS_Store
 *.png
-api/_server/
-dist-vercel/
-
-# Vercel build output
-/public

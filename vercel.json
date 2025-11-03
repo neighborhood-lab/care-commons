@@ -1,15 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "npm run build && npm run build:vercel",
+  "outputDirectory": "packages/web/dist",
   "framework": null,
   "regions": ["iad1"],
-  "functions": {
-    "api/**/*.{js,ts,mts}": {
-      "runtime": "nodejs22.x",
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
