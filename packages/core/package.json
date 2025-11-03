@@ -25,7 +25,10 @@
     "db:nuke": "cd ../.. && tsx packages/core/scripts/nuke.ts"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "date-fns": "^4.1.0",
+    "google-auth-library": "^10.5.0",
+    "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "pg": "^8.16.3",
     "uuid": "^13.0.0",
