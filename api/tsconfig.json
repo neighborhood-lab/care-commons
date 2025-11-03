@@ -1,15 +1,16 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": ".vercel/output",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "outDir": "./.vercel/output",
     "rootDir": ".",
     "baseUrl": "..",
     "paths": {
       "@care-commons/*": ["packages/*/src", "verticals/*/src"]
     }
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "**/*.mts"],
   "exclude": ["node_modules", ".vercel"]
 }
