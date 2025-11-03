@@ -86,13 +86,13 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: ./scripts/snyk-scan-all.sh
       - name: Upload dependency SARIF files
-        if: always()
+        if: always() && hashFiles('.snyk/snyk-dependency.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: .snyk/snyk-dependency.sarif
           category: snyk-dependencies
       - name: Upload code SARIF files
-        if: always()
+        if: always() && hashFiles('.snyk/snyk-code.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: .snyk/snyk-code.sarif
