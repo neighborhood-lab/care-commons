@@ -49,7 +49,7 @@ export class JWTUtils {
    */
   private static getAccessTokenSecret(): string {
     const secret = process.env['JWT_SECRET'];
-    if (secret === undefined || secret === null || secret === '') {
+    if (secret === undefined || secret === '') {
       throw new Error('JWT_SECRET environment variable not set');
     }
     if (secret.length < 32) {
@@ -64,7 +64,7 @@ export class JWTUtils {
    */
   private static getRefreshTokenSecret(): string {
     const secret = process.env['JWT_REFRESH_SECRET'];
-    if (secret === undefined || secret === null || secret === '') {
+    if (secret === undefined || secret === '') {
       throw new Error('JWT_REFRESH_SECRET environment variable not set');
     }
     if (secret.length < 32) {
@@ -124,7 +124,7 @@ export class JWTUtils {
    * @returns Decoded token payload
    * @throws Error if token is invalid or expired
    */
-  static verifyAccessToken(token: string): TokenPayload {
+   static verifyAccessToken(token: string): TokenPayload {
     try {
       const decoded = verify(token, this.getAccessTokenSecret(), {
         issuer: 'care-commons',
@@ -132,8 +132,7 @@ export class JWTUtils {
       });
 
       // Validate payload structure - runtime safety checks
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-      if (typeof decoded === 'string' || !decoded) {
+      if (typeof decoded === 'string') {
         throw new Error('Invalid token payload structure');
       }
 
@@ -177,7 +176,7 @@ export class JWTUtils {
    * @returns Decoded refresh token payload
    * @throws Error if token is invalid or expired
    */
-  static verifyRefreshToken(token: string): RefreshTokenPayload {
+   static verifyRefreshToken(token: string): RefreshTokenPayload {
     try {
       const decoded = verify(token, this.getRefreshTokenSecret(), {
         issuer: 'care-commons',
@@ -185,8 +184,7 @@ export class JWTUtils {
       });
 
       // Validate payload structure - runtime safety checks
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-      if (typeof decoded === 'string' || !decoded) {
+      if (typeof decoded === 'string') {
         throw new Error('Invalid token payload structure');
       }
 
@@ -259,7 +257,7 @@ export class JWTUtils {
    * @returns Token string or null if not found
    */
   static extractBearerToken(authHeader: string | undefined): string | null {
-    if (authHeader === undefined || authHeader === null || authHeader === '') {
+    if (authHeader === undefined || authHeader === '') {
       return null;
     }
 
