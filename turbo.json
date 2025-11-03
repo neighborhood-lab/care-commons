@@ -4,8 +4,11 @@
   "globalEnv": [
     "CORS_ORIGIN",
     "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "ENCRYPTION_KEY",
     "DATABASE_URL",
-    "NODE_ENV"
+    "NODE_ENV",
+    "ENVIRONMENT"
   ],
   "tasks": {
     "build": {
