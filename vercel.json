@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+  "buildCommand": "npm run build",
   "outputDirectory": "packages/web/dist",
   "framework": null,
   "regions": ["iad1"],
