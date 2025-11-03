@@ -114,15 +114,16 @@ jobs:
         run: |
           npm run db:migrate
 
-      - name: Deploy to Vercel Preview
-        id: deploy
-        run: |
-          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}" --env ENVIRONMENT="preview")
-          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          echo "✅ Preview deployment complete: $DEPLOYMENT_URL"
-          echo "Note: Health checks skipped due to Vercel password protection on preview deployments"
-        env:
-          ENVIRONMENT: preview
+      # Temporarily disabled due to Vercel free tier limit (100 deployments/day)
+      # - name: Deploy to Vercel Preview
+      #   id: deploy
+      #   run: |
+      #     DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}" --env ENVIRONMENT="preview")
+      #     echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+      #     echo "✅ Preview deployment complete: $DEPLOYMENT_URL"
+      #     echo "Note: Health checks skipped due to Vercel password protection on preview deployments"
+      #   env:
+      #     ENVIRONMENT: preview
 
   deploy-production:
     name: Deploy to Production
