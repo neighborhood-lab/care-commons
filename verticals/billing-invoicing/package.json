@@ -1,9 +1,9 @@
 {
   "name": "@care-commons/billing-invoicing",
   "version": "0.1.0",
-  "//": "════════════════════════════════════════════════════════════════",
-  "//": "⚠️  ESM VERTICAL - type:module required",
-  "//": "════════════════════════════════════════════════════════════════",
+  "//1": "════════════════════════════════════════════════════════════════",
+  "//2": "⚠️  ESM VERTICAL - type:module required",
+  "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "description": "Billing & Invoicing - Revenue cycle management from service delivery to payment collection",
   "engines": {

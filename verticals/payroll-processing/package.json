@@ -4,7 +4,7 @@
   "description": "Payroll Processing - Accurate caregiver compensation from time tracking to payment distribution",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
-  "//1": "════════════════════════════════════════════════════════════════",
+  "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "dist/index.js",
   "engines": {
