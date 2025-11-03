@@ -36,6 +36,14 @@ function getUsers(): MockUser[] {
       organizationId: 'org-001',
     },
     {
+      id: 'coordinator-001',
+      email: 'coordinator@example.com',
+      password,
+      name: 'Coordinator User',
+      roles: ['COORDINATOR'],
+      organizationId: 'org-001',
+    },
+    {
       id: 'caregiver-001',
       email: 'caregiver@example.com',
       password,
