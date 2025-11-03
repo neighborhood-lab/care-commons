@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, Camera, MapPin, Clock } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent, FormField, LoadingSpinner } from '@/core/components';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardContent,
+  FormField,
+  LoadingSpinner,
+} from '@/core/components';
 import { formatDate, formatTime } from '@/core/utils';
 import { useCompleteTask } from '../hooks';
 import type { TaskInstance, CompleteTaskInput } from '../types';
@@ -23,7 +30,7 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
   const [photoData, setPhotoData] = useState<string[]>([]);
   const [observations, setObservations] = useState<Record<string, string>>({});
   const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number } | null>(null);
-  
+
   const completeTask = useCompleteTask();
 
   const handleComplete = async () => {
@@ -108,7 +115,8 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <span className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    {formatDate(task.scheduledDate)} {task.scheduledTime && formatTime(task.scheduledTime)}
+                    {formatDate(task.scheduledDate)}{' '}
+                    {task.scheduledTime && formatTime(task.scheduledTime)}
                   </span>
                   <span>{task.category.replace(/_/g, ' ')}</span>
                 </div>
@@ -117,10 +125,7 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
           </Card>
 
           {/* Completion Note */}
-          <FormField
-            label="Completion Note"
-            required
-          >
+          <FormField label="Completion Note" required>
             <textarea
               value={completionNote}
               onChange={(e) => setCompletionNote(e.target.value)}
@@ -152,9 +157,7 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
                     <div className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center">
                       <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-600 mb-4">Client signature required</p>
-                      <Button onClick={handleSignatureCapture}>
-                        Capture Signature
-                      </Button>
+                      <Button onClick={handleSignatureCapture}>Capture Signature</Button>
                     </div>
                   )}
                 </div>
@@ -188,7 +191,7 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
                     ))}
                   </div>
                 )}
-                
+
                 <Button
                   variant="outline"
                   onClick={handlePhotoCapture}
@@ -270,7 +273,13 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
           <Button
             onClick={handleComplete}
             disabled={completeTask.isPending || (task.requiredSignature && !signatureData)}
-            leftIcon={completeTask.isPending ? <LoadingSpinner size="sm" /> : <CheckCircle className="h-4 w-4" />}
+            leftIcon={
+              completeTask.isPending ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <CheckCircle className="h-4 w-4" />
+              )
+            }
           >
             Complete Task
           </Button>

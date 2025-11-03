@@ -1,6 +1,6 @@
 /**
  * Organization Registration Form
- * 
+ *
  * Multi-tenant organization onboarding with state selection
  * Designed to scale from 2 states (TX, FL) to 50 states
  */
@@ -356,12 +356,7 @@ export function OrganizationRegistrationForm({
       {/* Form Actions */}
       <div className="flex justify-end space-x-3 pt-4 border-t">
         {onCancel && (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
         )}

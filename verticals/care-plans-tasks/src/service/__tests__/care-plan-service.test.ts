@@ -63,7 +63,7 @@ vi.mock('@care-commons/core', () => ({
       super(message);
       this.name = 'NotFoundError';
     }
-  }
+  },
 }));
 vi.mock('../../validation/care-plan-validator');
 
@@ -82,7 +82,7 @@ describe('CarePlanService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     uuidCounter = 0;
-    
+
     mockRepository = {
       createCarePlan: vi.fn(),
       getCarePlanById: vi.fn(),
@@ -99,12 +99,12 @@ describe('CarePlanService', () => {
       getTasksByVisitId: vi.fn(),
       createProgressNote: vi.fn(),
       getProgressNotesByCarePlanId: vi.fn(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     mockPermissions = {
       hasPermission: vi.fn().mockReturnValue(true),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     mockUserRepository = {
@@ -115,12 +115,12 @@ describe('CarePlanService', () => {
         email: 'test.user@example.com',
       }),
       getUsersByIds: vi.fn().mockResolvedValue([]),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator = CarePlanValidator as any;
-    
+
     // Mock all validation methods to return input by default
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockValidator.validateCreateCarePlan = vi.fn((input: any) => input);
@@ -146,7 +146,13 @@ describe('CarePlanService', () => {
       userId: uuid(),
       organizationId: uuid(),
       roles: ['COORDINATOR'],
-      permissions: ['care-plans:create', 'care-plans:read', 'care-plans:update', 'tasks:create', 'tasks:complete'],
+      permissions: [
+        'care-plans:create',
+        'care-plans:read',
+        'care-plans:update',
+        'tasks:create',
+        'tasks:complete',
+      ],
       branchIds: [uuid()],
     };
   });
@@ -168,7 +174,7 @@ describe('CarePlanService', () => {
             category: 'MOBILITY',
             status: 'NOT_STARTED',
             priority: 'HIGH',
-          }
+          },
         ],
         interventions: [
           {
@@ -182,7 +188,7 @@ describe('CarePlanService', () => {
             requiresDocumentation: true,
             status: 'ACTIVE',
             startDate: new Date(),
-          }
+          },
         ],
       };
     });
@@ -211,7 +217,7 @@ describe('CarePlanService', () => {
         updatedBy: 'user-1',
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
       };
       mockRepository.createCarePlan.mockResolvedValue(expectedCarePlan);
 
@@ -235,11 +241,12 @@ describe('CarePlanService', () => {
       mockPermissions.hasPermission.mockReturnValue(false);
 
       // Act & Assert
-      await expect(service.createCarePlan(validInput, mockContext))
-        .rejects.toThrow(PermissionError);
+      await expect(service.createCarePlan(validInput, mockContext)).rejects.toThrow(
+        PermissionError
+      );
       expect(mockRepository.createCarePlan).not.toHaveBeenCalled();
       expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'care-plans:create');
-      
+
       // Reset mock for other tests
       mockPermissions.hasPermission.mockReturnValue(true);
     });
@@ -269,9 +276,9 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
       };
-      
+
       mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getCarePlanById.mockResolvedValue(mockCarePlan);
 
@@ -291,8 +298,7 @@ describe('CarePlanService', () => {
       mockRepository.getCarePlanById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.getCarePlanById(carePlanId, mockContext))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.getCarePlanById(carePlanId, mockContext)).rejects.toThrow(NotFoundError);
     });
 
     it('should throw error when accessing care plan from different organization', async () => {
@@ -319,13 +325,14 @@ describe('CarePlanService', () => {
         version: 1,
         deletedAt: null,
         deletedBy: null,
-        coordinatorId: 'user-1'
+        coordinatorId: 'user-1',
       };
       mockRepository.getCarePlanById.mockResolvedValue(otherOrgCarePlan);
 
       // Act & Assert
-      await expect(service.getCarePlanById(carePlanId, mockContext))
-        .rejects.toThrow(PermissionError);
+      await expect(service.getCarePlanById(carePlanId, mockContext)).rejects.toThrow(
+        PermissionError
+      );
     });
   });
 
@@ -358,9 +365,9 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
       };
-      
+
       mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getCarePlanById.mockResolvedValue(existingCarePlan);
       const updatedCarePlan = { ...existingCarePlan, ...updateInput };
@@ -408,19 +415,20 @@ describe('CarePlanService', () => {
         version: 1,
         deletedAt: null,
         deletedBy: null,
-        coordinatorId: mockContext.userId
+        coordinatorId: mockContext.userId,
       };
-      
+
       mockPermissions.hasPermission
         .mockReturnValueOnce(true) // care-plans:update
         .mockReturnValueOnce(false); // care-plans:update:archived
-      
+
       mockRepository.getCarePlanById.mockResolvedValue(existingCarePlan);
 
       // Act & Assert
-      await expect(service.updateCarePlan(carePlanId, updateInput, mockContext))
-        .rejects.toThrow(PermissionError);
-      
+      await expect(service.updateCarePlan(carePlanId, updateInput, mockContext)).rejects.toThrow(
+        PermissionError
+      );
+
       // Reset mock for other tests
       mockPermissions.hasPermission.mockReturnValue(true);
     });
@@ -446,8 +454,8 @@ describe('CarePlanService', () => {
             description: 'Help client improve mobility',
             category: 'MOBILITY',
             status: 'NOT_STARTED',
-            priority: 'MEDIUM'
-          }
+            priority: 'MEDIUM',
+          },
         ],
         interventions: [
           {
@@ -461,8 +469,8 @@ describe('CarePlanService', () => {
             performedBy: ['CAREGIVER'],
             requiresDocumentation: true,
             status: 'ACTIVE',
-            startDate: new Date('2024-01-01')
-          }
+            startDate: new Date('2024-01-01'),
+          },
         ],
         taskTemplates: [],
         complianceStatus: 'COMPLIANT',
@@ -473,14 +481,14 @@ describe('CarePlanService', () => {
         version: 1,
         deletedAt: null,
         deletedBy: null,
-        coordinatorId: mockContext.userId
+        coordinatorId: mockContext.userId,
       };
 
       // Arrange
       mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getCarePlanById.mockResolvedValue(validCarePlan);
       mockRepository.getActiveCarePlanForClient.mockResolvedValue(null);
-      
+
       const activatedPlan = { ...validCarePlan, status: 'ACTIVE' as CarePlanStatus };
       mockRepository.updateCarePlan.mockResolvedValue(activatedPlan);
 
@@ -488,7 +496,10 @@ describe('CarePlanService', () => {
       const result = await service.activateCarePlan(carePlanId, mockContext);
 
       // Assert
-      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'care-plans:activate');
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(
+        mockContext,
+        'care-plans:activate'
+      );
       expect(mockRepository.updateCarePlan).toHaveBeenCalledWith(
         carePlanId,
         { status: 'ACTIVE' },
@@ -517,8 +528,8 @@ describe('CarePlanService', () => {
             description: 'Help client improve mobility',
             category: 'MOBILITY',
             status: 'NOT_STARTED',
-            priority: 'MEDIUM'
-          }
+            priority: 'MEDIUM',
+          },
         ],
         interventions: [
           {
@@ -532,8 +543,8 @@ describe('CarePlanService', () => {
             performedBy: ['CAREGIVER'],
             requiresDocumentation: true,
             status: 'ACTIVE',
-            startDate: new Date('2024-01-01')
-          }
+            startDate: new Date('2024-01-01'),
+          },
         ],
         taskTemplates: [],
         complianceStatus: 'COMPLIANT',
@@ -544,9 +555,9 @@ describe('CarePlanService', () => {
         version: 1,
         deletedAt: null,
         deletedBy: null,
-        coordinatorId: mockContext.userId
+        coordinatorId: mockContext.userId,
       };
-      
+
       const existingActivePlan: CarePlan = {
         id: 'existing-plan-id',
         planNumber: 'CP-001',
@@ -568,13 +579,13 @@ describe('CarePlanService', () => {
         version: 1,
         deletedAt: null,
         deletedBy: null,
-        coordinatorId: mockContext.userId
+        coordinatorId: mockContext.userId,
       };
-      
+
       mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getCarePlanById.mockResolvedValue(validCarePlan);
       mockRepository.getActiveCarePlanForClient.mockResolvedValue(existingActivePlan);
-      
+
       const activatedPlan = { ...validCarePlan, status: 'ACTIVE' as CarePlanStatus };
       mockRepository.updateCarePlan.mockResolvedValue(activatedPlan);
 
@@ -627,7 +638,7 @@ describe('CarePlanService', () => {
         createdBy: 'user-1',
         updatedAt: new Date('2024-01-01'),
         updatedBy: 'user-1',
-        version: 1
+        version: 1,
       };
       mockRepository.createTaskInstance.mockResolvedValue(createdTask);
 
@@ -651,8 +662,9 @@ describe('CarePlanService', () => {
       mockPermissions.hasPermission.mockImplementationOnce(() => false);
 
       // Act & Assert
-      await expect(service.createTaskInstance(taskInput, mockContext))
-        .rejects.toThrow(PermissionError);
+      await expect(service.createTaskInstance(taskInput, mockContext)).rejects.toThrow(
+        PermissionError
+      );
       expect(mockRepository.createTaskInstance).not.toHaveBeenCalled();
       expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'tasks:create');
     });
@@ -686,25 +698,25 @@ describe('CarePlanService', () => {
       createdBy: 'user-1',
       updatedAt: new Date('2024-01-01'),
       updatedBy: 'user-1',
-      version: 1
+      version: 1,
     };
 
     it('should complete a task with valid input', async () => {
       // Arrange
       mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getTaskInstanceById.mockResolvedValue(existingTask);
-      
+
       const completedTask: TaskInstance = {
         ...existingTask,
         status: 'COMPLETED',
         completedAt: new Date(),
         completedBy: mockContext.userId,
         ...(completeInput.completionNote && { completionNote: completeInput.completionNote }),
-        ...(completeInput.signature && { 
+        ...(completeInput.signature && {
           completionSignature: {
             ...completeInput.signature,
             signedAt: new Date(),
-          }
+          },
         }),
       };
       mockRepository.updateTaskInstance.mockResolvedValue(completedTask);
@@ -733,8 +745,9 @@ describe('CarePlanService', () => {
       mockRepository.getTaskInstanceById.mockResolvedValue(completedTask);
 
       // Act & Assert
-      await expect(service.completeTask(taskId, completeInput, mockContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.completeTask(taskId, completeInput, mockContext)).rejects.toThrow(
+        ValidationError
+      );
     });
 
     it('should throw error when task is cancelled', async () => {
@@ -743,8 +756,9 @@ describe('CarePlanService', () => {
       mockRepository.getTaskInstanceById.mockResolvedValue(cancelledTask);
 
       // Act & Assert
-      await expect(service.completeTask(taskId, completeInput, mockContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.completeTask(taskId, completeInput, mockContext)).rejects.toThrow(
+        ValidationError
+      );
     });
   });
 
@@ -769,14 +783,14 @@ describe('CarePlanService', () => {
       createdBy: 'user-1',
       updatedAt: new Date(),
       updatedBy: 'user-1',
-      version: 1
+      version: 1,
     };
 
     it('should skip a task with valid reason', async () => {
       // Arrange
       mockPermissions.hasPermission.mockReturnValue(true);
       mockRepository.getTaskInstanceById.mockResolvedValue(existingTask);
-      
+
       const skippedTask: TaskInstance = {
         ...existingTask,
         status: 'SKIPPED',
@@ -812,8 +826,9 @@ describe('CarePlanService', () => {
       mockRepository.getTaskInstanceById.mockResolvedValue(completedTask);
 
       // Act & Assert
-      await expect(service.skipTask(taskId, skipReason, skipNote, mockContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.skipTask(taskId, skipReason, skipNote, mockContext)).rejects.toThrow(
+        ValidationError
+      );
     });
   });
 
@@ -830,7 +845,7 @@ describe('CarePlanService', () => {
           status: 'ON_TRACK',
           progressDescription: 'Client walked 15 steps with minimal assistance',
           progressPercentage: 75,
-        }
+        },
       ],
       observations: [
         {
@@ -838,7 +853,7 @@ describe('CarePlanService', () => {
           observation: 'Client appeared more energetic today',
           severity: 'NORMAL',
           timestamp: new Date(),
-        }
+        },
       ],
     };
 
@@ -861,7 +876,7 @@ describe('CarePlanService', () => {
         createdBy: mockContext.userId,
         updatedAt: new Date('2024-01-15'),
         updatedBy: mockContext.userId,
-        version: 1
+        version: 1,
       };
       mockRepository.createProgressNote.mockResolvedValue(createdNote);
 
@@ -869,7 +884,10 @@ describe('CarePlanService', () => {
       const result = await service.createProgressNote(noteInput, mockContext);
 
       // Assert
-      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'progress-notes:create');
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(
+        mockContext,
+        'progress-notes:create'
+      );
       expect(mockRepository.createProgressNote).toHaveBeenCalledWith(
         expect.objectContaining({
           carePlanId: noteInput.carePlanId,
@@ -883,7 +901,7 @@ describe('CarePlanService', () => {
               observation: 'Client appeared more energetic today',
               severity: 'NORMAL',
               timestamp: expect.any(Date),
-            })
+            }),
           ]),
           authorId: mockContext.userId,
           authorName: expect.any(String),
@@ -899,10 +917,14 @@ describe('CarePlanService', () => {
       mockPermissions.hasPermission.mockImplementationOnce(() => false);
 
       // Act & Assert
-      await expect(service.createProgressNote(noteInput, mockContext))
-        .rejects.toThrow(PermissionError);
+      await expect(service.createProgressNote(noteInput, mockContext)).rejects.toThrow(
+        PermissionError
+      );
       expect(mockRepository.createProgressNote).not.toHaveBeenCalled();
-      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'progress-notes:create');
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith(
+        mockContext,
+        'progress-notes:create'
+      );
     });
   });
 
@@ -911,20 +933,22 @@ describe('CarePlanService', () => {
       // Arrange
       const organizationId = mockContext.organizationId;
       mockPermissions.hasPermission.mockReturnValue(true);
-      
+
       const mockPlans = {
         items: [
           {
             id: 'plan-1',
             status: 'ACTIVE' as CarePlanStatus,
-            goals: [{ 
-              id: 'goal-1',
-              name: 'Goal 1',
-              description: 'Test goal',
-              category: 'MOBILITY' as GoalCategory,
-              status: 'ACHIEVED' as GoalStatus,
-              priority: 'MEDIUM' as Priority
-            }],
+            goals: [
+              {
+                id: 'goal-1',
+                name: 'Goal 1',
+                description: 'Test goal',
+                category: 'MOBILITY' as GoalCategory,
+                status: 'ACHIEVED' as GoalStatus,
+                priority: 'MEDIUM' as Priority,
+              },
+            ],
             expirationDate: new Date('2024-12-31'),
             complianceStatus: 'COMPLIANT' as ComplianceStatus,
             clientId: 'client-1',
@@ -942,19 +966,21 @@ describe('CarePlanService', () => {
             updatedBy: 'user-1',
             version: 1,
             deletedAt: null,
-            deletedBy: null
+            deletedBy: null,
           },
           {
             id: 'plan-2',
             status: 'DRAFT' as CarePlanStatus,
-            goals: [{ 
-              id: 'goal-2',
-              name: 'Goal 2',
-              description: 'Test goal 2',
-              category: 'MOBILITY' as GoalCategory,
-              status: 'IN_PROGRESS' as GoalStatus,
-              priority: 'MEDIUM' as Priority
-            }],
+            goals: [
+              {
+                id: 'goal-2',
+                name: 'Goal 2',
+                description: 'Test goal 2',
+                category: 'MOBILITY' as GoalCategory,
+                status: 'IN_PROGRESS' as GoalStatus,
+                priority: 'MEDIUM' as Priority,
+              },
+            ],
             expirationDate: new Date('2024-06-30'),
             complianceStatus: 'PENDING_REVIEW' as ComplianceStatus,
             clientId: 'client-2',
@@ -972,13 +998,13 @@ describe('CarePlanService', () => {
             updatedBy: 'user-1',
             version: 1,
             deletedAt: null,
-            deletedBy: null
-          }
+            deletedBy: null,
+          },
         ],
         total: 2,
         page: 1,
         limit: 10,
-        totalPages: 1
+        totalPages: 1,
       };
       mockRepository.searchCarePlans.mockResolvedValue(mockPlans);
 
@@ -1008,7 +1034,7 @@ describe('CarePlanService', () => {
           COMPANIONSHIP: 0,
           MONITORING: 0,
           DOCUMENTATION: 0,
-          OTHER: 0
+          OTHER: 0,
         },
         issuesReported: 2,
       };
@@ -1026,7 +1052,7 @@ describe('CarePlanService', () => {
         { organizationId },
         { page: 1, limit: 10000 }
       );
-      
+
       expect(result).toEqual({
         totalPlans: 2,
         activePlans: 1,
@@ -1064,7 +1090,7 @@ describe('CarePlanService', () => {
         updatedBy: mockContext.userId,
         version: 1,
         deletedAt: null,
-        deletedBy: null
+        deletedBy: null,
       };
 
       mockPermissions.hasPermission.mockReturnValue(true);
@@ -1103,14 +1129,15 @@ describe('CarePlanService', () => {
         version: 1,
         deletedAt: null,
         deletedBy: null,
-        coordinatorId: mockContext.userId
+        coordinatorId: mockContext.userId,
       };
-      
+
       mockRepository.getCarePlanById.mockResolvedValue(activeCarePlan);
 
       // Act & Assert
-      await expect(service.deleteCarePlan(carePlanId, mockContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.deleteCarePlan(carePlanId, mockContext)).rejects.toThrow(
+        ValidationError
+      );
       expect(mockRepository.deleteCarePlan).not.toHaveBeenCalled();
     });
   });

@@ -1,16 +1,14 @@
 import type { ApiClient } from '@/core/services';
-import type { 
-  Invoice, 
+import type {
+  Invoice,
   Payment,
-  CreateInvoiceInput, 
+  CreateInvoiceInput,
   UpdateInvoiceInput,
   CreatePaymentInput,
-  BillingSearchFilters, 
+  BillingSearchFilters,
   InvoiceListResponse,
-  BillingSummary
+  BillingSummary,
 } from '../types';
-
-
 
 export interface BillingApiService {
   getInvoices(filters?: BillingSearchFilters): Promise<InvoiceListResponse>;
@@ -41,7 +39,8 @@ export const createBillingApiService = (apiClient: ApiClient): BillingApiService
       if (filters?.endDate) params.append('endDate', filters.endDate);
       if (filters?.minAmount) params.append('minAmount', filters.minAmount.toString());
       if (filters?.maxAmount) params.append('maxAmount', filters.maxAmount.toString());
-      if (filters?.isPastDue !== undefined) params.append('isPastDue', filters.isPastDue.toString());
+      if (filters?.isPastDue !== undefined)
+        params.append('isPastDue', filters.isPastDue.toString());
 
       const url = `/api/billing/invoices${params.toString() ? `?${params.toString()}` : ''}`;
       return apiClient.get<InvoiceListResponse>(url);
@@ -88,18 +87,18 @@ export const createBillingApiService = (apiClient: ApiClient): BillingApiService
       return apiClient.get<BillingSummary>(url);
     },
 
-  generateInvoicePdf: async (id: string) => {
-    const response = await fetch(`/api/billing/invoices/${id}/pdf`, {
-      headers: {
-        'Authorization': `Bearer ${globalThis.localStorage.getItem('token')}`,
-      },
-    });
+    generateInvoicePdf: async (id: string) => {
+      const response = await fetch(`/api/billing/invoices/${id}/pdf`, {
+        headers: {
+          Authorization: `Bearer ${globalThis.localStorage.getItem('token')}`,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to generate PDF');
-    }
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
 
-    return response.blob();
-  },
+      return response.blob();
+    },
   };
 };

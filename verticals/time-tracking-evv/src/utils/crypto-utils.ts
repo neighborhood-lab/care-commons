@@ -19,11 +19,11 @@ export class CryptoUtils {
    */
   static generateIntegrityHash(data: object, secret?: string): string {
     const input = JSON.stringify(data);
-    
+
     if (secret) {
       return createHmac('sha256', secret).update(input).digest('hex');
     }
-    
+
     return this.generateHash(input);
   }
 
@@ -38,11 +38,7 @@ export class CryptoUtils {
   /**
    * Verify integrity hash
    */
-  static verifyIntegrityHash(
-    data: object,
-    expectedHash: string,
-    secret?: string
-  ): boolean {
+  static verifyIntegrityHash(data: object, expectedHash: string, secret?: string): boolean {
     const computedHash = this.generateIntegrityHash(data, secret);
     return computedHash === expectedHash;
   }
@@ -72,11 +68,7 @@ export class CryptoUtils {
   /**
    * Verify a data signature
    */
-  static verifySignature(
-    data: object,
-    signature: string,
-    secret: string
-  ): boolean {
+  static verifySignature(data: object, signature: string, secret: string): boolean {
     const expectedSignature = this.signData(data, secret);
     return signature === expectedSignature;
   }

@@ -37,34 +37,26 @@ export const ClientList: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-          <p className="text-gray-600 mt-1">
-            {data?.total || 0} total clients
-          </p>
+          <p className="text-gray-600 mt-1">{data?.total || 0} total clients</p>
         </div>
         <div className="flex gap-2">
           <div className="flex border border-gray-300 rounded-md">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${
-                viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${
-                viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
             >
               <List className="h-5 w-5" />
             </button>
           </div>
           {can('clients:write') && (
             <Link to="/clients/new">
-              <Button leftIcon={<Plus className="h-4 w-4" />}>
-                New Client
-              </Button>
+              <Button leftIcon={<Plus className="h-4 w-4" />}>New Client</Button>
             </Link>
           )}
         </div>
@@ -79,9 +71,7 @@ export const ClientList: React.FC = () => {
           action={
             can('clients:write') ? (
               <Link to="/clients/new">
-                <Button leftIcon={<Plus className="h-4 w-4" />}>
-                  Create Client
-                </Button>
+                <Button leftIcon={<Plus className="h-4 w-4" />}>Create Client</Button>
               </Link>
             ) : undefined
           }
@@ -95,11 +85,7 @@ export const ClientList: React.FC = () => {
           }
         >
           {clients.map((client) => (
-            <ClientCard
-              key={client.id}
-              client={client}
-              compact={viewMode === 'list'}
-            />
+            <ClientCard key={client.id} client={client} compact={viewMode === 'list'} />
           ))}
         </div>
       )}

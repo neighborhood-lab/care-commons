@@ -1,0 +1,53 @@
+# Build outputs
+dist/
+build/
+*.d.ts
+*.d.ts.map
+*.js.map
+
+# Dependencies
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Cache directories
+.turbo/
+.vite/
+.cache/
+.parcel-cache/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel/
+dist-vercel/
+
+# SQL migrations (preserve exact formatting for SQL)
+migrations/*.sql
+
+# Generated files
+CHANGELOG.md

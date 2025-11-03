@@ -3,7 +3,13 @@
  */
 
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { ClientAuditService, ClientAccessAuditEntry, AuditQuery, DisclosureMethod, AccessType } from '../../service/client-audit-service';
+import {
+  ClientAuditService,
+  ClientAccessAuditEntry,
+  AuditQuery,
+  DisclosureMethod,
+  AccessType,
+} from '../../service/client-audit-service';
 
 interface MockDatabaseConnection {
   query: ReturnType<typeof vi.fn>;
@@ -42,12 +48,7 @@ describe('ClientAuditService', () => {
 
       expect(mockDb.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO client_access_audit'),
-        expect.arrayContaining([
-          'client-1',
-          'user-1',
-          'VIEW',
-          expect.any(Date),
-        ])
+        expect.arrayContaining(['client-1', 'user-1', 'VIEW', expect.any(Date)])
       );
       expect(result).toBe('audit-1');
     });
@@ -60,7 +61,9 @@ describe('ClientAuditService', () => {
         accessTimestamp: new Date(),
       };
 
-      await expect(service.logAccess(invalidEntry)).rejects.toThrow('Client ID is required for audit log');
+      await expect(service.logAccess(invalidEntry)).rejects.toThrow(
+        'Client ID is required for audit log'
+      );
     });
 
     it('should throw error when disclosure type is missing required fields', async () => {
@@ -72,7 +75,9 @@ describe('ClientAuditService', () => {
         // Missing required disclosure fields
       };
 
-      await expect(service.logAccess(invalidEntry)).rejects.toThrow('Disclosure recipient is required for DISCLOSURE type');
+      await expect(service.logAccess(invalidEntry)).rejects.toThrow(
+        'Disclosure recipient is required for DISCLOSURE type'
+      );
     });
   });
 
@@ -105,7 +110,7 @@ describe('ClientAuditService', () => {
           'Doctor Smith',
           'VERBAL',
           expect.anything(),
-          'Medical records'
+          'Medical records',
         ])
       );
       expect(result).toBe('disclosure-1');
@@ -131,7 +136,7 @@ describe('ClientAuditService', () => {
             accessed_by: 'user-1',
             access_type: 'VIEW',
             access_timestamp: new Date(),
-          }
+          },
         ],
       };
 
@@ -171,7 +176,7 @@ describe('ClientAuditService', () => {
             accessed_by: 'user-1',
             access_type: 'VIEW',
             access_timestamp: new Date(),
-          }
+          },
         ],
       };
 
@@ -259,13 +264,15 @@ describe('ClientAuditService', () => {
 
     it('should detect suspicious activity', async () => {
       // Create a report with many access events from a single user
-      const manyEntries = Array(60).fill(0).map((_, i) => ({
-        id: `audit-${i}`,
-        clientId: 'client-1',
-        accessedBy: 'user-1',
-        accessType: 'VIEW' as AccessType,
-        accessTimestamp: new Date(),
-      }));
+      const manyEntries = Array(60)
+        .fill(0)
+        .map((_, i) => ({
+          id: `audit-${i}`,
+          clientId: 'client-1',
+          accessedBy: 'user-1',
+          accessType: 'VIEW' as AccessType,
+          accessTimestamp: new Date(),
+        }));
 
       const mockReport = {
         entries: manyEntries,
@@ -280,7 +287,9 @@ describe('ClientAuditService', () => {
       const result = await service.getAccessSummary('client-1', 30);
 
       expect(result.suspiciousActivity).toBe(true);
-      expect(result.unusualAccessPatterns).toContain('User user-1 accessed record 60 times in 30 days');
+      expect(result.unusualAccessPatterns).toContain(
+        'User user-1 accessed record 60 times in 30 days'
+      );
     });
   });
 
@@ -296,7 +305,7 @@ describe('ClientAuditService', () => {
             accessTimestamp: new Date('2024-01-01T10:00:00.000Z'),
             accessReason: 'Routine check',
             ipAddress: '192.168.1.1',
-          }
+          },
         ],
         totalCount: 1,
         dateRange: { start: new Date(), end: new Date() },
@@ -309,9 +318,13 @@ describe('ClientAuditService', () => {
 
       const result = await service.exportAuditLog({});
 
-      expect(result).toContain('Timestamp,Client ID,Accessed By,Access Type,Reason,IP Address,Disclosure Recipient,Disclosure Method,Authorization,Information Disclosed');
-      expect(result).toContain('"2024-01-01T10:00:00.000Z","client-1","user-1","VIEW","Routine check","192.168.1.1","","","",""');
-      
+      expect(result).toContain(
+        'Timestamp,Client ID,Accessed By,Access Type,Reason,IP Address,Disclosure Recipient,Disclosure Method,Authorization,Information Disclosed'
+      );
+      expect(result).toContain(
+        '"2024-01-01T10:00:00.000Z","client-1","user-1","VIEW","Routine check","192.168.1.1","","","",""'
+      );
+
       // Check that the export itself was logged
       expect(service.logAccess).toHaveBeenCalledWith({
         clientId: '00000000-0000-0000-0000-000000000000',

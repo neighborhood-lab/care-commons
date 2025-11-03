@@ -3,7 +3,14 @@
  * Helper functions for working with caregiver data in the UI and business logic
  */
 
-import { differenceInYears, differenceInMonths, format, parseISO, isWithinInterval, addDays } from 'date-fns';
+import {
+  differenceInYears,
+  differenceInMonths,
+  format,
+  parseISO,
+  isWithinInterval,
+  addDays,
+} from 'date-fns';
 import {
   Caregiver,
   Credential,
@@ -25,12 +32,15 @@ export function calculateAge(dateOfBirth: Date | string): number {
 /**
  * Calculate detailed age (years and months)
  */
-export function calculateDetailedAge(dateOfBirth: Date | string): { years: number; months: number } {
+export function calculateDetailedAge(dateOfBirth: Date | string): {
+  years: number;
+  months: number;
+} {
   const dob = typeof dateOfBirth === 'string' ? parseISO(dateOfBirth) : dateOfBirth;
   const now = new Date();
   const years = differenceInYears(now, dob);
   const months = differenceInMonths(now, dob) % 12;
-  
+
   return { years, months };
 }
 
@@ -50,28 +60,26 @@ export function getFullName(
   options: { includeMiddle?: boolean; showPreferred?: boolean } = {}
 ): string {
   const { includeMiddle = false, showPreferred = false } = options;
-  
+
   let name = caregiver.firstName;
-  
+
   if (includeMiddle && caregiver.middleName) {
     name += ` ${caregiver.middleName}`;
   }
-  
+
   name += ` ${caregiver.lastName}`;
-  
+
   if (showPreferred && caregiver.preferredName && caregiver.preferredName !== caregiver.firstName) {
     name += ` "${caregiver.preferredName}"`;
   }
-  
+
   return name;
 }
 
 /**
  * Get display name (preferred name or first name)
  */
-export function getDisplayName(
-  caregiver: Pick<Caregiver, 'firstName' | 'preferredName'>
-): string {
+export function getDisplayName(caregiver: Pick<Caregiver, 'firstName' | 'preferredName'>): string {
   return caregiver.preferredName || caregiver.firstName;
 }
 
@@ -80,20 +88,20 @@ export function getDisplayName(
  */
 export function formatPhoneNumber(phone: string | Phone): string {
   const phoneNumber = typeof phone === 'string' ? phone : phone.number;
-  
+
   // Remove all non-digit characters
   const cleaned = phoneNumber.replace(/\D/g, '');
-  
+
   // Format as (XXX) XXX-XXXX for 10-digit numbers
   if (cleaned.length === 10) {
     return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   }
-  
+
   // Format as +X (XXX) XXX-XXXX for 11-digit numbers
   if (cleaned.length === 11 && cleaned[0] === '1') {
     return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
   }
-  
+
   // Return as-is if format is not recognized
   return phoneNumber;
 }
@@ -101,8 +109,13 @@ export function formatPhoneNumber(phone: string | Phone): string {
 /**
  * Get primary emergency contact
  */
-export function getPrimaryEmergencyContact(caregiver: Pick<Caregiver, 'emergencyContacts'>): Caregiver['emergencyContacts'][0] | undefined {
-  return caregiver.emergencyContacts.find(contact => contact.isPrimary) || caregiver.emergencyContacts[0];
+export function getPrimaryEmergencyContact(
+  caregiver: Pick<Caregiver, 'emergencyContacts'>
+): Caregiver['emergencyContacts'][0] | undefined {
+  return (
+    caregiver.emergencyContacts.find((contact) => contact.isPrimary) ||
+    caregiver.emergencyContacts[0]
+  );
 }
 
 /**
@@ -113,16 +126,16 @@ export function hasActiveCredentials(
   types?: string[]
 ): boolean {
   const activeCredentials = caregiver.credentials.filter(
-    cred => cred.status === 'ACTIVE' && (!cred.expirationDate || new Date(cred.expirationDate) >= new Date())
+    (cred) =>
+      cred.status === 'ACTIVE' &&
+      (!cred.expirationDate || new Date(cred.expirationDate) >= new Date())
   );
-  
+
   if (!types || types.length === 0) {
     return activeCredentials.length > 0;
   }
-  
-  return types.every(type =>
-    activeCredentials.some(cred => cred.type === type)
-  );
+
+  return types.every((type) => activeCredentials.some((cred) => cred.type === type));
 }
 
 /**
@@ -134,16 +147,15 @@ export function getExpiringCredentials(
 ): Credential[] {
   const now = new Date();
   const expirationThreshold = addDays(now, daysUntilExpiration);
-  
-  return caregiver.credentials.filter(cred => {
+
+  return caregiver.credentials.filter((cred) => {
     if (!cred.expirationDate || cred.status !== 'ACTIVE') {
       return false;
     }
-    
-    const expDate = typeof cred.expirationDate === 'string' 
-      ? parseISO(cred.expirationDate) 
-      : cred.expirationDate;
-      
+
+    const expDate =
+      typeof cred.expirationDate === 'string' ? parseISO(cred.expirationDate) : cred.expirationDate;
+
     return expDate >= now && expDate <= expirationThreshold;
   });
 }
@@ -151,20 +163,17 @@ export function getExpiringCredentials(
 /**
  * Get expired credentials
  */
-export function getExpiredCredentials(
-  caregiver: Pick<Caregiver, 'credentials'>
-): Credential[] {
+export function getExpiredCredentials(caregiver: Pick<Caregiver, 'credentials'>): Credential[] {
   const now = new Date();
-  
-  return caregiver.credentials.filter(cred => {
+
+  return caregiver.credentials.filter((cred) => {
     if (!cred.expirationDate) {
       return false;
     }
-    
-    const expDate = typeof cred.expirationDate === 'string'
-      ? parseISO(cred.expirationDate)
-      : cred.expirationDate;
-      
+
+    const expDate =
+      typeof cred.expirationDate === 'string' ? parseISO(cred.expirationDate) : cred.expirationDate;
+
     return expDate < now && cred.status === 'ACTIVE';
   });
 }
@@ -172,7 +181,9 @@ export function getExpiredCredentials(
 /**
  * Check if caregiver has critical compliance issues
  */
-export function hasCriticalComplianceIssues(caregiver: Pick<Caregiver, 'complianceStatus'>): boolean {
+export function hasCriticalComplianceIssues(
+  caregiver: Pick<Caregiver, 'complianceStatus'>
+): boolean {
   return ['EXPIRED', 'NON_COMPLIANT'].includes(caregiver.complianceStatus);
 }
 
@@ -183,12 +194,12 @@ export function getCompletedTraining(
   caregiver: Pick<Caregiver, 'training'>,
   category?: string
 ): TrainingRecord[] {
-  let training = caregiver.training.filter(t => t.status === 'COMPLETED');
-  
+  let training = caregiver.training.filter((t) => t.status === 'COMPLETED');
+
   if (category) {
-    training = training.filter(t => t.category === category);
+    training = training.filter((t) => t.category === category);
   }
-  
+
   return training;
 }
 
@@ -197,7 +208,7 @@ export function getCompletedTraining(
  */
 export function calculateTotalTrainingHours(caregiver: Pick<Caregiver, 'training'>): number {
   return caregiver.training
-    .filter(t => t.status === 'COMPLETED')
+    .filter((t) => t.status === 'COMPLETED')
     .reduce((total, t) => total + (t.hours || 0), 0);
 }
 
@@ -219,29 +230,33 @@ export function isAvailableOnDate(
   date: Date | string
 ): boolean {
   const checkDate = typeof date === 'string' ? parseISO(date) : date;
-  
+
   // Check blackout dates
   if (caregiver.availability.blackoutDates) {
-    const isBlackedOut = caregiver.availability.blackoutDates.some(blackout => {
-      const start = typeof blackout.startDate === 'string' 
-        ? parseISO(blackout.startDate) 
-        : blackout.startDate;
-      const end = typeof blackout.endDate === 'string'
-        ? parseISO(blackout.endDate)
-        : blackout.endDate;
-        
+    const isBlackedOut = caregiver.availability.blackoutDates.some((blackout) => {
+      const start =
+        typeof blackout.startDate === 'string' ? parseISO(blackout.startDate) : blackout.startDate;
+      const end =
+        typeof blackout.endDate === 'string' ? parseISO(blackout.endDate) : blackout.endDate;
+
       return isWithinInterval(checkDate, { start, end });
     });
-    
+
     if (isBlackedOut) {
       return false;
     }
   }
-  
+
   // Check day of week availability
-  const dayOfWeek = format(checkDate, 'EEEE').toLowerCase() as 
-    'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
-    
+  const dayOfWeek = format(checkDate, 'EEEE').toLowerCase() as
+    | 'monday'
+    | 'tuesday'
+    | 'wednesday'
+    | 'thursday'
+    | 'friday'
+    | 'saturday'
+    | 'sunday';
+
   return isAvailableOnDay(caregiver, dayOfWeek);
 }
 
@@ -305,7 +320,7 @@ export function getStatusDisplay(status: CaregiverStatus): {
       description: 'Retired from service',
     },
   };
-  
+
   return statusMap[status];
 }
 
@@ -350,7 +365,7 @@ export function getComplianceStatusDisplay(status: ComplianceStatus): {
       description: 'Does not meet compliance requirements',
     },
   };
-  
+
   return statusMap[status];
 }
 
@@ -374,24 +389,24 @@ export function getAssignmentBlockers(
   caregiver: Pick<Caregiver, 'status' | 'employmentStatus' | 'complianceStatus' | 'credentials'>
 ): string[] {
   const blockers: string[] = [];
-  
+
   if (caregiver.status !== 'ACTIVE') {
     blockers.push(`Status is ${caregiver.status}`);
   }
-  
+
   if (caregiver.employmentStatus !== 'ACTIVE') {
     blockers.push(`Employment status is ${caregiver.employmentStatus}`);
   }
-  
+
   if (caregiver.complianceStatus !== 'COMPLIANT') {
     blockers.push(`Compliance status is ${caregiver.complianceStatus}`);
   }
-  
+
   const expired = getExpiredCredentials(caregiver);
   if (expired.length > 0) {
     blockers.push(`${expired.length} credential(s) expired`);
   }
-  
+
   return blockers;
 }
 
@@ -408,18 +423,18 @@ export function calculateReliabilityScore(caregiver: Pick<Caregiver, 'reliabilit
  */
 export function formatYearsOfService(hireDate: Date | string): string {
   const years = calculateYearsOfService(hireDate);
-  
+
   if (years === 0) {
     const hire = typeof hireDate === 'string' ? parseISO(hireDate) : hireDate;
     const months = differenceInMonths(new Date(), hire);
-    
+
     if (months === 0) {
       return 'New hire';
     }
-    
+
     return `${months} month${months === 1 ? '' : 's'}`;
   }
-  
+
   return `${years} year${years === 1 ? '' : 's'}`;
 }
 
@@ -429,7 +444,7 @@ export function formatYearsOfService(hireDate: Date | string): string {
 export function isNewHire(hireDate: Date | string): boolean {
   const hire = typeof hireDate === 'string' ? parseISO(hireDate) : hireDate;
   const ninetyDaysAgo = addDays(new Date(), -90);
-  
+
   return hire >= ninetyDaysAgo;
 }
 
@@ -440,7 +455,7 @@ export function getSkillsByCategory(
   caregiver: Pick<Caregiver, 'skills'>,
   category: string
 ): typeof caregiver.skills {
-  return caregiver.skills.filter(skill => skill.category === category);
+  return caregiver.skills.filter((skill) => skill.category === category);
 }
 
 /**
@@ -451,20 +466,20 @@ export function hasSkill(
   skillName: string,
   minProficiency?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'
 ): boolean {
-  const skill = caregiver.skills.find(s => s.name === skillName);
-  
+  const skill = caregiver.skills.find((s) => s.name === skillName);
+
   if (!skill) {
     return false;
   }
-  
+
   if (!minProficiency) {
     return true;
   }
-  
+
   const proficiencyLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
   const skillLevel = proficiencyLevels.indexOf(skill.proficiencyLevel);
   const minLevel = proficiencyLevels.indexOf(minProficiency);
-  
+
   return skillLevel >= minLevel;
 }
 
@@ -482,16 +497,16 @@ export function compareCaregivers(
       const nameB = `${b.lastName} ${b.firstName}`.toLowerCase();
       return nameA.localeCompare(nameB);
     }
-      
+
     case 'hireDate':
       return new Date(a.hireDate).getTime() - new Date(b.hireDate).getTime();
-      
+
     case 'employeeNumber':
       return a.employeeNumber.localeCompare(b.employeeNumber);
-      
+
     case 'reliability':
       return (b.reliabilityScore || 0) - (a.reliabilityScore || 0);
-      
+
     default:
       return 0;
   }
@@ -504,10 +519,8 @@ export function filterByLanguages(
   caregivers: Caregiver[],
   requiredLanguages: string[]
 ): Caregiver[] {
-  return caregivers.filter(caregiver =>
-    requiredLanguages.every(lang =>
-      caregiver.languages?.includes(lang)
-    )
+  return caregivers.filter((caregiver) =>
+    requiredLanguages.every((lang) => caregiver.languages?.includes(lang))
   );
 }
 
@@ -518,11 +531,11 @@ export function filterByShiftPreference(
   caregivers: Pick<Caregiver, 'workPreferences' | 'availability'>[],
   shiftType: string
 ): typeof caregivers {
-  return caregivers.filter(caregiver => {
+  return caregivers.filter((caregiver) => {
     if (!caregiver.workPreferences?.preferredShiftTypes) {
       return true; // No preference means available for any shift
     }
-    
+
     return caregiver.workPreferences.preferredShiftTypes.includes(shiftType as ShiftType);
   });
 }

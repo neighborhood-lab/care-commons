@@ -4,11 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EVVService } from '../service/evv-service';
-import {
-  EVVRecord,
-  ClockInInput,
-  ClockOutInput,
-} from '../types/evv';
+import { EVVRecord, ClockInInput, ClockOutInput } from '../types/evv';
 
 import { UUID } from '@care-commons/core';
 
@@ -96,7 +92,7 @@ describe('EVVService', () => {
       caregiverId: 'caregiver-123' as UUID,
       location: {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: 'GPS',
@@ -130,7 +126,7 @@ describe('EVVService', () => {
           postalCode: '10001',
           country: 'USA',
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           geofenceRadius: 100,
           addressVerified: true,
         },
@@ -156,7 +152,7 @@ describe('EVVService', () => {
       mockRepository.getGeofenceByAddress.mockResolvedValue({
         id: 'geofence-123',
         centerLatitude: 40.7128,
-        centerLongitude: -74.0060,
+        centerLongitude: -74.006,
         radiusMeters: 100,
         isActive: true,
         allowedVariance: 10,
@@ -212,40 +208,44 @@ describe('EVVService', () => {
         throw new ValidationError('Invalid clock-in data', { errors: ['location is required'] });
       });
 
-      await expect(service.clockIn(validClockInInput, userContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.clockIn(validClockInInput, userContext)).rejects.toThrow(
+        ValidationError
+      );
     });
 
     it('should throw PermissionError when user lacks permission', async () => {
       mockValidator.validateClockIn.mockReturnValue(undefined);
-      
+
       const unauthorizedUser = {
         ...userContext,
         permissions: [],
       };
 
-      await expect(service.clockIn(validClockInInput, unauthorizedUser))
-        .rejects.toThrow(PermissionError);
+      await expect(service.clockIn(validClockInInput, unauthorizedUser)).rejects.toThrow(
+        PermissionError
+      );
     });
 
     it('should throw PermissionError when caregiver tries to clock in for another caregiver', async () => {
       mockValidator.validateClockIn.mockReturnValue(undefined);
-      
+
       const otherCaregiverInput = {
         ...validClockInInput,
         caregiverId: 'other-caregiver-456' as UUID,
       };
 
-      await expect(service.clockIn(otherCaregiverInput, userContext))
-        .rejects.toThrow(PermissionError);
+      await expect(service.clockIn(otherCaregiverInput, userContext)).rejects.toThrow(
+        PermissionError
+      );
     });
 
     it('should throw ValidationError when visit does not allow clock in', async () => {
       mockValidator.validateClockIn.mockReturnValue(undefined);
       mockVisitProvider.canClockIn.mockResolvedValue(false);
 
-      await expect(service.clockIn(validClockInInput, userContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.clockIn(validClockInInput, userContext)).rejects.toThrow(
+        ValidationError
+      );
     });
 
     it('should throw ValidationError when caregiver is not authorized for service', async () => {
@@ -257,7 +257,7 @@ describe('EVVService', () => {
         serviceTypeCode: 'HCBS',
         serviceAddress: {
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           geofenceRadius: 100,
         },
       });
@@ -269,8 +269,9 @@ describe('EVVService', () => {
         blockedReasons: ['EXPIRED_LICENSE'],
       });
 
-      await expect(service.clockIn(validClockInInput, userContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.clockIn(validClockInInput, userContext)).rejects.toThrow(
+        ValidationError
+      );
     });
 
     it('should handle geofence violation', async () => {
@@ -284,7 +285,7 @@ describe('EVVService', () => {
         serviceTypeCode: 'HCBS',
         serviceAddress: {
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           geofenceRadius: 100,
         },
       });
@@ -307,7 +308,7 @@ describe('EVVService', () => {
       mockRepository.getGeofenceByAddress.mockResolvedValue({
         id: 'geofence-123',
         centerLatitude: 40.7128,
-        centerLongitude: -74.0060,
+        centerLongitude: -74.006,
         radiusMeters: 100,
       });
 
@@ -337,13 +338,15 @@ describe('EVVService', () => {
         passed: false,
         verificationLevel: 'PARTIAL',
         complianceFlags: ['GEOFENCE_VIOLATION'],
-        issues: [{
-          issueType: 'GEOFENCE_VIOLATION',
-          severity: 'HIGH',
-          description: 'Location verification failed',
-          canBeOverridden: true,
-          requiresSupervisor: true,
-        }],
+        issues: [
+          {
+            issueType: 'GEOFENCE_VIOLATION',
+            severity: 'HIGH',
+            description: 'Location verification failed',
+            canBeOverridden: true,
+            requiresSupervisor: true,
+          },
+        ],
         requiresSupervisorReview: true,
       });
 
@@ -362,7 +365,7 @@ describe('EVVService', () => {
       caregiverId: 'caregiver-123' as UUID,
       location: {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: 'GPS',
@@ -397,7 +400,7 @@ describe('EVVService', () => {
         postalCode: '10001',
         country: 'USA',
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         geofenceRadius: 100,
         addressVerified: true,
       },
@@ -405,7 +408,7 @@ describe('EVVService', () => {
       clockOutTime: null,
       clockInVerification: {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
         timestampSource: 'DEVICE',
@@ -443,7 +446,7 @@ describe('EVVService', () => {
       mockRepository.getGeofenceByAddress.mockResolvedValue({
         id: 'geofence-123',
         centerLatitude: 40.7128,
-        centerLongitude: -74.0060,
+        centerLongitude: -74.006,
         radiusMeters: 100,
       });
 
@@ -491,8 +494,9 @@ describe('EVVService', () => {
       mockValidator.validateClockOut.mockReturnValue(undefined);
       mockRepository.getEVVRecordById.mockResolvedValue(null);
 
-      await expect(service.clockOut(validClockOutInput, userContext))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.clockOut(validClockOutInput, userContext)).rejects.toThrow(
+        NotFoundError
+      );
     });
 
     it('should throw ValidationError when visit already clocked out', async () => {
@@ -505,8 +509,9 @@ describe('EVVService', () => {
       mockValidator.validateClockOut.mockReturnValue(undefined);
       mockRepository.getEVVRecordById.mockResolvedValue(completedRecord);
 
-      await expect(service.clockOut(validClockOutInput, userContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.clockOut(validClockOutInput, userContext)).rejects.toThrow(
+        ValidationError
+      );
     });
 
     it('should handle client signature attestation', async () => {
@@ -525,7 +530,7 @@ describe('EVVService', () => {
       mockRepository.getGeofenceByAddress.mockResolvedValue({
         id: 'geofence-123',
         centerLatitude: 40.7128,
-        centerLongitude: -74.0060,
+        centerLongitude: -74.006,
         radiusMeters: 100,
       });
 
@@ -625,8 +630,9 @@ describe('EVVService', () => {
     });
 
     it('should throw PermissionError for non-supervisor', async () => {
-      await expect(service.applyManualOverride(overrideInput, userContext))
-        .rejects.toThrow(PermissionError);
+      await expect(service.applyManualOverride(overrideInput, userContext)).rejects.toThrow(
+        PermissionError
+      );
     });
 
     it('should throw NotFoundError when time entry does not exist', async () => {
@@ -637,8 +643,9 @@ describe('EVVService', () => {
 
       mockRepository.getTimeEntryById.mockResolvedValue(null);
 
-      await expect(service.applyManualOverride(overrideInput, supervisorUser))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.applyManualOverride(overrideInput, supervisorUser)).rejects.toThrow(
+        NotFoundError
+      );
     });
   });
 
@@ -648,7 +655,7 @@ describe('EVVService', () => {
       clientId: 'client-123' as UUID,
       addressId: 'address-123' as UUID,
       centerLatitude: 40.7128,
-      centerLongitude: -74.0060,
+      centerLongitude: -74.006,
       radiusMeters: 100,
     };
 
@@ -670,13 +677,14 @@ describe('EVVService', () => {
 
       expect(result.id).toBe('geofence-123');
       expect(result.centerLatitude).toBe(40.7128);
-      expect(result.centerLongitude).toBe(-74.0060);
+      expect(result.centerLongitude).toBe(-74.006);
       expect(result.radiusMeters).toBe(100);
     });
 
     it('should throw PermissionError when user lacks geofence creation permission', async () => {
-      await expect(service.createGeofence(geofenceInput, userContext))
-        .rejects.toThrow(PermissionError);
+      await expect(service.createGeofence(geofenceInput, userContext)).rejects.toThrow(
+        PermissionError
+      );
     });
   });
 
@@ -701,8 +709,9 @@ describe('EVVService', () => {
         permissions: [],
       };
 
-      await expect(service.getEVVRecordByVisit('visit-123', unauthorizedUser))
-        .rejects.toThrow(PermissionError);
+      await expect(service.getEVVRecordByVisit('visit-123', unauthorizedUser)).rejects.toThrow(
+        PermissionError
+      );
     });
   });
 
@@ -740,8 +749,9 @@ describe('EVVService', () => {
         permissions: [],
       };
 
-      await expect(service.searchEVVRecords({}, { page: 1, limit: 10 }, unauthorizedUser))
-        .rejects.toThrow(PermissionError);
+      await expect(
+        service.searchEVVRecords({}, { page: 1, limit: 10 }, unauthorizedUser)
+      ).rejects.toThrow(PermissionError);
     });
   });
 });

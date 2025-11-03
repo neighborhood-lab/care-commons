@@ -14,9 +14,7 @@ export const PayrollSummaryCard: React.FC<PayrollSummaryCardProps> = ({ summary 
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600">Total Employees</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {summary.totalEmployees}
-            </p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{summary.totalEmployees}</p>
           </div>
           <Users className="h-8 w-8 text-blue-500" />
         </div>
@@ -31,15 +29,11 @@ export const PayrollSummaryCard: React.FC<PayrollSummaryCardProps> = ({ summary 
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600">Pending Approvals</p>
-            <p className="text-2xl font-bold text-orange-600 mt-1">
-              {summary.pendingApprovals}
-            </p>
+            <p className="text-2xl font-bold text-orange-600 mt-1">{summary.pendingApprovals}</p>
           </div>
           <Calendar className="h-8 w-8 text-orange-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Require attention
-        </p>
+        <p className="text-xs text-gray-500 mt-2">Require attention</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
@@ -52,9 +46,7 @@ export const PayrollSummaryCard: React.FC<PayrollSummaryCardProps> = ({ summary 
           </div>
           <DollarSign className="h-8 w-8 text-green-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Year to date
-        </p>
+        <p className="text-xs text-gray-500 mt-2">Year to date</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
@@ -67,9 +59,7 @@ export const PayrollSummaryCard: React.FC<PayrollSummaryCardProps> = ({ summary 
           </div>
           <CheckCircle className="h-8 w-8 text-green-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          of {summary.recentPayRuns.total} completed
-        </p>
+        <p className="text-xs text-gray-500 mt-2">of {summary.recentPayRuns.total} completed</p>
       </div>
     </div>
   );

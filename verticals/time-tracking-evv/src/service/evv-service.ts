@@ -1,6 +1,6 @@
 /**
  * EVV Service - Core business logic for time tracking and verification
- * 
+ *
  * Implements TX/FL state-specific EVV requirements with proper integration points.
  */
 
@@ -31,11 +31,7 @@ import {
   ComplianceFlag,
   VerificationLevel,
 } from '../types/evv';
-import {
-  IVisitProvider,
-  IClientProvider,
-  ICaregiverProvider,
-} from '../interfaces/visit-provider';
+import { IVisitProvider, IClientProvider, ICaregiverProvider } from '../interfaces/visit-provider';
 import { TexasEVVProvider } from '../providers/texas-evv-provider';
 import { FloridaEVVProvider } from '../providers/florida-evv-provider';
 import { Database } from '@care-commons/core';
@@ -52,7 +48,7 @@ export class EVVService {
     private caregiverProvider: ICaregiverProvider,
     private database: Database,
     private validator: EVVValidator = new EVVValidator()
-  ) { }
+  ) {}
 
   /**
    * Clock in - Start a visit with location verification
@@ -85,20 +81,20 @@ export class EVVService {
 
     // Get visit details from the visit provider (scheduling vertical)
     const visitData = await this.visitProvider.getVisitForEVV(input.visitId);
-    
+
     // Get additional client details for compliance data
     const client = await this.clientProvider.getClientForEVV(visitData.clientId);
-    
+
     // Get caregiver details
     const caregiver = await this.caregiverProvider.getCaregiverForEVV(input.caregiverId);
-    
+
     // Validate caregiver is authorized for this service
     const authCheck = await this.caregiverProvider.canProvideService(
       input.caregiverId,
       visitData.serviceTypeCode,
       visitData.clientId
     );
-    
+
     if (!authCheck.authorized) {
       throw new ValidationError(
         `Caregiver not authorized to provide service: ${authCheck.reason}`,
@@ -121,7 +117,9 @@ export class EVVService {
 
     // Get or create geofence for location
     const geofenceRadius = visitData.serviceAddress.geofenceRadius || 100; // Default 100m
-    const addressId = visitData.serviceAddress.addressId || this.generateFallbackAddressId(visitData.serviceAddress);
+    const addressId =
+      visitData.serviceAddress.addressId ||
+      this.generateFallbackAddressId(visitData.serviceAddress);
     const geofence = await this.getOrCreateGeofence(
       visitData.serviceAddress.latitude,
       visitData.serviceAddress.longitude,
@@ -177,14 +175,19 @@ export class EVVService {
       photoUrl: input.location.photoUrl,
       biometricVerified: input.location.biometricVerified,
       biometricMethod: input.location.biometricMethod,
-      verificationFailureReasons: geofenceCheck.isWithinGeofence ? undefined : [geofenceCheck.reason || 'Location outside geofence'],
+      verificationFailureReasons: geofenceCheck.isWithinGeofence
+        ? undefined
+        : [geofenceCheck.reason || 'Location outside geofence'],
     };
 
     const clockInFilteredOptional = Object.fromEntries(
       Object.entries(clockInOptionalFields).filter(([_, value]) => value !== undefined)
     );
 
-    const locationVerification: LocationVerification = { ...baseLocationVerification, ...clockInFilteredOptional };
+    const locationVerification: LocationVerification = {
+      ...baseLocationVerification,
+      ...clockInFilteredOptional,
+    };
 
     // Create time entry first
     const now = new Date();
@@ -213,7 +216,9 @@ export class EVVService {
       offlineRecorded: false,
       status: geofenceCheck.isWithinGeofence ? 'VERIFIED' : 'FLAGGED',
       verificationPassed: geofenceCheck.isWithinGeofence,
-      verificationIssues: geofenceCheck.isWithinGeofence ? [] : [geofenceCheck.reason || 'Location verification failed'],
+      verificationIssues: geofenceCheck.isWithinGeofence
+        ? []
+        : [geofenceCheck.reason || 'Location verification failed'],
       createdBy: userContext.userId,
       updatedBy: userContext.userId,
     });
@@ -259,7 +264,9 @@ export class EVVService {
       clockInVerification: locationVerification,
       recordStatus: 'PENDING' as const,
       verificationLevel: (geofenceCheck.isWithinGeofence ? 'FULL' : 'PARTIAL') as VerificationLevel,
-      complianceFlags: (geofenceCheck.isWithinGeofence ? ['COMPLIANT'] : ['GEOFENCE_VIOLATION']) as ComplianceFlag[],
+      complianceFlags: (geofenceCheck.isWithinGeofence
+        ? ['COMPLIANT']
+        : ['GEOFENCE_VIOLATION']) as ComplianceFlag[],
       integrityHash: this.generateCoreDataHash({
         visitId: input.visitId,
         clientId: visitData.clientId,
@@ -399,14 +406,19 @@ export class EVVService {
       photoUrl: input.location.photoUrl,
       biometricVerified: input.location.biometricVerified,
       biometricMethod: input.location.biometricMethod,
-      verificationFailureReasons: geofenceCheck.isWithinGeofence ? undefined : [geofenceCheck.reason || 'Location outside geofence'],
+      verificationFailureReasons: geofenceCheck.isWithinGeofence
+        ? undefined
+        : [geofenceCheck.reason || 'Location outside geofence'],
     };
 
     const clockOutFilteredOptional = Object.fromEntries(
       Object.entries(clockOutOptionalFields).filter(([_, value]) => value !== undefined)
     );
 
-    const locationVerification: LocationVerification = { ...baseLocationVerification, ...clockOutFilteredOptional };
+    const locationVerification: LocationVerification = {
+      ...baseLocationVerification,
+      ...clockOutFilteredOptional,
+    };
 
     // Create time entry
     const now = new Date();
@@ -436,7 +448,9 @@ export class EVVService {
       offlineRecorded: false,
       status: geofenceCheck.isWithinGeofence ? 'VERIFIED' : 'FLAGGED',
       verificationPassed: geofenceCheck.isWithinGeofence,
-      verificationIssues: geofenceCheck.isWithinGeofence ? [] : [geofenceCheck.reason || 'Location verification failed'],
+      verificationIssues: geofenceCheck.isWithinGeofence
+        ? []
+        : [geofenceCheck.reason || 'Location verification failed'],
       createdBy: userContext.userId,
       updatedBy: userContext.userId,
     });
@@ -570,10 +584,7 @@ export class EVVService {
   /**
    * Create geofence for a location
    */
-  async createGeofence(
-    input: CreateGeofenceInput,
-    userContext: UserContext
-  ): Promise<Geofence> {
+  async createGeofence(input: CreateGeofenceInput, userContext: UserContext): Promise<Geofence> {
     // Validate input
     this.validator.validateGeofence(input);
 
@@ -688,7 +699,9 @@ export class EVVService {
    * Helper: Check if user has permission
    */
   private hasPermission(userContext: UserContext, permission: string): boolean {
-    return userContext.permissions.includes(permission) || userContext.roles.includes('SUPER_ADMIN');
+    return (
+      userContext.permissions.includes(permission) || userContext.roles.includes('SUPER_ADMIN')
+    );
   }
 
   /**
@@ -713,10 +726,16 @@ export class EVVService {
   /**
    * Helper: Generate fallback address ID if not provided by visit
    */
-  private generateFallbackAddressId(address: { line1: string; city: string; state: string; postalCode: string }): UUID {
-    const addressString = `${address.line1}|${address.city}|${address.state}|${address.postalCode}`.toLowerCase();
+  private generateFallbackAddressId(address: {
+    line1: string;
+    city: string;
+    state: string;
+    postalCode: string;
+  }): UUID {
+    const addressString =
+      `${address.line1}|${address.city}|${address.state}|${address.postalCode}`.toLowerCase();
     const hash = addressString.split('').reduce((acc, char) => {
-      return ((acc << 5) - acc) + char.charCodeAt(0);
+      return (acc << 5) - acc + char.charCodeAt(0);
     }, 0);
     const hashStr = Math.abs(hash).toString(16).padStart(32, '0').substring(0, 32);
     return `${hashStr.substring(0, 8)}-${hashStr.substring(8, 12)}-${hashStr.substring(12, 16)}-${hashStr.substring(16, 20)}-${hashStr.substring(20, 32)}` as UUID;
@@ -737,9 +756,9 @@ export class EVVService {
   }
 
   /**
-    * Submit EVV record to state aggregator(s)
-    * SOLID: Open/Closed - extends functionality without modifying core clock-in/out
-    */
+   * Submit EVV record to state aggregator(s)
+   * SOLID: Open/Closed - extends functionality without modifying core clock-in/out
+   */
   async submitToStateAggregator(
     evvRecordId: UUID,
     _userContext: UserContext
@@ -750,10 +769,13 @@ export class EVVService {
     }
 
     // Get client's state
-    const client = await this.database.query(`
+    const client = await this.database.query(
+      `
       SELECT state FROM clients WHERE id = $1
-    `, [evvRecord.clientId]);
-    
+    `,
+      [evvRecord.clientId]
+    );
+
     const state = client.rows[0]?.['state'];
 
     if (state === 'TX') {
@@ -776,8 +798,8 @@ export class EVVService {
   }
 
   /**
-    * Helper: Generate checksum
-    */
+   * Helper: Generate checksum
+   */
   private generateChecksum(data: any): string {
     return CryptoUtils.generateChecksum(data);
   }

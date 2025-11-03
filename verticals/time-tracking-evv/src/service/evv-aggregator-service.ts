@@ -1,18 +1,14 @@
 /**
  * EVV Aggregator Integration Service
- * 
+ *
  * Handles submission of EVV data to state-mandated aggregators:
  * - Texas: HHAeXchange (mandatory)
  * - Florida: Multiple aggregators (HHAeXchange, Netsmart/Tellus, etc.)
- * 
+ *
  * Implements retry logic, error handling, and compliance tracking.
  */
 
-import {
-  UUID,
-  NotFoundError,
-  ValidationError,
-} from '@care-commons/core';
+import { UUID, NotFoundError, ValidationError } from '@care-commons/core';
 import { EVVRecord } from '../types/evv';
 import {
   StateCode,
@@ -58,22 +54,31 @@ interface AggregatorResponse extends Record<string, unknown> {
  * Aggregator configuration repository interface
  */
 export interface IAggregatorConfigRepository {
-  getStateConfig(organizationId: UUID, branchId: UUID, stateCode: StateCode): Promise<TexasEVVConfig | FloridaEVVConfig | null>;
+  getStateConfig(
+    organizationId: UUID,
+    branchId: UUID,
+    stateCode: StateCode
+  ): Promise<TexasEVVConfig | FloridaEVVConfig | null>;
 }
 
 /**
  * Aggregator submission repository interface
  */
 export interface IAggregatorSubmissionRepository {
-  createSubmission(submission: Omit<StateAggregatorSubmission, 'id' | 'createdAt' | 'updatedAt'>): Promise<StateAggregatorSubmission>;
-  updateSubmission(id: UUID, updates: Partial<StateAggregatorSubmission>): Promise<StateAggregatorSubmission>;
+  createSubmission(
+    submission: Omit<StateAggregatorSubmission, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<StateAggregatorSubmission>;
+  updateSubmission(
+    id: UUID,
+    updates: Partial<StateAggregatorSubmission>
+  ): Promise<StateAggregatorSubmission>;
   getSubmissionsByEVVRecord(evvRecordId: UUID): Promise<StateAggregatorSubmission[]>;
   getPendingRetries(): Promise<StateAggregatorSubmission[]>;
 }
 
 /**
  * EVV Aggregator Service
- * 
+ *
  * Handles all EVV data submission to state aggregators with proper error handling,
  * retry logic, and compliance tracking.
  */
@@ -85,7 +90,7 @@ export class EVVAggregatorService {
 
   /**
    * Submit EVV record to appropriate state aggregator(s)
-   * 
+   *
    * @throws ValidationError if EVV record is incomplete
    * @throws NotFoundError if aggregator configuration not found
    */
@@ -104,14 +109,11 @@ export class EVVAggregatorService {
     );
 
     if (!config) {
-      throw new NotFoundError(
-        `Aggregator configuration not found for state ${stateCode}`,
-        {
-          organizationId: evvRecord.organizationId,
-          branchId: evvRecord.branchId,
-          stateCode,
-        }
-      );
+      throw new NotFoundError(`Aggregator configuration not found for state ${stateCode}`, {
+        organizationId: evvRecord.organizationId,
+        branchId: evvRecord.branchId,
+        stateCode,
+      });
     }
 
     // Submit based on state
@@ -211,14 +213,13 @@ export class EVVAggregatorService {
     // Determine which aggregator(s) to use based on payer/MCO
     // For now, use the default aggregator
     const aggregatorConfig = config.aggregators.find(
-      agg => agg.id === config.defaultAggregator && agg.isActive
+      (agg) => agg.id === config.defaultAggregator && agg.isActive
     );
 
     if (!aggregatorConfig) {
-      throw new NotFoundError(
-        `No active aggregator found for Florida`,
-        { organizationId: evvRecord.organizationId }
-      );
+      throw new NotFoundError(`No active aggregator found for Florida`, {
+        organizationId: evvRecord.organizationId,
+      });
     }
 
     const payload = this.buildHHAeXchangePayload(evvRecord, 'FL');
@@ -314,10 +315,7 @@ export class EVVAggregatorService {
   /**
    * Build HHAeXchange-compatible payload
    */
-  private buildHHAeXchangePayload(
-    evvRecord: EVVRecord,
-    _stateCode: StateCode
-  ): HHAeXchangePayload {
+  private buildHHAeXchangePayload(evvRecord: EVVRecord, _stateCode: StateCode): HHAeXchangePayload {
     const basePayload = {
       visitId: evvRecord.visitId,
       memberId: evvRecord.clientMedicaidId ?? evvRecord.clientId,
@@ -349,7 +347,7 @@ export class EVVAggregatorService {
 
   /**
    * Send payload to HHAeXchange API
-   * 
+   *
    * NOTE: This is a stub implementation. In production, implement proper HTTP client
    * with authentication, SSL/TLS, retries, and logging.
    */
@@ -374,9 +372,9 @@ export class EVVAggregatorService {
 
     throw new Error(
       'HHAeXchange integration not implemented. ' +
-      'Production implementation must include proper HTTP client with ' +
-      'authentication, SSL/TLS verification, retries, and logging. ' +
-      `Endpoint: ${endpoint}`
+        'Production implementation must include proper HTTP client with ' +
+        'authentication, SSL/TLS verification, retries, and logging. ' +
+        `Endpoint: ${endpoint}`
     );
   }
 
@@ -411,10 +409,10 @@ export class EVVAggregatorService {
     }
 
     if (errors.length > 0) {
-      throw new ValidationError(
-        'EVV record incomplete for aggregator submission',
-        { errors, evvRecordId: evvRecord.id }
-      );
+      throw new ValidationError('EVV record incomplete for aggregator submission', {
+        errors,
+        evvRecordId: evvRecord.id,
+      });
     }
   }
 
@@ -427,10 +425,10 @@ export class EVVAggregatorService {
     if (stateAbbr === 'TX') return 'TX';
     if (stateAbbr === 'FL') return 'FL';
 
-    throw new ValidationError(
-      `Unsupported state for EVV aggregator: ${stateAbbr}`,
-      { state: stateAbbr, evvRecordId: evvRecord.id }
-    );
+    throw new ValidationError(`Unsupported state for EVV aggregator: ${stateAbbr}`, {
+      state: stateAbbr,
+      evvRecordId: evvRecord.id,
+    });
   }
 
   /**

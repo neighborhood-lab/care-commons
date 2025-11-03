@@ -1,11 +1,14 @@
 # Care Commons API Server
 
-Express.js application layer that integrates all Care Commons vertical packages into a unified REST API.
+Express.js application layer that integrates all Care Commons vertical packages
+into a unified REST API.
 
 ## Architecture
 
 This package follows the **application layer** pattern, where:
-- **Verticals** (in `verticals/*`) provide business logic, services, and route handlers
+
+- **Verticals** (in `verticals/*`) provide business logic, services, and route
+  handlers
 - **Core** (in `packages/core`) provides shared database, types, and utilities
 - **App** (this package) wires everything together into a running web server
 
@@ -37,16 +40,19 @@ packages/app/
 ### Running the Server
 
 **Development mode** (with auto-reload):
+
 ```bash
 npm run dev:server
 ```
 
 Or from the root:
+
 ```bash
 npm run dev:server
 ```
 
 The server will:
+
 - Connect to the database
 - Register all vertical routes
 - Start listening on `http://localhost:3000`
@@ -61,10 +67,12 @@ npm run start
 ## API Endpoints
 
 ### Health & Info
+
 - `GET /health` - Health check (returns database status)
 - `GET /api` - API version information
 
 ### Client Demographics
+
 - `GET /api/clients` - List clients with filters
 - `POST /api/clients` - Create new client
 - `GET /api/clients/:id` - Get client by ID
@@ -73,6 +81,7 @@ npm run start
 - See `verticals/client-demographics/README.md` for full API
 
 ### Care Plans & Tasks
+
 - `GET /api/care-plans` - Search care plans
 - `POST /api/care-plans` - Create care plan
 - `GET /api/care-plans/:id` - Get care plan
@@ -122,9 +131,13 @@ To integrate a new vertical package:
 4. Mount the router: `app.use('/api', verticalRouter)`
 
 Example:
+
 ```typescript
 // In src/routes/index.ts
-import { createSchedulingRouter, SchedulingService } from '@care-commons/scheduling-visits';
+import {
+  createSchedulingRouter,
+  SchedulingService,
+} from '@care-commons/scheduling-visits';
 
 const schedulingService = new SchedulingService(db);
 const schedulingRouter = createSchedulingRouter(schedulingService);
@@ -133,10 +146,11 @@ app.use('/api', schedulingRouter);
 
 ## Error Handling
 
-All errors are caught by the centralized error handler in `middleware/error-handler.ts`:
+All errors are caught by the centralized error handler in
+`middleware/error-handler.ts`:
 
 - `ValidationError` → 400 Bad Request
-- `PermissionError` → 403 Forbidden  
+- `PermissionError` → 403 Forbidden
 - `NotFoundError` → 404 Not Found
 - Others → 500 Internal Server Error
 

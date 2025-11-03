@@ -1,12 +1,16 @@
 /**
  * API Routes Setup
- * 
+ *
  * Integrates all vertical route handlers with the Express app
  */
 
 import { Express, Router } from 'express';
 import { Database, PermissionService, UserRepository } from '@care-commons/core';
-import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
+import {
+  createClientRouter,
+  ClientService,
+  ClientRepository,
+} from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import authRoutes from './auth';
@@ -38,7 +42,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const carePlanRepository = new CarePlanRepository(db);
   const permissionService = new PermissionService();
   const userRepository = new UserRepository(db);
-  const carePlanService = new CarePlanService(carePlanRepository, permissionService, userRepository);
+  const carePlanService = new CarePlanService(
+    carePlanRepository,
+    permissionService,
+    userRepository
+  );
   const carePlanHandlers = createCarePlanHandlers(carePlanService);
   const carePlanRouter = createCarePlanRouter(carePlanHandlers);
   app.use('/api', carePlanRouter);

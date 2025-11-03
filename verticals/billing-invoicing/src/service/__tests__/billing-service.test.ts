@@ -1,6 +1,6 @@
 /**
  * Integration tests for BillingService
- * 
+ *
  * Tests service business logic orchestration with mocked repository layer
  * Focus on workflows, error handling, and transaction boundaries
  */
@@ -339,9 +339,9 @@ describe('BillingService Integration Tests', () => {
       mockRepository.findActiveRateSchedule.mockResolvedValue(mockRateSchedule);
       mockRepository.findAuthorizationByNumber.mockResolvedValue(mockAuth);
 
-      await expect(
-        service.createBillableItem(inputWithAuth, 'user-123' as any)
-      ).rejects.toThrow('Insufficient authorization units');
+      await expect(service.createBillableItem(inputWithAuth, 'user-123' as any)).rejects.toThrow(
+        'Insufficient authorization units'
+      );
     });
   });
 
@@ -452,7 +452,7 @@ describe('BillingService Integration Tests', () => {
 
       mockRepository.searchBillableItems.mockResolvedValue(mockBillableItems);
       mockRepository.findPayerById.mockResolvedValue(mockPayer);
-      
+
       // Mock the query that counts invoices
       (mockClient.query as any).mockImplementation((sql: string) => {
         if (typeof sql === 'string' && sql.includes('COUNT')) {

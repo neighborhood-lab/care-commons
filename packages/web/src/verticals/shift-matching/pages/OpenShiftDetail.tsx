@@ -27,10 +27,7 @@ export const OpenShiftDetail: React.FC = () => {
 
   if (error || !shift) {
     return (
-      <ErrorMessage
-        message="Failed to load open shift"
-        retry={() => navigate('/shift-matching')}
-      />
+      <ErrorMessage message="Failed to load open shift" retry={() => navigate('/shift-matching')} />
     );
   }
 
@@ -118,7 +115,10 @@ export const OpenShiftDetail: React.FC = () => {
               <h3 className="text-sm font-medium text-gray-500 mb-2">Required Skills</h3>
               <div className="flex flex-wrap gap-2">
                 {shift.requiredSkills.map((skill, idx) => (
-                  <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                  <span
+                    key={idx}
+                    className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full"
+                  >
                     {skill}
                   </span>
                 ))}
@@ -131,7 +131,10 @@ export const OpenShiftDetail: React.FC = () => {
               <h3 className="text-sm font-medium text-gray-500 mb-2">Required Certifications</h3>
               <div className="flex flex-wrap gap-2">
                 {shift.requiredCertifications.map((cert, idx) => (
-                  <span key={idx} className="text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                  <span
+                    key={idx}
+                    className="text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full"
+                  >
                     {cert}
                   </span>
                 ))}

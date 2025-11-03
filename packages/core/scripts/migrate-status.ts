@@ -1,10 +1,10 @@
 /**
  * Database migration status script using Knex
- * 
+ *
  * Shows current migration status
  */
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import knex, { Knex } from 'knex';
 
 dotenv.config({ path: '.env', quiet: true });
@@ -16,9 +16,10 @@ async function showMigrationStatus() {
 
   // Determine environment
   const environment = process.env.NODE_ENV || 'development';
-  const dbName = environment === 'test' 
-    ? (process.env.DB_NAME || 'care_commons') + '_test'
-    : process.env.DB_NAME || 'care_commons';
+  const dbName =
+    environment === 'test'
+      ? (process.env.DB_NAME || 'care_commons') + '_test'
+      : process.env.DB_NAME || 'care_commons';
 
   // Build Knex config inline to avoid tsconfig issues
   const config: Knex.Config = {

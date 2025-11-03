@@ -92,10 +92,7 @@ export const createShiftMatchingApiService = (apiClient: ApiClient): ShiftMatchi
     },
 
     withdrawProposal: async (id: string) => {
-      return apiClient.post<AssignmentProposal>(
-        `/api/shift-matching/proposals/${id}/withdraw`,
-        {}
-      );
+      return apiClient.post<AssignmentProposal>(`/api/shift-matching/proposals/${id}/withdraw`, {});
     },
 
     getMatchingMetrics: async (dateFrom?: string, dateTo?: string) => {

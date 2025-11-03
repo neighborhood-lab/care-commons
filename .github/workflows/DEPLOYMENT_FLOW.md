@@ -1,8 +1,10 @@
 # Deployment Workflow Guide
 
-This document explains when and how deployments happen in the Care Commons project.
+This document explains when and how deployments happen in the Care Commons
+project.
 
 **Note:** This project uses **Vercel Hobby Plan** with two environments:
+
 - **Production** (Vercel production environment) ← `main` branch
 - **Preview** (Vercel preview environment) ← `develop` branch
 - **Development** (local only) ← not deployed to Vercel
@@ -11,19 +13,19 @@ This document explains when and how deployments happen in the Care Commons proje
 
 ### ✅ What Triggers Deployments
 
-| Event | Branch | Deployment Type | Vercel Environment |
-|-------|--------|----------------|-------------|
-| Push to `main` | `main` | **Production** | Production |
-| Push to `develop` | `develop` | **Preview** | Preview |
-| Manual workflow dispatch | Any | **Production** | Production |
+| Event                    | Branch    | Deployment Type | Vercel Environment |
+| ------------------------ | --------- | --------------- | ------------------ |
+| Push to `main`           | `main`    | **Production**  | Production         |
+| Push to `develop`        | `develop` | **Preview**     | Preview            |
+| Manual workflow dispatch | Any       | **Production**  | Production         |
 
 ### ❌ What Does NOT Trigger Deployments
 
-| Event | Why |
-|-------|-----|
-| Push to feature branches | Feature branches are not deployment targets |
-| Pull requests (any branch) | PRs do not trigger deployments - only merges/pushes to main or develop |
-| Push to any branch except `main` or `develop` | Only main/develop are deployment branches |
+| Event                                         | Why                                                                    |
+| --------------------------------------------- | ---------------------------------------------------------------------- |
+| Push to feature branches                      | Feature branches are not deployment targets                            |
+| Pull requests (any branch)                    | PRs do not trigger deployments - only merges/pushes to main or develop |
+| Push to any branch except `main` or `develop` | Only main/develop are deployment branches                              |
 
 ## Workflow Behavior
 
@@ -99,11 +101,13 @@ gh workflow run deploy.yml -f environment=staging
 ### Build Job
 
 **Runs on:**
+
 - ✅ All push events to `main` or `develop`
 - ✅ All PRs to `main` or `develop`
 - ✅ Manual workflow dispatch
 
 **Purpose:**
+
 - Builds all packages
 - Runs tests
 - Creates artifacts for deployment jobs
@@ -111,16 +115,19 @@ gh workflow run deploy.yml -f environment=staging
 ### Deploy Preview Job
 
 **Runs when:**
+
 ```yaml
 if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 ```
 
 **Conditions:**
+
 - ✅ Only on pushes to `develop` branch
 - ❌ NOT on pull requests
 - ❌ NOT on feature branches
 
 **Purpose:**
+
 - Deploy preview environment when code is merged to develop
 - Run database migrations
 - Health check verification
@@ -129,6 +136,7 @@ if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 ### Deploy Production Job
 
 **Runs when:**
+
 ```yaml
 if: |
   (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
@@ -136,12 +144,14 @@ if: |
 ```
 
 **Conditions:**
+
 - ✅ Push to `main` branch
 - ✅ Manual workflow dispatch
 - ❌ NOT on pull requests
 - ❌ NOT on feature branches
 
 **Purpose:**
+
 - Deploy latest `main` code to production
 - Run database migrations
 - Health check verification
@@ -236,26 +246,28 @@ gh workflow run deploy.yml -f environment=production
 ### Production Environment
 
 **Protection rules recommended:**
+
 - ✅ Require reviewers (1-2 people)
 - ✅ Restrict to `main` branch only
 - ✅ Require status checks to pass
 - ✅ Enable deployment protection rules
 
-**Set in GitHub:**
-Settings → Environments → production → Add protection rules
+**Set in GitHub:** Settings → Environments → production → Add protection rules
 
 ### Preview Environment
 
 **Protection rules recommended:**
+
 - ✅ Restrict to `develop` branch and PRs to develop
 - ✅ Require status checks to pass
-- ⚠️  Reviewers optional (faster iteration)
+- ⚠️ Reviewers optional (faster iteration)
 - ✅ Used for testing before production
 
 ### Development Environment
 
 **Local only:**
-- ⚠️  Not deployed to Vercel
+
+- ⚠️ Not deployed to Vercel
 - ✅ Linked to local machine via `vercel dev`
 - ✅ Uses local database or development database
 
@@ -270,7 +282,7 @@ Before pushing, verify what will happen:
 git branch --show-current
 
 # If on main → Production deployment
-# If on develop → Preview deployment  
+# If on develop → Preview deployment
 # If on feature/* → No deployment
 ```
 
@@ -292,6 +304,7 @@ gh run view <run-id> --log
 ### Deployment didn't trigger
 
 **Check:**
+
 1. Are you on `main` or `develop` branch?
 2. Did you push the changes?
 3. Is the workflow file correct?
@@ -300,6 +313,7 @@ gh run view <run-id> --log
 ### Unexpected deployment
 
 **Check:**
+
 1. Which branch triggered it?
 2. Was it a push or PR?
 3. Review workflow conditions
@@ -307,6 +321,7 @@ gh run view <run-id> --log
 ### Want to prevent deployment
 
 **Options:**
+
 1. Work on feature branch (no auto-deploy)
 2. Use `[skip ci]` in commit message (skips all workflows)
 3. Don't merge to `main`/`develop` yet
@@ -325,7 +340,7 @@ gh run view <run-id> --log
 
 3. **Use feature branches**
    - Keep `main` and `develop` protected
-   - Work on feature/* branches
+   - Work on feature/\* branches
    - Merge via PRs only
 
 4. **Review preview deployments**
@@ -340,15 +355,18 @@ gh run view <run-id> --log
 
 ## Summary
 
-| Branch Type | Push | PR Created | PR Merged | Vercel Environment |
-|------------|------|------------|-----------|------------|
-| `feature/*` | ❌ No | ❌ No | - | None |
-| `develop` | ✅ Preview | ❌ No | ✅ Preview | Preview |
-| `main` | ✅ Production | ❌ No | ✅ Production | Production |
+| Branch Type | Push          | PR Created | PR Merged     | Vercel Environment |
+| ----------- | ------------- | ---------- | ------------- | ------------------ |
+| `feature/*` | ❌ No         | ❌ No      | -             | None               |
+| `develop`   | ✅ Preview    | ❌ No      | ✅ Preview    | Preview            |
+| `main`      | ✅ Production | ❌ No      | ✅ Production | Production         |
 
-**Key Principles:** 
-- Only `main` (production) and `develop` (preview) branches trigger automatic deployments on push
-- **Pull requests do NOT trigger deployments** - only actual merges/pushes to main or develop
+**Key Principles:**
+
+- Only `main` (production) and `develop` (preview) branches trigger automatic
+  deployments on push
+- **Pull requests do NOT trigger deployments** - only actual merges/pushes to
+  main or develop
 - Feature branches never auto-deploy
 - PRs are only accepted to `develop`, not `main`
 

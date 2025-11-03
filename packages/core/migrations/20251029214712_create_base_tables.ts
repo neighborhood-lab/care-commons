@@ -28,7 +28,9 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('deleted_by');
   });
 
-  await knex.raw('CREATE INDEX idx_organizations_status ON organizations(status) WHERE deleted_at IS NULL');
+  await knex.raw(
+    'CREATE INDEX idx_organizations_status ON organizations(status) WHERE deleted_at IS NULL'
+  );
 
   // Branches table
   await knex.schema.createTable('branches', (table) => {
@@ -51,7 +53,9 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('deleted_by');
   });
 
-  await knex.raw('CREATE INDEX idx_branches_organization ON branches(organization_id) WHERE deleted_at IS NULL');
+  await knex.raw(
+    'CREATE INDEX idx_branches_organization ON branches(organization_id) WHERE deleted_at IS NULL'
+  );
   await knex.raw('CREATE INDEX idx_branches_status ON branches(status) WHERE deleted_at IS NULL');
 
   // Users table
@@ -82,7 +86,9 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('deleted_by');
   });
 
-  await knex.raw('CREATE INDEX idx_users_organization ON users(organization_id) WHERE deleted_at IS NULL');
+  await knex.raw(
+    'CREATE INDEX idx_users_organization ON users(organization_id) WHERE deleted_at IS NULL'
+  );
   await knex.raw('CREATE INDEX idx_users_email ON users(email) WHERE deleted_at IS NULL');
   await knex.raw('CREATE INDEX idx_users_status ON users(status) WHERE deleted_at IS NULL');
 
@@ -122,7 +128,9 @@ export async function up(knex: Knex): Promise<void> {
     table.text('user_agent');
   });
 
-  await knex.raw('CREATE INDEX idx_audit_revisions_entity ON audit_revisions(entity_id, entity_type)');
+  await knex.raw(
+    'CREATE INDEX idx_audit_revisions_entity ON audit_revisions(entity_id, entity_type)'
+  );
   await knex.raw('CREATE INDEX idx_audit_revisions_timestamp ON audit_revisions(timestamp DESC)');
   await knex.raw('CREATE INDEX idx_audit_revisions_user ON audit_revisions(user_id)');
 
@@ -151,7 +159,9 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('deleted_by');
   });
 
-  await knex.raw('CREATE INDEX idx_programs_organization ON programs(organization_id) WHERE deleted_at IS NULL');
+  await knex.raw(
+    'CREATE INDEX idx_programs_organization ON programs(organization_id) WHERE deleted_at IS NULL'
+  );
   await knex.raw('CREATE INDEX idx_programs_status ON programs(status) WHERE deleted_at IS NULL');
 }
 
@@ -163,4 +173,3 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists('branches');
   await knex.schema.dropTableIfExists('organizations');
 }
-

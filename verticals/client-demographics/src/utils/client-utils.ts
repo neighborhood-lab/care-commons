@@ -1,6 +1,6 @@
 /**
  * Client utility functions
- * 
+ *
  * Helper functions for common client-related operations
  */
 
@@ -72,9 +72,7 @@ export function getActiveRiskFlags(client: Client): RiskFlag[] {
  * Get critical active risk flags
  */
 export function getCriticalRiskFlags(client: Client): RiskFlag[] {
-  return client.riskFlags.filter(
-    (flag) => !flag.resolvedDate && flag.severity === 'CRITICAL'
-  );
+  return client.riskFlags.filter((flag) => !flag.resolvedDate && flag.severity === 'CRITICAL');
 }
 
 /**
@@ -220,9 +218,7 @@ export function hasAllergies(client: Client): boolean {
  * Check if client has life-threatening allergies
  */
 export function hasLifeThreateningAllergies(client: Client): boolean {
-  return (
-    client.allergies?.some((allergy) => allergy.severity === 'LIFE_THREATENING') || false
-  );
+  return client.allergies?.some((allergy) => allergy.severity === 'LIFE_THREATENING') || false;
 }
 
 /**
@@ -240,12 +236,13 @@ export function getDaysSinceIntake(client: Client): number | null {
     return null;
   }
 
-  const intakeDate = typeof client.intakeDate === 'string'
-    ? parseISO(client.intakeDate)
-    : client.intakeDate;
+  const intakeDate =
+    typeof client.intakeDate === 'string' ? parseISO(client.intakeDate) : client.intakeDate;
 
-  return differenceInYears(new Date(), intakeDate) * 365 +
-    differenceInMonths(new Date(), intakeDate) % 12 * 30;
+  return (
+    differenceInYears(new Date(), intakeDate) * 365 +
+    (differenceInMonths(new Date(), intakeDate) % 12) * 30
+  );
 }
 
 /**
@@ -279,9 +276,7 @@ export function generateClientSummary(client: Client): {
     basicInfo: `${getFullName(client, true)}, ${age} years old, ${client.gender || 'Gender not specified'}`,
     contactInfo: `${formatAddressSingleLine(client.primaryAddress)}${phoneInfo}`,
     careInfo: `Programs: ${programList}`,
-    riskInfo: activeRisks.length > 0
-      ? `Active risk flags: ${riskList}`
-      : 'No active risk flags',
+    riskInfo: activeRisks.length > 0 ? `Active risk flags: ${riskList}` : 'No active risk flags',
   };
 }
 
@@ -400,16 +395,14 @@ export function exportClientToCSV(client: Client): Record<string, string> {
     'Last Name': client.lastName,
     'Preferred Name': client.preferredName || '',
     'Date of Birth': format(new Date(client.dateOfBirth), 'MM/dd/yyyy'),
-    'Age': age.toString(),
-    'Gender': client.gender || '',
-    'Status': client.status,
-    'Phone': client.primaryPhone ? formatPhoneNumber(client.primaryPhone.number) : '',
-    'Email': client.email || '',
-    'Address': formatAddressSingleLine(client.primaryAddress),
+    Age: age.toString(),
+    Gender: client.gender || '',
+    Status: client.status,
+    Phone: client.primaryPhone ? formatPhoneNumber(client.primaryPhone.number) : '',
+    Email: client.email || '',
+    Address: formatAddressSingleLine(client.primaryAddress),
     'Emergency Contact': primaryContact ? primaryContact.name : '',
-    'Emergency Contact Phone': primaryContact
-      ? formatPhoneNumber(primaryContact.phone.number)
-      : '',
+    'Emergency Contact Phone': primaryContact ? formatPhoneNumber(primaryContact.phone.number) : '',
     'Active Programs': getActivePrograms(client)
       .map((p) => p.programName)
       .join('; '),

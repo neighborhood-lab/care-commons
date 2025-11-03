@@ -1,6 +1,6 @@
 /**
  * Care Plans & Tasks seed data
- * 
+ *
  * Creates realistic care plans, task templates, task instances, and progress notes
  * for demonstration and testing purposes
  */
@@ -29,26 +29,35 @@ async function seedCarePlans() {
       }
       const orgId = orgResult.rows[0].id;
 
-      const branchResult = await client.query(`SELECT id FROM branches WHERE organization_id = $1 LIMIT 1`, [orgId]);
+      const branchResult = await client.query(
+        `SELECT id FROM branches WHERE organization_id = $1 LIMIT 1`,
+        [orgId]
+      );
       if (branchResult.rows.length === 0) {
         throw new Error('No branch found. Please run seed.ts first.');
       }
       const branchId = branchResult.rows[0].id;
 
-      const userResult = await client.query(`SELECT id FROM users WHERE organization_id = $1 LIMIT 1`, [orgId]);
+      const userResult = await client.query(
+        `SELECT id FROM users WHERE organization_id = $1 LIMIT 1`,
+        [orgId]
+      );
       if (userResult.rows.length === 0) {
         throw new Error('No user found. Please run seed.ts first.');
       }
       const systemUserId = userResult.rows[0].id;
 
       // Get client IDs
-      const clientsResult = await client.query(`
+      const clientsResult = await client.query(
+        `
         SELECT id, client_number FROM clients 
         WHERE organization_id = $1 AND status = 'ACTIVE' 
         ORDER BY created_at 
         LIMIT 2
-      `, [orgId]);
-      
+      `,
+        [orgId]
+      );
+
       if (clientsResult.rows.length < 2) {
         throw new Error('Need at least 2 active clients. Please run seed.ts first.');
       }
@@ -57,13 +66,16 @@ async function seedCarePlans() {
       const client2Id = clientsResult.rows[1].id; // Robert Martinez
 
       // Get caregiver IDs
-      const caregiversResult = await client.query(`
+      const caregiversResult = await client.query(
+        `
         SELECT id, employee_number FROM caregivers 
         WHERE organization_id = $1 AND status = 'ACTIVE'
         ORDER BY created_at 
         LIMIT 2
-      `, [orgId]);
-      
+      `,
+        [orgId]
+      );
+
       if (caregiversResult.rows.length < 2) {
         throw new Error('Need at least 2 active caregivers. Please run seed.ts first.');
       }
@@ -79,7 +91,8 @@ async function seedCarePlans() {
         {
           id: uuidv4(),
           name: 'Improve Mobility and Reduce Fall Risk',
-          description: 'Client will demonstrate safe ambulation with walker for distances up to 50 feet without assistance within 3 months',
+          description:
+            'Client will demonstrate safe ambulation with walker for distances up to 50 feet without assistance within 3 months',
           category: 'MOBILITY',
           status: 'IN_PROGRESS',
           priority: 'HIGH',
@@ -94,7 +107,8 @@ async function seedCarePlans() {
         {
           id: uuidv4(),
           name: 'Medication Compliance',
-          description: 'Client will take all prescribed medications as scheduled without reminders 90% of the time',
+          description:
+            'Client will take all prescribed medications as scheduled without reminders 90% of the time',
           category: 'MEDICATION_MANAGEMENT',
           status: 'ON_TRACK',
           priority: 'MEDIUM',
@@ -108,7 +122,8 @@ async function seedCarePlans() {
         {
           id: uuidv4(),
           name: 'Maintain Independence in ADLs',
-          description: 'Client will maintain current level of independence in bathing, dressing, and grooming',
+          description:
+            'Client will maintain current level of independence in bathing, dressing, and grooming',
           category: 'ADL',
           status: 'ACHIEVED',
           priority: 'MEDIUM',
@@ -131,8 +146,13 @@ async function seedCarePlans() {
             timesPerDay: 2,
           },
           duration: 15,
-          instructions: 'Ensure walker is properly positioned. Walk alongside client for safety. Gradually increase distance by 5 feet per week.',
-          precautions: ['Watch for fatigue', 'Monitor for dizziness', 'Keep path clear of obstacles'],
+          instructions:
+            'Ensure walker is properly positioned. Walk alongside client for safety. Gradually increase distance by 5 feet per week.',
+          precautions: [
+            'Watch for fatigue',
+            'Monitor for dizziness',
+            'Keep path clear of obstacles',
+          ],
           performedBy: ['CAREGIVER', 'HHA'],
           requiresDocumentation: true,
           status: 'ACTIVE',
@@ -150,7 +170,8 @@ async function seedCarePlans() {
             specificTimes: ['09:00', '14:00', '20:00'],
           },
           duration: 5,
-          instructions: 'Use medication reminder app. Verbally remind client 5 minutes before scheduled time. Observe client taking medication.',
+          instructions:
+            'Use medication reminder app. Verbally remind client 5 minutes before scheduled time. Observe client taking medication.',
           performedBy: ['CAREGIVER', 'CNA', 'HHA'],
           requiresDocumentation: true,
           status: 'ACTIVE',
@@ -167,7 +188,8 @@ async function seedCarePlans() {
             timesPerDay: 1,
           },
           duration: 30,
-          instructions: 'Allow client to do as much as possible independently. Provide hands-on assistance only when requested or needed for safety.',
+          instructions:
+            'Allow client to do as much as possible independently. Provide hands-on assistance only when requested or needed for safety.',
           performedBy: ['CAREGIVER', 'HHA'],
           requiresDocumentation: true,
           status: 'ACTIVE',
@@ -187,7 +209,8 @@ async function seedCarePlans() {
           },
           estimatedDuration: 15,
           timeOfDay: ['MORNING'],
-          instructions: 'Help client stand safely, ensure walker is positioned correctly, walk with client for prescribed distance, document distance achieved.',
+          instructions:
+            'Help client stand safely, ensure walker is positioned correctly, walk with client for prescribed distance, document distance achieved.',
           steps: [
             {
               stepNumber: 1,
@@ -253,12 +276,17 @@ async function seedCarePlans() {
           },
           estimatedDuration: 5,
           timeOfDay: ['MORNING'],
-          instructions: 'Remind client of 9 AM medications, observe client take medications with water, document compliance.',
+          instructions:
+            'Remind client of 9 AM medications, observe client take medications with water, document compliance.',
           requiresSignature: false,
           requiresNote: true,
           isOptional: false,
           allowSkip: false,
-          skipReasons: ['Client refused', 'Client already took medication', 'Medication not available'],
+          skipReasons: [
+            'Client refused',
+            'Client already took medication',
+            'Medication not available',
+          ],
           verificationType: 'CHECKBOX',
           status: 'ACTIVE',
         },
@@ -273,7 +301,8 @@ async function seedCarePlans() {
           },
           estimatedDuration: 30,
           timeOfDay: ['MORNING'],
-          instructions: 'Assist with bathing, dressing, and grooming. Encourage independence. Ensure safety throughout.',
+          instructions:
+            'Assist with bathing, dressing, and grooming. Encourage independence. Ensure safety throughout.',
           requiresSignature: false,
           requiresNote: true,
           isOptional: false,
@@ -305,7 +334,8 @@ async function seedCarePlans() {
           },
           estimatedDuration: 20,
           timeOfDay: ['MORNING', 'AFTERNOON'],
-          instructions: 'Vacuum living areas, wipe down kitchen surfaces, take out trash. Keep pathways clear for safety.',
+          instructions:
+            'Vacuum living areas, wipe down kitchen surfaces, take out trash. Keep pathways clear for safety.',
           requiresSignature: false,
           requiresNote: false,
           isOptional: true,
@@ -315,7 +345,8 @@ async function seedCarePlans() {
         },
       ];
 
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO care_plans (
           id, plan_number, name, client_id, organization_id, branch_id,
           plan_type, status, priority, effective_date, expiration_date, review_date,
@@ -325,37 +356,41 @@ async function seedCarePlans() {
           compliance_status, notes,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
-      `, [
-        plan1Id,
-        'CP-2024-001',
-        'Personal Care Plan - Fall Risk Management',
-        client1Id,
-        orgId,
-        branchId,
-        'PERSONAL_CARE',
-        'ACTIVE',
-        'HIGH',
-        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Started 30 days ago
-        new Date(Date.now() + 150 * 24 * 60 * 60 * 1000), // Expires in 150 days
-        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Review in 30 days
-        cg1Id,
-        systemUserId,
-        JSON.stringify(plan1Goals),
-        JSON.stringify(plan1Interventions),
-        JSON.stringify(plan1TaskTemplates),
-        JSON.stringify({
-          pattern: 'DAILY',
-          timesPerWeek: 7,
-          customSchedule: 'Morning visits 7 days per week, 9 AM - 11 AM',
-        }),
-        14.0, // 2 hours per day * 7 days
-        'COMPLIANT',
-        'Client has made excellent progress. Family very satisfied with care.',
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          plan1Id,
+          'CP-2024-001',
+          'Personal Care Plan - Fall Risk Management',
+          client1Id,
+          orgId,
+          branchId,
+          'PERSONAL_CARE',
+          'ACTIVE',
+          'HIGH',
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Started 30 days ago
+          new Date(Date.now() + 150 * 24 * 60 * 60 * 1000), // Expires in 150 days
+          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Review in 30 days
+          cg1Id,
+          systemUserId,
+          JSON.stringify(plan1Goals),
+          JSON.stringify(plan1Interventions),
+          JSON.stringify(plan1TaskTemplates),
+          JSON.stringify({
+            pattern: 'DAILY',
+            timesPerWeek: 7,
+            customSchedule: 'Morning visits 7 days per week, 9 AM - 11 AM',
+          }),
+          14.0, // 2 hours per day * 7 days
+          'COMPLIANT',
+          'Client has made excellent progress. Family very satisfied with care.',
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
-      console.log(`  ✓ Created care plan CP-2024-001 for client ${clientsResult.rows[0].client_number}`);
+      console.log(
+        `  ✓ Created care plan CP-2024-001 for client ${clientsResult.rows[0].client_number}`
+      );
 
       // Care Plan 2: Complex Care for Robert Martinez (Veteran with PTSD)
       const plan2Id = uuidv4();
@@ -363,7 +398,8 @@ async function seedCarePlans() {
         {
           id: uuidv4(),
           name: 'Increase Transfer Independence',
-          description: 'Client will complete wheelchair to bed transfers with minimal assistance within 6 weeks',
+          description:
+            'Client will complete wheelchair to bed transfers with minimal assistance within 6 weeks',
           category: 'MOBILITY',
           status: 'IN_PROGRESS',
           priority: 'HIGH',
@@ -375,13 +411,15 @@ async function seedCarePlans() {
         {
           id: uuidv4(),
           name: 'Manage PTSD Symptoms',
-          description: 'Reduce frequency and intensity of PTSD episodes through structured environment and service dog support',
+          description:
+            'Reduce frequency and intensity of PTSD episodes through structured environment and service dog support',
           category: 'EMOTIONAL_WELLBEING',
           status: 'ON_TRACK',
           priority: 'HIGH',
           measurementType: 'QUALITATIVE',
           progressPercentage: 60,
-          notes: 'Service dog Max providing excellent support. Episodes have decreased from daily to 2-3 times per week.',
+          notes:
+            'Service dog Max providing excellent support. Episodes have decreased from daily to 2-3 times per week.',
         },
         {
           id: uuidv4(),
@@ -408,7 +446,8 @@ async function seedCarePlans() {
             timesPerDay: 4,
           },
           duration: 10,
-          instructions: 'Use slide board for transfers. Encourage client to use upper body strength. Always use proper body mechanics.',
+          instructions:
+            'Use slide board for transfers. Encourage client to use upper body strength. Always use proper body mechanics.',
           precautions: ['Ensure wheelchair is locked', 'Use gait belt', 'Watch for fatigue'],
           performedBy: ['HHA', 'CNA'],
           requiresSupervision: true,
@@ -425,8 +464,13 @@ async function seedCarePlans() {
           frequency: {
             pattern: 'DAILY',
           },
-          instructions: 'Announce presence before entering room. Avoid sudden loud noises. Ensure Max (service dog) is present during all care. Allow client to maintain sense of control.',
-          precautions: ['No sudden movements', 'Speak calmly and clearly', 'Respect personal space'],
+          instructions:
+            'Announce presence before entering room. Avoid sudden loud noises. Ensure Max (service dog) is present during all care. Allow client to maintain sense of control.',
+          precautions: [
+            'No sudden movements',
+            'Speak calmly and clearly',
+            'Respect personal space',
+          ],
           performedBy: ['CAREGIVER', 'HHA', 'CNA'],
           requiresDocumentation: true,
           status: 'ACTIVE',
@@ -444,8 +488,13 @@ async function seedCarePlans() {
             unit: 'HOURS',
           },
           duration: 15,
-          instructions: 'Reposition client every 2 hours. Inspect pressure points. Apply barrier cream to high-risk areas. Document any changes.',
-          precautions: ['Check for redness', 'Note any skin breakdown immediately', 'Ensure sheets are wrinkle-free'],
+          instructions:
+            'Reposition client every 2 hours. Inspect pressure points. Apply barrier cream to high-risk areas. Document any changes.',
+          precautions: [
+            'Check for redness',
+            'Note any skin breakdown immediately',
+            'Ensure sheets are wrinkle-free',
+          ],
           performedBy: ['HHA', 'CNA'],
           requiresDocumentation: true,
           status: 'ACTIVE',
@@ -465,7 +514,8 @@ async function seedCarePlans() {
           },
           estimatedDuration: 45,
           timeOfDay: ['MORNING'],
-          instructions: 'Announce arrival, ensure Max is present. Assist with bed to wheelchair transfer. Complete personal care. Document transfer assistance level.',
+          instructions:
+            'Announce arrival, ensure Max is present. Assist with bed to wheelchair transfer. Complete personal care. Document transfer assistance level.',
           requiresSignature: false,
           requiresNote: true,
           isOptional: false,
@@ -506,7 +556,8 @@ async function seedCarePlans() {
           },
           estimatedDuration: 15,
           timeOfDay: ['MORNING', 'AFTERNOON', 'EVENING'],
-          instructions: 'Inspect all pressure points. Look for redness, warmth, or breakdown. Reposition client. Apply barrier cream as needed. Document findings.',
+          instructions:
+            'Inspect all pressure points. Look for redness, warmth, or breakdown. Reposition client. Apply barrier cream as needed. Document findings.',
           requiresSignature: false,
           requiresNote: true,
           requiresPhoto: true,
@@ -531,7 +582,8 @@ async function seedCarePlans() {
         },
       ];
 
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO care_plans (
           id, plan_number, name, client_id, organization_id, branch_id,
           plan_type, status, priority, effective_date, expiration_date, review_date,
@@ -541,37 +593,42 @@ async function seedCarePlans() {
           compliance_status, notes,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
-      `, [
-        plan2Id,
-        'CP-2024-002',
-        'Complex Care Plan - Veteran Support',
-        client2Id,
-        orgId,
-        branchId,
-        'SKILLED_NURSING',
-        'ACTIVE',
-        'URGENT',
-        new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
-        new Date(Date.now() + 120 * 24 * 60 * 60 * 1000),
-        new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-        cg2Id,
-        systemUserId,
-        JSON.stringify(plan2Goals),
-        JSON.stringify(plan2Interventions),
-        JSON.stringify(plan2TaskTemplates),
-        JSON.stringify({
-          pattern: 'DAILY',
-          timesPerWeek: 7,
-          customSchedule: 'Daily visits, morning and afternoon shifts. Evening check-in as needed.',
-        }),
-        28.0, // 4 hours per day * 7 days
-        'COMPLIANT',
-        'Complex care case. Excellent progress with PTSD management. Daughter very involved and supportive.',
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          plan2Id,
+          'CP-2024-002',
+          'Complex Care Plan - Veteran Support',
+          client2Id,
+          orgId,
+          branchId,
+          'SKILLED_NURSING',
+          'ACTIVE',
+          'URGENT',
+          new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+          new Date(Date.now() + 120 * 24 * 60 * 60 * 1000),
+          new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          cg2Id,
+          systemUserId,
+          JSON.stringify(plan2Goals),
+          JSON.stringify(plan2Interventions),
+          JSON.stringify(plan2TaskTemplates),
+          JSON.stringify({
+            pattern: 'DAILY',
+            timesPerWeek: 7,
+            customSchedule:
+              'Daily visits, morning and afternoon shifts. Evening check-in as needed.',
+          }),
+          28.0, // 4 hours per day * 7 days
+          'COMPLIANT',
+          'Complex care case. Excellent progress with PTSD management. Daughter very involved and supportive.',
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
-      console.log(`  ✓ Created care plan CP-2024-002 for client ${clientsResult.rows[1].client_number}`);
+      console.log(
+        `  ✓ Created care plan CP-2024-002 for client ${clientsResult.rows[1].client_number}`
+      );
 
       // Create sample task instances for today
       console.log('\nCreating task instances for today...');
@@ -581,7 +638,8 @@ async function seedCarePlans() {
 
       // Create 3 tasks for plan 1 (Margaret)
       const plan1Task1Id = uuidv4();
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
           name, description, category, instructions,
@@ -589,27 +647,30 @@ async function seedCarePlans() {
           status, required_signature, required_note,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-      `, [
-        plan1Task1Id,
-        plan1Id,
-        plan1TaskTemplates[0].id,
-        client1Id,
-        cg1Id,
-        'Morning Walker Ambulation',
-        'Assist client with morning walker practice',
-        'MOBILITY',
-        plan1TaskTemplates[0].instructions,
-        today,
-        '09:30',
-        15,
-        'COMPLETED',
-        false,
-        true,
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          plan1Task1Id,
+          plan1Id,
+          plan1TaskTemplates[0].id,
+          client1Id,
+          cg1Id,
+          'Morning Walker Ambulation',
+          'Assist client with morning walker practice',
+          'MOBILITY',
+          plan1TaskTemplates[0].instructions,
+          today,
+          '09:30',
+          15,
+          'COMPLETED',
+          false,
+          true,
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
-      await client.query(`
+      await client.query(
+        `
         UPDATE task_instances SET
           completed_at = $1,
           completed_by = $2,
@@ -617,27 +678,30 @@ async function seedCarePlans() {
           quality_check_responses = $4,
           updated_at = $1
         WHERE id = $5
-      `, [
-        new Date(today.getTime() + 10 * 60 * 60 * 1000), // Completed at 10 AM
-        cg1Id,
-        'Client ambulated 22 feet with walker. Good endurance, no signs of fatigue. Continuing to make progress.',
-        JSON.stringify([
-          {
-            checkId: plan1TaskTemplates[0].qualityChecks![0].id,
-            question: 'Did client complete ambulation without signs of distress?',
-            response: true,
-          },
-          {
-            checkId: plan1TaskTemplates[0].qualityChecks![1].id,
-            question: 'Distance achieved (in feet)',
-            response: '22',
-          },
-        ]),
-        plan1Task1Id,
-      ]);
+      `,
+        [
+          new Date(today.getTime() + 10 * 60 * 60 * 1000), // Completed at 10 AM
+          cg1Id,
+          'Client ambulated 22 feet with walker. Good endurance, no signs of fatigue. Continuing to make progress.',
+          JSON.stringify([
+            {
+              checkId: plan1TaskTemplates[0].qualityChecks![0].id,
+              question: 'Did client complete ambulation without signs of distress?',
+              response: true,
+            },
+            {
+              checkId: plan1TaskTemplates[0].qualityChecks![1].id,
+              question: 'Distance achieved (in feet)',
+              response: '22',
+            },
+          ]),
+          plan1Task1Id,
+        ]
+      );
 
       const plan1Task2Id = uuidv4();
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
           name, description, category, instructions,
@@ -645,42 +709,48 @@ async function seedCarePlans() {
           status, required_signature, required_note,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-      `, [
-        plan1Task2Id,
-        plan1Id,
-        plan1TaskTemplates[1].id,
-        client1Id,
-        cg1Id,
-        'Morning Medication Reminder',
-        'Provide medication reminder and observe intake',
-        'MEDICATION',
-        plan1TaskTemplates[1].instructions,
-        today,
-        '09:00',
-        5,
-        'COMPLETED',
-        false,
-        true,
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          plan1Task2Id,
+          plan1Id,
+          plan1TaskTemplates[1].id,
+          client1Id,
+          cg1Id,
+          'Morning Medication Reminder',
+          'Provide medication reminder and observe intake',
+          'MEDICATION',
+          plan1TaskTemplates[1].instructions,
+          today,
+          '09:00',
+          5,
+          'COMPLETED',
+          false,
+          true,
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
-      await client.query(`
+      await client.query(
+        `
         UPDATE task_instances SET
           completed_at = $1,
           completed_by = $2,
           completion_note = $3,
           updated_at = $1
         WHERE id = $4
-      `, [
-        new Date(today.getTime() + 9.2 * 60 * 60 * 1000),
-        cg1Id,
-        'Client took all morning medications as scheduled. No issues.',
-        plan1Task2Id,
-      ]);
+      `,
+        [
+          new Date(today.getTime() + 9.2 * 60 * 60 * 1000),
+          cg1Id,
+          'Client took all morning medications as scheduled. No issues.',
+          plan1Task2Id,
+        ]
+      );
 
       const plan1Task3Id = uuidv4();
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
           name, description, category, instructions,
@@ -688,29 +758,32 @@ async function seedCarePlans() {
           status, required_signature, required_note,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-      `, [
-        plan1Task3Id,
-        plan1Id,
-        plan1TaskTemplates[2].id,
-        client1Id,
-        cg1Id,
-        'Personal Care - Morning',
-        'Assist with morning personal care routine',
-        'PERSONAL_HYGIENE',
-        plan1TaskTemplates[2].instructions,
-        today,
-        '09:45',
-        30,
-        'IN_PROGRESS',
-        false,
-        true,
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          plan1Task3Id,
+          plan1Id,
+          plan1TaskTemplates[2].id,
+          client1Id,
+          cg1Id,
+          'Personal Care - Morning',
+          'Assist with morning personal care routine',
+          'PERSONAL_HYGIENE',
+          plan1TaskTemplates[2].instructions,
+          today,
+          '09:45',
+          30,
+          'IN_PROGRESS',
+          false,
+          true,
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
       // Create 2 tasks for plan 2 (Robert)
       const plan2Task1Id = uuidv4();
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
           name, description, category, instructions,
@@ -718,27 +791,30 @@ async function seedCarePlans() {
           status, required_signature, required_note,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-      `, [
-        plan2Task1Id,
-        plan2Id,
-        plan2TaskTemplates[0].id,
-        client2Id,
-        cg2Id,
-        'Morning Transfer and Personal Care',
-        'Assist with transfer from bed and complete morning care routine',
-        'TRANSFERRING',
-        plan2TaskTemplates[0].instructions,
-        today,
-        '08:00',
-        45,
-        'COMPLETED',
-        false,
-        true,
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          plan2Task1Id,
+          plan2Id,
+          plan2TaskTemplates[0].id,
+          client2Id,
+          cg2Id,
+          'Morning Transfer and Personal Care',
+          'Assist with transfer from bed and complete morning care routine',
+          'TRANSFERRING',
+          plan2TaskTemplates[0].instructions,
+          today,
+          '08:00',
+          45,
+          'COMPLETED',
+          false,
+          true,
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
-      await client.query(`
+      await client.query(
+        `
         UPDATE task_instances SET
           completed_at = $1,
           completed_by = $2,
@@ -746,32 +822,35 @@ async function seedCarePlans() {
           quality_check_responses = $4,
           updated_at = $1
         WHERE id = $5
-      `, [
-        new Date(today.getTime() + 8.8 * 60 * 60 * 1000),
-        cg2Id,
-        'Transfer completed safely with moderate assistance. Max was present and calm. No PTSD symptoms observed today. Client in good spirits.',
-        JSON.stringify([
-          {
-            checkId: plan2TaskTemplates[0].qualityChecks![0].id,
-            question: 'Transfer completed safely?',
-            response: true,
-          },
-          {
-            checkId: plan2TaskTemplates[0].qualityChecks![1].id,
-            question: 'Level of assistance required',
-            response: 'Moderate assist',
-          },
-          {
-            checkId: plan2TaskTemplates[0].qualityChecks![2].id,
-            question: 'Any signs of PTSD symptoms?',
-            response: false,
-          },
-        ]),
-        plan2Task1Id,
-      ]);
+      `,
+        [
+          new Date(today.getTime() + 8.8 * 60 * 60 * 1000),
+          cg2Id,
+          'Transfer completed safely with moderate assistance. Max was present and calm. No PTSD symptoms observed today. Client in good spirits.',
+          JSON.stringify([
+            {
+              checkId: plan2TaskTemplates[0].qualityChecks![0].id,
+              question: 'Transfer completed safely?',
+              response: true,
+            },
+            {
+              checkId: plan2TaskTemplates[0].qualityChecks![1].id,
+              question: 'Level of assistance required',
+              response: 'Moderate assist',
+            },
+            {
+              checkId: plan2TaskTemplates[0].qualityChecks![2].id,
+              question: 'Any signs of PTSD symptoms?',
+              response: false,
+            },
+          ]),
+          plan2Task1Id,
+        ]
+      );
 
       const plan2Task2Id = uuidv4();
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO task_instances (
           id, care_plan_id, template_id, client_id, assigned_caregiver_id,
           name, description, category, instructions,
@@ -779,25 +858,27 @@ async function seedCarePlans() {
           status, required_signature, required_note,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-      `, [
-        plan2Task2Id,
-        plan2Id,
-        plan2TaskTemplates[1].id,
-        client2Id,
-        cg2Id,
-        'Skin Inspection and Repositioning',
-        'Check pressure points and reposition client',
-        'MONITORING',
-        plan2TaskTemplates[1].instructions,
-        today,
-        '11:00',
-        15,
-        'SCHEDULED',
-        false,
-        true,
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          plan2Task2Id,
+          plan2Id,
+          plan2TaskTemplates[1].id,
+          client2Id,
+          cg2Id,
+          'Skin Inspection and Repositioning',
+          'Check pressure points and reposition client',
+          'MONITORING',
+          plan2TaskTemplates[1].instructions,
+          today,
+          '11:00',
+          15,
+          'SCHEDULED',
+          false,
+          true,
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
       console.log(`  ✓ Created ${5} task instances for today`);
 
@@ -805,117 +886,131 @@ async function seedCarePlans() {
       console.log('\nCreating progress notes...');
 
       const note1Id = uuidv4();
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO progress_notes (
           id, care_plan_id, client_id, note_type, note_date,
           author_id, author_name, author_role, content,
           goal_progress, observations,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-      `, [
-        note1Id,
-        plan1Id,
-        client1Id,
-        'VISIT_NOTE',
-        today,
-        cg1Id,
-        'Sarah Johnson, CNA',
-        'SENIOR_CAREGIVER',
-        'Morning visit completed successfully. Client in good spirits and cooperative with all care activities. Ambulation distance increased to 22 feet today - excellent progress! Medication taken as scheduled. No safety concerns noted. Cat (Whiskers) present and friendly as always.',
-        JSON.stringify([
-          {
-            goalId: plan1Goals[0].id,
-            goalName: 'Improve Mobility and Reduce Fall Risk',
-            status: 'IN_PROGRESS',
-            progressDescription: 'Client walked 22 feet with walker today, up from 20 feet last week. Demonstrating improved confidence and endurance.',
-            progressPercentage: 44,
-            barriers: [],
-            nextSteps: ['Continue daily ambulation practice', 'Increase distance by 5 feet next week'],
-          },
-          {
-            goalId: plan1Goals[1].id,
-            goalName: 'Medication Compliance',
-            status: 'ON_TRACK',
-            progressDescription: 'All medications taken as scheduled today without reminders needed.',
-            progressPercentage: 80,
-          },
-        ]),
-        JSON.stringify([
-          {
-            category: 'PHYSICAL',
-            observation: 'Good color, alert and oriented',
-            severity: 'NORMAL',
-            timestamp: new Date(today.getTime() + 9 * 60 * 60 * 1000),
-          },
-          {
-            category: 'BEHAVIORAL',
-            observation: 'Positive mood, engaged in conversation',
-            severity: 'NORMAL',
-            timestamp: new Date(today.getTime() + 9 * 60 * 60 * 1000),
-          },
-        ]),
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          note1Id,
+          plan1Id,
+          client1Id,
+          'VISIT_NOTE',
+          today,
+          cg1Id,
+          'Sarah Johnson, CNA',
+          'SENIOR_CAREGIVER',
+          'Morning visit completed successfully. Client in good spirits and cooperative with all care activities. Ambulation distance increased to 22 feet today - excellent progress! Medication taken as scheduled. No safety concerns noted. Cat (Whiskers) present and friendly as always.',
+          JSON.stringify([
+            {
+              goalId: plan1Goals[0].id,
+              goalName: 'Improve Mobility and Reduce Fall Risk',
+              status: 'IN_PROGRESS',
+              progressDescription:
+                'Client walked 22 feet with walker today, up from 20 feet last week. Demonstrating improved confidence and endurance.',
+              progressPercentage: 44,
+              barriers: [],
+              nextSteps: [
+                'Continue daily ambulation practice',
+                'Increase distance by 5 feet next week',
+              ],
+            },
+            {
+              goalId: plan1Goals[1].id,
+              goalName: 'Medication Compliance',
+              status: 'ON_TRACK',
+              progressDescription:
+                'All medications taken as scheduled today without reminders needed.',
+              progressPercentage: 80,
+            },
+          ]),
+          JSON.stringify([
+            {
+              category: 'PHYSICAL',
+              observation: 'Good color, alert and oriented',
+              severity: 'NORMAL',
+              timestamp: new Date(today.getTime() + 9 * 60 * 60 * 1000),
+            },
+            {
+              category: 'BEHAVIORAL',
+              observation: 'Positive mood, engaged in conversation',
+              severity: 'NORMAL',
+              timestamp: new Date(today.getTime() + 9 * 60 * 60 * 1000),
+            },
+          ]),
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
       const note2Id = uuidv4();
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO progress_notes (
           id, care_plan_id, client_id, note_type, note_date,
           author_id, author_name, author_role, content,
           goal_progress, observations,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-      `, [
-        note2Id,
-        plan2Id,
-        client2Id,
-        'VISIT_NOTE',
-        today,
-        cg2Id,
-        'Michael Chen, CNA',
-        'CERTIFIED_NURSING_ASSISTANT',
-        'Morning care completed. Transfer from bed to wheelchair accomplished with moderate assistance. Max (service dog) was present throughout visit, providing excellent support. Client remained calm and cooperative. All skin integrity checks negative - no areas of concern. Excellent preventive care maintaining results. Daughter stopped by briefly and expressed satisfaction with care.',
-        JSON.stringify([
-          {
-            goalId: plan2Goals[0].id,
-            goalName: 'Increase Transfer Independence',
-            status: 'IN_PROGRESS',
-            progressDescription: 'Transfer completed with moderate assistance. Client using upper body strength well.',
-            progressPercentage: 35,
-            nextSteps: ['Continue transfer training', 'Physical therapy exercises'],
-          },
-          {
-            goalId: plan2Goals[2].id,
-            goalName: 'Pressure Wound Prevention',
-            status: 'ON_TRACK',
-            progressDescription: 'All pressure points inspected - no redness or breakdown noted. Preventive measures effective.',
-            progressPercentage: 100,
-          },
-        ]),
-        JSON.stringify([
-          {
-            category: 'PHYSICAL',
-            observation: 'Skin integrity excellent, no areas of concern',
-            severity: 'NORMAL',
-            timestamp: new Date(today.getTime() + 8.5 * 60 * 60 * 1000),
-          },
-          {
-            category: 'EMOTIONAL',
-            observation: 'Calm and stable, no PTSD symptoms observed',
-            severity: 'NORMAL',
-            timestamp: new Date(today.getTime() + 8.5 * 60 * 60 * 1000),
-          },
-          {
-            category: 'SOCIAL',
-            observation: 'Service dog Max present and providing support. Daughter visit positive.',
-            severity: 'NORMAL',
-            timestamp: new Date(today.getTime() + 8.5 * 60 * 60 * 1000),
-          },
-        ]),
-        systemUserId,
-        systemUserId,
-      ]);
+      `,
+        [
+          note2Id,
+          plan2Id,
+          client2Id,
+          'VISIT_NOTE',
+          today,
+          cg2Id,
+          'Michael Chen, CNA',
+          'CERTIFIED_NURSING_ASSISTANT',
+          'Morning care completed. Transfer from bed to wheelchair accomplished with moderate assistance. Max (service dog) was present throughout visit, providing excellent support. Client remained calm and cooperative. All skin integrity checks negative - no areas of concern. Excellent preventive care maintaining results. Daughter stopped by briefly and expressed satisfaction with care.',
+          JSON.stringify([
+            {
+              goalId: plan2Goals[0].id,
+              goalName: 'Increase Transfer Independence',
+              status: 'IN_PROGRESS',
+              progressDescription:
+                'Transfer completed with moderate assistance. Client using upper body strength well.',
+              progressPercentage: 35,
+              nextSteps: ['Continue transfer training', 'Physical therapy exercises'],
+            },
+            {
+              goalId: plan2Goals[2].id,
+              goalName: 'Pressure Wound Prevention',
+              status: 'ON_TRACK',
+              progressDescription:
+                'All pressure points inspected - no redness or breakdown noted. Preventive measures effective.',
+              progressPercentage: 100,
+            },
+          ]),
+          JSON.stringify([
+            {
+              category: 'PHYSICAL',
+              observation: 'Skin integrity excellent, no areas of concern',
+              severity: 'NORMAL',
+              timestamp: new Date(today.getTime() + 8.5 * 60 * 60 * 1000),
+            },
+            {
+              category: 'EMOTIONAL',
+              observation: 'Calm and stable, no PTSD symptoms observed',
+              severity: 'NORMAL',
+              timestamp: new Date(today.getTime() + 8.5 * 60 * 60 * 1000),
+            },
+            {
+              category: 'SOCIAL',
+              observation:
+                'Service dog Max present and providing support. Daughter visit positive.',
+              severity: 'NORMAL',
+              timestamp: new Date(today.getTime() + 8.5 * 60 * 60 * 1000),
+            },
+          ]),
+          systemUserId,
+          systemUserId,
+        ]
+      );
 
       console.log(`  ✓ Created ${2} progress notes`);
 

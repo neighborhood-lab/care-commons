@@ -1,35 +1,35 @@
-export type InvoiceStatus = 
-  | 'DRAFT' 
-  | 'PENDING_REVIEW' 
-  | 'APPROVED' 
-  | 'SENT' 
-  | 'SUBMITTED' 
-  | 'PARTIALLY_PAID' 
-  | 'PAID' 
-  | 'PAST_DUE' 
-  | 'DISPUTED' 
-  | 'CANCELLED' 
+export type InvoiceStatus =
+  | 'DRAFT'
+  | 'PENDING_REVIEW'
+  | 'APPROVED'
+  | 'SENT'
+  | 'SUBMITTED'
+  | 'PARTIALLY_PAID'
+  | 'PAID'
+  | 'PAST_DUE'
+  | 'DISPUTED'
+  | 'CANCELLED'
   | 'VOIDED';
 
-export type PaymentStatus = 
-  | 'PENDING' 
-  | 'RECEIVED' 
-  | 'APPLIED' 
-  | 'DEPOSITED' 
-  | 'CLEARED' 
-  | 'RETURNED' 
-  | 'VOIDED' 
+export type PaymentStatus =
+  | 'PENDING'
+  | 'RECEIVED'
+  | 'APPLIED'
+  | 'DEPOSITED'
+  | 'CLEARED'
+  | 'RETURNED'
+  | 'VOIDED'
   | 'REFUNDED';
 
-export type PaymentMethod = 
-  | 'CHECK' 
-  | 'EFT' 
-  | 'ACH' 
-  | 'WIRE' 
-  | 'CREDIT_CARD' 
-  | 'DEBIT_CARD' 
-  | 'CASH' 
-  | 'MONEY_ORDER' 
+export type PaymentMethod =
+  | 'CHECK'
+  | 'EFT'
+  | 'ACH'
+  | 'WIRE'
+  | 'CREDIT_CARD'
+  | 'DEBIT_CARD'
+  | 'CASH'
+  | 'MONEY_ORDER'
   | 'ERA';
 
 export type PayerType =
@@ -44,15 +44,7 @@ export type PayerType =
   | 'GRANT'
   | 'OTHER';
 
-export type UnitType =
-  | 'HOUR'
-  | 'VISIT'
-  | 'DAY'
-  | 'WEEK'
-  | 'MONTH'
-  | 'TASK'
-  | 'MILE'
-  | 'UNIT';
+export type UnitType = 'HOUR' | 'VISIT' | 'DAY' | 'WEEK' | 'MONTH' | 'TASK' | 'MILE' | 'UNIT';
 
 export interface InvoiceLineItem {
   id: string;

@@ -1,13 +1,19 @@
 /**
  * HTTP/API handlers for Client & Demographics Management
- * 
+ *
  * RESTful endpoints for client CRUD operations and specialized workflows
  */
 
 import { Request, Response, NextFunction, Router } from 'express';
 import { UserContext } from '@care-commons/core';
 import { ClientService } from '../service/client-service';
-import { CreateClientInput, UpdateClientInput, ClientSearchFilters, ClientStatus, RiskType } from '../types/client';
+import {
+  CreateClientInput,
+  UpdateClientInput,
+  ClientSearchFilters,
+  ClientStatus,
+  RiskType,
+} from '../types/client';
 
 /**
  * Extract user context from authenticated request
@@ -20,7 +26,9 @@ function getUserContext(req: Request): UserContext {
 /**
  * Handle async route errors
  */
-function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>) {
+function asyncHandler(
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>
+) {
   return (req: Request, res: Response, next: NextFunction) => {
     // eslint-disable-next-line promise/no-callback-in-promise
     void Promise.resolve(fn(req, res, next)).catch(next);
@@ -31,7 +39,7 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
  * Client API handlers
  */
 export class ClientHandlers {
-  constructor(private clientService: ClientService) { }
+  constructor(private clientService: ClientService) {}
 
   /**
    * GET /api/clients
@@ -105,11 +113,20 @@ export class ClientHandlers {
   private parseStatusFilter(statusParam: unknown, filters: ClientSearchFilters): void {
     if (typeof statusParam !== 'string') return;
 
-    const validStatuses: ClientStatus[] = ['INQUIRY', 'PENDING_INTAKE', 'ACTIVE', 'INACTIVE', 'ON_HOLD', 'DISCHARGED', 'DECEASED'];
-    const filtered = statusParam.split(',')
-      .map(s => s.trim().toUpperCase())
-      .filter(s => validStatuses.includes(s as ClientStatus)) as ClientStatus[];
-    
+    const validStatuses: ClientStatus[] = [
+      'INQUIRY',
+      'PENDING_INTAKE',
+      'ACTIVE',
+      'INACTIVE',
+      'ON_HOLD',
+      'DISCHARGED',
+      'DECEASED',
+    ];
+    const filtered = statusParam
+      .split(',')
+      .map((s) => s.trim().toUpperCase())
+      .filter((s) => validStatuses.includes(s as ClientStatus)) as ClientStatus[];
+
     if (filtered.length > 0) {
       filters.status = filtered;
     }
@@ -121,11 +138,23 @@ export class ClientHandlers {
   private parseRiskTypeFilter(riskTypeParam: unknown, filters: ClientSearchFilters): void {
     if (typeof riskTypeParam !== 'string') return;
 
-    const validRiskTypes: RiskType[] = ['FALL_RISK', 'WANDERING', 'AGGRESSIVE_BEHAVIOR', 'INFECTION', 'MEDICATION_COMPLIANCE', 'DIETARY_RESTRICTION', 'ENVIRONMENTAL_HAZARD', 'SAFETY_CONCERN', 'ABUSE_NEGLECT_CONCERN', 'OTHER'];
-    const filtered = riskTypeParam.split(',')
-      .map(s => s.trim().toUpperCase())
-      .filter(s => validRiskTypes.includes(s as RiskType)) as RiskType[];
-    
+    const validRiskTypes: RiskType[] = [
+      'FALL_RISK',
+      'WANDERING',
+      'AGGRESSIVE_BEHAVIOR',
+      'INFECTION',
+      'MEDICATION_COMPLIANCE',
+      'DIETARY_RESTRICTION',
+      'ENVIRONMENTAL_HAZARD',
+      'SAFETY_CONCERN',
+      'ABUSE_NEGLECT_CONCERN',
+      'OTHER',
+    ];
+    const filtered = riskTypeParam
+      .split(',')
+      .map((s) => s.trim().toUpperCase())
+      .filter((s) => validRiskTypes.includes(s as RiskType)) as RiskType[];
+
     if (filtered.length > 0) {
       filters.riskType = filtered;
     }
@@ -134,7 +163,11 @@ export class ClientHandlers {
   /**
    * Parse age range filters from query parameters
    */
-  private parseAgeRangeFilters(minAgeParam: unknown, maxAgeParam: unknown, filters: ClientSearchFilters): void {
+  private parseAgeRangeFilters(
+    minAgeParam: unknown,
+    maxAgeParam: unknown,
+    filters: ClientSearchFilters
+  ): void {
     if (typeof minAgeParam === 'string') {
       const age = parseInt(minAgeParam, 10);
       if (!isNaN(age) && age >= 0 && age <= 150) {
@@ -160,8 +193,8 @@ export class ClientHandlers {
     const parsedLimit = typeof limitParam === 'string' ? parseInt(limitParam, 10) : NaN;
 
     return {
-      page: (!isNaN(parsedPage) && parsedPage > 0) ? parsedPage : 1,
-      limit: (!isNaN(parsedLimit) && parsedLimit > 0) ? parsedLimit : 20,
+      page: !isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1,
+      limit: !isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20,
     };
   }
 
@@ -196,9 +229,17 @@ export class ClientHandlers {
     const context = getUserContext(req);
     const { clientNumber } = req.params;
     const orgIdFromQuery = req.query['organizationId'];
-    const organizationId = (typeof orgIdFromQuery === 'string' && orgIdFromQuery !== '') ? orgIdFromQuery : context.organizationId;
+    const organizationId =
+      typeof orgIdFromQuery === 'string' && orgIdFromQuery !== ''
+        ? orgIdFromQuery
+        : context.organizationId;
 
-    if (typeof clientNumber !== 'string' || clientNumber === '' || typeof organizationId !== 'string' || organizationId === '') {
+    if (
+      typeof clientNumber !== 'string' ||
+      clientNumber === '' ||
+      typeof organizationId !== 'string' ||
+      organizationId === ''
+    ) {
       return res.status(400).json({
         success: false,
         error: 'Client number and organization ID are required',
@@ -323,12 +364,7 @@ export class ClientHandlers {
       });
     }
 
-    const client = await this.clientService.updateEmergencyContact(
-      id,
-      contactId,
-      updates,
-      context
-    );
+    const client = await this.clientService.updateEmergencyContact(id, contactId, updates, context);
 
     return res.json({
       success: true,
@@ -466,15 +502,20 @@ export class ClientHandlers {
       status: client.status,
       primaryPhone: client.primaryPhone?.number,
       primaryContact: client.emergencyContacts.find((c) => c.isPrimary) ?? null,
-      activeRiskFlags: client.riskFlags.filter((f) => f.resolvedDate === null || f.resolvedDate === undefined).length,
+      activeRiskFlags: client.riskFlags.filter(
+        (f) => f.resolvedDate === null || f.resolvedDate === undefined
+      ).length,
       criticalRiskFlags: client.riskFlags.filter(
-        (f) => (f.resolvedDate === null || f.resolvedDate === undefined) && f.severity === 'CRITICAL'
+        (f) =>
+          (f.resolvedDate === null || f.resolvedDate === undefined) && f.severity === 'CRITICAL'
       ),
-      address: client.primaryAddress ? {
-        line1: client.primaryAddress.line1,
-        city: client.primaryAddress.city,
-        state: client.primaryAddress.state,
-      } : null,
+      address: client.primaryAddress
+        ? {
+            line1: client.primaryAddress.line1,
+            city: client.primaryAddress.city,
+            state: client.primaryAddress.state,
+          }
+        : null,
       programs: client.programs.filter((p) => p.status === 'ACTIVE'),
       hasAllergies: (client.allergies?.length ?? 0) > 0,
       specialInstructions: client.specialInstructions,
@@ -585,16 +626,23 @@ export class ClientHandlers {
     } = req.query;
 
     // Build audit query filters - handle accessType as array
-    let accessType: ('VIEW' | 'UPDATE' | 'CREATE' | 'DELETE' | 'DISCLOSURE' | 'EXPORT' | 'PRINT')[] | undefined;
+    let accessType:
+      | ('VIEW' | 'UPDATE' | 'CREATE' | 'DELETE' | 'DISCLOSURE' | 'EXPORT' | 'PRINT')[]
+      | undefined;
     if (typeof accessTypeParam === 'string' && accessTypeParam !== '') {
-      const types = accessTypeParam.split(',').map(t => t.trim().toUpperCase());
+      const types = accessTypeParam.split(',').map((t) => t.trim().toUpperCase());
       const validTypes = ['VIEW', 'UPDATE', 'CREATE', 'DELETE', 'DISCLOSURE', 'EXPORT', 'PRINT'];
-      accessType = types.filter(t => validTypes.includes(t)) as typeof accessType;
+      accessType = types.filter((t) => validTypes.includes(t)) as typeof accessType;
     }
 
-    const accessedBy = typeof accessedByParam === 'string' && accessedByParam !== '' ? accessedByParam : undefined;
-    const startDate = typeof startDateParam === 'string' && startDateParam !== '' ? new Date(startDateParam) : undefined;
-    const endDate = typeof endDateParam === 'string' && endDateParam !== '' ? new Date(endDateParam) : undefined;
+    const accessedBy =
+      typeof accessedByParam === 'string' && accessedByParam !== '' ? accessedByParam : undefined;
+    const startDate =
+      typeof startDateParam === 'string' && startDateParam !== ''
+        ? new Date(startDateParam)
+        : undefined;
+    const endDate =
+      typeof endDateParam === 'string' && endDateParam !== '' ? new Date(endDateParam) : undefined;
     const disclosuresOnly = disclosuresOnlyParam === 'true';
 
     // Parse pagination
@@ -658,15 +706,16 @@ export class ClientHandlers {
         deceased: allClients.items.filter((c) => c.status === 'DECEASED').length,
       },
       highRiskCount: allClients.items.filter((c) =>
-        c.riskFlags.some((f) => !f.resolvedDate && (f.severity === 'HIGH' || f.severity === 'CRITICAL'))
+        c.riskFlags.some(
+          (f) => !f.resolvedDate && (f.severity === 'HIGH' || f.severity === 'CRITICAL')
+        )
       ).length,
       newThisMonth: allClients.items.filter((c) => {
         if (!c.intakeDate) return false;
         const intakeDate = new Date(c.intakeDate);
         const now = new Date();
         return (
-          intakeDate.getMonth() === now.getMonth() &&
-          intakeDate.getFullYear() === now.getFullYear()
+          intakeDate.getMonth() === now.getMonth() && intakeDate.getFullYear() === now.getFullYear()
         );
       }).length,
     };

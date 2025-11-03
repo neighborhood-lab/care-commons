@@ -33,18 +33,9 @@ export type PayStubStatus =
   | 'VOID'
   | 'CANCELLED';
 
-export type PaymentMethod =
-  | 'DIRECT_DEPOSIT'
-  | 'CHECK'
-  | 'CASH'
-  | 'PAYCARD'
-  | 'WIRE';
+export type PaymentMethod = 'DIRECT_DEPOSIT' | 'CHECK' | 'CASH' | 'PAYCARD' | 'WIRE';
 
-export type PayPeriodType =
-  | 'WEEKLY'
-  | 'BI_WEEKLY'
-  | 'SEMI_MONTHLY'
-  | 'MONTHLY';
+export type PayPeriodType = 'WEEKLY' | 'BI_WEEKLY' | 'SEMI_MONTHLY' | 'MONTHLY';
 
 export interface PayPeriod {
   id: string;

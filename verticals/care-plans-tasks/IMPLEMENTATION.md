@@ -2,15 +2,20 @@
 
 ## Overview
 
-This document provides technical implementation details for the Care Plans & Tasks Library vertical, including database schema, API endpoints, and deployment considerations.
+This document provides technical implementation details for the Care Plans &
+Tasks Library vertical, including database schema, API endpoints, and deployment
+considerations.
 
 ## Database Schema
 
 **Migration Status**: ✅ IMPLEMENTED
 
-The database schema described below has been implemented in migration file `packages/core/migrations/20251030214716_care_plans_tables.ts` and successfully applied to the database.
+The database schema described below has been implemented in migration file
+`packages/core/migrations/20251030214716_care_plans_tables.ts` and successfully
+applied to the database.
 
 To verify:
+
 ```bash
 # Check migration status
 npm run db:migrate:status
@@ -27,29 +32,29 @@ CREATE TABLE care_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   plan_number VARCHAR(50) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
-  
+
   -- Associations
   client_id UUID NOT NULL REFERENCES clients(id),
   organization_id UUID NOT NULL REFERENCES organizations(id),
   branch_id UUID REFERENCES branches(id),
-  
+
   -- Plan metadata
   plan_type VARCHAR(50) NOT NULL,
   status VARCHAR(50) NOT NULL DEFAULT 'DRAFT',
   priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
-  
+
   -- Dates
   effective_date DATE NOT NULL,
   expiration_date DATE,
   review_date DATE,
   last_reviewed_date DATE,
-  
+
   -- Care team
   primary_caregiver_id UUID REFERENCES caregivers(id),
   coordinator_id UUID REFERENCES users(id),
   supervisor_id UUID REFERENCES users(id),
   physician_id UUID,
-  
+
   -- Plan content (JSONB for flexibility)
   assessment_summary TEXT,
   medical_diagnosis TEXT[],
@@ -57,11 +62,11 @@ CREATE TABLE care_plans (
   goals JSONB NOT NULL DEFAULT '[]',
   interventions JSONB NOT NULL DEFAULT '[]',
   task_templates JSONB DEFAULT '[]',
-  
+
   -- Frequency and schedule
   service_frequency JSONB,
   estimated_hours_per_week NUMERIC(5,2),
-  
+
   -- Authorization
   authorized_by UUID REFERENCES users(id),
   authorized_date DATE,
@@ -70,41 +75,41 @@ CREATE TABLE care_plans (
   authorization_hours NUMERIC(6,2),
   authorization_start_date DATE,
   authorization_end_date DATE,
-  
+
   -- Documentation requirements
   required_documentation JSONB,
   signature_requirements JSONB,
-  
+
   -- Restrictions and precautions
   restrictions TEXT[],
   precautions TEXT[],
   allergies JSONB,
   contraindications TEXT[],
-  
+
   -- Progress and outcomes
   progress_notes JSONB,
   outcomes_measured JSONB,
-  
+
   -- Compliance
   regulatory_requirements TEXT[],
   compliance_status VARCHAR(50) NOT NULL DEFAULT 'PENDING_REVIEW',
   last_compliance_check TIMESTAMP,
-  
+
   -- Modifications
   modification_history JSONB DEFAULT '[]',
-  
+
   -- Metadata
   notes TEXT,
   tags TEXT[],
   custom_fields JSONB,
-  
+
   -- Audit fields
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   created_by UUID NOT NULL REFERENCES users(id),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_by UUID NOT NULL REFERENCES users(id),
   version INTEGER NOT NULL DEFAULT 1,
-  
+
   -- Soft delete
   deleted_at TIMESTAMP,
   deleted_by UUID REFERENCES users(id)
@@ -146,26 +151,26 @@ CREATE TRIGGER update_care_plans_updated_at
 CREATE TABLE task_instances (
   -- Identity
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- References
   care_plan_id UUID NOT NULL REFERENCES care_plans(id),
   template_id UUID, -- Reference to template in care_plan.task_templates
   visit_id UUID REFERENCES visits(id),
   client_id UUID NOT NULL REFERENCES clients(id),
   assigned_caregiver_id UUID REFERENCES caregivers(id),
-  
+
   -- Task details
   name VARCHAR(255) NOT NULL,
   description TEXT NOT NULL,
   category VARCHAR(50) NOT NULL,
   instructions TEXT NOT NULL,
-  
+
   -- Scheduling
   scheduled_date DATE NOT NULL,
   scheduled_time TIME,
   time_of_day VARCHAR(20),
   estimated_duration INTEGER, -- minutes
-  
+
   -- Completion
   status VARCHAR(50) NOT NULL DEFAULT 'SCHEDULED',
   completed_at TIMESTAMP,
@@ -173,31 +178,31 @@ CREATE TABLE task_instances (
   completion_note TEXT,
   completion_signature JSONB,
   completion_photo TEXT[],
-  
+
   -- Verification
   verification_data JSONB,
   quality_check_responses JSONB,
-  
+
   -- Skipping
   skipped_at TIMESTAMP,
   skipped_by UUID REFERENCES users(id),
   skip_reason VARCHAR(200),
   skip_note TEXT,
-  
+
   -- Issues
   issue_reported BOOLEAN DEFAULT FALSE,
   issue_description TEXT,
   issue_reported_at TIMESTAMP,
   issue_reported_by UUID REFERENCES users(id),
-  
+
   -- Required data
   required_signature BOOLEAN NOT NULL DEFAULT FALSE,
   required_note BOOLEAN NOT NULL DEFAULT FALSE,
   custom_field_values JSONB,
-  
+
   -- Metadata
   notes TEXT,
-  
+
   -- Audit fields
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   created_by UUID NOT NULL REFERENCES users(id),
@@ -238,45 +243,45 @@ CREATE TRIGGER update_task_instances_updated_at
 CREATE TABLE progress_notes (
   -- Identity
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- References
   care_plan_id UUID NOT NULL REFERENCES care_plans(id),
   client_id UUID NOT NULL REFERENCES clients(id),
   visit_id UUID REFERENCES visits(id),
-  
+
   -- Note metadata
   note_type VARCHAR(50) NOT NULL,
   note_date DATE NOT NULL,
-  
+
   -- Author
   author_id UUID NOT NULL REFERENCES users(id),
   author_name VARCHAR(200) NOT NULL,
   author_role VARCHAR(50) NOT NULL,
-  
+
   -- Content
   content TEXT NOT NULL,
-  
+
   -- Structured data (JSONB for flexibility)
   goal_progress JSONB DEFAULT '[]',
   observations JSONB DEFAULT '[]',
   concerns TEXT[],
   recommendations TEXT[],
-  
+
   -- Review and approval
   reviewed_by UUID REFERENCES users(id),
   reviewed_at TIMESTAMP,
   approved BOOLEAN DEFAULT FALSE,
-  
+
   -- Attachments
   attachments TEXT[],
-  
+
   -- Signature
   signature JSONB,
-  
+
   -- Metadata
   tags TEXT[],
   is_private BOOLEAN DEFAULT FALSE,
-  
+
   -- Audit fields
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   created_by UUID NOT NULL REFERENCES users(id),
@@ -325,9 +330,12 @@ $$ LANGUAGE plpgsql;
 
 **Implementation Status**: ✅ IMPLEMENTED
 
-All API endpoints described below have been implemented in `verticals/care-plans-tasks/src/api/care-plan-handlers.ts` and are registered in the Express app via `packages/app/src/routes/index.ts`.
+All API endpoints described below have been implemented in
+`verticals/care-plans-tasks/src/api/care-plan-handlers.ts` and are registered in
+the Express app via `packages/app/src/routes/index.ts`.
 
 To test the API:
+
 ```bash
 # Start the server
 npm run dev:server

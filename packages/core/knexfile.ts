@@ -21,7 +21,7 @@ function getConnectionConfig(): string {
   const user = process.env.DB_USER ?? 'postgres';
   const password = process.env.DB_PASSWORD ?? 'postgres';
   const ssl = process.env.DB_SSL === 'true';
-  
+
   return `postgresql://${user}:${password}@${host}:${port}/${database}${ssl ? '?sslmode=require' : ''}`;
 }
 

@@ -53,7 +53,10 @@ describe('StateSpecificClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ path: '', message: 'State-specific data must be provided for the selected state' })
+        expect.objectContaining({
+          path: '',
+          message: 'State-specific data must be provided for the selected state',
+        })
       );
     });
 
@@ -101,7 +104,7 @@ describe('StateSpecificClientValidator', () => {
             expirationDate: new Date('2024-12-31'),
             status: 'ACTIVE',
             requiresEVV: false,
-          }
+          },
         ],
       };
 
@@ -126,7 +129,7 @@ describe('StateSpecificClientValidator', () => {
             expirationDate: new Date('2024-12-31'),
             status: 'ACTIVE',
             requiresEVV: false,
-          }
+          },
         ],
       };
 
@@ -155,7 +158,7 @@ describe('StateSpecificClientValidator', () => {
             expirationDate: new Date('2024-01-01'), // Before effective date
             status: 'ACTIVE',
             requiresEVV: false,
-          }
+          },
         ],
       };
 
@@ -200,7 +203,7 @@ describe('StateSpecificClientValidator', () => {
             expirationDate: new Date('2021-01-01'), // Past date
             status: 'ACTIVE', // But still marked as active
             requiresEVV: false,
-          }
+          },
         ],
       };
 
@@ -209,7 +212,9 @@ describe('StateSpecificClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ message: 'One or more authorizations have expired and need renewal' })
+        expect.objectContaining({
+          message: 'One or more authorizations have expired and need renewal',
+        })
       );
     });
   });
@@ -243,7 +248,7 @@ describe('StateSpecificClientValidator', () => {
             status: 'ACTIVE',
             requiresEVV: false,
             requiresRNSupervision: false,
-          }
+          },
         ],
       };
 
@@ -269,7 +274,7 @@ describe('StateSpecificClientValidator', () => {
             status: 'ACTIVE',
             requiresEVV: false,
             requiresRNSupervision: false,
-          }
+          },
         ],
       };
 
@@ -299,7 +304,7 @@ describe('StateSpecificClientValidator', () => {
             status: 'ACTIVE',
             requiresEVV: false,
             requiresRNSupervision: true, // Requires RN supervision
-          }
+          },
         ],
         // Missing RN supervisor ID
       };
@@ -309,7 +314,9 @@ describe('StateSpecificClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ message: 'RN supervisor required for services requiring supervision (59A-8.0095)' })
+        expect.objectContaining({
+          message: 'RN supervisor required for services requiring supervision (59A-8.0095)',
+        })
       );
     });
 
@@ -343,7 +350,9 @@ describe('StateSpecificClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ message: 'Plan of care review is overdue (Florida Statute 400.487)' })
+        expect.objectContaining({
+          message: 'Plan of care review is overdue (Florida Statute 400.487)',
+        })
       );
     });
   });
@@ -367,7 +376,7 @@ describe('StateSpecificClientValidator', () => {
               expirationDate: new Date('2024-12-31'),
               status: 'ACTIVE',
               requiresEVV: false, // Does not require EVV
-            }
+            },
           ],
         } as TexasClientData,
       };
@@ -397,7 +406,7 @@ describe('StateSpecificClientValidator', () => {
               status: 'ACTIVE',
               requiresEVV: false, // Does not require EVV
               requiresRNSupervision: false,
-            }
+            },
           ],
         } as FloridaClientData,
       };
@@ -426,7 +435,7 @@ describe('StateSpecificClientValidator', () => {
               expirationDate: new Date('2024-12-31'),
               status: 'ACTIVE',
               requiresEVV: true,
-            }
+            },
           ],
         } as TexasClientData,
       };
@@ -462,7 +471,7 @@ describe('StateSpecificClientValidator', () => {
               expirationDate: new Date('2024-12-31'), // Future date
               status: 'ACTIVE',
               requiresEVV: true,
-            }
+            },
           ],
         } as TexasClientData,
       };
@@ -498,7 +507,7 @@ describe('StateSpecificClientValidator', () => {
               expirationDate: new Date('2024-12-31'),
               status: 'ACTIVE',
               requiresEVV: true,
-            }
+            },
           ],
         } as TexasClientData,
       };
@@ -507,7 +516,9 @@ describe('StateSpecificClientValidator', () => {
 
       expect(result.eligible).toBe(false);
       expect(result.reasons).toContain('EVV entity ID not configured');
-      expect(result.reasons).toContain('TMHP integration not configured for EVV aggregator submission');
+      expect(result.reasons).toContain(
+        'TMHP integration not configured for EVV aggregator submission'
+      );
     });
 
     it.skip('should return eligible with reasons for Florida when all requirements met', () => {
@@ -532,7 +543,7 @@ describe('StateSpecificClientValidator', () => {
               status: 'ACTIVE',
               requiresEVV: true,
               requiresRNSupervision: true,
-            }
+            },
           ],
         } as FloridaClientData,
       };
@@ -563,7 +574,7 @@ describe('StateSpecificClientValidator', () => {
               expirationDate: new Date('2025-12-31'), // Future date
               status: 'ACTIVE',
               requiresEVV: false,
-            }
+            },
           ],
         } as TexasClientData,
       };
@@ -592,7 +603,7 @@ describe('StateSpecificClientValidator', () => {
               expirationDate: new Date('2021-01-01'), // Past expiration date
               status: 'ACTIVE',
               requiresEVV: false,
-            }
+            },
           ],
         } as TexasClientData,
       };
@@ -601,15 +612,15 @@ describe('StateSpecificClientValidator', () => {
 
       expect(result.compliant).toBe(false);
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'ERROR',
-          message: 'Emergency plan not on file (26 TAC §558 requirement)' 
+          message: 'Emergency plan not on file (26 TAC §558 requirement)',
         })
       );
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'ERROR',
-          message: '1 service authorization(s) expired' 
+          message: '1 service authorization(s) expired',
         })
       );
     });
@@ -634,7 +645,7 @@ describe('StateSpecificClientValidator', () => {
               status: 'ACTIVE',
               requiresEVV: false,
               requiresRNSupervision: false,
-            }
+            },
           ],
         } as FloridaClientData,
       };
@@ -666,7 +677,7 @@ describe('StateSpecificClientValidator', () => {
               status: 'ACTIVE', // But still marked as active
               requiresEVV: false,
               requiresRNSupervision: false,
-            }
+            },
           ],
         } as FloridaClientData,
       };
@@ -675,27 +686,27 @@ describe('StateSpecificClientValidator', () => {
 
       expect(result.compliant).toBe(false);
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'ERROR',
-          message: 'Background screening non-compliant' 
+          message: 'Background screening non-compliant',
         })
       );
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'ERROR',
-          message: 'Plan of care review overdue (Florida Statute 400.487)' 
+          message: 'Plan of care review overdue (Florida Statute 400.487)',
         })
       );
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'ERROR',
-          message: 'RN supervisory visit overdue (59A-8.0095)' 
+          message: 'RN supervisory visit overdue (59A-8.0095)',
         })
       );
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'ERROR',
-          message: '1 service authorization(s) expired' 
+          message: '1 service authorization(s) expired',
         })
       );
     });
@@ -722,7 +733,7 @@ describe('StateSpecificClientValidator', () => {
               expirationDate: new Date('2025-02-01'), // Expires within 30 days
               status: 'ACTIVE',
               requiresEVV: false,
-            }
+            },
           ],
         } as TexasClientData,
       };
@@ -731,15 +742,15 @@ describe('StateSpecificClientValidator', () => {
 
       expect(result.compliant).toBe(true); // Still compliant despite warnings
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'WARNING',
-          message: 'Emergency plan over 1 year old, review recommended' 
+          message: 'Emergency plan over 1 year old, review recommended',
         })
       );
       expect(result.issues).toContainEqual(
-        expect.objectContaining({ 
+        expect.objectContaining({
           severity: 'WARNING',
-          message: '1 service authorization(s) expiring within 30 days' 
+          message: '1 service authorization(s) expiring within 30 days',
         })
       );
     });

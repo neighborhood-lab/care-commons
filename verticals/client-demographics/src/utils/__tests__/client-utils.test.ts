@@ -167,7 +167,7 @@ describe('Client Utilities', () => {
       const today = new Date();
       const birthDate = new Date(today);
       birthDate.setFullYear(today.getFullYear() - 25);
-      
+
       const age = calculateAge(birthDate);
       expect(age).toBe(25);
     });
@@ -178,7 +178,7 @@ describe('Client Utilities', () => {
       const birthDate = new Date(today);
       birthDate.setFullYear(today.getFullYear() - 30);
       birthDate.setDate(today.getDate() - 1); // Go back one more day to ensure we've passed the birthday
-      
+
       const dateString = birthDate.toISOString().split('T')[0];
       if (!dateString) throw new Error('Invalid date string');
       const age = calculateAge(dateString);
@@ -193,13 +193,13 @@ describe('Client Utilities', () => {
       // As of any date in 2025, this person will be 25 years old
       // The months will vary based on the current month
       const age = calculateDetailedAge('2000-01-01');
-      
+
       expect(age).toHaveProperty('years');
       expect(age).toHaveProperty('months');
-      
+
       // Should be 25 years old as of 2025
       expect(age.years).toBe(25);
-      
+
       // Months should be between 0-11 depending on current month
       expect(age.months).toBeGreaterThanOrEqual(0);
       expect(age.months).toBeLessThan(12);

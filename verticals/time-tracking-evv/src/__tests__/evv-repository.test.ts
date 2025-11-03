@@ -4,9 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EVVRepository } from '../repository/evv-repository';
-import {
-  EVVRecordSearchFilters,
-} from '../types/evv';
+import { EVVRecordSearchFilters } from '../types/evv';
 import { UUID } from '@care-commons/core';
 
 describe('EVVRepository', () => {
@@ -42,7 +40,7 @@ describe('EVVRepository', () => {
         postalCode: '10001',
         country: 'USA',
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         geofenceRadius: 100,
         addressVerified: true,
       },
@@ -50,7 +48,7 @@ describe('EVVRepository', () => {
       clockOutTime: null,
       clockInVerification: {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         timestampSource: 'DEVICE' as any,
@@ -131,12 +129,14 @@ describe('EVVRepository', () => {
 
       const result = await repository.createEVVRecord(mockEVVRecord);
 
-      expect(result).toEqual(expect.objectContaining({
-        id: 'evv-123',
-        visitId: 'visit-123',
-        recordStatus: 'PENDING',
-        verificationLevel: 'FULL',
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 'evv-123',
+          visitId: 'visit-123',
+          recordStatus: 'PENDING',
+          verificationLevel: 'FULL',
+        })
+      );
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO evv_records'),
@@ -192,7 +192,7 @@ describe('EVVRepository', () => {
         totalDuration: 120,
         clockOutVerification: {
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           accuracy: 10,
           timestamp: new Date(),
           timestampSource: 'DEVICE' as any,
@@ -317,7 +317,7 @@ describe('EVVRepository', () => {
           postalCode: '10001',
           country: 'USA',
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           geofenceRadius: 100,
           addressVerified: true,
         }),
@@ -326,7 +326,7 @@ describe('EVVRepository', () => {
         total_duration: null,
         clock_in_verification: JSON.stringify({
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           accuracy: 10,
           timestamp: new Date(),
           timestampSource: 'DEVICE' as any,
@@ -374,19 +374,20 @@ describe('EVVRepository', () => {
 
       const result = await repository.getEVVRecordById('evv-123');
 
-      expect(result).toEqual(expect.objectContaining({
-        id: 'evv-123',
-        visitId: 'visit-123',
-        organizationId: 'org-123',
-        recordStatus: 'PENDING',
-        verificationLevel: 'FULL',
-        complianceFlags: ['COMPLIANT' as any],
-      }));
-
-      expect(mockDatabase.query).toHaveBeenCalledWith(
-        'SELECT * FROM evv_records WHERE id = $1',
-        ['evv-123']
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 'evv-123',
+          visitId: 'visit-123',
+          organizationId: 'org-123',
+          recordStatus: 'PENDING',
+          verificationLevel: 'FULL',
+          complianceFlags: ['COMPLIANT' as any],
+        })
       );
+
+      expect(mockDatabase.query).toHaveBeenCalledWith('SELECT * FROM evv_records WHERE id = $1', [
+        'evv-123',
+      ]);
     });
 
     it('should return null when record not found', async () => {
@@ -541,17 +542,10 @@ describe('EVVRepository', () => {
       const queryCalls = mockDatabase.query.mock.calls;
       expect(queryCalls.length).toBeGreaterThan(0);
       const [queryString, params] = queryCalls[0];
-      
+
       expect(queryString).toContain('UPDATE evv_records');
       expect(queryString).toContain('SET clock_out_time');
-      expect(params).toEqual(
-        expect.arrayContaining([
-          'COMPLETE',
-          'FULL',
-          'user-123',
-          'evv-123',
-        ])
-      );
+      expect(params).toEqual(expect.arrayContaining(['COMPLETE', 'FULL', 'user-123', 'evv-123']));
     });
 
     it('should throw error when record not found', async () => {
@@ -559,8 +553,9 @@ describe('EVVRepository', () => {
         rows: [],
       });
 
-      await expect(repository.updateEVVRecord('nonexistent', {}, 'user-123'))
-        .rejects.toThrow('EVV record nonexistent not found');
+      await expect(repository.updateEVVRecord('nonexistent', {}, 'user-123')).rejects.toThrow(
+        'EVV record nonexistent not found'
+      );
     });
   });
 
@@ -684,7 +679,8 @@ describe('EVVRepository', () => {
       expect(result.totalPages).toBe(1);
 
       expect(mockDatabase.query).toHaveBeenCalledTimes(2);
-      expect(mockDatabase.query).toHaveBeenNthCalledWith(1,
+      expect(mockDatabase.query).toHaveBeenNthCalledWith(
+        1,
         expect.stringContaining('SELECT COUNT(*) FROM evv_records'),
         expect.arrayContaining(['org-123', 'client-123', expect.any(Date), expect.any(Date)])
       );
@@ -698,20 +694,22 @@ describe('EVVRepository', () => {
 
       const pagination = { page: 1, limit: 10 };
 
-      mockDatabase.query
-        .mockResolvedValueOnce({ rows: [{ count: '1' }] })
-        .mockResolvedValueOnce({ rows: [{
-          id: 'evv-1',
-          visit_id: 'visit-1',
-          organization_id: 'org-123',
-          service_date: new Date(),
-          service_address: JSON.stringify({ line1: '123 Main St' }),
-          clock_in_verification: JSON.stringify({ latitude: 40.7128 }),
-          compliance_flags: JSON.stringify(['COMPLIANT']),
-          sync_metadata: JSON.stringify({ syncId: 'sync-1' }),
-          created_at: new Date(),
-          updated_at: new Date(),
-        }] });
+      mockDatabase.query.mockResolvedValueOnce({ rows: [{ count: '1' }] }).mockResolvedValueOnce({
+        rows: [
+          {
+            id: 'evv-1',
+            visit_id: 'visit-1',
+            organization_id: 'org-123',
+            service_date: new Date(),
+            service_address: JSON.stringify({ line1: '123 Main St' }),
+            clock_in_verification: JSON.stringify({ latitude: 40.7128 }),
+            compliance_flags: JSON.stringify(['COMPLIANT']),
+            sync_metadata: JSON.stringify({ syncId: 'sync-1' }),
+            created_at: new Date(),
+            updated_at: new Date(),
+          },
+        ],
+      });
 
       await repository.searchEVVRecords(filters, pagination);
 
@@ -729,20 +727,22 @@ describe('EVVRepository', () => {
 
       const pagination = { page: 1, limit: 10 };
 
-      mockDatabase.query
-        .mockResolvedValueOnce({ rows: [{ count: '1' }] })
-        .mockResolvedValueOnce({ rows: [{
-          id: 'evv-1',
-          visit_id: 'visit-1',
-          organization_id: 'org-123',
-          service_date: new Date(),
-          service_address: JSON.stringify({ line1: '123 Main St' }),
-          clock_in_verification: JSON.stringify({ latitude: 40.7128 }),
-          compliance_flags: JSON.stringify(['GEOFENCE_VIOLATION']),
-          sync_metadata: JSON.stringify({ syncId: 'sync-1' }),
-          created_at: new Date(),
-          updated_at: new Date(),
-        }] });
+      mockDatabase.query.mockResolvedValueOnce({ rows: [{ count: '1' }] }).mockResolvedValueOnce({
+        rows: [
+          {
+            id: 'evv-1',
+            visit_id: 'visit-1',
+            organization_id: 'org-123',
+            service_date: new Date(),
+            service_address: JSON.stringify({ line1: '123 Main St' }),
+            clock_in_verification: JSON.stringify({ latitude: 40.7128 }),
+            compliance_flags: JSON.stringify(['GEOFENCE_VIOLATION']),
+            sync_metadata: JSON.stringify({ syncId: 'sync-1' }),
+            created_at: new Date(),
+            updated_at: new Date(),
+          },
+        ],
+      });
 
       await repository.searchEVVRecords(filters, pagination);
 
@@ -782,7 +782,7 @@ describe('EVVRepository', () => {
       entryTimestamp: new Date(),
       location: {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         timestampSource: 'DEVICE' as any,
@@ -852,13 +852,15 @@ describe('EVVRepository', () => {
 
       const result = await repository.createTimeEntry(mockTimeEntry);
 
-      expect(result).toEqual(expect.objectContaining({
-        id: 'time-entry-123',
-        visitId: 'visit-123',
-        entryType: 'CLOCK_IN',
-        status: 'VERIFIED',
-        verificationPassed: true,
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 'time-entry-123',
+          visitId: 'visit-123',
+          entryType: 'CLOCK_IN',
+          status: 'VERIFIED',
+          verificationPassed: true,
+        })
+      );
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO time_entries'),
@@ -937,7 +939,9 @@ describe('EVVRepository', () => {
       expect(result[1]!.entryType).toBe('CLOCK_OUT');
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
-        expect.stringMatching(/SELECT \* FROM time_entries\s+WHERE visit_id = \$1\s+ORDER BY entry_timestamp ASC/),
+        expect.stringMatching(
+          /SELECT \* FROM time_entries\s+WHERE visit_id = \$1\s+ORDER BY entry_timestamp ASC/
+        ),
         ['visit-123']
       );
     });
@@ -959,7 +963,7 @@ describe('EVVRepository', () => {
       clientId: 'client-123' as UUID,
       addressId: 'address-123' as UUID,
       centerLatitude: 40.7128,
-      centerLongitude: -74.0060,
+      centerLongitude: -74.006,
       radiusMeters: 100,
       radiusType: 'STANDARD' as const,
       shape: 'CIRCLE' as const,
@@ -979,7 +983,7 @@ describe('EVVRepository', () => {
         client_id: 'client-123',
         address_id: 'address-123',
         center_latitude: 40.7128,
-        center_longitude: -74.0060,
+        center_longitude: -74.006,
         radius_meters: 100,
         radius_type: 'STANDARD',
         shape: 'CIRCLE',
@@ -1008,14 +1012,16 @@ describe('EVVRepository', () => {
 
       const result = await repository.createGeofence(mockGeofence);
 
-      expect(result).toEqual(expect.objectContaining({
-        id: 'geofence-123',
-        centerLatitude: 40.7128,
-        centerLongitude: -74.0060,
-        radiusMeters: 100,
-        isActive: true,
-        status: 'ACTIVE',
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 'geofence-123',
+          centerLatitude: 40.7128,
+          centerLongitude: -74.006,
+          radiusMeters: 100,
+          isActive: true,
+          status: 'ACTIVE',
+        })
+      );
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO geofences'),
@@ -1024,7 +1030,7 @@ describe('EVVRepository', () => {
           'client-123',
           'address-123',
           40.7128,
-          -74.0060,
+          -74.006,
           100,
           'STANDARD',
           'CIRCLE',
@@ -1051,10 +1057,10 @@ describe('EVVRepository', () => {
         ...mockGeofence,
         shape: 'POLYGON' as const,
         polygonPoints: [
-          { latitude: 40.7128, longitude: -74.0060 },
-          { latitude: 40.7138, longitude: -74.0060 },
-          { latitude: 40.7138, longitude: -74.0070 },
-          { latitude: 40.7128, longitude: -74.0070 },
+          { latitude: 40.7128, longitude: -74.006 },
+          { latitude: 40.7138, longitude: -74.006 },
+          { latitude: 40.7138, longitude: -74.007 },
+          { latitude: 40.7128, longitude: -74.007 },
         ],
       };
 
@@ -1064,7 +1070,7 @@ describe('EVVRepository', () => {
         client_id: 'client-123',
         address_id: 'address-123',
         center_latitude: 40.7128,
-        center_longitude: -74.0060,
+        center_longitude: -74.006,
         radius_meters: 100,
         radius_type: 'STANDARD',
         shape: 'POLYGON',
@@ -1099,7 +1105,7 @@ describe('EVVRepository', () => {
       const queryCalls = mockDatabase.query.mock.calls;
       expect(queryCalls.length).toBeGreaterThan(0);
       const [queryString, params] = queryCalls[0];
-      
+
       expect(queryString).toContain('INSERT INTO geofences');
       expect(params[0]).toBe('org-123');
       expect(params[1]).toBe('client-123');
@@ -1118,7 +1124,7 @@ describe('EVVRepository', () => {
         client_id: 'client-123',
         address_id: 'address-123',
         center_latitude: 40.7128,
-        center_longitude: -74.0060,
+        center_longitude: -74.006,
         radius_meters: 100,
         is_active: true,
         status: 'ACTIVE',
@@ -1135,17 +1141,21 @@ describe('EVVRepository', () => {
 
       const result = await repository.getGeofenceByAddress('address-123');
 
-      expect(result).toEqual(expect.objectContaining({
-        id: 'geofence-123',
-        centerLatitude: 40.7128,
-        centerLongitude: -74.0060,
-        radiusMeters: 100,
-        isActive: true,
-        status: 'ACTIVE',
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 'geofence-123',
+          centerLatitude: 40.7128,
+          centerLongitude: -74.006,
+          radiusMeters: 100,
+          isActive: true,
+          status: 'ACTIVE',
+        })
+      );
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
-        expect.stringMatching(/SELECT \* FROM geofences\s+WHERE address_id = \$1 AND is_active = true AND status = 'ACTIVE'\s+ORDER BY created_at DESC\s+LIMIT 1/),
+        expect.stringMatching(
+          /SELECT \* FROM geofences\s+WHERE address_id = \$1 AND is_active = true AND status = 'ACTIVE'\s+ORDER BY created_at DESC\s+LIMIT 1/
+        ),
         ['address-123']
       );
     });
@@ -1168,7 +1178,9 @@ describe('EVVRepository', () => {
       await repository.updateGeofenceStats('geofence-123', true, 15);
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
-        expect.stringMatching(/UPDATE geofences\s+SET verification_count = verification_count \+ 1/),
+        expect.stringMatching(
+          /UPDATE geofences\s+SET verification_count = verification_count \+ 1/
+        ),
         [
           1, // successful increment
           0, // failed increment
@@ -1184,7 +1196,9 @@ describe('EVVRepository', () => {
       await repository.updateGeofenceStats('geofence-123', false, 25);
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
-        expect.stringMatching(/UPDATE geofences\s+SET verification_count = verification_count \+ 1/),
+        expect.stringMatching(
+          /UPDATE geofences\s+SET verification_count = verification_count \+ 1/
+        ),
         [
           0, // successful increment
           1, // failed increment

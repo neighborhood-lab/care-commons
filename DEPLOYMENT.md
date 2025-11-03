@@ -1,10 +1,12 @@
 # Cloud Deployment Guide
 
-This document provides a complete guide for deploying Care Commons to production using **Vercel Hobby Plan** and **Neon PostgreSQL**.
+This document provides a complete guide for deploying Care Commons to production
+using **Vercel Hobby Plan** and **Neon PostgreSQL**.
 
 ## Overview
 
-Care Commons uses a modern serverless architecture optimized for cost-efficiency and scalability:
+Care Commons uses a modern serverless architecture optimized for cost-efficiency
+and scalability:
 
 - **Frontend & API**: Deployed on Vercel (serverless functions)
 - **Database**: Neon PostgreSQL (serverless database with connection pooling)
@@ -12,7 +14,8 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 - **Environments (Vercel Hobby Plan)**:
   - **Production** (Vercel production environment) ← `main` branch (pushes only)
   - **Preview** (Vercel preview environment) ← `develop` branch (pushes only)
-  - **Development** (local only, not deployed) ← linked to local machine via `vercel dev`
+  - **Development** (local only, not deployed) ← linked to local machine via
+    `vercel dev`
   - **Note**: Pull requests do NOT trigger deployments
 
 ## Architecture
@@ -40,11 +43,13 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 ## Prerequisites
 
 ### Required Accounts
+
 1. **GitHub Account** - Repository hosting and CI/CD
 2. **Vercel Account** - Application hosting ([vercel.com](https://vercel.com))
 3. **Neon Account** - Database hosting ([neon.tech](https://neon.tech))
 
 ### Local Development Tools
+
 - Node.js 20+
 - PostgreSQL 14+ (for local development)
 - Vercel CLI: `npm install -g vercel`
@@ -55,6 +60,7 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 ### 1. Neon PostgreSQL Setup
 
 #### Create Databases
+
 1. Sign up at [console.neon.tech](https://console.neon.tech)
 2. Create a new project: `care-commons`
 3. Create two branches in Neon:
@@ -62,6 +68,7 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
    - `production` - For production environment (main branch)
 
 #### Configure Connection Pooling
+
 1. In each database branch, enable **Connection Pooling**
 2. Copy the **pooled connection string** (not the direct connection string)
 3. The pooled connection string format:
@@ -70,28 +77,35 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
    ```
 
 #### Important Notes
+
 - Always use **pooled** connection strings for Vercel deployments
 - Neon automatically manages SSL certificates
-- Connection pooling is essential for serverless environments to avoid connection exhaustion
+- Connection pooling is essential for serverless environments to avoid
+  connection exhaustion
 
 ### 2. Vercel Project Setup
 
 #### Initial Configuration
+
 1. Install Vercel CLI:
+
    ```bash
    npm install -g vercel
    ```
 
 2. Login to Vercel:
+
    ```bash
    vercel login
    ```
 
 3. Link your project:
+
    ```bash
    cd /path/to/care-commons
    vercel link
    ```
+
    - Select your account/team
    - Link to existing project or create new
    - Accept default settings
@@ -105,6 +119,7 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
    ```
 
 #### Environment Variables
+
 Add environment variables through Vercel dashboard or CLI:
 
 ```bash
@@ -132,17 +147,20 @@ vercel env add ENCRYPTION_KEY preview
 ### 3. GitHub Repository Setup
 
 #### Required Secrets
-Add these in: **Settings → Secrets and variables → Actions → New repository secret**
 
-| Secret Name | Description | How to Get It |
-|------------|-------------|---------------|
-| **`VERCEL_TOKEN`** | ⚠️ **REQUIRED** - Vercel authentication token | 1. Go to [vercel.com/account/tokens](https://vercel.com/account/tokens)<br>2. Click "Create Token"<br>3. Name: `care-commons-github-actions`<br>4. Scope: **Full Account**<br>5. Copy token immediately (can't view again)<br>6. Add to GitHub Secrets |
-| **`VERCEL_ORG_ID`** | ⚠️ **REQUIRED** - Your Vercel organization/team ID | From `vercel link` output or Vercel dashboard URL |
-| **`VERCEL_PROJECT_ID`** | ⚠️ **REQUIRED** - Your Vercel project ID | From `vercel link` output or Project Settings |
-| **`DATABASE_URL`** | ⚠️ **REQUIRED** - Production database connection | Neon production pooled connection string |
-| **`PREVIEW_DATABASE_URL`** | ⚠️ **REQUIRED** - Preview database connection | Neon preview pooled connection string |
+Add these in: **Settings → Secrets and variables → Actions → New repository
+secret**
+
+| Secret Name                | Description                                        | How to Get It                                                                                                                                                                                                                                          |
+| -------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`VERCEL_TOKEN`**         | ⚠️ **REQUIRED** - Vercel authentication token      | 1. Go to [vercel.com/account/tokens](https://vercel.com/account/tokens)<br>2. Click "Create Token"<br>3. Name: `care-commons-github-actions`<br>4. Scope: **Full Account**<br>5. Copy token immediately (can't view again)<br>6. Add to GitHub Secrets |
+| **`VERCEL_ORG_ID`**        | ⚠️ **REQUIRED** - Your Vercel organization/team ID | From `vercel link` output or Vercel dashboard URL                                                                                                                                                                                                      |
+| **`VERCEL_PROJECT_ID`**    | ⚠️ **REQUIRED** - Your Vercel project ID           | From `vercel link` output or Project Settings                                                                                                                                                                                                          |
+| **`DATABASE_URL`**         | ⚠️ **REQUIRED** - Production database connection   | Neon production pooled connection string                                                                                                                                                                                                               |
+| **`PREVIEW_DATABASE_URL`** | ⚠️ **REQUIRED** - Preview database connection      | Neon preview pooled connection string                                                                                                                                                                                                                  |
 
 **Environment Variable Names:**
+
 ```bash
 # Vercel Integration (CRITICAL - deployment will fail without these)
 VERCEL_TOKEN              # Authentication token from vercel.com/account/tokens
@@ -162,11 +180,13 @@ ENCRYPTION_KEY            # openssl rand -hex 32
 #### Creating the VERCEL_TOKEN
 
 The `VERCEL_TOKEN` is **critical** - without it, deployments will fail with:
+
 ```
 Error: No existing credentials found. Please run `vercel login` or pass "--token"
 ```
 
 **Step-by-step:**
+
 1. **Go to** [vercel.com/account/tokens](https://vercel.com/account/tokens)
 2. **Click** "Create Token" button
 3. **Configure**:
@@ -183,6 +203,7 @@ Error: No existing credentials found. Please run `vercel login` or pass "--token
    - Click "Add secret"
 
 #### Optional Secrets
+
 ```bash
 CODECOV_TOKEN            # For code coverage reporting
 SNYK_TOKEN               # For security scanning
@@ -190,7 +211,8 @@ SNYK_TOKEN               # For security scanning
 
 ### 4. Database Migration
 
-Migrations run automatically during deployment via GitHub Actions. To run manually:
+Migrations run automatically during deployment via GitHub Actions. To run
+manually:
 
 ```bash
 # Set environment variable
@@ -208,26 +230,32 @@ npm run db:seed:demo
 
 ## Deployment Workflows
 
-> **📖 Detailed Guide:** See [.github/workflows/DEPLOYMENT_FLOW.md](.github/workflows/DEPLOYMENT_FLOW.md) for complete workflow documentation.
+> **📖 Detailed Guide:** See
+> [.github/workflows/DEPLOYMENT_FLOW.md](.github/workflows/DEPLOYMENT_FLOW.md)
+> for complete workflow documentation.
 
 ### Deployment Triggers
 
-| Branch | Event | Vercel Environment | Database |
-|--------|-------|-------------------|----------|
-| `main` | Push | ✅ **Production** | Production (Neon) |
-| `develop` | Push | ✅ **Preview** | Preview (Neon) |
-| `feature/*` | Push | ❌ **None** (only CI checks) | N/A |
-| Any | Pull Request | ❌ **None** (only CI checks) | N/A |
+| Branch      | Event        | Vercel Environment           | Database          |
+| ----------- | ------------ | ---------------------------- | ----------------- |
+| `main`      | Push         | ✅ **Production**            | Production (Neon) |
+| `develop`   | Push         | ✅ **Preview**               | Preview (Neon)    |
+| `feature/*` | Push         | ❌ **None** (only CI checks) | N/A               |
+| Any         | Pull Request | ❌ **None** (only CI checks) | N/A               |
 
-**Important:** 
+**Important:**
+
 - Vercel Hobby Plan supports **Production** and **Preview** environments only
-- **Pull requests do NOT trigger deployments** - only pushes to `main` or `develop`
+- **Pull requests do NOT trigger deployments** - only pushes to `main` or
+  `develop`
 - Feature branches do NOT trigger deployments
-- Only `main` (production) and `develop` (preview) trigger automatic deployments on push
+- Only `main` (production) and `develop` (preview) trigger automatic deployments
+  on push
 - PRs are only accepted to `develop`, not `main`
 
 ### Preview Deployments (develop branch only)
-- **Trigger**: 
+
+- **Trigger**:
   - Push to `develop` branch only
 - **Vercel Environment**: Preview
 - **Database**: Preview (Neon)
@@ -240,7 +268,8 @@ npm run db:seed:demo
 - **Does NOT trigger on**: Pull requests or feature branches
 
 ### Production Deployments
-- **Trigger**: 
+
+- **Trigger**:
   - Push to `main` branch ONLY
   - Manual workflow dispatch
 - **Vercel Environment**: Production
@@ -253,6 +282,7 @@ npm run db:seed:demo
 - **Does NOT trigger on**: PRs or feature branches
 
 ### Development Environment (Local Only)
+
 - **Setup**: `vercel dev` (links to local machine)
 - **Not deployed**: Development environment is NOT deployed to Vercel
 - **Database**: Local PostgreSQL or development database
@@ -261,6 +291,7 @@ npm run db:seed:demo
 ## Deployment Commands
 
 ### Using NPM Scripts
+
 ```bash
 # Preview deployment (for develop branch)
 npm run deploy:preview
@@ -270,6 +301,7 @@ npm run deploy:production
 ```
 
 ### Using Vercel CLI Directly
+
 ```bash
 # Deploy to preview
 vercel
@@ -290,6 +322,7 @@ vercel promote <deployment-url>
 ## Monitoring & Health Checks
 
 ### Health Endpoint
+
 Every deployment includes a `/health` endpoint:
 
 ```bash
@@ -315,12 +348,14 @@ curl https://your-app.vercel.app/health
 ```
 
 ### Vercel Dashboard
+
 - **Deployments**: View deployment history and logs
 - **Analytics**: Monitor traffic and performance
 - **Logs**: Real-time serverless function logs
 - **Metrics**: Response times, error rates
 
 ### Neon Console
+
 - **Monitoring**: Query performance and database metrics
 - **Connections**: Active connection pooling stats
 - **Backups**: Point-in-time recovery
@@ -329,6 +364,7 @@ curl https://your-app.vercel.app/health
 ## Rollback Procedures
 
 ### Vercel Rollback
+
 ```bash
 # List recent deployments
 vercel ls
@@ -338,6 +374,7 @@ vercel promote <previous-deployment-url>
 ```
 
 ### Database Rollback
+
 ```bash
 # Rollback last migration
 npm run db:migrate:rollback
@@ -355,6 +392,7 @@ npm run db:migrate:rollback
 **Cause:** Missing or invalid `VERCEL_TOKEN` in GitHub Secrets
 
 **Solution:**
+
 1. **Verify** the secret exists:
    - Go to GitHub → Settings → Secrets and variables → Actions
    - Check if `VERCEL_TOKEN` is listed
@@ -382,13 +420,14 @@ npm run db:migrate:rollback
 **Cause:** Invalid `VERCEL_PROJECT_ID` or `VERCEL_ORG_ID`
 
 **Solution:**
+
 1. **Get correct IDs** by running locally:
    ```bash
    vercel link
    cat .vercel/project.json
    ```
-   
 2. **Update GitHub Secrets** with values from `.vercel/project.json`:
+
    ```json
    {
      "orgId": "team_xxxxxxxxxxxxxxxxxxxx",
@@ -404,6 +443,7 @@ npm run db:migrate:rollback
 ### Deployment Failures
 
 #### Build Errors
+
 ```bash
 # Check build logs in Vercel dashboard
 # Or locally:
@@ -413,6 +453,7 @@ npm run typecheck
 ```
 
 #### Database Connection Issues
+
 1. Verify connection string is **pooled** (contains `-pooler-`)
 2. Check SSL mode is set: `?sslmode=require`
 3. Verify IP allowlisting in Neon (Vercel IPs whitelisted)
@@ -423,17 +464,19 @@ npm run typecheck
    ```
 
 #### Migration Failures
+
 1. Check migration order in `packages/core/migrations`
 2. Verify database user has CREATE permissions
 3. Review migration logs in GitHub Actions
 4. Manual intervention:
+
    ```bash
    # Connect to database
    psql $DATABASE_URL
-   
+
    # Check migration status
    SELECT * FROM knex_migrations;
-   
+
    # Force unlock if stuck
    DELETE FROM knex_migrations_lock WHERE is_locked = 1;
    ```
@@ -441,12 +484,14 @@ npm run typecheck
 ### Performance Issues
 
 #### Slow Database Queries
+
 1. Enable query logging in Neon
 2. Review slow queries in Neon console
 3. Add database indexes if needed
 4. Check connection pool settings
 
 #### Function Timeouts
+
 1. Increase timeout in `vercel.json` (max 60s)
 2. Optimize database queries
 3. Consider breaking into smaller functions
@@ -454,6 +499,7 @@ npm run typecheck
 ## Best Practices
 
 ### Security
+
 1. **Never commit secrets** - Use environment variables
 2. **Rotate secrets regularly** - Update JWT_SECRET and ENCRYPTION_KEY quarterly
 3. **Use HTTPS only** - Enforced by Vercel
@@ -461,6 +507,7 @@ npm run typecheck
 5. **Monitor access logs** - Review regularly for anomalies
 
 ### Database
+
 1. **Always use pooled connections** - Essential for serverless
 2. **Test migrations on preview first** - Never test on production
 3. **Backup before major changes** - Use Neon point-in-time recovery
@@ -468,6 +515,7 @@ npm run typecheck
 5. **Use prepared statements** - Prevent SQL injection
 
 ### Deployments
+
 1. **Review preview deployments** - Test changes before merging
 2. **Run tests locally** - Don't rely solely on CI
 3. **Monitor health endpoint** - Set up external monitoring
@@ -475,6 +523,7 @@ npm run typecheck
 5. **Keep dependencies updated** - Security patches
 
 ### Cost Optimization
+
 1. **Use Vercel free tier wisely** - Monitor usage
 2. **Optimize bundle size** - Code splitting, tree shaking
 3. **Enable caching** - Static assets, API responses
@@ -484,12 +533,15 @@ npm run typecheck
 ## Support & Resources
 
 ### Documentation
+
 - [Vercel Documentation](https://vercel.com/docs)
 - [Neon Documentation](https://neon.tech/docs)
 - [Care Commons README](./README.md)
 
 ### Getting Help
-- **GitHub Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/care-commons/issues)
+
+- **GitHub Issues**:
+  [Report bugs or request features](https://github.com/neighborhood-lab/care-commons/issues)
 - **Vercel Support**: support@vercel.com
 - **Neon Support**: support@neon.tech
 
@@ -497,21 +549,22 @@ npm run typecheck
 
 ### Environment Variable Reference
 
-| Variable | Required | Description | Example |
-|----------|----------|-------------|---------|
-| `DATABASE_URL` | Yes | Neon pooled connection string | `postgresql://user:pass@host/db` |
-| `NODE_ENV` | Auto | Environment name | `production`, `staging`, `development` |
-| `PORT` | Auto | Server port (Vercel sets automatically) | `3000` |
-| `JWT_SECRET` | Yes | Secret for JWT tokens | `(32-byte hex string)` |
-| `ENCRYPTION_KEY` | Yes | Key for encrypting sensitive data | `(32-byte hex string)` |
-| `CORS_ORIGIN` | No | Allowed CORS origins | `https://app.example.com` |
-| `LOG_LEVEL` | No | Logging verbosity | `info`, `debug`, `error` |
+| Variable         | Required | Description                             | Example                                |
+| ---------------- | -------- | --------------------------------------- | -------------------------------------- |
+| `DATABASE_URL`   | Yes      | Neon pooled connection string           | `postgresql://user:pass@host/db`       |
+| `NODE_ENV`       | Auto     | Environment name                        | `production`, `staging`, `development` |
+| `PORT`           | Auto     | Server port (Vercel sets automatically) | `3000`                                 |
+| `JWT_SECRET`     | Yes      | Secret for JWT tokens                   | `(32-byte hex string)`                 |
+| `ENCRYPTION_KEY` | Yes      | Key for encrypting sensitive data       | `(32-byte hex string)`                 |
+| `CORS_ORIGIN`    | No       | Allowed CORS origins                    | `https://app.example.com`              |
+| `LOG_LEVEL`      | No       | Logging verbosity                       | `info`, `debug`, `error`               |
 
 ### vercel.json Configuration
 
 See [vercel.json](./vercel.json) for complete configuration.
 
 Key settings:
+
 - **Build Command**: `npm run build`
 - **Output Directory**: `packages/web/dist`
 - **Function Runtime**: Node.js 20
@@ -521,6 +574,7 @@ Key settings:
 ### Migration Scripts
 
 Located in `packages/core/migrations/`:
+
 - Migrations run in alphanumeric order
 - Each migration has `up` and `down` functions
 - Migration status tracked in `knex_migrations` table
@@ -528,5 +582,5 @@ Located in `packages/core/migrations/`:
 
 ---
 
-**Care Commons** - Cloud deployment infrastructure
-Built with Vercel and Neon PostgreSQL
+**Care Commons** - Cloud deployment infrastructure Built with Vercel and Neon
+PostgreSQL

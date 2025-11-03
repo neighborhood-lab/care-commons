@@ -1,6 +1,6 @@
 /**
  * Payroll Service
- * 
+ *
  * Core payroll service implementing SOLID principles
  * Orchestrates payroll operations: timesheet compilation, pay calculation,
  * deduction processing, and payment generation
@@ -125,10 +125,7 @@ export class PayrollService {
   /**
    * Create a new pay period
    */
-  async createPayPeriod(
-    input: CreatePayPeriodInput,
-    userId: UUID
-  ): Promise<PayPeriod> {
+  async createPayPeriod(input: CreatePayPeriodInput, userId: UUID): Promise<PayPeriod> {
     const payPeriod: Omit<PayPeriod, 'id' | 'createdAt' | 'updatedAt' | 'version'> = {
       organizationId: input.organizationId,
       ...(input.branchId !== undefined && { branchId: input.branchId }),
@@ -163,23 +160,20 @@ export class PayrollService {
    * Compile timesheet from EVV records
    * This is where EVV time tracking data becomes payroll data
    */
-  async compileTimeSheet(
-    input: CompileTimeSheetInput,
-    userId: UUID
-  ): Promise<TimeSheet> {
+  async compileTimeSheet(input: CompileTimeSheetInput, userId: UUID): Promise<TimeSheet> {
     // Fetch EVV records for the pay period
     const evvRecords = await this.fetchEVVRecords(input);
-    
+
     // Convert EVV records to timesheet entries
     const timeEntries = await this.convertEVVToTimeSheetEntries(evvRecords, input);
-    
+
     // Calculate hours and earnings
     const hoursCalculation = this.calculateHours(timeEntries);
     const earningsCalculation = this.calculateEarnings(hoursCalculation, input.regularRate);
-    
+
     // Calculate overtime based on weekly hours
     const overtimeCalculation = this.calculateOvertime(hoursCalculation);
-    
+
     // Detect discrepancies
     const discrepancies = this.detectTimeSheetDiscrepancies(
       timeEntries,
@@ -235,7 +229,7 @@ export class PayrollService {
       hasDiscrepancies: discrepancies.length > 0,
       discrepancyFlags: discrepancies,
       evvRecordIds: input.evvRecordIds,
-      visitIds: timeEntries.map(entry => entry.visitId),
+      visitIds: timeEntries.map((entry) => entry.visitId),
       createdBy: userId,
       updatedBy: userId,
     };
@@ -276,7 +270,10 @@ export class PayrollService {
     if (adjustment.adjustmentType === 'BONUS') {
       updatedBonuses = [...timeSheet.bonuses, fullAdjustment];
       totalAdjustments += adjustment.amount;
-    } else if (adjustment.adjustmentType === 'REIMBURSEMENT' || adjustment.adjustmentType === 'MILEAGE') {
+    } else if (
+      adjustment.adjustmentType === 'REIMBURSEMENT' ||
+      adjustment.adjustmentType === 'MILEAGE'
+    ) {
       updatedReimbursements = [...timeSheet.reimbursements, fullAdjustment];
       totalAdjustments += adjustment.amount;
     } else {
@@ -301,10 +298,7 @@ export class PayrollService {
   /**
    * Approve timesheet for payroll processing
    */
-  async approveTimeSheet(
-    input: ApproveTimeSheetInput,
-    userId: UUID
-  ): Promise<void> {
+  async approveTimeSheet(input: ApproveTimeSheetInput, userId: UUID): Promise<void> {
     const timeSheet = await this.repository.findTimeSheetById(input.timeSheetId);
     if (!timeSheet) {
       throw new Error('TimeSheet not found');
@@ -347,10 +341,7 @@ export class PayrollService {
   /**
    * Create pay run and calculate pay stubs for all approved timesheets
    */
-  async createPayRun(
-    input: CreatePayRunInput,
-    userId: UUID
-  ): Promise<PayRun> {
+  async createPayRun(input: CreatePayRunInput, userId: UUID): Promise<PayRun> {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -362,7 +353,9 @@ export class PayrollService {
       }
 
       if (payPeriod.status !== 'LOCKED' && payPeriod.status !== 'PROCESSING') {
-        throw new Error(`Pay period must be LOCKED before running payroll (current: ${payPeriod.status})`);
+        throw new Error(
+          `Pay period must be LOCKED before running payroll (current: ${payPeriod.status})`
+        );
       }
 
       // Get all approved timesheets for this pay period
@@ -387,13 +380,8 @@ export class PayrollService {
       let totalTaxWithheld = 0;
 
       for (const timesheet of timesheets) {
-        const payStub = await this.calculatePayStub(
-          timesheet,
-          payPeriod,
-          userId,
-          client
-        );
-        
+        const payStub = await this.calculatePayStub(timesheet, payPeriod, userId, client);
+
         payStubIds.push(payStub.id);
         totalGrossPay += payStub.currentGrossPay;
         totalNetPay += payStub.currentNetPay;
@@ -410,13 +398,10 @@ export class PayrollService {
           reason: 'Included in pay run',
         };
 
-        await this.repository.updateTimeSheet(
-          timesheet.id,
-          {
-            status: 'PROCESSING',
-            statusHistory: [...timesheet.statusHistory, statusChange],
-          }
-        );
+        await this.repository.updateTimeSheet(timesheet.id, {
+          status: 'PROCESSING',
+          statusHistory: [...timesheet.statusHistory, statusChange],
+        });
       }
 
       // Create pay run
@@ -476,13 +461,10 @@ export class PayrollService {
       const createdPayRun = await this.repository.createPayRun(payRun, client);
 
       // Update pay period with pay run reference
-      await this.repository.updatePayPeriod(
-        input.payPeriodId,
-        {
-          payRunId: createdPayRun.id,
-          status: 'PROCESSING',
-        }
-      );
+      await this.repository.updatePayPeriod(input.payPeriodId, {
+        payRunId: createdPayRun.id,
+        status: 'PROCESSING',
+      });
 
       await client.query('COMMIT');
       return createdPayRun;
@@ -518,46 +500,47 @@ export class PayrollService {
       updatedAt: new Date(),
       updatedBy: userId,
       version: 1,
-      
+
       // Federal
       federalFilingStatus: 'SINGLE' as const,
       federalAllowances: 0,
       federalExtraWithholding: 0,
       federalExempt: false,
-      
+
       // W-4 fields (2020+ format)
       w4Step2: false,
       w4Step3Dependents: 0,
       w4Step4aOtherIncome: 0,
       w4Step4bDeductions: 0,
       w4Step4cExtraWithholding: 0,
-      
+
       // State
       stateFilingStatus: 'SINGLE' as const,
       stateAllowances: 0,
       stateExtraWithholding: 0,
       stateExempt: false,
       stateResidence: 'TX',
-      
+
       // Local
       localExempt: false,
-      
+
       // Status
       effectiveFrom: new Date(),
       lastUpdated: new Date(),
-      
+
       // W-4 form
       w4OnFile: false,
-      
+
       // State form
       stateFormOnFile: false,
     };
 
     // Calculate federal taxes
     // Map pay period type to accepted types
-    const periodTypeForTax = payPeriod.periodType === 'DAILY' || payPeriod.periodType === 'CUSTOM'
-      ? 'WEEKLY'
-      : payPeriod.periodType;
+    const periodTypeForTax =
+      payPeriod.periodType === 'DAILY' || payPeriod.periodType === 'CUSTOM'
+        ? 'WEEKLY'
+        : payPeriod.periodType;
 
     const federalIncomeTax = calculateFederalIncomeTax(
       grossPay,
@@ -576,11 +559,7 @@ export class PayrollService {
     const socialSecurityTax = calculateSocialSecurityTax(grossPay, 0); // 0 YTD for simplicity
     const medicareTax = calculateMedicareTax(grossPay);
 
-    const totalTaxWithheld =
-      federalIncomeTax +
-      stateIncomeTax +
-      socialSecurityTax +
-      medicareTax;
+    const totalTaxWithheld = federalIncomeTax + stateIncomeTax + socialSecurityTax + medicareTax;
 
     // Calculate other deductions (benefits, garnishments, etc.)
     // In a real implementation, we'd fetch from caregiver record
@@ -703,7 +682,7 @@ export class PayrollService {
 
     // Check for excessive daily hours
     const dailyHours = new Map<string, number>();
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       const dateKey = entry.workDate.toISOString().split('T')[0];
       if (dateKey) {
         dailyHours.set(dateKey, (dailyHours.get(dateKey) || 0) + entry.totalHours);
@@ -740,8 +719,9 @@ export class PayrollService {
     }
 
     // Check for missing clock-outs (entries with unusually long duration)
-    entries.forEach(entry => {
-      const durationHours = (entry.clockOutTime.getTime() - entry.clockInTime.getTime()) / (1000 * 60 * 60);
+    entries.forEach((entry) => {
+      const durationHours =
+        (entry.clockOutTime.getTime() - entry.clockInTime.getTime()) / (1000 * 60 * 60);
       if (durationHours > 24) {
         flags.push({
           flagType: 'MISSING_CLOCK_OUT',
@@ -754,7 +734,7 @@ export class PayrollService {
     });
 
     // Check for unusually short shifts (possible data entry errors)
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       if (entry.totalHours < 0.25 && entry.totalHours > 0) {
         flags.push({
           flagType: 'CALCULATION_ERROR',
@@ -767,7 +747,7 @@ export class PayrollService {
     });
 
     // Check for negative hours
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       if (entry.totalHours < 0) {
         flags.push({
           flagType: 'CALCULATION_ERROR',
@@ -780,7 +760,7 @@ export class PayrollService {
     });
 
     // Check for clock-out before clock-in
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       if (entry.clockOutTime < entry.clockInTime) {
         flags.push({
           flagType: 'DATE_MISMATCH',
@@ -793,13 +773,13 @@ export class PayrollService {
     });
 
     // Check for entries requiring review
-    const entriesNeedingReview = entries.filter(entry => entry.requiresReview);
+    const entriesNeedingReview = entries.filter((entry) => entry.requiresReview);
     if (entriesNeedingReview.length > 0) {
       flags.push({
         flagType: 'RATE_MISMATCH',
         severity: 'MEDIUM',
         description: `${entriesNeedingReview.length} entries require supervisor review`,
-        affectedEntryIds: entriesNeedingReview.map(entry => entry.id),
+        affectedEntryIds: entriesNeedingReview.map((entry) => entry.id),
         requiresResolution: true,
       });
     }
@@ -829,7 +809,7 @@ export class PayrollService {
   private async fetchEVVRecords(input: CompileTimeSheetInput): Promise<MockEVVRecord[]> {
     // In a real implementation, this would call the EVV service
     // For now, we'll simulate fetching EVV records
-    const mockEVVRecords = input.evvRecordIds.map(id => ({
+    const mockEVVRecords = input.evvRecordIds.map((id) => ({
       id,
       visitId: uuid(),
       organizationId: input.organizationId,
@@ -869,23 +849,23 @@ export class PayrollService {
     evvRecords: MockEVVRecord[],
     input: CompileTimeSheetInput
   ): Promise<TimeSheetEntry[]> {
-    return evvRecords.map(evvRecord => {
+    return evvRecords.map((evvRecord) => {
       const workDate = new Date(evvRecord.serviceDate);
       const clockInTime = new Date(evvRecord.clockInTime);
       const clockOutTime = evvRecord.clockOutTime ? new Date(evvRecord.clockOutTime) : new Date();
-      
+
       // Calculate total hours worked
       const totalHours = (clockOutTime.getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
-      
+
       // Determine if this is weekend, holiday, or night shift
       const isWeekend = workDate.getDay() === 0 || workDate.getDay() === 6;
       const isNightShift = clockInTime.getHours() >= 20 || clockInTime.getHours() < 6;
       const isHoliday = false; // Would check against holiday calendar
-      
+
       // Calculate rate multipliers
       const appliedMultipliers: PayRateMultiplier[] = [];
       let effectiveRate = input.regularRate;
-      
+
       if (isWeekend) {
         appliedMultipliers.push({
           multiplierType: 'WEEKEND',
@@ -895,7 +875,7 @@ export class PayrollService {
         });
         effectiveRate *= 1.25;
       }
-      
+
       if (isNightShift) {
         appliedMultipliers.push({
           multiplierType: 'NIGHT_SHIFT',
@@ -905,7 +885,7 @@ export class PayrollService {
         });
         effectiveRate *= 1.15;
       }
-      
+
       if (isHoliday) {
         appliedMultipliers.push({
           multiplierType: 'HOLIDAY',
@@ -915,9 +895,10 @@ export class PayrollService {
         });
         effectiveRate *= 1.5;
       }
-      
-      const reviewReason = evvRecord.complianceFlags.length > 0 ? evvRecord.complianceFlags.join(', ') : undefined;
-      
+
+      const reviewReason =
+        evvRecord.complianceFlags.length > 0 ? evvRecord.complianceFlags.join(', ') : undefined;
+
       return {
         id: uuid(),
         visitId: evvRecord.visitId,
@@ -933,7 +914,13 @@ export class PayrollService {
         breakHours: 0,
         totalHours,
         payRate: effectiveRate,
-        payRateType: isWeekend ? 'WEEKEND' : isHoliday ? 'HOLIDAY' : isNightShift ? 'NIGHT_SHIFT' : 'REGULAR',
+        payRateType: isWeekend
+          ? 'WEEKEND'
+          : isHoliday
+            ? 'HOLIDAY'
+            : isNightShift
+              ? 'NIGHT_SHIFT'
+              : 'REGULAR',
         isWeekend,
         isHoliday,
         isNightShift,
@@ -959,23 +946,23 @@ export class PayrollService {
     doubleTimeHours: number;
   } {
     const totalHours = timeEntries.reduce((sum, entry) => sum + entry.totalHours, 0);
-    
+
     // Federal overtime rules: >40 hours/week = 1.5x
     // Some states have daily overtime: >8 hours/day = 1.5x, >12 hours/day = 2x
     let regularHours = totalHours;
     let overtimeHours = 0;
     let doubleTimeHours = 0;
-    
+
     if (totalHours > 40) {
       overtimeHours = Math.min(totalHours - 40, 8); // Up to 8 hours at 1.5x
       regularHours = 40;
-      
+
       if (totalHours > 48) {
         doubleTimeHours = totalHours - 48; // Anything over 48 hours at 2x
         overtimeHours = 8; // Cap overtime at 8 hours
       }
     }
-    
+
     return {
       totalHours,
       regularHours,
@@ -1000,7 +987,7 @@ export class PayrollService {
     const overtimeEarnings = hoursCalculation.overtimeHours * (regularRate * 1.5);
     const doubleTimeEarnings = hoursCalculation.doubleTimeHours * (regularRate * 2.0);
     const grossEarnings = regularEarnings + overtimeEarnings + doubleTimeEarnings;
-    
+
     return {
       regularEarnings,
       overtimeEarnings,
@@ -1012,9 +999,7 @@ export class PayrollService {
   /**
    * Calculate overtime with proper hour distribution
    */
-  private calculateOvertime(
-    hoursCalculation: ReturnType<typeof this.calculateHours>
-  ): {
+  private calculateOvertime(hoursCalculation: ReturnType<typeof this.calculateHours>): {
     totalHours: number;
     regularHours: number;
     overtimeHours: number;
@@ -1050,15 +1035,12 @@ export class PayrollService {
       reason: 'Pay run approved for payment processing',
     };
 
-    await this.repository.updatePayRun(
-      payRunId,
-      {
-        status: 'APPROVED',
-        statusHistory: [...payRun.statusHistory, statusChange],
-        approvedAt: new Date(),
-        approvedBy: userId,
-      }
-    );
+    await this.repository.updatePayRun(payRunId, {
+      status: 'APPROVED',
+      statusHistory: [...payRun.statusHistory, statusChange],
+      approvedAt: new Date(),
+      approvedBy: userId,
+    });
   }
 
   /**
@@ -1083,13 +1065,10 @@ export class PayrollService {
       reason: 'Pay period opened for timesheet submission',
     };
 
-    await this.repository.updatePayPeriod(
-      payPeriodId,
-      {
-        status: 'OPEN',
-        statusHistory: [...payPeriod.statusHistory, statusChange],
-      }
-    );
+    await this.repository.updatePayPeriod(payPeriodId, {
+      status: 'OPEN',
+      statusHistory: [...payPeriod.statusHistory, statusChange],
+    });
   }
 
   /**
@@ -1114,12 +1093,9 @@ export class PayrollService {
       reason: 'Pay period locked for payroll processing',
     };
 
-    await this.repository.updatePayPeriod(
-      payPeriodId,
-      {
-        status: 'LOCKED',
-        statusHistory: [...payPeriod.statusHistory, statusChange],
-      }
-    );
+    await this.repository.updatePayPeriod(payPeriodId, {
+      status: 'LOCKED',
+      statusHistory: [...payPeriod.statusHistory, statusChange],
+    });
   }
 }

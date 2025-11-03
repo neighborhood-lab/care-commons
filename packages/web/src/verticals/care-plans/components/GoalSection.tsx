@@ -9,12 +9,7 @@ export interface GoalSectionProps {
   onGoalClick?: (goal: CarePlanGoal) => void;
 }
 
-export const GoalSection: React.FC<GoalSectionProps> = ({ 
-  goals, 
-  onGoalClick 
-}) => {
-
-
+export const GoalSection: React.FC<GoalSectionProps> = ({ goals, onGoalClick }) => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'URGENT':
@@ -60,26 +55,28 @@ export const GoalSection: React.FC<GoalSectionProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h4 className="font-medium text-gray-900">{goal.name}</h4>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${getPriorityColor(goal.priority)}`}>
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${getPriorityColor(goal.priority)}`}
+                    >
                       {goal.priority}
                     </span>
                   </div>
-                  
+
                   <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
-                  
+
                   <div className="flex items-center gap-4 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Target className="h-3 w-3" />
                       {goal.category.replace(/_/g, ' ')}
                     </span>
-                    
+
                     {goal.targetDate && (
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         Target: {formatDate(goal.targetDate)}
                       </span>
                     )}
-                    
+
                     {goal.progressPercentage !== undefined && (
                       <span className="flex items-center gap-1">
                         <TrendingUp className="h-3 w-3" />
@@ -88,10 +85,10 @@ export const GoalSection: React.FC<GoalSectionProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-end gap-2">
                   <StatusBadge status={goal.status} />
-                  
+
                   {goal.status === 'AT_RISK' && (
                     <div className="flex items-center gap-1 text-xs text-orange-600">
                       <AlertCircle className="h-3 w-3" />
@@ -107,11 +104,11 @@ export const GoalSection: React.FC<GoalSectionProps> = ({
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full ${
-                        goal.status === 'ACHIEVED' 
-                          ? 'bg-green-500' 
+                        goal.status === 'ACHIEVED'
+                          ? 'bg-green-500'
                           : goal.status === 'AT_RISK'
-                          ? 'bg-orange-500'
-                          : 'bg-blue-500'
+                            ? 'bg-orange-500'
+                            : 'bg-blue-500'
                       }`}
                       style={{ width: `${goal.progressPercentage}%` }}
                     />

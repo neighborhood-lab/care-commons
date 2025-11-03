@@ -1,6 +1,6 @@
 /**
  * Repository for Shift Matching & Assignment
- * 
+ *
  * Data access layer for open shifts, matching configurations, assignment proposals,
  * caregiver preferences, and match history. Handles all database operations.
  */
@@ -42,10 +42,7 @@ export class ShiftMatchingRepository {
    * ==========================================================================
    */
 
-  async createOpenShift(
-    input: CreateOpenShiftInput,
-    context: UserContext
-  ): Promise<OpenShift> {
+  async createOpenShift(input: CreateOpenShiftInput, context: UserContext): Promise<OpenShift> {
     // Optimized query: Single query with LEFT JOIN and existence check
     // Uses the idx_visits_pattern_join covering index for optimal performance
     const visitQuery = `
@@ -67,14 +64,14 @@ export class ShiftMatchingRepository {
         EXISTS(SELECT 1 FROM open_shifts os WHERE os.visit_id = vd.id) AS has_open_shift
       FROM visit_data vd
     `;
-    
+
     const visitResult = await this.pool.query(visitQuery, [input.visitId]);
     if (visitResult.rows.length === 0) {
       throw new NotFoundError('Visit not found', { visitId: input.visitId });
     }
-    
+
     const visit = visitResult.rows[0];
-    
+
     // Check if open shift already exists (from EXISTS subquery)
     if (visit.has_open_shift === true) {
       // Fetch the existing shift ID only if needed
@@ -87,7 +84,7 @@ export class ShiftMatchingRepository {
         openShiftId: existingShift.rows[0].id,
       });
     }
-    
+
     const query = `
       INSERT INTO open_shifts (
         organization_id, branch_id, visit_id, client_id,
@@ -108,7 +105,7 @@ export class ShiftMatchingRepository {
       )
       RETURNING *
     `;
-    
+
     const address = visit.address;
     const values = [
       visit.organization_id,
@@ -140,7 +137,7 @@ export class ShiftMatchingRepository {
       null,
       context.userId,
     ];
-    
+
     const result = await this.pool.query(query, values);
     return this.mapRowToOpenShift(result.rows[0]);
   }
@@ -172,12 +169,12 @@ export class ShiftMatchingRepository {
       WHERE id = $3
       RETURNING *
     `;
-    
+
     const result = await this.pool.query(query, [status, context.userId, id]);
     if (result.rows.length === 0) {
       throw new NotFoundError('Open shift not found', { id });
     }
-    
+
     return this.mapRowToOpenShift(result.rows[0]);
   }
 
@@ -240,7 +237,7 @@ export class ShiftMatchingRepository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    
+
     const countQuery = `SELECT COUNT(*) FROM open_shifts ${whereClause}`;
     const countResult = await this.pool.query(countQuery, values);
     const total = parseInt(countResult.rows[0].count, 10);
@@ -255,7 +252,7 @@ export class ShiftMatchingRepository {
       ORDER BY ${sortBy} ${sortOrder}
       LIMIT $${++paramCount} OFFSET $${++paramCount}
     `;
-    
+
     values.push(pagination.limit, offset);
     const dataResult = await this.pool.query(dataQuery, values);
 
@@ -351,7 +348,7 @@ export class ShiftMatchingRepository {
       ORDER BY branch_id DESC NULLS LAST
       LIMIT 1
     `;
-    
+
     const result = await this.pool.query(query, [organizationId, branchId ?? null]);
     return result.rows.length > 0 ? this.mapRowToMatchingConfiguration(result.rows[0]) : null;
   }
@@ -442,11 +439,11 @@ export class ShiftMatchingRepository {
     // Get shift details for branch_id and visit_id
     const shiftQuery = 'SELECT branch_id, visit_id FROM open_shifts WHERE id = $1';
     const shiftResult = await this.pool.query(shiftQuery, [input.openShiftId]);
-    
+
     if (shiftResult.rows.length === 0) {
       throw new NotFoundError('Open shift not found', { id: input.openShiftId });
     }
-    
+
     const { branch_id, visit_id } = shiftResult.rows[0];
 
     const query = `
@@ -521,7 +518,7 @@ export class ShiftMatchingRepository {
     context: UserContext
   ): Promise<AssignmentProposal> {
     const now = new Date();
-    
+
     if (input.accept) {
       const query = `
         UPDATE assignment_proposals
@@ -536,7 +533,7 @@ export class ShiftMatchingRepository {
         WHERE id = $5 AND deleted_at IS NULL
         RETURNING *
       `;
-      
+
       const result = await this.pool.query(query, [
         now,
         context.userId,
@@ -544,11 +541,11 @@ export class ShiftMatchingRepository {
         input.notes ?? null,
         id,
       ]);
-      
+
       if (result.rows.length === 0) {
         throw new NotFoundError('Assignment proposal not found', { id });
       }
-      
+
       return this.mapRowToProposal(result.rows[0]);
     } else {
       const query = `
@@ -566,7 +563,7 @@ export class ShiftMatchingRepository {
         WHERE id = $7 AND deleted_at IS NULL
         RETURNING *
       `;
-      
+
       const result = await this.pool.query(query, [
         now,
         context.userId,
@@ -576,11 +573,11 @@ export class ShiftMatchingRepository {
         input.notes ?? null,
         id,
       ]);
-      
+
       if (result.rows.length === 0) {
         throw new NotFoundError('Assignment proposal not found', { id });
       }
-      
+
       return this.mapRowToProposal(result.rows[0]);
     }
   }
@@ -593,29 +590,27 @@ export class ShiftMatchingRepository {
       SELECT * FROM assignment_proposals
       WHERE caregiver_id = $1 AND deleted_at IS NULL
     `;
-    
+
     const values: unknown[] = [caregiverId];
-    
+
     if (statuses !== undefined && statuses.length > 0) {
       query += ' AND proposal_status = ANY($2)';
       values.push(statuses);
     }
-    
+
     query += ' ORDER BY proposed_at DESC';
-    
+
     const result = await this.pool.query(query, values);
     return result.rows.map((row) => this.mapRowToProposal(row));
   }
 
-  async getProposalsByOpenShift(
-    openShiftId: UUID
-  ): Promise<AssignmentProposal[]> {
+  async getProposalsByOpenShift(openShiftId: UUID): Promise<AssignmentProposal[]> {
     const query = `
       SELECT * FROM assignment_proposals
       WHERE open_shift_id = $1 AND deleted_at IS NULL
       ORDER BY match_score DESC, proposed_at ASC
     `;
-    
+
     const result = await this.pool.query(query, [openShiftId]);
     return result.rows.map((row) => this.mapRowToProposal(row));
   }
@@ -659,7 +654,7 @@ export class ShiftMatchingRepository {
     }
 
     const whereClause = `WHERE ${conditions.join(' AND ')}`;
-    
+
     const countQuery = `SELECT COUNT(*) FROM assignment_proposals ${whereClause}`;
     const countResult = await this.pool.query(countQuery, values);
     const total = parseInt(countResult.rows[0].count, 10);
@@ -674,7 +669,7 @@ export class ShiftMatchingRepository {
       ORDER BY ${sortBy} ${sortOrder}
       LIMIT $${++paramCount} OFFSET $${++paramCount}
     `;
-    
+
     values.push(pagination.limit, offset);
     const dataResult = await this.pool.query(dataQuery, values);
 
@@ -693,9 +688,7 @@ export class ShiftMatchingRepository {
    * ==========================================================================
    */
 
-  async getCaregiverPreferences(
-    caregiverId: UUID
-  ): Promise<CaregiverPreferenceProfile | null> {
+  async getCaregiverPreferences(caregiverId: UUID): Promise<CaregiverPreferenceProfile | null> {
     const query = 'SELECT * FROM caregiver_preference_profiles WHERE caregiver_id = $1';
     const result = await this.pool.query(query, [caregiverId]);
     return result.rows.length > 0 ? this.mapRowToPreferences(result.rows[0]) : null;
@@ -762,7 +755,9 @@ export class ShiftMatchingRepository {
       input.willingToWorkWeekends ?? true,
       input.willingToWorkHolidays ?? false,
       input.acceptAutoAssignment ?? false,
-      input.notificationMethods !== undefined ? JSON.stringify(input.notificationMethods) : JSON.stringify(['PUSH', 'SMS']),
+      input.notificationMethods !== undefined
+        ? JSON.stringify(input.notificationMethods)
+        : JSON.stringify(['PUSH', 'SMS']),
       input.quietHoursStart ?? null,
       input.quietHoursEnd ?? null,
       context.userId,
@@ -925,7 +920,8 @@ export class ShiftMatchingRepository {
       languagePreference: row.language_preference,
       address: row.address,
       latitude: row.latitude !== null && row.latitude !== undefined ? parseFloat(row.latitude) : 0,
-      longitude: row.longitude !== null && row.longitude !== undefined ? parseFloat(row.longitude) : 0,
+      longitude:
+        row.longitude !== null && row.longitude !== undefined ? parseFloat(row.longitude) : 0,
       priority: row.priority,
       isUrgent: row.is_urgent,
       fillByDate: row.fill_by_date,

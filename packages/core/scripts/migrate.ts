@@ -1,10 +1,10 @@
 /**
  * Database migration script using Knex
- * 
+ *
  * Runs all Knex migrations
  */
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import knex, { Knex } from 'knex';
 
 dotenv.config({ path: '.env', quiet: true });
@@ -13,7 +13,7 @@ const env = process.env.NODE_ENV || 'development';
 const dbName = process.env.DB_NAME || 'care_commons';
 
 // Use DATABASE_URL if provided, otherwise build from individual DB_* variables
-const connectionConfig = process.env.DATABASE_URL 
+const connectionConfig = process.env.DATABASE_URL
   ? { connectionString: process.env.DATABASE_URL }
   : {
       user: process.env.DB_USER || 'postgres',
@@ -97,7 +97,6 @@ async function createDatabase() {
     if (existsResult.rowCount === 0) {
       await db.raw(`CREATE DATABASE ${dbName} TEMPLATE template1`);
     }
-
   } finally {
     await db.destroy();
   }

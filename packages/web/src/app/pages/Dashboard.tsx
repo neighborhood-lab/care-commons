@@ -67,27 +67,21 @@ export const Dashboard: React.FC = () => {
               <div className="flex items-start gap-3">
                 <div className="h-2 w-2 mt-2 rounded-full bg-green-500" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Visit completed for John Doe
-                  </p>
+                  <p className="text-sm font-medium text-gray-900">Visit completed for John Doe</p>
                   <p className="text-xs text-gray-600">2 hours ago</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="h-2 w-2 mt-2 rounded-full bg-blue-500" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    New client intake scheduled
-                  </p>
+                  <p className="text-sm font-medium text-gray-900">New client intake scheduled</p>
                   <p className="text-xs text-gray-600">4 hours ago</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="h-2 w-2 mt-2 rounded-full bg-yellow-500" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Care plan update required
-                  </p>
+                  <p className="text-sm font-medium text-gray-900">Care plan update required</p>
                   <p className="text-xs text-gray-600">Yesterday</p>
                 </div>
               </div>

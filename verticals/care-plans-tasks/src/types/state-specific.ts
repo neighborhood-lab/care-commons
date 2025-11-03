@@ -1,12 +1,12 @@
 /**
  * State-specific Care Plan Types for TX and FL Compliance
- * 
+ *
  * TX Requirements:
  * - 26 TAC §§558 (licensed HCSSA)
  * - HHSC Forms 1746/8606, Form 485/Plan of Care
  * - Consumer Directed Services (CDS) support
  * - Emergency preparedness per §558
- * 
+ *
  * FL Requirements:
  * - AHCA Chapter 59A-8 home health licensing
  * - Florida Statute 400.487 plan-of-care linkage
@@ -29,41 +29,41 @@ export interface ServiceAuthorization {
   carePlanId: UUID;
   clientId: UUID;
   organizationId: UUID;
-  
+
   // State and payer info
   stateJurisdiction: StateJurisdiction;
   authorizationType: string; // TX: HHSC, MCO; FL: AHCA, SMMC
   authorizationNumber: string;
   payerName: string;
   payerId?: string;
-  
+
   // Authorization scope
   serviceCodes: string[]; // Procedure codes
   authorizedUnits: number; // Hours or units
   unitType: 'HOURS' | 'VISITS' | 'DAYS';
   ratePerUnit?: number;
-  
+
   // Period
   effectiveDate: Date;
   expirationDate: Date;
-  
+
   // Usage tracking
   unitsUsed: number;
   unitsRemaining: number;
   lastUsageDate?: Date;
-  
+
   // TX-specific
   formNumber?: string; // HHSC Form 4100 series
   mcoId?: string;
-  
+
   // FL-specific
   ahcaProviderNumber?: string;
   smmcPlanName?: string;
-  
+
   status: AuthorizationStatus;
   notes?: string;
   stateSpecificData?: Record<string, unknown>;
-  
+
   // Audit
   createdAt: Timestamp;
   createdBy: UUID;
@@ -89,24 +89,24 @@ export interface RNDelegation {
   clientId: UUID;
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Delegating RN
   delegatingRnId: UUID;
   delegatingRnName: string;
   delegatingRnLicense: string;
-  
+
   // Delegated to (CNA, HHA, etc.)
   delegatedToCaregiverId?: UUID;
   delegatedToCaregiverName: string;
   delegatedToCredentialType: string; // CNA, HHA, etc.
   delegatedToCredentialNumber?: string;
-  
+
   // Scope
   taskCategory: string; // MEDICATION, WOUND_CARE, etc.
   taskDescription: string;
   specificSkillsDelegated: string[];
   limitations?: string[];
-  
+
   // Training and competency
   trainingProvided: boolean;
   trainingDate?: Date;
@@ -115,26 +115,26 @@ export interface RNDelegation {
   competencyEvaluationDate?: Date;
   competencyEvaluatorId?: UUID;
   evaluationResult?: 'COMPETENT' | 'NEEDS_IMPROVEMENT' | 'NOT_COMPETENT' | 'PENDING';
-  
+
   // Period and supervision
   effectiveDate: Date;
   expirationDate?: Date;
   supervisionFrequency: string; // Daily, Weekly, Per Visit
   lastSupervisionDate?: Date;
   nextSupervisionDue?: Date;
-  
+
   // Status
   status: DelegationStatus;
   revocationReason?: string;
   revokedBy?: UUID;
   revokedAt?: Timestamp;
-  
+
   // FL-specific
   ahcaDelegationFormNumber?: string;
   stateSpecificData?: Record<string, unknown>;
-  
+
   notes?: string;
-  
+
   // Audit
   createdAt: Timestamp;
   createdBy: UUID;
@@ -157,7 +157,7 @@ export type DelegationStatus =
 export interface StateSpecificCarePlanData {
   // Jurisdiction
   stateJurisdiction?: StateJurisdiction;
-  
+
   // Order source and provenance (TX requirement)
   orderSource?: string; // Physician/authorized professional
   orderingProviderId?: UUID;
@@ -167,7 +167,7 @@ export interface StateSpecificCarePlanData {
   orderDate?: Timestamp;
   verbalOrderAuthenticatedBy?: UUID;
   verbalOrderAuthenticatedAt?: Timestamp;
-  
+
   // RN supervision (FL requirement)
   rnDelegationId?: UUID;
   rnSupervisorId?: UUID;
@@ -175,13 +175,13 @@ export interface StateSpecificCarePlanData {
   rnSupervisorLicense?: string;
   lastSupervisoryVisitDate?: Date;
   nextSupervisoryVisitDue?: Date;
-  
+
   // Review requirements (both states)
   planReviewIntervalDays?: number; // TX/FL: 60-90 days
   nextReviewDue?: Date;
   lastReviewCompletedDate?: Date;
   lastReviewCompletedBy?: UUID;
-  
+
   // Medicaid program tracking
   medicaidProgram?: string; // TX: STAR+Plus, CFC, etc.; FL: SMMC, LTC
   medicaidWaiver?: string;
@@ -189,17 +189,17 @@ export interface StateSpecificCarePlanData {
   serviceAuthorizationUnits?: number;
   serviceAuthorizationPeriodStart?: Date;
   serviceAuthorizationPeriodEnd?: Date;
-  
+
   // TX Consumer Directed Services (CDS)
   isCdsModel?: boolean;
   employerAuthorityId?: UUID; // Who manages caregivers in CDS
   financialManagementServiceId?: UUID; // FMS provider
-  
+
   // Forms and documentation
   planOfCareFormNumber?: string; // TX Form 485, FL AHCA Form 484
   disasterPlanOnFile?: boolean; // TX §558 Emergency Preparedness
   infectionControlPlanReviewed?: boolean;
-  
+
   // Additional state-specific data (flexible)
   stateSpecificData?: Record<string, unknown>;
 }
@@ -213,11 +213,11 @@ export interface StateSpecificTaskData {
   supervisorReviewRequired?: boolean;
   supervisorReviewedBy?: UUID;
   supervisorReviewedAt?: Timestamp;
-  
+
   // Delegation
   delegationAuthorityId?: UUID; // Link to RN delegation
   skillLevelRequired?: SkillLevel;
-  
+
   // Additional state-specific data
   stateSpecificData?: Record<string, unknown>;
 }
@@ -266,14 +266,14 @@ export interface TexasCarePlanRequirements {
   requiresRnAssessment: boolean;
   requiresEmergencyPlan: boolean;
   maxDaysBetweenReviews: number; // Typically 60
-  
+
   // HHSC forms
   requiredForms: string[]; // Form 485, 1746, etc.
-  
+
   // Service authorization
   requiresServiceAuthorization: boolean;
   authorizationForm: string; // HHSC Form 4100 series
-  
+
   // CDS-specific
   isCdsModel: boolean;
   requiresEmployerAuthority?: boolean;
@@ -290,15 +290,15 @@ export interface FloridaCarePlanRequirements {
   requiresRnSupervision: boolean;
   maxDaysBetweenReviews: number; // Typically 60
   maxDaysBetweenSupervisoryVisits: number; // Typically 14-30
-  
+
   // AHCA forms
   requiredForms: string[]; // AHCA Form 484, etc.
-  
+
   // Delegation requirements (59A-8.0216)
   requiresRnDelegation: boolean;
   requiresCompetencyEvaluation: boolean;
   requiresOngoingSupervision: boolean;
-  
+
   // Personnel requirements (59A-8.0095)
   minimumStaffingRatios?: Record<string, number>;
   requiredTraining: string[];

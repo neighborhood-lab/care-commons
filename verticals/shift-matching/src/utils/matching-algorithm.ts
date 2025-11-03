@@ -1,6 +1,6 @@
 /**
  * Matching Algorithm - Core scoring and candidate ranking logic
- * 
+ *
  * Evaluates caregivers against open shifts across multiple dimensions:
  * - Skill and certification match
  * - Availability and schedule conflicts
@@ -42,28 +42,28 @@ export class MatchingAlgorithm {
     config: MatchingConfiguration
   ): MatchCandidate {
     const { caregiver } = caregiverContext;
-    
+
     // Calculate dimensional scores
     const scores = this.calculateScores(shift, caregiverContext, config);
-    
+
     // Check eligibility
     const eligibilityIssues = this.checkEligibility(shift, caregiverContext, config);
     const isEligible = !eligibilityIssues.some((issue) => issue.severity === 'BLOCKING');
-    
+
     // Calculate overall score (weighted average)
     const overallScore = this.calculateOverallScore(scores, config);
-    
+
     // Determine match quality
     const matchQuality = this.determineMatchQuality(overallScore, isEligible);
-    
+
     // Generate match reasons
     const matchReasons = this.generateMatchReasons(shift, caregiverContext, scores);
-    
+
     // Extract warnings from eligibility issues
     const warnings = eligibilityIssues
       .filter((issue) => issue.severity === 'WARNING')
       .map((issue) => issue.message);
-    
+
     const base: MatchCandidate = {
       caregiverId: caregiver.id,
       openShiftId: shift.id,
@@ -78,17 +78,19 @@ export class MatchingAlgorithm {
       warnings,
       distanceFromShift: caregiverContext.distanceFromShift ?? 0,
       ...(caregiverContext.distanceFromShift !== undefined && {
-        estimatedTravelTime: Math.ceil(caregiverContext.distanceFromShift * 2)
+        estimatedTravelTime: Math.ceil(caregiverContext.distanceFromShift * 2),
       }),
       hasConflict: caregiverContext.conflictingVisits.length > 0,
       ...(caregiverContext.conflictingVisits.length > 0 && {
-        conflictingVisits: caregiverContext.conflictingVisits
+        conflictingVisits: caregiverContext.conflictingVisits,
       }),
       availableHours: caregiver.maxHoursPerWeek
         ? caregiver.maxHoursPerWeek - caregiverContext.currentWeekHours
         : 0,
       previousVisitsWithClient: caregiverContext.previousVisitsWithClient,
-      ...(caregiverContext.clientRating !== undefined && { clientRating: caregiverContext.clientRating }),
+      ...(caregiverContext.clientRating !== undefined && {
+        clientRating: caregiverContext.clientRating,
+      }),
       reliabilityScore: caregiverContext.reliabilityScore,
       matchReasons,
       computedAt: new Date(),
@@ -121,25 +123,25 @@ export class MatchingAlgorithm {
    */
   private static scoreSkillMatch(shift: OpenShift, caregiver: Caregiver): number {
     let score = 100;
-    
+
     const requiredSkills = shift.requiredSkills || [];
     const requiredCerts = shift.requiredCertifications || [];
-    
+
     const caregiverSkills = caregiver.skills?.map((s) => s.name) || [];
     const caregiverCerts = caregiver.credentials?.map((c) => String(c.type)) || [];
-    
+
     // Check required skills
     const missingSkills = requiredSkills.filter((skill) => !caregiverSkills.includes(skill));
     if (missingSkills.length > 0) {
       score -= missingSkills.length * 30; // Penalize 30 points per missing skill
     }
-    
+
     // Check required certifications
     const missingCerts = requiredCerts.filter((cert) => !caregiverCerts.includes(cert));
     if (missingCerts.length > 0) {
       score -= missingCerts.length * 40; // Penalize 40 points per missing cert
     }
-    
+
     return Math.max(0, score);
   }
 
@@ -150,7 +152,7 @@ export class MatchingAlgorithm {
     if (context.conflictingVisits.length === 0) {
       return 100; // Perfect availability
     }
-    
+
     // Has conflicts - score 0
     return 0;
   }
@@ -166,17 +168,17 @@ export class MatchingAlgorithm {
     if (!context.distanceFromShift) {
       return 50; // Unknown distance - neutral score
     }
-    
+
     const distance = context.distanceFromShift;
     const maxDistance = config.maxTravelDistance || 50;
-    
+
     if (distance > maxDistance) {
       return 0; // Too far
     }
-    
+
     // Score decreases linearly with distance
     // 0 miles = 100, maxDistance miles = 20
-    const score = 100 - ((distance / maxDistance) * 80);
+    const score = 100 - (distance / maxDistance) * 80;
     return Math.max(20, Math.min(100, score));
   }
 
@@ -185,19 +187,19 @@ export class MatchingAlgorithm {
    */
   private static scorePreferences(shift: OpenShift, context: CaregiverContext): number {
     let score = 50; // Start neutral
-    
+
     const { caregiver } = context;
-    
+
     // Check if caregiver is in preferred list
     if (shift.preferredCaregivers?.includes(caregiver.id)) {
       score += 30; // Bonus for being preferred
     }
-    
+
     // Check if caregiver is blocked
     if (shift.blockedCaregivers?.includes(caregiver.id)) {
       return 0; // Hard block
     }
-    
+
     // Gender preference match
     if (shift.genderPreference && shift.genderPreference !== 'NO_PREFERENCE') {
       if (caregiver.gender === shift.genderPreference) {
@@ -206,7 +208,7 @@ export class MatchingAlgorithm {
         score -= 20;
       }
     }
-    
+
     // Language preference match
     if (shift.languagePreference) {
       if (caregiver.languages?.includes(shift.languagePreference)) {
@@ -215,7 +217,7 @@ export class MatchingAlgorithm {
         score -= 15;
       }
     }
-    
+
     return Math.max(0, Math.min(100, score));
   }
 
@@ -224,39 +226,42 @@ export class MatchingAlgorithm {
    */
   private static scoreExperience(_shift: OpenShift, context: CaregiverContext): number {
     let score = 50; // Start neutral
-    
+
     // Previous visits with this client
     const previousVisits = context.previousVisitsWithClient || 0;
     if (previousVisits > 0) {
       // Continuity of care bonus
       score += Math.min(30, previousVisits * 5); // Up to 30 points for 6+ visits
     }
-    
+
     // Client rating
     if (context.clientRating) {
       // 5 stars = +20, 1 star = -20, 3 stars = 0
       score += (context.clientRating - 3) * 10;
     }
-    
+
     return Math.max(0, Math.min(100, score));
   }
 
   /**
    * Score reliability and performance
    */
-  private static scoreReliability(context: CaregiverContext, config: MatchingConfiguration): number {
+  private static scoreReliability(
+    context: CaregiverContext,
+    config: MatchingConfiguration
+  ): number {
     let score = context.reliabilityScore; // Base reliability score (0-100)
-    
+
     // Penalize recent rejections if configured
     if (config.penalizeFrequentRejections && context.recentRejectionCount > 0) {
       score -= context.recentRejectionCount * 5; // -5 points per rejection
     }
-    
+
     // Boost reliable performers if configured
     if (config.boostReliablePerformers && context.reliabilityScore >= 90) {
       score += 10; // Bonus for high reliability
     }
-    
+
     return Math.max(0, Math.min(100, score));
   }
 
@@ -280,21 +285,21 @@ export class MatchingAlgorithm {
    */
   private static scoreCapacity(shift: OpenShift, context: CaregiverContext): number {
     const { caregiver } = context;
-    
+
     if (!caregiver.maxHoursPerWeek) {
       return 100; // No limit
     }
-    
+
     const availableHours = caregiver.maxHoursPerWeek - context.currentWeekHours;
     const shiftHours = shift.duration / 60;
-    
+
     if (availableHours < shiftHours) {
       return 0; // Would exceed limit
     }
-    
+
     // Score based on how much capacity remains after this shift
     const utilizationRate = (context.currentWeekHours + shiftHours) / caregiver.maxHoursPerWeek;
-    
+
     // Prefer moderate utilization (60-80%)
     if (utilizationRate >= 0.6 && utilizationRate <= 0.8) {
       return 100;
@@ -310,7 +315,7 @@ export class MatchingAlgorithm {
    */
   private static calculateOverallScore(scores: MatchScores, config: MatchingConfiguration): number {
     const weights = config.weights;
-    
+
     const weightedScore =
       (scores.skillMatch * weights.skillMatch +
         scores.availabilityMatch * weights.availabilityMatch +
@@ -321,7 +326,7 @@ export class MatchingAlgorithm {
         scores.complianceMatch * weights.complianceMatch +
         scores.capacityMatch * weights.capacityMatch) /
       100; // Weights sum to 100
-    
+
     return Math.round(weightedScore);
   }
 
@@ -335,7 +340,7 @@ export class MatchingAlgorithm {
   ): EligibilityIssue[] {
     const issues: EligibilityIssue[] = [];
     const { caregiver } = context;
-    
+
     // Check blocked status
     if (shift.blockedCaregivers?.includes(caregiver.id)) {
       issues.push({
@@ -344,13 +349,13 @@ export class MatchingAlgorithm {
         message: 'Caregiver is blocked from this client',
       });
     }
-    
+
     // Check required skills
     if (config.requireExactSkillMatch) {
       const requiredSkills = shift.requiredSkills || [];
       const caregiverSkills = caregiver.skills?.map((s) => s.name) || [];
       const missingSkills = requiredSkills.filter((skill) => !caregiverSkills.includes(skill));
-      
+
       if (missingSkills.length > 0) {
         issues.push({
           type: 'MISSING_SKILL',
@@ -359,15 +364,15 @@ export class MatchingAlgorithm {
         });
       }
     }
-    
+
     // Check certifications
     if (config.requireActiveCertifications) {
       const requiredCerts = shift.requiredCertifications || [];
-      const caregiverCerts = caregiver.credentials
-        ?.filter((c) => c.status === 'ACTIVE')
-        .map((c) => String(c.type)) || [];
+      const caregiverCerts =
+        caregiver.credentials?.filter((c) => c.status === 'ACTIVE').map((c) => String(c.type)) ||
+        [];
       const missingCerts = requiredCerts.filter((cert) => !caregiverCerts.includes(cert));
-      
+
       if (missingCerts.length > 0) {
         issues.push({
           type: 'MISSING_CERTIFICATION',
@@ -376,7 +381,7 @@ export class MatchingAlgorithm {
         });
       }
     }
-    
+
     // Check schedule conflicts
     if (context.conflictingVisits.length > 0) {
       issues.push({
@@ -385,9 +390,12 @@ export class MatchingAlgorithm {
         message: `Has ${context.conflictingVisits.length} conflicting visit(s)`,
       });
     }
-    
+
     // Check compliance
-    if (caregiver.complianceStatus === 'EXPIRED' || caregiver.complianceStatus === 'NON_COMPLIANT') {
+    if (
+      caregiver.complianceStatus === 'EXPIRED' ||
+      caregiver.complianceStatus === 'NON_COMPLIANT'
+    ) {
       issues.push({
         type: 'NOT_COMPLIANT',
         severity: 'BLOCKING',
@@ -400,7 +408,7 @@ export class MatchingAlgorithm {
         message: 'Some credentials are expiring soon',
       });
     }
-    
+
     // Check distance
     if (config.maxTravelDistance && context.distanceFromShift) {
       if (context.distanceFromShift && context.distanceFromShift > config.maxTravelDistance) {
@@ -411,12 +419,12 @@ export class MatchingAlgorithm {
         });
       }
     }
-    
+
     // Check weekly hour limit
     if (caregiver.maxHoursPerWeek) {
       const shiftHours = shift.duration / 60;
       const availableHours = caregiver.maxHoursPerWeek - context.currentWeekHours;
-      
+
       if (availableHours < shiftHours) {
         issues.push({
           type: 'OVER_HOUR_LIMIT',
@@ -425,7 +433,7 @@ export class MatchingAlgorithm {
         });
       }
     }
-    
+
     // Check gender preference
     if (
       config.respectGenderPreference &&
@@ -440,7 +448,7 @@ export class MatchingAlgorithm {
         });
       }
     }
-    
+
     // Check language preference
     if (config.respectLanguagePreference && shift.languagePreference) {
       if (!caregiver.languages?.includes(shift.languagePreference)) {
@@ -451,7 +459,7 @@ export class MatchingAlgorithm {
         });
       }
     }
-    
+
     return issues;
   }
 
@@ -462,7 +470,7 @@ export class MatchingAlgorithm {
     if (!isEligible) {
       return 'INELIGIBLE';
     }
-    
+
     if (score >= 85) {
       return 'EXCELLENT';
     } else if (score >= 70) {
@@ -483,7 +491,7 @@ export class MatchingAlgorithm {
     scores: MatchScores
   ): MatchReason[] {
     const reasons: MatchReason[] = [];
-    
+
     // Skill match
     if (scores.skillMatch >= 90) {
       reasons.push({
@@ -500,7 +508,7 @@ export class MatchingAlgorithm {
         weight: 0.2,
       });
     }
-    
+
     // Availability
     if (scores.availabilityMatch === 100) {
       reasons.push({
@@ -517,7 +525,7 @@ export class MatchingAlgorithm {
         weight: 0.2,
       });
     }
-    
+
     // Proximity
     if (scores.proximityMatch >= 90) {
       reasons.push({
@@ -534,7 +542,7 @@ export class MatchingAlgorithm {
         weight: 0.15,
       });
     }
-    
+
     // Experience
     if (context.previousVisitsWithClient > 0) {
       reasons.push({
@@ -544,7 +552,7 @@ export class MatchingAlgorithm {
         weight: 0.1,
       });
     }
-    
+
     // Preference
     if (shift.preferredCaregivers?.includes(context.caregiver.id)) {
       reasons.push({
@@ -554,7 +562,7 @@ export class MatchingAlgorithm {
         weight: 0.1,
       });
     }
-    
+
     // Reliability
     if (context.reliabilityScore >= 90) {
       reasons.push({
@@ -571,7 +579,7 @@ export class MatchingAlgorithm {
         weight: 0.1,
       });
     }
-    
+
     return reasons;
   }
 
@@ -584,7 +592,7 @@ export class MatchingAlgorithm {
       if (a.isEligible !== b.isEligible) {
         return a.isEligible ? -1 : 1;
       }
-      
+
       // Then sort by overall score (descending)
       return b.overallScore - a.overallScore;
     });

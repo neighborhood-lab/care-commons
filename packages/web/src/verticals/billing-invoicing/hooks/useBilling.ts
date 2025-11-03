@@ -3,11 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useApiClient } from '@/core/hooks';
 import { createBillingApiService } from '../services/billing-api';
-import type { 
-  BillingSearchFilters, 
-  CreateInvoiceInput, 
+import type {
+  BillingSearchFilters,
+  CreateInvoiceInput,
   UpdateInvoiceInput,
-  CreatePaymentInput 
+  CreatePaymentInput,
 } from '../types';
 
 export const useBillingApi = () => {
@@ -169,7 +169,7 @@ export const useDownloadInvoicePdf = () => {
 
       // Sanitize the id to prevent XSS
       const sanitizedId = id.replace(/[^\w-]/g, '');
-      
+
       // Use modern download API without DOM manipulation
       if ('showSaveFilePicker' in window && typeof window.showSaveFilePicker === 'function') {
         type FilePickerOptions = {
@@ -179,24 +179,28 @@ export const useDownloadInvoicePdf = () => {
             accept: Record<string, string[]>;
           }>;
         };
-        
+
         type FileSystemFileHandle = {
           createWritable(): Promise<FileSystemWritableFileStream>;
         };
-        
+
         type FileSystemWritableFileStream = {
           write(data: globalThis.Blob): Promise<void>;
           close(): Promise<void>;
         };
-        
-        const fileHandle = await (window as unknown as {
-          showSaveFilePicker(options: FilePickerOptions): Promise<FileSystemFileHandle>;
-        }).showSaveFilePicker({
+
+        const fileHandle = await (
+          window as unknown as {
+            showSaveFilePicker(options: FilePickerOptions): Promise<FileSystemFileHandle>;
+          }
+        ).showSaveFilePicker({
           suggestedName: `invoice-${sanitizedId}.pdf`,
-          types: [{
-            description: 'PDF files',
-            accept: { 'application/pdf': ['.pdf'] }
-          }]
+          types: [
+            {
+              description: 'PDF files',
+              accept: { 'application/pdf': ['.pdf'] },
+            },
+          ],
         });
         const writable = await fileHandle.createWritable();
         await writable.write(blob);
@@ -205,7 +209,7 @@ export const useDownloadInvoicePdf = () => {
         // Fallback: inform user to use modern browser
         throw new Error(
           'PDF download requires a modern browser with File System Access API support. ' +
-          'Please update your browser or contact support for assistance.'
+            'Please update your browser or contact support for assistance.'
         );
       }
     },

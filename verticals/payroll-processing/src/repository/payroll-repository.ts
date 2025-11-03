@@ -1,6 +1,6 @@
 /**
  * Payroll repository layer
- * 
+ *
  * Database access for payroll entities
  */
 
@@ -95,17 +95,11 @@ export class PayrollRepository {
   }
 
   async findPayPeriodById(id: UUID): Promise<PayPeriod | null> {
-    const result = await this.pool.query(
-      'SELECT * FROM pay_periods WHERE id = $1',
-      [id]
-    );
+    const result = await this.pool.query('SELECT * FROM pay_periods WHERE id = $1', [id]);
     return result.rows[0] ? this.mapPayPeriod(result.rows[0]) : null;
   }
 
-  async findPayPeriodByDate(
-    organizationId: UUID,
-    date: Date
-  ): Promise<PayPeriod | null> {
+  async findPayPeriodByDate(organizationId: UUID, date: Date): Promise<PayPeriod | null> {
     const result = await this.pool.query(
       `SELECT * FROM pay_periods 
        WHERE organization_id = $1 
@@ -118,9 +112,7 @@ export class PayrollRepository {
     return result.rows[0] ? this.mapPayPeriod(result.rows[0]) : null;
   }
 
-  async findPayPeriods(
-    filters: PayPeriodSearchFilters
-  ): Promise<PayPeriod[]> {
+  async findPayPeriods(filters: PayPeriodSearchFilters): Promise<PayPeriod[]> {
     const conditions: string[] = [];
     const params: unknown[] = [];
     let paramIndex = 1;
@@ -161,7 +153,7 @@ export class PayrollRepository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    
+
     const result = await this.pool.query(
       `SELECT * FROM pay_periods ${whereClause} ORDER BY start_date DESC`,
       params
@@ -170,10 +162,7 @@ export class PayrollRepository {
     return result.rows.map(this.mapPayPeriod);
   }
 
-  async updatePayPeriod(
-    id: UUID,
-    updates: Partial<PayPeriod>
-  ): Promise<PayPeriod | null> {
+  async updatePayPeriod(id: UUID, updates: Partial<PayPeriod>): Promise<PayPeriod | null> {
     const existing = await this.findPayPeriodById(id);
     if (!existing) return null;
 
@@ -246,7 +235,10 @@ export class PayrollRepository {
    */
 
   async createTimeSheet(
-    sheet: Omit<TimeSheet, 'id' | 'createdAt' | 'updatedAt' | 'version' | 'deletedAt' | 'deletedBy'>,
+    sheet: Omit<
+      TimeSheet,
+      'id' | 'createdAt' | 'updatedAt' | 'version' | 'deletedAt' | 'deletedBy'
+    >,
     client?: PoolClient
   ): Promise<TimeSheet> {
     const db = client || this.pool;
@@ -346,10 +338,7 @@ export class PayrollRepository {
     return result.rows[0] ? this.mapTimeSheet(result.rows[0]) : null;
   }
 
-  async findTimeSheetByCaregiver(
-    caregiverId: UUID,
-    payPeriodId: UUID
-  ): Promise<TimeSheet | null> {
+  async findTimeSheetByCaregiver(caregiverId: UUID, payPeriodId: UUID): Promise<TimeSheet | null> {
     const result = await this.pool.query(
       `SELECT * FROM time_sheets 
        WHERE caregiver_id = $1 
@@ -361,9 +350,7 @@ export class PayrollRepository {
     return result.rows[0] ? this.mapTimeSheet(result.rows[0]) : null;
   }
 
-  async findTimeSheets(
-    filters: TimeSheetSearchFilters
-  ): Promise<TimeSheet[]> {
+  async findTimeSheets(filters: TimeSheetSearchFilters): Promise<TimeSheet[]> {
     const conditions: string[] = ['deleted_at IS NULL'];
     const params: unknown[] = [];
     let paramIndex = 1;
@@ -403,7 +390,7 @@ export class PayrollRepository {
     }
 
     const whereClause = `WHERE ${conditions.join(' AND ')}`;
-    
+
     const result = await this.pool.query(
       `SELECT * FROM time_sheets ${whereClause} ORDER BY created_at DESC`,
       params
@@ -412,10 +399,7 @@ export class PayrollRepository {
     return result.rows.map(this.mapTimeSheet);
   }
 
-  async updateTimeSheet(
-    id: UUID,
-    updates: Partial<TimeSheet>
-  ): Promise<TimeSheet | null> {
+  async updateTimeSheet(id: UUID, updates: Partial<TimeSheet>): Promise<TimeSheet | null> {
     const existing = await this.findTimeSheetById(id);
     if (!existing) return null;
 
@@ -570,10 +554,7 @@ export class PayrollRepository {
   }
 
   async findPayRunById(id: UUID): Promise<PayRun | null> {
-    const result = await this.pool.query(
-      'SELECT * FROM pay_runs WHERE id = $1',
-      [id]
-    );
+    const result = await this.pool.query('SELECT * FROM pay_runs WHERE id = $1', [id]);
     return result.rows[0] ? this.mapPayRun(result.rows[0]) : null;
   }
 
@@ -585,10 +566,7 @@ export class PayrollRepository {
     return result.rows.map(this.mapPayRun);
   }
 
-  async updatePayRun(
-    id: UUID,
-    updates: Partial<PayRun>
-  ): Promise<PayRun | null> {
+  async updatePayRun(id: UUID, updates: Partial<PayRun>): Promise<PayRun | null> {
     const existing = await this.findPayRunById(id);
     if (!existing) return null;
 
@@ -807,10 +785,7 @@ export class PayrollRepository {
   }
 
   async findPayStubById(id: UUID): Promise<PayStub | null> {
-    const result = await this.pool.query(
-      'SELECT * FROM pay_stubs WHERE id = $1',
-      [id]
-    );
+    const result = await this.pool.query('SELECT * FROM pay_stubs WHERE id = $1', [id]);
     return result.rows[0] ? this.mapPayStub(result.rows[0]) : null;
   }
 
@@ -860,7 +835,7 @@ export class PayrollRepository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    
+
     const result = await this.pool.query(
       `SELECT * FROM pay_stubs ${whereClause} ORDER BY pay_date DESC, caregiver_name ASC`,
       params
@@ -1108,16 +1083,11 @@ export class PayrollRepository {
   }
 
   async findPaymentRecordById(id: UUID): Promise<PaymentRecord | null> {
-    const result = await this.pool.query(
-      'SELECT * FROM payment_records WHERE id = $1',
-      [id]
-    );
+    const result = await this.pool.query('SELECT * FROM payment_records WHERE id = $1', [id]);
     return result.rows[0] ? this.mapPaymentRecord(result.rows[0]) : null;
   }
 
-  async findPaymentRecords(
-    filters: PaymentSearchFilters
-  ): Promise<PaymentRecord[]> {
+  async findPaymentRecords(filters: PaymentSearchFilters): Promise<PaymentRecord[]> {
     const conditions: string[] = [];
     const params: unknown[] = [];
     let paramIndex = 1;
@@ -1153,7 +1123,7 @@ export class PayrollRepository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    
+
     const result = await this.pool.query(
       `SELECT * FROM payment_records ${whereClause} ORDER BY payment_date DESC`,
       params
@@ -1250,16 +1220,24 @@ export class PayrollRepository {
       endDate: row['end_date'] as Date,
       payDate: row['pay_date'] as Date,
       status: row['status'] as PayPeriod['status'],
-      statusHistory: JSON.parse(row['status_history'] as string || '[]'),
+      statusHistory: JSON.parse((row['status_history'] as string) || '[]'),
       ...(row['cutoff_date'] != null && { cutoffDate: row['cutoff_date'] as Date }),
-      ...(row['approval_deadline'] != null && { approvalDeadline: row['approval_deadline'] as Date }),
+      ...(row['approval_deadline'] != null && {
+        approvalDeadline: row['approval_deadline'] as Date,
+      }),
       ...(row['pay_run_id'] != null && { payRunId: row['pay_run_id'] as UUID }),
-      ...(row['total_caregivers'] != null && { totalCaregivers: row['total_caregivers'] as number }),
+      ...(row['total_caregivers'] != null && {
+        totalCaregivers: row['total_caregivers'] as number,
+      }),
       ...(row['total_hours'] != null && { totalHours: row['total_hours'] as number }),
       ...(row['total_gross_pay'] != null && { totalGrossPay: row['total_gross_pay'] as number }),
       ...(row['total_net_pay'] != null && { totalNetPay: row['total_net_pay'] as number }),
-      ...(row['total_tax_withheld'] != null && { totalTaxWithheld: row['total_tax_withheld'] as number }),
-      ...(row['total_deductions'] != null && { totalDeductions: row['total_deductions'] as number }),
+      ...(row['total_tax_withheld'] != null && {
+        totalTaxWithheld: row['total_tax_withheld'] as number,
+      }),
+      ...(row['total_deductions'] != null && {
+        totalDeductions: row['total_deductions'] as number,
+      }),
       ...(row['notes'] != null && { notes: row['notes'] as string }),
       ...(row['fiscal_quarter'] != null && { fiscalQuarter: row['fiscal_quarter'] as number }),
       ...(row['fiscal_year'] != null && { fiscalYear: row['fiscal_year'] as number }),
@@ -1306,14 +1284,14 @@ export class PayrollRepository {
       totalAdjustments: row['total_adjustments'] as number,
       totalGrossPay: row['total_gross_pay'] as number,
       status: row['status'] as TimeSheet['status'],
-      statusHistory: JSON.parse(row['status_history'] as string || '[]'),
+      statusHistory: JSON.parse((row['status_history'] as string) || '[]'),
       ...(row['submitted_at'] != null && { submittedAt: row['submitted_at'] as Date }),
       ...(row['submitted_by'] != null && { submittedBy: row['submitted_by'] as UUID }),
       ...(row['approved_at'] != null && { approvedAt: row['approved_at'] as Date }),
       ...(row['approved_by'] != null && { approvedBy: row['approved_by'] as UUID }),
       ...(row['approval_notes'] != null && { approvalNotes: row['approval_notes'] as string }),
       hasDiscrepancies: row['has_discrepancies'] as boolean,
-      discrepancyFlags: JSON.parse(row['discrepancy_flags'] as string || '[]'),
+      discrepancyFlags: JSON.parse((row['discrepancy_flags'] as string) || '[]'),
       evvRecordIds: JSON.parse(row['evv_record_ids'] as string),
       visitIds: JSON.parse(row['visit_ids'] as string),
       ...(row['notes'] != null && { notes: row['notes'] as string }),
@@ -1340,7 +1318,7 @@ export class PayrollRepository {
       runNumber: row['run_number'] as string,
       runType: row['run_type'] as PayRun['runType'],
       status: row['status'] as PayRun['status'],
-      statusHistory: JSON.parse(row['status_history'] as string || '[]'),
+      statusHistory: JSON.parse((row['status_history'] as string) || '[]'),
       ...(row['initiated_at'] != null && { initiatedAt: row['initiated_at'] as Date }),
       ...(row['initiated_by'] != null && { initiatedBy: row['initiated_by'] as UUID }),
       ...(row['calculated_at'] != null && { calculatedAt: row['calculated_at'] as Date }),
@@ -1370,14 +1348,16 @@ export class PayrollRepository {
       checkAmount: row['check_amount'] as number,
       cashCount: row['cash_count'] as number,
       cashAmount: row['cash_amount'] as number,
-      ...(row['payroll_register_url'] != null && { payrollRegisterUrl: row['payroll_register_url'] as string }),
+      ...(row['payroll_register_url'] != null && {
+        payrollRegisterUrl: row['payroll_register_url'] as string,
+      }),
       ...(row['tax_report_url'] != null && { taxReportUrl: row['tax_report_url'] as string }),
-      exportFiles: JSON.parse(row['export_files'] as string || '[]'),
-      complianceChecks: JSON.parse(row['compliance_checks'] as string || '[]'),
+      exportFiles: JSON.parse((row['export_files'] as string) || '[]'),
+      complianceChecks: JSON.parse((row['compliance_checks'] as string) || '[]'),
       compliancePassed: row['compliance_passed'] as boolean,
       hasErrors: row['has_errors'] as boolean,
-      errors: JSON.parse(row['errors'] as string || '[]'),
-      warnings: JSON.parse(row['warnings'] as string || '[]'),
+      errors: JSON.parse((row['errors'] as string) || '[]'),
+      warnings: JSON.parse((row['warnings'] as string) || '[]'),
       ...(row['notes'] != null && { notes: row['notes'] as string }),
       ...(row['internal_notes'] != null && { internalNotes: row['internal_notes'] as string }),
       createdAt: row['created_at'] as Date,
@@ -1399,7 +1379,9 @@ export class PayrollRepository {
       timeSheetId: row['time_sheet_id'] as UUID,
       caregiverName: row['caregiver_name'] as string,
       caregiverEmployeeId: row['caregiver_employee_id'] as string,
-      ...(row['caregiver_address'] != null && { caregiverAddress: JSON.parse(row['caregiver_address'] as string) }),
+      ...(row['caregiver_address'] != null && {
+        caregiverAddress: JSON.parse(row['caregiver_address'] as string),
+      }),
       payPeriodStartDate: row['pay_period_start_date'] as Date,
       payPeriodEndDate: row['pay_period_end_date'] as Date,
       payDate: row['pay_date'] as Date,
@@ -1460,18 +1442,22 @@ export class PayrollRepository {
       paymentMethod: row['payment_method'] as PaymentMethod,
       ...(row['payment_id'] != null && { paymentId: row['payment_id'] as UUID }),
       ...(row['bank_account_id'] != null && { bankAccountId: row['bank_account_id'] as UUID }),
-      ...(row['bank_account_last4'] != null && { bankAccountLast4: row['bank_account_last4'] as string }),
+      ...(row['bank_account_last4'] != null && {
+        bankAccountLast4: row['bank_account_last4'] as string,
+      }),
       ...(row['check_number'] != null && { checkNumber: row['check_number'] as string }),
       ...(row['check_date'] != null && { checkDate: row['check_date'] as Date }),
       ...(row['check_status'] != null && { checkStatus: row['check_status'] as CheckStatus }),
       status: row['status'] as PayStub['status'],
-      statusHistory: JSON.parse(row['status_history'] as string || '[]'),
+      statusHistory: JSON.parse((row['status_history'] as string) || '[]'),
       calculatedAt: row['calculated_at'] as Date,
       ...(row['calculated_by'] != null && { calculatedBy: row['calculated_by'] as UUID }),
       ...(row['approved_at'] != null && { approvedAt: row['approved_at'] as Date }),
       ...(row['approved_by'] != null && { approvedBy: row['approved_by'] as UUID }),
       ...(row['delivered_at'] != null && { deliveredAt: row['delivered_at'] as Date }),
-      ...(row['delivery_method'] != null && { deliveryMethod: row['delivery_method'] as 'EMAIL' | 'PRINT' | 'PORTAL' | 'MAIL' }),
+      ...(row['delivery_method'] != null && {
+        deliveryMethod: row['delivery_method'] as 'EMAIL' | 'PRINT' | 'PORTAL' | 'MAIL',
+      }),
       ...(row['viewed_at'] != null && { viewedAt: row['viewed_at'] as Date }),
       ...(row['pdf_url'] != null && { pdfUrl: row['pdf_url'] as string }),
       ...(row['pdf_generated_at'] != null && { pdfGeneratedAt: row['pdf_generated_at'] as Date }),
@@ -1508,7 +1494,9 @@ export class PayrollRepository {
       stateExtraWithholding: row['state_extra_withholding'] as number,
       stateExempt: row['state_exempt'] as boolean,
       stateResidence: row['state_residence'] as string,
-      ...(row['local_tax_jurisdiction'] != null && { localTaxJurisdiction: row['local_tax_jurisdiction'] as string }),
+      ...(row['local_tax_jurisdiction'] != null && {
+        localTaxJurisdiction: row['local_tax_jurisdiction'] as string,
+      }),
       localExempt: row['local_exempt'] as boolean,
       effectiveFrom: row['effective_from'] as Date,
       ...(row['effective_to'] != null && { effectiveTo: row['effective_to'] as Date }),
@@ -1518,7 +1506,9 @@ export class PayrollRepository {
       ...(row['w4_document_id'] != null && { w4DocumentId: row['w4_document_id'] as UUID }),
       stateFormOnFile: row['state_form_on_file'] as boolean,
       ...(row['state_form_date'] != null && { stateFormDate: row['state_form_date'] as Date }),
-      ...(row['state_form_document_id'] != null && { stateFormDocumentId: row['state_form_document_id'] as UUID }),
+      ...(row['state_form_document_id'] != null && {
+        stateFormDocumentId: row['state_form_document_id'] as UUID,
+      }),
       createdAt: row['created_at'] as Date,
       createdBy: row['created_by'] as UUID,
       updatedAt: row['updated_at'] as Date,
@@ -1538,14 +1528,22 @@ export class PayrollRepository {
       ...(row['percentage'] != null && { percentage: row['percentage'] as number }),
       hasLimit: row['has_limit'] as boolean,
       ...(row['yearly_limit'] != null && { yearlyLimit: row['yearly_limit'] as number }),
-      ...(row['year_to_date_amount'] != null && { yearToDateAmount: row['year_to_date_amount'] as number }),
-      ...(row['remaining_amount'] != null && { remainingAmount: row['remaining_amount'] as number }),
+      ...(row['year_to_date_amount'] != null && {
+        yearToDateAmount: row['year_to_date_amount'] as number,
+      }),
+      ...(row['remaining_amount'] != null && {
+        remainingAmount: row['remaining_amount'] as number,
+      }),
       isPreTax: row['is_pre_tax'] as boolean,
       isPostTax: row['is_post_tax'] as boolean,
       isStatutory: row['is_statutory'] as boolean,
       ...(row['employer_match'] != null && { employerMatch: row['employer_match'] as number }),
-      ...(row['employer_match_percentage'] != null && { employerMatchPercentage: row['employer_match_percentage'] as number }),
-      ...(row['garnishment_order'] != null && { garnishmentOrder: JSON.parse(row['garnishment_order'] as string) }),
+      ...(row['employer_match_percentage'] != null && {
+        employerMatchPercentage: row['employer_match_percentage'] as number,
+      }),
+      ...(row['garnishment_order'] != null && {
+        garnishmentOrder: JSON.parse(row['garnishment_order'] as string),
+      }),
       isActive: row['is_active'] as boolean,
       ...(row['effective_from'] != null && { effectiveFrom: row['effective_from'] as Date }),
       ...(row['effective_to'] != null && { effectiveTo: row['effective_to'] as Date }),
@@ -1567,16 +1565,20 @@ export class PayrollRepository {
       ...(row['bank_account_id'] != null && { bankAccountId: row['bank_account_id'] as UUID }),
       ...(row['routing_number'] != null && { routingNumber: row['routing_number'] as string }),
       ...(row['account_number'] != null && { accountNumber: row['account_number'] as string }),
-      ...(row['account_type'] != null && { accountType: row['account_type'] as 'CHECKING' | 'SAVINGS' }),
+      ...(row['account_type'] != null && {
+        accountType: row['account_type'] as 'CHECKING' | 'SAVINGS',
+      }),
       ...(row['transaction_id'] != null && { transactionId: row['transaction_id'] as string }),
       ...(row['trace_number'] != null && { traceNumber: row['trace_number'] as string }),
       ...(row['check_number'] != null && { checkNumber: row['check_number'] as string }),
       ...(row['check_date'] != null && { checkDate: row['check_date'] as Date }),
       ...(row['check_status'] != null && { checkStatus: row['check_status'] as CheckStatus }),
-      ...(row['check_cleared_date'] != null && { checkClearedDate: row['check_cleared_date'] as Date }),
+      ...(row['check_cleared_date'] != null && {
+        checkClearedDate: row['check_cleared_date'] as Date,
+      }),
       ...(row['check_image_url'] != null && { checkImageUrl: row['check_image_url'] as string }),
       status: row['status'] as PaymentRecord['status'],
-      statusHistory: JSON.parse(row['status_history'] as string || '[]'),
+      statusHistory: JSON.parse((row['status_history'] as string) || '[]'),
       initiatedAt: row['initiated_at'] as Date,
       initiatedBy: row['initiated_by'] as UUID,
       ...(row['processed_at'] != null && { processedAt: row['processed_at'] as Date }),
@@ -1588,7 +1590,9 @@ export class PayrollRepository {
       ...(row['error_message'] != null && { errorMessage: row['error_message'] as string }),
       ...(row['error_details'] != null && { errorDetails: row['error_details'] as string }),
       isReissue: row['is_reissue'] as boolean,
-      ...(row['original_payment_id'] != null && { originalPaymentId: row['original_payment_id'] as UUID }),
+      ...(row['original_payment_id'] != null && {
+        originalPaymentId: row['original_payment_id'] as UUID,
+      }),
       ...(row['reissue_reason'] != null && { reissueReason: row['reissue_reason'] as string }),
       ...(row['notes'] != null && { notes: row['notes'] as string }),
       createdAt: row['created_at'] as Date,
@@ -1615,7 +1619,9 @@ export class PayrollRepository {
       totalCreditAmount: row['total_credit_amount'] as number,
       ...(row['ach_file_url'] != null && { achFileUrl: row['ach_file_url'] as string }),
       achFileFormat: row['ach_file_format'] as ACHBatch['achFileFormat'],
-      ...(row['ach_file_generated_at'] != null && { achFileGeneratedAt: row['ach_file_generated_at'] as Date }),
+      ...(row['ach_file_generated_at'] != null && {
+        achFileGeneratedAt: row['ach_file_generated_at'] as Date,
+      }),
       ...(row['ach_file_hash'] != null && { achFileHash: row['ach_file_hash'] as string }),
       status: row['status'] as ACHBatch['status'],
       ...(row['submitted_at'] != null && { submittedAt: row['submitted_at'] as Date }),
@@ -1623,10 +1629,12 @@ export class PayrollRepository {
       originatingBankRoutingNumber: row['originating_bank_routing_number'] as string,
       originatingBankAccountNumber: row['originating_bank_account_number'] as string,
       ...(row['settled_at'] != null && { settledAt: row['settled_at'] as Date }),
-      ...(row['settlement_confirmation'] != null && { settlementConfirmation: row['settlement_confirmation'] as string }),
+      ...(row['settlement_confirmation'] != null && {
+        settlementConfirmation: row['settlement_confirmation'] as string,
+      }),
       hasReturns: row['has_returns'] as boolean,
       ...(row['return_count'] != null && { returnCount: row['return_count'] as number }),
-      returns: JSON.parse(row['returns'] as string || '[]'),
+      returns: JSON.parse((row['returns'] as string) || '[]'),
       ...(row['notes'] != null && { notes: row['notes'] as string }),
       createdAt: row['created_at'] as Date,
       createdBy: row['created_by'] as UUID,

@@ -1,6 +1,6 @@
 /**
  * Caregiver & Staff Management Vertical
- * 
+ *
  * Entry point for caregiver and staff management functionality
  */
 

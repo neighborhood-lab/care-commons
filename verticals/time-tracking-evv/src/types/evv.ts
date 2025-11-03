@@ -1,10 +1,10 @@
 /**
  * Time Tracking & Electronic Visit Verification (EVV) domain model
- * 
- * Accurate timing and location evidence of visits — clock-in/out, geofenced 
- * verification, offline capture with sync, integrity measures against 
+ *
+ * Accurate timing and location evidence of visits — clock-in/out, geofenced
+ * verification, offline capture with sync, integrity measures against
  * falsification, and compliance-grade retention.
- * 
+ *
  * Key concepts:
  * - Time Entry: Recorded clock-in/out events with verification
  * - Location Verification: GPS-based proof of presence at client location
@@ -14,16 +14,11 @@
  * - Sync Conflict: Resolution when offline data conflicts with server
  */
 
-import {
-  Entity,
-  UUID,
-  Timestamp,
-  SyncMetadata,
-} from '@care-commons/core';
+import { Entity, UUID, Timestamp, SyncMetadata } from '@care-commons/core';
 
 /**
  * EVV Record - Complete compliance record for a visit
- * 
+ *
  * Immutable record capturing all required EVV data elements per
  * federal and state regulations (21st Century Cures Act).
  */
@@ -39,53 +34,53 @@ export interface EVVRecord extends Entity {
   // 1. Type of service performed
   serviceTypeCode: string;
   serviceTypeName: string;
-  
+
   // 2. Individual receiving the service
   clientName: string; // Encrypted at rest
   clientMedicaidId?: string; // Encrypted at rest
-  
+
   // 3. Individual providing the service
   caregiverName: string;
   caregiverEmployeeId: string;
   caregiverNationalProviderId?: string; // NPI number
-  
+
   // 4. Date of service
   serviceDate: Date;
-  
+
   // 5. Location of service delivery
   serviceAddress: ServiceAddress;
-  
+
   // 6. Time service begins and ends
   clockInTime: Timestamp;
   clockOutTime: Timestamp | null; // Null if visit still in progress
   totalDuration?: number; // Calculated minutes
-  
+
   // Location verification
   clockInVerification: LocationVerification;
   clockOutVerification?: LocationVerification;
   midVisitChecks?: LocationVerification[]; // Additional checks during visit
-  
+
   // Additional tracking
   pauseEvents?: PauseEvent[]; // If visit was paused/resumed
   exceptionEvents?: ExceptionEvent[]; // Exceptions during visit
-  
+
   // Integrity and compliance
   recordStatus: EVVRecordStatus;
   verificationLevel: VerificationLevel;
   complianceFlags: ComplianceFlag[];
   integrityHash: string; // Cryptographic hash of core data
   integrityChecksum: string; // Additional tamper detection
-  
+
   // Audit and sync
   recordedAt: Timestamp; // When record was created
   recordedBy: UUID;
   syncMetadata: SyncMetadata;
   submittedToPayor?: Timestamp; // When submitted for billing
   payorApprovalStatus?: PayorApprovalStatus;
-  
+
   // State-specific fields (extensible)
   stateSpecificData?: Record<string, unknown>;
-  
+
   // Attestation
   caregiverAttestation?: Attestation;
   clientAttestation?: Attestation;
@@ -138,12 +133,12 @@ export interface ServiceAddress {
   state: string;
   postalCode: string;
   country: string;
-  
+
   // Geocoded location
   latitude: number;
   longitude: number;
   geofenceRadius: number; // Acceptable radius in meters
-  
+
   // Verification
   addressVerified: boolean;
   addressVerifiedAt?: Timestamp;
@@ -152,7 +147,7 @@ export interface ServiceAddress {
 
 /**
  * Location Verification - GPS proof of presence
- * 
+ *
  * Captures device location with accuracy and integrity checks.
  */
 export interface LocationVerification {
@@ -164,40 +159,40 @@ export interface LocationVerification {
   altitudeAccuracy?: number;
   heading?: number; // Direction of travel (0-360)
   speed?: number; // Speed in m/s
-  
+
   // Timestamp
   timestamp: Timestamp;
   timestampSource: 'DEVICE' | 'NETWORK' | 'GPS';
-  
+
   // Geofence verification
   isWithinGeofence: boolean;
   distanceFromAddress: number; // Distance in meters
   geofencePassed: boolean;
-  
+
   // Device information
   deviceId: string; // Unique device identifier
   deviceModel?: string;
   deviceOS?: string;
   appVersion?: string;
-  
+
   // Method and integrity
   method: VerificationMethod;
   locationSource: LocationSource;
   mockLocationDetected: boolean; // GPS spoofing detection
   vpnDetected?: boolean;
-  
+
   // Network information (helps detect fraud)
   ipAddress?: string;
   cellTowerId?: string;
   wifiSSID?: string; // Hashed for privacy
   wifiBSSID?: string; // Hashed for privacy
-  
+
   // Additional verification
   photoUrl?: string; // Optional photo at clock-in/out
   photoHash?: string; // Hash of photo for integrity
   biometricVerified?: boolean;
   biometricMethod?: 'FINGERPRINT' | 'FACE' | 'VOICE';
-  
+
   // Compliance
   verificationPassed: boolean;
   verificationFailureReasons?: string[];
@@ -338,35 +333,35 @@ export interface Geofence extends Entity {
   organizationId: UUID;
   clientId: UUID;
   addressId: UUID;
-  
+
   // Center point
   centerLatitude: number;
   centerLongitude: number;
-  
+
   // Radius
   radiusMeters: number;
   radiusType: 'STANDARD' | 'EXPANDED' | 'CUSTOM';
-  
+
   // Shape (for advanced geofences)
   shape: 'CIRCLE' | 'POLYGON';
   polygonPoints?: GeoPoint[]; // For polygon geofences
-  
+
   // Settings
   isActive: boolean;
   allowedVariance?: number; // Additional meters for soft boundary
-  
+
   // Calibration
   calibratedAt?: Timestamp;
   calibratedBy?: UUID;
   calibrationMethod?: 'AUTO' | 'MANUAL';
   calibrationNotes?: string;
-  
+
   // Performance
   verificationCount: number;
   successfulVerifications: number;
   failedVerifications: number;
   averageAccuracy?: number; // Average GPS accuracy at this location
-  
+
   // Status
   status: 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED';
 }
@@ -378,7 +373,7 @@ export interface GeoPoint {
 
 /**
  * Time Entry - Individual clock-in or clock-out event
- * 
+ *
  * Separate from EVV Record for granular tracking.
  */
 export interface TimeEntry extends Entity {
@@ -387,27 +382,27 @@ export interface TimeEntry extends Entity {
   organizationId: UUID;
   caregiverId: UUID;
   clientId: UUID;
-  
+
   // Entry details
   entryType: 'CLOCK_IN' | 'CLOCK_OUT' | 'PAUSE' | 'RESUME' | 'CHECK_IN';
   entryTimestamp: Timestamp;
-  
+
   // Location
   location: LocationVerification;
-  
+
   // Device
   deviceId: string;
   deviceInfo: DeviceInfo;
-  
+
   // Integrity
   integrityHash: string;
   serverReceivedAt: Timestamp;
-  
+
   // Sync (for offline)
   syncMetadata: SyncMetadata;
   offlineRecorded: boolean;
   offlineRecordedAt?: Timestamp;
-  
+
   // Status
   status: TimeEntryStatus;
   verificationPassed: boolean;
@@ -441,37 +436,37 @@ export interface DeviceInfo {
 export interface EVVComplianceReport extends Entity {
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Report period
   reportPeriod: ReportPeriod;
   startDate: Date;
   endDate: Date;
-  
+
   // Statistics
   totalVisits: number;
   compliantVisits: number;
   partiallyCompliantVisits: number;
   nonCompliantVisits: number;
   complianceRate: number; // Percentage
-  
+
   // Verification methods
   verificationMethodBreakdown: Record<VerificationMethod, number>;
-  
+
   // Issues
   geofenceViolations: number;
   lateSubmissions: number;
   manualOverrides: number;
   deviceAnomalies: number;
-  
+
   // State-specific
   stateRequirements?: string[];
   stateComplianceMetrics?: Record<string, unknown>;
-  
+
   // Generation
   generatedAt: Timestamp;
   generatedBy: UUID;
   reportStatus: 'DRAFT' | 'FINAL' | 'SUBMITTED';
-  
+
   // Export
   exportedAt?: Timestamp;
   exportFormat?: 'PDF' | 'CSV' | 'XML' | 'HL7' | 'STATE_SPECIFIC';

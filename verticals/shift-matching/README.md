@@ -1,28 +1,40 @@
 # Shift Matching & Assignment
 
-Intelligent caregiver-to-shift matching system for Care Commons. Automatically evaluates and ranks caregivers based on skills, availability, proximity, preferences, and performance history to optimize shift assignments.
+Intelligent caregiver-to-shift matching system for Care Commons. Automatically
+evaluates and ranks caregivers based on skills, availability, proximity,
+preferences, and performance history to optimize shift assignments.
 
 ## Overview
 
 The Shift Matching & Assignment vertical bridges scheduling with staffing by:
 
-- **Automated candidate evaluation**: Scores caregivers across 8 dimensions (skills, availability, proximity, preferences, experience, reliability, compliance, capacity)
-- **Configurable matching rules**: Adjust weights, thresholds, and optimization goals per organization or branch
-- **Assignment proposal workflow**: Send proposals to caregivers, track responses, handle acceptance/rejection
+- **Automated candidate evaluation**: Scores caregivers across 8 dimensions
+  (skills, availability, proximity, preferences, experience, reliability,
+  compliance, capacity)
+- **Configurable matching rules**: Adjust weights, thresholds, and optimization
+  goals per organization or branch
+- **Assignment proposal workflow**: Send proposals to caregivers, track
+  responses, handle acceptance/rejection
 - **Bulk matching**: Optimize assignments across multiple shifts simultaneously
-- **Caregiver preferences**: Allow caregivers to set their own shift preferences for better matches
-- **Analytics and history**: Track match outcomes, response times, and performance metrics
+- **Caregiver preferences**: Allow caregivers to set their own shift preferences
+  for better matches
+- **Analytics and history**: Track match outcomes, response times, and
+  performance metrics
 
 ## Key Concepts
 
 ### Open Shift
+
 An unassigned visit requiring a caregiver. Created when:
+
 - A new visit is scheduled without assignment
 - An assigned caregiver cancels or is unavailable
 - A scheduler manually flags a visit as needing reassignment
 
 ### Match Candidate
+
 A caregiver evaluated for a specific shift, with:
+
 - Overall score (0-100) indicating fit quality
 - Dimensional scores across 8 criteria
 - Eligibility determination (blocking issues vs warnings)
@@ -30,14 +42,18 @@ A caregiver evaluated for a specific shift, with:
 - Human-readable reasons explaining the match
 
 ### Assignment Proposal
+
 A system-generated or manual suggestion to assign a caregiver to a shift:
+
 - Sent to caregivers via push, SMS, email, or phone
 - Tracked through viewed → responded → accepted/rejected
 - Can expire if not responded to within configured time
 - Records rejection reasons for algorithm improvement
 
 ### Matching Configuration
+
 Organization or branch-specific rules controlling:
+
 - Score weights for each dimension
 - Distance and travel constraints
 - Skill/certification matching strictness
@@ -122,7 +138,8 @@ overallScore = (
 ### Database Functions
 
 - `calculate_distance(lat1, lon1, lat2, lon2)`: Haversine distance in miles
-- `is_caregiver_available(caregiverId, date, startTime, endTime)`: Conflict check
+- `is_caregiver_available(caregiverId, date, startTime, endTime)`: Conflict
+  check
 - `refresh_active_open_shifts()`: Refresh materialized view of unassigned shifts
 
 ## Usage Examples
@@ -148,7 +165,10 @@ const openShift = await repo.createOpenShift(
 ### Evaluate Match Candidates
 
 ```typescript
-import { MatchingAlgorithm, CaregiverContext } from '@care-commons/shift-matching';
+import {
+  MatchingAlgorithm,
+  CaregiverContext,
+} from '@care-commons/shift-matching';
 
 const candidate = MatchingAlgorithm.evaluateMatch(
   openShift,
@@ -261,7 +281,8 @@ Weights must sum to 100 and represent percentage contribution to overall score.
 
 ### Auto-Assignment Threshold
 
-If set (e.g., 90), shifts with candidates scoring >= threshold are automatically assigned without manual review. Use with caution on high-compliance orgs only.
+If set (e.g., 90), shifts with candidates scoring >= threshold are automatically
+assigned without manual review. Use with caution on high-compliance orgs only.
 
 ## Integration Points
 
@@ -274,7 +295,8 @@ If set (e.g., 90), shifts with candidates scoring >= threshold are automatically
 ### Optional Verticals
 
 - **Care Plans & Tasks**: Task requirements inform skill matching
-- **Time Tracking & EVV**: Historical visit completion affects reliability scores
+- **Time Tracking & EVV**: Historical visit completion affects reliability
+  scores
 - **Billing & Invoicing**: Cost data for cost-optimization goals
 
 ## Workflow
@@ -309,12 +331,14 @@ If set (e.g., 90), shifts with candidates scoring >= threshold are automatically
 ## Future Enhancements
 
 - **Machine learning**: Train models on historical outcomes to improve scoring
-- **Multi-shift optimization**: Assign multiple shifts per caregiver in one transaction
+- **Multi-shift optimization**: Assign multiple shifts per caregiver in one
+  transaction
 - **Route optimization**: Minimize travel between consecutive shifts
 - **Team assignments**: Match care teams (e.g., RN + HHA) to complex visits
 - **Fair scheduling**: Ensure equitable distribution (hours, desirable shifts)
 - **Predictive availability**: Learn caregiver availability patterns
-- **Client preference learning**: Infer preferences from past acceptances/rejections
+- **Client preference learning**: Infer preferences from past
+  acceptances/rejections
 
 ## Dependencies
 
@@ -327,7 +351,8 @@ If set (e.g., 90), shifts with candidates scoring >= threshold are automatically
 
 ## Database Migration
 
-Run migration `007_shift_matching.sql` to create tables, indexes, functions, and materialized views.
+Run migration `007_shift_matching.sql` to create tables, indexes, functions, and
+materialized views.
 
 ```bash
 psql -d care_commons -f packages/core/migrations/007_shift_matching.sql

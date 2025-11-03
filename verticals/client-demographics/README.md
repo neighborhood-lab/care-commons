@@ -1,16 +1,22 @@
 # Client & Demographics Management
 
-> Foundational record system for individuals receiving care — identity, contact structure, authorized contacts, program enrollment, service eligibility, risk flags, residence location(s), basic documentation, and lifecycle status.
+> Foundational record system for individuals receiving care — identity, contact
+> structure, authorized contacts, program enrollment, service eligibility, risk
+> flags, residence location(s), basic documentation, and lifecycle status.
 
 ## Features
 
 ### Core Capabilities
 
-- **Client Identity Management** - Comprehensive demographic and identity information
-- **Contact Management** - Emergency contacts and authorized contacts with granular permissions
-- **Address Management** - Primary and secondary addresses with geolocation support
+- **Client Identity Management** - Comprehensive demographic and identity
+  information
+- **Contact Management** - Emergency contacts and authorized contacts with
+  granular permissions
+- **Address Management** - Primary and secondary addresses with geolocation
+  support
 - **Healthcare Information** - Primary physician, pharmacy, insurance details
-- **Program Enrollment** - Track multiple program enrollments and service eligibility
+- **Program Enrollment** - Track multiple program enrollments and service
+  eligibility
 - **Risk & Safety Flags** - Document and track safety concerns and risk factors
 - **Lifecycle Management** - Track client status from inquiry through discharge
 - **Full Audit Trail** - Complete history of all changes with user attribution
@@ -18,7 +24,8 @@
 ### Data Security
 
 - **Encryption** - Sensitive data (SSN) encrypted at rest
-- **Role-Based Access** - Granular permissions based on user role and organizational scope
+- **Role-Based Access** - Granular permissions based on user role and
+  organizational scope
 - **Audit Logging** - All access and modifications tracked for compliance
 - **Soft Deletes** - Data never truly deleted, can be recovered if needed
 
@@ -43,26 +50,26 @@ interface Client {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
-  
+
   // Contact
   primaryPhone?: Phone;
   email?: string;
   primaryAddress: Address;
-  
+
   // Healthcare
   primaryPhysician?: HealthcareProvider;
   pharmacy?: Pharmacy;
   insurance?: Insurance[];
-  
+
   // Service
   programs: ProgramEnrollment[];
   serviceEligibility: ServiceEligibility;
   riskFlags: RiskFlag[];
-  
+
   // Status
   status: ClientStatus;
   intakeDate?: Date;
-  
+
   // Audit
   createdAt: Timestamp;
   createdBy: UUID;
@@ -102,7 +109,10 @@ Track safety and care concerns:
 ### Creating a Client
 
 ```typescript
-import { ClientService, CreateClientInput } from '@care-commons/client-demographics';
+import {
+  ClientService,
+  CreateClientInput,
+} from '@care-commons/client-demographics';
 import { UserContext } from '@care-commons/core';
 
 const clientService = new ClientService(clientRepository);
@@ -158,7 +168,7 @@ const results = await clientService.searchClients(
 );
 
 console.log(`Found ${results.total} clients`);
-results.items.forEach(client => {
+results.items.forEach((client) => {
   console.log(`${client.firstName} ${client.lastName} - ${client.status}`);
 });
 ```
@@ -193,7 +203,8 @@ await clientService.addRiskFlag(
     type: 'FALL_RISK',
     severity: 'HIGH',
     description: 'Client has history of falls, uses walker',
-    mitigationPlan: 'Non-slip mats installed, walker required for all ambulation',
+    mitigationPlan:
+      'Non-slip mats installed, walker required for all ambulation',
     requiresAcknowledgment: true,
   },
   context
@@ -229,7 +240,8 @@ await clientService.updateClientStatus(
 - **SUPER_ADMIN** - Full access to all clients across all organizations
 - **ORG_ADMIN** - Full access to clients within their organization
 - **BRANCH_ADMIN** - Full access to clients within their assigned branches
-- **COORDINATOR** - Read/write access to clients for scheduling and care coordination
+- **COORDINATOR** - Read/write access to clients for scheduling and care
+  coordination
 - **SCHEDULER** - Read-only access for scheduling purposes
 - **CAREGIVER** - Read-only access to assigned clients
 - **FAMILY** - Read-only access to specific client (their family member)
@@ -274,29 +286,29 @@ CREATE TABLE clients (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     date_of_birth DATE NOT NULL,
-    
+
     -- Contact information (JSONB)
     primary_phone JSONB,
     email VARCHAR(255),
     primary_address JSONB NOT NULL,
-    
+
     -- Healthcare (JSONB)
     primary_physician JSONB,
     pharmacy JSONB,
     insurance JSONB,
-    
+
     -- Service information (JSONB arrays)
     emergency_contacts JSONB NOT NULL DEFAULT '[]',
     programs JSONB NOT NULL DEFAULT '[]',
     risk_flags JSONB NOT NULL DEFAULT '[]',
-    
+
     -- Service eligibility (JSONB)
     service_eligibility JSONB NOT NULL,
-    
+
     -- Status
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING_INTAKE',
     intake_date DATE,
-    
+
     -- Audit fields
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by UUID NOT NULL,
@@ -305,7 +317,7 @@ CREATE TABLE clients (
     version INTEGER NOT NULL DEFAULT 1,
     deleted_at TIMESTAMP,
     deleted_by UUID,
-    
+
     CONSTRAINT unique_client_number UNIQUE (organization_id, client_number)
 );
 ```

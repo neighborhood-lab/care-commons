@@ -1,6 +1,6 @@
 /**
  * Invite Team Member Form
- * 
+ *
  * Form for inviting new team members via email
  */
 
@@ -157,12 +157,7 @@ export function InviteMemberForm({
 
       <div className="flex justify-end space-x-3 pt-4">
         {onCancel && (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
         )}

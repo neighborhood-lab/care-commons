@@ -3,12 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calculator, CheckCircle, Play, AlertCircle } from 'lucide-react';
 import { Button, LoadingSpinner, ErrorMessage } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
-import { 
-  usePayRun, 
-  usePayStubs, 
-  useCalculatePayRun, 
-  useApprovePayRun, 
-  useProcessPayRun 
+import {
+  usePayRun,
+  usePayStubs,
+  useCalculatePayRun,
+  useApprovePayRun,
+  useProcessPayRun,
 } from '../hooks';
 import { formatCurrency, formatHours, getPayRunStatusColor } from '../utils';
 
@@ -32,12 +32,7 @@ export const PayRunDetail: React.FC = () => {
   }
 
   if (error || !payRun) {
-    return (
-      <ErrorMessage
-        message="Failed to load pay run"
-        retry={() => navigate('/payroll')}
-      />
-    );
+    return <ErrorMessage message="Failed to load pay run" retry={() => navigate('/payroll')} />;
   }
 
   const statusColor = getPayRunStatusColor(payRun.status);
@@ -55,11 +50,11 @@ export const PayRunDetail: React.FC = () => {
             Back
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Pay Run {payRun.runNumber}
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Pay Run {payRun.runNumber}</h1>
             <div className="flex items-center gap-2 mt-2">
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor}`}>
+              <span
+                className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor}`}
+              >
                 {payRun.status.replace(/_/g, ' ')}
               </span>
               {payRun.hasErrors && (
@@ -94,7 +89,11 @@ export const PayRunDetail: React.FC = () => {
           {can('payroll:process') && payRun.status === 'APPROVED' && (
             <Button
               onClick={() => {
-                if (window.confirm('Are you sure you want to process this pay run? This will generate payments.')) {
+                if (
+                  window.confirm(
+                    'Are you sure you want to process this pay run? This will generate payments.'
+                  )
+                ) {
                   processPayRun.mutate(payRun.id);
                 }
               }}
@@ -112,7 +111,8 @@ export const PayRunDetail: React.FC = () => {
           <div>
             <h3 className="text-sm font-medium text-gray-500 mb-1">Pay Period</h3>
             <p className="text-lg">
-              {new Date(payRun.payPeriodStartDate).toLocaleDateString()} - {new Date(payRun.payPeriodEndDate).toLocaleDateString()}
+              {new Date(payRun.payPeriodStartDate).toLocaleDateString()} -{' '}
+              {new Date(payRun.payPeriodEndDate).toLocaleDateString()}
             </p>
           </div>
 
@@ -171,11 +171,15 @@ export const PayRunDetail: React.FC = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Direct Deposits:</span>
-                <span>{payRun.directDepositCount} ({formatCurrency(payRun.directDepositAmount)})</span>
+                <span>
+                  {payRun.directDepositCount} ({formatCurrency(payRun.directDepositAmount)})
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Checks:</span>
-                <span>{payRun.checkCount} ({formatCurrency(payRun.checkAmount)})</span>
+                <span>
+                  {payRun.checkCount} ({formatCurrency(payRun.checkAmount)})
+                </span>
               </div>
             </div>
           </div>
@@ -195,11 +199,21 @@ export const PayRunDetail: React.FC = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Employee</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Hours</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Gross Pay</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Net Pay</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">Status</th>
+                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                      Employee
+                    </th>
+                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">
+                      Hours
+                    </th>
+                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">
+                      Gross Pay
+                    </th>
+                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">
+                      Net Pay
+                    </th>
+                    <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -212,8 +226,12 @@ export const PayRunDetail: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right">{formatHours(stub.totalHours)}</td>
-                      <td className="px-4 py-3 text-right">{formatCurrency(stub.currentGrossPay)}</td>
-                      <td className="px-4 py-3 text-right font-medium">{formatCurrency(stub.currentNetPay)}</td>
+                      <td className="px-4 py-3 text-right">
+                        {formatCurrency(stub.currentGrossPay)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium">
+                        {formatCurrency(stub.currentNetPay)}
+                      </td>
                       <td className="px-4 py-3 text-center">
                         <span className="text-xs">{stub.status.replace(/_/g, ' ')}</span>
                       </td>

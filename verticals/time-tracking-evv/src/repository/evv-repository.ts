@@ -92,16 +92,15 @@ interface TimeEntryRow {
   version: number;
 }
 
-
-
-
 export class EVVRepository {
-  constructor(private database: Database) { }
+  constructor(private database: Database) {}
 
   /**
    * Create new EVV record
    */
-  async createEVVRecord(record: Omit<EVVRecord, 'id' | 'createdAt' | 'updatedAt' | 'version'>): Promise<EVVRecord> {
+  async createEVVRecord(
+    record: Omit<EVVRecord, 'id' | 'createdAt' | 'updatedAt' | 'version'>
+  ): Promise<EVVRecord> {
     const query = `
       INSERT INTO evv_records (
         visit_id, organization_id, branch_id, client_id, caregiver_id,
@@ -208,7 +207,12 @@ export class EVVRepository {
         const dbKey = this.camelToSnake(key);
 
         // Handle JSON fields
-        if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          !Array.isArray(value) &&
+          !(value instanceof Date)
+        ) {
           fields.push(`${dbKey} = $${paramIndex}`);
           values.push(JSON.stringify(value));
         } else {
@@ -339,27 +343,47 @@ export class EVVRepository {
     const total = parseInt(countResult.rows[0]!['count'] as string);
 
     // Get paginated results with whitelisted sort parameters to prevent SQL injection
-    const allowedSortFields = ['serviceDate', 'createdAt', 'updatedAt', 'clockInTime', 'clockOutTime', 'recordStatus', 'verificationLevel'];
+    const allowedSortFields = [
+      'serviceDate',
+      'createdAt',
+      'updatedAt',
+      'clockInTime',
+      'clockOutTime',
+      'recordStatus',
+      'verificationLevel',
+    ];
     const sortByRaw = pagination.sortBy || 'serviceDate';
-    const sortBy = allowedSortFields.includes(sortByRaw) ? this.camelToSnake(sortByRaw) : 'service_date';
-    
+    const sortBy = allowedSortFields.includes(sortByRaw)
+      ? this.camelToSnake(sortByRaw)
+      : 'service_date';
+
     const sortOrderRaw = pagination.sortOrder?.toLowerCase();
-    const sortOrder = (sortOrderRaw === 'asc' || sortOrderRaw === 'desc') ? sortOrderRaw.toUpperCase() : 'DESC';
+    const sortOrder =
+      sortOrderRaw === 'asc' || sortOrderRaw === 'desc' ? sortOrderRaw.toUpperCase() : 'DESC';
     const offset = (pagination.page - 1) * pagination.limit;
 
     // Use completely whitelisted ORDER BY clauses to prevent any SQL injection
     const allowedOrderClauses = [
-      'service_date ASC', 'service_date DESC',
-      'created_at ASC', 'created_at DESC',
-      'updated_at ASC', 'updated_at DESC',
-      'clock_in_time ASC', 'clock_in_time DESC',
-      'clock_out_time ASC', 'clock_out_time DESC',
-      'record_status ASC', 'record_status DESC',
-      'verification_level ASC', 'verification_level DESC'
+      'service_date ASC',
+      'service_date DESC',
+      'created_at ASC',
+      'created_at DESC',
+      'updated_at ASC',
+      'updated_at DESC',
+      'clock_in_time ASC',
+      'clock_in_time DESC',
+      'clock_out_time ASC',
+      'clock_out_time DESC',
+      'record_status ASC',
+      'record_status DESC',
+      'verification_level ASC',
+      'verification_level DESC',
     ];
-    
+
     const orderClause = `${sortBy} ${sortOrder}`;
-    const finalOrderClause = allowedOrderClauses.includes(orderClause) ? orderClause : 'service_date DESC';
+    const finalOrderClause = allowedOrderClauses.includes(orderClause)
+      ? orderClause
+      : 'service_date DESC';
 
     values.push(pagination.limit, offset);
 
@@ -374,7 +398,7 @@ export class EVVRepository {
     const result = await this.database.query(dataQuery, values);
 
     return {
-      items: result.rows.map(row => this.mapEVVRecord(row as unknown as EVVRecordRow)),
+      items: result.rows.map((row) => this.mapEVVRecord(row as unknown as EVVRecordRow)),
       total,
       page: pagination.page,
       limit: pagination.limit,
@@ -385,7 +409,9 @@ export class EVVRepository {
   /**
    * Create time entry
    */
-  async createTimeEntry(entry: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt' | 'version'>): Promise<TimeEntry> {
+  async createTimeEntry(
+    entry: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt' | 'version'>
+  ): Promise<TimeEntry> {
     const query = `
       INSERT INTO time_entries (
         visit_id, evv_record_id, organization_id, caregiver_id, client_id,
@@ -440,7 +466,7 @@ export class EVVRepository {
       ORDER BY entry_timestamp ASC
     `;
     const result = await this.database.query(query, [visitId]);
-    return result.rows.map(row => this.mapTimeEntry(row as unknown as TimeEntryRow));
+    return result.rows.map((row) => this.mapTimeEntry(row as unknown as TimeEntryRow));
   }
 
   /**
@@ -455,7 +481,7 @@ export class EVVRepository {
       LIMIT $2
     `;
     const result = await this.database.query(query, [organizationId, limit]);
-    return result.rows.map(row => this.mapTimeEntry(row as unknown as TimeEntryRow));
+    return result.rows.map((row) => this.mapTimeEntry(row as unknown as TimeEntryRow));
   }
 
   /**
@@ -485,7 +511,12 @@ export class EVVRepository {
         const dbKey = this.camelToSnake(key);
 
         // Handle JSON fields
-        if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          !Array.isArray(value) &&
+          !(value instanceof Date)
+        ) {
           fields.push(`${dbKey} = $${paramIndex}`);
           values.push(JSON.stringify(value));
         } else {
@@ -559,7 +590,9 @@ export class EVVRepository {
   /**
    * Create or update geofence
    */
-  async createGeofence(geofence: Omit<Geofence, 'id' | 'createdAt' | 'updatedAt' | 'version'>): Promise<Geofence> {
+  async createGeofence(
+    geofence: Omit<Geofence, 'id' | 'createdAt' | 'updatedAt' | 'version'>
+  ): Promise<Geofence> {
     const query = `
       INSERT INTO geofences (
         organization_id, client_id, address_id,
@@ -622,11 +655,7 @@ export class EVVRepository {
   /**
    * Update geofence statistics
    */
-  async updateGeofenceStats(
-    id: UUID,
-    successful: boolean,
-    accuracy: number
-  ): Promise<void> {
+  async updateGeofenceStats(id: UUID, successful: boolean, accuracy: number): Promise<void> {
     const query = `
       UPDATE geofences
       SET verification_count = verification_count + 1,
@@ -640,12 +669,7 @@ export class EVVRepository {
       WHERE id = $4
     `;
 
-    await this.database.query(query, [
-      successful ? 1 : 0,
-      successful ? 0 : 1,
-      accuracy,
-      id,
-    ]);
+    await this.database.query(query, [successful ? 1 : 0, successful ? 0 : 1, accuracy, id]);
   }
 
   /**
@@ -688,14 +712,18 @@ export class EVVRepository {
       caregiverNationalProviderId: row.caregiver_npi,
       clockOutTime: row.clock_out_time,
       totalDuration: row.total_duration,
-      clockOutVerification: row.clock_out_verification ? JSON.parse(row.clock_out_verification) : undefined,
+      clockOutVerification: row.clock_out_verification
+        ? JSON.parse(row.clock_out_verification)
+        : undefined,
       midVisitChecks: row.mid_visit_checks ? JSON.parse(row.mid_visit_checks) : undefined,
       pauseEvents: row.pause_events ? JSON.parse(row.pause_events) : undefined,
       exceptionEvents: row.exception_events ? JSON.parse(row.exception_events) : undefined,
       submittedToPayor: row.submitted_to_payor,
       payorApprovalStatus: row.payor_approval_status as PayorApprovalStatus,
       stateSpecificData: row.state_specific_data ? JSON.parse(row.state_specific_data) : undefined,
-      caregiverAttestation: row.caregiver_attestation ? JSON.parse(row.caregiver_attestation) : undefined,
+      caregiverAttestation: row.caregiver_attestation
+        ? JSON.parse(row.caregiver_attestation)
+        : undefined,
       clientAttestation: row.client_attestation ? JSON.parse(row.client_attestation) : undefined,
       supervisorReview: row.supervisor_review ? JSON.parse(row.supervisor_review) : undefined,
     };
@@ -751,7 +779,7 @@ export class EVVRepository {
       organizationId: row.organization_id,
       caregiverId: row.caregiver_id,
       clientId: row.client_id,
-      
+
       // Entry details
       entryType: row.entry_type as TimeEntry['entryType'],
       entryTimestamp: row.entry_timestamp,
@@ -762,7 +790,7 @@ export class EVVRepository {
       serverReceivedAt: row.server_received_at,
       syncMetadata: JSON.parse(row.sync_metadata),
       offlineRecorded: row.offline_recorded,
-      
+
       // Status
       status: row.status as TimeEntryStatus,
       verificationPassed: row.verification_passed,
@@ -791,6 +819,6 @@ export class EVVRepository {
    * Helper: Convert camelCase to snake_case
    */
   private camelToSnake(str: string): string {
-    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
   }
 }

@@ -2,7 +2,10 @@
 
 ## Overview
 
-The Billing & Invoicing vertical has been significantly enhanced with production-ready functionality for revenue cycle management. This implementation provides a complete foundation for transforming care delivery data into billable items, generating invoices, tracking payments, and managing claims.
+The Billing & Invoicing vertical has been significantly enhanced with
+production-ready functionality for revenue cycle management. This implementation
+provides a complete foundation for transforming care delivery data into billable
+items, generating invoices, tracking payments, and managing claims.
 
 ## What Was Implemented
 
@@ -10,15 +13,22 @@ The Billing & Invoicing vertical has been significantly enhanced with production
 
 Comprehensive calculation and helper functions:
 
-- **Unit Calculations**: Convert duration to billable units with configurable rounding rules
-- **Rate Calculations**: Apply base rates with time-based modifiers (weekend, holiday, night shift)
-- **Amount Calculations**: Calculate subtotals, apply modifiers, calculate taxes, totals, and balances
-- **Date Utilities**: Holiday detection, weekend checking, night shift validation
-- **Financial Utilities**: Currency formatting, collection rates, denial rates, payment days
-- **Number Generation**: Invoice, payment, and claim number generation with consistent formats
+- **Unit Calculations**: Convert duration to billable units with configurable
+  rounding rules
+- **Rate Calculations**: Apply base rates with time-based modifiers (weekend,
+  holiday, night shift)
+- **Amount Calculations**: Calculate subtotals, apply modifiers, calculate
+  taxes, totals, and balances
+- **Date Utilities**: Holiday detection, weekend checking, night shift
+  validation
+- **Financial Utilities**: Currency formatting, collection rates, denial rates,
+  payment days
+- **Number Generation**: Invoice, payment, and claim number generation with
+  consistent formats
 - **Validation Helpers**: Invoice amount consistency checks
 
 Key features:
+
 - Supports 8 unit types (HOUR, VISIT, DAY, WEEK, MONTH, TASK, MILE, UNIT)
 - 6 rounding rules (NONE, UP, DOWN, NEAREST, QUARTER_HOUR, HALF_HOUR)
 - US federal holiday detection
@@ -59,28 +69,33 @@ Returns structured `ValidationResult` with errors and warnings.
 Complete database access layer with optimized queries:
 
 #### Payer Operations
+
 - Create payer with full contact and billing information
 - Find by ID or organization
 - Support for all payer types (Medicare, Medicaid, private insurance, VA, etc.)
 
 #### Rate Schedule Operations
+
 - Create rate schedule with multiple service rates
 - Find active rate schedule for payer and date
 - Support for time-based and geographic modifiers
 
 #### Service Authorization Operations
+
 - Create authorization with unit tracking
 - Find by authorization number
 - Find active authorizations for client/service
 - Update authorization units (used, billed, remaining)
 
 #### Billable Item Operations
+
 - Create billable item from visit/EVV data
 - Advanced search with multiple filters
 - Update status with history tracking
 - Link to visits, EVV records, authorizations, invoices
 
 #### Invoice Operations
+
 - Create invoice with line items
 - Find by ID or invoice number
 - Search with comprehensive filters
@@ -88,12 +103,14 @@ Complete database access layer with optimized queries:
 - Automatic balance calculations
 
 #### Payment Operations
+
 - Create payment with multiple methods
 - Search by organization, payer, status, date range
 - Allocate payment to invoices
 - Track reconciliation status
 
 All operations include:
+
 - Proper snake_case to camelCase mapping
 - JSONB field handling
 - Transaction support via optional `client` parameter
@@ -105,6 +122,7 @@ All operations include:
 Realistic demo data for end-user testing:
 
 #### Creates:
+
 - **5 Payers**:
   - Medicare Part A & B (federal, 30-day terms, 28-day avg payment)
   - Illinois Medicaid (state, 45-day terms, requires pre-auth)
@@ -143,6 +161,7 @@ Realistic demo data for end-user testing:
   - Reference numbers
 
 All seed data:
+
 - Uses existing clients and caregivers from base seed
 - Maintains referential integrity
 - Includes realistic status workflows
@@ -151,7 +170,8 @@ All seed data:
 ### 5. Documentation
 
 - **README.md**: Updated status to "Production Ready", feature overview
-- **USAGE.md**: Complete usage guide with code examples for all common operations
+- **USAGE.md**: Complete usage guide with code examples for all common
+  operations
 - **IMPLEMENTATION_SUMMARY.md**: This document
 
 ## How to Use
@@ -177,12 +197,14 @@ import {
   calculateBaseAmount,
 } from '@care-commons/billing-invoicing';
 
-const pool = new Pool({ /* config */ });
+const pool = new Pool({
+  /* config */
+});
 const billingRepo = new BillingRepository(pool);
 
 // Create billable item
 const units = calculateUnits(120, 'HOUR', 'QUARTER_HOUR'); // 2.0 hours
-const amount = calculateBaseAmount(units, 28.00); // $56.00
+const amount = calculateBaseAmount(units, 28.0); // $56.00
 
 const item = await billingRepo.createBillableItem({
   // ... full input
@@ -205,7 +227,8 @@ See `USAGE.md` for complete examples.
 
 ### ✅ Completed
 
-1. **Type System**: Comprehensive TypeScript types for all entities and operations
+1. **Type System**: Comprehensive TypeScript types for all entities and
+   operations
 2. **Database Schema**: Optimized tables with proper indexes and constraints
 3. **Validation**: Input validation with business rule enforcement
 4. **Calculations**: Production-ready calculation utilities with proper rounding
@@ -215,7 +238,8 @@ See `USAGE.md` for complete examples.
 
 ### ⚠️ Remaining for Full Production
 
-1. **Service Layer**: Business logic workflows (invoice generation automation, claim submission)
+1. **Service Layer**: Business logic workflows (invoice generation automation,
+   claim submission)
 2. **API Handlers**: REST/GraphQL endpoints for external integrations
 3. **Tests**: Unit and integration tests for all layers
 4. **Claims Submission**: EDI 837 generation and clearinghouse integration
@@ -231,12 +255,14 @@ See `USAGE.md` for complete examples.
 ### 1. No Mocked Data in Production Code
 
 All placeholder data has been removed. Functions either:
+
 - Work with real data
 - Throw descriptive exceptions for unimplemented features
 
 ### 2. Comprehensive Validation
 
 Validation happens at multiple levels:
+
 - Input validation before creation
 - Business rule validation during operations
 - Status transition validation for state machines
@@ -244,6 +270,7 @@ Validation happens at multiple levels:
 ### 3. Transaction Support
 
 All repository operations accept an optional `PoolClient` parameter, enabling:
+
 - Multi-step atomic operations
 - Rollback on failure
 - Consistent state across related entities
@@ -251,6 +278,7 @@ All repository operations accept an optional `PoolClient` parameter, enabling:
 ### 4. Flexible Rate Calculation
 
 Rate calculation supports:
+
 - Multiple unit types
 - Time-based modifiers (weekend, holiday, night, overtime)
 - Geographic modifiers (rural, urban)
@@ -260,6 +288,7 @@ Rate calculation supports:
 ### 5. Audit Trail
 
 Every entity tracks:
+
 - Complete status history with timestamps
 - Created/updated by user IDs
 - Soft delete for financial records
@@ -268,6 +297,7 @@ Every entity tracks:
 ### 6. Extensibility
 
 The architecture supports future enhancements:
+
 - Additional payer types
 - New rate schedule types
 - Custom modifiers and adjustments
@@ -317,19 +347,24 @@ The architecture supports future enhancements:
 ## Metrics
 
 - **Lines of Code**: ~3,500 (utilities, validation, repository, seed data)
-- **Entity Types**: 8 major entities (Payer, RateSchedule, Authorization, BillableItem, Invoice, Payment, Claim, Report)
+- **Entity Types**: 8 major entities (Payer, RateSchedule, Authorization,
+  BillableItem, Invoice, Payment, Claim, Report)
 - **Validation Rules**: 100+ business rules enforced
 - **Database Tables**: 7 tables with 40+ indexes
-- **Seed Data**: 5 payers, 3 rate schedules, 15+ billable items, multiple invoices and payments
+- **Seed Data**: 5 payers, 3 rate schedules, 15+ billable items, multiple
+  invoices and payments
 
 ## Conclusion
 
-The Billing & Invoicing vertical now provides a solid, production-ready foundation for revenue cycle management. The implementation focuses on:
+The Billing & Invoicing vertical now provides a solid, production-ready
+foundation for revenue cycle management. The implementation focuses on:
 
 - **Correctness**: Comprehensive validation and calculation accuracy
-- **Flexibility**: Support for multiple payer types, rate structures, and workflows
+- **Flexibility**: Support for multiple payer types, rate structures, and
+  workflows
 - **Compliance**: HIPAA, Medicaid/Medicare, state-specific requirements
 - **Usability**: Clear APIs, helpful error messages, realistic demo data
 - **Maintainability**: Clean architecture, comprehensive documentation
 
-The remaining work (service layer, API handlers, tests) can build upon this foundation without requiring changes to the core data model or repository layer.
+The remaining work (service layer, API handlers, tests) can build upon this
+foundation without requiring changes to the core data model or repository layer.

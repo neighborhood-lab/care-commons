@@ -1,11 +1,11 @@
 /**
  * Database nuke script
- * 
+ *
  * WARNING: This script will DROP ALL TABLES and EXTENSIONS!
  * Use with extreme caution - this is a destructive operation.
  */
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import knex, { Knex } from 'knex';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -30,9 +30,10 @@ dotenv.config({ path: '.env', quiet: true });
 async function nukeDatabase() {
   // Determine environment
   const environment = process.env.NODE_ENV || 'development';
-  const dbName = environment === 'test'
-    ? (process.env.DB_NAME || 'care_commons') + '_test'
-    : process.env.DB_NAME || 'care_commons';
+  const dbName =
+    environment === 'test'
+      ? (process.env.DB_NAME || 'care_commons') + '_test'
+      : process.env.DB_NAME || 'care_commons';
 
   console.log('💣 Database Nuke Script\n');
   console.log(`Environment: ${environment}`);

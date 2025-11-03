@@ -1,6 +1,6 @@
 /**
  * API Handlers for Shift Matching & Assignment
- * 
+ *
  * HTTP request handlers for:
  * - Scheduler operations (create open shifts, run matching, review candidates)
  * - Caregiver self-service (browse available shifts, accept/reject proposals)
@@ -62,7 +62,7 @@ export class ShiftMatchingHandlers {
   /**
    * POST /shifts/open/:id/match
    * Run matching algorithm for an open shift
-   * 
+   *
    * Request body:
    * {
    *   "configurationId": "uuid",  // optional
@@ -107,7 +107,10 @@ export class ShiftMatchingHandlers {
    * GET /shifts/open/:id/proposals
    * Get all proposals for an open shift
    */
-  async getProposalsForShift(openShiftId: string, _context: UserContext): Promise<AssignmentProposal[]> {
+  async getProposalsForShift(
+    openShiftId: string,
+    _context: UserContext
+  ): Promise<AssignmentProposal[]> {
     return this.repository.getProposalsByOpenShift(openShiftId);
   }
 
@@ -136,36 +139,38 @@ export class ShiftMatchingHandlers {
 
     // For manual proposals, create a minimal candidate since we're bypassing the algorithm
     const manualCandidate: MatchCandidate = {
-        caregiverId: input.caregiverId,
-        openShiftId: input.openShiftId,
-        caregiverName: '',
-        caregiverPhone: '',
-        employmentType: '',
-        overallScore: 100, // Manual proposals get perfect score
-        matchQuality: 'EXCELLENT',
-        scores: {
-          skillMatch: 100,
-          availabilityMatch: 100,
-          proximityMatch: 100,
-          preferenceMatch: 100,
-          experienceMatch: 100,
-          reliabilityMatch: 100,
-          complianceMatch: 100,
-          capacityMatch: 100,
-        },
-        isEligible: true,
-        eligibilityIssues: [],
-        warnings: [],
-        hasConflict: false,
-        availableHours: 0,
-        matchReasons: [{
+      caregiverId: input.caregiverId,
+      openShiftId: input.openShiftId,
+      caregiverName: '',
+      caregiverPhone: '',
+      employmentType: '',
+      overallScore: 100, // Manual proposals get perfect score
+      matchQuality: 'EXCELLENT',
+      scores: {
+        skillMatch: 100,
+        availabilityMatch: 100,
+        proximityMatch: 100,
+        preferenceMatch: 100,
+        experienceMatch: 100,
+        reliabilityMatch: 100,
+        complianceMatch: 100,
+        capacityMatch: 100,
+      },
+      isEligible: true,
+      eligibilityIssues: [],
+      warnings: [],
+      hasConflict: false,
+      availableHours: 0,
+      matchReasons: [
+        {
           category: 'SYSTEM_OPTIMIZED',
           description: 'Manual assignment',
           impact: 'POSITIVE',
           weight: 0,
-        }],
-        computedAt: new Date(),
-      };
+        },
+      ],
+      computedAt: new Date(),
+    };
 
     return this.service.createProposal(input, manualCandidate, context);
   }
@@ -217,10 +222,7 @@ export class ShiftMatchingHandlers {
     statuses: string[] | undefined,
     _context: UserContext
   ): Promise<AssignmentProposal[]> {
-    return this.service.getCaregiverProposals(
-      caregiverId,
-      statuses as ProposalStatus[]
-    );
+    return this.service.getCaregiverProposals(caregiverId, statuses as ProposalStatus[]);
   }
 
   /**
@@ -235,7 +237,11 @@ export class ShiftMatchingHandlers {
    * POST /caregiver/proposals/:id/accept
    * Caregiver accepts a shift proposal
    */
-  async acceptProposal(proposalId: string, notes: string | undefined, context: UserContext): Promise<AssignmentProposal> {
+  async acceptProposal(
+    proposalId: string,
+    notes: string | undefined,
+    context: UserContext
+  ): Promise<AssignmentProposal> {
     const input: RespondToProposalInput = {
       proposalId,
       accept: true,
@@ -300,7 +306,10 @@ export class ShiftMatchingHandlers {
    * GET /caregiver/preferences
    * Get caregiver shift preferences
    */
-  async getCaregiverPreferences(caregiverId: string, _context: UserContext): Promise<CaregiverPreferenceProfile | null> {
+  async getCaregiverPreferences(
+    caregiverId: string,
+    _context: UserContext
+  ): Promise<CaregiverPreferenceProfile | null> {
     return this.repository.getCaregiverPreferences(caregiverId);
   }
 
@@ -314,7 +323,10 @@ export class ShiftMatchingHandlers {
    * POST /configurations
    * Create a new matching configuration
    */
-  async createConfiguration(input: Omit<MatchingConfiguration, 'id' | 'createdAt' | 'updatedAt' | 'version'>, context: UserContext): Promise<MatchingConfiguration> {
+  async createConfiguration(
+    input: Omit<MatchingConfiguration, 'id' | 'createdAt' | 'updatedAt' | 'version'>,
+    context: UserContext
+  ): Promise<MatchingConfiguration> {
     return this.repository.createMatchingConfiguration(input, context);
   }
 
@@ -322,7 +334,10 @@ export class ShiftMatchingHandlers {
    * GET /configurations/:id
    * Get a specific matching configuration
    */
-  async getConfiguration(configId: string, _context: UserContext): Promise<MatchingConfiguration | null> {
+  async getConfiguration(
+    configId: string,
+    _context: UserContext
+  ): Promise<MatchingConfiguration | null> {
     return this.repository.getMatchingConfiguration(configId);
   }
 
@@ -330,7 +345,11 @@ export class ShiftMatchingHandlers {
    * PUT /configurations/:id
    * Update a matching configuration
    */
-  async updateConfiguration(configId: string, input: Partial<MatchingConfiguration>, context: UserContext): Promise<MatchingConfiguration> {
+  async updateConfiguration(
+    configId: string,
+    input: Partial<MatchingConfiguration>,
+    context: UserContext
+  ): Promise<MatchingConfiguration> {
     return this.repository.updateMatchingConfiguration(configId, input, context);
   }
 
@@ -350,7 +369,9 @@ export class ShiftMatchingHandlers {
    * POST /admin/expire-stale-proposals
    * Manually trigger expiration of old proposals
    */
-  async expireStaleProposals(context: UserContext): Promise<{ success: boolean; expiredCount: number; message: string }> {
+  async expireStaleProposals(
+    context: UserContext
+  ): Promise<{ success: boolean; expiredCount: number; message: string }> {
     const count = await this.service.expireStaleProposals(context);
     return {
       success: true,
@@ -395,12 +416,12 @@ export class ShiftMatchingHandlers {
 
     const row = result.rows[0];
 
-    const totalShifts = parseInt((row.total_open_shifts ?? '0'), 10);
-    const matched = parseInt((row.shifts_matched ?? '0'), 10);
+    const totalShifts = parseInt(row.total_open_shifts ?? '0', 10);
+    const matched = parseInt(row.shifts_matched ?? '0', 10);
 
-    const proposalsAccepted = parseInt((row.proposals_accepted ?? '0'), 10);
-    const proposalsRejected = parseInt((row.proposals_rejected ?? '0'), 10);
-    const proposalsExpired = parseInt((row.proposals_expired ?? '0'), 10);
+    const proposalsAccepted = parseInt(row.proposals_accepted ?? '0', 10);
+    const proposalsRejected = parseInt(row.proposals_rejected ?? '0', 10);
+    const proposalsExpired = parseInt(row.proposals_expired ?? '0', 10);
     const totalProposals = proposalsAccepted + proposalsRejected + proposalsExpired;
 
     return {
@@ -408,11 +429,11 @@ export class ShiftMatchingHandlers {
       periodEnd,
       totalOpenShifts: totalShifts,
       shiftsMatched: matched,
-      shiftsUnmatched: parseInt((row.shifts_unmatched ?? '0'), 10),
+      shiftsUnmatched: parseInt(row.shifts_unmatched ?? '0', 10),
       matchRate: totalShifts > 0 ? (matched / totalShifts) * 100 : 0,
-      averageMatchScore: parseFloat((row.average_match_score ?? '0')),
+      averageMatchScore: parseFloat(row.average_match_score ?? '0'),
       averageCandidatesPerShift: 0, // Not calculated in this query
-      averageResponseTimeMinutes: parseFloat((row.average_response_time ?? '0')),
+      averageResponseTimeMinutes: parseFloat(row.average_response_time ?? '0'),
       proposalAcceptanceRate: totalProposals > 0 ? (proposalsAccepted / totalProposals) * 100 : 0,
       proposalRejectionRate: totalProposals > 0 ? (proposalsRejected / totalProposals) * 100 : 0,
       proposalExpirationRate: totalProposals > 0 ? (proposalsExpired / totalProposals) * 100 : 0,
@@ -451,8 +472,8 @@ export class ShiftMatchingHandlers {
     );
 
     const row = result.rows[0];
-    const proposed = parseInt((row.proposals_received ?? '0'), 10);
-    const accepted = parseInt((row.proposals_accepted ?? '0'), 10);
+    const proposed = parseInt(row.proposals_received ?? '0', 10);
+    const accepted = parseInt(row.proposals_accepted ?? '0', 10);
 
     return {
       caregiverId,
@@ -461,11 +482,11 @@ export class ShiftMatchingHandlers {
       periodEnd,
       proposalsReceived: proposed,
       proposalsAccepted: accepted,
-      proposalsRejected: parseInt((row.proposals_rejected ?? '0'), 10),
-      proposalsExpired: parseInt((row.proposals_expired ?? '0'), 10),
+      proposalsRejected: parseInt(row.proposals_rejected ?? '0', 10),
+      proposalsExpired: parseInt(row.proposals_expired ?? '0', 10),
       acceptanceRate: proposed > 0 ? (accepted / proposed) * 100 : 0,
-      averageMatchScore: parseFloat((row.average_match_score ?? '0')),
-      averageResponseTimeMinutes: parseFloat((row.average_response_time ?? '0')),
+      averageMatchScore: parseFloat(row.average_match_score ?? '0'),
+      averageResponseTimeMinutes: parseFloat(row.average_response_time ?? '0'),
       shiftsCompleted: 0, // Not calculated in this query
       noShowCount: 0, // Not calculated in this query
       cancellationCount: 0, // Not calculated in this query

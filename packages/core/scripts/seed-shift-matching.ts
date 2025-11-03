@@ -1,6 +1,6 @@
 /**
  * Seed data for Shift Matching & Assignment vertical
- * 
+ *
  * Creates realistic matching scenarios for demo and testing:
  * - Configures default matching rules
  * - Creates open shifts with diverse requirements
@@ -41,10 +41,9 @@ async function seedShiftMatching(pool: Pool): Promise<void> {
   const branchId = branchResult.rows[0].id;
 
   // Get system user
-  const userResult = await pool.query(
-    'SELECT id FROM users WHERE organization_id = $1 LIMIT 1',
-    [organizationId]
-  );
+  const userResult = await pool.query('SELECT id FROM users WHERE organization_id = $1 LIMIT 1', [
+    organizationId,
+  ]);
   const systemUserId = userResult.rows[0]?.id || uuidv4();
 
   // Get clients
@@ -60,7 +59,7 @@ async function seedShiftMatching(pool: Pool): Promise<void> {
 
   // Get caregivers
   const caregiverResult = await pool.query(
-    'SELECT id FROM caregivers WHERE organization_id = $1 AND status = \'ACTIVE\' LIMIT 8',
+    "SELECT id FROM caregivers WHERE organization_id = $1 AND status = 'ACTIVE' LIMIT 8",
     [organizationId]
   );
   const caregiverIds = caregiverResult.rows.map((r) => r.id);
@@ -214,7 +213,11 @@ async function createVisitsForMatching(pool: Pool, context: SeedContext): Promis
   return visitIds;
 }
 
-async function createOpenShifts(pool: Pool, context: SeedContext, visitIds: string[]): Promise<string[]> {
+async function createOpenShifts(
+  pool: Pool,
+  context: SeedContext,
+  visitIds: string[]
+): Promise<string[]> {
   console.log('  Creating open shifts...');
 
   const openShiftIds: string[] = [];
@@ -301,7 +304,8 @@ async function createStateSpecificShifts(pool: Pool, context: SeedContext): Prom
 
   // TX Shift requiring EVV-enrolled caregiver
   const txShiftId = uuidv4();
-  await pool.query(`
+  await pool.query(
+    `
     INSERT INTO shift_requirements (
       id, client_id, service_type, start_time, end_time,
       required_skills, required_certifications, state, status, created_by
@@ -309,11 +313,14 @@ async function createStateSpecificShifts(pool: Pool, context: SeedContext): Prom
       $1, $2, 'PERSONAL_CARE', '2025-02-01 08:00:00', '2025-02-01 12:00:00',
       ARRAY['TRANSFER', 'MOBILITY'], ARRAY['CNA'], 'TX', 'OPEN', $3
     )
-  `, [txShiftId, context.clientIds[0], context.systemUserId]);
+  `,
+    [txShiftId, context.clientIds[0], context.systemUserId]
+  );
 
   // FL Shift requiring Level 2 cleared RN
   const flShiftId = uuidv4();
-  await pool.query(`
+  await pool.query(
+    `
     INSERT INTO shift_requirements (
       id, client_id, service_type, start_time, end_time,
       required_skills, required_certifications, language_preference, state, status, created_by
@@ -321,7 +328,9 @@ async function createStateSpecificShifts(pool: Pool, context: SeedContext): Prom
       $1, $2, 'SKILLED_NURSING', '2025-02-01 14:00:00', '2025-02-01 16:00:00',
       ARRAY['WOUND_CARE'], ARRAY['RN'], 'SPANISH', 'FL', 'OPEN', $3
     )
-  `, [flShiftId, context.clientIds[1] || context.clientIds[0], context.systemUserId]);
+  `,
+    [flShiftId, context.clientIds[1] || context.clientIds[0], context.systemUserId]
+  );
 }
 
 async function createCaregiverPreferences(pool: Pool, context: SeedContext): Promise<void> {
@@ -332,12 +341,13 @@ async function createCaregiverPreferences(pool: Pool, context: SeedContext): Pro
     const prefId = uuidv4();
 
     // Vary preferences
-    const preferredDays = i % 2 === 0
-      ? JSON.stringify(['MONDAY', 'WEDNESDAY', 'FRIDAY'])
-      : JSON.stringify(['TUESDAY', 'THURSDAY', 'SATURDAY']);
+    const preferredDays =
+      i % 2 === 0
+        ? JSON.stringify(['MONDAY', 'WEDNESDAY', 'FRIDAY'])
+        : JSON.stringify(['TUESDAY', 'THURSDAY', 'SATURDAY']);
 
-    const maxDistance = 15 + (i * 5) % 20; // 15-35 miles
-    const maxHours = 30 + (i * 5) % 20; // 30-50 hours/week
+    const maxDistance = 15 + ((i * 5) % 20); // 15-35 miles
+    const maxHours = 30 + ((i * 5) % 20); // 30-50 hours/week
     const acceptUrgent = i % 3 !== 0; // Most accept urgent
     const acceptWeekends = i % 2 === 0; // Half accept weekends
     const autoAssign = i % 4 === 0; // Quarter accept auto-assignment
@@ -423,9 +433,24 @@ async function createProposalScenarios(
         shift.visit_id,
         caregiverId,
         JSON.stringify([
-          { category: 'SKILL', description: 'Has all required skills', impact: 'POSITIVE', weight: 0.2 },
-          { category: 'AVAILABILITY', description: 'No schedule conflicts', impact: 'POSITIVE', weight: 0.2 },
-          { category: 'PREFERENCE', description: 'Preferred by client', impact: 'POSITIVE', weight: 0.1 },
+          {
+            category: 'SKILL',
+            description: 'Has all required skills',
+            impact: 'POSITIVE',
+            weight: 0.2,
+          },
+          {
+            category: 'AVAILABILITY',
+            description: 'No schedule conflicts',
+            impact: 'POSITIVE',
+            weight: 0.2,
+          },
+          {
+            category: 'PREFERENCE',
+            description: 'Preferred by client',
+            impact: 'POSITIVE',
+            weight: 0.1,
+          },
         ]),
         context.systemUserId,
       ]
@@ -433,12 +458,12 @@ async function createProposalScenarios(
 
     // Update visit and shift status
     await pool.query(
-      'UPDATE visits SET assigned_caregiver_id = $1, status = \'SCHEDULED\', updated_at = NOW() WHERE id = $2',
+      "UPDATE visits SET assigned_caregiver_id = $1, status = 'SCHEDULED', updated_at = NOW() WHERE id = $2",
       [caregiverId, shift.visit_id]
     );
 
     await pool.query(
-      'UPDATE open_shifts SET matching_status = \'ASSIGNED\', updated_at = NOW() WHERE id = $1',
+      "UPDATE open_shifts SET matching_status = 'ASSIGNED', updated_at = NOW() WHERE id = $1",
       [openShiftId]
     );
   }
@@ -486,16 +511,31 @@ async function createProposalScenarios(
         shift.visit_id,
         caregiverId,
         JSON.stringify([
-          { category: 'SKILL', description: 'Has required skills', impact: 'POSITIVE', weight: 0.2 },
-          { category: 'AVAILABILITY', description: 'Available for shift', impact: 'POSITIVE', weight: 0.2 },
-          { category: 'PROXIMITY', description: '25 miles from client', impact: 'NEGATIVE', weight: 0.15 },
+          {
+            category: 'SKILL',
+            description: 'Has required skills',
+            impact: 'POSITIVE',
+            weight: 0.2,
+          },
+          {
+            category: 'AVAILABILITY',
+            description: 'Available for shift',
+            impact: 'POSITIVE',
+            weight: 0.2,
+          },
+          {
+            category: 'PROXIMITY',
+            description: '25 miles from client',
+            impact: 'NEGATIVE',
+            weight: 0.15,
+          },
         ]),
         context.systemUserId,
       ]
     );
 
     await pool.query(
-      'UPDATE open_shifts SET matching_status = \'MATCHED\', match_attempts = 1, updated_at = NOW() WHERE id = $1',
+      "UPDATE open_shifts SET matching_status = 'MATCHED', match_attempts = 1, updated_at = NOW() WHERE id = $1",
       [openShiftId]
     );
   }
@@ -537,16 +577,26 @@ async function createProposalScenarios(
         shift.visit_id,
         caregiverId,
         JSON.stringify([
-          { category: 'SKILL', description: 'Perfect skill match', impact: 'POSITIVE', weight: 0.2 },
+          {
+            category: 'SKILL',
+            description: 'Perfect skill match',
+            impact: 'POSITIVE',
+            weight: 0.2,
+          },
           { category: 'AVAILABILITY', description: 'Available', impact: 'POSITIVE', weight: 0.2 },
-          { category: 'PROXIMITY', description: 'Close to client (5 miles)', impact: 'POSITIVE', weight: 0.15 },
+          {
+            category: 'PROXIMITY',
+            description: 'Close to client (5 miles)',
+            impact: 'POSITIVE',
+            weight: 0.15,
+          },
         ]),
         context.systemUserId,
       ]
     );
 
     await pool.query(
-      'UPDATE open_shifts SET matching_status = \'PROPOSED\', match_attempts = 1, last_matched_at = NOW(), updated_at = NOW() WHERE id = $1',
+      "UPDATE open_shifts SET matching_status = 'PROPOSED', match_attempts = 1, last_matched_at = NOW(), updated_at = NOW() WHERE id = $1",
       [openShiftId]
     );
   }

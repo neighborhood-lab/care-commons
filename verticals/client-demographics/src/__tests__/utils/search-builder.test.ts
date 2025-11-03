@@ -3,7 +3,11 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ClientSearchBuilder, createClientSearch, ClientSearchTemplates } from '../../utils/search-builder';
+import {
+  ClientSearchBuilder,
+  createClientSearch,
+  ClientSearchTemplates,
+} from '../../utils/search-builder';
 
 describe('ClientSearchBuilder', () => {
   let builder: ClientSearchBuilder;
@@ -111,10 +115,7 @@ describe('ClientSearchBuilder', () => {
 
   describe('Reset and Clone', () => {
     it('should reset filters', () => {
-      const resultBefore = builder
-        .activeOnly()
-        .inCity('Springfield')
-        .build();
+      const resultBefore = builder.activeOnly().inCity('Springfield').build();
 
       expect(resultBefore.status).toBeDefined();
       expect(resultBefore.city).toBeDefined();

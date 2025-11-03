@@ -1,7 +1,12 @@
 import React from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Input, Select, Button } from '@/core/components';
-import type { CarePlanSearchFilters, CarePlanStatus, CarePlanType, ComplianceStatus } from '../types';
+import type {
+  CarePlanSearchFilters,
+  CarePlanStatus,
+  CarePlanType,
+  ComplianceStatus,
+} from '../types';
 
 export interface CarePlanSearchProps {
   filters: CarePlanSearchFilters;
@@ -78,7 +83,7 @@ export const CarePlanSearch: React.FC<CarePlanSearchProps> = ({ filters, onFilte
               })
             }
           />
-          
+
           <Select
             label="Plan Type"
             options={planTypeOptions}
@@ -90,7 +95,7 @@ export const CarePlanSearch: React.FC<CarePlanSearchProps> = ({ filters, onFilte
               })
             }
           />
-          
+
           <Select
             label="Compliance Status"
             options={complianceOptions}
@@ -102,39 +107,39 @@ export const CarePlanSearch: React.FC<CarePlanSearchProps> = ({ filters, onFilte
               })
             }
           />
-          
+
           <Input
             label="Coordinator ID"
             value={filters.coordinatorId || ''}
             onChange={(e) => onFiltersChange({ ...filters, coordinatorId: e.target.value })}
           />
-          
+
           <Input
             label="Client ID"
             value={filters.clientId || ''}
             onChange={(e) => onFiltersChange({ ...filters, clientId: e.target.value })}
           />
-          
+
           <Input
             label="Organization ID"
             value={filters.organizationId || ''}
             onChange={(e) => onFiltersChange({ ...filters, organizationId: e.target.value })}
           />
-          
+
           <Input
             label="Branch ID"
             value={filters.branchId || ''}
             onChange={(e) => onFiltersChange({ ...filters, branchId: e.target.value })}
           />
-          
+
           <Input
             label="Expiring Within (days)"
             type="number"
             value={filters.expiringWithinDays?.toString() || ''}
-            onChange={(e) => 
-              onFiltersChange({ 
-                ...filters, 
-                expiringWithinDays: e.target.value ? parseInt(e.target.value) : undefined 
+            onChange={(e) =>
+              onFiltersChange({
+                ...filters,
+                expiringWithinDays: e.target.value ? parseInt(e.target.value) : undefined,
               })
             }
           />

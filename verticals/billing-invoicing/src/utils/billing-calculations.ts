@@ -1,16 +1,11 @@
 /**
  * Billing calculation utilities
- * 
+ *
  * Provides functions for rate calculations, rounding, modifiers,
  * and financial amount computations used across billing operations.
  */
 
-import {
-  UnitType,
-  RoundingRule,
-  BillingModifier,
-  ServiceRate,
-} from '../types/billing';
+import { UnitType, RoundingRule, BillingModifier, ServiceRate } from '../types/billing';
 
 /**
  * Calculate billable units from duration in minutes
@@ -89,10 +84,7 @@ export function calculateBaseAmount(units: number, unitRate: number): number {
 /**
  * Apply billing modifiers to amount
  */
-export function applyModifiers(
-  baseAmount: number,
-  modifiers?: BillingModifier[]
-): number {
+export function applyModifiers(baseAmount: number, modifiers?: BillingModifier[]): number {
   if (!modifiers || modifiers.length === 0) {
     return baseAmount;
   }
@@ -203,11 +195,7 @@ export function isHoliday(date: Date): boolean {
  * @param weekday - Day of week (0=Sunday, 1=Monday, etc.)
  * @param nth - Which occurrence (1=first, 2=second, etc.)
  */
-function isNthWeekdayOfMonth(
-  date: Date,
-  weekday: number,
-  nth: number
-): boolean {
+function isNthWeekdayOfMonth(date: Date, weekday: number, nth: number): boolean {
   if (date.getDay() !== weekday) return false;
 
   const dayOfMonth = date.getDate();
@@ -233,11 +221,7 @@ function isLastWeekdayOfMonth(date: Date, weekday: number): boolean {
 /**
  * Check if time is during night shift (typically 10 PM - 6 AM)
  */
-export function isNightShift(
-  time: Date,
-  nightStart: number = 22,
-  nightEnd: number = 6
-): boolean {
+export function isNightShift(time: Date, nightStart: number = 22, nightEnd: number = 6): boolean {
   const hour = time.getHours();
 
   if (nightStart > nightEnd) {
@@ -273,10 +257,7 @@ export function calculateInvoiceTotal(
 /**
  * Calculate balance due
  */
-export function calculateBalanceDue(
-  totalAmount: number,
-  paidAmount: number
-): number {
+export function calculateBalanceDue(totalAmount: number, paidAmount: number): number {
   const balance = totalAmount - paidAmount;
   return roundToTwoDecimals(Math.max(0, balance)); // Never negative
 }
@@ -301,10 +282,7 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
 /**
  * Calculate collection rate (percentage)
  */
-export function calculateCollectionRate(
-  totalBilled: number,
-  totalPaid: number
-): number {
+export function calculateCollectionRate(totalBilled: number, totalPaid: number): number {
   if (totalBilled === 0) return 0;
   return roundToTwoDecimals((totalPaid / totalBilled) * 100);
 }
@@ -312,10 +290,7 @@ export function calculateCollectionRate(
 /**
  * Calculate denial rate (percentage)
  */
-export function calculateDenialRate(
-  totalClaims: number,
-  deniedClaims: number
-): number {
+export function calculateDenialRate(totalClaims: number, deniedClaims: number): number {
   if (totalClaims === 0) return 0;
   return roundToTwoDecimals((deniedClaims / totalClaims) * 100);
 }
@@ -330,8 +305,7 @@ export function calculateAveragePaymentDays(
 
   const totalDays = invoices.reduce((sum, invoice) => {
     const days = Math.floor(
-      (invoice.paymentDate.getTime() - invoice.invoiceDate.getTime()) /
-        (1000 * 60 * 60 * 24)
+      (invoice.paymentDate.getTime() - invoice.invoiceDate.getTime()) / (1000 * 60 * 60 * 24)
     );
     return sum + days;
   }, 0);
@@ -349,15 +323,10 @@ export function isInvoicePastDue(dueDate: Date, currentDate: Date = new Date()):
 /**
  * Calculate days past due
  */
-export function calculateDaysPastDue(
-  dueDate: Date,
-  currentDate: Date = new Date()
-): number {
+export function calculateDaysPastDue(dueDate: Date, currentDate: Date = new Date()): number {
   if (!isInvoicePastDue(dueDate, currentDate)) return 0;
 
-  const days = Math.floor(
-    (currentDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const days = Math.floor((currentDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
 
   return Math.max(0, days);
 }
@@ -404,21 +373,14 @@ export function validateInvoiceAmounts(invoice: {
   );
 
   if (Math.abs(invoice.totalAmount - expectedTotal) > 0.01) {
-    errors.push(
-      `Total amount mismatch: expected ${expectedTotal}, got ${invoice.totalAmount}`
-    );
+    errors.push(`Total amount mismatch: expected ${expectedTotal}, got ${invoice.totalAmount}`);
   }
 
   // Calculate expected balance
-  const expectedBalance = calculateBalanceDue(
-    invoice.totalAmount,
-    invoice.paidAmount
-  );
+  const expectedBalance = calculateBalanceDue(invoice.totalAmount, invoice.paidAmount);
 
   if (Math.abs(invoice.balanceDue - expectedBalance) > 0.01) {
-    errors.push(
-      `Balance due mismatch: expected ${expectedBalance}, got ${invoice.balanceDue}`
-    );
+    errors.push(`Balance due mismatch: expected ${expectedBalance}, got ${invoice.balanceDue}`);
   }
 
   // Check for negative amounts where not allowed
@@ -503,10 +465,7 @@ export function getServiceDateRange(
 /**
  * Calculate due date from invoice date and payment terms
  */
-export function calculateDueDate(
-  invoiceDate: Date,
-  paymentTermsDays: number
-): Date {
+export function calculateDueDate(invoiceDate: Date, paymentTermsDays: number): Date {
   const dueDate = new Date(invoiceDate);
   dueDate.setDate(dueDate.getDate() + paymentTermsDays);
   return dueDate;

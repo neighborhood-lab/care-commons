@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Search, Filter, Grid, List } from 'lucide-react';
-import { 
-  Button, 
-  LoadingSpinner, 
-  EmptyState, 
-  ErrorMessage, 
-  Input, 
+import {
+  Button,
+  LoadingSpinner,
+  EmptyState,
+  ErrorMessage,
+  Input,
   Select,
   Card,
   CardHeader,
-  CardContent
+  CardContent,
 } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { useTasks } from '../hooks';
@@ -24,12 +24,12 @@ export interface TaskInstanceListProps {
   onTaskClick?: (task: TaskInstance) => void;
 }
 
-export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({ 
+export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
   carePlanId,
   clientId,
   showFilters = true,
   showViewToggle = true,
-  onTaskClick 
+  onTaskClick,
 }) => {
   const { can } = usePermissions();
   const [filters, setFilters] = useState<TaskInstanceSearchFilters>({
@@ -50,10 +50,7 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
 
   if (error) {
     return (
-      <ErrorMessage
-        message={(error as Error).message || 'Failed to load tasks'}
-        retry={refetch}
-      />
+      <ErrorMessage message={(error as Error).message || 'Failed to load tasks'} retry={refetch} />
     );
   }
 
@@ -102,7 +99,7 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
     { label: 'Overdue', status: ['SCHEDULED'] as TaskStatus[], overdue: true },
   ];
 
-  const applyQuickFilter = (filter: typeof quickFilters[0]) => {
+  const applyQuickFilter = (filter: (typeof quickFilters)[0]) => {
     setFilters({
       ...filters,
       status: filter.status,
@@ -116,27 +113,21 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Tasks</h2>
-          <p className="text-gray-600 mt-1">
-            {data?.total || 0} total tasks
-          </p>
+          <p className="text-gray-600 mt-1">{data?.total || 0} total tasks</p>
         </div>
-        
+
         {showViewToggle && (
           <div className="flex gap-2">
             <div className="flex border border-gray-300 rounded-md">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 ${
-                  viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
-                }`}
+                className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               >
                 <Grid className="h-5 w-5" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 ${
-                  viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
-                }`}
+                className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               >
                 <List className="h-5 w-5" />
               </button>
@@ -200,7 +191,7 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
                   })
                 }
               />
-              
+
               <Select
                 label="Category"
                 options={categoryOptions}
@@ -212,27 +203,27 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
                   })
                 }
               />
-              
+
               <Input
                 label="Assigned Caregiver ID"
                 value={filters.assignedCaregiverId || ''}
                 onChange={(e) => setFilters({ ...filters, assignedCaregiverId: e.target.value })}
               />
-              
+
               <Input
                 label="Scheduled Date From"
                 type="date"
                 value={filters.scheduledDateFrom || ''}
                 onChange={(e) => setFilters({ ...filters, scheduledDateFrom: e.target.value })}
               />
-              
+
               <Input
                 label="Scheduled Date To"
                 type="date"
                 value={filters.scheduledDateTo || ''}
                 onChange={(e) => setFilters({ ...filters, scheduledDateTo: e.target.value })}
               />
-              
+
               <div className="flex items-center gap-2 pt-6">
                 <input
                   type="checkbox"
@@ -245,7 +236,7 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
                   Show Overdue Only
                 </label>
               </div>
-              
+
               <div className="flex items-center gap-2 pt-6">
                 <input
                   type="checkbox"
@@ -309,28 +300,30 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">
-                  {tasks.filter(t => t.status === 'SCHEDULED').length}
+                  {tasks.filter((t) => t.status === 'SCHEDULED').length}
                 </div>
                 <div className="text-sm text-gray-600">Scheduled</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">
-                  {tasks.filter(t => t.status === 'IN_PROGRESS').length}
+                  {tasks.filter((t) => t.status === 'IN_PROGRESS').length}
                 </div>
                 <div className="text-sm text-gray-600">In Progress</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {tasks.filter(t => t.status === 'COMPLETED').length}
+                  {tasks.filter((t) => t.status === 'COMPLETED').length}
                 </div>
                 <div className="text-sm text-gray-600">Completed</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
-                  {tasks.filter(t => {
-                    const scheduledDate = new Date(t.scheduledDate);
-                    return scheduledDate < new Date() && t.status === 'SCHEDULED';
-                  }).length}
+                  {
+                    tasks.filter((t) => {
+                      const scheduledDate = new Date(t.scheduledDate);
+                      return scheduledDate < new Date() && t.status === 'SCHEDULED';
+                    }).length
+                  }
                 </div>
                 <div className="text-sm text-gray-600">Overdue</div>
               </div>

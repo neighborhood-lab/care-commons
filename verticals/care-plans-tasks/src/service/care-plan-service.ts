@@ -1,10 +1,18 @@
 /**
  * Care Plan Service
- * 
+ *
  * Business logic for care plans and tasks management
  */
 
-import { UserContext, PaginationParams, PaginatedResult, UUID, NotFoundError, ValidationError, PermissionError } from '@care-commons/core';
+import {
+  UserContext,
+  PaginationParams,
+  PaginatedResult,
+  UUID,
+  NotFoundError,
+  ValidationError,
+  PermissionError,
+} from '@care-commons/core';
 import { PermissionService } from '@care-commons/core';
 import { addDays, isBefore } from 'date-fns';
 import {
@@ -35,7 +43,11 @@ export class CarePlanService {
   private permissions: PermissionService;
   private userRepository: IUserRepository;
 
-  constructor(repository: CarePlanRepository, permissions: PermissionService, userRepository: IUserRepository) {
+  constructor(
+    repository: CarePlanRepository,
+    permissions: PermissionService,
+    userRepository: IUserRepository
+  ) {
     this.repository = repository;
     this.permissions = permissions;
     this.userRepository = userRepository;
@@ -59,19 +71,22 @@ export class CarePlanService {
         input as CarePlan & Partial<StateSpecificCarePlanData>,
         input.stateJurisdiction
       );
-      
-      const blockingErrors = validation.errors.filter(e => e.severity === 'BLOCKING');
+
+      const blockingErrors = validation.errors.filter((e) => e.severity === 'BLOCKING');
       if (blockingErrors.length > 0) {
-        throw new Error(`Care plan does not meet ${input.stateJurisdiction} requirements: ${
-          blockingErrors.map(e => e.message).join('; ')
-        }`);
+        throw new Error(
+          `Care plan does not meet ${input.stateJurisdiction} requirements: ${blockingErrors
+            .map((e) => e.message)
+            .join('; ')}`
+        );
       }
     }
 
     // Calculate next review due date based on state requirements
-    const reviewIntervalDays = input.planReviewIntervalDays || 
+    const reviewIntervalDays =
+      input.planReviewIntervalDays ||
       (input.stateJurisdiction === 'TX' ? 60 : input.stateJurisdiction === 'FL' ? 60 : 90);
-    
+
     const nextReviewDue = new Date(input.effectiveDate);
     nextReviewDue.setDate(nextReviewDue.getDate() + reviewIntervalDays);
 
@@ -101,10 +116,7 @@ export class CarePlanService {
   /**
    * Get care plan by ID
    */
-  async getCarePlanById(
-    id: UUID,
-    context: UserContext
-  ): Promise<CarePlan> {
+  async getCarePlanById(id: UUID, context: UserContext): Promise<CarePlan> {
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'care-plans:read')) {
       throw new PermissionError('Insufficient permissions to read care plans');
@@ -143,16 +155,14 @@ export class CarePlanService {
     const existing = await this.getCarePlanById(id, context);
 
     // Prevent updates to completed/discontinued plans without proper permissions
-    if (['COMPLETED', 'DISCONTINUED'].includes(existing.status) &&
-      !this.permissions.hasPermission(context, 'care-plans:update:archived')) {
+    if (
+      ['COMPLETED', 'DISCONTINUED'].includes(existing.status) &&
+      !this.permissions.hasPermission(context, 'care-plans:update:archived')
+    ) {
       throw new PermissionError('Cannot update completed or discontinued care plans');
     }
 
-    const updated = await this.repository.updateCarePlan(
-      id,
-      validatedInput as any,
-      context.userId
-    );
+    const updated = await this.repository.updateCarePlan(id, validatedInput as any, context.userId);
 
     return updated;
   }
@@ -160,10 +170,7 @@ export class CarePlanService {
   /**
    * Activate a care plan
    */
-  async activateCarePlan(
-    id: UUID,
-    context: UserContext
-  ): Promise<CarePlan> {
+  async activateCarePlan(id: UUID, context: UserContext): Promise<CarePlan> {
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'care-plans:activate')) {
       throw new PermissionError('Insufficient permissions to activate care plans');
@@ -173,16 +180,18 @@ export class CarePlanService {
 
     // State compliance check before activation
     const carePlanWithState = carePlan as CarePlan & Partial<StateSpecificCarePlanData>;
-    if (carePlanWithState.stateJurisdiction && 
-        ['TX', 'FL'].includes(carePlanWithState.stateJurisdiction)) {
+    if (
+      carePlanWithState.stateJurisdiction &&
+      ['TX', 'FL'].includes(carePlanWithState.stateJurisdiction)
+    ) {
       const validation = StateComplianceValidator.validateCarePlanCompliance(
         carePlanWithState,
         carePlanWithState.stateJurisdiction
       );
-      
-      const blockingErrors = validation.errors.filter(e => e.severity === 'BLOCKING');
+
+      const blockingErrors = validation.errors.filter((e) => e.severity === 'BLOCKING');
       if (blockingErrors.length > 0) {
-        throw new Error(`Cannot activate: ${blockingErrors.map(e => e.message).join('; ')}`);
+        throw new Error(`Cannot activate: ${blockingErrors.map((e) => e.message).join('; ')}`);
       }
     }
 
@@ -195,24 +204,22 @@ export class CarePlanService {
     }
 
     // Check for existing active plan
-    const existingActive = await this.repository.getActiveCarePlanForClient(
-      carePlan.clientId
-    );
+    const existingActive = await this.repository.getActiveCarePlanForClient(carePlan.clientId);
 
     if (existingActive && existingActive.id !== id) {
       // Optionally expire the old plan
       await this.repository.updateCarePlan(
         existingActive.id,
         { status: 'EXPIRED' as CarePlanStatus },
-        context.userId,
+        context.userId
       );
     }
 
-    return await this.repository.updateCarePlan(
+    return (await this.repository.updateCarePlan(
       id,
       { status: 'ACTIVE' as CarePlanStatus },
-      context.userId,
-    ) as any;
+      context.userId
+    )) as any;
   }
 
   /**
@@ -243,10 +250,7 @@ export class CarePlanService {
   /**
    * Get care plans for a client
    */
-  async getCarePlansByClientId(
-    clientId: UUID,
-    context: UserContext
-  ): Promise<CarePlan[]> {
+  async getCarePlansByClientId(clientId: UUID, context: UserContext): Promise<CarePlan[]> {
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'care-plans:read')) {
       throw new PermissionError('Insufficient permissions to read care plans');
@@ -255,16 +259,13 @@ export class CarePlanService {
     const plans = await this.repository.getCarePlansByClientId(clientId);
 
     // Filter by organization
-    return plans.filter(plan => plan.organizationId === context.organizationId);
+    return plans.filter((plan) => plan.organizationId === context.organizationId);
   }
 
   /**
    * Get active care plan for a client
    */
-  async getActiveCarePlanForClient(
-    clientId: UUID,
-    context: UserContext
-  ): Promise<CarePlan | null> {
+  async getActiveCarePlanForClient(clientId: UUID, context: UserContext): Promise<CarePlan | null> {
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'care-plans:read')) {
       throw new PermissionError('Insufficient permissions to read care plans');
@@ -292,19 +293,13 @@ export class CarePlanService {
       throw new PermissionError('Insufficient permissions to read care plans');
     }
 
-    return await this.repository.getExpiringCarePlans(
-      context.organizationId,
-      daysUntilExpiration
-    );
+    return await this.repository.getExpiringCarePlans(context.organizationId, daysUntilExpiration);
   }
 
   /**
    * Delete care plan (soft delete)
    */
-  async deleteCarePlan(
-    id: UUID,
-    context: UserContext
-  ): Promise<void> {
+  async deleteCarePlan(id: UUID, context: UserContext): Promise<void> {
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'care-plans:delete')) {
       throw new PermissionError('Insufficient permissions to delete care plans');
@@ -345,19 +340,22 @@ export class CarePlanService {
 
       // Check if task should be created based on frequency
       if (this.shouldCreateTaskForDate(template, visitDate)) {
-        const task = await this.createTaskInstance({
-          carePlanId,
-          templateId: template.id,
-          visitId,
-          clientId: carePlan.clientId,
-          name: template.name,
-          description: template.description,
-          category: template.category,
-          instructions: template.instructions,
-          scheduledDate: visitDate,
-          requiredSignature: template.requiresSignature,
-          requiredNote: template.requiresNote,
-        }, context);
+        const task = await this.createTaskInstance(
+          {
+            carePlanId,
+            templateId: template.id,
+            visitId,
+            clientId: carePlan.clientId,
+            name: template.name,
+            description: template.description,
+            category: template.category,
+            instructions: template.instructions,
+            scheduledDate: visitDate,
+            requiredSignature: template.requiresSignature,
+            requiredNote: template.requiresNote,
+          },
+          context
+        );
 
         tasks.push(task);
       }
@@ -393,10 +391,7 @@ export class CarePlanService {
   /**
    * Get task instance by ID
    */
-  async getTaskInstanceById(
-    id: UUID,
-    context: UserContext
-  ): Promise<TaskInstance> {
+  async getTaskInstanceById(id: UUID, context: UserContext): Promise<TaskInstance> {
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'tasks:read')) {
       throw new PermissionError('Insufficient permissions to read tasks');
@@ -463,25 +458,25 @@ export class CarePlanService {
       completedAt: now,
       completedBy: context.userId,
     };
-    
+
     if (validatedInput.completionNote) {
       updateData.completionNote = validatedInput.completionNote;
     }
-    
+
     if (validatedInput.signature) {
       updateData.completionSignature = {
         ...validatedInput.signature,
         signedAt: now,
       };
     }
-    
+
     if (validatedInput.verificationData) {
       updateData.verificationData = {
         ...validatedInput.verificationData,
         verifiedAt: now,
         verifiedBy: context.userId,
       };
-      
+
       if (validatedInput.verificationData.gpsLocation) {
         updateData.verificationData.gpsLocation = {
           ...validatedInput.verificationData.gpsLocation,
@@ -490,20 +485,20 @@ export class CarePlanService {
         };
       }
     }
-    
+
     if (validatedInput.qualityCheckResponses) {
       updateData.qualityCheckResponses = validatedInput.qualityCheckResponses;
     }
-    
+
     if (validatedInput.customFieldValues) {
       updateData.customFieldValues = validatedInput.customFieldValues;
     }
 
-    const completed = await this.repository.updateTaskInstance(
+    const completed = (await this.repository.updateTaskInstance(
       id,
       updateData,
       context.userId
-    ) as any;
+    )) as any;
 
     return completed;
   }
@@ -538,16 +533,16 @@ export class CarePlanService {
       skippedBy: context.userId,
       skipReason: reason,
     };
-    
+
     if (note) {
       updateData.skipNote = note;
     }
 
-    const skipped = await this.repository.updateTaskInstance(
+    const skipped = (await this.repository.updateTaskInstance(
       id,
       updateData,
       context.userId
-    ) as any;
+    )) as any;
 
     return skipped;
   }
@@ -567,7 +562,7 @@ export class CarePlanService {
 
     await this.getTaskInstanceById(id, context);
 
-    const updated = await this.repository.updateTaskInstance(
+    const updated = (await this.repository.updateTaskInstance(
       id,
       {
         status: 'ISSUE_REPORTED',
@@ -577,7 +572,7 @@ export class CarePlanService {
         issueReportedBy: context.userId,
       },
       context.userId
-    ) as any;
+    )) as any;
 
     return updated;
   }
@@ -602,17 +597,14 @@ export class CarePlanService {
     const filteredFilters = Object.fromEntries(
       Object.entries(validatedFilters).filter(([_, value]) => value !== undefined)
     );
-    
+
     return await this.repository.searchTaskInstances(filteredFilters, pagination);
   }
 
   /**
    * Get tasks for a visit
    */
-  async getTasksByVisitId(
-    visitId: UUID,
-    context: UserContext
-  ): Promise<TaskInstance[]> {
+  async getTasksByVisitId(visitId: UUID, context: UserContext): Promise<TaskInstance[]> {
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'tasks:read')) {
       throw new PermissionError('Insufficient permissions to read tasks');
@@ -650,7 +642,7 @@ export class CarePlanService {
     // If your Timestamp is an ISO string alias, use: const now = new Date().toISOString() as unknown as Timestamp;
 
     // Add timestamp to observations
-    const observationsWithTimestamp = input.observations?.map(obs => ({
+    const observationsWithTimestamp = input.observations?.map((obs) => ({
       ...obs,
       timestamp: obs.timestamp || new Date(),
     }));
@@ -706,32 +698,35 @@ export class CarePlanService {
       { page: 1, limit: 10000 }
     );
 
-    const activePlans = plans.items.filter(p => p.status === 'ACTIVE');
-    const expiringPlans = plans.items.filter(p =>
-      p.expirationDate &&
-      isBefore(p.expirationDate, addDays(new Date(), 30))
+    const activePlans = plans.items.filter((p) => p.status === 'ACTIVE');
+    const expiringPlans = plans.items.filter(
+      (p) => p.expirationDate && isBefore(p.expirationDate, addDays(new Date(), 30))
     );
 
     // Calculate metrics
     let totalGoals = 0;
     let achievedGoals = 0;
 
-    plans.items.forEach(plan => {
+    plans.items.forEach((plan) => {
       totalGoals += plan.goals.length;
-      achievedGoals += plan.goals.filter(g => g.status === 'ACHIEVED').length;
+      achievedGoals += plan.goals.filter((g) => g.status === 'ACHIEVED').length;
     });
 
     // Get task metrics for organization
     const thirtyDaysAgo = addDays(new Date(), -30);
-    const taskMetrics = await this.getTaskCompletionMetrics({
-      dateFrom: thirtyDaysAgo,
-      dateTo: new Date(),
-      organizationId,
-    }, context);
+    const taskMetrics = await this.getTaskCompletionMetrics(
+      {
+        dateFrom: thirtyDaysAgo,
+        dateTo: new Date(),
+        organizationId,
+      },
+      context
+    );
 
     // Calculate compliance based on active plans with no expiring credentials
-    const compliantPlans = activePlans.filter(p => p.complianceStatus === 'COMPLIANT').length;
-    const complianceRate = activePlans.length > 0 ? (compliantPlans / activePlans.length) * 100 : 100;
+    const compliantPlans = activePlans.filter((p) => p.complianceStatus === 'COMPLIANT').length;
+    const complianceRate =
+      activePlans.length > 0 ? (compliantPlans / activePlans.length) * 100 : 100;
 
     return {
       totalPlans: plans.total,
@@ -765,29 +760,33 @@ export class CarePlanService {
       { page: 1, limit: 10000 }
     );
 
-    const completed = tasks.items.filter(t => t.status === 'COMPLETED');
-    const skipped = tasks.items.filter(t => t.status === 'SKIPPED');
-    const missed = tasks.items.filter(t => t.status === 'MISSED');
-    const issues = tasks.items.filter(t => t.issueReported);
+    const completed = tasks.items.filter((t) => t.status === 'COMPLETED');
+    const skipped = tasks.items.filter((t) => t.status === 'SKIPPED');
+    const missed = tasks.items.filter((t) => t.status === 'MISSED');
+    const issues = tasks.items.filter((t) => t.issueReported);
 
     // Group by category
-    const tasksByCategory = tasks.items.reduce((acc, task) => {
-      acc[task.category] = (acc[task.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const tasksByCategory = tasks.items.reduce(
+      (acc, task) => {
+        acc[task.category] = (acc[task.category] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     // Calculate average completion time
     const completionTimes = completed
-      .filter(t => t.completedAt && t.scheduledDate)
-      .map(t => {
+      .filter((t) => t.completedAt && t.scheduledDate)
+      .map((t) => {
         const scheduled = new Date(t.scheduledDate).getTime();
         const completed = new Date(t.completedAt!).getTime();
         return (completed - scheduled) / (1000 * 60); // minutes
       });
 
-    const avgCompletionTime = completionTimes.length > 0
-      ? completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length
-      : 0;
+    const avgCompletionTime =
+      completionTimes.length > 0
+        ? completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length
+        : 0;
 
     return {
       totalTasks: tasks.total,

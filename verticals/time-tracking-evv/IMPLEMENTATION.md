@@ -6,7 +6,11 @@
 
 ## Overview
 
-The Time Tracking & Electronic Visit Verification (EVV) vertical provides comprehensive capabilities for compliance with federal and state EVV requirements under the 21st Century Cures Act. The implementation captures accurate timing and location evidence of home care visits with robust anti-fraud measures.
+The Time Tracking & Electronic Visit Verification (EVV) vertical provides
+comprehensive capabilities for compliance with federal and state EVV
+requirements under the 21st Century Cures Act. The implementation captures
+accurate timing and location evidence of home care visits with robust anti-fraud
+measures.
 
 ## Completed Components
 
@@ -15,7 +19,9 @@ The Time Tracking & Electronic Visit Verification (EVV) vertical provides compre
 **File**: `src/types/evv.ts`
 
 Comprehensive type definitions including:
-- `EVVRecord` - Complete compliance record with all 6 required federal data elements
+
+- `EVVRecord` - Complete compliance record with all 6 required federal data
+  elements
 - `LocationVerification` - GPS-based location proof with integrity checks
 - `TimeEntry` - Individual clock events with offline support
 - `Geofence` - Virtual boundaries for location verification
@@ -23,6 +29,7 @@ Comprehensive type definitions including:
 - Support types for attestations, manual overrides, exceptions, and sync
 
 **Key Features**:
+
 - Federal EVV compliance (21st Century Cures Act)
 - State-specific extensibility
 - Tamper-evident design with cryptographic hashing
@@ -35,6 +42,7 @@ Comprehensive type definitions including:
 **File**: `src/repository/evv-repository.ts`
 
 Data access layer with methods for:
+
 - Creating and updating EVV records
 - Managing time entries with sync status
 - Geofence creation and statistics tracking
@@ -42,6 +50,7 @@ Data access layer with methods for:
 - Pending entry queries for offline sync
 
 **Key Features**:
+
 - PostgreSQL-backed with JSONB for flexibility
 - Efficient indexing for common query patterns
 - Transaction support for data integrity
@@ -53,6 +62,7 @@ Data access layer with methods for:
 **File**: `src/validation/evv-validator.ts`
 
 Comprehensive validation including:
+
 - Clock-in/out input validation
 - GPS coordinate and accuracy validation
 - Device info and security checks
@@ -62,6 +72,7 @@ Comprehensive validation including:
 - Mock location and rooted device detection
 
 **Key Features**:
+
 - Anomaly detection (impossible location jumps, time gaps, etc.)
 - Configurable thresholds for verification
 - Severity-based issue categorization
@@ -73,6 +84,7 @@ Comprehensive validation including:
 **File**: `src/service/evv-service.ts`
 
 Business logic implementation:
+
 - `clockIn()` - Start visit with location verification
 - `clockOut()` - End visit with duration calculation
 - `applyManualOverride()` - Supervisor review and approval
@@ -81,6 +93,7 @@ Business logic implementation:
 - `getTimeEntriesByVisit()` - Time entry history
 
 **Key Features**:
+
 - Permission-based access control
 - Integration with scheduling vertical
 - Automatic geofence creation
@@ -120,6 +133,7 @@ Business logic implementation:
 ### Indexes
 
 Optimized for:
+
 - Visit-based lookups
 - Date range queries
 - Caregiver schedule views
@@ -220,7 +234,8 @@ POST   /api/evv/batch-sync         - Sync multiple entries
 
 ### Extensible Design
 
-The `state_specific_data` JSONB field allows storing additional data per state requirements:
+The `state_specific_data` JSONB field allows storing additional data per state
+requirements:
 
 ```typescript
 // Example: New York requirements
@@ -233,7 +248,7 @@ stateSpecificData: {
   }
 }
 
-// Example: California requirements  
+// Example: California requirements
 stateSpecificData: {
   state: 'CA',
   additionalFields: {
@@ -339,12 +354,14 @@ The mobile app should implement:
 ### Platform-Specific
 
 **iOS**:
+
 - CoreLocation for GPS
 - LocalAuthentication for Face ID/Touch ID
 - SQLite.swift for offline storage
 - Background location permissions
 
 **Android**:
+
 - Google Play Services Location API
 - BiometricPrompt for fingerprint
 - Room database for offline storage
@@ -391,14 +408,16 @@ The mobile app should implement:
 **21st Century Cures Act - Section 12006(a)**
 
 All six required data elements captured:
+
 1. ✅ Type of service performed
-2. ✅ Individual receiving the service  
+2. ✅ Individual receiving the service
 3. ✅ Individual providing the service
 4. ✅ Date of service
 5. ✅ Location of service delivery
 6. ✅ Time service begins and ends
 
 Additional federal requirements:
+
 - ✅ Electronic capture and transmission
 - ✅ Secure, tamper-evident records
 - ✅ Audit trail capability
@@ -424,21 +443,28 @@ Additional federal requirements:
 
 ## Known Limitations
 
-1. **Cryptographic Hashing**: Current implementation uses simple hash functions for demonstration. Production should use SHA-256 from crypto library.
+1. **Cryptographic Hashing**: Current implementation uses simple hash functions
+   for demonstration. Production should use SHA-256 from crypto library.
 
-2. **Encryption**: PII fields not yet encrypted at rest. Requires implementation of column-level encryption.
+2. **Encryption**: PII fields not yet encrypted at rest. Requires implementation
+   of column-level encryption.
 
-3. **Biometric Verification**: Type definitions exist but actual biometric integration not implemented.
+3. **Biometric Verification**: Type definitions exist but actual biometric
+   integration not implemented.
 
-4. **Photo Storage**: Photo URLs supported but no actual storage/CDN integration.
+4. **Photo Storage**: Photo URLs supported but no actual storage/CDN
+   integration.
 
-5. **State Requirements**: Extensible design but no specific state implementations yet.
+5. **State Requirements**: Extensible design but no specific state
+   implementations yet.
 
-6. **Payor Submission**: Data model supports it but no actual API integration with payors.
+6. **Payor Submission**: Data model supports it but no actual API integration
+   with payors.
 
 7. **Background Location**: Requires mobile app implementation.
 
-8. **Bluetooth Beacons**: Not yet implemented (useful for indoor/basement locations).
+8. **Bluetooth Beacons**: Not yet implemented (useful for indoor/basement
+   locations).
 
 ## Future Enhancements
 
@@ -511,6 +537,7 @@ For upgrading from a system without EVV:
 ### Monitoring
 
 Key metrics to track:
+
 - Verification success rate
 - Average GPS accuracy
 - Geofence violation rate
@@ -522,6 +549,7 @@ Key metrics to track:
 ### Alerts
 
 Setup alerts for:
+
 - High frequency of verification failures
 - Sudden increase in manual overrides
 - Multiple mock location detections
@@ -532,16 +560,19 @@ Setup alerts for:
 ### Maintenance Tasks
 
 **Daily**:
+
 - Monitor sync queue
 - Review flagged visits
 - Process manual overrides
 
 **Weekly**:
+
 - Geofence optimization
 - Exception pattern analysis
 - Performance review
 
 **Monthly**:
+
 - Compliance report generation
 - Audit trail review
 - Security assessment
@@ -552,6 +583,7 @@ Setup alerts for:
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
 
 Key areas needing contribution:
+
 1. State-specific implementations
 2. Mobile app development
 3. Biometric integration

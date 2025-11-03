@@ -1,6 +1,6 @@
 /**
  * Tests for Shift Matching Service
- * 
+ *
  * Tests cover:
  * - Open shift creation and matching
  * - Proposal lifecycle management
@@ -76,7 +76,7 @@ vi.mock('../../utils/matching-algorithm', () => ({
 describe('ShiftMatchingService', () => {
   let service: ShiftMatchingService;
 
-beforeEach(() => {
+  beforeEach(() => {
     vi.clearAllMocks();
     service = new ShiftMatchingService(mockPool, mockCaregiverService as any);
     // Replace the repository with our mock
@@ -162,7 +162,7 @@ beforeEach(() => {
           maxHoursPerWeek: 40,
           primaryAddress: {
             latitude: 40.7128,
-            longitude: -74.0060,
+            longitude: -74.006,
           },
         },
         {
@@ -212,7 +212,12 @@ beforeEach(() => {
         previousVisitsWithClient: 0,
         reliabilityScore: 90,
         matchReasons: [
-          { category: 'SKILL', description: 'Has required skills', impact: 'POSITIVE', weight: 0.2 },
+          {
+            category: 'SKILL',
+            description: 'Has required skills',
+            impact: 'POSITIVE',
+            weight: 0.2,
+          },
         ],
         computedAt: new Date(),
       },
@@ -244,7 +249,12 @@ beforeEach(() => {
         previousVisitsWithClient: 0,
         reliabilityScore: 80,
         matchReasons: [
-          { category: 'SKILL', description: 'Has required skills', impact: 'POSITIVE', weight: 0.2 },
+          {
+            category: 'SKILL',
+            description: 'Has required skills',
+            impact: 'POSITIVE',
+            weight: 0.2,
+          },
         ],
         computedAt: new Date(),
       },
@@ -264,7 +274,7 @@ beforeEach(() => {
       mockCaregiverService.getCaregiverById.mockImplementation((caregiverId: string) => {
         return Promise.resolve(mockCaregivers.items.find((cg: any) => cg.id === caregiverId));
       });
-      
+
       (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(mockCandidates[0]);
       (MatchingAlgorithm.rankCandidates as any).mockReturnValue(mockCandidates);
       mockRepository.updateOpenShiftStatus.mockResolvedValue(mockOpenShift);
@@ -280,12 +290,16 @@ beforeEach(() => {
         .mockResolvedValueOnce({ rows: [{ total_minutes: '240' }] }) // week hours for caregiver 1
         .mockResolvedValueOnce({ rows: [] }) // conflicts for caregiver 1
         .mockResolvedValueOnce({ rows: [{ count: '5', avg_rating: '4.2' }] }) // previous visits for caregiver 1
-        .mockResolvedValueOnce({ rows: [{ completed: '48', no_shows: '2', cancellations: '1', total: '51' }] }) // reliability for caregiver 1
+        .mockResolvedValueOnce({
+          rows: [{ completed: '48', no_shows: '2', cancellations: '1', total: '51' }],
+        }) // reliability for caregiver 1
         .mockResolvedValueOnce({ rows: [{ count: '1' }] }) // rejections for caregiver 1
         .mockResolvedValueOnce({ rows: [{ total_minutes: '180' }] }) // week hours for caregiver 2
         .mockResolvedValueOnce({ rows: [] }) // conflicts for caregiver 2
         .mockResolvedValueOnce({ rows: [{ count: '3', avg_rating: '4.0' }] }) // previous visits for caregiver 2
-        .mockResolvedValueOnce({ rows: [{ completed: '40', no_shows: '1', cancellations: '2', total: '43' }] }) // reliability for caregiver 2
+        .mockResolvedValueOnce({
+          rows: [{ completed: '40', no_shows: '1', cancellations: '2', total: '43' }],
+        }) // reliability for caregiver 2
         .mockResolvedValueOnce({ rows: [{ count: '0' }] }); // rejections for caregiver 2
 
       const result = await service.matchShift(input, mockContext);
@@ -296,8 +310,16 @@ beforeEach(() => {
       expect(result.ineligibleCount).toBe(0);
       expect(result.proposalsCreated).toHaveLength(2);
 
-      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith('shift-123', 'MATCHING', mockContext);
-      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith('shift-123', 'PROPOSED', mockContext);
+      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith(
+        'shift-123',
+        'MATCHING',
+        mockContext
+      );
+      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith(
+        'shift-123',
+        'PROPOSED',
+        mockContext
+      );
     });
 
     it.skip('should handle no eligible candidates', async () => {
@@ -306,7 +328,7 @@ beforeEach(() => {
         autoPropose: false,
       };
 
-      const ineligibleCandidates = mockCandidates.map(c => ({
+      const ineligibleCandidates = mockCandidates.map((c) => ({
         ...c,
         isEligible: false,
         overallScore: 40,
@@ -319,7 +341,7 @@ beforeEach(() => {
       mockCaregiverService.getCaregiverById.mockImplementation((caregiverId: string) => {
         return Promise.resolve(mockCaregivers.items.find((cg: any) => cg.id === caregiverId));
       });
-      
+
       (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(ineligibleCandidates[0]);
       (MatchingAlgorithm.rankCandidates as any).mockReturnValue(ineligibleCandidates);
       mockRepository.updateOpenShiftStatus.mockResolvedValue(mockOpenShift);
@@ -331,12 +353,16 @@ beforeEach(() => {
         .mockResolvedValueOnce({ rows: [{ total_minutes: '180' }] }) // week hours for caregiver 1
         .mockResolvedValueOnce({ rows: [] }) // conflicts for caregiver 1
         .mockResolvedValueOnce({ rows: [{ count: '2', avg_rating: '3.8' }] }) // previous visits for caregiver 1
-        .mockResolvedValueOnce({ rows: [{ completed: '45', no_shows: '3', cancellations: '2', total: '50' }] }) // reliability for caregiver 1
+        .mockResolvedValueOnce({
+          rows: [{ completed: '45', no_shows: '3', cancellations: '2', total: '50' }],
+        }) // reliability for caregiver 1
         .mockResolvedValueOnce({ rows: [{ count: '2' }] }) // rejections for caregiver 1
         .mockResolvedValueOnce({ rows: [{ total_minutes: '160' }] }) // week hours for caregiver 2
         .mockResolvedValueOnce({ rows: [] }) // conflicts for caregiver 2
         .mockResolvedValueOnce({ rows: [{ count: '1', avg_rating: '3.5' }] }) // previous visits for caregiver 2
-        .mockResolvedValueOnce({ rows: [{ completed: '38', no_shows: '4', cancellations: '3', total: '45' }] }) // reliability for caregiver 2
+        .mockResolvedValueOnce({
+          rows: [{ completed: '38', no_shows: '4', cancellations: '3', total: '45' }],
+        }) // reliability for caregiver 2
         .mockResolvedValueOnce({ rows: [{ count: '3' }] }); // rejections for caregiver 2
 
       const result = await service.matchShift(input, mockContext);
@@ -345,7 +371,11 @@ beforeEach(() => {
       expect(result.ineligibleCount).toBe(2);
       expect(result.proposalsCreated).toHaveLength(0);
 
-      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith('shift-123', 'NO_MATCH', mockContext);
+      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith(
+        'shift-123',
+        'NO_MATCH',
+        mockContext
+      );
     });
 
     it('should throw error if shift not found', async () => {
@@ -353,8 +383,7 @@ beforeEach(() => {
 
       mockRepository.getOpenShift.mockResolvedValue(null);
 
-      await expect(service.matchShift(input, mockContext))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.matchShift(input, mockContext)).rejects.toThrow(NotFoundError);
     });
 
     it('should throw error if no configuration found', async () => {
@@ -363,8 +392,7 @@ beforeEach(() => {
       mockRepository.getOpenShift.mockResolvedValue(mockOpenShift);
       mockRepository.getDefaultConfiguration.mockResolvedValue(null);
 
-      await expect(service.matchShift(input, mockContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.matchShift(input, mockContext)).rejects.toThrow(ValidationError);
     });
 
     it.skip('should handle blocked caregivers', async () => {
@@ -382,15 +410,17 @@ beforeEach(() => {
       mockCaregiverService.getCaregiverById.mockImplementation((caregiverId: string) => {
         return Promise.resolve(mockCaregivers.items.find((cg: any) => cg.id === caregiverId));
       });
-      
+
       // Mock database queries for buildCaregiverContext
       (mockPool.query as any)
         .mockResolvedValueOnce({ rows: [{ total_minutes: '200' }] }) // week hours
         .mockResolvedValueOnce({ rows: [] }) // conflicts
         .mockResolvedValueOnce({ rows: [{ count: '3', avg_rating: '4.0' }] }) // previous visits
-        .mockResolvedValueOnce({ rows: [{ completed: '47', no_shows: '1', cancellations: '2', total: '50' }] }) // reliability
+        .mockResolvedValueOnce({
+          rows: [{ completed: '47', no_shows: '1', cancellations: '2', total: '50' }],
+        }) // reliability
         .mockResolvedValueOnce({ rows: [{ count: '0' }] }); // rejections
-      
+
       (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(mockCandidates[1]);
       (MatchingAlgorithm.rankCandidates as any).mockReturnValue([mockCandidates[1]]);
       mockRepository.updateOpenShiftStatus.mockResolvedValue(mockOpenShift);
@@ -440,8 +470,16 @@ beforeEach(() => {
       const result = await service.respondToProposal('proposal-123', input, mockContext);
 
       expect(result.proposalStatus).toBe('ACCEPTED');
-      expect(mockRepository.respondToProposal).toHaveBeenCalledWith('proposal-123', input, mockContext);
-      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith('shift-123', 'ASSIGNED', mockContext);
+      expect(mockRepository.respondToProposal).toHaveBeenCalledWith(
+        'proposal-123',
+        input,
+        mockContext
+      );
+      expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith(
+        'shift-123',
+        'ASSIGNED',
+        mockContext
+      );
     });
 
     it('should reject proposal', async () => {
@@ -482,8 +520,9 @@ beforeEach(() => {
 
       mockRepository.getProposal.mockResolvedValue(null);
 
-      await expect(service.respondToProposal('invalid-proposal', input, mockContext))
-        .rejects.toThrow(NotFoundError);
+      await expect(
+        service.respondToProposal('invalid-proposal', input, mockContext)
+      ).rejects.toThrow(NotFoundError);
     });
 
     it('should throw error if proposal not active', async () => {
@@ -496,8 +535,9 @@ beforeEach(() => {
 
       mockRepository.getProposal.mockResolvedValue(inactiveProposal);
 
-      await expect(service.respondToProposal('proposal-123', input, mockContext))
-        .rejects.toThrow(ValidationError);
+      await expect(service.respondToProposal('proposal-123', input, mockContext)).rejects.toThrow(
+        ValidationError
+      );
     });
   });
 
@@ -562,12 +602,16 @@ beforeEach(() => {
         .mockResolvedValueOnce({ rows: [{ total_minutes: '160' }] }) // week hours for shift 1
         .mockResolvedValueOnce({ rows: [] }) // conflicts for shift 1
         .mockResolvedValueOnce({ rows: [{ count: '1', avg_rating: '4.5' }] }) // previous visits for shift 1
-        .mockResolvedValueOnce({ rows: [{ completed: '25', no_shows: '1', cancellations: '1', total: '27' }] }) // reliability for shift 1
+        .mockResolvedValueOnce({
+          rows: [{ completed: '25', no_shows: '1', cancellations: '1', total: '27' }],
+        }) // reliability for shift 1
         .mockResolvedValueOnce({ rows: [{ count: '0' }] }) // rejections for shift 1
         .mockResolvedValueOnce({ rows: [{ total_minutes: '160' }] }) // week hours for shift 2
         .mockResolvedValueOnce({ rows: [] }) // conflicts for shift 2
         .mockResolvedValueOnce({ rows: [{ count: '1', avg_rating: '4.5' }] }) // previous visits for shift 2
-        .mockResolvedValueOnce({ rows: [{ completed: '25', no_shows: '1', cancellations: '1', total: '27' }] }) // reliability for shift 2
+        .mockResolvedValueOnce({
+          rows: [{ completed: '25', no_shows: '1', cancellations: '1', total: '27' }],
+        }) // reliability for shift 2
         .mockResolvedValueOnce({ rows: [{ count: '0' }] }); // rejections for shift 2
 
       const result = await service.getAvailableShiftsForCaregiver('cg-123', mockContext);
@@ -589,8 +633,9 @@ beforeEach(() => {
     it('should throw error if caregiver not found', async () => {
       mockCaregiverService.getCaregiverById.mockResolvedValue(null as any);
 
-      await expect(service.getAvailableShiftsForCaregiver('invalid-cg', mockContext))
-        .rejects.toThrow(NotFoundError);
+      await expect(
+        service.getAvailableShiftsForCaregiver('invalid-cg', mockContext)
+      ).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -644,15 +689,18 @@ beforeEach(() => {
 
       mockRepository.getOpenShift.mockResolvedValue(assignedShift);
 
-      await expect(service.caregiverSelectShift('cg-123', 'shift-123', mockContext))
-        .rejects.toThrow(ConflictError);
+      await expect(
+        service.caregiverSelectShift('cg-123', 'shift-123', mockContext)
+      ).rejects.toThrow(ConflictError);
     });
 
     it('should throw error if caregiver not eligible', async () => {
       const ineligibleCandidate = {
         ...mockCandidate,
         isEligible: false,
-        eligibilityIssues: [{ type: 'MISSING_SKILL', severity: 'BLOCKING', message: 'Missing skill' }],
+        eligibilityIssues: [
+          { type: 'MISSING_SKILL', severity: 'BLOCKING', message: 'Missing skill' },
+        ],
       };
 
       mockRepository.getOpenShift.mockResolvedValue(mockOpenShift);
@@ -663,8 +711,9 @@ beforeEach(() => {
       (service as any).buildCaregiverContext = vi.fn().mockResolvedValue({});
       (MatchingAlgorithm.evaluateMatch as any).mockReturnValue(ineligibleCandidate);
 
-      await expect(service.caregiverSelectShift('cg-123', 'shift-123', mockContext))
-        .rejects.toThrow(ValidationError);
+      await expect(
+        service.caregiverSelectShift('cg-123', 'shift-123', mockContext)
+      ).rejects.toThrow(ValidationError);
     });
 
     it('should auto-accept if configured and score is high', async () => {
@@ -720,7 +769,11 @@ beforeEach(() => {
       const result = await service.markProposalViewed('proposal-123', mockContext);
 
       expect(result.proposalStatus).toBe('VIEWED');
-      expect(mockRepository.updateProposalStatus).toHaveBeenCalledWith('proposal-123', 'VIEWED', mockContext);
+      expect(mockRepository.updateProposalStatus).toHaveBeenCalledWith(
+        'proposal-123',
+        'VIEWED',
+        mockContext
+      );
     });
 
     it('should not update if already viewed', async () => {
@@ -779,7 +832,10 @@ beforeEach(() => {
       const result = await service.getCaregiverProposals('cg-123', ['PENDING', 'SENT']);
 
       expect(result).toHaveLength(2);
-      expect(mockRepository.getProposalsByCaregiver).toHaveBeenCalledWith('cg-123', ['PENDING', 'SENT']);
+      expect(mockRepository.getProposalsByCaregiver).toHaveBeenCalledWith('cg-123', [
+        'PENDING',
+        'SENT',
+      ]);
     });
   });
 });

@@ -31,10 +31,7 @@ export class ClientService {
   /**
    * Create a new client
    */
-  async createClient(
-    input: CreateClientInput,
-    context: UserContext
-  ): Promise<Client> {
+  async createClient(input: CreateClientInput, context: UserContext): Promise<Client> {
     // Check permissions
     this.permissionService.requirePermission(context, 'clients:create');
 
@@ -48,10 +45,7 @@ export class ClientService {
 
     // Check for duplicate client number
     const clientNumber = await this.generateClientNumber(input.organizationId);
-    const existing = await this.repository.findByClientNumber(
-      clientNumber,
-      input.organizationId
-    );
+    const existing = await this.repository.findByClientNumber(clientNumber, input.organizationId);
     if (existing) {
       throw new ValidationError('Client number already exists');
     }
@@ -79,7 +73,7 @@ export class ClientService {
       status: input.status || 'PENDING_INTAKE',
       intakeDate: input.intakeDate || new Date(),
     };
-    
+
     // Only add optional properties if they have values
     if (input.middleName !== undefined) client.middleName = input.middleName;
     if (input.preferredName !== undefined) client.preferredName = input.preferredName;
@@ -121,10 +115,7 @@ export class ClientService {
   ): Promise<Client> {
     this.permissionService.requirePermission(context, 'clients:read');
 
-    const client = await this.repository.findByClientNumber(
-      clientNumber,
-      organizationId
-    );
+    const client = await this.repository.findByClientNumber(clientNumber, organizationId);
     if (!client) {
       throw new NotFoundError(`Client not found: ${clientNumber}`);
     }
@@ -187,10 +178,7 @@ export class ClientService {
       filters.organizationId = context.organizationId;
 
       // Branch-level filtering for branch admins
-      if (
-        context.roles.includes('BRANCH_ADMIN') &&
-        context.branchIds.length > 0
-      ) {
+      if (context.roles.includes('BRANCH_ADMIN') && context.branchIds.length > 0) {
         if (context.branchIds[0] !== undefined) {
           filters.branchId = context.branchIds[0]; // Simplified: use first branch
         }
@@ -213,10 +201,7 @@ export class ClientService {
     this.permissionService.requirePermission(context, 'clients:read');
 
     // Check branch access
-    if (
-      !context.roles.includes('SUPER_ADMIN') &&
-      !context.branchIds.includes(branchId)
-    ) {
+    if (!context.roles.includes('SUPER_ADMIN') && !context.branchIds.includes(branchId)) {
       throw new PermissionError('No access to this branch');
     }
 
@@ -240,11 +225,7 @@ export class ClientService {
 
     const emergencyContacts = [...client.emergencyContacts, newContact];
 
-    return await this.updateClient(
-      clientId,
-      { emergencyContacts },
-      context
-    );
+    return await this.updateClient(clientId, { emergencyContacts }, context);
   }
 
   /**
@@ -262,11 +243,7 @@ export class ClientService {
       contact.id === contactId ? { ...contact, ...updates } : contact
     );
 
-    return await this.updateClient(
-      clientId,
-      { emergencyContacts },
-      context
-    );
+    return await this.updateClient(clientId, { emergencyContacts }, context);
   }
 
   /**
@@ -283,11 +260,7 @@ export class ClientService {
       (contact) => contact.id !== contactId
     );
 
-    return await this.updateClient(
-      clientId,
-      { emergencyContacts },
-      context
-    );
+    return await this.updateClient(clientId, { emergencyContacts }, context);
   }
 
   /**
@@ -314,11 +287,7 @@ export class ClientService {
   /**
    * Resolve risk flag
    */
-  async resolveRiskFlag(
-    clientId: string,
-    flagId: string,
-    context: UserContext
-  ): Promise<Client> {
+  async resolveRiskFlag(clientId: string, flagId: string, context: UserContext): Promise<Client> {
     const client = await this.getClientById(clientId, context);
 
     const riskFlags = client.riskFlags.map((flag) =>
@@ -396,10 +365,7 @@ export class ClientService {
   /**
    * Check organizational access
    */
-  private checkOrganizationalAccess(
-    client: Client,
-    context: UserContext
-  ): void {
+  private checkOrganizationalAccess(client: Client, context: UserContext): void {
     if (context.roles.includes('SUPER_ADMIN')) {
       return;
     }
@@ -408,10 +374,7 @@ export class ClientService {
       throw new PermissionError('No access to this organization');
     }
 
-    if (
-      context.branchIds.length > 0 &&
-      !context.branchIds.includes(client.branchId)
-    ) {
+    if (context.branchIds.length > 0 && !context.branchIds.includes(client.branchId)) {
       throw new PermissionError('No access to this branch');
     }
   }

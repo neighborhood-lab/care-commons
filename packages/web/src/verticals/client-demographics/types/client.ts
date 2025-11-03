@@ -1,6 +1,13 @@
 // Frontend types for client demographics (simplified from backend)
 export type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO_SAY';
-export type ClientStatus = 'INQUIRY' | 'PENDING_INTAKE' | 'ACTIVE' | 'INACTIVE' | 'ON_HOLD' | 'DISCHARGED' | 'DECEASED';
+export type ClientStatus =
+  | 'INQUIRY'
+  | 'PENDING_INTAKE'
+  | 'ACTIVE'
+  | 'INACTIVE'
+  | 'ON_HOLD'
+  | 'DISCHARGED'
+  | 'DECEASED';
 export type ContactMethod = 'PHONE' | 'EMAIL' | 'SMS' | 'MAIL' | 'IN_PERSON';
 
 export interface Phone {

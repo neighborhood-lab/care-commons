@@ -12,8 +12,12 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   // Create indexes for state-specific queries
-  await knex.raw('CREATE INDEX idx_clients_state_specific ON clients USING gin(state_specific) WHERE deleted_at IS NULL');
-  await knex.raw('CREATE INDEX idx_caregivers_state_specific ON caregivers USING gin(state_specific) WHERE deleted_at IS NULL');
+  await knex.raw(
+    'CREATE INDEX idx_clients_state_specific ON clients USING gin(state_specific) WHERE deleted_at IS NULL'
+  );
+  await knex.raw(
+    'CREATE INDEX idx_caregivers_state_specific ON caregivers USING gin(state_specific) WHERE deleted_at IS NULL'
+  );
 
   // Create audit log table for client record access and disclosure (HIPAA/Texas compliance)
   await knex.schema.createTable('client_access_audit', (table) => {
@@ -29,7 +33,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('disclosure_method', 50); // 'VERBAL', 'WRITTEN', 'ELECTRONIC', 'FAX'
     table.string('authorization_reference', 255);
     table.text('information_disclosed');
-    
+
     // Audit metadata
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
   });
@@ -73,14 +77,14 @@ export async function up(knex: Knex): Promise<void> {
     table.string('status', 50).notNullable(); // 'CLEAR', 'PENDING', 'LISTED', 'FLAGGED', 'EXPIRED'
     table.string('confirmation_number', 100);
     table.uuid('performed_by').notNullable().references('id').inTable('users');
-    
+
     // Listing details (if flagged)
     table.jsonb('listing_details');
-    
+
     // Documentation
     table.string('document_path', 500);
     table.text('notes');
-    
+
     // Audit fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable().references('id').inTable('users');
@@ -128,7 +132,7 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('client_id').notNullable().references('id').inTable('clients');
     table.string('authorization_number', 100).notNullable();
     table.string('authorization_type', 50).notNullable(); // 'SERVICE', 'PLAN_OF_CARE', 'MEDICAID', 'INSURANCE'
-    
+
     // Authorization details
     table.string('state', 2); // 'TX', 'FL'
     table.string('authorizing_entity', 255); // HHSC, AHCA, Insurance company
@@ -136,30 +140,30 @@ export async function up(knex: Knex): Promise<void> {
     table.date('authorization_date').notNullable();
     table.date('effective_date').notNullable();
     table.date('expiration_date').notNullable();
-    
+
     // Services and units
     table.jsonb('authorized_services').notNullable().defaultTo('[]');
     table.decimal('total_authorized_units', 10, 2);
     table.decimal('used_units', 10, 2).defaultTo(0);
     table.decimal('remaining_units', 10, 2);
     table.string('unit_type', 50); // 'HOURS', 'VISITS', 'DAYS'
-    
+
     // Status
     table.string('status', 50).notNullable().defaultTo('ACTIVE');
     table.text('status_reason');
-    
+
     // Documentation
     table.string('form_number', 100); // e.g., 'HHSC Form 4100', 'AHCA Form 484'
     table.string('document_path', 500);
-    
+
     // Review and renewal
     table.date('last_review_date');
     table.date('next_review_due');
-    
+
     // Metadata
     table.text('notes');
     table.jsonb('custom_fields');
-    
+
     // Audit fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable().references('id').inTable('users');
@@ -228,7 +232,9 @@ export async function up(knex: Knex): Promise<void> {
   `);
 
   // JSONB index for authorized services
-  await knex.raw('CREATE INDEX idx_client_auths_services ON client_authorizations USING gin(authorized_services)');
+  await knex.raw(
+    'CREATE INDEX idx_client_auths_services ON client_authorizations USING gin(authorized_services)'
+  );
 
   // Function to calculate remaining units
   await knex.raw(`
@@ -254,23 +260,25 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   // Drop triggers and functions
-  await knex.raw('DROP TRIGGER IF EXISTS calculate_authorization_remaining_units ON client_authorizations');
+  await knex.raw(
+    'DROP TRIGGER IF EXISTS calculate_authorization_remaining_units ON client_authorizations'
+  );
   await knex.raw('DROP FUNCTION IF EXISTS calculate_remaining_units()');
-  
+
   // Drop tables
   await knex.schema.dropTableIfExists('client_authorizations');
   await knex.schema.dropTableIfExists('registry_check_results');
   await knex.schema.dropTableIfExists('client_access_audit');
-  
+
   // Drop indexes
   await knex.raw('DROP INDEX IF EXISTS idx_clients_state_specific');
   await knex.raw('DROP INDEX IF EXISTS idx_caregivers_state_specific');
-  
+
   // Remove state-specific fields
   await knex.schema.alterTable('clients', (table) => {
     table.dropColumn('state_specific');
   });
-  
+
   await knex.schema.alterTable('caregivers', (table) => {
     table.dropColumn('state_specific');
   });

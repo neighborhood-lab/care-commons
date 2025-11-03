@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { X, FileText, Tag } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent, FormField, Select, LoadingSpinner } from '@/core/components';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardContent,
+  FormField,
+  Select,
+  LoadingSpinner,
+} from '@/core/components';
 import { formatDate } from '@/core/utils';
 import type { ProgressNote, ProgressNoteType } from '../types';
 
@@ -9,7 +17,23 @@ export interface ProgressNoteFormProps {
   clientId: string;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<ProgressNote, 'id' | 'carePlanId' | 'clientId' | 'authorId' | 'authorName' | 'authorRole' | 'noteDate' | 'createdAt' | 'updatedAt' | 'reviewedBy' | 'reviewedAt' | 'approved'>) => void;
+  onSubmit: (
+    data: Omit<
+      ProgressNote,
+      | 'id'
+      | 'carePlanId'
+      | 'clientId'
+      | 'authorId'
+      | 'authorName'
+      | 'authorRole'
+      | 'noteDate'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'reviewedBy'
+      | 'reviewedAt'
+      | 'approved'
+    >
+  ) => void;
   isLoading?: boolean;
   authorInfo: {
     id: string;
@@ -62,7 +86,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
 
   const handleFormSubmit = () => {
     if (!content.trim()) return;
-    
+
     onSubmit({
       noteType,
       content,
@@ -78,7 +102,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
   };
 
   const removeTag = (tag: string) => {
-    setSelectedTags(selectedTags.filter(t => t !== tag));
+    setSelectedTags(selectedTags.filter((t) => t !== tag));
   };
 
   const addCustomTag = () => {
@@ -126,10 +150,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
           </Card>
 
           {/* Note Type */}
-          <FormField
-            label="Note Type"
-            required
-          >
+          <FormField label="Note Type" required>
             <Select
               options={noteTypeOptions}
               value={noteType}
@@ -138,10 +159,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
           </FormField>
 
           {/* Content */}
-          <FormField
-            label="Note Content"
-            required
-          >
+          <FormField label="Note Content" required>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -158,7 +176,9 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
               <div className="space-y-4">
                 {/* Common Tags */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Common Tags</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Common Tags
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     {commonTags.map((tag) => (
                       <button
@@ -208,7 +228,9 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
                 {/* Selected Tags */}
                 {selectedTags.length > 0 && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Selected Tags</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Selected Tags
+                    </label>
                     <div className="flex flex-wrap gap-2">
                       {selectedTags.map((tag) => (
                         <span
@@ -233,9 +255,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
           </Card>
 
           {/* Privacy Settings */}
-          <FormField
-            label="Privacy Settings"
-          >
+          <FormField label="Privacy Settings">
             <div className="space-y-2">
               <label className="flex items-center gap-2">
                 <input

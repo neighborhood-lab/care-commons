@@ -1,6 +1,6 @@
 /**
  * Caregiver & Staff domain model
- * 
+ *
  * Secure directory of personnel providing care services:
  * - Roles and credentials
  * - Availability and scheduling preferences
@@ -10,11 +10,7 @@
  * - Lifecycle states and permission scaffolding
  */
 
-import {
-  Entity,
-  SoftDeletable,
-  UUID,
-} from '@care-commons/core';
+import { Entity, SoftDeletable, UUID } from '@care-commons/core';
 
 /**
  * State-specific caregiver/staff data for TX and FL compliance
@@ -33,37 +29,37 @@ export interface TexasCaregiverData {
   employeeMisconductRegistryCheck?: RegistryCheck;
   nurseAideRegistryCheck?: RegistryCheck;
   dpsFingerprinting?: FingerprintRecord;
-  
+
   // Health Screening (DSHS requirements)
   tbScreening?: TBScreening;
   tbScreeningRequired: boolean;
-  
+
   // Training & Orientation (26 TAC §558.259)
   hhscOrientationComplete: boolean;
   hhscOrientationDate?: Date;
   hhscOrientationTopics?: string[];
   mandatoryTraining?: TexasMandatoryTraining;
-  
+
   // EVV System Registration
   evvAttendantId?: string; // HHAeXchange attendant ID
   evvSystemEnrolled: boolean;
   evvEnrollmentDate?: Date;
-  
+
   // Delegation Records (HHSC Form 1727)
   delegationRecords?: DelegationRecord[];
   rnDelegationSupervisor?: UUID;
-  
+
   // Work Authorization & Eligibility
   eVerifyCompleted: boolean;
   eVerifyDate?: Date;
   i9FormOnFile: boolean;
   i9ExpirationDate?: Date;
-  
+
   // Service-Specific Qualifications
   qualifiedForCDS: boolean; // Consumer Directed Services
   qualifiedForPAS: boolean; // Personal Assistance Services
   qualifiedForHAB: boolean; // Habilitation Services
-  
+
   // Compliance Status
   registryCheckStatus: 'CLEAR' | 'PENDING' | 'FLAGGED' | 'INELIGIBLE';
   lastComplianceReview?: Date;
@@ -78,44 +74,44 @@ export interface FloridaCaregiverData {
   level2BackgroundScreening?: FloridaBackgroundScreening;
   ahcaClearinghouseId?: string;
   screeningStatus: 'CLEARED' | 'PENDING' | 'CONDITIONAL' | 'DISQUALIFIED';
-  
+
   // Professional Licensure (MQA Portal)
   flLicenseNumber?: string;
   flLicenseType?: FloridaLicenseType;
   flLicenseStatus?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'REVOKED';
   flLicenseExpiration?: Date;
   mqaVerificationDate?: Date;
-  
+
   // CNA/HHA Qualification (59A-8.0095)
   cnaRegistrationNumber?: string;
   hhaRegistrationNumber?: string;
   registrationExpiration?: Date;
-  
+
   // Clinical Supervision
   requiresRNSupervision: boolean;
   assignedRNSupervisor?: UUID;
   supervisoryRelationship?: SupervisoryRelationship;
-  
+
   // Training & Competency
   hivAidsTrainingComplete: boolean;
   hivAidsTrainingDate?: Date;
   oshaBloodbornePathogenTraining?: Date;
   tbScreening?: TBScreening;
-  
+
   // Scope of Practice & Delegation (59A-8.0216)
   scopeOfPractice?: string[];
   delegatedTasks?: DelegatedTask[];
   rnDelegationAuthorization?: RNDelegationAuth[];
-  
+
   // EVV & Billing
   medicaidProviderId?: string;
   ahcaProviderId?: string;
   evvSystemIds?: EVVSystemRegistration[];
-  
+
   // Geographic & Emergency
   hurricaneRedeploymentZone?: string;
   emergencyCredentialing?: EmergencyCredential[];
-  
+
   // Compliance
   ahcaComplianceStatus: 'COMPLIANT' | 'PENDING' | 'NON_COMPLIANT';
   lastAHCAVerification?: Date;
@@ -314,13 +310,13 @@ export interface Caregiver extends Entity, SoftDeletable {
   role: CaregiverRole;
   permissions: string[];
   supervisorId?: UUID;
-  
+
   // Credentials and certifications
   credentials: Credential[];
   backgroundCheck?: BackgroundCheck;
   drugScreening?: DrugScreening;
   healthScreening?: HealthScreening;
-  
+
   // Training and qualifications
   training: TrainingRecord[];
   skills: Skill[];
@@ -355,7 +351,7 @@ export interface Caregiver extends Entity, SoftDeletable {
   // Status
   status: CaregiverStatus;
   statusReason?: string;
-  
+
   // Documents
   documents?: DocumentReference[];
 
@@ -370,7 +366,7 @@ export interface Caregiver extends Entity, SoftDeletable {
 export type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO_SAY';
 export type ContactMethod = 'PHONE' | 'EMAIL' | 'SMS' | 'IN_PERSON';
 
-export type EmploymentType = 
+export type EmploymentType =
   | 'FULL_TIME'
   | 'PART_TIME'
   | 'PER_DIEM'
@@ -378,12 +374,7 @@ export type EmploymentType =
   | 'TEMPORARY'
   | 'SEASONAL';
 
-export type EmploymentStatus =
-  | 'ACTIVE'
-  | 'ON_LEAVE'
-  | 'SUSPENDED'
-  | 'TERMINATED'
-  | 'RETIRED';
+export type EmploymentStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RETIRED';
 
 export type CaregiverRole =
   | 'CAREGIVER'

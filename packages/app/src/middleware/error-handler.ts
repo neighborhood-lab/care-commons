@@ -33,9 +33,11 @@ export function errorHandler(
     success: false,
     error: message,
     details: err.details,
-    ...(process.env['NODE_ENV'] === 'development' ? {
-      stack: err.stack,
-    } : {}),
+    ...(process.env['NODE_ENV'] === 'development'
+      ? {
+          stack: err.stack,
+        }
+      : {}),
   });
 }
 

@@ -34,12 +34,15 @@ export const useClockIn = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ visitId, data }: { 
-      visitId: string; 
-      data: { 
-        gpsCoordinates?: { latitude: number; longitude: number }; 
+    mutationFn: ({
+      visitId,
+      data,
+    }: {
+      visitId: string;
+      data: {
+        gpsCoordinates?: { latitude: number; longitude: number };
         verificationMethod: string;
-      } 
+      };
     }) => evvApi.clockIn(visitId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evv-records'] });
@@ -56,12 +59,15 @@ export const useClockOut = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { 
-      id: string; 
-      data: { 
-        gpsCoordinates?: { latitude: number; longitude: number }; 
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: {
+        gpsCoordinates?: { latitude: number; longitude: number };
         notes?: string;
-      } 
+      };
     }) => evvApi.clockOut(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evv-records'] });

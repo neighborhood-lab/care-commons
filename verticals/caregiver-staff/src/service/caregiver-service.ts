@@ -35,10 +35,7 @@ export class CaregiverService {
   /**
    * Create a new caregiver
    */
-  async createCaregiver(
-    input: CreateCaregiverInput,
-    context: UserContext
-  ): Promise<Caregiver> {
+  async createCaregiver(input: CreateCaregiverInput, context: UserContext): Promise<Caregiver> {
     // Validate permissions
     this.checkPermission(context, 'caregivers:create');
 
@@ -53,9 +50,7 @@ export class CaregiverService {
     // Generate employee number if not provided
     let employeeNumber = input.employeeNumber;
     if (!employeeNumber) {
-      employeeNumber = await this.repository.generateEmployeeNumber(
-        input.organizationId
-      );
+      employeeNumber = await this.repository.generateEmployeeNumber(input.organizationId);
     }
 
     // Check for duplicate employee number
@@ -162,10 +157,7 @@ export class CaregiverService {
   ): Promise<Caregiver> {
     this.checkPermission(context, 'caregivers:read');
 
-    const caregiver = await this.repository.findByEmployeeNumber(
-      employeeNumber,
-      organizationId
-    );
+    const caregiver = await this.repository.findByEmployeeNumber(employeeNumber, organizationId);
     if (!caregiver) {
       throw new NotFoundError(`Caregiver not found: ${employeeNumber}`);
     }
@@ -384,10 +376,7 @@ export class CaregiverService {
   /**
    * Update compliance status
    */
-  async updateComplianceStatus(
-    caregiverId: string,
-    context: UserContext
-  ): Promise<Caregiver> {
+  async updateComplianceStatus(caregiverId: string, context: UserContext): Promise<Caregiver> {
     this.checkPermission(context, 'caregivers:update');
 
     const caregiver = await this.repository.findById(caregiverId);
@@ -396,12 +385,8 @@ export class CaregiverService {
     }
 
     const complianceStatus = await this.calculateComplianceStatus(caregiver);
-    
-    return this.repository.updateComplianceStatus(
-      caregiverId,
-      complianceStatus,
-      context
-    );
+
+    return this.repository.updateComplianceStatus(caregiverId, complianceStatus, context);
   }
 
   /**
@@ -432,9 +417,7 @@ export class CaregiverService {
     // Check for expired credentials
     const hasExpiredCredentials = caregiver.credentials?.some(
       (cred) =>
-        cred.expirationDate &&
-        new Date(cred.expirationDate) < now &&
-        cred.status === 'ACTIVE'
+        cred.expirationDate && new Date(cred.expirationDate) < now && cred.status === 'ACTIVE'
     );
     if (hasExpiredCredentials) {
       return 'EXPIRED';
@@ -508,19 +491,8 @@ export class CaregiverService {
         'clients:read',
         'caregivers:read',
       ],
-      COORDINATOR: [
-        'visits:*',
-        'clients:*',
-        'caregivers:read',
-        'schedules:*',
-      ],
-      SUPERVISOR: [
-        'visits:*',
-        'clients:*',
-        'caregivers:*',
-        'schedules:*',
-        'reports:read',
-      ],
+      COORDINATOR: ['visits:*', 'clients:*', 'caregivers:read', 'schedules:*'],
+      SUPERVISOR: ['visits:*', 'clients:*', 'caregivers:*', 'schedules:*', 'reports:read'],
       SCHEDULER: ['schedules:*', 'clients:read', 'caregivers:read', 'visits:*'],
       ADMINISTRATIVE: ['*'],
     };
@@ -531,10 +503,7 @@ export class CaregiverService {
   /**
    * Filter sensitive data based on permissions
    */
-  private filterSensitiveData(
-    caregiver: Caregiver,
-    context: UserContext
-  ): Caregiver {
+  private filterSensitiveData(caregiver: Caregiver, context: UserContext): Caregiver {
     const canViewSensitive =
       context.roles.includes('ORG_ADMIN') ||
       context.roles.includes('HR') ||
@@ -542,8 +511,9 @@ export class CaregiverService {
 
     if (!canViewSensitive) {
       // Mask sensitive fields but keep required structure
-      // eslint-disable-next-line sonarjs/no-unused-vars -- Intentionally destructure to exclude sensitive fields
-      const { ssn: _ssn, alternatePayRates: _alternatePayRates, payrollInfo: _payrollInfo, ...safeCaregiver } = caregiver;
+      // Intentionally destructure to exclude sensitive fields
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { ssn, alternatePayRates, payrollInfo, ...safeCaregiver } = caregiver;
       return {
         ...safeCaregiver,
         payRate: {

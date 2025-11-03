@@ -56,49 +56,54 @@ const userContext = {
   branchIds: ['branch-1'],
 };
 
-const newCaregiver = await caregiverService.createCaregiver({
-  organizationId: 'org-123',
-  branchIds: ['branch-1'],
-  primaryBranchId: 'branch-1',
-  firstName: 'Jane',
-  lastName: 'Smith',
-  dateOfBirth: new Date('1985-05-15'),
-  primaryPhone: {
-    number: '+12065551234',
-    type: 'MOBILE',
-    canReceiveSMS: true,
-  },
-  email: 'jane.smith@example.com',
-  primaryAddress: {
-    type: 'HOME',
-    line1: '123 Main St',
-    city: 'Seattle',
-    state: 'WA',
-    postalCode: '98101',
-    country: 'US',
-  },
-  emergencyContacts: [{
-    id: uuid(),
-    name: 'John Smith',
-    relationship: 'Spouse',
-    phone: {
-      number: '+12065555678',
+const newCaregiver = await caregiverService.createCaregiver(
+  {
+    organizationId: 'org-123',
+    branchIds: ['branch-1'],
+    primaryBranchId: 'branch-1',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    dateOfBirth: new Date('1985-05-15'),
+    primaryPhone: {
+      number: '+12065551234',
       type: 'MOBILE',
       canReceiveSMS: true,
     },
-    isPrimary: true,
-  }],
-  employmentType: 'FULL_TIME',
-  hireDate: new Date(),
-  role: 'HOME_HEALTH_AIDE',
-  payRate: {
-    id: uuid(),
-    rateType: 'BASE',
-    amount: 22.50,
-    unit: 'HOURLY',
-    effectiveDate: new Date(),
+    email: 'jane.smith@example.com',
+    primaryAddress: {
+      type: 'HOME',
+      line1: '123 Main St',
+      city: 'Seattle',
+      state: 'WA',
+      postalCode: '98101',
+      country: 'US',
+    },
+    emergencyContacts: [
+      {
+        id: uuid(),
+        name: 'John Smith',
+        relationship: 'Spouse',
+        phone: {
+          number: '+12065555678',
+          type: 'MOBILE',
+          canReceiveSMS: true,
+        },
+        isPrimary: true,
+      },
+    ],
+    employmentType: 'FULL_TIME',
+    hireDate: new Date(),
+    role: 'HOME_HEALTH_AIDE',
+    payRate: {
+      id: uuid(),
+      rateType: 'BASE',
+      amount: 22.5,
+      unit: 'HOURLY',
+      effectiveDate: new Date(),
+    },
   },
-}, userContext);
+  userContext
+);
 
 console.log(`Created caregiver: ${newCaregiver.employeeNumber}`);
 ```
@@ -106,15 +111,19 @@ console.log(`Created caregiver: ${newCaregiver.employeeNumber}`);
 ### 4. Search for Caregivers
 
 ```typescript
-const results = await caregiverService.searchCaregivers({
-  organizationId: 'org-123',
-  status: ['ACTIVE'],
-  complianceStatus: ['COMPLIANT'],
-  languages: ['Spanish'],
-}, {
-  page: 1,
-  limit: 20,
-}, userContext);
+const results = await caregiverService.searchCaregivers(
+  {
+    organizationId: 'org-123',
+    status: ['ACTIVE'],
+    complianceStatus: ['COMPLIANT'],
+    languages: ['Spanish'],
+  },
+  {
+    page: 1,
+    limit: 20,
+  },
+  userContext
+);
 
 console.log(`Found ${results.total} caregivers`);
 ```
@@ -166,33 +175,23 @@ await caregiverService.updateCaregiver(
       schedule: {
         monday: {
           available: true,
-          timeSlots: [
-            { startTime: '09:00', endTime: '17:00' }
-          ],
+          timeSlots: [{ startTime: '09:00', endTime: '17:00' }],
         },
         tuesday: {
           available: true,
-          timeSlots: [
-            { startTime: '09:00', endTime: '17:00' }
-          ],
+          timeSlots: [{ startTime: '09:00', endTime: '17:00' }],
         },
         wednesday: {
           available: true,
-          timeSlots: [
-            { startTime: '09:00', endTime: '17:00' }
-          ],
+          timeSlots: [{ startTime: '09:00', endTime: '17:00' }],
         },
         thursday: {
           available: true,
-          timeSlots: [
-            { startTime: '09:00', endTime: '17:00' }
-          ],
+          timeSlots: [{ startTime: '09:00', endTime: '17:00' }],
         },
         friday: {
           available: true,
-          timeSlots: [
-            { startTime: '09:00', endTime: '17:00' }
-          ],
+          timeSlots: [{ startTime: '09:00', endTime: '17:00' }],
         },
         saturday: { available: false },
         sunday: { available: false },
@@ -218,7 +217,7 @@ if (eligibility.isEligible) {
   console.log('✅ Caregiver is eligible');
 } else {
   console.log('❌ Caregiver is not eligible:');
-  eligibility.reasons.forEach(reason => {
+  eligibility.reasons.forEach((reason) => {
     console.log(`  - [${reason.severity}] ${reason.message}`);
   });
 }
@@ -235,16 +234,18 @@ const expiring = await caregiverService.getCaregiversWithExpiringCredentials(
 
 console.log(`${expiring.length} caregivers have credentials expiring soon`);
 
-expiring.forEach(cg => {
+expiring.forEach((cg) => {
   console.log(`\n${cg.employeeNumber}: ${cg.firstName} ${cg.lastName}`);
-  
-  const expiringCreds = cg.credentials.filter(c => 
-    c.expirationDate && 
-    new Date(c.expirationDate) <= new Date(Date.now() + 30*24*60*60*1000) &&
-    new Date(c.expirationDate) >= new Date()
+
+  const expiringCreds = cg.credentials.filter(
+    (c) =>
+      c.expirationDate &&
+      new Date(c.expirationDate) <=
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) &&
+      new Date(c.expirationDate) >= new Date()
   );
-  
-  expiringCreds.forEach(cred => {
+
+  expiringCreds.forEach((cred) => {
     console.log(`  ⚠️  ${cred.name} expires ${cred.expirationDate}`);
   });
 });
@@ -301,8 +302,10 @@ const available = await caregiverService.findAvailableForShift(
 );
 
 console.log(`${available.length} caregivers available`);
-available.forEach(cg => {
-  console.log(`- ${cg.employeeNumber}: ${cg.firstName} ${cg.lastName} (Reliability: ${cg.reliabilityScore})`);
+available.forEach((cg) => {
+  console.log(
+    `- ${cg.employeeNumber}: ${cg.firstName} ${cg.lastName} (Reliability: ${cg.reliabilityScore})`
+  );
 });
 ```
 
@@ -355,11 +358,11 @@ const schedulerContext = {
 ## Error Handling
 
 ```typescript
-import { 
-  ValidationError, 
-  PermissionError, 
+import {
+  ValidationError,
+  PermissionError,
   NotFoundError,
-  ConflictError 
+  ConflictError,
 } from '@care-commons/core';
 
 try {
@@ -406,15 +409,18 @@ The vertical is fully typed. Your IDE will provide:
 
 ```typescript
 // Your IDE will suggest all available fields
-const caregiver = await caregiverService.createCaregiver({
-  // Type-safe auto-completion here
-  firstName: 'Jane',
-  // ...
-}, userContext);
+const caregiver = await caregiverService.createCaregiver(
+  {
+    // Type-safe auto-completion here
+    firstName: 'Jane',
+    // ...
+  },
+  userContext
+);
 
 // Access with confidence
 console.log(caregiver.employeeNumber); // Type: string
-console.log(caregiver.credentials);    // Type: Credential[]
+console.log(caregiver.credentials); // Type: Credential[]
 console.log(caregiver.complianceStatus); // Type: ComplianceStatus
 ```
 

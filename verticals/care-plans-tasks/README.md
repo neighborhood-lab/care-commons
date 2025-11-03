@@ -6,7 +6,11 @@
 
 > Structured plan of care with task management and progress tracking
 
-The **Care Plans & Tasks Library** vertical provides comprehensive functionality for creating, managing, and tracking care plans with associated tasks, interventions, and progress documentation. It enables care coordinators to define structured care strategies and field staff to execute and document care delivery in real-time.
+The **Care Plans & Tasks Library** vertical provides comprehensive functionality
+for creating, managing, and tracking care plans with associated tasks,
+interventions, and progress documentation. It enables care coordinators to
+define structured care strategies and field staff to execute and document care
+delivery in real-time.
 
 ## Features
 
@@ -14,8 +18,10 @@ The **Care Plans & Tasks Library** vertical provides comprehensive functionality
 
 - **Care Plan Management** - Create comprehensive, client-specific care plans
 - **Goal Setting** - Define measurable, time-bound care objectives
-- **Intervention Planning** - Specify evidence-based interventions to achieve goals
-- **Task Templates** - Create reusable task definitions for consistent care delivery
+- **Intervention Planning** - Specify evidence-based interventions to achieve
+  goals
+- **Task Templates** - Create reusable task definitions for consistent care
+  delivery
 - **Task Instances** - Generate visit-specific tasks from templates
 - **Progress Tracking** - Monitor goal achievement and care plan effectiveness
 - **Progress Notes** - Capture detailed observations and care narratives
@@ -24,11 +30,14 @@ The **Care Plans & Tasks Library** vertical provides comprehensive functionality
 
 ### Care Plan Features
 
-- **Multiple Plan Types** - Personal care, companion, skilled nursing, therapy, hospice, respite
+- **Multiple Plan Types** - Personal care, companion, skilled nursing, therapy,
+  hospice, respite
 - **Authorization Tracking** - Hours, dates, payer source, authorization numbers
 - **Service Frequency** - Define visit patterns and scheduling requirements
-- **Care Team Assignment** - Coordinator, primary caregiver, supervisor, physician
-- **Medical Context** - Diagnosis, functional limitations, allergies, contraindications
+- **Care Team Assignment** - Coordinator, primary caregiver, supervisor,
+  physician
+- **Medical Context** - Diagnosis, functional limitations, allergies,
+  contraindications
 - **Documentation Requirements** - Specify required forms, assessments, reviews
 - **Modification History** - Complete audit trail of plan changes
 - **Expiration Tracking** - Alerts for plans requiring review or renewal
@@ -39,7 +48,8 @@ The **Care Plans & Tasks Library** vertical provides comprehensive functionality
 - **Measurable Outcomes** - Quantitative, qualitative, or binary measurement
 - **Milestone Tracking** - Break goals into achievable milestones
 - **Progress Percentage** - Visual indicator of goal completion
-- **Multiple Categories** - Mobility, ADL, IADL, nutrition, safety, cognitive, emotional
+- **Multiple Categories** - Mobility, ADL, IADL, nutrition, safety, cognitive,
+  emotional
 - **Status Tracking** - Not started, in progress, on track, at risk, achieved
 - **Barrier Documentation** - Capture obstacles to goal achievement
 
@@ -57,7 +67,8 @@ The **Care Plans & Tasks Library** vertical provides comprehensive functionality
 
 - **Task Templates** - Reusable definitions for common care activities
 - **Task Instances** - Visit-specific tasks generated from templates
-- **25+ Task Categories** - Bathing, dressing, medication, mobility, monitoring, etc.
+- **25+ Task Categories** - Bathing, dressing, medication, mobility, monitoring,
+  etc.
 - **Scheduling** - Date, time, time-of-day, estimated duration
 - **Step-by-Step Instructions** - Break complex tasks into manageable steps
 - **Quality Checks** - Embedded questions to ensure quality care
@@ -72,15 +83,18 @@ The **Care Plans & Tasks Library** vertical provides comprehensive functionality
 - **Electronic Signatures** - Touchscreen, stylus, or digital signature
 - **Photo Verification** - Visual evidence of task completion
 - **GPS Verification** - Location-based verification
-- **Vital Signs Capture** - Blood pressure, heart rate, temperature, O2 sat, pain scale
+- **Vital Signs Capture** - Blood pressure, heart rate, temperature, O2 sat,
+  pain scale
 - **Quality Check Responses** - Structured quality assurance data
 - **Custom Field Values** - Task-specific data collection
 
 ### Progress Documentation
 
-- **Multiple Note Types** - Visit notes, weekly summaries, monthly reviews, incidents
+- **Multiple Note Types** - Visit notes, weekly summaries, monthly reviews,
+  incidents
 - **Goal Progress Tracking** - Status updates for each goal
-- **Structured Observations** - Physical, cognitive, emotional, behavioral, social, safety
+- **Structured Observations** - Physical, cognitive, emotional, behavioral,
+  social, safety
 - **Concerns & Recommendations** - Document issues and suggest interventions
 - **Review & Approval** - Supervisor review workflow
 - **Signature Support** - Sign notes for compliance
@@ -90,7 +104,8 @@ The **Care Plans & Tasks Library** vertical provides comprehensive functionality
 
 - **Authorization Management** - Track approved hours and service dates
 - **Payer Source Tracking** - Medicare, Medicaid, private insurance, private pay
-- **Regulatory Requirements** - Document compliance with state/federal regulations
+- **Regulatory Requirements** - Document compliance with state/federal
+  regulations
 - **Compliance Status** - Compliant, pending review, expired, non-compliant
 - **Required Documentation** - Track mandatory forms and assessments
 - **Signature Requirements** - Client, family, caregiver, physician signatures
@@ -108,38 +123,38 @@ interface CarePlan {
   id: UUID;
   planNumber: string;
   name: string;
-  
+
   // Associations
   clientId: UUID;
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Plan details
   planType: CarePlanType;
   status: CarePlanStatus;
   priority: Priority;
   effectiveDate: Date;
   expirationDate?: Date;
-  
+
   // Care content
   goals: CarePlanGoal[];
   interventions: Intervention[];
   taskTemplates: TaskTemplate[];
-  
+
   // Team
   coordinatorId?: UUID;
   primaryCaregiverId?: UUID;
-  
+
   // Authorization
   authorizationNumber?: string;
   payerSource?: PayerSource;
   authorizationHours?: number;
   authorizationStartDate?: Date;
   authorizationEndDate?: Date;
-  
+
   // Compliance
   complianceStatus: ComplianceStatus;
-  
+
   // Audit
   createdAt: Date;
   updatedAt: Date;
@@ -160,13 +175,13 @@ interface CarePlanGoal {
   status: GoalStatus;
   priority: Priority;
   targetDate?: Date;
-  
+
   // Measurement
   measurementType?: 'QUANTITATIVE' | 'QUALITATIVE' | 'BINARY';
   targetValue?: number;
   currentValue?: number;
   progressPercentage?: number;
-  
+
   // Tracking
   milestones?: Milestone[];
   achievedDate?: Date;
@@ -184,25 +199,25 @@ interface TaskTemplate {
   name: string;
   description: string;
   category: TaskCategory;
-  
+
   // Scheduling
   frequency: Frequency;
   estimatedDuration?: number;
   timeOfDay?: TimeOfDay[];
-  
+
   // Instructions
   instructions: string;
   steps?: TaskStep[];
-  
+
   // Requirements
   requiresSignature: boolean;
   requiresNote: boolean;
   requiresPhoto?: boolean;
   requiresVitals?: boolean;
-  
+
   // Quality
   qualityChecks?: QualityCheck[];
-  
+
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 }
 ```
@@ -219,17 +234,17 @@ interface TaskInstance {
   visitId?: UUID;
   clientId: UUID;
   assignedCaregiverId?: UUID;
-  
+
   name: string;
   description: string;
   category: TaskCategory;
   instructions: string;
-  
+
   scheduledDate: Date;
   scheduledTime?: string;
-  
+
   status: TaskStatus;
-  
+
   // Completion
   completedAt?: Date;
   completedBy?: UUID;
@@ -242,11 +257,13 @@ interface TaskInstance {
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - PostgreSQL 14+ running locally
 - All migrations applied: `npm run db:migrate` (✅ Complete)
 
 ### Backend Setup (✅ Complete)
+
 The backend API is fully implemented and ready to use:
 
 ```bash
@@ -265,6 +282,7 @@ npm run dev:server
 ```
 
 ### Testing the API
+
 See `DEMO.md` for comprehensive curl examples. Quick test:
 
 ```bash
@@ -275,7 +293,10 @@ curl -H "X-User-Id: user-123" \
 ```
 
 ### Frontend Setup (🚧 In Progress)
-The frontend implementation is planned. Follow the pattern from `client-demographics` vertical:
+
+The frontend implementation is planned. Follow the pattern from
+`client-demographics` vertical:
+
 1. Create types in `packages/web/src/verticals/care-plans/types/`
 2. Create API service in `packages/web/src/verticals/care-plans/services/`
 3. Create React Query hooks in `packages/web/src/verticals/care-plans/hooks/`
@@ -294,70 +315,80 @@ import { Database } from '@care-commons/core';
 const db = new Database(config);
 const service = new CarePlanService(db);
 
-const carePlan = await service.createCarePlan({
-  clientId: 'client-123',
-  organizationId: 'org-456',
-  name: 'Comprehensive Personal Care Plan',
-  planType: 'PERSONAL_CARE',
-  effectiveDate: new Date('2024-01-01'),
-  expirationDate: new Date('2024-12-31'),
-  coordinatorId: 'coord-789',
-  
-  goals: [{
-    name: 'Improve Mobility',
-    description: 'Increase ability to walk independently for 15 minutes',
-    category: 'MOBILITY',
-    status: 'NOT_STARTED',
-    priority: 'HIGH',
-    targetDate: new Date('2024-06-01'),
-    measurementType: 'QUANTITATIVE',
-    targetValue: 15,
-    unit: 'minutes',
-  }],
-  
-  interventions: [{
-    name: 'Ambulation Assistance',
-    description: 'Assist client with walking exercises',
-    category: 'AMBULATION_ASSISTANCE',
-    goalIds: ['goal-1'],
-    frequency: {
-      pattern: 'DAILY',
-      timesPerDay: 2,
-    },
-    duration: 20,
-    instructions: 'Help client walk around home for 10-15 minutes...',
-    performedBy: ['CAREGIVER', 'CNA'],
-    requiresDocumentation: true,
-    status: 'ACTIVE',
-    startDate: new Date(),
-  }],
-  
-  taskTemplates: [{
-    name: 'Morning Ambulation',
-    description: 'Assist with morning walk',
-    category: 'AMBULATION',
-    frequency: {
-      pattern: 'DAILY',
-      specificTimes: ['09:00'],
-    },
-    instructions: 'Walk with client for 15 minutes...',
-    requiresSignature: true,
-    requiresNote: true,
-    isOptional: false,
-    allowSkip: true,
-    skipReasons: ['Client refused', 'Client too fatigued', 'Safety concern'],
-    status: 'ACTIVE',
-  }],
-}, userContext);
+const carePlan = await service.createCarePlan(
+  {
+    clientId: 'client-123',
+    organizationId: 'org-456',
+    name: 'Comprehensive Personal Care Plan',
+    planType: 'PERSONAL_CARE',
+    effectiveDate: new Date('2024-01-01'),
+    expirationDate: new Date('2024-12-31'),
+    coordinatorId: 'coord-789',
+
+    goals: [
+      {
+        name: 'Improve Mobility',
+        description: 'Increase ability to walk independently for 15 minutes',
+        category: 'MOBILITY',
+        status: 'NOT_STARTED',
+        priority: 'HIGH',
+        targetDate: new Date('2024-06-01'),
+        measurementType: 'QUANTITATIVE',
+        targetValue: 15,
+        unit: 'minutes',
+      },
+    ],
+
+    interventions: [
+      {
+        name: 'Ambulation Assistance',
+        description: 'Assist client with walking exercises',
+        category: 'AMBULATION_ASSISTANCE',
+        goalIds: ['goal-1'],
+        frequency: {
+          pattern: 'DAILY',
+          timesPerDay: 2,
+        },
+        duration: 20,
+        instructions: 'Help client walk around home for 10-15 minutes...',
+        performedBy: ['CAREGIVER', 'CNA'],
+        requiresDocumentation: true,
+        status: 'ACTIVE',
+        startDate: new Date(),
+      },
+    ],
+
+    taskTemplates: [
+      {
+        name: 'Morning Ambulation',
+        description: 'Assist with morning walk',
+        category: 'AMBULATION',
+        frequency: {
+          pattern: 'DAILY',
+          specificTimes: ['09:00'],
+        },
+        instructions: 'Walk with client for 15 minutes...',
+        requiresSignature: true,
+        requiresNote: true,
+        isOptional: false,
+        allowSkip: true,
+        skipReasons: [
+          'Client refused',
+          'Client too fatigued',
+          'Safety concern',
+        ],
+        status: 'ACTIVE',
+      },
+    ],
+  },
+  userContext
+);
 ```
 
 ### Activating a Care Plan
 
 ```typescript
-const activated = await service.activateCarePlan(
-  carePlan.id,
-  userContext
-);
+const activated = await service.activateCarePlan(carePlan.id, userContext);
 ```
 
 ### Creating Tasks for a Visit
@@ -379,7 +410,8 @@ console.log(`Created ${tasks.length} tasks for visit`);
 const completed = await service.completeTask(
   taskId,
   {
-    completionNote: 'Client walked for 15 minutes with minimal assistance. Good endurance today.',
+    completionNote:
+      'Client walked for 15 minutes with minimal assistance. Good endurance today.',
     signature: {
       signatureData: 'base64-encoded-signature...',
       signedBy: caregiverId,
@@ -400,11 +432,13 @@ const completed = await service.completeTask(
         oxygenSaturation: 98,
       },
     },
-    qualityCheckResponses: [{
-      checkId: 'check-1',
-      question: 'Client able to ambulate safely?',
-      response: true,
-    }],
+    qualityCheckResponses: [
+      {
+        checkId: 'check-1',
+        question: 'Client able to ambulate safely?',
+        response: true,
+      },
+    ],
   },
   userContext
 );
@@ -424,54 +458,65 @@ const skipped = await service.skipTask(
 ### Creating a Progress Note
 
 ```typescript
-const note = await service.createProgressNote({
-  carePlanId,
-  clientId,
-  visitId,
-  noteType: 'VISIT_NOTE',
-  content: 'Client continues to make progress with mobility goals...',
-  
-  goalProgress: [{
-    goalId: 'goal-1',
-    goalName: 'Improve Mobility',
-    status: 'ON_TRACK',
-    progressDescription: 'Client now walking 12 minutes independently',
-    progressPercentage: 80,
-    barriers: ['Some days client too fatigued'],
-    nextSteps: ['Continue daily ambulation', 'Monitor vital signs'],
-  }],
-  
-  observations: [{
-    category: 'PHYSICAL',
-    observation: 'Client ambulated for 15 minutes today with steady gait',
-    severity: 'NORMAL',
-  }],
-  
-  concerns: ['Occasional dizziness upon standing'],
-  recommendations: ['Consider blood pressure monitoring before ambulation'],
-  
-  signature: {
-    signatureData: 'base64...',
-    signedBy: caregiverId,
-    signedByName: 'Jane Smith, CNA',
-    signatureType: 'TOUCHSCREEN',
+const note = await service.createProgressNote(
+  {
+    carePlanId,
+    clientId,
+    visitId,
+    noteType: 'VISIT_NOTE',
+    content: 'Client continues to make progress with mobility goals...',
+
+    goalProgress: [
+      {
+        goalId: 'goal-1',
+        goalName: 'Improve Mobility',
+        status: 'ON_TRACK',
+        progressDescription: 'Client now walking 12 minutes independently',
+        progressPercentage: 80,
+        barriers: ['Some days client too fatigued'],
+        nextSteps: ['Continue daily ambulation', 'Monitor vital signs'],
+      },
+    ],
+
+    observations: [
+      {
+        category: 'PHYSICAL',
+        observation: 'Client ambulated for 15 minutes today with steady gait',
+        severity: 'NORMAL',
+      },
+    ],
+
+    concerns: ['Occasional dizziness upon standing'],
+    recommendations: ['Consider blood pressure monitoring before ambulation'],
+
+    signature: {
+      signatureData: 'base64...',
+      signedBy: caregiverId,
+      signedByName: 'Jane Smith, CNA',
+      signatureType: 'TOUCHSCREEN',
+    },
   },
-}, userContext);
+  userContext
+);
 ```
 
 ### Searching Care Plans
 
 ```typescript
-const results = await service.searchCarePlans({
-  organizationId: 'org-456',
-  status: ['ACTIVE'],
-  expiringWithinDays: 30,
-}, {
-  page: 1,
-  limit: 20,
-  sortBy: 'expiration_date',
-  sortOrder: 'asc',
-}, userContext);
+const results = await service.searchCarePlans(
+  {
+    organizationId: 'org-456',
+    status: ['ACTIVE'],
+    expiringWithinDays: 30,
+  },
+  {
+    page: 1,
+    limit: 20,
+    sortBy: 'expiration_date',
+    sortOrder: 'asc',
+  },
+  userContext
+);
 
 console.log(`Found ${results.total} care plans expiring soon`);
 ```
@@ -479,22 +524,24 @@ console.log(`Found ${results.total} care plans expiring soon`);
 ### Getting Analytics
 
 ```typescript
-const analytics = await service.getCarePlanAnalytics(
-  'org-456',
-  userContext
-);
+const analytics = await service.getCarePlanAnalytics('org-456', userContext);
 
 console.log(`Active plans: ${analytics.activePlans}`);
 console.log(`Goal completion rate: ${analytics.goalCompletionRate}%`);
 console.log(`Task completion rate: ${analytics.taskCompletionRate}%`);
 
-const taskMetrics = await service.getTaskCompletionMetrics({
-  dateFrom: new Date('2024-01-01'),
-  dateTo: new Date('2024-01-31'),
-  organizationId: 'org-456',
-}, userContext);
+const taskMetrics = await service.getTaskCompletionMetrics(
+  {
+    dateFrom: new Date('2024-01-01'),
+    dateTo: new Date('2024-01-31'),
+    organizationId: 'org-456',
+  },
+  userContext
+);
 
-console.log(`Completed: ${taskMetrics.completedTasks}/${taskMetrics.totalTasks}`);
+console.log(
+  `Completed: ${taskMetrics.completedTasks}/${taskMetrics.totalTasks}`
+);
 console.log(`Completion rate: ${taskMetrics.completionRate}%`);
 ```
 
@@ -504,7 +551,8 @@ The vertical uses three main tables:
 
 ### care_plans
 
-Stores comprehensive care plan information with JSONB columns for flexible nested data:
+Stores comprehensive care plan information with JSONB columns for flexible
+nested data:
 
 - **goals** - Array of goal objects
 - **interventions** - Array of intervention objects

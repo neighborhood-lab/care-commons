@@ -1,10 +1,10 @@
 /**
  * Billing & Invoicing domain model
- * 
+ *
  * Transforms care delivery data (visits, time tracking, care plans) into
  * billable items, generates invoices for multiple payer types, tracks
  * claims submission and payment cycles, and provides revenue analytics.
- * 
+ *
  * Key concepts:
  * - Billable Item: Unit of service that can be billed
  * - Invoice: Collection of line items for a specific payer
@@ -14,16 +14,11 @@
  * - Adjustment: Corrections, write-offs, discounts
  */
 
-import {
-  Entity,
-  SoftDeletable,
-  UUID,
-  Timestamp,
-} from '@care-commons/core';
+import { Entity, SoftDeletable, UUID, Timestamp } from '@care-commons/core';
 
 /**
  * Billable Item - Individual service occurrence ready for billing
- * 
+ *
  * Created from completed visits, EVV records, and authorized services.
  * Links service delivery to financial transaction.
  */
@@ -31,77 +26,77 @@ export interface BillableItem extends Entity, SoftDeletable {
   organizationId: UUID;
   branchId: UUID;
   clientId: UUID;
-  
+
   // Service reference
   visitId?: UUID; // May be null for non-visit items
   evvRecordId?: UUID; // Link to EVV for compliance
   serviceTypeId: UUID;
   serviceTypeCode: string; // e.g., CPT, HCPCS codes
   serviceTypeName: string;
-  
+
   // Timing
   serviceDate: Date;
   startTime?: Timestamp;
   endTime?: Timestamp;
   durationMinutes: number;
-  
+
   // Provider
   caregiverId?: UUID;
   caregiverName?: string;
   providerNPI?: string; // National Provider Identifier
-  
+
   // Rates and pricing
   rateScheduleId?: UUID;
   unitType: UnitType;
   units: number; // Hours, visits, tasks, etc.
   unitRate: number; // Rate per unit
   subtotal: number; // units * unitRate
-  
+
   // Modifiers
   modifiers?: BillingModifier[];
   adjustments?: BillableAdjustment[];
   finalAmount: number; // After modifiers and adjustments
-  
+
   // Authorization
   authorizationId?: UUID;
   authorizationNumber?: string;
   isAuthorized: boolean;
   authorizationRemainingUnits?: number;
-  
+
   // Payer
   payerId: UUID;
   payerType: PayerType;
   payerName: string;
-  
+
   // Status
   status: BillableStatus;
   statusHistory: BillableStatusChange[];
-  
+
   // Billing grouping
   invoiceId?: UUID;
   invoiceDate?: Date;
   claimId?: UUID;
   claimSubmittedDate?: Date;
-  
+
   // Flags
   isHold: boolean; // Temporarily held from billing
   holdReason?: string;
   requiresReview: boolean;
   reviewReason?: string;
-  
+
   // Denial handling
   isDenied: boolean;
   denialReason?: string;
   denialCode?: string;
   denialDate?: Date;
   isAppealable: boolean;
-  
+
   // Payment tracking
   isPaid: boolean;
   paidAmount?: number;
   paidDate?: Date;
   paymentId?: UUID;
-  
+
   // Metadata
   notes?: string;
   tags?: string[];
@@ -184,31 +179,31 @@ export interface BillableStatusChange {
 export interface Invoice extends Entity, SoftDeletable {
   organizationId: UUID;
   branchId: UUID;
-  
+
   // Invoice identity
   invoiceNumber: string; // Human-readable
   invoiceType: InvoiceType;
-  
+
   // Payer
   payerId: UUID;
   payerType: PayerType;
   payerName: string;
   payerAddress?: Address;
-  
+
   // Client (for private pay)
   clientId?: UUID;
   clientName?: string;
-  
+
   // Period
   periodStart: Date;
   periodEnd: Date;
   invoiceDate: Date;
   dueDate: Date;
-  
+
   // Line items
   billableItemIds: UUID[];
   lineItems: InvoiceLineItem[];
-  
+
   // Amounts
   subtotal: number;
   taxAmount: number;
@@ -218,30 +213,30 @@ export interface Invoice extends Entity, SoftDeletable {
   totalAmount: number;
   paidAmount: number;
   balanceDue: number;
-  
+
   // Status
   status: InvoiceStatus;
   statusHistory: InvoiceStatusChange[];
-  
+
   // Submission
   submittedDate?: Date;
   submittedBy?: UUID;
   submissionMethod?: SubmissionMethod;
   submissionConfirmation?: string;
-  
+
   // Payment
   paymentTerms?: string;
   lateFeeRate?: number;
   payments: PaymentReference[];
-  
+
   // Documents
   pdfUrl?: string;
   documentIds?: UUID[];
-  
+
   // Claims (for insurance)
   claimIds?: UUID[];
   claimStatus?: ClaimStatus;
-  
+
   // Metadata
   notes?: string;
   internalNotes?: string;
@@ -291,16 +286,16 @@ export type ClaimStatus =
 export interface InvoiceLineItem {
   id: UUID;
   billableItemId: UUID;
-  
+
   // Service
   serviceDate: Date;
   serviceCode: string;
   serviceDescription: string;
-  
+
   // Provider
   providerName?: string;
   providerNPI?: string;
-  
+
   // Pricing
   unitType: UnitType;
   units: number;
@@ -308,14 +303,14 @@ export interface InvoiceLineItem {
   subtotal: number;
   adjustments: number;
   total: number;
-  
+
   // Client reference (for statements)
   clientName?: string;
   clientId?: UUID;
-  
+
   // Modifiers
   modifiers?: BillingModifier[];
-  
+
   // Authorization
   authorizationNumber?: string;
 }
@@ -351,50 +346,50 @@ export interface Address {
 export interface Payment extends Entity {
   organizationId: UUID;
   branchId: UUID;
-  
+
   // Payment identity
   paymentNumber: string;
   paymentType: PaymentType;
-  
+
   // Payer
   payerId: UUID;
   payerType: PayerType;
   payerName: string;
-  
+
   // Amount
   amount: number;
   currency: string; // ISO 4217 code
-  
+
   // Date
   paymentDate: Date;
   receivedDate: Date;
   depositedDate?: Date;
-  
+
   // Method
   paymentMethod: PaymentMethod;
   referenceNumber?: string; // Check number, transaction ID, etc.
-  
+
   // Application
   allocations: PaymentAllocation[];
   unappliedAmount: number; // Amount not yet allocated
-  
+
   // Bank information
   bankAccountId?: UUID;
   depositSlipNumber?: string;
-  
+
   // Status
   status: PaymentStatus;
   statusHistory: PaymentStatusChange[];
-  
+
   // Reconciliation
   isReconciled: boolean;
   reconciledDate?: Date;
   reconciledBy?: UUID;
-  
+
   // Documents
   imageUrl?: string; // Image of check, etc.
   documentIds?: UUID[];
-  
+
   // Metadata
   notes?: string;
   internalNotes?: string;
@@ -455,31 +450,31 @@ export interface PaymentStatusChange {
 export interface RateSchedule extends Entity {
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Identity
   name: string;
   description?: string;
   scheduleType: RateScheduleType;
-  
+
   // Payer
   payerId?: UUID; // Null for default schedule
   payerType?: PayerType;
   payerName?: string;
-  
+
   // Effective dates
   effectiveFrom: Date;
   effectiveTo?: Date;
-  
+
   // Rates
   rates: ServiceRate[];
-  
+
   // Status
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-  
+
   // Approval
   approvedBy?: UUID;
   approvedAt?: Timestamp;
-  
+
   // Metadata
   notes?: string;
 }
@@ -496,27 +491,27 @@ export interface ServiceRate {
   serviceTypeId: UUID;
   serviceTypeCode: string;
   serviceTypeName: string;
-  
+
   // Rate
   unitType: UnitType;
   unitRate: number;
-  
+
   // Optional overrides
   minimumUnits?: number;
   maximumUnits?: number;
   minimumCharge?: number;
   roundingRule?: RoundingRule;
-  
+
   // Time-based modifiers
   weekendRate?: number; // Multiplier for weekends
   holidayRate?: number; // Multiplier for holidays
   nightRate?: number; // Multiplier for night shift
   overtimeRate?: number; // Multiplier for overtime
-  
+
   // Geographic modifiers
   ruralRate?: number; // Adjustment for rural areas
   urbanRate?: number; // Adjustment for urban areas
-  
+
   // Effective dates (within schedule)
   effectiveFrom?: Date;
   effectiveTo?: Date;
@@ -535,25 +530,25 @@ export type RoundingRule =
  */
 export interface Payer extends Entity, SoftDeletable {
   organizationId: UUID;
-  
+
   // Identity
   payerName: string;
   payerType: PayerType;
   payerCode?: string; // Internal code
-  
+
   // External identifiers
   nationalPayerId?: string; // National payer ID
   medicaidProviderId?: string;
   medicareProviderId?: string;
   taxId?: string; // EIN
-  
+
   // Contact
   address?: Address;
   phone?: string;
   fax?: string;
   email?: string;
   website?: string;
-  
+
   // Billing
   billingAddress?: Address;
   billingEmail?: string;
@@ -561,23 +556,23 @@ export interface Payer extends Entity, SoftDeletable {
   submissionMethod?: SubmissionMethod[];
   ediPayerId?: string; // For EDI submissions
   clearinghouseId?: UUID;
-  
+
   // Terms
   paymentTermsDays: number; // Net days
   requiresPreAuthorization: boolean;
   requiresReferral: boolean;
   claimFilingLimit?: number; // Days to file claim
-  
+
   // Rates
   defaultRateScheduleId?: UUID;
-  
+
   // Status
   status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'TERMINATED';
-  
+
   // Performance
   averagePaymentDays?: number;
   denialRate?: number; // Percentage
-  
+
   // Metadata
   notes?: string;
   contacts?: PayerContact[];
@@ -599,58 +594,58 @@ export interface ServiceAuthorization extends Entity, SoftDeletable {
   organizationId: UUID;
   branchId: UUID;
   clientId: UUID;
-  
+
   // Authorization identity
   authorizationNumber: string;
   authorizationType: AuthorizationType;
-  
+
   // Payer
   payerId: UUID;
   payerType: PayerType;
   payerName: string;
-  
+
   // Service
   serviceTypeId: UUID;
   serviceTypeCode: string;
   serviceTypeName: string;
-  
+
   // Authorized amounts
   authorizedUnits: number;
   unitType: UnitType;
   unitRate?: number;
   authorizedAmount?: number;
-  
+
   // Period
   effectiveFrom: Date;
   effectiveTo: Date;
-  
+
   // Usage tracking
   usedUnits: number;
   remainingUnits: number;
   billedUnits: number;
-  
+
   // Restrictions
   requiresReferral: boolean;
   referralNumber?: string;
   allowedProviders?: UUID[]; // Specific caregivers only
   locationRestrictions?: string;
-  
+
   // Status
   status: AuthorizationStatus;
   statusHistory: AuthorizationStatusChange[];
-  
+
   // Review
   reviewedBy?: UUID;
   reviewedAt?: Timestamp;
   reviewNotes?: string;
-  
+
   // Alerts
   lowUnitsThreshold?: number; // Alert when units drop below this
   expirationWarningDays?: number; // Alert days before expiration
-  
+
   // Documents
   documentIds?: UUID[];
-  
+
   // Metadata
   notes?: string;
   internalNotes?: string;
@@ -688,70 +683,70 @@ export interface AuthorizationStatusChange {
 export interface Claim extends Entity {
   organizationId: UUID;
   branchId: UUID;
-  
+
   // Claim identity
   claimNumber: string;
   claimType: ClaimType;
   claimFormat: ClaimFormat;
-  
+
   // Payer
   payerId: UUID;
   payerType: PayerType;
   payerName: string;
-  
+
   // Patient
   clientId: UUID;
   clientName: string;
-  
+
   // Invoice
   invoiceId: UUID;
   invoiceNumber: string;
-  
+
   // Billable items
   billableItemIds: UUID[];
   lineItems: ClaimLineItem[];
-  
+
   // Amounts
   totalCharges: number;
   totalApproved?: number;
   totalPaid?: number;
   totalAdjustments?: number;
   patientResponsibility?: number;
-  
+
   // Submission
   submittedDate: Date;
   submittedBy: UUID;
   submissionMethod: SubmissionMethod;
   submissionBatchId?: UUID;
   controlNumber?: string; // Payer-assigned control number
-  
+
   // Processing
   status: ClaimStatus;
   statusHistory: ClaimStatusChange[];
   processingDate?: Date;
   paymentDate?: Date;
-  
+
   // Denial/rejection
   denialReason?: string;
   denialCode?: string;
   denialDate?: Date;
   isAppealable: boolean;
   appealDeadline?: Date;
-  
+
   // Appeal
   appealId?: UUID;
   appealSubmittedDate?: Date;
   appealStatus?: AppealStatus;
-  
+
   // ERA (Electronic Remittance Advice)
   eraReceived: boolean;
   eraReceivedDate?: Date;
   eraDocumentId?: UUID;
-  
+
   // Documents
   claimFormUrl?: string; // CMS-1500, UB-04, etc.
   supportingDocumentIds?: UUID[];
-  
+
   // Metadata
   notes?: string;
   internalNotes?: string;
@@ -783,19 +778,19 @@ export interface ClaimLineItem {
   id: UUID;
   billableItemId: UUID;
   lineNumber: number;
-  
+
   // Service
   serviceDate: Date;
   serviceCode: string; // CPT, HCPCS
   serviceDescription: string;
-  
+
   // Location
   placeOfService: string; // Place of service code
-  
+
   // Provider
   providerNPI: string;
   providerName: string;
-  
+
   // Charges
   unitType: UnitType;
   units: number;
@@ -803,28 +798,23 @@ export interface ClaimLineItem {
   approvedAmount?: number;
   paidAmount?: number;
   adjustmentAmount?: number;
-  
+
   // Modifiers
   modifiers?: BillingModifier[];
-  
+
   // Authorization
   authorizationNumber?: string;
-  
+
   // Diagnosis
   diagnosisCodes?: string[]; // ICD-10 codes
-  
+
   // Status
   lineStatus: ClaimLineStatus;
   denialCode?: string;
   denialReason?: string;
 }
 
-export type ClaimLineStatus =
-  | 'PENDING'
-  | 'APPROVED'
-  | 'DENIED'
-  | 'ADJUSTED'
-  | 'APPEALED';
+export type ClaimLineStatus = 'PENDING' | 'APPROVED' | 'DENIED' | 'ADJUSTED' | 'APPEALED';
 
 export interface ClaimStatusChange {
   id: UUID;
@@ -843,11 +833,11 @@ export interface ClaimStatusChange {
 export interface BillingReport extends Entity {
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Report identity
   reportType: BillingReportType;
   reportPeriod: ReportPeriod;
-  
+
   // Summary
   totalBillable: number;
   totalInvoiced: number;
@@ -855,21 +845,21 @@ export interface BillingReport extends Entity {
   totalOutstanding: number;
   totalDenied: number;
   totalAdjustments: number;
-  
+
   // Breakdowns
   byPayer?: Record<UUID, PayerSummary>;
   byServiceType?: Record<UUID, ServiceTypeSummary>;
   byClient?: Record<UUID, ClientSummary>;
-  
+
   // Metrics
   collectionRate: number; // Percentage
   denialRate: number; // Percentage
   daysToPayment: number; // Average
-  
+
   // Generation
   generatedAt: Timestamp;
   generatedBy: UUID;
-  
+
   // Export
   exportUrl?: string;
   exportFormat?: 'PDF' | 'CSV' | 'EXCEL' | 'JSON';

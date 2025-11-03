@@ -21,11 +21,7 @@ export const EVVRecordDetail: React.FC = () => {
     return (
       <ErrorMessage
         message="Failed to load EVV record"
-        action={
-          <Button onClick={() => navigate('/time-tracking')}>
-            Back to List
-          </Button>
-        }
+        action={<Button onClick={() => navigate('/time-tracking')}>Back to List</Button>}
       />
     );
   }

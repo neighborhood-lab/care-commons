@@ -6,17 +6,21 @@
 
 > Shared care software, community owned.
 
-**Care Commons** is a modular, self-hostable software platform designed to support the administration and daily operations of home-based care services. Built by the people at **Neighborhood Lab**.
+**Care Commons** is a modular, self-hostable software platform designed to
+support the administration and daily operations of home-based care services.
+Built by the people at **Neighborhood Lab**.
 
 [Care Commons](https://care-commons.vercel.app/) (web application demo)  
-[Care Commons](https://neighborhood-lab.github.io/product/) (product marketing website)  
+[Care Commons](https://neighborhood-lab.github.io/product/) (product marketing
+website)  
 [Neighborhood Lab](https://neighborhood-lab.github.io/) (organization website)  
-[Patreon](https://www.patreon.com/cw/neighborhood_lab) (give your financial support for continued development)
-
+[Patreon](https://www.patreon.com/cw/neighborhood_lab) (give your financial
+support for continued development)
 
 ## Vision
 
-A human-scale alternative to enterprise care management systems. Care Commons emphasizes:
+A human-scale alternative to enterprise care management systems. Care Commons
+emphasizes:
 
 - 🏡 **Human-scale workflows** - Not enterprise excess
 - 🔒 **Local autonomy** - Runs offline and on-premises if needed
@@ -26,7 +30,8 @@ A human-scale alternative to enterprise care management systems. Care Commons em
 
 ## Architecture
 
-Care Commons is structured as a set of independently deployable **verticals** that share a common core:
+Care Commons is structured as a set of independently deployable **verticals**
+that share a common core:
 
 - Unified domain model shared across verticals
 - Event-driven data flows for visit lifecycle
@@ -68,12 +73,17 @@ care-commons/
 
 ### ✅ Implemented
 
-- **[Client & Demographics Management](./verticals/client-demographics/)** - Foundational record system for individuals receiving care
-- **[Caregiver & Staff Management](./verticals/caregiver-staff/)** - Secure directory of personnel providing care services
-- **[Scheduling & Visit Management](./verticals/scheduling-visits/)** - Service patterns, automated scheduling, and real-time visit tracking
-- **[Care Plans & Tasks Library](./verticals/care-plans-tasks/)** - Structured care plans with goals, interventions, and task management
+- **[Client & Demographics Management](./verticals/client-demographics/)** -
+  Foundational record system for individuals receiving care
+- **[Caregiver & Staff Management](./verticals/caregiver-staff/)** - Secure
+  directory of personnel providing care services
+- **[Scheduling & Visit Management](./verticals/scheduling-visits/)** - Service
+  patterns, automated scheduling, and real-time visit tracking
+- **[Care Plans & Tasks Library](./verticals/care-plans-tasks/)** - Structured
+  care plans with goals, interventions, and task management
 
 ### 📋 Planned
+
 - Time Tracking & Electronic Visit Verification (EVV)
 - Shift Matching & Assignment
 - Billing & Invoicing
@@ -168,9 +178,12 @@ npm run lint
 
 ### Code Coverage
 
-This project uses Codecov for tracking code coverage. Coverage reports are automatically generated and uploaded during CI runs. The project maintains a minimum coverage threshold of 70% across all packages.
+This project uses Codecov for tracking code coverage. Coverage reports are
+automatically generated and uploaded during CI runs. The project maintains a
+minimum coverage threshold of 70% across all packages.
 
 To generate coverage reports locally:
+
 ```bash
 npm run test:coverage
 ```
@@ -232,7 +245,7 @@ SNYK_TOKEN=your-snyk-token
 Some workflows can be triggered manually:
 
 1. **Database Operations** - Go to Actions → Database Operations → Run workflow
-2. **Security Scans** - Go to Actions → Security and Dependencies → Run workflow  
+2. **Security Scans** - Go to Actions → Security and Dependencies → Run workflow
 3. **Release** - Go to Actions → Release → Run workflow (or push a git tag)
 
 ## Database Management
@@ -256,7 +269,8 @@ npm run db:migrate:rollback
 
 ## Cloud Deployment
 
-Care Commons supports deployment to **Vercel** with **Neon PostgreSQL** for production-ready, serverless hosting.
+Care Commons supports deployment to **Vercel** with **Neon PostgreSQL** for
+production-ready, serverless hosting.
 
 ### Prerequisites for Cloud Deployment
 
@@ -276,30 +290,34 @@ Care Commons supports deployment to **Vercel** with **Neon PostgreSQL** for prod
 ### Vercel Project Setup
 
 1. Install Vercel CLI:
+
    ```bash
    npm install -g vercel
    ```
 
 2. Login to Vercel:
+
    ```bash
    vercel login
    ```
 
 3. Link your project:
+
    ```bash
    vercel link
    ```
 
 4. Add environment variables to Vercel:
+
    ```bash
    # For production
    vercel env add DATABASE_URL production
    # Paste your Neon production connection string (with pooling)
-   
+
    # For staging
    vercel env add DATABASE_URL preview
    # Paste your Neon staging connection string (with pooling)
-   
+
    # Add other secrets
    vercel env add JWT_SECRET production
    vercel env add ENCRYPTION_KEY production
@@ -323,16 +341,19 @@ npm run deploy:production
 The project includes automated deployment workflows:
 
 #### Preview Deployments
+
 - Automatically deploy on every pull request
 - Preview URL posted as PR comment
 - Uses staging database
 
 #### Staging Deployments
+
 - Deploy to staging on `develop` branch pushes
 - Runs database migrations automatically
 - Health check validation
 
 #### Production Deployments
+
 - Deploy to production on `main` branch pushes
 - Runs database migrations automatically
 - Health check validation
@@ -340,7 +361,8 @@ The project includes automated deployment workflows:
 
 ### Required GitHub Secrets
 
-Add these secrets in your repository settings (Settings → Secrets and variables → Actions):
+Add these secrets in your repository settings (Settings → Secrets and variables
+→ Actions):
 
 ```bash
 # Vercel
@@ -386,7 +408,8 @@ curl https://your-app.vercel.app/health
 
 ### Database Migrations on Vercel
 
-Migrations run automatically during deployment via GitHub Actions. To run manually:
+Migrations run automatically during deployment via GitHub Actions. To run
+manually:
 
 ```bash
 # Set DATABASE_URL environment variable
@@ -420,24 +443,33 @@ vercel promote <deployment-url> --scope <team-name>
 
 ### Best Practices
 
-1. **Database Pooling**: Always use Neon's pooled connection string for serverless environments
-2. **Environment Variables**: Never commit secrets to git - use Vercel environment variables
+1. **Database Pooling**: Always use Neon's pooled connection string for
+   serverless environments
+2. **Environment Variables**: Never commit secrets to git - use Vercel
+   environment variables
 3. **Migrations**: Test migrations on staging before deploying to production
 4. **Health Checks**: Monitor the `/health` endpoint for database connectivity
-5. **Preview Deployments**: Review changes on preview URLs before merging to main
+5. **Preview Deployments**: Review changes on preview URLs before merging to
+   main
 
 ## Documentation
 
-- [Technical Plan](./care-commons-tech-plan.md) - Overall product vision and vertical descriptions
-- [Client & Demographics](./verticals/client-demographics/README.md) - Client management vertical documentation
-- [Caregiver & Staff Management](./verticals/caregiver-staff/README.md) - Caregiver and staff management documentation
-- [Scheduling & Visit Management](./verticals/scheduling-visits/README.md) - Scheduling and visit tracking documentation
-- [Care Plans & Tasks Library](./verticals/care-plans-tasks/README.md) - Care plans, goals, interventions, and task management
+- [Technical Plan](./care-commons-tech-plan.md) - Overall product vision and
+  vertical descriptions
+- [Client & Demographics](./verticals/client-demographics/README.md) - Client
+  management vertical documentation
+- [Caregiver & Staff Management](./verticals/caregiver-staff/README.md) -
+  Caregiver and staff management documentation
+- [Scheduling & Visit Management](./verticals/scheduling-visits/README.md) -
+  Scheduling and visit tracking documentation
+- [Care Plans & Tasks Library](./verticals/care-plans-tasks/README.md) - Care
+  plans, goals, interventions, and task management
 - [Core Package](./packages/core/README.md) - Core functionality documentation
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for
+guidelines.
 
 ### Development Principles
 
@@ -454,12 +486,15 @@ See [LICENSE](./LICENSE) for details.
 
 ## Community
 
-- **GitHub**: [neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons)
-- **Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/care-commons/issues)
+- **GitHub**:
+  [neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons)
+- **Issues**:
+  [Report bugs or request features](https://github.com/neighborhood-lab/care-commons/issues)
 
 ---
 
-**Care Commons** is brought to you by [Neighborhood Lab](https://neighborhoodlab.org) 🏡
+**Care Commons** is brought to you by
+[Neighborhood Lab](https://neighborhoodlab.org) 🏡
 
 Shared care software, community owned.
 

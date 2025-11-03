@@ -1,6 +1,6 @@
 /**
  * Search query builder for advanced client filtering
- * 
+ *
  * Provides a fluent interface for building complex client searches
  */
 
@@ -175,18 +175,12 @@ export const ClientSearchTemplates = {
   /**
    * High-risk active clients
    */
-  highRiskClients: () =>
-    createClientSearch()
-      .activeOnly()
-      .highRiskOnly(),
+  highRiskClients: () => createClientSearch().activeOnly().highRiskOnly(),
 
   /**
    * Elderly clients (80+)
    */
-  elderlyClients: () =>
-    createClientSearch()
-      .activeOnly()
-      .ageAtLeast(80),
+  elderlyClients: () => createClientSearch().activeOnly().ageAtLeast(80),
 
   /**
    * Clients pending intake
@@ -206,41 +200,32 @@ export const ClientSearchTemplates = {
   /**
    * Clients in a specific city
    */
-  inCity: (city: string) =>
-    createClientSearch()
-      .activeOnly()
-      .inCity(city),
+  inCity: (city: string) => createClientSearch().activeOnly().inCity(city),
 
   /**
    * Clients with fall risk
    */
-  fallRisk: () =>
-    createClientSearch()
-      .activeOnly()
-      .withRiskFlags('FALL_RISK'),
+  fallRisk: () => createClientSearch().activeOnly().withRiskFlags('FALL_RISK'),
 
   /**
    * Clients with wandering risk
    */
-  wanderingRisk: () =>
-    createClientSearch()
-      .activeOnly()
-      .withRiskFlags('WANDERING'),
+  wanderingRisk: () => createClientSearch().activeOnly().withRiskFlags('WANDERING'),
 };
 
 /**
  * Usage examples:
- * 
+ *
  * // Basic search
  * const filters = createClientSearch()
  *   .activeOnly()
  *   .inCity('Springfield')
  *   .ageAtLeast(65)
  *   .build();
- * 
+ *
  * // Using templates
  * const filters = ClientSearchTemplates.highRiskClients().build();
- * 
+ *
  * // Complex search
  * const filters = createClientSearch()
  *   .inOrganization('org-123')

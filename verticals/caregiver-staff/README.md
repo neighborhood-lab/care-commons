@@ -2,36 +2,54 @@
 
 > Secure directory of personnel providing care services
 
-The **Caregiver & Staff Management** vertical provides comprehensive functionality for managing caregivers, field staff, and administrative personnel within home-based care organizations. It tracks credentials, availability, compliance, and performance while enabling intelligent matching for shift assignments.
+The **Caregiver & Staff Management** vertical provides comprehensive
+functionality for managing caregivers, field staff, and administrative personnel
+within home-based care organizations. It tracks credentials, availability,
+compliance, and performance while enabling intelligent matching for shift
+assignments.
 
 ## Features
 
 ### Core Functionality
 
-- **Personnel Directory** - Centralized database of all caregivers and staff members
-- **Credential Management** - Track certifications, licenses, and expiration dates
-- **Compliance Tracking** - Background checks, drug screenings, health screenings
-- **Training Records** - Document orientation, mandatory training, and continuing education
-- **Availability Management** - Weekly schedules, blackout dates, and shift preferences
-- **Skills & Specializations** - Track clinical skills, language proficiency, and specialized care capabilities
+- **Personnel Directory** - Centralized database of all caregivers and staff
+  members
+- **Credential Management** - Track certifications, licenses, and expiration
+  dates
+- **Compliance Tracking** - Background checks, drug screenings, health
+  screenings
+- **Training Records** - Document orientation, mandatory training, and
+  continuing education
+- **Availability Management** - Weekly schedules, blackout dates, and shift
+  preferences
+- **Skills & Specializations** - Track clinical skills, language proficiency,
+  and specialized care capabilities
 - **Performance Management** - Ratings, reviews, and reliability scoring
 - **Compensation** - Pay rates, overtime rules, and payroll integration
-- **Branch Assignment** - Multi-branch support with primary and secondary assignments
+- **Branch Assignment** - Multi-branch support with primary and secondary
+  assignments
 
 ### Compliance & Safety
 
-- **Automated Expiration Tracking** - Alerts for credentials expiring within 30 days
-- **Compliance Status Calculation** - Real-time assessment based on credentials and checks
-- **Restricted Assignments** - Prevent assignment to specific clients when necessary
-- **Document Management** - Secure storage of licenses, certificates, and training records
+- **Automated Expiration Tracking** - Alerts for credentials expiring within 30
+  days
+- **Compliance Status Calculation** - Real-time assessment based on credentials
+  and checks
+- **Restricted Assignments** - Prevent assignment to specific clients when
+  necessary
+- **Document Management** - Secure storage of licenses, certificates, and
+  training records
 - **Audit Trail** - Complete history of all changes for regulatory compliance
 
 ### Workforce Intelligence
 
-- **Eligibility Checking** - Validate caregiver suitability for specific assignments
+- **Eligibility Checking** - Validate caregiver suitability for specific
+  assignments
 - **Reliability Scoring** - Calculated metric based on shift history
-- **Skills Matching** - Match caregivers to client needs based on certifications and experience
-- **Language Matching** - Connect clients with caregivers who speak their language
+- **Skills Matching** - Match caregivers to client needs based on certifications
+  and experience
+- **Language Matching** - Connect clients with caregivers who speak their
+  language
 - **Distance Calculation** - Consider travel distance for scheduling efficiency
 
 ## Data Model
@@ -46,46 +64,46 @@ interface Caregiver {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
-  
+
   // Organization
   organizationId: UUID;
   branchIds: UUID[];
   primaryBranchId: UUID;
-  
+
   // Employment
   employmentType: EmploymentType;
   employmentStatus: EmploymentStatus;
   hireDate: Date;
   role: CaregiverRole;
-  
+
   // Credentials & Compliance
   credentials: Credential[];
   backgroundCheck: BackgroundCheck;
   drugScreening: DrugScreening;
   healthScreening: HealthScreening;
   complianceStatus: ComplianceStatus;
-  
+
   // Training & Skills
   training: TrainingRecord[];
   skills: Skill[];
   specializations: string[];
   languages: string[];
-  
+
   // Availability
   availability: WeeklyAvailability;
   workPreferences: WorkPreferences;
-  
+
   // Compensation
   payRate: PayRate;
   alternatePayRates: PayRate[];
-  
+
   // Performance
   performanceRating: number;
   reliabilityScore: number;
-  
+
   // Status
   status: CaregiverStatus;
-  
+
   // Audit fields
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -157,70 +175,81 @@ import { Database } from '@care-commons/core';
 const db = new Database(config);
 const caregiverService = new CaregiverService(db);
 
-const caregiver = await caregiverService.createCaregiver({
-  organizationId: 'org-123',
-  branchIds: ['branch-1', 'branch-2'],
-  primaryBranchId: 'branch-1',
-  firstName: 'Jane',
-  lastName: 'Smith',
-  dateOfBirth: new Date('1985-05-15'),
-  primaryPhone: {
-    number: '+12065551234',
-    type: 'MOBILE',
-    canReceiveSMS: true,
-  },
-  email: 'jane.smith@example.com',
-  primaryAddress: {
-    type: 'HOME',
-    line1: '123 Main St',
-    city: 'Seattle',
-    state: 'WA',
-    postalCode: '98101',
-    country: 'US',
-  },
-  emergencyContacts: [{
-    id: uuid(),
-    name: 'John Smith',
-    relationship: 'Spouse',
-    phone: {
-      number: '+12065555678',
+const caregiver = await caregiverService.createCaregiver(
+  {
+    organizationId: 'org-123',
+    branchIds: ['branch-1', 'branch-2'],
+    primaryBranchId: 'branch-1',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    dateOfBirth: new Date('1985-05-15'),
+    primaryPhone: {
+      number: '+12065551234',
       type: 'MOBILE',
       canReceiveSMS: true,
     },
-    isPrimary: true,
-  }],
-  employmentType: 'FULL_TIME',
-  hireDate: new Date(),
-  role: 'HOME_HEALTH_AIDE',
-  payRate: {
-    id: uuid(),
-    rateType: 'BASE',
-    amount: 22.50,
-    unit: 'HOURLY',
-    effectiveDate: new Date(),
+    email: 'jane.smith@example.com',
+    primaryAddress: {
+      type: 'HOME',
+      line1: '123 Main St',
+      city: 'Seattle',
+      state: 'WA',
+      postalCode: '98101',
+      country: 'US',
+    },
+    emergencyContacts: [
+      {
+        id: uuid(),
+        name: 'John Smith',
+        relationship: 'Spouse',
+        phone: {
+          number: '+12065555678',
+          type: 'MOBILE',
+          canReceiveSMS: true,
+        },
+        isPrimary: true,
+      },
+    ],
+    employmentType: 'FULL_TIME',
+    hireDate: new Date(),
+    role: 'HOME_HEALTH_AIDE',
+    payRate: {
+      id: uuid(),
+      rateType: 'BASE',
+      amount: 22.5,
+      unit: 'HOURLY',
+      effectiveDate: new Date(),
+    },
   },
-}, userContext);
+  userContext
+);
 ```
 
 ### Searching Caregivers
 
 ```typescript
-const results = await caregiverService.searchCaregivers({
-  query: 'smith',
-  organizationId: 'org-123',
-  branchId: 'branch-1',
-  status: ['ACTIVE'],
-  complianceStatus: ['COMPLIANT'],
-  languages: ['Spanish'],
-  skills: ['Dementia Care'],
-}, {
-  page: 1,
-  limit: 20,
-}, userContext);
+const results = await caregiverService.searchCaregivers(
+  {
+    query: 'smith',
+    organizationId: 'org-123',
+    branchId: 'branch-1',
+    status: ['ACTIVE'],
+    complianceStatus: ['COMPLIANT'],
+    languages: ['Spanish'],
+    skills: ['Dementia Care'],
+  },
+  {
+    page: 1,
+    limit: 20,
+  },
+  userContext
+);
 
 console.log(`Found ${results.total} caregivers`);
-results.items.forEach(caregiver => {
-  console.log(`${caregiver.employeeNumber}: ${caregiver.firstName} ${caregiver.lastName}`);
+results.items.forEach((caregiver) => {
+  console.log(
+    `${caregiver.employeeNumber}: ${caregiver.firstName} ${caregiver.lastName}`
+  );
 });
 ```
 
@@ -236,7 +265,7 @@ const eligibility = await caregiverService.checkEligibilityForAssignment(
 
 if (!eligibility.isEligible) {
   console.log('Cannot assign caregiver:');
-  eligibility.reasons.forEach(reason => {
+  eligibility.reasons.forEach((reason) => {
     console.log(`- [${reason.severity}] ${reason.message}`);
   });
 }
@@ -251,14 +280,18 @@ const caregivers = await caregiverService.getCaregiversWithExpiringCredentials(
   userContext
 );
 
-caregivers.forEach(caregiver => {
-  const expiringCreds = caregiver.credentials.filter(c => 
-    c.expirationDate && 
-    new Date(c.expirationDate) <= new Date(Date.now() + 30*24*60*60*1000)
+caregivers.forEach((caregiver) => {
+  const expiringCreds = caregiver.credentials.filter(
+    (c) =>
+      c.expirationDate &&
+      new Date(c.expirationDate) <=
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
   );
-  
-  console.log(`${caregiver.employeeNumber}: ${caregiver.firstName} ${caregiver.lastName}`);
-  expiringCreds.forEach(cred => {
+
+  console.log(
+    `${caregiver.employeeNumber}: ${caregiver.firstName} ${caregiver.lastName}`
+  );
+  expiringCreds.forEach((cred) => {
     console.log(`  - ${cred.name} expires ${cred.expirationDate}`);
   });
 });
@@ -281,7 +314,8 @@ console.log(`${available.length} caregivers available`);
 
 ## Database Schema
 
-The vertical uses a single `caregivers` table with JSONB columns for flexible nested data:
+The vertical uses a single `caregivers` table with JSONB columns for flexible
+nested data:
 
 - **credentials** - Array of credential objects with expiration tracking
 - **training** - Array of training records
@@ -301,7 +335,8 @@ The vertical uses a single `caregivers` table with JSONB columns for flexible ne
 ### Triggers
 
 - **update_updated_at** - Automatically updates timestamp on modification
-- **check_credential_expiration** - Updates compliance status when credentials change
+- **check_credential_expiration** - Updates compliance status when credentials
+  change
 
 ## Permissions
 
@@ -336,13 +371,16 @@ This vertical integrates with:
 
 ## Best Practices
 
-1. **Keep credentials current** - Set up automated alerts for expiring credentials
+1. **Keep credentials current** - Set up automated alerts for expiring
+   credentials
 2. **Regular compliance checks** - Run weekly reports on compliance status
 3. **Document everything** - Upload copies of all certificates and licenses
-4. **Update availability** - Keep caregiver schedules current for accurate matching
+4. **Update availability** - Keep caregiver schedules current for accurate
+   matching
 5. **Performance reviews** - Conduct regular reviews and update ratings
 6. **Training documentation** - Record all orientation and continuing education
-7. **Restrict thoughtfully** - Use client restrictions only when necessary and document reasons
+7. **Restrict thoughtfully** - Use client restrictions only when necessary and
+   document reasons
 
 ## Future Enhancements
 

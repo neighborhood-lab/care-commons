@@ -1,6 +1,8 @@
 # Shift Matching & Assignment Demo
 
-This document provides hands-on demonstrations of the Shift Matching & Assignment vertical, showing real-world workflows for schedulers, caregivers, and administrators.
+This document provides hands-on demonstrations of the Shift Matching &
+Assignment vertical, showing real-world workflows for schedulers, caregivers,
+and administrators.
 
 ## Table of Contents
 
@@ -17,17 +19,20 @@ This document provides hands-on demonstrations of the Shift Matching & Assignmen
 ### Database Setup
 
 1. Run the core migration:
+
 ```bash
 psql -d care_commons -f packages/core/migrations/007_shift_matching.sql
 ```
 
 2. Seed demo data:
+
 ```bash
 cd packages/core
 npx ts-node scripts/seed-shift-matching.ts
 ```
 
 This creates:
+
 - **1 default matching configuration** with balanced weights
 - **10 unassigned visits** spread over the next 7 days
 - **10 open shifts** with varying requirements and priorities
@@ -38,7 +43,10 @@ This creates:
 
 ```typescript
 import { Pool } from 'pg';
-import { ShiftMatchingService, ShiftMatchingHandlers } from '@care-commons/shift-matching';
+import {
+  ShiftMatchingService,
+  ShiftMatchingHandlers,
+} from '@care-commons/shift-matching';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const service = new ShiftMatchingService(pool);
@@ -51,7 +59,8 @@ const handlers = new ShiftMatchingHandlers(pool);
 
 ### Workflow 1: Create an Open Shift
 
-**Scenario**: A client calls to request a visit, but no caregiver is assigned yet.
+**Scenario**: A client calls to request a visit, but no caregiver is assigned
+yet.
 
 ```typescript
 import { UserContext } from '@care-commons/core';
@@ -90,7 +99,7 @@ const result = await handlers.matchOpenShift(
   openShift.id,
   {
     autoPropose: true, // Automatically send proposals to top matches
-    maxCandidates: 5,   // Send to top 5 matches
+    maxCandidates: 5, // Send to top 5 matches
   },
   context
 );
@@ -103,26 +112,34 @@ console.log('Proposals sent:', result.proposalsCreated.length);
 // Review top candidates
 result.candidates.slice(0, 5).forEach((candidate, index) => {
   console.log(`\n${index + 1}. ${candidate.caregiverName}`);
-  console.log(`   Score: ${candidate.overallScore}/100 (${candidate.matchQuality})`);
+  console.log(
+    `   Score: ${candidate.overallScore}/100 (${candidate.matchQuality})`
+  );
   console.log(`   Distance: ${candidate.distanceFromShift?.toFixed(1)} miles`);
   console.log(`   Eligible: ${candidate.isEligible ? 'Yes' : 'No'}`);
-  
+
   if (!candidate.isEligible) {
     console.log(`   Issues:`);
     candidate.eligibilityIssues.forEach((issue) => {
       console.log(`     - [${issue.severity}] ${issue.message}`);
     });
   }
-  
+
   console.log(`   Reasons:`);
   candidate.matchReasons.forEach((reason) => {
-    const sign = reason.impact === 'POSITIVE' ? '+' : reason.impact === 'NEGATIVE' ? '-' : '=';
+    const sign =
+      reason.impact === 'POSITIVE'
+        ? '+'
+        : reason.impact === 'NEGATIVE'
+          ? '-'
+          : '=';
     console.log(`     ${sign} ${reason.description}`);
   });
 });
 ```
 
 **Example Output**:
+
 ```
 Matching complete!
 Eligible candidates: 6
@@ -173,11 +190,11 @@ proposals.forEach((proposal) => {
   console.log(`Status: ${proposal.proposalStatus}`);
   console.log(`Match Score: ${proposal.matchScore}`);
   console.log(`Sent: ${proposal.sentAt}`);
-  
+
   if (proposal.viewedAt) {
     console.log(`Viewed: ${proposal.viewedAt}`);
   }
-  
+
   if (proposal.proposalStatus === 'ACCEPTED') {
     console.log(`✅ Accepted at: ${proposal.acceptedAt}`);
   } else if (proposal.proposalStatus === 'REJECTED') {
@@ -263,25 +280,34 @@ const availableShifts = await handlers.getAvailableShifts(
 console.log(`\n📋 Available Shifts for You (${availableShifts.length}):\n`);
 
 availableShifts.forEach((candidate, index) => {
-  console.log(`${index + 1}. ${candidate.openShift.scheduledDate} ${candidate.openShift.startTime}-${candidate.openShift.endTime}`);
+  console.log(
+    `${index + 1}. ${candidate.openShift.scheduledDate} ${candidate.openShift.startTime}-${candidate.openShift.endTime}`
+  );
   console.log(`   Client: ${candidate.openShift.clientId}`);
-  console.log(`   Location: ${candidate.distanceFromShift?.toFixed(1)} miles away`);
-  console.log(`   Match: ${candidate.overallScore}/100 (${candidate.matchQuality})`);
+  console.log(
+    `   Location: ${candidate.distanceFromShift?.toFixed(1)} miles away`
+  );
+  console.log(
+    `   Match: ${candidate.overallScore}/100 (${candidate.matchQuality})`
+  );
   console.log(`   Duration: ${candidate.openShift.duration} minutes`);
-  
+
   if (candidate.previousVisitsWithClient > 0) {
-    console.log(`   💙 You've visited this client ${candidate.previousVisitsWithClient} times before`);
+    console.log(
+      `   💙 You've visited this client ${candidate.previousVisitsWithClient} times before`
+    );
   }
-  
+
   if (candidate.warnings.length > 0) {
     console.log(`   ⚠️  ${candidate.warnings.join(', ')}`);
   }
-  
+
   console.log('');
 });
 ```
 
 **Example Output**:
+
 ```
 📋 Available Shifts for You (8):
 
@@ -320,7 +346,9 @@ const proposals = await handlers.getCaregiverProposals(
 console.log(`\n🔔 You have ${proposals.length} pending shift offer(s):\n`);
 
 proposals.forEach((proposal, index) => {
-  console.log(`${index + 1}. Shift on ${proposal.scheduledDate} ${proposal.startTime}`);
+  console.log(
+    `${index + 1}. Shift on ${proposal.scheduledDate} ${proposal.startTime}`
+  );
   console.log(`   Match Score: ${proposal.matchScore}/100`);
   console.log(`   Sent: ${proposal.sentAt}`);
   console.log(`   ${proposal.urgencyFlag ? '🚨 URGENT' : ''}`);
@@ -392,9 +420,7 @@ await handlers.updateCaregiverPreferences(
   caregiverContext.userId,
   {
     preferredDaysOfWeek: ['MONDAY', 'WEDNESDAY', 'FRIDAY'],
-    preferredTimeRanges: [
-      { startTime: '08:00', endTime: '16:00' },
-    ],
+    preferredTimeRanges: [{ startTime: '08:00', endTime: '16:00' }],
     maxTravelDistance: 20, // miles
     maxHoursPerWeek: 35,
     willingToAcceptUrgentShifts: true,
@@ -435,19 +461,19 @@ const config = await handlers.createConfiguration(
     name: 'High Priority Configuration',
     description: 'Optimized for urgent shift fill rates',
     weights: {
-      skillMatch: 25,          // Emphasize skills
-      availabilityMatch: 25,   // Must be available
-      proximityMatch: 20,      // Proximity matters
-      preferenceMatch: 5,      // Less weight on preferences
+      skillMatch: 25, // Emphasize skills
+      availabilityMatch: 25, // Must be available
+      proximityMatch: 20, // Proximity matters
+      preferenceMatch: 5, // Less weight on preferences
       experienceMatch: 10,
       reliabilityMatch: 10,
       complianceMatch: 5,
       capacityMatch: 0,
     },
     maxTravelDistance: 25,
-    requireExactSkillMatch: true,  // Strict skill matching
-    minScoreForProposal: 70,       // Higher threshold
-    maxProposalsPerShift: 3,       // Fewer proposals
+    requireExactSkillMatch: true, // Strict skill matching
+    minScoreForProposal: 70, // Higher threshold
+    maxProposalsPerShift: 3, // Fewer proposals
     proposalExpirationMinutes: 60, // Faster response needed
     optimizeFor: 'FASTEST_FILL',
     isActive: true,
@@ -489,7 +515,10 @@ console.log('Total Open Shifts:', metrics.totalOpenShifts);
 console.log('Successfully Matched:', metrics.shiftsMatched);
 console.log('Match Rate:', `${metrics.matchRate.toFixed(1)}%`);
 console.log('Average Match Score:', metrics.averageMatchScore.toFixed(1));
-console.log('Average Response Time:', `${metrics.averageResponseTimeMinutes.toFixed(1)} minutes`);
+console.log(
+  'Average Response Time:',
+  `${metrics.averageResponseTimeMinutes.toFixed(1)} minutes`
+);
 console.log('\nProposal Outcomes:');
 console.log('  Accepted:', metrics.proposalsAccepted);
 console.log('  Rejected:', metrics.proposalsRejected);
@@ -512,7 +541,10 @@ console.log('\n👤 Caregiver Performance\n');
 console.log('Proposals Received:', performance.proposalsReceived);
 console.log('Acceptance Rate:', `${performance.acceptanceRate.toFixed(1)}%`);
 console.log('Average Match Score:', performance.averageMatchScore.toFixed(1));
-console.log('Average Response Time:', `${performance.averageResponseTimeMinutes.toFixed(1)} minutes`);
+console.log(
+  'Average Response Time:',
+  `${performance.averageResponseTimeMinutes.toFixed(1)} minutes`
+);
 ```
 
 ### Workflow 3: Top Rejection Reasons
@@ -528,11 +560,14 @@ const rejectionReasons = await handlers.getTopRejectionReasons(
 
 console.log('\n📉 Top Rejection Reasons\n');
 rejectionReasons.forEach((reason, index) => {
-  console.log(`${index + 1}. ${reason.category}: ${reason.count} (${reason.percentage}%)`);
+  console.log(
+    `${index + 1}. ${reason.category}: ${reason.count} (${reason.percentage}%)`
+  );
 });
 ```
 
 **Example Output**:
+
 ```
 📉 Top Rejection Reasons
 
@@ -597,6 +632,7 @@ runDemo()
 ```
 
 Run with:
+
 ```bash
 npx ts-node demo.ts
 ```
@@ -614,4 +650,5 @@ npx ts-node demo.ts
 
 ---
 
-For more details, see the [README](./README.md) and [implementation guide](./IMPLEMENTATION.md).
+For more details, see the [README](./README.md) and
+[implementation guide](./IMPLEMENTATION.md).

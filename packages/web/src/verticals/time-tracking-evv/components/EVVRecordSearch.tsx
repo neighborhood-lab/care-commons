@@ -6,10 +6,7 @@ interface EVVRecordSearchProps {
   onFiltersChange: (filters: EVVSearchFilters) => void;
 }
 
-export const EVVRecordSearch: React.FC<EVVRecordSearchProps> = ({ 
-  filters, 
-  onFiltersChange 
-}) => {
+export const EVVRecordSearch: React.FC<EVVRecordSearchProps> = ({ filters, onFiltersChange }) => {
   const handleFilterChange = (key: keyof EVVSearchFilters, value: string) => {
     onFiltersChange({
       ...filters,
@@ -21,9 +18,7 @@ export const EVVRecordSearch: React.FC<EVVRecordSearchProps> = ({
     <div className="bg-white rounded-lg shadow p-6 space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select
             value={filters.status || ''}
             onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -55,9 +50,7 @@ export const EVVRecordSearch: React.FC<EVVRecordSearchProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Start Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
           <input
             type="date"
             value={filters.startDate || ''}

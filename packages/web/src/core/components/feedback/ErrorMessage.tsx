@@ -18,12 +18,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   className,
 }) => {
   return (
-    <div
-      className={cn(
-        'rounded-md bg-red-50 p-4 border border-red-200',
-        className
-      )}
-    >
+    <div className={cn('rounded-md bg-red-50 p-4 border border-red-200', className)}>
       <div className="flex">
         <div className="flex-shrink-0">
           <AlertCircle className="h-5 w-5 text-red-400" />
@@ -42,11 +37,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
               </button>
             </div>
           )}
-          {action && (
-            <div className="mt-4">
-              {action}
-            </div>
-          )}
+          {action && <div className="mt-4">{action}</div>}
         </div>
       </div>
     </div>

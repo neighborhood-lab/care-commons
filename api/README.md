@@ -1,6 +1,7 @@
 # API Directory - Vercel Serverless Functions
 
-This directory contains the entry point for Vercel serverless function deployment.
+This directory contains the entry point for Vercel serverless function
+deployment.
 
 ## Security Configuration
 
@@ -9,16 +10,18 @@ This directory contains the entry point for Vercel serverless function deploymen
 **Configured in:** `packages/app/src/server.ts`
 
 ```typescript
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-}));
+  })
+);
 ```
 
 - ✅ CSP is **enabled** (not disabled)
@@ -35,27 +38,29 @@ app.use(helmet({
 
 const allowedOrigins = process.env['CORS_ORIGIN']?.split(',') ?? [];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (typeof origin !== 'string') {
-      callback(null, true); // Allow non-browser requests
-      return;
-    }
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (typeof origin !== 'string') {
+        callback(null, true); // Allow non-browser requests
+        return;
+      }
 
-    if (NODE_ENV === 'development') {
-      callback(null, true); // Allow all in development
-      return;
-    }
+      if (NODE_ENV === 'development') {
+        callback(null, true); // Allow all in development
+        return;
+      }
 
-    // Production: Only allow configured origins
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'), false);
-    }
-  },
-  credentials: true,
-}));
+      // Production: Only allow configured origins
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'), false);
+      }
+    },
+    credentials: true,
+  })
+);
 ```
 
 - ✅ **No wildcard** (`*`) in production
@@ -88,6 +93,7 @@ DB_PASSWORD=your_password
 ## How It Works
 
 1. **Request Flow:**
+
    ```
    Vercel → api/index.ts → createApp() → Express App (with security middleware)
    ```
@@ -111,11 +117,13 @@ DB_PASSWORD=your_password
 ## Important Notes
 
 ⚠️ **Do NOT create `index.js` in this directory**
+
 - The TypeScript file (`index.ts`) is the source of truth
 - JavaScript files should not exist here
 - Vercel compiles TypeScript during deployment
 
 ⚠️ **Security configuration is in `packages/app/src/server.ts`**
+
 - Do not configure Helmet or CORS in this file
 - This handler simply forwards requests to the Express app
 - Security middleware is applied by the Express app
@@ -137,6 +145,7 @@ curl http://localhost:3000/api
 ## Deployment
 
 Vercel automatically:
+
 1. Detects `api/index.ts`
 2. Compiles TypeScript to JavaScript
 3. Creates a serverless function
@@ -147,12 +156,14 @@ No additional configuration needed!
 ## Security Scans
 
 ✅ **GitHub Advanced Security:**
+
 - CodeQL scanning passes
 - No security vulnerabilities
 - Helmet CSP properly configured
 - CORS properly configured
 
 ✅ **Pre-commit Hooks:**
+
 - Linting passes
 - Type checking passes
 - Tests pass with coverage

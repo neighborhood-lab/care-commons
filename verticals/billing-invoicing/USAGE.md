@@ -1,6 +1,7 @@
 # Billing & Invoicing - Usage Guide
 
-This guide demonstrates how to use the Billing & Invoicing vertical for common operations.
+This guide demonstrates how to use the Billing & Invoicing vertical for common
+operations.
 
 ## Setup
 
@@ -43,6 +44,7 @@ npm run seed:billing
 ```
 
 This creates:
+
 - 5 payers (Medicare, Medicaid, Blue Cross, VA, Private Pay)
 - 3 rate schedules with different pricing
 - Service authorizations for clients
@@ -66,7 +68,7 @@ async function createBillableItemFromVisit(visitData: any) {
   );
 
   // Calculate amounts
-  const unitRate = 28.00; // From rate schedule
+  const unitRate = 28.0; // From rate schedule
   const subtotal = calculateBaseAmount(units, unitRate);
   const finalAmount = applyModifiers(subtotal, visitData.modifiers);
 
@@ -125,7 +127,10 @@ async function createBillableItemFromVisit(visitData: any) {
 ### 2. Generate an Invoice from Ready Billable Items
 
 ```typescript
-import { generateInvoiceNumber, calculateInvoiceTotal } from '@care-commons/billing-invoicing';
+import {
+  generateInvoiceNumber,
+  calculateInvoiceTotal,
+} from '@care-commons/billing-invoicing';
 
 async function generateInvoiceForPayer(
   organizationId: string,
@@ -312,14 +317,16 @@ async function allocatePaymentToInvoices(
       throw new Error(`Invoice ${alloc.invoiceId} not found`);
     }
     if (alloc.amount > invoice.balanceDue) {
-      throw new Error(`Allocation exceeds balance due on invoice ${invoice.invoiceNumber}`);
+      throw new Error(
+        `Allocation exceeds balance due on invoice ${invoice.invoiceNumber}`
+      );
     }
   }
 
   // Apply allocations
   for (const alloc of allocations) {
     const invoice = await billingRepo.findInvoiceById(alloc.invoiceId);
-    
+
     // Record allocation in payment
     await billingRepo.allocatePayment(
       paymentId,
@@ -404,10 +411,10 @@ async function getOutstandingInvoices(organizationId: string) {
   });
 
   const total = invoices.reduce((sum, inv) => sum + inv.balanceDue, 0);
-  
+
   console.log(`Outstanding invoices: ${invoices.length}`);
   console.log(`Total outstanding: $${total.toFixed(2)}`);
-  
+
   return {
     invoices,
     count: invoices.length,
@@ -442,13 +449,17 @@ async function getPayerPerformance(organizationId: string, payerId: string) {
 
   const totalBilled = invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
   const totalPaid = invoices.reduce((sum, inv) => sum + inv.paidAmount, 0);
-  const totalOutstanding = invoices.reduce((sum, inv) => sum + inv.balanceDue, 0);
+  const totalOutstanding = invoices.reduce(
+    (sum, inv) => sum + inv.balanceDue,
+    0
+  );
 
   // Calculate average payment days for paid invoices
   const paidInvoices = invoices.filter((inv) => inv.paidAmount > 0);
   const paymentDays = paidInvoices.map((inv) =>
     Math.floor(
-      (new Date(inv.updatedAt).getTime() - new Date(inv.invoiceDate).getTime()) /
+      (new Date(inv.updatedAt).getTime() -
+        new Date(inv.invoiceDate).getTime()) /
         (1000 * 60 * 60 * 24)
     )
   );

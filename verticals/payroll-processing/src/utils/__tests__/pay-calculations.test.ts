@@ -1,6 +1,6 @@
 /**
  * Unit tests for pay calculation utilities
- * 
+ *
  * Tests overtime calculations, rate multipliers, and earnings computations
  * with realistic scenarios and edge cases
  */
@@ -37,7 +37,7 @@ describe('Pay Calculation Utilities', () => {
 
     it('handle whole numbers', () => {
       expect(roundToTwoDecimals(15)).toBe(15);
-      expect(roundToTwoDecimals(15.00)).toBe(15);
+      expect(roundToTwoDecimals(15.0)).toBe(15);
     });
 
     it('handle very small numbers', () => {
@@ -166,12 +166,14 @@ describe('Pay Calculation Utilities', () => {
       const result = applyRateMultipliers(20, [{ type: 'WEEKEND', multiplier: 1.2 }]);
       expect(result).toEqual({
         finalRate: 24, // 20 + (20 * 0.2)
-        appliedMultipliers: [{
-          multiplierType: 'WEEKEND',
-          multiplier: 1.2,
-          baseRate: 20,
-          appliedAmount: 4,
-        }],
+        appliedMultipliers: [
+          {
+            multiplierType: 'WEEKEND',
+            multiplier: 1.2,
+            baseRate: 20,
+            appliedAmount: 4,
+          },
+        ],
       });
     });
 
@@ -391,12 +393,12 @@ describe('Pay Calculation Utilities', () => {
 
   describe('calculateShiftDifferential', () => {
     it('should calculate shift differential correctly', () => {
-      const result = calculateShiftDifferential(8, 2.50);
+      const result = calculateShiftDifferential(8, 2.5);
       expect(result).toBe(20); // 8 * 2.50
     });
 
     it('should handle zero hours', () => {
-      const result = calculateShiftDifferential(0, 2.50);
+      const result = calculateShiftDifferential(0, 2.5);
       expect(result).toBe(0);
     });
 

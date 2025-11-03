@@ -3,7 +3,14 @@
  */
 
 import { Repository, Database, PaginatedResult } from '@care-commons/core';
-import { Client, ClientSearchFilters, Gender, ContactMethod, MaritalStatus, ClientStatus } from '../types/client';
+import {
+  Client,
+  ClientSearchFilters,
+  Gender,
+  ContactMethod,
+  MaritalStatus,
+  ClientStatus,
+} from '../types/client';
 
 export class ClientRepository extends Repository<Client> {
   constructor(database: Database) {
@@ -105,13 +112,16 @@ export class ClientRepository extends Repository<Client> {
     if (email !== undefined) entity.email = email;
 
     const preferredContactMethod = row['preferred_contact_method'] as ContactMethod | undefined;
-    if (preferredContactMethod !== undefined) entity.preferredContactMethod = preferredContactMethod;
+    if (preferredContactMethod !== undefined)
+      entity.preferredContactMethod = preferredContactMethod;
 
     const communicationPreferences = row['communication_preferences'] as string | undefined;
-    if (communicationPreferences !== undefined) entity.communicationPreferences = JSON.parse(communicationPreferences);
+    if (communicationPreferences !== undefined)
+      entity.communicationPreferences = JSON.parse(communicationPreferences);
 
     const secondaryAddresses = row['secondary_addresses'] as string | undefined;
-    if (secondaryAddresses !== undefined) entity.secondaryAddresses = JSON.parse(secondaryAddresses);
+    if (secondaryAddresses !== undefined)
+      entity.secondaryAddresses = JSON.parse(secondaryAddresses);
 
     const livingArrangement = row['living_arrangement'] as string | undefined;
     if (livingArrangement !== undefined) entity.livingArrangement = JSON.parse(livingArrangement);
@@ -296,10 +306,7 @@ export class ClientRepository extends Repository<Client> {
   /**
    * Find client by client number
    */
-  async findByClientNumber(
-    clientNumber: string,
-    organizationId: string
-  ): Promise<Client | null> {
+  async findByClientNumber(clientNumber: string, organizationId: string): Promise<Client | null> {
     const query = `
       SELECT * FROM ${this.tableName}
       WHERE client_number = $1 
@@ -387,11 +394,7 @@ export class ClientRepository extends Repository<Client> {
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
-    const result = await this.database.query(query, [
-      ...params,
-      pagination.limit,
-      offset,
-    ]);
+    const result = await this.database.query(query, [...params, pagination.limit, offset]);
 
     const items = result.rows.map((row) => this.mapRowToEntity(row));
 

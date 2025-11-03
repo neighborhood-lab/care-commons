@@ -27,6 +27,7 @@ npm run db:migrate
 ```
 
 This creates:
+
 - `service_patterns` - Recurring service templates
 - `schedules` - Generated visit schedules
 - `visits` - Individual visit occurrences
@@ -38,7 +39,10 @@ This creates:
 
 ```typescript
 import { Pool } from 'pg';
-import { ScheduleRepository, ScheduleService } from '@care-commons/scheduling-visits';
+import {
+  ScheduleRepository,
+  ScheduleService,
+} from '@care-commons/scheduling-visits';
 
 // Database connection
 const pool = new Pool({
@@ -70,36 +74,40 @@ const userContext: UserContext = {
 };
 
 // Create a pattern for daily morning care
-const pattern = await scheduleService.createServicePattern({
-  organizationId: 'org-456',
-  branchId: 'branch-789',
-  clientId: 'client-abc',
-  name: 'Daily Morning Personal Care',
-  patternType: 'RECURRING',
-  serviceTypeId: 'service-type-001',
-  serviceTypeName: 'Personal Care',
-  
-  // Schedule: Monday-Friday, 8:00 AM, 2 hours
-  recurrence: {
-    frequency: 'WEEKLY',
-    interval: 1,
-    daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],
-    startTime: '08:00',
-    timezone: 'America/New_York',
+const pattern = await scheduleService.createServicePattern(
+  {
+    organizationId: 'org-456',
+    branchId: 'branch-789',
+    clientId: 'client-abc',
+    name: 'Daily Morning Personal Care',
+    patternType: 'RECURRING',
+    serviceTypeId: 'service-type-001',
+    serviceTypeName: 'Personal Care',
+
+    // Schedule: Monday-Friday, 8:00 AM, 2 hours
+    recurrence: {
+      frequency: 'WEEKLY',
+      interval: 1,
+      daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],
+      startTime: '08:00',
+      timezone: 'America/New_York',
+    },
+    duration: 120, // 2 hours
+
+    // Requirements
+    requiredCertifications: ['HHA', 'CPR'],
+
+    // Active for one year
+    effectiveFrom: new Date('2024-01-01'),
+    effectiveTo: new Date('2024-12-31'),
+
+    // Instructions
+    clientInstructions:
+      'Use side entrance. Client prefers shower before breakfast.',
+    caregiverInstructions: 'Assist with hygiene, dressing, and breakfast prep.',
   },
-  duration: 120, // 2 hours
-  
-  // Requirements
-  requiredCertifications: ['HHA', 'CPR'],
-  
-  // Active for one year
-  effectiveFrom: new Date('2024-01-01'),
-  effectiveTo: new Date('2024-12-31'),
-  
-  // Instructions
-  clientInstructions: 'Use side entrance. Client prefers shower before breakfast.',
-  caregiverInstructions: 'Assist with hygiene, dressing, and breakfast prep.',
-}, userContext);
+  userContext
+);
 
 console.log(`Created pattern: ${pattern.id}`);
 ```
@@ -109,14 +117,17 @@ console.log(`Created pattern: ${pattern.id}`);
 Generate visits for the next 4 weeks:
 
 ```typescript
-const visits = await scheduleService.generateScheduleFromPattern({
-  patternId: pattern.id,
-  startDate: new Date('2024-01-01'),
-  endDate: new Date('2024-01-28'),
-  autoAssign: false, // We'll assign manually
-  respectHourlyLimits: true,
-  skipHolidays: true,
-}, userContext);
+const visits = await scheduleService.generateScheduleFromPattern(
+  {
+    patternId: pattern.id,
+    startDate: new Date('2024-01-01'),
+    endDate: new Date('2024-01-28'),
+    autoAssign: false, // We'll assign manually
+    respectHourlyLimits: true,
+    skipHolidays: true,
+  },
+  userContext
+);
 
 console.log(`Generated ${visits.length} visits`);
 ```
@@ -138,13 +149,16 @@ const isAvailable = await scheduleService.checkCaregiverAvailability({
 });
 
 if (isAvailable) {
-  const assignedVisit = await scheduleService.assignCaregiver({
-    visitId: visit.id,
-    caregiverId: 'caregiver-xyz',
-    assignmentMethod: 'MANUAL',
-    notes: 'Best available match for this client',
-  }, userContext);
-  
+  const assignedVisit = await scheduleService.assignCaregiver(
+    {
+      visitId: visit.id,
+      caregiverId: 'caregiver-xyz',
+      assignmentMethod: 'MANUAL',
+      notes: 'Best available match for this client',
+    },
+    userContext
+  );
+
   console.log(`Assigned caregiver to visit ${assignedVisit.visitNumber}`);
 } else {
   console.log('Caregiver not available');
@@ -157,48 +171,60 @@ Update visit status as it progresses:
 
 ```typescript
 // Caregiver confirms the visit
-await scheduleService.updateVisitStatus({
-  visitId: visit.id,
-  newStatus: 'CONFIRMED',
-  notes: 'Caregiver confirmed availability',
-}, userContext);
+await scheduleService.updateVisitStatus(
+  {
+    visitId: visit.id,
+    newStatus: 'CONFIRMED',
+    notes: 'Caregiver confirmed availability',
+  },
+  userContext
+);
 
 // Caregiver en route
-await scheduleService.updateVisitStatus({
-  visitId: visit.id,
-  newStatus: 'EN_ROUTE',
-}, userContext);
+await scheduleService.updateVisitStatus(
+  {
+    visitId: visit.id,
+    newStatus: 'EN_ROUTE',
+  },
+  userContext
+);
 
 // Clock in with GPS verification
-await scheduleService.updateVisitStatus({
-  visitId: visit.id,
-  newStatus: 'IN_PROGRESS',
-  locationVerification: {
-    method: 'GPS',
-    timestamp: new Date(),
-    latitude: 40.7128,
-    longitude: -74.0060,
-    accuracy: 10,
-    isWithinGeofence: true,
+await scheduleService.updateVisitStatus(
+  {
+    visitId: visit.id,
+    newStatus: 'IN_PROGRESS',
+    locationVerification: {
+      method: 'GPS',
+      timestamp: new Date(),
+      latitude: 40.7128,
+      longitude: -74.006,
+      accuracy: 10,
+      isWithinGeofence: true,
+    },
   },
-}, userContext);
+  userContext
+);
 
 // Complete the visit
-await scheduleService.completeVisit({
-  visitId: visit.id,
-  actualEndTime: new Date(),
-  completionNotes: 'All tasks completed. Client doing well.',
-  tasksCompleted: 5,
-  tasksTotal: 5,
-  locationVerification: {
-    method: 'GPS',
-    timestamp: new Date(),
-    latitude: 40.7128,
-    longitude: -74.0060,
-    accuracy: 12,
-    isWithinGeofence: true,
+await scheduleService.completeVisit(
+  {
+    visitId: visit.id,
+    actualEndTime: new Date(),
+    completionNotes: 'All tasks completed. Client doing well.',
+    tasksCompleted: 5,
+    tasksTotal: 5,
+    locationVerification: {
+      method: 'GPS',
+      timestamp: new Date(),
+      latitude: 40.7128,
+      longitude: -74.006,
+      accuracy: 12,
+      isWithinGeofence: true,
+    },
   },
-}, userContext);
+  userContext
+);
 
 console.log('Visit completed successfully');
 ```
@@ -209,17 +235,21 @@ Find visits by various criteria:
 
 ```typescript
 // Get today's visits for a branch
-const todayVisits = await scheduleService.searchVisits({
-  branchId: 'branch-789',
-  dateFrom: new Date(),
-  dateTo: new Date(),
-  status: ['ASSIGNED', 'CONFIRMED', 'IN_PROGRESS'],
-}, {
-  page: 1,
-  limit: 50,
-  sortBy: 'scheduled_start_time',
-  sortOrder: 'asc',
-}, userContext);
+const todayVisits = await scheduleService.searchVisits(
+  {
+    branchId: 'branch-789',
+    dateFrom: new Date(),
+    dateTo: new Date(),
+    status: ['ASSIGNED', 'CONFIRMED', 'IN_PROGRESS'],
+  },
+  {
+    page: 1,
+    limit: 50,
+    sortBy: 'scheduled_start_time',
+    sortOrder: 'asc',
+  },
+  userContext
+);
 
 console.log(`${todayVisits.total} visits scheduled today`);
 
@@ -233,16 +263,20 @@ const unassigned = await scheduleService.getUnassignedVisits(
 console.log(`${unassigned.length} visits need assignment`);
 
 // Get a caregiver's schedule for the day
-const caregiverSchedule = await scheduleService.searchVisits({
-  caregiverId: 'caregiver-xyz',
-  dateFrom: new Date(),
-  dateTo: new Date(),
-}, {
-  page: 1,
-  limit: 20,
-  sortBy: 'scheduled_start_time',
-  sortOrder: 'asc',
-}, userContext);
+const caregiverSchedule = await scheduleService.searchVisits(
+  {
+    caregiverId: 'caregiver-xyz',
+    dateFrom: new Date(),
+    dateTo: new Date(),
+  },
+  {
+    page: 1,
+    limit: 20,
+    sortBy: 'scheduled_start_time',
+    sortOrder: 'asc',
+  },
+  userContext
+);
 
 console.log(`Caregiver has ${caregiverSchedule.total} visits today`);
 ```
@@ -254,26 +288,29 @@ console.log(`Caregiver has ${caregiverSchedule.total} visits today`);
 For emergency or non-recurring visits:
 
 ```typescript
-const emergencyVisit = await scheduleService.createVisit({
-  organizationId: 'org-456',
-  branchId: 'branch-789',
-  clientId: 'client-abc',
-  visitType: 'EMERGENCY',
-  serviceTypeId: 'service-type-001',
-  serviceTypeName: 'Personal Care',
-  scheduledDate: new Date(),
-  scheduledStartTime: '14:00',
-  scheduledEndTime: '16:00',
-  address: {
-    line1: '123 Main St',
-    city: 'Springfield',
-    state: 'IL',
-    postalCode: '62701',
-    country: 'US',
+const emergencyVisit = await scheduleService.createVisit(
+  {
+    organizationId: 'org-456',
+    branchId: 'branch-789',
+    clientId: 'client-abc',
+    visitType: 'EMERGENCY',
+    serviceTypeId: 'service-type-001',
+    serviceTypeName: 'Personal Care',
+    scheduledDate: new Date(),
+    scheduledStartTime: '14:00',
+    scheduledEndTime: '16:00',
+    address: {
+      line1: '123 Main St',
+      city: 'Springfield',
+      state: 'IL',
+      postalCode: '62701',
+      country: 'US',
+    },
+    isUrgent: true,
+    clientInstructions: 'Emergency call from family',
   },
-  isUrgent: true,
-  clientInstructions: 'Emergency call from family',
-}, userContext);
+  userContext
+);
 ```
 
 ### Finding Available Time Slots
@@ -288,7 +325,7 @@ const slots = await scheduleService.getCaregiverAvailabilitySlots({
   includeTravel: true,
 });
 
-slots.forEach(slot => {
+slots.forEach((slot) => {
   if (slot.isAvailable) {
     console.log(`Available: ${slot.startTime} - ${slot.endTime}`);
   }
@@ -298,40 +335,52 @@ slots.forEach(slot => {
 ### Handling Visit Cancellation
 
 ```typescript
-await scheduleService.updateVisitStatus({
-  visitId: visit.id,
-  newStatus: 'CANCELLED',
-  reason: 'Client hospitalized',
-  notes: 'Family called to cancel. Will reschedule after discharge.',
-}, userContext);
+await scheduleService.updateVisitStatus(
+  {
+    visitId: visit.id,
+    newStatus: 'CANCELLED',
+    reason: 'Client hospitalized',
+    notes: 'Family called to cancel. Will reschedule after discharge.',
+  },
+  userContext
+);
 ```
 
 ### Handling No-Shows
 
 ```typescript
 // Client wasn't home
-await scheduleService.updateVisitStatus({
-  visitId: visit.id,
-  newStatus: 'NO_SHOW_CLIENT',
-  reason: 'Client not home at scheduled time',
-  notes: 'Caregiver waited 15 minutes and called multiple times.',
-}, userContext);
+await scheduleService.updateVisitStatus(
+  {
+    visitId: visit.id,
+    newStatus: 'NO_SHOW_CLIENT',
+    reason: 'Client not home at scheduled time',
+    notes: 'Caregiver waited 15 minutes and called multiple times.',
+  },
+  userContext
+);
 
 // Caregiver didn't show up
-await scheduleService.updateVisitStatus({
-  visitId: visit.id,
-  newStatus: 'NO_SHOW_CAREGIVER',
-  reason: 'Caregiver did not arrive',
-  notes: 'Need to reassign immediately',
-}, userContext);
+await scheduleService.updateVisitStatus(
+  {
+    visitId: visit.id,
+    newStatus: 'NO_SHOW_CAREGIVER',
+    reason: 'Caregiver did not arrive',
+    notes: 'Need to reassign immediately',
+  },
+  userContext
+);
 
 // Now reassign to another caregiver
-await scheduleService.assignCaregiver({
-  visitId: visit.id,
-  caregiverId: 'backup-caregiver-123',
-  assignmentMethod: 'OVERFLOW',
-  notes: 'Reassigned due to no-show',
-}, userContext);
+await scheduleService.assignCaregiver(
+  {
+    visitId: visit.id,
+    caregiverId: 'backup-caregiver-123',
+    assignmentMethod: 'OVERFLOW',
+    notes: 'Reassigned due to no-show',
+  },
+  userContext
+);
 ```
 
 ## Next Steps

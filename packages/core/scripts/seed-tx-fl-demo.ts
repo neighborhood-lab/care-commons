@@ -1,9 +1,9 @@
 /**
  * TX/FL Demo Seed Data
- * 
+ *
  * Creates realistic demo scenarios for Texas and Florida EVV/scheduling workflows.
  * Includes state-specific configurations, sample clients, caregivers, and visits.
- * 
+ *
  * IDEMPOTENT: Can be run multiple times safely - will skip existing records.
  */
 
@@ -14,7 +14,9 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env', quiet: true });
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL ?? `postgresql://${process.env.DB_USER ?? 'postgres'}:${process.env.DB_PASSWORD ?? 'postgres'}@${process.env.DB_HOST ?? 'localhost'}:${process.env.DB_PORT ?? '5432'}/${process.env.DB_NAME ?? 'care_commons'}`,
+  connectionString:
+    process.env.DATABASE_URL ??
+    `postgresql://${process.env.DB_USER ?? 'postgres'}:${process.env.DB_PASSWORD ?? 'postgres'}@${process.env.DB_HOST ?? 'localhost'}:${process.env.DB_PORT ?? '5432'}/${process.env.DB_NAME ?? 'care_commons'}`,
 });
 
 // Fixed UUIDs for idempotent seeding
@@ -33,29 +35,29 @@ interface SeedContext {
   // Organizations
   texasOrgId: string;
   floridaOrgId: string;
-  
+
   // Branches
   texasBranchId: string;
   floridaBranchId: string;
-  
+
   // Users
   texasAdminId: string;
   floridaAdminId: string;
   texasCoordinatorId: string;
   floridaCoordinatorId: string;
-  
+
   // Clients
   texasClientIds: string[];
   floridaClientIds: string[];
-  
+
   // Caregivers
   texasCaregiverIds: string[];
   floridaCaregiverIds: string[];
-  
+
   // Visits
   texasVisitIds: string[];
   floridaVisitIds: string[];
-  
+
   // Care Plans
   texasCarePlanIds: string[];
   floridaCarePlanIds: string[];
@@ -63,7 +65,7 @@ interface SeedContext {
 
 async function main() {
   console.log('🌟 Seeding TX/FL demo data (idempotent)...\n');
-  
+
   const ctx: SeedContext = {
     ...FIXED_IDS,
     texasClientIds: [],
@@ -75,7 +77,7 @@ async function main() {
     texasCarePlanIds: [],
     floridaCarePlanIds: [],
   };
-  
+
   try {
     await seedOrganizations(ctx);
     await seedUsers(ctx);
@@ -87,7 +89,7 @@ async function main() {
     await seedVisits(ctx);
     await seedEVVRecords(ctx);
     await seedExceptions(ctx);
-    
+
     console.log('\n✅ TX/FL demo data seeded successfully!');
     console.log('\n📊 Summary:');
     console.log(`  - Organizations: 2 (TX, FL)`);
@@ -95,7 +97,6 @@ async function main() {
     console.log(`  - Caregivers: ${ctx.texasCaregiverIds.length + ctx.floridaCaregiverIds.length}`);
     console.log(`  - Care Plans: ${ctx.texasCarePlanIds.length + ctx.floridaCarePlanIds.length}`);
     console.log(`  - Visits: ${ctx.texasVisitIds.length + ctx.floridaVisitIds.length}`);
-    
   } catch (error) {
     console.error('❌ Error seeding data:', error);
     throw error;
@@ -106,7 +107,7 @@ async function main() {
 
 /**
  * Helper to insert data only if it doesn't exist (idempotent)
- * 
+ *
  * Note: tableName and idColumn are validated against allowed values to prevent SQL injection
  */
 async function insertIfNotExists(
@@ -117,27 +118,32 @@ async function insertIfNotExists(
   params: unknown[]
 ): Promise<boolean> {
   // Validate table and column names against allowlist to prevent SQL injection
-  const allowedTables = ['organizations', 'branches', 'care_plans', 'service_patterns', 'visits', 'evv_records', 'exception_queue'];
+  const allowedTables = [
+    'organizations',
+    'branches',
+    'care_plans',
+    'service_patterns',
+    'visits',
+    'evv_records',
+    'exception_queue',
+  ];
   const allowedColumns = ['id'];
-  
+
   if (!allowedTables.includes(tableName)) {
     throw new Error(`Invalid table name: ${tableName}`);
   }
   if (!allowedColumns.includes(idColumn)) {
     throw new Error(`Invalid column name: ${idColumn}`);
   }
-  
+
   // Safe to use string interpolation here because tableName and idColumn are validated against allowlist above
   // eslint-disable-next-line sonarjs/sql-queries
-  const existsResult = await pool.query(
-    `SELECT 1 FROM ${tableName} WHERE ${idColumn} = $1`,
-    [id]
-  );
-  
+  const existsResult = await pool.query(`SELECT 1 FROM ${tableName} WHERE ${idColumn} = $1`, [id]);
+
   if (existsResult.rows.length > 0) {
     return false; // Already exists
   }
-  
+
   await pool.query(insertQuery, params);
   return true; // Newly inserted
 }
@@ -147,10 +153,10 @@ async function insertIfNotExists(
  */
 async function seedOrganizations(ctx: SeedContext): Promise<void> {
   console.log('📋 Seeding organizations...');
-  
+
   let txOrgCreated = false;
   let flOrgCreated = false;
-  
+
   // Texas Organization - STAR+PLUS provider
   txOrgCreated = await insertIfNotExists(
     'organizations',
@@ -169,7 +175,7 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     ) ON CONFLICT (id) DO NOTHING`,
     [ctx.texasOrgId, ctx.texasAdminId]
   );
-  
+
   await insertIfNotExists(
     'branches',
     'id',
@@ -187,7 +193,7 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     ) ON CONFLICT (id) DO NOTHING`,
     [ctx.texasBranchId, ctx.texasOrgId, ctx.texasAdminId]
   );
-  
+
   // Florida Organization - SMMC LTC provider
   flOrgCreated = await insertIfNotExists(
     'organizations',
@@ -206,7 +212,7 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     ) ON CONFLICT (id) DO NOTHING`,
     [ctx.floridaOrgId, ctx.floridaAdminId]
   );
-  
+
   await insertIfNotExists(
     'branches',
     'id',
@@ -224,7 +230,7 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     ) ON CONFLICT (id) DO NOTHING`,
     [ctx.floridaBranchId, ctx.floridaOrgId, ctx.floridaAdminId]
   );
-  
+
   console.log(`  ✓ Organizations (${txOrgCreated || flOrgCreated ? 'created' : 'existing'})`);
 }
 
@@ -233,9 +239,10 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
  */
 async function seedUsers(ctx: SeedContext): Promise<void> {
   console.log('👥 Seeding users...');
-  
+
   // Texas users
-  await pool.query(`
+  await pool.query(
+    `
     INSERT INTO users (
       id, organization_id, email, first_name, last_name,
       roles, permissions, status,
@@ -245,10 +252,13 @@ async function seedUsers(ctx: SeedContext): Promise<void> {
        '["ORG_ADMIN"]', '["*"]', 'ACTIVE', NOW(), NOW()),
       ($3, $2, 'coordinator@lonestarcare.example', 'Michael', 'Rodriguez',
        '["COORDINATOR"]', '["schedules:*", "visits:*", "evv:*"]', 'ACTIVE', NOW(), NOW())
-  `, [ctx.texasAdminId, ctx.texasOrgId, ctx.texasCoordinatorId]);
-  
+  `,
+    [ctx.texasAdminId, ctx.texasOrgId, ctx.texasCoordinatorId]
+  );
+
   // Florida users
-  await pool.query(`
+  await pool.query(
+    `
     INSERT INTO users (
       id, organization_id, email, first_name, last_name,
       roles, permissions, status,
@@ -258,8 +268,10 @@ async function seedUsers(ctx: SeedContext): Promise<void> {
        '["ORG_ADMIN"]', '["*"]', 'ACTIVE', NOW(), NOW()),
       ($3, $2, 'coordinator@sunshinehh.example', 'James', 'Smith',
        '["COORDINATOR"]', '["schedules:*", "visits:*", "evv:*"]', 'ACTIVE', NOW(), NOW())
-  `, [ctx.floridaAdminId, ctx.floridaOrgId, ctx.floridaCoordinatorId]);
-  
+  `,
+    [ctx.floridaAdminId, ctx.floridaOrgId, ctx.floridaCoordinatorId]
+  );
+
   console.log('  ✓ Users seeded');
 }
 
@@ -268,7 +280,7 @@ async function seedUsers(ctx: SeedContext): Promise<void> {
  */
 async function seedClients(ctx: SeedContext): Promise<void> {
   console.log('👤 Seeding clients...');
-  
+
   // Texas clients (STAR+PLUS eligible)
   const texasClients = [
     {
@@ -296,12 +308,13 @@ async function seedClients(ctx: SeedContext): Promise<void> {
       program: 'COMMUNITY_FIRST_CHOICE',
     },
   ];
-  
+
   for (const client of texasClients) {
     const clientId = uuidv4();
     ctx.texasClientIds.push(clientId);
-    
-    await pool.query(`
+
+    await pool.query(
+      `
       INSERT INTO clients (
         id, organization_id, branch_id,
         first_name, last_name, date_of_birth,
@@ -325,18 +338,26 @@ async function seedClients(ctx: SeedContext): Promise<void> {
         $13::jsonb,
         'ACTIVE', NOW(), $14, NOW(), $14
       )
-    `, [
-      clientId, ctx.texasOrgId, ctx.texasBranchId,
-      client.firstName, client.lastName, client.dob,
-      client.medicaidId,
-      client.address, client.city,
-      client.zip,
-      client.lat, client.lon,
-      JSON.stringify({ texasMedicaidProgram: client.program }),
-      ctx.texasAdminId,
-    ]);
+    `,
+      [
+        clientId,
+        ctx.texasOrgId,
+        ctx.texasBranchId,
+        client.firstName,
+        client.lastName,
+        client.dob,
+        client.medicaidId,
+        client.address,
+        client.city,
+        client.zip,
+        client.lat,
+        client.lon,
+        JSON.stringify({ texasMedicaidProgram: client.program }),
+        ctx.texasAdminId,
+      ]
+    );
   }
-  
+
   // Florida clients (SMMC LTC eligible)
   const floridaClients = [
     {
@@ -348,7 +369,7 @@ async function seedClients(ctx: SeedContext): Promise<void> {
       city: 'Miami Beach',
       zip: '33139',
       lat: 25.7907,
-      lon: -80.1300,
+      lon: -80.13,
       program: 'SMMC_LTC',
     },
     {
@@ -364,12 +385,13 @@ async function seedClients(ctx: SeedContext): Promise<void> {
       program: 'SMMC_MMA',
     },
   ];
-  
+
   for (const client of floridaClients) {
     const clientId = uuidv4();
     ctx.floridaClientIds.push(clientId);
-    
-    await pool.query(`
+
+    await pool.query(
+      `
       INSERT INTO clients (
         id, organization_id, branch_id,
         first_name, last_name, date_of_birth,
@@ -393,18 +415,26 @@ async function seedClients(ctx: SeedContext): Promise<void> {
         $13::jsonb,
         'ACTIVE', NOW(), $14, NOW(), $14
       )
-    `, [
-      clientId, ctx.floridaOrgId, ctx.floridaBranchId,
-      client.firstName, client.lastName, client.dob,
-      client.medicaidId,
-      client.address, client.city,
-      client.zip,
-      client.lat, client.lon,
-      JSON.stringify({ floridaMedicaidProgram: client.program }),
-      ctx.floridaAdminId,
-    ]);
+    `,
+      [
+        clientId,
+        ctx.floridaOrgId,
+        ctx.floridaBranchId,
+        client.firstName,
+        client.lastName,
+        client.dob,
+        client.medicaidId,
+        client.address,
+        client.city,
+        client.zip,
+        client.lat,
+        client.lon,
+        JSON.stringify({ floridaMedicaidProgram: client.program }),
+        ctx.floridaAdminId,
+      ]
+    );
   }
-  
+
   console.log(`  ✓ Clients seeded (TX: ${texasClients.length}, FL: ${floridaClients.length})`);
 }
 
@@ -413,7 +443,7 @@ async function seedClients(ctx: SeedContext): Promise<void> {
  */
 async function seedCaregivers(ctx: SeedContext): Promise<void> {
   console.log('👨‍⚕️ Seeding caregivers...');
-  
+
   // Texas caregivers (cleared registries)
   const texasCaregivers = [
     {
@@ -431,12 +461,13 @@ async function seedCaregivers(ctx: SeedContext): Promise<void> {
       phone: '+1-512-555-1002',
     },
   ];
-  
+
   for (const cg of texasCaregivers) {
     const cgId = uuidv4();
     ctx.texasCaregiverIds.push(cgId);
-    
-    await pool.query(`
+
+    await pool.query(
+      `
       INSERT INTO caregivers (
         id, organization_id, branch_id,
         first_name, last_name, employee_id,
@@ -450,18 +481,25 @@ async function seedCaregivers(ctx: SeedContext): Promise<void> {
         $9::jsonb,
         'ACTIVE', NOW(), $10, NOW(), $10
       )
-    `, [
-      cgId, ctx.texasOrgId, ctx.texasBranchId,
-      cg.firstName, cg.lastName, cg.employeeId,
-      cg.email, cg.phone,
-      JSON.stringify({
-        txEmployeeMisconductRegistry: { status: 'CLEARED', checkedAt: new Date() },
-        txNurseAideRegistry: { status: 'CLEARED', checkedAt: new Date() },
-      }),
-      ctx.texasAdminId,
-    ]);
+    `,
+      [
+        cgId,
+        ctx.texasOrgId,
+        ctx.texasBranchId,
+        cg.firstName,
+        cg.lastName,
+        cg.employeeId,
+        cg.email,
+        cg.phone,
+        JSON.stringify({
+          txEmployeeMisconductRegistry: { status: 'CLEARED', checkedAt: new Date() },
+          txNurseAideRegistry: { status: 'CLEARED', checkedAt: new Date() },
+        }),
+        ctx.texasAdminId,
+      ]
+    );
   }
-  
+
   // Florida caregivers (Level 2 screening cleared)
   const floridaCaregivers = [
     {
@@ -479,12 +517,13 @@ async function seedCaregivers(ctx: SeedContext): Promise<void> {
       phone: '+1-305-555-2002',
     },
   ];
-  
+
   for (const cg of floridaCaregivers) {
     const cgId = uuidv4();
     ctx.floridaCaregiverIds.push(cgId);
-    
-    await pool.query(`
+
+    await pool.query(
+      `
       INSERT INTO caregivers (
         id, organization_id, branch_id,
         first_name, last_name, employee_id,
@@ -498,22 +537,31 @@ async function seedCaregivers(ctx: SeedContext): Promise<void> {
         $9::jsonb,
         'ACTIVE', NOW(), $10, NOW(), $10
       )
-    `, [
-      cgId, ctx.floridaOrgId, ctx.floridaBranchId,
-      cg.firstName, cg.lastName, cg.employeeId,
-      cg.email, cg.phone,
-      JSON.stringify({
-        flLevel2Screening: {
-          status: 'CLEARED',
-          completedAt: new Date(),
-          expiresAt: new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000), // 5 years
-        },
-      }),
-      ctx.floridaAdminId,
-    ]);
+    `,
+      [
+        cgId,
+        ctx.floridaOrgId,
+        ctx.floridaBranchId,
+        cg.firstName,
+        cg.lastName,
+        cg.employeeId,
+        cg.email,
+        cg.phone,
+        JSON.stringify({
+          flLevel2Screening: {
+            status: 'CLEARED',
+            completedAt: new Date(),
+            expiresAt: new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000), // 5 years
+          },
+        }),
+        ctx.floridaAdminId,
+      ]
+    );
   }
-  
-  console.log(`  ✓ Caregivers seeded (TX: ${texasCaregivers.length}, FL: ${floridaCaregivers.length})`);
+
+  console.log(
+    `  ✓ Caregivers seeded (TX: ${texasCaregivers.length}, FL: ${floridaCaregivers.length})`
+  );
 }
 
 /**
@@ -521,9 +569,10 @@ async function seedCaregivers(ctx: SeedContext): Promise<void> {
  */
 async function seedEVVStateConfig(ctx: SeedContext): Promise<void> {
   console.log('⚙️  Seeding EVV state configuration...');
-  
+
   // Texas EVV Config (HHAeXchange mandatory)
-  await pool.query(`
+  await pool.query(
+    `
     INSERT INTO evv_state_config (
       id, organization_id, branch_id,
       state_code, aggregator_type, aggregator_entity_id, aggregator_endpoint,
@@ -543,14 +592,19 @@ async function seedEVVStateConfig(ctx: SeedContext): Promise<void> {
       true, CURRENT_DATE,
       NOW(), $5, NOW(), $5
     )
-  `, [
-    uuidv4(), ctx.texasOrgId, ctx.texasBranchId,
-    JSON.stringify(['MOBILE_GPS', 'FIXED_TELEPHONY']),
-    ctx.texasAdminId,
-  ]);
-  
+  `,
+    [
+      uuidv4(),
+      ctx.texasOrgId,
+      ctx.texasBranchId,
+      JSON.stringify(['MOBILE_GPS', 'FIXED_TELEPHONY']),
+      ctx.texasAdminId,
+    ]
+  );
+
   // Florida EVV Config (Multi-aggregator)
-  await pool.query(`
+  await pool.query(
+    `
     INSERT INTO evv_state_config (
       id, organization_id, branch_id,
       state_code, aggregator_type, aggregator_entity_id, aggregator_endpoint,
@@ -572,15 +626,19 @@ async function seedEVVStateConfig(ctx: SeedContext): Promise<void> {
       true, CURRENT_DATE,
       NOW(), $6, NOW(), $6
     )
-  `, [
-    uuidv4(), ctx.floridaOrgId, ctx.floridaBranchId,
-    JSON.stringify(['MOBILE_GPS', 'TELEPHONY_IVR', 'BIOMETRIC_MOBILE']),
-    JSON.stringify([
-      { id: 'netsmart-fl', type: 'NETSMART_TELLUS', endpoint: 'https://api.netsmart.com/fl/v1' },
-    ]),
-    ctx.floridaAdminId,
-  ]);
-  
+  `,
+    [
+      uuidv4(),
+      ctx.floridaOrgId,
+      ctx.floridaBranchId,
+      JSON.stringify(['MOBILE_GPS', 'TELEPHONY_IVR', 'BIOMETRIC_MOBILE']),
+      JSON.stringify([
+        { id: 'netsmart-fl', type: 'NETSMART_TELLUS', endpoint: 'https://api.netsmart.com/fl/v1' },
+      ]),
+      ctx.floridaAdminId,
+    ]
+  );
+
   console.log('  ✓ EVV state configurations seeded');
 }
 
@@ -589,12 +647,12 @@ async function seedEVVStateConfig(ctx: SeedContext): Promise<void> {
  */
 async function seedCarePlans(ctx: SeedContext): Promise<void> {
   console.log('📋 Seeding care plans...');
-  
+
   // Seed care plans for Texas clients
   for (let i = 0; i < ctx.texasClientIds.length; i++) {
     const clientId = ctx.texasClientIds[i];
     const carePlanId = `00000000-0000-4000-8000-0000000001${i + 1}1`;
-    
+
     const created = await insertIfNotExists(
       'care_plans',
       'id',
@@ -614,17 +672,17 @@ async function seedCarePlans(ctx: SeedContext): Promise<void> {
       ) ON CONFLICT (id) DO NOTHING`,
       [carePlanId, clientId, ctx.texasOrgId, `STAR+PLUS Care Plan ${i + 1}`, ctx.texasAdminId]
     );
-    
+
     if (created) {
       ctx.texasCarePlanIds.push(carePlanId);
     }
   }
-  
+
   // Seed care plans for Florida clients
   for (let i = 0; i < ctx.floridaClientIds.length; i++) {
     const clientId = ctx.floridaClientIds[i];
     const carePlanId = `00000000-0000-4000-8000-0000000002${i + 1}1`;
-    
+
     const created = await insertIfNotExists(
       'care_plans',
       'id',
@@ -644,13 +702,15 @@ async function seedCarePlans(ctx: SeedContext): Promise<void> {
       ) ON CONFLICT (id) DO NOTHING`,
       [carePlanId, clientId, ctx.floridaOrgId, `SMMC LTC Care Plan ${i + 1}`, ctx.floridaAdminId]
     );
-    
+
     if (created) {
       ctx.floridaCarePlanIds.push(carePlanId);
     }
   }
-  
-  console.log(`  ✓ Care plans seeded (TX: ${ctx.texasCarePlanIds.length}, FL: ${ctx.floridaCarePlanIds.length})`);
+
+  console.log(
+    `  ✓ Care plans seeded (TX: ${ctx.texasCarePlanIds.length}, FL: ${ctx.floridaCarePlanIds.length})`
+  );
 }
 
 /**
@@ -658,13 +718,13 @@ async function seedCarePlans(ctx: SeedContext): Promise<void> {
  */
 async function seedServicePatterns(ctx: SeedContext): Promise<void> {
   console.log('🔄 Seeding service patterns...');
-  
+
   let created = 0;
-  
+
   // Create recurring patterns for each care plan
   const allCarePlans = [...ctx.texasCarePlanIds, ...ctx.floridaCarePlanIds];
   const allClients = [...ctx.texasClientIds, ...ctx.floridaClientIds];
-  
+
   for (let i = 0; i < allCarePlans.length; i++) {
     const patternId = `00000000-0000-4000-8000-0000000003${i + 1}1`;
     const wasCreated = await insertIfNotExists(
@@ -695,10 +755,10 @@ async function seedServicePatterns(ctx: SeedContext): Promise<void> {
         }),
       ]
     );
-    
+
     if (wasCreated) created++;
   }
-  
+
   console.log(`  ✓ Service patterns seeded (${created} created)`);
 }
 
@@ -707,9 +767,9 @@ async function seedServicePatterns(ctx: SeedContext): Promise<void> {
  */
 async function seedVisits(ctx: SeedContext): Promise<void> {
   console.log('📅 Seeding visits...');
-  
+
   let created = 0;
-  
+
   // Create visits for the next 7 days for each client-caregiver pair
   for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
     // Texas visits
@@ -741,15 +801,19 @@ async function seedVisits(ctx: SeedContext): Promise<void> {
           ctx.texasAdminId,
         ]
       );
-      
+
       if (wasCreated) {
         ctx.texasVisitIds.push(visitId);
         created++;
       }
     }
-    
+
     // Florida visits
-    for (let i = 0; i < Math.min(ctx.floridaClientIds.length, ctx.floridaCaregiverIds.length); i++) {
+    for (
+      let i = 0;
+      i < Math.min(ctx.floridaClientIds.length, ctx.floridaCaregiverIds.length);
+      i++
+    ) {
       const visitId = `00000000-0000-4000-8000-0000200${dayOffset}${i + 1}01`;
       const wasCreated = await insertIfNotExists(
         'visits',
@@ -777,14 +841,14 @@ async function seedVisits(ctx: SeedContext): Promise<void> {
           ctx.floridaAdminId,
         ]
       );
-      
+
       if (wasCreated) {
         ctx.floridaVisitIds.push(visitId);
         created++;
       }
     }
   }
-  
+
   console.log(`  ✓ Visits seeded (${created} created)`);
 }
 
@@ -793,16 +857,16 @@ async function seedVisits(ctx: SeedContext): Promise<void> {
  */
 async function seedEVVRecords(ctx: SeedContext): Promise<void> {
   console.log('🕐 Seeding EVV records...');
-  
+
   let created = 0;
-  
+
   // Create EVV records for visits in the past (last 3 days)
   const pastVisitIds = [...ctx.texasVisitIds.slice(0, 6), ...ctx.floridaVisitIds.slice(0, 6)];
-  
+
   for (let i = 0; i < pastVisitIds.length; i++) {
     const evvId = `00000000-0000-4000-8000-0000300${i + 1}01`;
     const visitId = pastVisitIds[i];
-    
+
     const wasCreated = await insertIfNotExists(
       'evv_records',
       'id',
@@ -816,18 +880,18 @@ async function seedEVVRecords(ctx: SeedContext): Promise<void> {
       ) VALUES (
         $1, $2,
         'MOBILE_GPS', NOW() - INTERVAL '${i + 1} days' + INTERVAL '9 hours',
-        ${30.2672 + (i * 0.01)}, ${-97.7431 + (i * 0.01)},
+        ${30.2672 + i * 0.01}, ${-97.7431 + i * 0.01},
         'MOBILE_GPS', NOW() - INTERVAL '${i + 1} days' + INTERVAL '11 hours',
-        ${30.2672 + (i * 0.01)}, ${-97.7431 + (i * 0.01)},
+        ${30.2672 + i * 0.01}, ${-97.7431 + i * 0.01},
         'COMPLIANT',
         NOW(), NOW()
       ) ON CONFLICT (id) DO NOTHING`,
       [evvId, visitId]
     );
-    
+
     if (wasCreated) created++;
   }
-  
+
   console.log(`  ✓ EVV records seeded (${created} created)`);
 }
 
@@ -836,9 +900,9 @@ async function seedEVVRecords(ctx: SeedContext): Promise<void> {
  */
 async function seedExceptions(ctx: SeedContext): Promise<void> {
   console.log('⚠️  Seeding exception queue...');
-  
+
   let created = 0;
-  
+
   // Create a few exception scenarios
   const exceptions = [
     {
@@ -854,10 +918,10 @@ async function seedExceptions(ctx: SeedContext): Promise<void> {
       description: 'Clock-in location >150m from service address',
     },
   ];
-  
+
   for (const exc of exceptions) {
     if (!exc.visitId) continue;
-    
+
     const wasCreated = await insertIfNotExists(
       'exception_queue',
       'id',
@@ -873,10 +937,10 @@ async function seedExceptions(ctx: SeedContext): Promise<void> {
       ) ON CONFLICT (id) DO NOTHING`,
       [exc.id, exc.visitId, exc.type, exc.description]
     );
-    
+
     if (wasCreated) created++;
   }
-  
+
   console.log(`  ✓ Exceptions seeded (${created} created)`);
 }
 

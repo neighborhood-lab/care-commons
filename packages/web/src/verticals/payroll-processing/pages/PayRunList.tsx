@@ -38,26 +38,20 @@ export const PayRunList: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Payroll Processing</h1>
-          <p className="text-gray-600 mt-1">
-            {payRunData?.total || 0} total pay runs
-          </p>
+          <p className="text-gray-600 mt-1">{payRunData?.total || 0} total pay runs</p>
         </div>
         <div className="flex gap-2">
           <div className="flex border border-gray-300 rounded-md">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${
-                viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               aria-label="Grid view"
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${
-                viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               aria-label="List view"
             >
               <List className="h-5 w-5" />
@@ -65,9 +59,7 @@ export const PayRunList: React.FC = () => {
           </div>
           {can('payroll:write') && (
             <Link to="/payroll/runs/new">
-              <Button leftIcon={<Plus className="h-4 w-4" />}>
-                New Pay Run
-              </Button>
+              <Button leftIcon={<Plus className="h-4 w-4" />}>New Pay Run</Button>
             </Link>
           )}
         </div>
@@ -84,9 +76,7 @@ export const PayRunList: React.FC = () => {
           action={
             can('payroll:write') ? (
               <Link to="/payroll/runs/new">
-                <Button leftIcon={<Plus className="h-4 w-4" />}>
-                  Create Pay Run
-                </Button>
+                <Button leftIcon={<Plus className="h-4 w-4" />}>Create Pay Run</Button>
               </Link>
             ) : undefined
           }
@@ -100,11 +90,7 @@ export const PayRunList: React.FC = () => {
           }
         >
           {payRuns.map((payRun) => (
-            <PayRunCard
-              key={payRun.id}
-              payRun={payRun}
-              compact={viewMode === 'list'}
-            />
+            <PayRunCard key={payRun.id} payRun={payRun} compact={viewMode === 'list'} />
           ))}
         </div>
       )}

@@ -1,15 +1,15 @@
 /**
  * Florida Level 2 Background Screening Service
- * 
+ *
  * Implements the lifecycle management for Florida's Level 2 background screening
  * required under Chapter 435, Florida Statutes and AHCA requirements.
- * 
+ *
  * Level 2 screening includes:
  * - State and national criminal history (FDLE/FBI)
  * - Employment history verification
  * - 5-year rescreening requirement
  * - AHCA Clearinghouse integration
- * 
+ *
  * Reference: https://www.myflfamilies.com/service-programs/background-screening/
  */
 
@@ -53,9 +53,9 @@ export class FloridaLevel2ScreeningService {
 
   /**
    * Initiate Level 2 background screening
-   * 
+   *
    * In production, this would integrate with the Florida AHCA Clearinghouse.
-   * 
+   *
    * @throws Error if the external API is unavailable or returns an error
    */
   async initiateScreening(
@@ -63,20 +63,20 @@ export class FloridaLevel2ScreeningService {
   ): Promise<{ submissionId: string; estimatedCompletionDate: Date }> {
     // Validate input
     this.validateInput(input);
-    
+
     // In production, this would:
     // 1. Submit request to AHCA Clearinghouse
     // 2. Coordinate with FDLE for state criminal history
     // 3. Submit to FBI for national criminal history (if LiveScan)
     // 4. Track screening status
-    
+
     throw new Error(
       'Florida Level 2 Background Screening API integration required. ' +
-      'This service must be configured with AHCA Clearinghouse credentials. ' +
-      'Contact your system administrator to complete the integration at: ' +
-      'https://www.myflfamilies.com/service-programs/background-screening/'
+        'This service must be configured with AHCA Clearinghouse credentials. ' +
+        'Contact your system administrator to complete the integration at: ' +
+        'https://www.myflfamilies.com/service-programs/background-screening/'
     );
-    
+
     // Production implementation would look like:
     /*
     const submission = await this.submitToAHCAClearinghouse({
@@ -98,7 +98,7 @@ export class FloridaLevel2ScreeningService {
 
   /**
    * Check screening status
-   * 
+   *
    * Polls the AHCA Clearinghouse for screening results
    */
   async checkScreeningStatus(clearinghouseId: string): Promise<{
@@ -108,16 +108,16 @@ export class FloridaLevel2ScreeningService {
     if (!clearinghouseId) {
       throw new Error('Clearinghouse ID is required to check screening status');
     }
-    
+
     throw new Error(
       'Florida Level 2 Background Screening status check requires API integration. ' +
-      'Contact your system administrator.'
+        'Contact your system administrator.'
     );
   }
 
   /**
    * Initiate 5-year rescreen
-   * 
+   *
    * Florida requires rescreening every 5 years
    */
   async initiateRescreen(
@@ -126,16 +126,16 @@ export class FloridaLevel2ScreeningService {
   ): Promise<{ submissionId: string; estimatedCompletionDate: Date }> {
     // Verify current screening exists and is eligible for rescreen
     const eligibility = this.checkRescreenEligibility(currentScreening);
-    
+
     if (!eligibility.eligible) {
       throw new Error(`Rescreen not eligible: ${eligibility.reason}`);
     }
-    
+
     throw new Error(
       'Florida Level 2 Background Screening rescreen requires API integration. ' +
-      'Contact your system administrator.'
+        'Contact your system administrator.'
     );
-    
+
     // Production implementation would look like:
     /*
     const submission = await this.submitToAHCAClearinghouse({
@@ -162,7 +162,7 @@ export class FloridaLevel2ScreeningService {
   } {
     const now = new Date();
     const expirationDate = screening.expirationDate;
-    
+
     // Check if expired (rescreen required)
     if (expirationDate < now) {
       return {
@@ -172,12 +172,12 @@ export class FloridaLevel2ScreeningService {
         windowOpen: true,
       };
     }
-    
+
     // Check if within rescreen window (90 days before expiration)
     const daysUntilExpiration = Math.floor(
       (expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
-    
+
     if (daysUntilExpiration <= this.RESCREEN_WINDOW_DAYS) {
       return {
         eligible: true,
@@ -186,7 +186,7 @@ export class FloridaLevel2ScreeningService {
         windowOpen: true,
       };
     }
-    
+
     return {
       eligible: false,
       required: false,
@@ -197,22 +197,22 @@ export class FloridaLevel2ScreeningService {
 
   /**
    * Get caregivers needing rescreen
-   * 
+   *
    * Returns list of caregivers whose screening is expiring or expired
    */
   async getCaregiversNeedingRescreen(): Promise<RescreenNotification[]> {
     // In production, this would query the database for caregivers
     // with Level 2 screenings expiring within the specified window
-    
+
     throw new Error(
       'This method requires database integration. ' +
-      'Implementation needed in caregiver service layer.'
+        'Implementation needed in caregiver service layer.'
     );
   }
 
   /**
    * Request exemption from disqualifying offense
-   * 
+   *
    * Florida allows exemptions for certain disqualifying offenses
    * under specific circumstances (Chapter 435.07)
    */
@@ -232,14 +232,14 @@ export class FloridaLevel2ScreeningService {
         `Offense type "${offense.offenseType}" is not eligible for exemption under Florida law`
       );
     }
-    
+
     if (!justification || justification.trim().length < 50) {
       throw new Error('Exemption justification must be at least 50 characters');
     }
-    
+
     throw new Error(
       'Florida exemption request requires AHCA Clearinghouse integration. ' +
-      'Contact your system administrator.'
+        'Contact your system administrator.'
     );
   }
 
@@ -253,7 +253,7 @@ export class FloridaLevel2ScreeningService {
     restrictions?: string[];
   } {
     const now = new Date();
-    
+
     // Check if disqualified
     if (screening.status === 'DISQUALIFIED') {
       return {
@@ -262,7 +262,7 @@ export class FloridaLevel2ScreeningService {
         reason: 'Disqualified from Level 2 background screening - CANNOT WORK',
       };
     }
-    
+
     // Check if expired
     if (screening.expirationDate < now) {
       return {
@@ -271,7 +271,7 @@ export class FloridaLevel2ScreeningService {
         reason: 'Level 2 background screening expired - 5-year rescreen required',
       };
     }
-    
+
     // Check if pending
     if (screening.status === 'PENDING') {
       return {
@@ -280,15 +280,15 @@ export class FloridaLevel2ScreeningService {
         reason: 'Level 2 background screening pending clearance',
       };
     }
-    
+
     // Check if conditional
     if (screening.status === 'CONDITIONAL') {
       const restrictions: string[] = [];
-      
+
       if (screening.disqualifyingOffenses && screening.disqualifyingOffenses.length > 0) {
         restrictions.push('Has disqualifying offenses - exemption may be required');
       }
-      
+
       return {
         cleared: false,
         canWork: false,
@@ -296,31 +296,36 @@ export class FloridaLevel2ScreeningService {
         restrictions,
       };
     }
-    
+
     // Check if cleared
     if (screening.status === 'CLEARED') {
       // Check if expiring soon
       const daysUntilExpiration = Math.floor(
         (screening.expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       );
-      
+
       const restrictions: string[] = [];
       if (daysUntilExpiration <= this.RESCREEN_WINDOW_DAYS) {
         restrictions.push(`Screening expires in ${daysUntilExpiration} days - initiate rescreen`);
       }
-      
-      const result: { cleared: boolean; canWork: boolean; reason?: string; restrictions?: string[] } = {
+
+      const result: {
+        cleared: boolean;
+        canWork: boolean;
+        reason?: string;
+        restrictions?: string[];
+      } = {
         cleared: true,
         canWork: true,
       };
-      
+
       if (restrictions.length > 0) {
         result.restrictions = restrictions;
       }
-      
+
       return result;
     }
-    
+
     return {
       cleared: false,
       canWork: false,
@@ -356,25 +361,25 @@ export class FloridaLevel2ScreeningService {
       'CHILD_ABUSE',
       'EXPLOITATION_OF_ELDERLY',
     ];
-    
+
     // Check if offense is permanently disqualifying
     const isPermanent = permanentlyDisqualifying.some((type) =>
       offense.offenseType.toUpperCase().includes(type)
     );
-    
+
     if (isPermanent) {
       return false;
     }
-    
+
     // Check if offense is within lookback period
     const yearsSinceOffense = Math.floor(
       (Date.now() - offense.offenseDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
     );
-    
+
     if (yearsSinceOffense < this.DISQUALIFYING_OFFENSE_LOOKBACK_YEARS) {
       return false;
     }
-    
+
     // Offense may be eligible for exemption
     return true;
   }
@@ -397,19 +402,19 @@ export class FloridaLevel2ScreeningService {
     if (!input.firstName || input.firstName.trim().length === 0) {
       throw new Error('First name is required for Level 2 screening');
     }
-    
+
     if (!input.lastName || input.lastName.trim().length === 0) {
       throw new Error('Last name is required for Level 2 screening');
     }
-    
+
     if (!input.dateOfBirth) {
       throw new Error('Date of birth is required for Level 2 screening');
     }
-    
+
     if (!input.ssn || input.ssn.length < 9) {
       throw new Error('Valid SSN is required for Level 2 screening');
     }
-    
+
     // Validate age (must be at least 18 for healthcare work)
     const age = this.calculateAge(input.dateOfBirth);
     if (age < 18) {
@@ -427,11 +432,11 @@ export class FloridaLevel2ScreeningService {
     const today = new Date();
     let age = today.getFullYear() - dateOfBirth.getFullYear();
     const monthDiff = today.getMonth() - dateOfBirth.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) {
       age--;
     }
-    
+
     return age;
   }
 

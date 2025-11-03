@@ -33,7 +33,14 @@ import {
   getUnassignedCount,
   isVisitOverdue,
 } from '../schedule-utils';
-import { ServicePattern, VisitStatus, PatternStatus, DayOfWeek, AssignmentMethod, Visit } from '../../types/schedule';
+import {
+  ServicePattern,
+  VisitStatus,
+  PatternStatus,
+  DayOfWeek,
+  AssignmentMethod,
+  Visit,
+} from '../../types/schedule';
 import { describe, it, expect } from 'vitest';
 
 describe('Schedule Utils', () => {
@@ -113,24 +120,24 @@ describe('Schedule Utils', () => {
     it('should identify upcoming visits', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
-      
+
       const visit = {
         scheduledDate: futureDate,
-        status: 'SCHEDULED' as VisitStatus
+        status: 'SCHEDULED' as VisitStatus,
       };
-      
+
       expect(isUpcomingVisit(visit)).toBe(true);
     });
 
     it('should not identify past visits as upcoming', () => {
       const pastDate = new Date();
       pastDate.setDate(pastDate.getDate() - 1);
-      
+
       const visit = {
         scheduledDate: pastDate,
-        status: 'SCHEDULED' as VisitStatus
+        status: 'SCHEDULED' as VisitStatus,
       };
-      
+
       expect(isUpcomingVisit(visit)).toBe(false);
     });
   });
@@ -138,17 +145,17 @@ describe('Schedule Utils', () => {
   describe('isVisitInProgress', () => {
     it('should identify visits in progress', () => {
       const visit = {
-        status: 'IN_PROGRESS' as VisitStatus
+        status: 'IN_PROGRESS' as VisitStatus,
       };
-      
+
       expect(isVisitInProgress(visit)).toBe(true);
     });
 
     it('should not identify completed visits as in progress', () => {
       const visit = {
-        status: 'COMPLETED' as VisitStatus
+        status: 'COMPLETED' as VisitStatus,
       };
-      
+
       expect(isVisitInProgress(visit)).toBe(false);
     });
   });
@@ -156,17 +163,17 @@ describe('Schedule Utils', () => {
   describe('isVisitCompleted', () => {
     it('should identify completed visits', () => {
       const visit = {
-        status: 'COMPLETED' as VisitStatus
+        status: 'COMPLETED' as VisitStatus,
       };
-      
+
       expect(isVisitCompleted(visit)).toBe(true);
     });
 
     it('should not identify scheduled visits as completed', () => {
       const visit = {
-        status: 'SCHEDULED' as VisitStatus
+        status: 'SCHEDULED' as VisitStatus,
       };
-      
+
       expect(isVisitCompleted(visit)).toBe(false);
     });
   });
@@ -177,23 +184,23 @@ describe('Schedule Utils', () => {
         status: 'UNASSIGNED' as VisitStatus,
         scheduledDate: new Date(),
         isUrgent: false,
-        isPriority: false
+        isPriority: false,
       };
-      
+
       expect(needsAttention(visit)).toBe(true);
     });
 
     it('should not identify normal visits as needing attention', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
-      
+
       const visit = {
         status: 'ASSIGNED' as VisitStatus,
         scheduledDate: futureDate,
         isUrgent: false,
-        isPriority: false
+        isPriority: false,
       };
-      
+
       expect(needsAttention(visit)).toBe(false);
     });
   });
@@ -203,15 +210,15 @@ describe('Schedule Utils', () => {
       const visit1 = {
         scheduledDate: new Date('2024-01-15'),
         scheduledStartTime: '09:00',
-        scheduledEndTime: '10:00'
+        scheduledEndTime: '10:00',
       };
-      
+
       const visit2 = {
         scheduledDate: new Date('2024-01-15'),
         scheduledStartTime: '09:30',
-        scheduledEndTime: '10:30'
+        scheduledEndTime: '10:30',
       };
-      
+
       expect(hasTimeConflict(visit1, visit2)).toBe(true);
     });
 
@@ -219,15 +226,15 @@ describe('Schedule Utils', () => {
       const visit1 = {
         scheduledDate: new Date('2024-01-15'),
         scheduledStartTime: '09:00',
-        scheduledEndTime: '10:00'
+        scheduledEndTime: '10:00',
       };
-      
+
       const visit2 = {
         scheduledDate: new Date('2024-01-15'),
         scheduledStartTime: '10:00',
-        scheduledEndTime: '11:00'
+        scheduledEndTime: '11:00',
       };
-      
+
       expect(hasTimeConflict(visit1, visit2)).toBe(false);
     });
   });
@@ -259,9 +266,9 @@ describe('Schedule Utils', () => {
       const pattern = {
         effectiveFrom: new Date('2024-01-01'),
         effectiveTo: new Date('2024-12-31'),
-        status: 'ACTIVE' as PatternStatus
+        status: 'ACTIVE' as PatternStatus,
       };
-      
+
       const testDate = new Date('2024-06-15');
       expect(isPatternActiveOnDate(pattern, testDate)).toBe(true);
     });
@@ -339,9 +346,9 @@ describe('Schedule Utils', () => {
         city: 'Anytown',
         state: 'CA',
         postalCode: '12345',
-        country: 'USA'
+        country: 'USA',
       };
-      
+
       const formatted = formatAddress(address);
       expect(formatted).toContain('123 Main St');
       expect(formatted).toContain('Anytown, CA 12345');
@@ -366,9 +373,9 @@ describe('Schedule Utils', () => {
       const visits = [
         { scheduledDate: today, scheduledStartTime: '10:00' },
         { scheduledDate: today, scheduledStartTime: '08:00' },
-        { scheduledDate: today, scheduledStartTime: '09:00' }
+        { scheduledDate: today, scheduledStartTime: '09:00' },
       ];
-      
+
       const sorted = sortVisitsByTime(visits as Visit[]);
       expect(sorted[0]!.scheduledStartTime).toBe('08:00');
       expect(sorted[1]!.scheduledStartTime).toBe('09:00');
@@ -380,13 +387,13 @@ describe('Schedule Utils', () => {
     it('should group visits by date', () => {
       const date1 = new Date('2024-01-15T12:00:00');
       const date2 = new Date('2024-01-16T12:00:00');
-      
+
       const visits = [
         { scheduledDate: date1, scheduledStartTime: '09:00' },
         { scheduledDate: date2, scheduledStartTime: '10:00' },
-        { scheduledDate: date1, scheduledStartTime: '11:00' }
+        { scheduledDate: date1, scheduledStartTime: '11:00' },
       ];
-      
+
       const grouped = groupVisitsByDate(visits as Visit[]);
       expect(Object.keys(grouped)).toHaveLength(2);
       expect(grouped['2024-01-15']).toHaveLength(2);
@@ -400,32 +407,32 @@ describe('Schedule Utils', () => {
         { status: 'SCHEDULED' as VisitStatus },
         { status: 'COMPLETED' as VisitStatus },
         { status: 'SCHEDULED' as VisitStatus },
-        { status: 'CANCELLED' as VisitStatus }
+        { status: 'CANCELLED' as VisitStatus },
       ];
-      
+
       const scheduled = filterVisitsByStatus(visits as Visit[], ['SCHEDULED']);
       expect(scheduled).toHaveLength(2);
-      
+
       const completed = filterVisitsByStatus(visits as Visit[], ['COMPLETED']);
       expect(completed).toHaveLength(1);
     });
   });
 
   describe('getTodaysVisits', () => {
-    it('should return today\'s visits', () => {
+    it("should return today's visits", () => {
       const today = new Date();
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      
+
       const visits = [
         { scheduledDate: today },
         { scheduledDate: tomorrow },
-        { scheduledDate: today }
+        { scheduledDate: today },
       ];
-      
+
       const todays = getTodaysVisits(visits as Visit[]);
       expect(todays).toHaveLength(2);
-      expect(todays.every(v => v.scheduledDate === today)).toBe(true);
+      expect(todays.every((v) => v.scheduledDate === today)).toBe(true);
     });
   });
 
@@ -435,9 +442,9 @@ describe('Schedule Utils', () => {
         { status: 'UNASSIGNED' as VisitStatus, assignedCaregiverId: undefined },
         { status: 'ASSIGNED' as VisitStatus, assignedCaregiverId: 'caregiver-1' },
         { status: 'SCHEDULED' as VisitStatus, assignedCaregiverId: undefined },
-        { status: 'ASSIGNED' as VisitStatus, assignedCaregiverId: 'caregiver-2' }
+        { status: 'ASSIGNED' as VisitStatus, assignedCaregiverId: 'caregiver-2' },
       ];
-      
+
       const count = getUnassignedCount(visits as Visit[]);
       expect(count).toBe(2);
     });
@@ -454,7 +461,7 @@ describe('Schedule Utils', () => {
       const visit = {
         scheduledDate: pastTime,
         scheduledStartTime: pastTime.toTimeString().slice(0, 5),
-        status: 'ASSIGNED' as VisitStatus
+        status: 'ASSIGNED' as VisitStatus,
       };
       expect(isVisitOverdue(visit as Visit)).toBe(true);
     });
@@ -463,7 +470,7 @@ describe('Schedule Utils', () => {
       const visit = {
         scheduledDate: futureTime,
         scheduledStartTime: futureTime.toTimeString().slice(0, 5),
-        status: 'ASSIGNED' as VisitStatus
+        status: 'ASSIGNED' as VisitStatus,
       };
       expect(isVisitOverdue(visit as Visit)).toBe(false);
     });
@@ -472,7 +479,7 @@ describe('Schedule Utils', () => {
       const visit = {
         scheduledDate: pastTime,
         scheduledStartTime: pastTime.toTimeString().slice(0, 5),
-        status: 'COMPLETED' as VisitStatus
+        status: 'COMPLETED' as VisitStatus,
       };
       expect(isVisitOverdue(visit as Visit)).toBe(false);
     });

@@ -9,25 +9,35 @@ export interface CarePlanStatsProps {
 
 export const CarePlanStats: React.FC<CarePlanStatsProps> = ({ carePlan }) => {
   const [now] = useState(() => Date.now());
-  
-  const isExpiringSoon = carePlan.expirationDate && 
+
+  const isExpiringSoon =
+    carePlan.expirationDate &&
     new Date(carePlan.expirationDate) <= new Date(now + 30 * 24 * 60 * 60 * 1000);
 
-  const isOverdue = carePlan.reviewDate && 
-    new Date(carePlan.reviewDate) < new Date(now);
+  const isOverdue = carePlan.reviewDate && new Date(carePlan.reviewDate) < new Date(now);
 
   // Calculate goal statistics
-  const achievedGoalsCount = carePlan.goals.filter(goal => goal.status === 'ACHIEVED').length;
-  const inProgressGoalsCount = carePlan.goals.filter(goal => goal.status === 'IN_PROGRESS').length;
-  const atRiskGoalsCount = carePlan.goals.filter(goal => goal.status === 'AT_RISK').length;
-  const notStartedGoalsCount = carePlan.goals.filter(goal => goal.status === 'NOT_STARTED').length;
-  const averageGoalProgress = carePlan.goals.length > 0 
-    ? carePlan.goals.reduce((sum, goal) => sum + (goal.progressPercentage || 0), 0) / carePlan.goals.length 
-    : 0;
+  const achievedGoalsCount = carePlan.goals.filter((goal) => goal.status === 'ACHIEVED').length;
+  const inProgressGoalsCount = carePlan.goals.filter(
+    (goal) => goal.status === 'IN_PROGRESS'
+  ).length;
+  const atRiskGoalsCount = carePlan.goals.filter((goal) => goal.status === 'AT_RISK').length;
+  const notStartedGoalsCount = carePlan.goals.filter(
+    (goal) => goal.status === 'NOT_STARTED'
+  ).length;
+  const averageGoalProgress =
+    carePlan.goals.length > 0
+      ? carePlan.goals.reduce((sum, goal) => sum + (goal.progressPercentage || 0), 0) /
+        carePlan.goals.length
+      : 0;
 
   // Calculate intervention statistics
-  const activeInterventionsCount = carePlan.interventions.filter(int => int.status === 'ACTIVE').length;
-  const suspendedInterventionsCount = carePlan.interventions.filter(int => int.status === 'SUSPENDED').length;
+  const activeInterventionsCount = carePlan.interventions.filter(
+    (int) => int.status === 'ACTIVE'
+  ).length;
+  const suspendedInterventionsCount = carePlan.interventions.filter(
+    (int) => int.status === 'SUSPENDED'
+  ).length;
 
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return 'text-green-600';
@@ -61,23 +71,23 @@ export const CarePlanStats: React.FC<CarePlanStatsProps> = ({ carePlan }) => {
               <span className="text-sm text-gray-600">Total</span>
               <span className="text-lg font-semibold">{carePlan.goals.length}</span>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-green-600">Achieved</span>
                 <span className="text-sm font-medium text-green-600">{achievedGoalsCount}</span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-blue-600">In Progress</span>
                 <span className="text-sm font-medium text-blue-600">{inProgressGoalsCount}</span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-orange-600">At Risk</span>
                 <span className="text-sm font-medium text-orange-600">{atRiskGoalsCount}</span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Not Started</span>
                 <span className="text-sm font-medium text-gray-600">{notStartedGoalsCount}</span>
@@ -98,17 +108,18 @@ export const CarePlanStats: React.FC<CarePlanStatsProps> = ({ carePlan }) => {
               </div>
               <p className="text-sm text-gray-600">Average Goal Progress</p>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Completion Rate</span>
                 <span className="text-sm font-medium">
-                  {carePlan.goals.length > 0 
+                  {carePlan.goals.length > 0
                     ? Math.round((achievedGoalsCount / carePlan.goals.length) * 100)
-                    : 0}%
+                    : 0}
+                  %
                 </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">On Track</span>
                 <span className="text-sm font-medium text-blue-600">
@@ -129,18 +140,22 @@ export const CarePlanStats: React.FC<CarePlanStatsProps> = ({ carePlan }) => {
               <span className="text-sm text-gray-600">Total</span>
               <span className="text-lg font-semibold">{carePlan.interventions.length}</span>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-green-600">Active</span>
-                <span className="text-sm font-medium text-green-600">{activeInterventionsCount}</span>
+                <span className="text-sm font-medium text-green-600">
+                  {activeInterventionsCount}
+                </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-orange-600">Suspended</span>
-                <span className="text-sm font-medium text-orange-600">{suspendedInterventionsCount}</span>
+                <span className="text-sm font-medium text-orange-600">
+                  {suspendedInterventionsCount}
+                </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Task Templates</span>
                 <span className="text-sm font-medium">{carePlan.taskTemplates.length}</span>
@@ -159,7 +174,9 @@ export const CarePlanStats: React.FC<CarePlanStatsProps> = ({ carePlan }) => {
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
               <span className="text-sm text-gray-600">Compliance:</span>
-              <span className={`text-sm font-medium ${getComplianceColor(carePlan.complianceStatus)}`}>
+              <span
+                className={`text-sm font-medium ${getComplianceColor(carePlan.complianceStatus)}`}
+              >
                 {carePlan.complianceStatus.replace(/_/g, ' ')}
               </span>
             </div>
@@ -168,12 +185,17 @@ export const CarePlanStats: React.FC<CarePlanStatsProps> = ({ carePlan }) => {
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
               <span className="text-sm text-gray-600">Priority:</span>
-              <span className={`text-sm font-medium ${
-                carePlan.priority === 'URGENT' ? 'text-red-600' :
-                carePlan.priority === 'HIGH' ? 'text-orange-600' :
-                carePlan.priority === 'MEDIUM' ? 'text-yellow-600' :
-                'text-gray-600'
-              }`}>
+              <span
+                className={`text-sm font-medium ${
+                  carePlan.priority === 'URGENT'
+                    ? 'text-red-600'
+                    : carePlan.priority === 'HIGH'
+                      ? 'text-orange-600'
+                      : carePlan.priority === 'MEDIUM'
+                        ? 'text-yellow-600'
+                        : 'text-gray-600'
+                }`}
+              >
                 {carePlan.priority}
               </span>
             </div>
@@ -195,14 +217,14 @@ export const CarePlanStats: React.FC<CarePlanStatsProps> = ({ carePlan }) => {
                   Expires Soon
                 </div>
               )}
-              
+
               {isOverdue && (
                 <div className="flex items-center gap-1 text-xs text-red-600">
                   <AlertTriangle className="h-3 w-3" />
                   Review Overdue
                 </div>
               )}
-              
+
               {atRiskGoalsCount > 0 && (
                 <div className="flex items-center gap-1 text-xs text-orange-600">
                   <AlertTriangle className="h-3 w-3" />

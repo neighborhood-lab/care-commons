@@ -2,7 +2,6 @@
  * Base repository pattern with audit and sync support
  */
 
-
 import { v4 as uuidv4 } from 'uuid';
 import {
   Entity,
@@ -159,11 +158,7 @@ export abstract class Repository<T extends Entity> {
   /**
    * Update an entity with optimistic locking
    */
-  async update(
-    id: string,
-    updates: Partial<T>,
-    context: UserContext
-  ): Promise<T> {
+  async update(id: string, updates: Partial<T>, context: UserContext): Promise<T> {
     const existing = await this.findById(id);
     if (existing === null) {
       throw new NotFoundError(`Entity not found: ${id}`);
@@ -217,10 +212,7 @@ export abstract class Repository<T extends Entity> {
     const updated = this.mapRowToEntity(updatedRow);
 
     if (this.enableAudit) {
-      const changes = this.computeChanges(
-        this.mapEntityToRow(existing),
-        row
-      );
+      const changes = this.computeChanges(this.mapEntityToRow(existing), row);
       await this.createRevision(id, 'UPDATE', changes, row, context);
     }
 
@@ -250,13 +242,7 @@ export abstract class Repository<T extends Entity> {
     await this.database.query(query, [now, context.userId, id]);
 
     if (this.enableAudit) {
-      await this.createRevision(
-        id,
-        'DELETE',
-        {},
-        { deleted_at: now },
-        context
-      );
+      await this.createRevision(id, 'DELETE', {}, { deleted_at: now }, context);
     }
   }
 

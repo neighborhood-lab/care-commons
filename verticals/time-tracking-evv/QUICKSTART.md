@@ -35,7 +35,11 @@ npm run db:seed
 ### 1. Initialize the Service
 
 ```typescript
-import { EVVService, EVVRepository, EVVValidator } from '@care-commons/time-tracking-evv';
+import {
+  EVVService,
+  EVVRepository,
+  EVVValidator,
+} from '@care-commons/time-tracking-evv';
 import { getConnection } from '@care-commons/core';
 
 const db = getConnection();
@@ -49,14 +53,17 @@ const evvService = new EVVService(repository, validator);
 First, create a geofence around the client's address:
 
 ```typescript
-const geofence = await evvService.createGeofence({
-  organizationId: 'your-org-id',
-  clientId: 'client-123',
-  addressId: 'address-456',
-  centerLatitude: 39.7817,
-  centerLongitude: -89.6501,
-  radiusMeters: 100, // 100 meter radius
-}, userContext);
+const geofence = await evvService.createGeofence(
+  {
+    organizationId: 'your-org-id',
+    clientId: 'client-123',
+    addressId: 'address-456',
+    centerLatitude: 39.7817,
+    centerLongitude: -89.6501,
+    radiusMeters: 100, // 100 meter radius
+  },
+  userContext
+);
 
 console.log('✓ Geofence created:', geofence.id);
 ```
@@ -66,30 +73,33 @@ console.log('✓ Geofence created:', geofence.id);
 Caregiver clocks in when arriving at client location:
 
 ```typescript
-const clockInResult = await evvService.clockIn({
-  visitId: 'visit-123',
-  caregiverId: 'caregiver-456',
-  location: {
-    latitude: 39.7817,
-    longitude: -89.6501,
-    accuracy: 12.5,
-    timestamp: new Date(),
-    method: 'GPS',
-    mockLocationDetected: false,
+const clockInResult = await evvService.clockIn(
+  {
+    visitId: 'visit-123',
+    caregiverId: 'caregiver-456',
+    location: {
+      latitude: 39.7817,
+      longitude: -89.6501,
+      accuracy: 12.5,
+      timestamp: new Date(),
+      method: 'GPS',
+      mockLocationDetected: false,
+    },
+    deviceInfo: {
+      deviceId: 'device-abc',
+      deviceModel: 'iPhone 13',
+      deviceOS: 'iOS',
+      osVersion: '17.2',
+      appVersion: '1.0.0',
+      batteryLevel: 85,
+      networkType: 'WIFI',
+      isRooted: false,
+      isJailbroken: false,
+    },
+    clientPresent: true,
   },
-  deviceInfo: {
-    deviceId: 'device-abc',
-    deviceModel: 'iPhone 13',
-    deviceOS: 'iOS',
-    osVersion: '17.2',
-    appVersion: '1.0.0',
-    batteryLevel: 85,
-    networkType: 'WIFI',
-    isRooted: false,
-    isJailbroken: false,
-  },
-  clientPresent: true,
-}, userContext);
+  userContext
+);
 
 if (clockInResult.verification.passed) {
   console.log('✓ Clock-in verified!');
@@ -103,31 +113,34 @@ if (clockInResult.verification.passed) {
 Caregiver clocks out when leaving:
 
 ```typescript
-const clockOutResult = await evvService.clockOut({
-  visitId: 'visit-123',
-  evvRecordId: clockInResult.evvRecord.id,
-  caregiverId: 'caregiver-456',
-  location: {
-    latitude: 39.7817,
-    longitude: -89.6501,
-    accuracy: 15.2,
-    timestamp: new Date(),
-    method: 'GPS',
-    mockLocationDetected: false,
+const clockOutResult = await evvService.clockOut(
+  {
+    visitId: 'visit-123',
+    evvRecordId: clockInResult.evvRecord.id,
+    caregiverId: 'caregiver-456',
+    location: {
+      latitude: 39.7817,
+      longitude: -89.6501,
+      accuracy: 15.2,
+      timestamp: new Date(),
+      method: 'GPS',
+      mockLocationDetected: false,
+    },
+    deviceInfo: {
+      // ... same device info
+    },
+    completionNotes: 'All tasks completed',
+    tasksCompleted: 8,
+    tasksTotal: 8,
+    clientSignature: {
+      attestedByName: 'John Doe',
+      attestationType: 'SIGNATURE',
+      signatureData: 'data:image/png;base64,...',
+      statement: 'Services received as documented',
+    },
   },
-  deviceInfo: {
-    // ... same device info
-  },
-  completionNotes: 'All tasks completed',
-  tasksCompleted: 8,
-  tasksTotal: 8,
-  clientSignature: {
-    attestedByName: 'John Doe',
-    attestationType: 'SIGNATURE',
-    signatureData: 'data:image/png;base64,...',
-    statement: 'Services received as documented',
-  },
-}, userContext);
+  userContext
+);
 
 console.log('✓ Clock-out successful');
 console.log('  Duration:', clockOutResult.evvRecord.totalDuration, 'minutes');
@@ -137,7 +150,10 @@ console.log('  Status:', clockOutResult.evvRecord.recordStatus);
 ### 5. View EVV Record
 
 ```typescript
-const evvRecord = await evvService.getEVVRecordByVisit('visit-123', userContext);
+const evvRecord = await evvService.getEVVRecordByVisit(
+  'visit-123',
+  userContext
+);
 
 if (evvRecord) {
   console.log('EVV Record:', {
@@ -155,19 +171,24 @@ if (evvRecord) {
 ### Test In-Geofence (Should Pass)
 
 ```typescript
-const result = await evvService.clockIn({
-  visitId: 'visit-test-1',
-  caregiverId: 'caregiver-test',
-  location: {
-    latitude: 39.7817,  // Exactly at center
-    longitude: -89.6501,
-    accuracy: 10,
-    timestamp: new Date(),
-    method: 'GPS',
-    mockLocationDetected: false,
+const result = await evvService.clockIn(
+  {
+    visitId: 'visit-test-1',
+    caregiverId: 'caregiver-test',
+    location: {
+      latitude: 39.7817, // Exactly at center
+      longitude: -89.6501,
+      accuracy: 10,
+      timestamp: new Date(),
+      method: 'GPS',
+      mockLocationDetected: false,
+    },
+    deviceInfo: {
+      /* ... */
+    },
   },
-  deviceInfo: { /* ... */ },
-}, userContext);
+  userContext
+);
 
 // Should pass: ✓ Within geofence
 console.log('Verification:', result.verification.passed);
@@ -176,19 +197,24 @@ console.log('Verification:', result.verification.passed);
 ### Test Outside Geofence (Should Fail)
 
 ```typescript
-const result = await evvService.clockIn({
-  visitId: 'visit-test-2',
-  caregiverId: 'caregiver-test',
-  location: {
-    latitude: 39.8000,  // ~2km away
-    longitude: -89.6700,
-    accuracy: 10,
-    timestamp: new Date(),
-    method: 'GPS',
-    mockLocationDetected: false,
+const result = await evvService.clockIn(
+  {
+    visitId: 'visit-test-2',
+    caregiverId: 'caregiver-test',
+    location: {
+      latitude: 39.8, // ~2km away
+      longitude: -89.67,
+      accuracy: 10,
+      timestamp: new Date(),
+      method: 'GPS',
+      mockLocationDetected: false,
+    },
+    deviceInfo: {
+      /* ... */
+    },
   },
-  deviceInfo: { /* ... */ },
-}, userContext);
+  userContext
+);
 
 // Should fail: ✗ Outside geofence
 console.log('Verification:', result.verification.passed);
@@ -198,19 +224,24 @@ console.log('Issues:', result.verification.issues);
 ### Test Mock Location Detection (Should Fail)
 
 ```typescript
-const result = await evvService.clockIn({
-  visitId: 'visit-test-3',
-  caregiverId: 'caregiver-test',
-  location: {
-    latitude: 39.7817,
-    longitude: -89.6501,
-    accuracy: 10,
-    timestamp: new Date(),
-    method: 'GPS',
-    mockLocationDetected: true,  // ✗ GPS spoofing detected
+const result = await evvService.clockIn(
+  {
+    visitId: 'visit-test-3',
+    caregiverId: 'caregiver-test',
+    location: {
+      latitude: 39.7817,
+      longitude: -89.6501,
+      accuracy: 10,
+      timestamp: new Date(),
+      method: 'GPS',
+      mockLocationDetected: true, // ✗ GPS spoofing detected
+    },
+    deviceInfo: {
+      /* ... */
+    },
   },
-  deviceInfo: { /* ... */ },
-}, userContext);
+  userContext
+);
 
 // Should fail: ✗ Mock location detected
 console.log('Verification:', result.verification.passed);
@@ -223,15 +254,18 @@ When legitimate verification issues occur:
 
 ```typescript
 // Supervisor reviews and approves
-await evvService.applyManualOverride({
-  timeEntryId: 'time-entry-123',
-  reason: 'Client relocated to neighbor\'s house temporarily',
-  reasonCode: 'CLIENT_LOCATION_CHANGE',
-  supervisorName: 'Sarah Johnson',
-  supervisorTitle: 'Care Coordinator',
-  approvalAuthority: 'Override Policy 4.2',
-  notes: 'Confirmed with client and family',
-}, supervisorUserContext);
+await evvService.applyManualOverride(
+  {
+    timeEntryId: 'time-entry-123',
+    reason: "Client relocated to neighbor's house temporarily",
+    reasonCode: 'CLIENT_LOCATION_CHANGE',
+    supervisorName: 'Sarah Johnson',
+    supervisorTitle: 'Care Coordinator',
+    approvalAuthority: 'Override Policy 4.2',
+    notes: 'Confirmed with client and family',
+  },
+  supervisorUserContext
+);
 
 console.log('✓ Manual override applied');
 ```
@@ -245,8 +279,12 @@ Handle offline clock-in/out:
 const offlineData = {
   visitId: 'visit-123',
   caregiverId: 'caregiver-456',
-  location: { /* GPS data */ },
-  deviceInfo: { /* device data */ },
+  location: {
+    /* GPS data */
+  },
+  deviceInfo: {
+    /* device data */
+  },
   offlineRecorded: true,
   offlineRecordedAt: new Date(),
   syncMetadata: {
@@ -293,7 +331,8 @@ while (currentAccuracy > 50) {
 
 Caregiver may be at client location but GPS shows outside.
 
-**Solution**: 
+**Solution**:
+
 1. Check if geofence radius is too small
 2. Consider GPS accuracy in verification
 3. Apply manual override if legitimate
@@ -319,7 +358,8 @@ if (location.mockLocationDetected) {
 
 ## Next Steps
 
-1. **Review Integration Points** - See how EVV connects with Scheduling and Billing
+1. **Review Integration Points** - See how EVV connects with Scheduling and
+   Billing
 2. **Implement Mobile UI** - Build clock-in/out screens in mobile app
 3. **Configure State Requirements** - Add state-specific EVV fields
 4. **Setup Payor Submission** - Configure billing system integration
@@ -337,8 +377,10 @@ if (location.mockLocationDetected) {
 
 Questions? Issues?
 
-- GitHub Issues: [github.com/neighborhood-lab/care-commons/issues](https://github.com/neighborhood-lab/care-commons/issues)
-- Community: [community.neighborhoodlab.org](https://community.neighborhoodlab.org)
+- GitHub Issues:
+  [github.com/neighborhood-lab/care-commons/issues](https://github.com/neighborhood-lab/care-commons/issues)
+- Community:
+  [community.neighborhoodlab.org](https://community.neighborhoodlab.org)
 
 ---
 

@@ -16,7 +16,9 @@ export interface CarePlanApiService {
   createCarePlan(input: CreateCarePlanInput): Promise<CarePlan>;
   updateCarePlan(id: string, input: UpdateCarePlanInput): Promise<CarePlan>;
   activateCarePlan(id: string): Promise<CarePlan>;
-  getTasks(filters?: TaskInstanceSearchFilters & SearchParams): Promise<PaginatedResult<TaskInstance>>;
+  getTasks(
+    filters?: TaskInstanceSearchFilters & SearchParams
+  ): Promise<PaginatedResult<TaskInstance>>;
   getTaskById(id: string): Promise<TaskInstance>;
   completeTask(id: string, input: CompleteTaskInput): Promise<TaskInstance>;
 }
@@ -24,7 +26,9 @@ export interface CarePlanApiService {
 export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiService => {
   return {
     // eslint-disable-next-line sonarjs/cognitive-complexity
-    async getCarePlans(filters?: CarePlanSearchFilters & SearchParams): Promise<PaginatedResult<CarePlan>> {
+    async getCarePlans(
+      filters?: CarePlanSearchFilters & SearchParams
+    ): Promise<PaginatedResult<CarePlan>> {
       const params = new URLSearchParams();
       if (filters?.query) params.append('query', filters.query);
       if (filters?.clientId) params.append('clientId', filters.clientId);
@@ -33,9 +37,11 @@ export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiServi
       if (filters?.status) for (const s of filters.status) params.append('status', s);
       if (filters?.planType) for (const t of filters.planType) params.append('planType', t);
       if (filters?.coordinatorId) params.append('coordinatorId', filters.coordinatorId);
-      if (filters?.expiringWithinDays) params.append('expiringWithinDays', filters.expiringWithinDays.toString());
+      if (filters?.expiringWithinDays)
+        params.append('expiringWithinDays', filters.expiringWithinDays.toString());
       if (filters?.needsReview) params.append('needsReview', filters.needsReview.toString());
-      if (filters?.complianceStatus) for (const c of filters.complianceStatus) params.append('complianceStatus', c);
+      if (filters?.complianceStatus)
+        for (const c of filters.complianceStatus) params.append('complianceStatus', c);
       if (filters?.page) params.append('page', filters.page.toString());
       if (filters?.pageSize) params.append('pageSize', filters.pageSize.toString());
       if (filters?.sortBy) params.append('sortBy', filters.sortBy);
@@ -64,18 +70,22 @@ export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiServi
     },
 
     // eslint-disable-next-line sonarjs/cognitive-complexity
-    async getTasks(filters?: TaskInstanceSearchFilters & SearchParams): Promise<PaginatedResult<TaskInstance>> {
+    async getTasks(
+      filters?: TaskInstanceSearchFilters & SearchParams
+    ): Promise<PaginatedResult<TaskInstance>> {
       const params = new URLSearchParams();
       if (filters?.carePlanId) params.append('carePlanId', filters.carePlanId);
       if (filters?.clientId) params.append('clientId', filters.clientId);
-      if (filters?.assignedCaregiverId) params.append('assignedCaregiverId', filters.assignedCaregiverId);
+      if (filters?.assignedCaregiverId)
+        params.append('assignedCaregiverId', filters.assignedCaregiverId);
       if (filters?.visitId) params.append('visitId', filters.visitId);
       if (filters?.status) for (const s of filters.status) params.append('status', s);
       if (filters?.category) for (const c of filters.category) params.append('category', c);
       if (filters?.scheduledDateFrom) params.append('scheduledDateFrom', filters.scheduledDateFrom);
       if (filters?.scheduledDateTo) params.append('scheduledDateTo', filters.scheduledDateTo);
       if (filters?.overdue) params.append('overdue', filters.overdue.toString());
-      if (filters?.requiresSignature) params.append('requiresSignature', filters.requiresSignature.toString());
+      if (filters?.requiresSignature)
+        params.append('requiresSignature', filters.requiresSignature.toString());
       if (filters?.page) params.append('page', filters.page.toString());
       if (filters?.pageSize) params.append('pageSize', filters.pageSize.toString());
       if (filters?.sortBy) params.append('sortBy', filters.sortBy);

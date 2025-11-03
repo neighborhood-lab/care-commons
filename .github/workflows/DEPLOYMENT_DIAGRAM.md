@@ -1,6 +1,7 @@
 # Deployment Flow Diagram
 
 **Vercel Hobby Plan Configuration:**
+
 - **Production** environment ← `main` branch (pushes only)
 - **Preview** environment ← `develop` branch (pushes only)
 - **Development** environment ← local only (not in GitHub workflows)
@@ -205,7 +206,7 @@ Developer                    GitHub                     Vercel
 ─────────                    ──────                     ──────
 
 1. Create feature branch
-   git checkout -b 
+   git checkout -b
    feature/new-ui
                 │
                 │
@@ -336,7 +337,7 @@ gh pr create --base develop
 # After merge - Preview deployment
 # Result: Automatic preview deployment ✅
 
-# Merge develop to main - Production deployment  
+# Merge develop to main - Production deployment
 git checkout main
 git merge develop
 git push origin main
@@ -349,7 +350,8 @@ gh workflow run deploy.yml
 
 ---
 
-**Key Takeaway:** 
+**Key Takeaway:**
+
 - Vercel Hobby Plan supports **Production** and **Preview** environments only
 - `main` branch → Vercel Production environment (pushes only)
 - `develop` branch → Vercel Preview environment (pushes only)

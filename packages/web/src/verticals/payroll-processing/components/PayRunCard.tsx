@@ -22,15 +22,12 @@ export const PayRunCard: React.FC<PayRunCardProps> = ({ payRun, compact = false 
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <Calendar className="h-5 w-5 text-gray-400" />
-            <span className="font-semibold text-gray-900">
-              {payRun.runNumber}
-            </span>
-            {payRun.hasErrors && (
-              <AlertCircle className="h-4 w-4 text-red-500" />
-            )}
+            <span className="font-semibold text-gray-900">{payRun.runNumber}</span>
+            {payRun.hasErrors && <AlertCircle className="h-4 w-4 text-red-500" />}
           </div>
           <p className="text-sm text-gray-600">
-            {new Date(payRun.payPeriodStartDate).toLocaleDateString()} - {new Date(payRun.payPeriodEndDate).toLocaleDateString()}
+            {new Date(payRun.payPeriodStartDate).toLocaleDateString()} -{' '}
+            {new Date(payRun.payPeriodEndDate).toLocaleDateString()}
           </p>
         </div>
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColor}`}>
@@ -77,13 +74,17 @@ export const PayRunCard: React.FC<PayRunCardProps> = ({ payRun, compact = false 
             <DollarSign className="h-4 w-4" />
             Net Pay:
           </span>
-          <span className="font-bold text-lg text-green-600">{formatCurrency(payRun.totalNetPay)}</span>
+          <span className="font-bold text-lg text-green-600">
+            {formatCurrency(payRun.totalNetPay)}
+          </span>
         </div>
       </div>
 
       <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
         <span className="text-xs text-gray-400">
-          {payRun.calculatedAt ? `Calculated ${formatDistanceToNow(new Date(payRun.calculatedAt), { addSuffix: true })}` : 'Not calculated'}
+          {payRun.calculatedAt
+            ? `Calculated ${formatDistanceToNow(new Date(payRun.calculatedAt), { addSuffix: true })}`
+            : 'Not calculated'}
         </span>
         <div className="text-xs text-gray-500">
           <span className="mr-2">DD: {payRun.directDepositCount}</span>

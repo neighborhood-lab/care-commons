@@ -1,6 +1,6 @@
 /**
  * Tests for Shift Matching API Handlers
- * 
+ *
  * Tests cover:
  * - Scheduler operations (create, match, manage shifts)
  * - Caregiver self-service (browse, accept, reject proposals)
@@ -71,7 +71,7 @@ describe('ShiftMatchingHandlers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     handlers = new ShiftMatchingHandlers(mockPool);
-    
+
     // Replace service and repository with mocks
     (handlers as any).service = mockService;
     (handlers as any).repository = mockRepository;
@@ -227,7 +227,7 @@ describe('ShiftMatchingHandlers', () => {
 
         mockRepository.getOpenShift.mockResolvedValue(mockOpenShift);
         mockRepository.getDefaultConfiguration.mockResolvedValue(mockConfig);
-        
+
         // Mock the private method call
         const mockBuildCaregiverContext = vi.fn().mockResolvedValue({});
         (mockService as any).buildCaregiverContext = mockBuildCaregiverContext;
@@ -246,7 +246,10 @@ describe('ShiftMatchingHandlers', () => {
 
         expect(result).toEqual(mockProposal);
         expect(mockRepository.getOpenShift).toHaveBeenCalledWith('shift-123');
-        expect(mockRepository.getDefaultConfiguration).toHaveBeenCalledWith('org-123', 'branch-123');
+        expect(mockRepository.getDefaultConfiguration).toHaveBeenCalledWith(
+          'org-123',
+          'branch-123'
+        );
       });
 
       it('should throw error if open shift not found', async () => {
@@ -258,8 +261,9 @@ describe('ShiftMatchingHandlers', () => {
 
         mockRepository.getOpenShift.mockResolvedValue(null);
 
-        await expect(handlers.createManualProposal(input, mockContext))
-          .rejects.toThrow('Open shift not found');
+        await expect(handlers.createManualProposal(input, mockContext)).rejects.toThrow(
+          'Open shift not found'
+        );
       });
 
       it('should throw error if no configuration found', async () => {
@@ -277,8 +281,9 @@ describe('ShiftMatchingHandlers', () => {
         mockRepository.getOpenShift.mockResolvedValue(mockOpenShift);
         mockRepository.getDefaultConfiguration.mockResolvedValue(null);
 
-        await expect(handlers.createManualProposal(input, mockContext))
-          .rejects.toThrow('No matching configuration found');
+        await expect(handlers.createManualProposal(input, mockContext)).rejects.toThrow(
+          'No matching configuration found'
+        );
       });
     });
 
@@ -300,7 +305,11 @@ describe('ShiftMatchingHandlers', () => {
         const result = await handlers.respondToProposal('proposal-123', input, mockContext);
 
         expect(result).toEqual(mockProposal);
-        expect(mockService.respondToProposal).toHaveBeenCalledWith('proposal-123', input, mockContext);
+        expect(mockService.respondToProposal).toHaveBeenCalledWith(
+          'proposal-123',
+          input,
+          mockContext
+        );
       });
     });
 
@@ -366,22 +375,30 @@ describe('ShiftMatchingHandlers', () => {
         const result = await handlers.getAvailableShifts('cg-123', mockContext);
 
         expect(result).toEqual(mockCandidates);
-        expect(mockService.getAvailableShiftsForCaregiver).toHaveBeenCalledWith('cg-123', mockContext);
+        expect(mockService.getAvailableShiftsForCaregiver).toHaveBeenCalledWith(
+          'cg-123',
+          mockContext
+        );
       });
     });
 
     describe('getCaregiverProposals', () => {
       it('should get proposals for caregiver', async () => {
-        const mockProposals = [
-          { id: 'proposal-123', caregiverId: 'cg-123' } as AssignmentProposal,
-        ];
+        const mockProposals = [{ id: 'proposal-123', caregiverId: 'cg-123' } as AssignmentProposal];
 
         mockService.getCaregiverProposals.mockResolvedValue(mockProposals);
 
-        const result = await handlers.getCaregiverProposals('cg-123', ['PENDING', 'SENT'], mockContext);
+        const result = await handlers.getCaregiverProposals(
+          'cg-123',
+          ['PENDING', 'SENT'],
+          mockContext
+        );
 
         expect(result).toEqual(mockProposals);
-        expect(mockService.getCaregiverProposals).toHaveBeenCalledWith('cg-123', ['PENDING', 'SENT']);
+        expect(mockService.getCaregiverProposals).toHaveBeenCalledWith('cg-123', [
+          'PENDING',
+          'SENT',
+        ]);
       });
     });
 
@@ -410,7 +427,11 @@ describe('ShiftMatchingHandlers', () => {
 
         mockService.respondToProposal.mockResolvedValue(mockProposal);
 
-        const result = await handlers.acceptProposal('proposal-123', 'Looking forward to it', mockContext);
+        const result = await handlers.acceptProposal(
+          'proposal-123',
+          'Looking forward to it',
+          mockContext
+        );
 
         expect(result).toEqual(mockProposal);
         expect(mockService.respondToProposal).toHaveBeenCalledWith(
@@ -471,7 +492,11 @@ describe('ShiftMatchingHandlers', () => {
         const result = await handlers.claimShift('shift-123', 'cg-123', mockContext);
 
         expect(result).toEqual(mockProposal);
-        expect(mockService.caregiverSelectShift).toHaveBeenCalledWith('cg-123', 'shift-123', mockContext);
+        expect(mockService.caregiverSelectShift).toHaveBeenCalledWith(
+          'cg-123',
+          'shift-123',
+          mockContext
+        );
       });
     });
 
@@ -608,7 +633,11 @@ describe('ShiftMatchingHandlers', () => {
         const result = await handlers.updateConfiguration('config-123', input, mockContext);
 
         expect(result).toEqual(mockConfig);
-        expect(mockRepository.updateMatchingConfiguration).toHaveBeenCalledWith('config-123', input, mockContext);
+        expect(mockRepository.updateMatchingConfiguration).toHaveBeenCalledWith(
+          'config-123',
+          input,
+          mockContext
+        );
       });
     });
 
@@ -625,7 +654,10 @@ describe('ShiftMatchingHandlers', () => {
         const result = await handlers.getDefaultConfiguration('org-123', 'branch-123', mockContext);
 
         expect(result).toEqual(mockConfig);
-        expect(mockRepository.getDefaultConfiguration).toHaveBeenCalledWith('org-123', 'branch-123');
+        expect(mockRepository.getDefaultConfiguration).toHaveBeenCalledWith(
+          'org-123',
+          'branch-123'
+        );
       });
     });
 
@@ -666,25 +698,27 @@ describe('ShiftMatchingHandlers', () => {
         };
 
         mockPool.query.mockResolvedValue({
-          rows: [{
-            total_open_shifts: '100',
-            shifts_matched: '85',
-            shifts_unmatched: '15',
-            average_match_score: '78.5',
-            average_response_time: '12.3',
-            proposals_accepted: '80',
-            proposals_rejected: '15',
-            proposals_expired: '5',
-          }],
+          rows: [
+            {
+              total_open_shifts: '100',
+              shifts_matched: '85',
+              shifts_unmatched: '15',
+              average_match_score: '78.5',
+              average_response_time: '12.3',
+              proposals_accepted: '80',
+              proposals_rejected: '15',
+              proposals_expired: '5',
+            },
+          ],
         });
 
         const result = await handlers.getMatchingMetrics(periodStart, periodEnd, mockContext);
 
         expect(result).toEqual(mockMetrics);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.stringContaining('FROM match_history'),
-          [periodStart, periodEnd]
-        );
+        expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('FROM match_history'), [
+          periodStart,
+          periodEnd,
+        ]);
       });
     });
 
@@ -708,17 +742,24 @@ describe('ShiftMatchingHandlers', () => {
         };
 
         mockPool.query.mockResolvedValue({
-          rows: [{
-            proposals_received: '20',
-            proposals_accepted: '15',
-            proposals_rejected: '4',
-            proposals_expired: '1',
-            average_match_score: '82.5',
-            average_response_time: '8.7',
-          }],
+          rows: [
+            {
+              proposals_received: '20',
+              proposals_accepted: '15',
+              proposals_rejected: '4',
+              proposals_expired: '1',
+              average_match_score: '82.5',
+              average_response_time: '8.7',
+            },
+          ],
         });
 
-        const result = await handlers.getCaregiverPerformance(caregiverId, periodStart, periodEnd, mockContext);
+        const result = await handlers.getCaregiverPerformance(
+          caregiverId,
+          periodStart,
+          periodEnd,
+          mockContext
+        );
 
         expect(result).toEqual(mockPerformance);
         expect(mockPool.query).toHaveBeenCalledWith(

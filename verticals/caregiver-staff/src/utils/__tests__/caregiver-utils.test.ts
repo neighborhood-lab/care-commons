@@ -37,7 +37,7 @@ describe('Caregiver Utilities', () => {
       const today = new Date();
       const birthDate = new Date(today);
       birthDate.setFullYear(today.getFullYear() - 30);
-      
+
       const age = calculateAge(birthDate);
       expect(age).toBe(30);
     });
@@ -46,7 +46,7 @@ describe('Caregiver Utilities', () => {
       const today = new Date();
       const birthDate = new Date(today);
       birthDate.setFullYear(today.getFullYear() - 40);
-      
+
       const age = calculateAge(birthDate.toISOString());
       expect(age).toBe(40);
     });
@@ -57,7 +57,7 @@ describe('Caregiver Utilities', () => {
       // Calculate from current date - 25 years and 6 months
       const today = new Date();
       const birthDate = subMonths(today, 25 * 12 + 6); // 25 years + 6 months in total months
-      
+
       const age = calculateDetailedAge(birthDate);
       expect(age.years).toBe(25);
       expect(age.months).toBe(6);
@@ -69,7 +69,7 @@ describe('Caregiver Utilities', () => {
       const today = new Date();
       const hireDate = new Date(today);
       hireDate.setFullYear(today.getFullYear() - 5);
-      
+
       const years = calculateYearsOfService(hireDate);
       expect(years).toBe(5);
     });
@@ -160,7 +160,7 @@ describe('Caregiver Utilities', () => {
           },
         ],
       };
-      
+
       const primary = getPrimaryEmergencyContact(caregiver);
       expect(primary?.name).toBe('Contact 2');
       expect(primary?.isPrimary).toBe(true);
@@ -178,7 +178,7 @@ describe('Caregiver Utilities', () => {
           },
         ],
       };
-      
+
       const primary = getPrimaryEmergencyContact(caregiver);
       expect(primary?.name).toBe('Contact 1');
     });
@@ -186,7 +186,7 @@ describe('Caregiver Utilities', () => {
 
   describe('hasActiveCredentials', () => {
     const futureDate = addDays(new Date(), 365); // One year in the future
-    
+
     const caregiver = {
       credentials: [
         {
@@ -395,7 +395,7 @@ describe('Caregiver Utilities', () => {
       const active = getStatusDisplay('ACTIVE');
       expect(active.label).toBe('Active');
       expect(active.color).toBe('green');
-      
+
       const onboarding = getStatusDisplay('ONBOARDING');
       expect(onboarding.label).toBe('Onboarding');
       expect(onboarding.color).toBe('blue');
@@ -408,7 +408,7 @@ describe('Caregiver Utilities', () => {
       expect(compliant.label).toBe('Compliant');
       expect(compliant.color).toBe('green');
       expect(compliant.icon).toBe('✓');
-      
+
       const expired = getComplianceStatusDisplay('EXPIRED');
       expect(expired.label).toBe('Expired');
       expect(expired.color).toBe('red');
@@ -423,22 +423,26 @@ describe('Caregiver Utilities', () => {
         employmentStatus: 'ACTIVE' as const,
         complianceStatus: 'COMPLIANT' as const,
       };
-      
+
       expect(canBeAssignedToVisits(caregiver)).toBe(true);
     });
 
     it('should return false if any requirement not met', () => {
-      expect(canBeAssignedToVisits({
-        status: 'INACTIVE' as const,
-        employmentStatus: 'ACTIVE' as const,
-        complianceStatus: 'COMPLIANT' as const,
-      })).toBe(false);
-      
-      expect(canBeAssignedToVisits({
-        status: 'ACTIVE' as const,
-        employmentStatus: 'TERMINATED' as const,
-        complianceStatus: 'COMPLIANT' as const,
-      })).toBe(false);
+      expect(
+        canBeAssignedToVisits({
+          status: 'INACTIVE' as const,
+          employmentStatus: 'ACTIVE' as const,
+          complianceStatus: 'COMPLIANT' as const,
+        })
+      ).toBe(false);
+
+      expect(
+        canBeAssignedToVisits({
+          status: 'ACTIVE' as const,
+          employmentStatus: 'TERMINATED' as const,
+          complianceStatus: 'COMPLIANT' as const,
+        })
+      ).toBe(false);
     });
   });
 
@@ -472,7 +476,7 @@ describe('Caregiver Utilities', () => {
     it('should format years correctly', () => {
       const threeYearsAgo = new Date();
       threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
-      
+
       const formatted = formatYearsOfService(threeYearsAgo);
       expect(formatted).toBe('3 years');
     });
@@ -480,7 +484,7 @@ describe('Caregiver Utilities', () => {
     it('should show months for less than 1 year', () => {
       // Use date-fns subMonths to handle month calculations correctly
       const sixMonthsAgo = subMonths(new Date(), 6);
-      
+
       const formatted = formatYearsOfService(sixMonthsAgo);
       expect(formatted).toBe('6 months');
     });
@@ -496,14 +500,14 @@ describe('Caregiver Utilities', () => {
     it('should return true for recent hires', () => {
       const oneMonthAgo = new Date();
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-      
+
       expect(isNewHire(oneMonthAgo)).toBe(true);
     });
 
     it('should return false for older hires', () => {
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      
+
       expect(isNewHire(oneYearAgo)).toBe(false);
     });
   });

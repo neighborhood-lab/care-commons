@@ -20,9 +20,7 @@ export const BillingSummaryCard: React.FC<BillingSummaryCardProps> = ({ summary 
           </div>
           <DollarSign className="h-8 w-8 text-blue-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          {summary.invoiceCount.total} total invoices
-        </p>
+        <p className="text-xs text-gray-500 mt-2">{summary.invoiceCount.total} total invoices</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
@@ -35,9 +33,7 @@ export const BillingSummaryCard: React.FC<BillingSummaryCardProps> = ({ summary 
           </div>
           <CheckCircle className="h-8 w-8 text-green-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          {summary.invoiceCount.paid} paid invoices
-        </p>
+        <p className="text-xs text-gray-500 mt-2">{summary.invoiceCount.paid} paid invoices</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">

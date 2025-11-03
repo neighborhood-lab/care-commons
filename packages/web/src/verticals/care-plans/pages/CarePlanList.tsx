@@ -37,34 +37,26 @@ export const CarePlanList: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Care Plans</h1>
-          <p className="text-gray-600 mt-1">
-            {data?.total || 0} total care plans
-          </p>
+          <p className="text-gray-600 mt-1">{data?.total || 0} total care plans</p>
         </div>
         <div className="flex gap-2">
           <div className="flex border border-gray-300 rounded-md">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${
-                viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${
-                viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
             >
               <List className="h-5 w-5" />
             </button>
           </div>
           {can('care_plans:write') && (
             <Link to="/care-plans/new">
-              <Button leftIcon={<Plus className="h-4 w-4" />}>
-                New Care Plan
-              </Button>
+              <Button leftIcon={<Plus className="h-4 w-4" />}>New Care Plan</Button>
             </Link>
           )}
         </div>
@@ -79,9 +71,7 @@ export const CarePlanList: React.FC = () => {
           action={
             can('care_plans:write') ? (
               <Link to="/care-plans/new">
-                <Button leftIcon={<Plus className="h-4 w-4" />}>
-                  Create Care Plan
-                </Button>
+                <Button leftIcon={<Plus className="h-4 w-4" />}>Create Care Plan</Button>
               </Link>
             ) : undefined
           }
@@ -95,11 +85,7 @@ export const CarePlanList: React.FC = () => {
           }
         >
           {carePlans.map((carePlan) => (
-            <CarePlanCard
-              key={carePlan.id}
-              carePlan={carePlan}
-              compact={viewMode === 'list'}
-            />
+            <CarePlanCard key={carePlan.id} carePlan={carePlan} compact={viewMode === 'list'} />
           ))}
         </div>
       )}

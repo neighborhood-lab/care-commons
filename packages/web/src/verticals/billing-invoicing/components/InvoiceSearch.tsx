@@ -6,11 +6,11 @@ interface InvoiceSearchProps {
   onFiltersChange: (filters: BillingSearchFilters) => void;
 }
 
-export const InvoiceSearch: React.FC<InvoiceSearchProps> = ({ 
-  filters, 
-  onFiltersChange 
-}) => {
-  const handleFilterChange = (key: keyof BillingSearchFilters, value: string | number | boolean) => {
+export const InvoiceSearch: React.FC<InvoiceSearchProps> = ({ filters, onFiltersChange }) => {
+  const handleFilterChange = (
+    key: keyof BillingSearchFilters,
+    value: string | number | boolean
+  ) => {
     onFiltersChange({
       ...filters,
       [key]: value || undefined,
@@ -21,9 +21,7 @@ export const InvoiceSearch: React.FC<InvoiceSearchProps> = ({
     <div className="bg-white rounded-lg shadow p-6 space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select
             value={filters.status || ''}
             onChange={(e) => handleFilterChange('status', e.target.value as InvoiceStatus)}
@@ -45,9 +43,7 @@ export const InvoiceSearch: React.FC<InvoiceSearchProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Start Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
           <input
             type="date"
             value={filters.startDate || ''}
@@ -57,9 +53,7 @@ export const InvoiceSearch: React.FC<InvoiceSearchProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            End Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
           <input
             type="date"
             value={filters.endDate || ''}
@@ -69,9 +63,7 @@ export const InvoiceSearch: React.FC<InvoiceSearchProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Min Amount
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Min Amount</label>
           <input
             type="number"
             value={filters.minAmount || ''}

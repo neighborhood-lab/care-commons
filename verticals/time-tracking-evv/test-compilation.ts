@@ -123,13 +123,15 @@ function testDatabaseRowProcessing(row: any): TestTimeEntry {
     evvRecordId: row['evv_record_id'] as string,
     entryType: row['entry_type'] as 'CLOCK_IN' | 'CLOCK_OUT' | 'MANUAL_ADJUSTMENT',
     timestamp: row['timestamp'] as Date,
-    location: row['location'] ? {
-      latitude: row['location_latitude'] as number,
-      longitude: row['location_longitude'] as number,
-      accuracy: row['location_accuracy'] as number,
-      timestamp: row['location_timestamp'] as Date,
-      method: row['location_method'] as string,
-    } : undefined,
+    location: row['location']
+      ? {
+          latitude: row['location_latitude'] as number,
+          longitude: row['location_longitude'] as number,
+          accuracy: row['location_accuracy'] as number,
+          timestamp: row['location_timestamp'] as Date,
+          method: row['location_method'] as string,
+        }
+      : undefined,
     verified: row['verified'] as boolean,
     verificationMethod: row['verification_method'] as string | undefined,
     notes: row['notes'] as string | undefined,
@@ -141,7 +143,7 @@ function testDatabaseRowProcessing(row: any): TestTimeEntry {
 function testTypeAssertions() {
   const complianceFlags = ['MISSING_CLOCK_OUT', 'GEOFENCE_VIOLATION'] as const;
   const verificationLevel = 'PARTIAL' as const;
-  
+
   return {
     complianceFlags: [...complianceFlags],
     verificationLevel,

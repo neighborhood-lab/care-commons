@@ -11,9 +11,7 @@ export interface ClientCardProps {
 }
 
 export const ClientCard: React.FC<ClientCardProps> = ({ client, compact = false }) => {
-  const fullName = [client.firstName, client.middleName, client.lastName]
-    .filter(Boolean)
-    .join(' ');
+  const fullName = [client.firstName, client.middleName, client.lastName].filter(Boolean).join(' ');
 
   return (
     <Link to={`/clients/${client.id}`}>

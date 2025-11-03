@@ -9,28 +9,28 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
     table.uuid('branch_id').nullable();
-    
+
     // Period identity
     table.integer('period_number').notNullable();
     table.integer('period_year').notNullable();
     table.string('period_type', 50).notNullable();
-    
+
     // Date range
     table.date('start_date').notNullable();
     table.date('end_date').notNullable();
     table.date('pay_date').notNullable();
-    
+
     // Status
     table.string('status', 50).notNullable().defaultTo('DRAFT');
     table.jsonb('status_history').notNullable().defaultTo('[]');
-    
+
     // Lock-down dates
     table.date('cutoff_date');
     table.date('approval_deadline');
-    
+
     // Pay run reference
     table.uuid('pay_run_id');
-    
+
     // Statistics
     table.integer('total_caregivers');
     table.decimal('total_hours', 12, 2);
@@ -38,12 +38,12 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('total_net_pay', 12, 2);
     table.decimal('total_tax_withheld', 12, 2);
     table.decimal('total_deductions', 12, 2);
-    
+
     // Metadata
     table.text('notes');
     table.integer('fiscal_quarter');
     table.integer('fiscal_year');
-    
+
     // Standard entity fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -165,16 +165,16 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
     table.uuid('branch_id').notNullable();
-    
+
     // Period and caregiver
     table.uuid('pay_period_id').notNullable();
     table.uuid('caregiver_id').notNullable();
     table.string('caregiver_name', 200).notNullable();
     table.string('caregiver_employee_id', 100).notNullable();
-    
+
     // Time entries (stored as JSONB array)
     table.jsonb('time_entries').notNullable().defaultTo('[]');
-    
+
     // Hours summary
     table.decimal('regular_hours', 10, 2).notNullable().defaultTo(0);
     table.decimal('overtime_hours', 10, 2).notNullable().defaultTo(0);
@@ -184,12 +184,12 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('sick_hours', 10, 2).notNullable().defaultTo(0);
     table.decimal('other_hours', 10, 2).notNullable().defaultTo(0);
     table.decimal('total_hours', 10, 2).notNullable().defaultTo(0);
-    
+
     // Rates
     table.decimal('regular_rate', 10, 2).notNullable();
     table.decimal('overtime_rate', 10, 2).notNullable();
     table.decimal('double_time_rate', 10, 2).notNullable();
-    
+
     // Earnings
     table.decimal('regular_earnings', 12, 2).notNullable().defaultTo(0);
     table.decimal('overtime_earnings', 12, 2).notNullable().defaultTo(0);
@@ -199,39 +199,39 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('sick_earnings', 12, 2).notNullable().defaultTo(0);
     table.decimal('other_earnings', 12, 2).notNullable().defaultTo(0);
     table.decimal('gross_earnings', 12, 2).notNullable().defaultTo(0);
-    
+
     // Additional payments (stored as JSONB arrays)
     table.jsonb('bonuses').notNullable().defaultTo('[]');
     table.jsonb('reimbursements').notNullable().defaultTo('[]');
     table.jsonb('adjustments').notNullable().defaultTo('[]');
     table.decimal('total_adjustments', 12, 2).notNullable().defaultTo(0);
-    
+
     // Final gross
     table.decimal('total_gross_pay', 12, 2).notNullable().defaultTo(0);
-    
+
     // Status
     table.string('status', 50).notNullable().defaultTo('DRAFT');
     table.jsonb('status_history').notNullable().defaultTo('[]');
-    
+
     // Approval
     table.timestamp('submitted_at');
     table.uuid('submitted_by');
     table.timestamp('approved_at');
     table.uuid('approved_by');
     table.text('approval_notes');
-    
+
     // Validation
     table.boolean('has_discrepancies').defaultTo(false);
     table.jsonb('discrepancy_flags').notNullable().defaultTo('[]');
-    
+
     // Links
     table.jsonb('evv_record_ids').notNullable().defaultTo('[]');
     table.jsonb('visit_ids').notNullable().defaultTo('[]');
-    
+
     // Metadata
     table.text('notes');
     table.text('review_notes');
-    
+
     // Standard entity fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -423,21 +423,21 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
     table.uuid('branch_id').nullable();
-    
+
     // Period
     table.uuid('pay_period_id').notNullable();
     table.date('pay_period_start_date').notNullable();
     table.date('pay_period_end_date').notNullable();
     table.date('pay_date').notNullable();
-    
+
     // Run identity
     table.string('run_number', 100).notNullable();
     table.string('run_type', 50).notNullable();
-    
+
     // Status
     table.string('status', 50).notNullable().defaultTo('DRAFT');
     table.jsonb('status_history').notNullable().defaultTo('[]');
-    
+
     // Processing
     table.timestamp('initiated_at');
     table.uuid('initiated_by');
@@ -446,11 +446,11 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('approved_by');
     table.timestamp('processed_at');
     table.uuid('processed_by');
-    
+
     // Pay stubs
     table.jsonb('pay_stub_ids').notNullable().defaultTo('[]');
     table.integer('total_pay_stubs').notNullable().defaultTo(0);
-    
+
     // Aggregates
     table.integer('total_caregivers').notNullable().defaultTo(0);
     table.decimal('total_hours', 12, 2).notNullable().defaultTo(0);
@@ -458,19 +458,19 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('total_deductions', 14, 2).notNullable().defaultTo(0);
     table.decimal('total_tax_withheld', 14, 2).notNullable().defaultTo(0);
     table.decimal('total_net_pay', 14, 2).notNullable().defaultTo(0);
-    
+
     // Tax totals
     table.decimal('federal_income_tax', 12, 2).notNullable().defaultTo(0);
     table.decimal('state_income_tax', 12, 2).notNullable().defaultTo(0);
     table.decimal('social_security_tax', 12, 2).notNullable().defaultTo(0);
     table.decimal('medicare_tax', 12, 2).notNullable().defaultTo(0);
     table.decimal('local_tax', 12, 2).notNullable().defaultTo(0);
-    
+
     // Other deductions
     table.decimal('benefits_deductions', 12, 2).notNullable().defaultTo(0);
     table.decimal('garnishments', 12, 2).notNullable().defaultTo(0);
     table.decimal('other_deductions', 12, 2).notNullable().defaultTo(0);
-    
+
     // Payment summary
     table.integer('direct_deposit_count').notNullable().defaultTo(0);
     table.decimal('direct_deposit_amount', 14, 2).notNullable().defaultTo(0);
@@ -478,25 +478,25 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('check_amount', 14, 2).notNullable().defaultTo(0);
     table.integer('cash_count').notNullable().defaultTo(0);
     table.decimal('cash_amount', 14, 2).notNullable().defaultTo(0);
-    
+
     // Files
     table.string('payroll_register_url', 500);
     table.string('tax_report_url', 500);
     table.jsonb('export_files').notNullable().defaultTo('[]');
-    
+
     // Compliance
     table.jsonb('compliance_checks').notNullable().defaultTo('[]');
     table.boolean('compliance_passed').defaultTo(true);
-    
+
     // Errors and issues
     table.boolean('has_errors').defaultTo(false);
     table.jsonb('errors').notNullable().defaultTo('[]');
     table.jsonb('warnings').notNullable().defaultTo('[]');
-    
+
     // Metadata
     table.text('notes');
     table.text('internal_notes');
-    
+
     // Standard entity fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -673,47 +673,47 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
     table.uuid('caregiver_id').notNullable();
-    
+
     // Federal
     table.string('federal_filing_status', 50).notNullable();
     table.integer('federal_allowances').notNullable().defaultTo(0);
     table.decimal('federal_extra_withholding', 10, 2).notNullable().defaultTo(0);
     table.boolean('federal_exempt').defaultTo(false);
-    
+
     // W-4 fields (2020+ format)
     table.boolean('w4_step_2').defaultTo(false);
     table.decimal('w4_step_3_dependents', 10, 2).notNullable().defaultTo(0);
     table.decimal('w4_step_4a_other_income', 10, 2).notNullable().defaultTo(0);
     table.decimal('w4_step_4b_deductions', 10, 2).notNullable().defaultTo(0);
     table.decimal('w4_step_4c_extra_withholding', 10, 2).notNullable().defaultTo(0);
-    
+
     // State
     table.string('state_filing_status', 50).notNullable();
     table.integer('state_allowances').notNullable().defaultTo(0);
     table.decimal('state_extra_withholding', 10, 2).notNullable().defaultTo(0);
     table.boolean('state_exempt').defaultTo(false);
     table.string('state_residence', 2).notNullable();
-    
+
     // Local
     table.string('local_tax_jurisdiction', 100);
     table.boolean('local_exempt').defaultTo(false);
-    
+
     // Status
     table.date('effective_from').notNullable();
     table.date('effective_to');
     table.timestamp('last_updated').notNullable().defaultTo(knex.fn.now());
     table.uuid('updated_by').notNullable();
-    
+
     // W-4 form
     table.boolean('w4_on_file').defaultTo(false);
     table.date('w4_file_date');
     table.uuid('w4_document_id');
-    
+
     // State form
     table.boolean('state_form_on_file').defaultTo(false);
     table.date('state_form_date');
     table.uuid('state_form_document_id');
-    
+
     // Standard entity fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -809,35 +809,35 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('caregiver_deductions', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('caregiver_id').notNullable();
-    
+
     // Deduction type
     table.string('deduction_type', 100).notNullable();
     table.string('deduction_code', 50).notNullable();
     table.text('description').notNullable();
-    
+
     // Amount
     table.decimal('amount', 10, 2).notNullable().defaultTo(0);
     table.string('calculation_method', 50).notNullable();
     table.decimal('percentage', 5, 2);
-    
+
     // Limits
     table.boolean('has_limit').defaultTo(false);
     table.decimal('yearly_limit', 10, 2);
     table.decimal('year_to_date_amount', 10, 2).defaultTo(0);
     table.decimal('remaining_amount', 10, 2);
-    
+
     // Tax treatment
     table.boolean('is_pre_tax').defaultTo(false);
     table.boolean('is_post_tax').defaultTo(false);
     table.boolean('is_statutory').defaultTo(false);
-    
+
     // Employer match (for retirement, etc.)
     table.decimal('employer_match', 10, 2);
     table.decimal('employer_match_percentage', 5, 2);
-    
+
     // Garnishment specifics
     table.jsonb('garnishment_order');
-    
+
     // Status
     table.boolean('is_active').defaultTo(true);
     table.date('effective_from');
@@ -942,26 +942,26 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
     table.uuid('branch_id').notNullable();
-    
+
     // References
     table.uuid('pay_run_id').notNullable();
     table.uuid('pay_period_id').notNullable();
     table.uuid('caregiver_id').notNullable();
     table.uuid('time_sheet_id').notNullable();
-    
+
     // Caregiver info
     table.string('caregiver_name', 200).notNullable();
     table.string('caregiver_employee_id', 100).notNullable();
     table.jsonb('caregiver_address');
-    
+
     // Period
     table.date('pay_period_start_date').notNullable();
     table.date('pay_period_end_date').notNullable();
     table.date('pay_date').notNullable();
-    
+
     // Stub number
     table.string('stub_number', 100).notNullable();
-    
+
     // Hours
     table.decimal('regular_hours', 10, 2).notNullable().defaultTo(0);
     table.decimal('overtime_hours', 10, 2).notNullable().defaultTo(0);
@@ -971,7 +971,7 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('sick_hours', 10, 2).notNullable().defaultTo(0);
     table.decimal('other_hours', 10, 2).notNullable().defaultTo(0);
     table.decimal('total_hours', 10, 2).notNullable().defaultTo(0);
-    
+
     // Earnings
     table.decimal('regular_pay', 12, 2).notNullable().defaultTo(0);
     table.decimal('overtime_pay', 12, 2).notNullable().defaultTo(0);
@@ -980,21 +980,21 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('holiday_pay', 12, 2).notNullable().defaultTo(0);
     table.decimal('sick_pay', 12, 2).notNullable().defaultTo(0);
     table.decimal('other_pay', 12, 2).notNullable().defaultTo(0);
-    
+
     // Additional earnings
     table.decimal('bonuses', 12, 2).notNullable().defaultTo(0);
     table.decimal('commissions', 12, 2).notNullable().defaultTo(0);
     table.decimal('reimbursements', 12, 2).notNullable().defaultTo(0);
     table.decimal('retroactive_pay', 12, 2).notNullable().defaultTo(0);
     table.decimal('other_earnings', 12, 2).notNullable().defaultTo(0);
-    
+
     // Gross pay
     table.decimal('current_gross_pay', 12, 2).notNullable();
     table.decimal('year_to_date_gross_pay', 14, 2).notNullable();
-    
+
     // Deductions (detailed array)
     table.jsonb('deductions').notNullable().defaultTo('[]');
-    
+
     // Tax withholdings
     table.decimal('federal_income_tax', 10, 2).notNullable().defaultTo(0);
     table.decimal('state_income_tax', 10, 2).notNullable().defaultTo(0);
@@ -1003,7 +1003,7 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('medicare_tax', 10, 2).notNullable().defaultTo(0);
     table.decimal('additional_medicare_tax', 10, 2).notNullable().defaultTo(0);
     table.decimal('total_tax_withheld', 10, 2).notNullable().defaultTo(0);
-    
+
     // Other deductions
     table.decimal('health_insurance', 10, 2).notNullable().defaultTo(0);
     table.decimal('dental_insurance', 10, 2).notNullable().defaultTo(0);
@@ -1018,11 +1018,11 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('union_dues', 10, 2).notNullable().defaultTo(0);
     table.decimal('other_deductions', 10, 2).notNullable().defaultTo(0);
     table.decimal('total_other_deductions', 10, 2).notNullable().defaultTo(0);
-    
+
     // Net pay
     table.decimal('current_net_pay', 12, 2).notNullable();
     table.decimal('year_to_date_net_pay', 14, 2).notNullable();
-    
+
     // Year-to-date totals
     table.decimal('ytd_hours', 12, 2).notNullable().defaultTo(0);
     table.decimal('ytd_gross_pay', 14, 2).notNullable().defaultTo(0);
@@ -1032,49 +1032,49 @@ export async function up(knex: Knex): Promise<void> {
     table.decimal('ytd_medicare', 12, 2).notNullable().defaultTo(0);
     table.decimal('ytd_deductions', 12, 2).notNullable().defaultTo(0);
     table.decimal('ytd_net_pay', 14, 2).notNullable().defaultTo(0);
-    
+
     // Payment method
     table.string('payment_method', 50).notNullable();
     table.uuid('payment_id');
-    
+
     // Bank info (for direct deposit)
     table.uuid('bank_account_id');
     table.string('bank_account_last4', 4);
-    
+
     // Check info
     table.string('check_number', 50);
     table.date('check_date');
     table.string('check_status', 50);
-    
+
     // Status
     table.string('status', 50).notNullable().defaultTo('DRAFT');
     table.jsonb('status_history').notNullable().defaultTo('[]');
-    
+
     // Approval
     table.timestamp('calculated_at').notNullable();
     table.uuid('calculated_by');
     table.timestamp('approved_at');
     table.uuid('approved_by');
-    
+
     // Delivery
     table.timestamp('delivered_at');
     table.string('delivery_method', 50);
     table.timestamp('viewed_at');
-    
+
     // Documents
     table.string('pdf_url', 500);
     table.timestamp('pdf_generated_at');
-    
+
     // Flags
     table.boolean('is_void').defaultTo(false);
     table.text('void_reason');
     table.timestamp('voided_at');
     table.uuid('voided_by');
-    
+
     // Metadata
     table.text('notes');
     table.text('internal_notes');
-    
+
     // Standard entity fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -1430,18 +1430,18 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
     table.uuid('branch_id').notNullable();
-    
+
     // References
     table.uuid('pay_run_id').notNullable();
     table.uuid('pay_stub_id').notNullable();
     table.uuid('caregiver_id').notNullable();
-    
+
     // Payment details
     table.string('payment_number', 100).notNullable();
     table.string('payment_method', 50).notNullable();
     table.decimal('payment_amount', 12, 2).notNullable();
     table.date('payment_date').notNullable();
-    
+
     // Direct deposit
     table.uuid('bank_account_id');
     table.string('routing_number', 255); // Encrypted
@@ -1449,42 +1449,42 @@ export async function up(knex: Knex): Promise<void> {
     table.string('account_type', 20);
     table.string('transaction_id', 100);
     table.string('trace_number', 100);
-    
+
     // Check
     table.string('check_number', 50);
     table.date('check_date');
     table.string('check_status', 50);
     table.date('check_cleared_date');
     table.string('check_image_url', 500);
-    
+
     // Status
     table.string('status', 50).notNullable().defaultTo('PENDING');
     table.jsonb('status_history').notNullable().defaultTo('[]');
-    
+
     // Processing
     table.timestamp('initiated_at').notNullable();
     table.uuid('initiated_by').notNullable();
     table.timestamp('processed_at');
     table.timestamp('settled_at');
-    
+
     // ACH batch (for direct deposit)
     table.uuid('ach_batch_id');
     table.string('ach_file_id', 100);
-    
+
     // Errors
     table.boolean('has_errors').defaultTo(false);
     table.string('error_code', 50);
     table.text('error_message');
     table.text('error_details');
-    
+
     // Reissue tracking
     table.boolean('is_reissue').defaultTo(false);
     table.uuid('original_payment_id');
     table.text('reissue_reason');
-    
+
     // Metadata
     table.text('notes');
-    
+
     // Standard entity fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -1566,7 +1566,9 @@ export async function up(knex: Knex): Promise<void> {
     table.index(['payment_method', 'status'], 'idx_payment_records_method');
   });
 
-  await knex.raw('ALTER TABLE payment_records ADD CONSTRAINT uq_payment_records_number UNIQUE (payment_number)');
+  await knex.raw(
+    'ALTER TABLE payment_records ADD CONSTRAINT uq_payment_records_number UNIQUE (payment_number)'
+  );
 
   await knex.raw(`
     CREATE INDEX idx_payment_records_ach_batch ON payment_records(ach_batch_id) WHERE ach_batch_id IS NOT NULL
@@ -1588,50 +1590,50 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('ach_batches', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
-    
+
     // Batch details
     table.string('batch_number', 100).notNullable();
     table.date('batch_date').notNullable();
     table.date('effective_date').notNullable();
-    
+
     // Company (employer) info
     table.string('company_name', 200).notNullable();
     table.string('company_id', 50).notNullable();
     table.string('company_entry_description', 100).notNullable();
-    
+
     // Payments
     table.jsonb('payment_ids').notNullable().defaultTo('[]');
     table.integer('transaction_count').notNullable().defaultTo(0);
     table.decimal('total_debit_amount', 14, 2).notNullable().defaultTo(0);
     table.decimal('total_credit_amount', 14, 2).notNullable().defaultTo(0);
-    
+
     // File generation
     table.string('ach_file_url', 500);
     table.string('ach_file_format', 50).notNullable();
     table.timestamp('ach_file_generated_at');
     table.string('ach_file_hash', 255);
-    
+
     // Processing
     table.string('status', 50).notNullable().defaultTo('DRAFT');
     table.timestamp('submitted_at');
     table.uuid('submitted_by');
-    
+
     // Bank info
     table.string('originating_bank_routing_number', 20).notNullable();
     table.string('originating_bank_account_number', 255).notNullable(); // Encrypted
-    
+
     // Settlement
     table.timestamp('settled_at');
     table.string('settlement_confirmation', 200);
-    
+
     // Errors
     table.boolean('has_returns').defaultTo(false);
     table.integer('return_count').defaultTo(0);
     table.jsonb('returns').notNullable().defaultTo('[]');
-    
+
     // Metadata
     table.text('notes');
-    
+
     // Standard entity fields
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -1691,7 +1693,9 @@ export async function up(knex: Knex): Promise<void> {
     table.index(['effective_date'], 'idx_ach_batches_effective');
   });
 
-  await knex.raw('ALTER TABLE ach_batches ADD CONSTRAINT uq_ach_batches_number UNIQUE (batch_number)');
+  await knex.raw(
+    'ALTER TABLE ach_batches ADD CONSTRAINT uq_ach_batches_number UNIQUE (batch_number)'
+  );
 
   await knex.raw(`
     CREATE INDEX idx_ach_batches_returns ON ach_batches(organization_id) WHERE has_returns = true
@@ -1765,7 +1769,7 @@ export async function down(knex: Knex): Promise<void> {
   await knex.raw('DROP TRIGGER IF EXISTS trigger_time_sheets_updated_at ON time_sheets');
   await knex.raw('DROP TRIGGER IF EXISTS trigger_pay_periods_updated_at ON pay_periods');
   await knex.raw('DROP FUNCTION IF EXISTS update_payroll_entity_updated_at()');
-  
+
   // Drop tables
   await knex.schema.dropTableIfExists('ach_batches');
   await knex.schema.dropTableIfExists('payment_records');

@@ -1,20 +1,26 @@
 # Care Commons Web UI
 
-React-based frontend for the Care Commons platform, built with TypeScript, Vite, and Tailwind CSS.
+React-based frontend for the Care Commons platform, built with TypeScript, Vite,
+and Tailwind CSS.
 
 ## Architecture
 
-This web application follows the same vertical-based architecture as the backend:
+This web application follows the same vertical-based architecture as the
+backend:
 
-- **`src/core/`** - Shared UI infrastructure (components, hooks, services, types, utilities)
+- **`src/core/`** - Shared UI infrastructure (components, hooks, services,
+  types, utilities)
 - **`src/app/`** - Application shell (navigation, authentication, layout)
-- **`src/verticals/`** - Feature-specific UI modules that mirror backend verticals
+- **`src/verticals/`** - Feature-specific UI modules that mirror backend
+  verticals
 - **`src/styles/`** - Global styles and theme configuration
 
 ### Design Principles
 
-1. **Vertical Independence** - Each vertical UI module is self-contained and corresponds to a backend vertical
-2. **API Abstraction** - All API calls go through service interfaces for testability
+1. **Vertical Independence** - Each vertical UI module is self-contained and
+   corresponds to a backend vertical
+2. **API Abstraction** - All API calls go through service interfaces for
+   testability
 3. **Component Composition** - Build complex UIs from small, reusable components
 4. **Permission-Based Rendering** - Components adapt based on user permissions
 5. **Type Safety** - Full TypeScript integration with backend types
@@ -56,7 +62,8 @@ npm run dev:web
 
 The application will be available at `http://localhost:5173`.
 
-The Vite dev server is configured to proxy API requests to `http://localhost:3000`. Make sure the backend server is running.
+The Vite dev server is configured to proxy API requests to
+`http://localhost:3000`. Make sure the backend server is running.
 
 ### Building
 
@@ -133,6 +140,7 @@ packages/web/
 ## Core Components
 
 ### Button
+
 Flexible button component with variants, sizes, and loading states.
 
 ```tsx
@@ -142,6 +150,7 @@ Flexible button component with variants, sizes, and loading states.
 ```
 
 ### Card
+
 Container component for content sections.
 
 ```tsx
@@ -153,11 +162,13 @@ Container component for content sections.
 ```
 
 ### Form Components
+
 - `Input` - Text input with label, error, and helper text
 - `Select` - Dropdown select with options
 - `FormField` - Wrapper for consistent form field layout
 
 ### Feedback Components
+
 - `LoadingSpinner` - Loading indicator
 - `EmptyState` - Empty state with optional action
 - `ErrorMessage` - Error display with retry option
@@ -196,7 +207,9 @@ API services are created with dependency injection:
 
 ```tsx
 // In a vertical's services/
-export const createClientApiService = (apiClient: ApiClient): ClientApiService => {
+export const createClientApiService = (
+  apiClient: ApiClient
+): ClientApiService => {
   return {
     async getClients(filters) {
       return apiClient.get('/api/clients', filters);
@@ -208,7 +221,7 @@ export const createClientApiService = (apiClient: ApiClient): ClientApiService =
 // In a vertical's hooks/
 export const useClients = (filters) => {
   const clientApi = useClientApi();
-  
+
   return useQuery({
     queryKey: ['clients', filters],
     queryFn: () => clientApi.getClients(filters),
@@ -219,6 +232,7 @@ export const useClients = (filters) => {
 ## Adding a New Vertical
 
 1. Create directory structure in `src/verticals/your-vertical/`:
+
    ```
    your-vertical/
    ├── types/

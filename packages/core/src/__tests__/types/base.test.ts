@@ -27,7 +27,7 @@ describe('Base Types', () => {
     describe('DomainError', () => {
       it('should create a DomainError with message and code', () => {
         const error = new DomainError('Test error', 'TEST_CODE');
-        
+
         expect(error).toBeInstanceOf(Error);
         expect(error).toBeInstanceOf(DomainError);
         expect(error.name).toBe('DomainError');
@@ -39,7 +39,7 @@ describe('Base Types', () => {
       it('should create a DomainError with context', () => {
         const context = { field: 'value' };
         const error = new DomainError('Test error', 'TEST_CODE', context);
-        
+
         expect(error.context).toEqual(context);
       });
     });
@@ -47,7 +47,7 @@ describe('Base Types', () => {
     describe('ValidationError', () => {
       it('should create a ValidationError with correct properties', () => {
         const error = new ValidationError('Invalid input');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(ValidationError);
         expect(error.name).toBe('ValidationError');
@@ -58,7 +58,7 @@ describe('Base Types', () => {
       it('should accept context', () => {
         const context = { field: 'email', value: 'invalid' };
         const error = new ValidationError('Invalid email', context);
-        
+
         expect(error.context).toEqual(context);
       });
     });
@@ -66,7 +66,7 @@ describe('Base Types', () => {
     describe('PermissionError', () => {
       it('should create a PermissionError with correct properties', () => {
         const error = new PermissionError('Access denied');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(PermissionError);
         expect(error.name).toBe('PermissionError');
@@ -78,7 +78,7 @@ describe('Base Types', () => {
     describe('NotFoundError', () => {
       it('should create a NotFoundError with correct properties', () => {
         const error = new NotFoundError('Resource not found');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(NotFoundError);
         expect(error.name).toBe('NotFoundError');
@@ -90,7 +90,7 @@ describe('Base Types', () => {
     describe('ConflictError', () => {
       it('should create a ConflictError with correct properties', () => {
         const error = new ConflictError('Resource already exists');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(ConflictError);
         expect(error.name).toBe('ConflictError');
@@ -103,7 +103,7 @@ describe('Base Types', () => {
   describe('Result Type', () => {
     it('should represent a successful result', () => {
       const result: Result<string> = { success: true, value: 'success' };
-      
+
       expect(result.success).toBe(true);
       expect(result.value).toBe('success');
     });
@@ -111,7 +111,7 @@ describe('Base Types', () => {
     it('should represent a failed result', () => {
       const error = new ValidationError('fail');
       const result: Result<string> = { success: false, error };
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBeInstanceOf(ValidationError);
     });
@@ -243,7 +243,7 @@ describe('Base Types', () => {
         'ARCHIVED',
       ];
 
-      validStatuses.forEach(status => {
+      validStatuses.forEach((status) => {
         expect(status).toBeDefined();
       });
     });
@@ -266,7 +266,7 @@ describe('Base Types', () => {
         'READ_ONLY',
       ];
 
-      validRoles.forEach(role => {
+      validRoles.forEach((role) => {
         expect(role).toBeDefined();
       });
     });

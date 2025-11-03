@@ -21,7 +21,7 @@ const createMockDatabaseConfig = () => ({
   port: 5432,
   database: 'test_db',
   user: 'test_user',
-        password: process.env['TEST_DB_PASSWORD'] ?? 'test_password',
+  password: process.env['TEST_DB_PASSWORD'] ?? 'test_password',
   ssl: false,
   max: 5,
   idleTimeoutMillis: 1000,
@@ -40,7 +40,7 @@ const mockPool: MockPool = {
 };
 
 vi.mock('pg', () => ({
-  Pool: vi.fn().mockImplementation(function() {
+  Pool: vi.fn().mockImplementation(function () {
     return mockPool;
   }),
 }));
@@ -57,7 +57,7 @@ describe('Database Connection', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default successful query
     mockQuery.mockResolvedValue({
       rows: [],
@@ -105,7 +105,7 @@ describe('Database Connection', () => {
         port: 5432,
         database: 'test',
         user: 'user',
-  password: process.env['TEST_DB_PASSWORD'] ?? 'test_password',
+        password: process.env['TEST_DB_PASSWORD'] ?? 'test_password',
       };
 
       new Database(config);
@@ -158,7 +158,7 @@ describe('Database Connection', () => {
     it('should log query execution time', async () => {
       const mockResult = { rows: [], rowCount: 0 };
       mockQuery.mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return mockResult;
       });
 
@@ -284,15 +284,15 @@ describe('Database Singleton', () => {
   it('should get initialized database instance', () => {
     const config = createMockDatabaseConfig();
     const firstInstance = initializeDatabase(config);
-    
+
     const retrievedInstance = getDatabase();
-    
+
     expect(retrievedInstance).toBe(firstInstance);
   });
 
   it('should throw error when getting database before initialization', () => {
     resetDatabase(); // Ensure no instance exists
-    
+
     expect(() => {
       getDatabase();
     }).toThrow('Database not initialized. Call initializeDatabase first.');

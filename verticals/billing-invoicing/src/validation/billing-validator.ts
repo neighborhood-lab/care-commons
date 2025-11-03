@@ -1,6 +1,6 @@
 /**
  * Billing validation layer
- * 
+ *
  * Comprehensive validation for billing entities and operations
  */
 
@@ -30,9 +30,7 @@ export interface ValidationResult {
 /**
  * Validate billable item creation
  */
-export function validateCreateBillableItem(
-  input: CreateBillableItemInput
-): ValidationResult {
+export function validateCreateBillableItem(input: CreateBillableItemInput): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -105,9 +103,7 @@ export function validateCreateBillableItem(
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
     if (serviceDate < oneYearAgo) {
-      warnings.push(
-        'Service date is more than 1 year old - may be past claim filing limit'
-      );
+      warnings.push('Service date is more than 1 year old - may be past claim filing limit');
     }
   }
 
@@ -126,13 +122,8 @@ export function validateCreateBillableItem(
   }
 
   // EVV validation for Medicaid/Medicare
-  if (
-    (input.payerType === 'MEDICAID' || input.payerType === 'MEDICARE') &&
-    !input.evvRecordId
-  ) {
-    warnings.push(
-      'EVV record ID recommended for Medicaid/Medicare billing compliance'
-    );
+  if ((input.payerType === 'MEDICAID' || input.payerType === 'MEDICARE') && !input.evvRecordId) {
+    warnings.push('EVV record ID recommended for Medicaid/Medicare billing compliance');
   }
 
   const result: ValidationResult = {
@@ -148,9 +139,7 @@ export function validateCreateBillableItem(
 /**
  * Validate invoice creation
  */
-export function validateCreateInvoice(
-  input: CreateInvoiceInput
-): ValidationResult {
+export function validateCreateInvoice(input: CreateInvoiceInput): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -223,9 +212,7 @@ export function validateCreateInvoice(
 /**
  * Validate payment creation
  */
-export function validateCreatePayment(
-  input: CreatePaymentInput
-): ValidationResult {
+export function validateCreatePayment(input: CreatePaymentInput): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -312,10 +299,7 @@ export function validateAllocatePayment(
   }
 
   // Calculate total allocation
-  const totalAllocated = input.allocations.reduce(
-    (sum, alloc) => sum + alloc.amount,
-    0
-  );
+  const totalAllocated = input.allocations.reduce((sum, alloc) => sum + alloc.amount, 0);
 
   // Check if allocation exceeds available amount
   if (totalAllocated > currentUnapplied) {
@@ -337,9 +321,7 @@ export function validateAllocatePayment(
   // Warn if not fully allocating payment
   if (totalAllocated < currentUnapplied) {
     const remaining = currentUnapplied - totalAllocated;
-    warnings.push(
-      `${remaining.toFixed(2)} will remain unapplied after this allocation`
-    );
+    warnings.push(`${remaining.toFixed(2)} will remain unapplied after this allocation`);
   }
 
   const result: ValidationResult = {
@@ -355,9 +337,7 @@ export function validateAllocatePayment(
 /**
  * Validate rate schedule creation
  */
-export function validateCreateRateSchedule(
-  input: CreateRateScheduleInput
-): ValidationResult {
+export function validateCreateRateSchedule(input: CreateRateScheduleInput): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -397,7 +377,7 @@ export function validateCreateRateSchedule(
     for (let i = 0; i < input.rates.length; i++) {
       const rate = input.rates[i];
       if (!rate) continue;
-      
+
       const ratePrefix = `Rate ${i + 1}`;
 
       if (!rate.serviceTypeId) {
@@ -492,9 +472,7 @@ export function validateCreatePayer(input: CreatePayerInput): ValidationResult {
 /**
  * Validate service authorization creation
  */
-export function validateCreateAuthorization(
-  input: CreateAuthorizationInput
-): ValidationResult {
+export function validateCreateAuthorization(input: CreateAuthorizationInput): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -544,9 +522,7 @@ export function validateCreateAuthorization(
     }
 
     // Warn if authorization period is very short
-    const daysDiff = Math.floor(
-      (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const daysDiff = Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
     if (daysDiff < 7) {
       warnings.push('Authorization period is less than 1 week');
     }
@@ -601,17 +577,9 @@ export function validateSubmitClaim(input: SubmitClaimInput): ValidationResult {
   }
 
   // Format-method compatibility
-  if (
-    input.claimFormat === 'EDI_837P' ||
-    input.claimFormat === 'EDI_837I'
-  ) {
-    if (
-      input.submissionMethod !== 'EDI' &&
-      input.submissionMethod !== 'CLEARINGHOUSE'
-    ) {
-      warnings.push(
-        'EDI claim formats typically require EDI or CLEARINGHOUSE submission method'
-      );
+  if (input.claimFormat === 'EDI_837P' || input.claimFormat === 'EDI_837I') {
+    if (input.submissionMethod !== 'EDI' && input.submissionMethod !== 'CLEARINGHOUSE') {
+      warnings.push('EDI claim formats typically require EDI or CLEARINGHOUSE submission method');
     }
   }
 
@@ -653,16 +621,12 @@ export function validateBillableStatusTransition(
   const allowedTransitions = validTransitions[currentStatus] || [];
 
   if (!allowedTransitions.includes(newStatus)) {
-    errors.push(
-      `Invalid status transition from ${currentStatus} to ${newStatus}`
-    );
+    errors.push(`Invalid status transition from ${currentStatus} to ${newStatus}`);
   }
 
   // Warnings for specific transitions
   if (currentStatus === 'PAID' && newStatus === 'ADJUSTED') {
-    warnings.push(
-      'Adjusting a paid billable item may require payment reversal or refund'
-    );
+    warnings.push('Adjusting a paid billable item may require payment reversal or refund');
   }
 
   const result: ValidationResult = {
@@ -703,9 +667,7 @@ export function validateInvoiceStatusTransition(
   const allowedTransitions = validTransitions[currentStatus] || [];
 
   if (!allowedTransitions.includes(newStatus)) {
-    errors.push(
-      `Invalid status transition from ${currentStatus} to ${newStatus}`
-    );
+    errors.push(`Invalid status transition from ${currentStatus} to ${newStatus}`);
   }
 
   const result: ValidationResult = {
@@ -742,9 +704,7 @@ export function validatePaymentStatusTransition(
   const allowedTransitions = validTransitions[currentStatus] || [];
 
   if (!allowedTransitions.includes(newStatus)) {
-    errors.push(
-      `Invalid status transition from ${currentStatus} to ${newStatus}`
-    );
+    errors.push(`Invalid status transition from ${currentStatus} to ${newStatus}`);
   }
 
   return {
@@ -776,9 +736,7 @@ export function validateAuthorizationStatusTransition(
   const allowedTransitions = validTransitions[currentStatus] || [];
 
   if (!allowedTransitions.includes(newStatus)) {
-    errors.push(
-      `Invalid status transition from ${currentStatus} to ${newStatus}`
-    );
+    errors.push(`Invalid status transition from ${currentStatus} to ${newStatus}`);
   }
 
   return {
@@ -818,15 +776,6 @@ export function isValidPayerType(payerType: string): payerType is PayerType {
  * Validate unit type
  */
 export function isValidUnitType(unitType: string): unitType is UnitType {
-  const validTypes: UnitType[] = [
-    'HOUR',
-    'VISIT',
-    'DAY',
-    'WEEK',
-    'MONTH',
-    'TASK',
-    'MILE',
-    'UNIT',
-  ];
+  const validTypes: UnitType[] = ['HOUR', 'VISIT', 'DAY', 'WEEK', 'MONTH', 'TASK', 'MILE', 'UNIT'];
   return validTypes.includes(unitType as UnitType);
 }

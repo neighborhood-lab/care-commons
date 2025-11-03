@@ -1,6 +1,6 @@
 /**
  * Deduction calculation utilities
- * 
+ *
  * Handles all types of payroll deductions including benefits and garnishments
  */
 
@@ -131,7 +131,7 @@ export function calculateAllDeductions(
   calculatedDeductions: Array<Deduction & { calculatedAmount: number }>;
 } {
   const calculatedDeductions: Array<Deduction & { calculatedAmount: number }> = [];
-  
+
   // 1. Calculate pre-tax deductions (reduce taxable income)
   let taxableIncome = grossPay;
   let preTaxTotal = 0;
@@ -167,7 +167,7 @@ export function calculateAllDeductions(
     const amount = deduction.garnishmentOrder
       ? calculateGarnishmentAmount(grossPay, taxableIncome, deduction)
       : calculateDeductionAmount(grossPay, netPay, deduction);
-    
+
     postTaxTotal += amount;
     netPay -= amount;
 
@@ -190,10 +190,10 @@ export function calculateAllDeductions(
  */
 export function sortGarnishmentsByPriority(garnishments: Deduction[]): Deduction[] {
   const priorityMap: Record<string, number> = {
-    'GARNISHMENT_CHILD_SUPPORT': 1,
-    'GARNISHMENT_TAX_LEVY': 2,
-    'GARNISHMENT_STUDENT_LOAN': 3,
-    'GARNISHMENT_CREDITOR': 4,
+    GARNISHMENT_CHILD_SUPPORT: 1,
+    GARNISHMENT_TAX_LEVY: 2,
+    GARNISHMENT_STUDENT_LOAN: 3,
+    GARNISHMENT_CREDITOR: 4,
   };
 
   return garnishments.sort((a, b) => {
@@ -265,13 +265,20 @@ export function groupDeductionsByCategory(
   };
 
   for (const deduction of deductions) {
-    if (deduction.deductionType.includes('TAX') || deduction.deductionType.includes('SECURITY') || 
-        deduction.deductionType === 'MEDICARE' || deduction.deductionType === 'ADDITIONAL_MEDICARE') {
+    if (
+      deduction.deductionType.includes('TAX') ||
+      deduction.deductionType.includes('SECURITY') ||
+      deduction.deductionType === 'MEDICARE' ||
+      deduction.deductionType === 'ADDITIONAL_MEDICARE'
+    ) {
       grouped.taxes.push(deduction);
     } else if (deduction.deductionType.includes('INSURANCE')) {
       grouped.benefits.push(deduction);
-    } else if (deduction.deductionType.includes('RETIREMENT') || deduction.deductionType.includes('401') ||
-               deduction.deductionType.includes('403')) {
+    } else if (
+      deduction.deductionType.includes('RETIREMENT') ||
+      deduction.deductionType.includes('401') ||
+      deduction.deductionType.includes('403')
+    ) {
       grouped.retirement.push(deduction);
     } else if (deduction.deductionType.includes('GARNISHMENT')) {
       grouped.garnishments.push(deduction);

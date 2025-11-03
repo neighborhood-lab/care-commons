@@ -1,6 +1,6 @@
 /**
  * Accept Invitation Form
- * 
+ *
  * Form for accepting team member invitation and creating account
  */
 
@@ -119,15 +119,9 @@ export function AcceptInviteForm({
     <div className="space-y-6">
       {/* Invitation Details */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">
-          You've been invited to join
-        </h3>
-        <p className="text-lg font-semibold text-blue-900">
-          {inviteDetails.organizationName}
-        </p>
-        <p className="text-sm text-blue-700 mt-1">
-          Role: {inviteDetails.roles.join(', ')}
-        </p>
+        <h3 className="text-sm font-medium text-blue-900 mb-2">You've been invited to join</h3>
+        <p className="text-lg font-semibold text-blue-900">{inviteDetails.organizationName}</p>
+        <p className="text-sm text-blue-700 mt-1">Role: {inviteDetails.roles.join(', ')}</p>
         <p className="text-sm text-blue-700">Email: {inviteDetails.email}</p>
       </div>
 

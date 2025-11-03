@@ -180,29 +180,34 @@ export async function up(knex: Knex): Promise<void> {
   // Add RN delegation tracking for FL (59A-8.0216)
   await knex.schema.createTable('rn_delegations', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
-    
+
     // Core identifiers
-    table.uuid('care_plan_id').notNullable().references('id').inTable('care_plans').onDelete('CASCADE');
+    table
+      .uuid('care_plan_id')
+      .notNullable()
+      .references('id')
+      .inTable('care_plans')
+      .onDelete('CASCADE');
     table.uuid('client_id').notNullable().references('id').inTable('clients');
     table.uuid('organization_id').notNullable().references('id').inTable('organizations');
     table.uuid('branch_id').references('id').inTable('branches');
-    
+
     // Delegation details
     table.uuid('delegating_rn_id').notNullable().references('id').inTable('users'); // Must be RN
     table.string('delegating_rn_name', 255).notNullable();
     table.string('delegating_rn_license', 100).notNullable();
-    
+
     table.uuid('delegated_to_caregiver_id').references('id').inTable('caregivers'); // CNA, HHA, etc.
     table.string('delegated_to_caregiver_name', 255).notNullable();
     table.string('delegated_to_credential_type', 50).notNullable(); // CNA, HHA, etc.
     table.string('delegated_to_credential_number', 100);
-    
+
     // Scope of delegation
     table.string('task_category', 50).notNullable(); // MEDICATION, WOUND_CARE, etc.
     table.text('task_description').notNullable();
     table.specificType('specific_skills_delegated', 'text[]').notNullable();
     table.specificType('limitations', 'text[]');
-    
+
     // Training and competency
     table.boolean('training_provided').notNullable().defaultTo(false);
     table.date('training_date');
@@ -211,27 +216,27 @@ export async function up(knex: Knex): Promise<void> {
     table.date('competency_evaluation_date');
     table.uuid('competency_evaluator_id').references('id').inTable('users');
     table.string('evaluation_result', 50);
-    
+
     // Period and supervision
     table.date('effective_date').notNullable();
     table.date('expiration_date');
     table.string('supervision_frequency', 100); // Daily, Weekly, Per Visit, etc.
     table.date('last_supervision_date');
     table.date('next_supervision_due');
-    
+
     // Status
     table.string('status', 50).notNullable().defaultTo('ACTIVE');
     table.text('revocation_reason');
     table.uuid('revoked_by').references('id').inTable('users');
     table.timestamp('revoked_at');
-    
+
     // FL-specific
     table.string('ahca_delegation_form_number', 50);
     table.jsonb('state_specific_data').defaultTo('{}');
-    
+
     // Metadata
     table.text('notes');
-    
+
     // Audit
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable().references('id').inTable('users');
@@ -330,13 +335,15 @@ export async function down(knex: Knex): Promise<void> {
   // Drop triggers and functions
   await knex.raw('DROP TRIGGER IF EXISTS rn_delegations_updated_at ON rn_delegations');
   await knex.raw('DROP FUNCTION IF EXISTS update_rn_delegations_updated_at()');
-  
-  await knex.raw('DROP TRIGGER IF EXISTS service_authorizations_updated_at ON service_authorizations');
+
+  await knex.raw(
+    'DROP TRIGGER IF EXISTS service_authorizations_updated_at ON service_authorizations'
+  );
   await knex.raw('DROP FUNCTION IF EXISTS update_service_authorizations_updated_at()');
-  
+
   // Drop tables
   await knex.schema.dropTableIfExists('rn_delegations');
-  
+
   // Drop indexes
   await knex.raw('DROP INDEX IF EXISTS idx_task_instances_state_specific_data_gin');
   await knex.raw('DROP INDEX IF EXISTS idx_task_instances_supervisor_review');
@@ -352,7 +359,7 @@ export async function down(knex: Knex): Promise<void> {
   await knex.raw('DROP INDEX IF EXISTS idx_care_plans_supervisory_visit_due');
   await knex.raw('DROP INDEX IF EXISTS idx_care_plans_review_due');
   await knex.raw('DROP INDEX IF EXISTS idx_care_plans_state_jurisdiction');
-  
+
   // Remove state-specific columns from service_authorizations
   await knex.schema.alterTable('service_authorizations', (table) => {
     table.dropColumn('state_specific_data');
@@ -362,7 +369,7 @@ export async function down(knex: Knex): Promise<void> {
     table.dropColumn('state_jurisdiction');
     table.dropColumn('care_plan_id');
   });
-  
+
   // Remove state-specific columns from task_instances
   await knex.schema.alterTable('task_instances', (table) => {
     table.dropColumn('state_specific_task_data');
@@ -373,7 +380,7 @@ export async function down(knex: Knex): Promise<void> {
     table.dropColumn('supervisor_review_required');
     table.dropColumn('requires_supervision');
   });
-  
+
   // Remove state-specific columns from care_plans
   await knex.schema.alterTable('care_plans', (table) => {
     table.dropColumn('infection_control_plan_reviewed');

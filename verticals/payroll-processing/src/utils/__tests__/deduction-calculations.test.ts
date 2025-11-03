@@ -1,6 +1,6 @@
 /**
  * Unit tests for deduction calculation utilities
- * 
+ *
  * Tests deduction calculations, garnishments, benefits,
  * and compliance with legal requirements
  */
@@ -279,12 +279,7 @@ describe('Deduction Calculation Utilities', () => {
     });
 
     it('should reduce taxable income by pre-tax deductions', () => {
-      const result = calculateAllDeductions(
-        1000,
-        [preTaxDeduction],
-        [],
-        []
-      );
+      const result = calculateAllDeductions(1000, [preTaxDeduction], [], []);
 
       // Net pay should be gross minus pre-tax deductions
       expect(result.preTaxTotal).toBe(100);
@@ -293,12 +288,7 @@ describe('Deduction Calculation Utilities', () => {
     });
 
     it('should calculate post-tax deductions after taxes', () => {
-      const result = calculateAllDeductions(
-        1000,
-        [],
-        [postTaxDeduction],
-        [statutoryDeduction]
-      );
+      const result = calculateAllDeductions(1000, [], [postTaxDeduction], [statutoryDeduction]);
 
       // Post-tax should be calculated from (gross - statutory)
       expect(result.statutoryTotal).toBe(200);
@@ -323,12 +313,7 @@ describe('Deduction Calculation Utilities', () => {
     });
 
     it('should include calculated amounts in returned deductions', () => {
-      const result = calculateAllDeductions(
-        1000,
-        [preTaxDeduction],
-        [],
-        []
-      );
+      const result = calculateAllDeductions(1000, [preTaxDeduction], [], []);
 
       const calculated = result.calculatedDeductions[0];
       expect(calculated).toBeDefined();
@@ -400,10 +385,7 @@ describe('Deduction Calculation Utilities', () => {
     });
 
     it('should handle non-garnishment deductions', () => {
-      const deductions = [
-        mockDeduction,
-        mockGarnishmentDeduction,
-      ];
+      const deductions = [mockDeduction, mockGarnishmentDeduction];
 
       const sorted = sortGarnishmentsByPriority(deductions);
 
@@ -525,8 +507,6 @@ describe('Deduction Calculation Utilities', () => {
       deductionType: 'FEDERAL_INCOME_TAX',
     };
 
-
-
     const healthInsuranceDeduction = {
       ...mockDeduction,
       deductionType: 'HEALTH_INSURANCE',
@@ -588,14 +568,14 @@ describe('Deduction Calculation Utilities', () => {
       const medicareDeduction = {
         ...mockDeduction,
         deductionType: 'MEDICARE' as const,
-        calculatedAmount: 14.50,
+        calculatedAmount: 14.5,
       };
 
       const result = groupDeductionsByCategory([ssDeduction, medicareDeduction]);
 
       expect(result.taxes).toHaveLength(2);
-      expect(result.taxes.map(t => t.deductionType)).toContain('SOCIAL_SECURITY');
-      expect(result.taxes.map(t => t.deductionType)).toContain('MEDICARE');
+      expect(result.taxes.map((t) => t.deductionType)).toContain('SOCIAL_SECURITY');
+      expect(result.taxes.map((t) => t.deductionType)).toContain('MEDICARE');
     });
 
     it('should handle empty input', () => {

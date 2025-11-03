@@ -34,26 +34,20 @@ export const EVVRecordList: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Time Tracking & EVV</h1>
-          <p className="text-gray-600 mt-1">
-            {data?.total || 0} total records
-          </p>
+          <p className="text-gray-600 mt-1">{data?.total || 0} total records</p>
         </div>
         <div className="flex gap-2">
           <div className="flex border border-gray-300 rounded-md">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${
-                viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               aria-label="Grid view"
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${
-                viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               aria-label="List view"
             >
               <List className="h-5 w-5" />
@@ -79,11 +73,7 @@ export const EVVRecordList: React.FC = () => {
           }
         >
           {records.map((record) => (
-            <EVVRecordCard
-              key={record.id}
-              record={record}
-              compact={viewMode === 'list'}
-            />
+            <EVVRecordCard key={record.id} record={record} compact={viewMode === 'list'} />
           ))}
         </div>
       )}

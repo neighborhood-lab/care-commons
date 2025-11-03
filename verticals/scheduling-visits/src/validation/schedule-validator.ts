@@ -1,6 +1,6 @@
 /**
  * Validation schemas for Scheduling & Visit Management
- * 
+ *
  * Uses Zod for runtime validation and type safety
  */
 
@@ -12,28 +12,11 @@ const dateSchema = z.coerce.date();
 const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Must be in HH:MM format');
 
 // Enums
-const patternTypeSchema = z.enum([
-  'RECURRING',
-  'ONE_TIME',
-  'AS_NEEDED',
-  'RESPITE',
-]);
+const patternTypeSchema = z.enum(['RECURRING', 'ONE_TIME', 'AS_NEEDED', 'RESPITE']);
 
-const patternStatusSchema = z.enum([
-  'DRAFT',
-  'ACTIVE',
-  'SUSPENDED',
-  'COMPLETED',
-  'CANCELLED',
-]);
+const patternStatusSchema = z.enum(['DRAFT', 'ACTIVE', 'SUSPENDED', 'COMPLETED', 'CANCELLED']);
 
-const frequencySchema = z.enum([
-  'DAILY',
-  'WEEKLY',
-  'BIWEEKLY',
-  'MONTHLY',
-  'CUSTOM',
-]);
+const frequencySchema = z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'CUSTOM']);
 
 const dayOfWeekSchema = z.enum([
   'MONDAY',
@@ -122,65 +105,65 @@ export const signatureDataSchema = z.object({
   signatureImageUrl: z.string().url().optional(),
   signatureDataUrl: z.string().optional(),
   deviceId: z.string().optional(),
-  ipAddress: z.string().regex(/^(\d{1,3}\.){3}\d{1,3}$/, 'Invalid IP address').optional(),
+  ipAddress: z
+    .string()
+    .regex(/^(\d{1,3}\.){3}\d{1,3}$/, 'Invalid IP address')
+    .optional(),
 });
 
 // Input validators
-export const createServicePatternInputSchema = z.object({
-  organizationId: uuidSchema,
-  branchId: uuidSchema,
-  clientId: uuidSchema,
-  name: z.string().min(1).max(200),
-  description: z.string().max(1000).optional(),
-  patternType: patternTypeSchema,
-  serviceTypeId: uuidSchema,
-  serviceTypeName: z.string().min(1).max(200),
-  recurrence: recurrenceRuleSchema,
-  duration: z.number().int().min(15).max(1440), // 15 min to 24 hours
-  flexibilityWindow: z.number().int().min(0).max(120).optional(),
-  requiredSkills: z.array(z.string()).optional(),
-  requiredCertifications: z.array(z.string()).optional(),
-  preferredCaregivers: z.array(uuidSchema).optional(),
-  blockedCaregivers: z.array(uuidSchema).optional(),
-  genderPreference: z.enum(['MALE', 'FEMALE', 'NO_PREFERENCE']).optional(),
-  languagePreference: z.string().optional(),
-  preferredTimeOfDay: z.enum([
-    'EARLY_MORNING',
-    'MORNING',
-    'AFTERNOON',
-    'EVENING',
-    'NIGHT',
-    'ANY',
-  ]).optional(),
-  mustStartBy: timeSchema.optional(),
-  mustEndBy: timeSchema.optional(),
-  authorizedHoursPerWeek: z.number().positive().max(168).optional(),
-  authorizedVisitsPerWeek: z.number().int().positive().max(100).optional(),
-  authorizationStartDate: dateSchema.optional(),
-  authorizationEndDate: dateSchema.optional(),
-  fundingSourceId: uuidSchema.optional(),
-  travelTimeBefore: z.number().int().min(0).max(120).optional(),
-  travelTimeAfter: z.number().int().min(0).max(120).optional(),
-  allowBackToBack: z.boolean().default(false),
-  effectiveFrom: dateSchema,
-  effectiveTo: dateSchema.optional(),
-  clientInstructions: z.string().max(2000).optional(),
-  caregiverInstructions: z.string().max(2000).optional(),
-  notes: z.string().max(2000).optional(),
-}).refine(
-  (data) => !data.effectiveTo || data.effectiveFrom <= data.effectiveTo,
-  {
+export const createServicePatternInputSchema = z
+  .object({
+    organizationId: uuidSchema,
+    branchId: uuidSchema,
+    clientId: uuidSchema,
+    name: z.string().min(1).max(200),
+    description: z.string().max(1000).optional(),
+    patternType: patternTypeSchema,
+    serviceTypeId: uuidSchema,
+    serviceTypeName: z.string().min(1).max(200),
+    recurrence: recurrenceRuleSchema,
+    duration: z.number().int().min(15).max(1440), // 15 min to 24 hours
+    flexibilityWindow: z.number().int().min(0).max(120).optional(),
+    requiredSkills: z.array(z.string()).optional(),
+    requiredCertifications: z.array(z.string()).optional(),
+    preferredCaregivers: z.array(uuidSchema).optional(),
+    blockedCaregivers: z.array(uuidSchema).optional(),
+    genderPreference: z.enum(['MALE', 'FEMALE', 'NO_PREFERENCE']).optional(),
+    languagePreference: z.string().optional(),
+    preferredTimeOfDay: z
+      .enum(['EARLY_MORNING', 'MORNING', 'AFTERNOON', 'EVENING', 'NIGHT', 'ANY'])
+      .optional(),
+    mustStartBy: timeSchema.optional(),
+    mustEndBy: timeSchema.optional(),
+    authorizedHoursPerWeek: z.number().positive().max(168).optional(),
+    authorizedVisitsPerWeek: z.number().int().positive().max(100).optional(),
+    authorizationStartDate: dateSchema.optional(),
+    authorizationEndDate: dateSchema.optional(),
+    fundingSourceId: uuidSchema.optional(),
+    travelTimeBefore: z.number().int().min(0).max(120).optional(),
+    travelTimeAfter: z.number().int().min(0).max(120).optional(),
+    allowBackToBack: z.boolean().default(false),
+    effectiveFrom: dateSchema,
+    effectiveTo: dateSchema.optional(),
+    clientInstructions: z.string().max(2000).optional(),
+    caregiverInstructions: z.string().max(2000).optional(),
+    notes: z.string().max(2000).optional(),
+  })
+  .refine((data) => !data.effectiveTo || data.effectiveFrom <= data.effectiveTo, {
     message: 'effectiveTo must be after effectiveFrom',
     path: ['effectiveTo'],
-  }
-).refine(
-  (data) => !data.authorizationEndDate || !data.authorizationStartDate || 
-             data.authorizationStartDate <= data.authorizationEndDate,
-  {
-    message: 'authorizationEndDate must be after authorizationStartDate',
-    path: ['authorizationEndDate'],
-  }
-);
+  })
+  .refine(
+    (data) =>
+      !data.authorizationEndDate ||
+      !data.authorizationStartDate ||
+      data.authorizationStartDate <= data.authorizationEndDate,
+    {
+      message: 'authorizationEndDate must be after authorizationStartDate',
+      path: ['authorizationEndDate'],
+    }
+  );
 
 export const updateServicePatternInputSchema = z.object({
   name: z.string().min(1).max(200).optional(),
@@ -197,41 +180,43 @@ export const updateServicePatternInputSchema = z.object({
   notes: z.string().max(2000).optional(),
 });
 
-export const createVisitInputSchema = z.object({
-  organizationId: uuidSchema,
-  branchId: uuidSchema,
-  clientId: uuidSchema,
-  patternId: uuidSchema.optional(),
-  visitType: visitTypeSchema,
-  serviceTypeId: uuidSchema,
-  serviceTypeName: z.string().min(1).max(200),
-  scheduledDate: dateSchema,
-  scheduledStartTime: timeSchema,
-  scheduledEndTime: timeSchema,
-  address: visitAddressSchema,
-  taskIds: z.array(uuidSchema).optional(),
-  requiredSkills: z.array(z.string()).optional(),
-  requiredCertifications: z.array(z.string()).optional(),
-  isUrgent: z.boolean().default(false),
-  isPriority: z.boolean().default(false),
-  requiresSupervision: z.boolean().default(false),
-  riskFlags: z.array(z.string()).optional(),
-  clientInstructions: z.string().max(2000).optional(),
-  caregiverInstructions: z.string().max(2000).optional(),
-  internalNotes: z.string().max(2000).optional(),
-}).refine(
-  (data) => {
-    const start = data.scheduledStartTime.split(':').map(Number);
-    const end = data.scheduledEndTime.split(':').map(Number);
-    const startMinutes = (start[0] ?? 0) * 60 + (start[1] ?? 0);
-    const endMinutes = (end[0] ?? 0) * 60 + (end[1] ?? 0);
-    return startMinutes < endMinutes;
-  },
-  {
-    message: 'scheduledEndTime must be after scheduledStartTime',
-    path: ['scheduledEndTime'],
-  }
-);
+export const createVisitInputSchema = z
+  .object({
+    organizationId: uuidSchema,
+    branchId: uuidSchema,
+    clientId: uuidSchema,
+    patternId: uuidSchema.optional(),
+    visitType: visitTypeSchema,
+    serviceTypeId: uuidSchema,
+    serviceTypeName: z.string().min(1).max(200),
+    scheduledDate: dateSchema,
+    scheduledStartTime: timeSchema,
+    scheduledEndTime: timeSchema,
+    address: visitAddressSchema,
+    taskIds: z.array(uuidSchema).optional(),
+    requiredSkills: z.array(z.string()).optional(),
+    requiredCertifications: z.array(z.string()).optional(),
+    isUrgent: z.boolean().default(false),
+    isPriority: z.boolean().default(false),
+    requiresSupervision: z.boolean().default(false),
+    riskFlags: z.array(z.string()).optional(),
+    clientInstructions: z.string().max(2000).optional(),
+    caregiverInstructions: z.string().max(2000).optional(),
+    internalNotes: z.string().max(2000).optional(),
+  })
+  .refine(
+    (data) => {
+      const start = data.scheduledStartTime.split(':').map(Number);
+      const end = data.scheduledEndTime.split(':').map(Number);
+      const startMinutes = (start[0] ?? 0) * 60 + (start[1] ?? 0);
+      const endMinutes = (end[0] ?? 0) * 60 + (end[1] ?? 0);
+      return startMinutes < endMinutes;
+    },
+    {
+      message: 'scheduledEndTime must be after scheduledStartTime',
+      path: ['scheduledEndTime'],
+    }
+  );
 
 export const assignVisitInputSchema = z.object({
   visitId: uuidSchema,
@@ -248,46 +233,45 @@ export const updateVisitStatusInputSchema = z.object({
   locationVerification: locationVerificationSchema.optional(),
 });
 
-export const completeVisitInputSchema = z.object({
-  visitId: uuidSchema,
-  actualEndTime: z.date(),
-  completionNotes: z.string().max(2000).optional(),
-  tasksCompleted: z.number().int().min(0),
-  tasksTotal: z.number().int().min(0),
-  signatureData: signatureDataSchema.optional(),
-  locationVerification: locationVerificationSchema,
-}).refine(
-  (data) => data.tasksCompleted <= data.tasksTotal,
-  {
+export const completeVisitInputSchema = z
+  .object({
+    visitId: uuidSchema,
+    actualEndTime: z.date(),
+    completionNotes: z.string().max(2000).optional(),
+    tasksCompleted: z.number().int().min(0),
+    tasksTotal: z.number().int().min(0),
+    signatureData: signatureDataSchema.optional(),
+    locationVerification: locationVerificationSchema,
+  })
+  .refine((data) => data.tasksCompleted <= data.tasksTotal, {
     message: 'tasksCompleted cannot exceed tasksTotal',
     path: ['tasksCompleted'],
-  }
-);
+  });
 
-export const scheduleGenerationOptionsSchema = z.object({
-  patternId: uuidSchema,
-  startDate: dateSchema,
-  endDate: dateSchema,
-  autoAssign: z.boolean().default(false),
-  respectHourlyLimits: z.boolean().default(true),
-  skipHolidays: z.boolean().default(false),
-  holidayCalendarId: uuidSchema.optional(),
-}).refine(
-  (data) => data.startDate < data.endDate,
-  {
+export const scheduleGenerationOptionsSchema = z
+  .object({
+    patternId: uuidSchema,
+    startDate: dateSchema,
+    endDate: dateSchema,
+    autoAssign: z.boolean().default(false),
+    respectHourlyLimits: z.boolean().default(true),
+    skipHolidays: z.boolean().default(false),
+    holidayCalendarId: uuidSchema.optional(),
+  })
+  .refine((data) => data.startDate < data.endDate, {
     message: 'endDate must be after startDate',
     path: ['endDate'],
-  }
-).refine(
-  (data) => {
-    const daysDiff = (data.endDate.getTime() - data.startDate.getTime()) / (1000 * 60 * 60 * 24);
-    return daysDiff <= 365;
-  },
-  {
-    message: 'Schedule generation period cannot exceed 365 days',
-    path: ['endDate'],
-  }
-);
+  })
+  .refine(
+    (data) => {
+      const daysDiff = (data.endDate.getTime() - data.startDate.getTime()) / (1000 * 60 * 60 * 24);
+      return daysDiff <= 365;
+    },
+    {
+      message: 'Schedule generation period cannot exceed 365 days',
+      path: ['endDate'],
+    }
+  );
 
 export const visitSearchFiltersSchema = z.object({
   query: z.string().max(200).optional(),
@@ -347,7 +331,9 @@ export class ScheduleValidator {
     return completeVisitInputSchema.parse(input);
   }
 
-  static validateGenerationOptions(input: unknown): z.infer<typeof scheduleGenerationOptionsSchema> {
+  static validateGenerationOptions(
+    input: unknown
+  ): z.infer<typeof scheduleGenerationOptionsSchema> {
     return scheduleGenerationOptionsSchema.parse(input);
   }
 
@@ -355,7 +341,9 @@ export class ScheduleValidator {
     return visitSearchFiltersSchema.parse(input);
   }
 
-  static validateAvailabilityQuery(input: unknown): z.infer<typeof caregiverAvailabilityQuerySchema> {
+  static validateAvailabilityQuery(
+    input: unknown
+  ): z.infer<typeof caregiverAvailabilityQuerySchema> {
     return caregiverAvailabilityQuerySchema.parse(input);
   }
 }

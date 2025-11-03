@@ -19,7 +19,6 @@ import {
 import { CryptoUtils } from '../utils/crypto-utils';
 
 export class EVVValidator {
-  
   /**
    * Validate clock-in input
    */
@@ -216,13 +215,14 @@ export class EVVValidator {
   ): GeofenceCheckResult {
     const distance = this.calculateDistance(locationLat, locationLon, geofenceLat, geofenceLon);
     const effectiveRadius = geofenceRadius + allowedVariance;
-    
+
     // Account for GPS accuracy - if the accuracy circle overlaps the geofence, it's acceptable
     const maxPossibleDistance = distance + locationAccuracy;
     const minPossibleDistance = Math.max(0, distance - locationAccuracy);
 
     const isWithinGeofence = minPossibleDistance <= effectiveRadius;
-    const requiresManualReview = maxPossibleDistance > effectiveRadius && minPossibleDistance <= effectiveRadius;
+    const requiresManualReview =
+      maxPossibleDistance > effectiveRadius && minPossibleDistance <= effectiveRadius;
 
     let reason: string | undefined;
     if (!isWithinGeofence) {
@@ -389,7 +389,8 @@ export class EVVValidator {
         requiresSupervisorReview = true;
       }
 
-      if (evvRecord.totalDuration > 720) { // 12 hours
+      if (evvRecord.totalDuration > 720) {
+        // 12 hours
         issues.push({
           issueType: 'VISIT_TOO_LONG',
           severity: 'MEDIUM',
@@ -419,7 +420,8 @@ export class EVVValidator {
         return sum + (pause.duration || 0);
       }, 0);
 
-      if (totalPauseTime > 120) { // More than 2 hours paused
+      if (totalPauseTime > 120) {
+        // More than 2 hours paused
         issues.push({
           issueType: 'EXCESSIVE_PAUSE_TIME',
           severity: 'MEDIUM',
@@ -435,9 +437,9 @@ export class EVVValidator {
     // Determine verification level
     let verificationLevel: VerificationLevel = 'FULL';
     if (issues.length > 0) {
-      const hasCritical = issues.some(i => i.severity === 'CRITICAL');
-      const hasHigh = issues.some(i => i.severity === 'HIGH');
-      
+      const hasCritical = issues.some((i) => i.severity === 'CRITICAL');
+      const hasHigh = issues.some((i) => i.severity === 'HIGH');
+
       if (hasCritical) {
         verificationLevel = 'EXCEPTION';
       } else if (hasHigh) {
@@ -466,12 +468,7 @@ export class EVVValidator {
    * Calculate distance between two coordinates (Haversine formula)
    * Returns distance in meters
    */
-  private calculateDistance(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ): number {
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371000; // Earth's radius in meters
     const φ1 = (lat1 * Math.PI) / 180;
     const φ2 = (lat2 * Math.PI) / 180;
@@ -492,7 +489,11 @@ export class EVVValidator {
    */
   validateStateRequirements(
     stateCode: string,
-    config: { geoPerimeterTolerance?: number; clockInGracePeriodMinutes?: number; clockOutGracePeriodMinutes?: number },
+    config: {
+      geoPerimeterTolerance?: number;
+      clockInGracePeriodMinutes?: number;
+      clockOutGracePeriodMinutes?: number;
+    },
     record: EVVRecord
   ): {
     passed: boolean;
@@ -504,13 +505,18 @@ export class EVVValidator {
 
     // Validate state code
     if (stateCode !== 'TX' && stateCode !== 'FL') {
-      throw new ValidationError(`Unsupported state code: ${stateCode}. Only TX and FL are supported.`);
+      throw new ValidationError(
+        `Unsupported state code: ${stateCode}. Only TX and FL are supported.`
+      );
     }
 
     // Texas-specific validations
     if (stateCode === 'TX') {
       // Validate GPS requirements for mobile visits
-      if (record.clockInVerification.method !== 'GPS' && record.clockInVerification.method !== 'BIOMETRIC') {
+      if (
+        record.clockInVerification.method !== 'GPS' &&
+        record.clockInVerification.method !== 'BIOMETRIC'
+      ) {
         issues.push({
           issueType: 'LOCATION_UNCERTAIN',
           severity: 'HIGH',
@@ -537,7 +543,10 @@ export class EVVValidator {
 
       // Validate geofence tolerance
       const geoTolerance = config.geoPerimeterTolerance ?? 100;
-      if (!record.clockInVerification.geofencePassed && record.clockInVerification.distanceFromAddress > geoTolerance) {
+      if (
+        !record.clockInVerification.geofencePassed &&
+        record.clockInVerification.distanceFromAddress > geoTolerance
+      ) {
         issues.push({
           issueType: 'GEOFENCE_VIOLATION',
           severity: 'CRITICAL',
@@ -553,8 +562,11 @@ export class EVVValidator {
     if (stateCode === 'FL') {
       // Florida has more lenient requirements
       const geoTolerance = config.geoPerimeterTolerance ?? 150;
-      
-      if (!record.clockInVerification.geofencePassed && record.clockInVerification.distanceFromAddress > geoTolerance) {
+
+      if (
+        !record.clockInVerification.geofencePassed &&
+        record.clockInVerification.distanceFromAddress > geoTolerance
+      ) {
         issues.push({
           issueType: 'GEOFENCE_VIOLATION',
           severity: 'HIGH',
@@ -603,7 +615,9 @@ export class EVVValidator {
   ): GeofenceCheckResult {
     // Validate state code
     if (stateCode !== 'TX' && stateCode !== 'FL') {
-      throw new ValidationError(`Unsupported state code: ${stateCode}. Only TX and FL are supported.`);
+      throw new ValidationError(
+        `Unsupported state code: ${stateCode}. Only TX and FL are supported.`
+      );
     }
 
     // Get state-specific tolerance

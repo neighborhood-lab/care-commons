@@ -1,11 +1,11 @@
 /**
  * Care Commons API Server
- * 
+ *
  * Main Express application that integrates all vertical route handlers
  */
 
 // Load environment variables FIRST, before any other imports
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env', quiet: true });
 
 import express from 'express';
@@ -21,8 +21,6 @@ const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
 const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 
-
-
 /**
  * Initialize database connection
  * Supports both DATABASE_URL (Vercel) and individual config (local dev)
@@ -30,7 +28,7 @@ const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 function initDb(): ReturnType<typeof initializeDatabase> {
   // Check for DATABASE_URL first (Vercel/production style)
   const databaseUrl = process.env['DATABASE_URL'];
-  
+
   if (databaseUrl !== undefined && databaseUrl !== '') {
     console.log('Using DATABASE_URL for connection');
     // Parse DATABASE_URL (format: postgresql://user:pass@host:port/db?sslmode=require)
@@ -46,18 +44,18 @@ function initDb(): ReturnType<typeof initializeDatabase> {
       max: 20,
       idleTimeoutMillis: 30000,
     };
-    
-    console.log('Database config:', { 
-      host: dbConfig.host, 
-      port: dbConfig.port, 
-      database: dbConfig.database, 
-      user: dbConfig.user, 
+
+    console.log('Database config:', {
+      host: dbConfig.host,
+      port: dbConfig.port,
+      database: dbConfig.database,
+      user: dbConfig.user,
       ssl: dbConfig.ssl,
-      hasPassword: Boolean(dbConfig.password)
+      hasPassword: Boolean(dbConfig.password),
     });
     return initializeDatabase(dbConfig);
   }
-  
+
   // Fall back to individual environment variables
   const dbPassword = process.env['DB_PASSWORD'];
   if (dbPassword === undefined) {
@@ -84,49 +82,53 @@ function initDb(): ReturnType<typeof initializeDatabase> {
  */
 function setupMiddleware(): void {
   // Security headers - use default secure configuration
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
       },
-    },
-  }));
+    })
+  );
 
   // CORS - restrict to allowed origins in production
   const allowedOrigins = process.env['CORS_ORIGIN']?.split(',') ?? [];
-  
-  app.use(cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, etc.)
-      if (typeof origin !== 'string') {
-        callback(null, true);
-        return;
-      }
 
-      // In development, allow all origins
-      if (NODE_ENV === 'development') {
-        callback(null, true);
-        return;
-      }
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (typeof origin !== 'string') {
+          callback(null, true);
+          return;
+        }
 
-      // In production, only allow specified origins
-      if (allowedOrigins.length === 0) {
-        console.warn('⚠️  No CORS_ORIGIN configured - blocking all browser requests');
-        callback(new Error('CORS not configured'), false);
-        return;
-      }
+        // In development, allow all origins
+        if (NODE_ENV === 'development') {
+          callback(null, true);
+          return;
+        }
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`), false);
-      }
-    },
-    credentials: true,
-  }));
+        // In production, only allow specified origins
+        if (allowedOrigins.length === 0) {
+          console.warn('⚠️  No CORS_ORIGIN configured - blocking all browser requests');
+          callback(new Error('CORS not configured'), false);
+          return;
+        }
+
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+        }
+      },
+      credentials: true,
+    })
+  );
 
   // Request logging
   app.use(createRequestLogger());
@@ -194,10 +196,10 @@ export async function createApp(): Promise<express.Express> {
       const db = getDatabase();
       const dbHealthy = await db.healthCheck();
       const responseTime = Date.now() - startTime;
-      
+
       const status = dbHealthy === true ? 'healthy' : 'unhealthy';
       const httpStatus = dbHealthy === true ? 200 : 503;
-      
+
       res.status(httpStatus).json({
         status,
         timestamp: new Date().toISOString(),
@@ -240,15 +242,13 @@ export async function createApp(): Promise<express.Express> {
   return app;
 }
 
-
-
 /**
  * Start the server (for local development)
  */
 async function start(): Promise<void> {
   try {
     console.log(`Starting Care Commons API Server (${NODE_ENV})`);
-    
+
     await createApp();
 
     // Start listening

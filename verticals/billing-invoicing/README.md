@@ -1,14 +1,19 @@
 # Billing & Invoicing
 
-Revenue cycle management from service delivery to payment collection. Transforms care delivery data (visits, time tracking, care plans) into billable items, generates invoices for multiple payer types, tracks claims submission and payment cycles, and provides revenue analytics.
+Revenue cycle management from service delivery to payment collection. Transforms
+care delivery data (visits, time tracking, care plans) into billable items,
+generates invoices for multiple payer types, tracks claims submission and
+payment cycles, and provides revenue analytics.
 
 ## Status
 
-**Production Ready** - Core implementation complete with repository layer, validation, utilities, and comprehensive seed data for demos.
+**Production Ready** - Core implementation complete with repository layer,
+validation, utilities, and comprehensive seed data for demos.
 
 ## Key Features
 
 ### Billable Items
+
 - Automatic conversion of completed visits to billable items
 - Link to EVV records for compliance verification
 - Service authorization tracking
@@ -17,6 +22,7 @@ Revenue cycle management from service delivery to payment collection. Transforms
 - Hold and review workflows
 
 ### Invoicing
+
 - Generate invoices by payer and time period
 - Support multiple invoice types (standard, interim, credit, statement)
 - Configurable billing cycles
@@ -25,6 +31,7 @@ Revenue cycle management from service delivery to payment collection. Transforms
 - PDF generation
 
 ### Payments
+
 - Record payments from any source
 - Multiple payment methods (check, ACH, credit card, ERA)
 - Payment allocation to invoices
@@ -32,6 +39,7 @@ Revenue cycle management from service delivery to payment collection. Transforms
 - Bank reconciliation
 
 ### Claims Management
+
 - Submit claims to insurance payers
 - Support for CMS-1500, UB-04, and EDI formats
 - Clearinghouse integration
@@ -40,6 +48,7 @@ Revenue cycle management from service delivery to payment collection. Transforms
 - Electronic Remittance Advice (ERA) processing
 
 ### Rate Schedules
+
 - Define rates by service type and payer
 - Time-based modifiers (weekend, holiday, night, overtime)
 - Geographic adjustments
@@ -47,6 +56,7 @@ Revenue cycle management from service delivery to payment collection. Transforms
 - Approval workflow
 
 ### Service Authorizations
+
 - Track pre-approvals from payers
 - Unit consumption monitoring
 - Expiration alerts
@@ -54,6 +64,7 @@ Revenue cycle management from service delivery to payment collection. Transforms
 - Referral management
 
 ### Payer Management
+
 - Insurance companies and Medicaid/Medicare
 - Private pay clients
 - Contact information
@@ -62,6 +73,7 @@ Revenue cycle management from service delivery to payment collection. Transforms
 - Performance metrics (average payment days, denial rate)
 
 ### Reporting & Analytics
+
 - Revenue summaries
 - Accounts receivable aging
 - Payer performance analysis
@@ -85,12 +97,14 @@ Revenue cycle management from service delivery to payment collection. Transforms
 ## Integration Points
 
 ### Upstream Dependencies
+
 - **Client Demographics**: Client billing information
 - **Scheduling & Visits**: Service occurrences to bill
 - **Time Tracking & EVV**: Compliance-verified visit timing
 - **Care Plans & Tasks**: Authorized services and tasks completed
 
 ### Downstream Dependencies
+
 - **Payroll**: Caregiver compensation (future)
 - **Accounting**: GL integration (future)
 
@@ -105,21 +119,29 @@ Revenue cycle management from service delivery to payment collection. Transforms
 ## Workflow Example
 
 1. **Visit Completion**: Caregiver completes a visit, clocks out via EVV
-2. **Billable Item Creation**: System creates billable item linked to visit and EVV record
-3. **Rate Application**: System looks up rate schedule for service type and payer
-4. **Authorization Check**: System verifies service authorization and deducts units
+2. **Billable Item Creation**: System creates billable item linked to visit and
+   EVV record
+3. **Rate Application**: System looks up rate schedule for service type and
+   payer
+4. **Authorization Check**: System verifies service authorization and deducts
+   units
 5. **Review**: Billing coordinator reviews flagged items
-6. **Invoice Generation**: System groups billable items into invoices by payer and period
-7. **Claim Submission**: For insurance payers, system generates and submits claims
+6. **Invoice Generation**: System groups billable items into invoices by payer
+   and period
+7. **Claim Submission**: For insurance payers, system generates and submits
+   claims
 8. **Payment Receipt**: Payment received and allocated to invoices
 9. **Reconciliation**: Payment reconciled with bank deposit
 10. **Reporting**: Revenue analytics updated in real-time
 
 ## Data Model
 
-See [migration 008_billing_invoicing.sql](../../packages/core/migrations/008_billing_invoicing.sql) for complete database schema.
+See
+[migration 008_billing_invoicing.sql](../../packages/core/migrations/008_billing_invoicing.sql)
+for complete database schema.
 
 Key tables:
+
 - `payers` - Payer information
 - `rate_schedules` - Service pricing rules
 - `service_authorizations` - Pre-approvals for services
@@ -148,7 +170,8 @@ Key tables:
 - [x] Database migration
 - [x] Repository layer
 - [x] Validation layer
-- [x] Utility functions (rate calculation, rounding, tax, holidays, time modifiers)
+- [x] Utility functions (rate calculation, rounding, tax, holidays, time
+      modifiers)
 - [x] Seed data for realistic demos
 - [ ] Service layer (business logic workflows)
 - [ ] API handlers

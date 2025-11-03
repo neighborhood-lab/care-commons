@@ -1,9 +1,9 @@
 import { UUID, Role } from '../types/base';
-import { 
-  InviteToken, 
-  InviteTokenStatus, 
+import {
+  InviteToken,
+  InviteTokenStatus,
   CreateInviteRequest,
-  InviteDetails 
+  InviteDetails,
 } from '../types/organization';
 import { Database } from '../db/connection';
 import { randomBytes } from 'node:crypto';
@@ -38,7 +38,7 @@ export interface IUserRepository {
   getUsersByIds(ids: UUID[]): Promise<User[]>;
   getUserByEmail(email: string, organizationId: UUID): Promise<User | null>;
   createUser(request: CreateUserRequest): Promise<User>;
-  
+
   // Invitation methods
   createInviteToken(
     organizationId: UUID,
@@ -394,9 +394,7 @@ export class UserRepository implements IUserRepository {
     }
 
     const now = new Date();
-    const isValid = 
-      row.status === 'PENDING' && 
-      new Date(row.expires_at) > now;
+    const isValid = row.status === 'PENDING' && new Date(row.expires_at) > now;
 
     return {
       token: row.token,

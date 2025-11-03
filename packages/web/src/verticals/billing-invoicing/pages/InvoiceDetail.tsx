@@ -3,12 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, Send, Ban, Edit } from 'lucide-react';
 import { Button, LoadingSpinner, ErrorMessage } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
-import { 
-  useInvoice, 
-  useInvoicePayments, 
-  useSendInvoice, 
+import {
+  useInvoice,
+  useInvoicePayments,
+  useSendInvoice,
   useVoidInvoice,
-  useDownloadInvoicePdf 
+  useDownloadInvoicePdf,
 } from '../hooks';
 import { formatCurrency, getInvoiceStatusColor } from '../utils';
 
@@ -32,12 +32,7 @@ export const InvoiceDetail: React.FC = () => {
   }
 
   if (error || !invoice) {
-    return (
-      <ErrorMessage
-        message="Failed to load invoice"
-        retry={() => navigate('/billing')}
-      />
-    );
+    return <ErrorMessage message="Failed to load invoice" retry={() => navigate('/billing')} />;
   }
 
   const statusColor = getInvoiceStatusColor(invoice.status);
@@ -54,10 +49,10 @@ export const InvoiceDetail: React.FC = () => {
             Back
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Invoice {invoice.invoiceNumber}
-            </h1>
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${statusColor}`}>
+            <h1 className="text-2xl font-bold text-gray-900">Invoice {invoice.invoiceNumber}</h1>
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${statusColor}`}
+            >
               {invoice.status.replace(/_/g, ' ')}
             </span>
           </div>
@@ -135,7 +130,8 @@ export const InvoiceDetail: React.FC = () => {
           <div>
             <h3 className="text-sm font-medium text-gray-500 mb-1">Period</h3>
             <p className="text-lg">
-              {new Date(invoice.periodStart).toLocaleDateString()} - {new Date(invoice.periodEnd).toLocaleDateString()}
+              {new Date(invoice.periodStart).toLocaleDateString()} -{' '}
+              {new Date(invoice.periodEnd).toLocaleDateString()}
             </p>
           </div>
 
@@ -184,39 +180,57 @@ export const InvoiceDetail: React.FC = () => {
             </tbody>
             <tfoot className="border-t-2">
               <tr>
-                <td colSpan={4} className="px-4 py-2 text-right font-medium">Subtotal:</td>
+                <td colSpan={4} className="px-4 py-2 text-right font-medium">
+                  Subtotal:
+                </td>
                 <td className="px-4 py-2 text-right">{formatCurrency(invoice.subtotal)}</td>
               </tr>
               {invoice.taxAmount > 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-2 text-right">Tax:</td>
+                  <td colSpan={4} className="px-4 py-2 text-right">
+                    Tax:
+                  </td>
                   <td className="px-4 py-2 text-right">{formatCurrency(invoice.taxAmount)}</td>
                 </tr>
               )}
               {invoice.discountAmount > 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-2 text-right">Discount:</td>
-                  <td className="px-4 py-2 text-right text-red-600">-{formatCurrency(invoice.discountAmount)}</td>
+                  <td colSpan={4} className="px-4 py-2 text-right">
+                    Discount:
+                  </td>
+                  <td className="px-4 py-2 text-right text-red-600">
+                    -{formatCurrency(invoice.discountAmount)}
+                  </td>
                 </tr>
               )}
               {invoice.adjustmentAmount !== 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-2 text-right">Adjustments:</td>
-                  <td className="px-4 py-2 text-right">{formatCurrency(invoice.adjustmentAmount)}</td>
+                  <td colSpan={4} className="px-4 py-2 text-right">
+                    Adjustments:
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    {formatCurrency(invoice.adjustmentAmount)}
+                  </td>
                 </tr>
               )}
               <tr className="text-lg font-bold">
-                <td colSpan={4} className="px-4 py-3 text-right">Total:</td>
+                <td colSpan={4} className="px-4 py-3 text-right">
+                  Total:
+                </td>
                 <td className="px-4 py-3 text-right">{formatCurrency(invoice.totalAmount)}</td>
               </tr>
               {invoice.paidAmount > 0 && (
                 <>
                   <tr className="text-green-600">
-                    <td colSpan={4} className="px-4 py-2 text-right">Amount Paid:</td>
+                    <td colSpan={4} className="px-4 py-2 text-right">
+                      Amount Paid:
+                    </td>
                     <td className="px-4 py-2 text-right">-{formatCurrency(invoice.paidAmount)}</td>
                   </tr>
                   <tr className="text-lg font-bold text-red-600">
-                    <td colSpan={4} className="px-4 py-3 text-right">Balance Due:</td>
+                    <td colSpan={4} className="px-4 py-3 text-right">
+                      Balance Due:
+                    </td>
                     <td className="px-4 py-3 text-right">{formatCurrency(invoice.balanceDue)}</td>
                   </tr>
                 </>
@@ -237,11 +251,15 @@ export const InvoiceDetail: React.FC = () => {
             <h3 className="text-lg font-semibold mb-4">Payment History</h3>
             <div className="space-y-3">
               {payments.map((payment) => (
-                <div key={payment.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div
+                  key={payment.id}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded"
+                >
                   <div>
                     <p className="font-medium">{formatCurrency(payment.amount)}</p>
                     <p className="text-sm text-gray-500">
-                      {payment.paymentMethod.replace(/_/g, ' ')} • {new Date(payment.paymentDate).toLocaleDateString()}
+                      {payment.paymentMethod.replace(/_/g, ' ')} •{' '}
+                      {new Date(payment.paymentDate).toLocaleDateString()}
                     </p>
                     {payment.referenceNumber && (
                       <p className="text-xs text-gray-400">Ref: {payment.referenceNumber}</p>

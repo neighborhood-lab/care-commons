@@ -1,6 +1,6 @@
 /**
  * Unit tests for billing validation functions
- * 
+ *
  * Tests validation logic for all billing input types and status transitions
  * without requiring database or external dependencies
  */

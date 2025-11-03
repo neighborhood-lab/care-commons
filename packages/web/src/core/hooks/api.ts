@@ -7,10 +7,7 @@ export const useApiClient = () => {
   const { token } = useAuth();
 
   return useMemo(() => {
-    return createApiClient(
-      import.meta.env.VITE_API_BASE_URL || '',
-      () => token
-    );
+    return createApiClient(import.meta.env.VITE_API_BASE_URL || '', () => token);
   }, [token]);
 };
 

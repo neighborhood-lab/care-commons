@@ -12,25 +12,21 @@ export interface CarePlanCardProps {
 
 export const CarePlanCard: React.FC<CarePlanCardProps> = ({ carePlan, compact = false }) => {
   const [now] = useState(() => Date.now());
-  
-  const isExpiringSoon = carePlan.expirationDate && 
+
+  const isExpiringSoon =
+    carePlan.expirationDate &&
     new Date(carePlan.expirationDate) <= new Date(now + 30 * 24 * 60 * 60 * 1000);
 
-  const isOverdue = carePlan.reviewDate && 
-    new Date(carePlan.reviewDate) < new Date(now);
+  const isOverdue = carePlan.reviewDate && new Date(carePlan.reviewDate) < new Date(now);
 
   return (
     <Link to={`/care-plans/${carePlan.id}`}>
       <Card padding="md" hover className="h-full">
         <div className="flex justify-between items-start">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {carePlan.name}
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">{carePlan.name}</h3>
             <p className="text-sm text-gray-600">{carePlan.planNumber}</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {carePlan.planType.replace(/_/g, ' ')}
-            </p>
+            <p className="text-xs text-gray-500 mt-1">{carePlan.planType.replace(/_/g, ' ')}</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <StatusBadge status={carePlan.status} />
@@ -55,7 +51,7 @@ export const CarePlanCard: React.FC<CarePlanCardProps> = ({ carePlan, compact = 
               <User className="h-4 w-4" />
               Client ID: {carePlan.clientId}
             </div>
-            
+
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Target className="h-4 w-4" />
               {carePlan.goals.length} Goals, {carePlan.interventions.length} Interventions
@@ -82,12 +78,17 @@ export const CarePlanCard: React.FC<CarePlanCardProps> = ({ carePlan, compact = 
 
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-gray-500">Priority:</span>
-              <span className={`text-xs font-medium ${
-                carePlan.priority === 'URGENT' ? 'text-red-600' :
-                carePlan.priority === 'HIGH' ? 'text-orange-600' :
-                carePlan.priority === 'MEDIUM' ? 'text-yellow-600' :
-                'text-gray-600'
-              }`}>
+              <span
+                className={`text-xs font-medium ${
+                  carePlan.priority === 'URGENT'
+                    ? 'text-red-600'
+                    : carePlan.priority === 'HIGH'
+                      ? 'text-orange-600'
+                      : carePlan.priority === 'MEDIUM'
+                        ? 'text-yellow-600'
+                        : 'text-gray-600'
+                }`}
+              >
                 {carePlan.priority}
               </span>
             </div>

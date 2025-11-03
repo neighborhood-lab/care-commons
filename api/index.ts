@@ -1,9 +1,9 @@
 /**
  * Vercel Serverless Function Entry Point
- * 
+ *
  * This handler wraps the Express app to work with Vercel's serverless functions.
  * The Express app is initialized once and reused across requests (warm starts).
- * 
+ *
  * Security:
  * - Helmet CSP is properly configured in server.ts (not disabled)
  * - CORS is restricted to allowed origins in production
@@ -45,14 +45,11 @@ async function getApp(): Promise<any> {
 
 /**
  * Vercel serverless function handler
- * 
+ *
  * Note: Security middleware (Helmet, CORS) is configured in the Express app
  * created by createApp(). This handler simply forwards requests to that app.
  */
-export default async function handler(
-  req: any,
-  res: any
-): Promise<void> {
+export default async function handler(req: any, res: any): Promise<void> {
   try {
     // Get or initialize the Express app (with security middleware)
     const expressApp = await getApp();
@@ -67,7 +64,7 @@ export default async function handler(
       hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
       nodeEnv: process.env.NODE_ENV,
     });
-    
+
     // Return error response
     res.status(500).json({
       error: 'Internal Server Error',

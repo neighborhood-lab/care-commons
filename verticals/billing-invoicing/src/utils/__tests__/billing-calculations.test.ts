@@ -1,12 +1,11 @@
 /**
  * Unit tests for billing calculation utilities
- * 
+ *
  * Tests pure functions for rate calculations, rounding, modifiers,
  * and financial computations without database dependencies
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
 
 import { describe, it, expect } from 'vitest';
 import {

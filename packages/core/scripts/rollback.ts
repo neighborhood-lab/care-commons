@@ -1,10 +1,10 @@
 /**
  * Database rollback script using Knex
- * 
+ *
  * Rolls back the last batch of migrations
  */
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import knex, { Knex } from 'knex';
 
 dotenv.config({ path: '.env', quiet: true });
@@ -21,9 +21,10 @@ async function rollbackMigrations() {
     connection: {
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT || '5432'),
-      database: environment === 'test' 
-        ? (process.env.DB_NAME || 'care_commons') + '_test'
-        : process.env.DB_NAME || 'care_commons',
+      database:
+        environment === 'test'
+          ? (process.env.DB_NAME || 'care_commons') + '_test'
+          : process.env.DB_NAME || 'care_commons',
       user: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,

@@ -10,8 +10,8 @@ on:
 # Configure branch protection rules to require this workflow to pass
 
 env:
-  NODE_VERSION: '22'
-  NPM_VERSION: '11'
+  NODE_VERSION: "22"
+  NPM_VERSION: "11"
 
 jobs:
   lint:
@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Upgrade npm
         run: npm install -g npm@11.6.2
@@ -50,7 +50,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Upgrade npm
         run: npm install -g npm@11.6.2
@@ -89,7 +89,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Upgrade npm
         run: npm install -g npm@11.6.2
@@ -138,7 +138,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Upgrade npm
         run: npm install -g npm@11.6.2

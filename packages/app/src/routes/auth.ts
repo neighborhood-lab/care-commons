@@ -1,6 +1,6 @@
 /**
  * Authentication Routes
- * 
+ *
  * Simple mock authentication for development
  * In production, this would integrate with proper auth providers
  */
@@ -79,7 +79,7 @@ router.post('/login', (req, res) => {
 
   // Find user by email
   const users = getUsers();
-  const user = users.find(u => u.email === email && u.password === password);
+  const user = users.find((u) => u.email === email && u.password === password);
 
   if (user === undefined) {
     return res.status(401).json({

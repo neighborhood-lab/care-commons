@@ -23,7 +23,7 @@ export class TexasEVVProvider implements ITexasEVVProvider {
   async submitToAggregator(evvRecord: EVVRecord): Promise<AggregatorSubmission> {
     // Validate TX-specific requirements
     const config = await this.getTexasEVVConfig(evvRecord.organizationId);
-    
+
     if (!config) {
       throw new Error('TX EVV configuration not found for organization');
     }
@@ -38,10 +38,10 @@ export class TexasEVVProvider implements ITexasEVVProvider {
       location: {
         latitude: evvRecord.clockInVerification.latitude,
         longitude: evvRecord.clockInVerification.longitude,
-        method: evvRecord.clockInVerification.method
+        method: evvRecord.clockInVerification.method,
       },
       caregiverNPI: evvRecord.caregiverNationalProviderId,
-      programType: config['medicaid_program']
+      programType: config['medicaid_program'],
     };
 
     // TODO: Replace with actual HHAeXchange API call
@@ -55,7 +55,8 @@ export class TexasEVVProvider implements ITexasEVVProvider {
     // });
 
     // Store submission record
-    const submissionId = await this.database.query(`
+    const submissionId = await this.database.query(
+      `
       INSERT INTO state_aggregator_submissions (
         id, state_code, evv_record_id, aggregator_id, aggregator_type,
         submission_payload, submission_format, submitted_by, submission_status
@@ -63,13 +64,15 @@ export class TexasEVVProvider implements ITexasEVVProvider {
         gen_random_uuid(), 'TX', $1, 'HHAEEXCHANGE', 'PRIMARY',
         $2::jsonb, 'JSON', $3, 'PENDING'
       ) RETURNING id
-    `, [evvRecord.id, JSON.stringify(payload), evvRecord.recordedBy]);
+    `,
+      [evvRecord.id, JSON.stringify(payload), evvRecord.recordedBy]
+    );
 
     return {
       submissionId: submissionId.rows[0]!['id'] as UUID,
       status: 'PENDING',
       aggregator: 'HHAEEXCHANGE',
-      submittedAt: new Date()
+      submittedAt: new Date(),
     };
   }
 
@@ -77,7 +80,8 @@ export class TexasEVVProvider implements ITexasEVVProvider {
    * TX Visit Maintenance Unlock Request workflow
    */
   async createVMUR(visitId: UUID, reason: string, requestedBy: UUID): Promise<VMUR> {
-    const vmurId = await this.database.query(`
+    const vmurId = await this.database.query(
+      `
       INSERT INTO texas_vmur (
         id, visit_id, reason_code, reason_description,
         requested_by, requested_at, approval_status, expires_at
@@ -85,13 +89,15 @@ export class TexasEVVProvider implements ITexasEVVProvider {
         gen_random_uuid(), $1, $2, $3, $4, NOW(), 'PENDING',
         NOW() + INTERVAL '30 days'
       ) RETURNING id
-    `, [visitId, this.mapReasonToCode(reason), reason, requestedBy]);
+    `,
+      [visitId, this.mapReasonToCode(reason), reason, requestedBy]
+    );
 
     return {
       id: vmurId.rows[0]!['id'] as UUID,
       visitId,
       status: 'PENDING',
-      requestedAt: new Date()
+      requestedAt: new Date(),
     };
   }
 
@@ -112,20 +118,23 @@ export class TexasEVVProvider implements ITexasEVVProvider {
   }
 
   private async getTexasEVVConfig(orgId: UUID) {
-    const result = await this.database.query(`
+    const result = await this.database.query(
+      `
       SELECT * FROM evv_state_config
       WHERE organization_id = $1 AND state_code = 'TX'
-    `, [orgId]);
+    `,
+      [orgId]
+    );
     return result.rows[0];
   }
 
   private mapReasonToCode(reason: string): string {
     // TX-specific VMUR reason codes
     const codeMap: Record<string, string> = {
-      'LATE_CLOCK_IN': 'TX_LATE_IN',
-      'MISSING_CLOCK_OUT': 'TX_MISSING_OUT',
-      'LOCATION_MISMATCH': 'TX_GEO_FAIL',
-      'SYSTEM_ERROR': 'TX_SYS_ERR'
+      LATE_CLOCK_IN: 'TX_LATE_IN',
+      MISSING_CLOCK_OUT: 'TX_MISSING_OUT',
+      LOCATION_MISMATCH: 'TX_GEO_FAIL',
+      SYSTEM_ERROR: 'TX_SYS_ERR',
     };
     return codeMap[reason] || 'TX_OTHER';
   }

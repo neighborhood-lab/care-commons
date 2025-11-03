@@ -1,6 +1,6 @@
 /**
  * Tax calculation utilities
- * 
+ *
  * Implements federal and state income tax withholding calculations
  * Based on IRS Publication 15-T (2024) and state-specific formulas
  */
@@ -109,7 +109,7 @@ function getFederalTaxBrackets(filingStatus: FederalFilingStatus): Array<{
   switch (filingStatus) {
     case 'SINGLE':
       return [
-        { rate: 0.10, limit: 11600 },
+        { rate: 0.1, limit: 11600 },
         { rate: 0.12, limit: 47150 },
         { rate: 0.22, limit: 100525 },
         { rate: 0.24, limit: 191950 },
@@ -121,7 +121,7 @@ function getFederalTaxBrackets(filingStatus: FederalFilingStatus): Array<{
     case 'MARRIED_JOINTLY':
     case 'QUALIFYING_WIDOW':
       return [
-        { rate: 0.10, limit: 23200 },
+        { rate: 0.1, limit: 23200 },
         { rate: 0.12, limit: 94300 },
         { rate: 0.22, limit: 201050 },
         { rate: 0.24, limit: 383900 },
@@ -132,7 +132,7 @@ function getFederalTaxBrackets(filingStatus: FederalFilingStatus): Array<{
 
     case 'MARRIED_SEPARATELY':
       return [
-        { rate: 0.10, limit: 11600 },
+        { rate: 0.1, limit: 11600 },
         { rate: 0.12, limit: 47150 },
         { rate: 0.22, limit: 100525 },
         { rate: 0.24, limit: 191950 },
@@ -143,7 +143,7 @@ function getFederalTaxBrackets(filingStatus: FederalFilingStatus): Array<{
 
     case 'HEAD_OF_HOUSEHOLD':
       return [
-        { rate: 0.10, limit: 16550 },
+        { rate: 0.1, limit: 16550 },
         { rate: 0.12, limit: 63100 },
         { rate: 0.22, limit: 100500 },
         { rate: 0.24, limit: 191950 },
@@ -160,10 +160,7 @@ function getFederalTaxBrackets(filingStatus: FederalFilingStatus): Array<{
 /**
  * Calculate Social Security tax (FICA)
  */
-export function calculateSocialSecurityTax(
-  grossPay: number,
-  ytdGrossPay: number
-): number {
+export function calculateSocialSecurityTax(grossPay: number, ytdGrossPay: number): number {
   // Handle negative gross pay
   if (grossPay <= 0) {
     return 0;
@@ -175,10 +172,7 @@ export function calculateSocialSecurityTax(
   }
 
   // Check if this payment will exceed wage base
-  const taxableWages = Math.min(
-    grossPay,
-    SOCIAL_SECURITY_WAGE_BASE - ytdGrossPay
-  );
+  const taxableWages = Math.min(grossPay, SOCIAL_SECURITY_WAGE_BASE - ytdGrossPay);
 
   return roundToTwoDecimals(taxableWages * SOCIAL_SECURITY_RATE);
 }
@@ -197,19 +191,16 @@ export function calculateMedicareTax(grossPay: number): number {
 /**
  * Calculate Additional Medicare Tax (for high earners)
  */
-export function calculateAdditionalMedicareTax(
-  grossPay: number,
-  ytdGrossPay: number
-): number {
+export function calculateAdditionalMedicareTax(grossPay: number, ytdGrossPay: number): number {
   // Only applies when YTD exceeds threshold
   if (ytdGrossPay < ADDITIONAL_MEDICARE_THRESHOLD) {
-    const exceedsThreshold = (ytdGrossPay + grossPay) > ADDITIONAL_MEDICARE_THRESHOLD;
+    const exceedsThreshold = ytdGrossPay + grossPay > ADDITIONAL_MEDICARE_THRESHOLD;
     if (!exceedsThreshold) {
       return 0;
     }
 
     // Only tax the amount over threshold
-    const taxableAmount = (ytdGrossPay + grossPay) - ADDITIONAL_MEDICARE_THRESHOLD;
+    const taxableAmount = ytdGrossPay + grossPay - ADDITIONAL_MEDICARE_THRESHOLD;
     return roundToTwoDecimals(taxableAmount * ADDITIONAL_MEDICARE_RATE);
   }
 
@@ -244,17 +235,15 @@ export function calculateStateIncomeTax(
  * Get state withholding rate
  * Simplified - real implementation would use actual state formulas
  */
-function getStateWithholdingRate(
-  stateCode: string
-): number {
+function getStateWithholdingRate(stateCode: string): number {
   // Simplified state rates (real implementation would use state brackets)
   const stateRates: Record<string, number> = {
-    'TX': 0.0, // Texas has no state income tax
-    'FL': 0.0, // Florida has no state income tax
-    'CA': 0.05, // California simplified
-    'NY': 0.04, // New York simplified
-    'IL': 0.0495, // Illinois flat tax
-    'PA': 0.0307, // Pennsylvania flat tax
+    TX: 0.0, // Texas has no state income tax
+    FL: 0.0, // Florida has no state income tax
+    CA: 0.05, // California simplified
+    NY: 0.04, // New York simplified
+    IL: 0.0495, // Illinois flat tax
+    PA: 0.0307, // Pennsylvania flat tax
     // Add more states as needed
   };
 
@@ -271,26 +260,19 @@ export function calculateAllTaxes(
   payPeriodType: 'WEEKLY' | 'BI_WEEKLY' | 'SEMI_MONTHLY' | 'MONTHLY',
   taxConfig: TaxConfiguration
 ): TaxCalculationResult {
-  const federalIncomeTax = calculateFederalIncomeTax(
-    grossPay,
-    payPeriodType,
-    taxConfig
-  );
+  const federalIncomeTax = calculateFederalIncomeTax(grossPay, payPeriodType, taxConfig);
 
   const socialSecurityTax = calculateSocialSecurityTax(grossPay, ytdGrossPay);
   const medicareTax = calculateMedicareTax(grossPay);
   const additionalMedicareTax = calculateAdditionalMedicareTax(grossPay, ytdGrossPay);
 
-  const stateIncomeTax = calculateStateIncomeTax(
-    grossPay,
-    taxConfig.stateResidence,
-    taxConfig
-  );
+  const stateIncomeTax = calculateStateIncomeTax(grossPay, taxConfig.stateResidence, taxConfig);
 
   // Local tax calculation would go here
-  const localIncomeTax = taxConfig.localTaxJurisdiction && !taxConfig.localExempt
-    ? calculateLocalIncomeTax(grossPay, taxConfig.localTaxJurisdiction)
-    : 0;
+  const localIncomeTax =
+    taxConfig.localTaxJurisdiction && !taxConfig.localExempt
+      ? calculateLocalIncomeTax(grossPay, taxConfig.localTaxJurisdiction)
+      : 0;
 
   const totalTax =
     federalIncomeTax +
@@ -315,15 +297,12 @@ export function calculateAllTaxes(
  * Calculate local income tax
  * Simplified - would use actual local tax rules
  */
-function calculateLocalIncomeTax(
-  grossPay: number,
-  jurisdiction: string
-): number {
+function calculateLocalIncomeTax(grossPay: number, jurisdiction: string): number {
   // Simplified local tax rates
   const localRates: Record<string, number> = {
-    'NYC': 0.03876, // New York City
-    'PHL': 0.03792, // Philadelphia
-    'DET': 0.024, // Detroit
+    NYC: 0.03876, // New York City
+    PHL: 0.03792, // Philadelphia
+    DET: 0.024, // Detroit
     // Add more jurisdictions as needed
   };
 
@@ -377,26 +356,14 @@ export function calculateSupplementalWithholding(
     throw new Error('Aggregate method requires aggregate parameters');
   }
 
-  const {
-    regularGrossPay,
-    payPeriodType,
-    taxConfig
-  } = aggregateParams;
+  const { regularGrossPay, payPeriodType, taxConfig } = aggregateParams;
 
   // Calculate total withholding for combined wages (regular + supplemental)
   const totalCombinedPay = regularGrossPay + supplementalAmount;
-  const totalWithholding = calculateFederalIncomeTax(
-    totalCombinedPay,
-    payPeriodType,
-    taxConfig
-  );
+  const totalWithholding = calculateFederalIncomeTax(totalCombinedPay, payPeriodType, taxConfig);
 
   // Calculate withholding for regular wages only
-  const regularWithholding = calculateFederalIncomeTax(
-    regularGrossPay,
-    payPeriodType,
-    taxConfig
-  );
+  const regularWithholding = calculateFederalIncomeTax(regularGrossPay, payPeriodType, taxConfig);
 
   // Supplemental withholding is the difference
   let supplementalWithholding = totalWithholding - regularWithholding;
@@ -433,8 +400,8 @@ export function estimateQuarterlyTaxLiability(
   // Total deposits include withheld taxes plus employer portion
   const totalDeposits =
     totalFederalWithheld +
-    (employerSocialSecurity * 2) + // Employee + employer
-    (employerMedicare * 2); // Employee + employer
+    employerSocialSecurity * 2 + // Employee + employer
+    employerMedicare * 2; // Employee + employer
 
   return {
     employerSocialSecurity,

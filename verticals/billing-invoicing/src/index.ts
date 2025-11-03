@@ -1,6 +1,6 @@
 /**
  * @care-commons/billing-invoicing
- * 
+ *
  * Revenue cycle management from service delivery to payment collection.
  * Transforms care delivery data into billable items, generates invoices,
  * submits claims, tracks payments, and provides revenue analytics.

@@ -53,10 +53,9 @@ describe('UserRepository', () => {
         status: 'ACTIVE',
       });
 
-      expect(mockDb.query).toHaveBeenCalledWith(
-        expect.stringContaining('organization_id'),
-        ['123e4567-e89b-12d3-a456-426614174000']
-      );
+      expect(mockDb.query).toHaveBeenCalledWith(expect.stringContaining('organization_id'), [
+        '123e4567-e89b-12d3-a456-426614174000',
+      ]);
     });
 
     it('should return null when user not found', async () => {
@@ -84,10 +83,9 @@ describe('UserRepository', () => {
 
       await repository.getUserById('deleted-user-id');
 
-      expect(mockDb.query).toHaveBeenCalledWith(
-        expect.stringContaining('deleted_at IS NULL'),
-        ['deleted-user-id']
-      );
+      expect(mockDb.query).toHaveBeenCalledWith(expect.stringContaining('deleted_at IS NULL'), [
+        'deleted-user-id',
+      ]);
     });
   });
 
@@ -160,10 +158,9 @@ describe('UserRepository', () => {
         },
       ]);
 
-      expect(mockDb.query).toHaveBeenCalledWith(
-        expect.stringContaining('id = ANY($1)'),
-        [['id-1', 'id-2']]
-      );
+      expect(mockDb.query).toHaveBeenCalledWith(expect.stringContaining('id = ANY($1)'), [
+        ['id-1', 'id-2'],
+      ]);
     });
 
     it('should order results by last name and first name', async () => {
@@ -194,10 +191,9 @@ describe('UserRepository', () => {
 
       await repository.getUsersByIds(['id-1']);
 
-      expect(mockDb.query).toHaveBeenCalledWith(
-        expect.stringContaining('deleted_at IS NULL'),
-        [['id-1']]
-      );
+      expect(mockDb.query).toHaveBeenCalledWith(expect.stringContaining('deleted_at IS NULL'), [
+        ['id-1'],
+      ]);
     });
   });
 });

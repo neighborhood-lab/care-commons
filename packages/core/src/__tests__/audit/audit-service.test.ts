@@ -138,13 +138,9 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.logDataAccess(
-        mockUserContext,
-        'clients',
-        'client-123',
-        'READ',
-        { query: 'search by name' }
-      );
+      await auditService.logDataAccess(mockUserContext, 'clients', 'client-123', 'READ', {
+        query: 'search by name',
+      });
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO audit_events'),
@@ -169,13 +165,9 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.logDataAccess(
-        mockUserContext,
-        'caregivers',
-        'caregiver-456',
-        'SEARCH',
-        { filters: { active: true } }
-      );
+      await auditService.logDataAccess(mockUserContext, 'caregivers', 'caregiver-456', 'SEARCH', {
+        filters: { active: true },
+      });
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO audit_events'),
@@ -202,13 +194,9 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.logDataModification(
-        mockUserContext,
-        'visits',
-        'visit-789',
-        'CREATE',
-        { duration: 120 }
-      );
+      await auditService.logDataModification(mockUserContext, 'visits', 'visit-789', 'CREATE', {
+        duration: 120,
+      });
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO audit_events'),
@@ -233,13 +221,9 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.logDataModification(
-        mockUserContext,
-        'care_plans',
-        'plan-456',
-        'UPDATE',
-        { changes: ['status', 'assigned_caregiver'] }
-      );
+      await auditService.logDataModification(mockUserContext, 'care_plans', 'plan-456', 'UPDATE', {
+        changes: ['status', 'assigned_caregiver'],
+      });
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO audit_events'),
@@ -264,13 +248,9 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.logDataModification(
-        mockUserContext,
-        'notes',
-        'note-123',
-        'DELETE',
-        { reason: 'client request' }
-      );
+      await auditService.logDataModification(mockUserContext, 'notes', 'note-123', 'DELETE', {
+        reason: 'client request',
+      });
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO audit_events'),
@@ -297,12 +277,9 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.logSecurityEvent(
-        mockUserContext,
-        'PASSWORD_CHANGE',
-        'SUCCESS',
-        { method: 'self_service' }
-      );
+      await auditService.logSecurityEvent(mockUserContext, 'PASSWORD_CHANGE', 'SUCCESS', {
+        method: 'self_service',
+      });
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO audit_events'),
@@ -327,12 +304,10 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 1, command: 'INSERT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.logSecurityEvent(
-        mockUserContext,
-        'LOGIN_FAILED',
-        'FAILURE',
-        { reason: 'invalid_password', attempts: 3 }
-      );
+      await auditService.logSecurityEvent(mockUserContext, 'LOGIN_FAILED', 'FAILURE', {
+        reason: 'invalid_password',
+        attempts: 3,
+      });
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO audit_events'),
@@ -387,7 +362,13 @@ describe('AuditService', () => {
         },
       ];
 
-      const mockResult = { rows: mockEvents, rowCount: 2, command: 'SELECT' as const, oid: 0, fields: [] };
+      const mockResult = {
+        rows: mockEvents,
+        rowCount: 2,
+        command: 'SELECT' as const,
+        oid: 0,
+        fields: [],
+      };
       mockDatabase.query.mockResolvedValue(mockResult);
 
       const trail = await auditService.getAuditTrail('clients', 'client-123');
@@ -476,7 +457,13 @@ describe('AuditService', () => {
         },
       ];
 
-      const mockResult = { rows: mockEvents, rowCount: 1, command: 'SELECT' as const, oid: 0, fields: [] };
+      const mockResult = {
+        rows: mockEvents,
+        rowCount: 1,
+        command: 'SELECT' as const,
+        oid: 0,
+        fields: [],
+      };
       mockDatabase.query.mockResolvedValue(mockResult);
 
       const trail = await auditService.getAuditTrail('test', 'test-123');

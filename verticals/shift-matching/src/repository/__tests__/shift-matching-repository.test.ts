@@ -1,6 +1,6 @@
 /**
  * Tests for Shift Matching Repository
- * 
+ *
  * Tests cover:
  * - Open shift CRUD operations
  * - Matching configuration management
@@ -40,7 +40,7 @@ const mockContext: UserContext = {
 describe('ShiftMatchingRepository', () => {
   let repository: ShiftMatchingRepository;
 
-beforeEach(() => {
+  beforeEach(() => {
     vi.clearAllMocks();
     repository = new ShiftMatchingRepository(mockPool);
   });
@@ -103,7 +103,7 @@ beforeEach(() => {
         country: 'USA',
       },
       latitude: 40.7128,
-      longitude: -74.0060,
+      longitude: -74.006,
       priority: 'HIGH',
       is_urgent: false,
       fill_by_date: null,
@@ -139,12 +139,14 @@ beforeEach(() => {
 
         const result = await repository.createOpenShift(input, mockContext);
 
-        expect(result).toEqual(expect.objectContaining({
-          id: 'shift-123',
-          visitId: 'visit-123',
-          priority: 'HIGH',
-          matchingStatus: 'NEW',
-        }));
+        expect(result).toEqual(
+          expect.objectContaining({
+            id: 'shift-123',
+            visitId: 'visit-123',
+            priority: 'HIGH',
+            matchingStatus: 'NEW',
+          })
+        );
 
         expect(mockPool.query).toHaveBeenCalledTimes(2); // Reduced from 3 to 2 due to optimization
       });
@@ -154,8 +156,9 @@ beforeEach(() => {
 
         (mockPool.query as any).mockResolvedValueOnce({ rows: [] });
 
-        await expect(repository.createOpenShift(input, mockContext))
-          .rejects.toThrow('Visit not found');
+        await expect(repository.createOpenShift(input, mockContext)).rejects.toThrow(
+          'Visit not found'
+        );
       });
 
       it('should throw error if open shift already exists', async () => {
@@ -167,8 +170,9 @@ beforeEach(() => {
           .mockResolvedValueOnce({ rows: [visitRowWithExisting] }) // Visit query indicates existing shift
           .mockResolvedValueOnce({ rows: [{ id: 'existing-shift' }] }); // Fetch existing shift ID
 
-        await expect(repository.createOpenShift(input, mockContext))
-          .rejects.toThrow('Open shift already exists for this visit');
+        await expect(repository.createOpenShift(input, mockContext)).rejects.toThrow(
+          'Open shift already exists for this visit'
+        );
       });
     });
 
@@ -178,10 +182,12 @@ beforeEach(() => {
 
         const result = await repository.getOpenShift('shift-123');
 
-        expect(result).toEqual(expect.objectContaining({
-          id: 'shift-123',
-          visitId: 'visit-123',
-        }));
+        expect(result).toEqual(
+          expect.objectContaining({
+            id: 'shift-123',
+            visitId: 'visit-123',
+          })
+        );
       });
 
       it('should return null if not found', async () => {
@@ -201,10 +207,11 @@ beforeEach(() => {
         const result = await repository.updateOpenShiftStatus('shift-123', 'MATCHED', mockContext);
 
         expect(result.matchingStatus).toBe('MATCHED');
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.stringContaining('UPDATE open_shifts'),
-          ['MATCHED', mockContext.userId, 'shift-123']
-        );
+        expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('UPDATE open_shifts'), [
+          'MATCHED',
+          mockContext.userId,
+          'shift-123',
+        ]);
       });
     });
 
@@ -327,7 +334,11 @@ beforeEach(() => {
         const updatedRow = { ...mockConfigRow, name: 'Updated Config', auto_assign_threshold: 85 };
         (mockPool.query as any).mockResolvedValueOnce({ rows: [updatedRow] });
 
-        const result = await repository.updateMatchingConfiguration('config-123', input, mockContext);
+        const result = await repository.updateMatchingConfiguration(
+          'config-123',
+          input,
+          mockContext
+        );
 
         expect(result.name).toBe('Updated Config');
         expect(result.autoAssignThreshold).toBe(85);
@@ -336,8 +347,9 @@ beforeEach(() => {
       it('should throw error if configuration not found', async () => {
         (mockPool.query as any).mockResolvedValueOnce({ rows: [] });
 
-        await expect(repository.updateMatchingConfiguration('invalid-config', {}, mockContext))
-          .rejects.toThrow('Matching configuration not found');
+        await expect(
+          repository.updateMatchingConfiguration('invalid-config', {}, mockContext)
+        ).rejects.toThrow('Matching configuration not found');
       });
     });
   });
@@ -571,7 +583,12 @@ beforeEach(() => {
 
         (mockPool.query as any).mockResolvedValueOnce({ rows: [mockPreferencesRow] });
 
-        const result = await repository.upsertCaregiverPreferences('cg-123', 'org-123', input, mockContext);
+        const result = await repository.upsertCaregiverPreferences(
+          'cg-123',
+          'org-123',
+          input,
+          mockContext
+        );
 
         expect(result.caregiverId).toBe('cg-123');
         expect(result.maxTravelDistance).toBe(25); // From mock, would be updated in real scenario
@@ -639,8 +656,8 @@ beforeEach(() => {
           completedAt: new Date(),
         };
 
-        const updatedRow = { 
-          ...mockBulkMatchRow, 
+        const updatedRow = {
+          ...mockBulkMatchRow,
           status: updates.status,
           total_shifts: updates.totalShifts,
           matched_shifts: updates.matchedShifts,

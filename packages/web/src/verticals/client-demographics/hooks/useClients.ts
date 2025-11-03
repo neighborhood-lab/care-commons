@@ -13,7 +13,7 @@ export const useClientApi = () => {
 
 export const useClients = (filters?: ClientSearchFilters & SearchParams) => {
   const clientApi = useClientApi();
-  
+
   return useQuery({
     queryKey: ['clients', filters],
     queryFn: () => clientApi.getClients(filters),
@@ -22,7 +22,7 @@ export const useClients = (filters?: ClientSearchFilters & SearchParams) => {
 
 export const useClient = (id: string | undefined) => {
   const clientApi = useClientApi();
-  
+
   return useQuery({
     queryKey: ['clients', id],
     queryFn: () => clientApi.getClientById(id!),

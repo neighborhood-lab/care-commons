@@ -5,12 +5,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { EVVValidator } from '../validation/evv-validator';
 import { CryptoUtils } from '../utils/crypto-utils';
-import { 
-  ClockInInput, 
-  ClockOutInput, 
+import {
+  ClockInInput,
+  ClockOutInput,
   CreateGeofenceInput,
   EVVRecord,
-  VerificationMethod
+  VerificationMethod,
 } from '../types/evv';
 import { ValidationError } from '@care-commons/core';
 
@@ -27,7 +27,7 @@ describe('EVVValidator', () => {
       caregiverId: 'caregiver-123',
       location: {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: 'GPS' as VerificationMethod,
@@ -48,30 +48,26 @@ describe('EVVValidator', () => {
 
     it('should throw ValidationError when visitId is missing', () => {
       const invalidInput = { ...validClockInInput, visitId: '' };
-      
-      expect(() => validator.validateClockIn(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockIn(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when caregiverId is missing', () => {
       const invalidInput = { ...validClockInInput, caregiverId: '' };
-      
-      expect(() => validator.validateClockIn(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockIn(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when location is missing', () => {
       const invalidInput = { ...validClockInInput, location: undefined as any };
-      
-      expect(() => validator.validateClockIn(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockIn(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when deviceInfo is missing', () => {
       const invalidInput = { ...validClockInInput, deviceInfo: undefined as any };
-      
-      expect(() => validator.validateClockIn(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockIn(invalidInput)).toThrow(ValidationError);
     });
   });
 
@@ -82,7 +78,7 @@ describe('EVVValidator', () => {
       caregiverId: 'caregiver-123',
       location: {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: 'GPS' as VerificationMethod,
@@ -103,37 +99,32 @@ describe('EVVValidator', () => {
 
     it('should throw ValidationError when evvRecordId is missing', () => {
       const invalidInput = { ...validClockOutInput, evvRecordId: '' };
-      
-      expect(() => validator.validateClockOut(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockOut(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when visitId is missing from clock-out', () => {
       const invalidInput = { ...validClockOutInput, visitId: '' };
-      
-      expect(() => validator.validateClockOut(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockOut(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when caregiverId is missing from clock-out', () => {
       const invalidInput = { ...validClockOutInput, caregiverId: '' };
-      
-      expect(() => validator.validateClockOut(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockOut(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when location is missing from clock-out', () => {
       const invalidInput = { ...validClockOutInput, location: undefined as any };
-      
-      expect(() => validator.validateClockOut(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockOut(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when deviceInfo is missing from clock-out', () => {
       const invalidInput = { ...validClockOutInput, deviceInfo: undefined as any };
-      
-      expect(() => validator.validateClockOut(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateClockOut(invalidInput)).toThrow(ValidationError);
     });
   });
 
@@ -141,7 +132,7 @@ describe('EVVValidator', () => {
     it('should pass validation with valid location', () => {
       const validLocation = {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: 'GPS' as VerificationMethod,
@@ -156,7 +147,7 @@ describe('EVVValidator', () => {
     it('should add error for invalid latitude', () => {
       const invalidLocation = {
         latitude: 91, // Invalid latitude
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: 'GPS' as VerificationMethod,
@@ -186,7 +177,7 @@ describe('EVVValidator', () => {
     it('should add error for negative accuracy', () => {
       const invalidLocation = {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: -5, // Negative accuracy
         timestamp: new Date(),
         method: 'GPS' as VerificationMethod,
@@ -201,7 +192,7 @@ describe('EVVValidator', () => {
     it('should add error for accuracy too high', () => {
       const invalidLocation = {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 1500, // Too high accuracy
         timestamp: new Date(),
         method: 'GPS' as VerificationMethod,
@@ -216,7 +207,7 @@ describe('EVVValidator', () => {
     it('should add error for old timestamp', () => {
       const invalidLocation = {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
         method: 'GPS' as VerificationMethod,
@@ -225,13 +216,15 @@ describe('EVVValidator', () => {
 
       const errors: string[] = [];
       validator.validateLocation(invalidLocation, errors);
-      expect(errors).toContain('location timestamp is too far from server time (clock skew detected)');
+      expect(errors).toContain(
+        'location timestamp is too far from server time (clock skew detected)'
+      );
     });
 
     it('should add error for mock location detected', () => {
       const invalidLocation = {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: 'GPS' as VerificationMethod,
@@ -246,7 +239,7 @@ describe('EVVValidator', () => {
     it('should add error when timestamp is missing', () => {
       const invalidLocation = {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: undefined as any,
         method: 'GPS' as VerificationMethod,
@@ -261,7 +254,7 @@ describe('EVVValidator', () => {
     it('should add error when verification method is missing', () => {
       const invalidLocation = {
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         accuracy: 10,
         timestamp: new Date(),
         method: undefined as any,
@@ -378,7 +371,7 @@ describe('EVVValidator', () => {
       clientId: 'client-123',
       addressId: 'address-123',
       centerLatitude: 40.7128,
-      centerLongitude: -74.0060,
+      centerLongitude: -74.006,
       radiusMeters: 100,
     };
 
@@ -388,82 +381,73 @@ describe('EVVValidator', () => {
 
     it('should throw ValidationError when organizationId is missing', () => {
       const invalidInput = { ...validGeofenceInput, organizationId: '' };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when clientId is missing', () => {
       const invalidInput = { ...validGeofenceInput, clientId: '' };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError when addressId is missing', () => {
       const invalidInput = { ...validGeofenceInput, addressId: '' };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError for invalid latitude', () => {
       const invalidInput = { ...validGeofenceInput, centerLatitude: 91 };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError for invalid longitude', () => {
       const invalidInput = { ...validGeofenceInput, centerLongitude: 181 };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError for negative radius', () => {
       const invalidInput = { ...validGeofenceInput, radiusMeters: -10 };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError for radius too small', () => {
       const invalidInput = { ...validGeofenceInput, radiusMeters: 5 };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError for radius too large', () => {
       const invalidInput = { ...validGeofenceInput, radiusMeters: 600 };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
 
     it('should throw ValidationError for polygon with insufficient points', () => {
       const invalidInput = {
         ...validGeofenceInput,
         shape: 'POLYGON' as const,
-        polygonPoints: [{ latitude: 40.7128, longitude: -74.0060 }], // Only 1 point
+        polygonPoints: [{ latitude: 40.7128, longitude: -74.006 }], // Only 1 point
       };
-      
-      expect(() => validator.validateGeofence(invalidInput))
-        .toThrow(ValidationError);
+
+      expect(() => validator.validateGeofence(invalidInput)).toThrow(ValidationError);
     });
   });
 
   describe('checkGeofence', () => {
     it('should return within geofence for location inside radius', () => {
       const result = validator.checkGeofence(
-        40.7128,    // locationLat
-        -74.0060,   // locationLon
-        10,          // locationAccuracy
-        40.7128,    // geofenceLat
-        -74.0060,   // geofenceLon
-        100,         // geofenceRadius
-        0            // allowedVariance
+        40.7128, // locationLat
+        -74.006, // locationLon
+        10, // locationAccuracy
+        40.7128, // geofenceLat
+        -74.006, // geofenceLon
+        100, // geofenceRadius
+        0 // allowedVariance
       );
 
       expect(result.isWithinGeofence).toBe(true);
@@ -473,13 +457,13 @@ describe('EVVValidator', () => {
 
     it('should return outside geofence for location far from center', () => {
       const result = validator.checkGeofence(
-        40.7228,    // locationLat (1km north)
-        -74.0060,   // locationLon
-        10,          // locationAccuracy
-        40.7128,    // geofenceLat
-        -74.0060,   // geofenceLon
-        100,         // geofenceRadius
-        0            // allowedVariance
+        40.7228, // locationLat (1km north)
+        -74.006, // locationLon
+        10, // locationAccuracy
+        40.7128, // geofenceLat
+        -74.006, // geofenceLon
+        100, // geofenceRadius
+        0 // allowedVariance
       );
 
       expect(result.isWithinGeofence).toBe(false);
@@ -490,13 +474,13 @@ describe('EVVValidator', () => {
 
     it('should require manual review when accuracy makes verification uncertain', () => {
       const result = validator.checkGeofence(
-        40.7128,    // locationLat (same center)
-        -74.0060,   // locationLon
-        150,         // locationAccuracy (high accuracy)
-        40.7128,    // geofenceLat
-        -74.0060,   // geofenceLon
-        100,         // geofenceRadius
-        0            // allowedVariance
+        40.7128, // locationLat (same center)
+        -74.006, // locationLon
+        150, // locationAccuracy (high accuracy)
+        40.7128, // geofenceLat
+        -74.006, // geofenceLon
+        100, // geofenceRadius
+        0 // allowedVariance
       );
 
       expect(result.isWithinGeofence).toBe(true); // minPossibleDistance is 0
@@ -506,13 +490,13 @@ describe('EVVValidator', () => {
 
     it('should account for allowed variance', () => {
       const result = validator.checkGeofence(
-        40.7128,    // locationLat (same center)
-        -74.0060,   // locationLon
-        10,          // locationAccuracy
-        40.7128,    // geofenceLat
-        -74.0060,   // geofenceLon
-        100,         // geofenceRadius
-        50           // allowedVariance
+        40.7128, // locationLat (same center)
+        -74.006, // locationLon
+        10, // locationAccuracy
+        40.7128, // geofenceLat
+        -74.006, // geofenceLon
+        100, // geofenceRadius
+        50 // allowedVariance
       );
 
       expect(result.isWithinGeofence).toBe(true);
@@ -541,7 +525,7 @@ describe('EVVValidator', () => {
         postalCode: '10001',
         country: 'USA',
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         geofenceRadius: 100,
         addressVerified: true,
       },
@@ -550,7 +534,7 @@ describe('EVVValidator', () => {
       clockInVerification: (() => {
         const baseVerification = {
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           accuracy: 10,
           timestamp: new Date(),
           timestampSource: 'DEVICE' as const,
@@ -602,7 +586,7 @@ describe('EVVValidator', () => {
     it('should return valid integrity for untampered record', () => {
       // Create a record with matching hash and checksum using CryptoUtils
       const record = { ...mockEVVRecord };
-      
+
       // Generate hash and checksum based on current record data
       const coreData = {
         visitId: record.visitId,
@@ -615,12 +599,16 @@ describe('EVVValidator', () => {
         clockInVerification: record.clockInVerification,
         clockOutVerification: record.clockOutVerification,
       };
-      
+
       const computedHash = CryptoUtils.generateIntegrityHash(coreData);
       record.integrityHash = computedHash;
-      
+
       // Compute checksum excluding integrity fields (to match validator behavior)
-      const { integrityHash: _integrityHash, integrityChecksum: _integrityChecksum, ...recordWithoutIntegrity } = record;
+      const {
+        integrityHash: _integrityHash,
+        integrityChecksum: _integrityChecksum,
+        ...recordWithoutIntegrity
+      } = record;
       const computedChecksum = CryptoUtils.generateChecksum(recordWithoutIntegrity);
       record.integrityChecksum = computedChecksum;
 
@@ -640,7 +628,9 @@ describe('EVVValidator', () => {
       expect(result.isValid).toBe(false);
       expect(result.hashMatch).toBe(false);
       expect(result.tamperDetected).toBe(true);
-      expect(result.issues).toContain('Integrity hash mismatch - core data may have been tampered with');
+      expect(result.issues).toContain(
+        'Integrity hash mismatch - core data may have been tampered with'
+      );
     });
 
     it('should detect tampering when checksum does not match', () => {
@@ -676,7 +666,7 @@ describe('EVVValidator', () => {
         postalCode: '10001',
         country: 'USA',
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         geofenceRadius: 100,
         addressVerified: true,
       },
@@ -686,7 +676,7 @@ describe('EVVValidator', () => {
       clockInVerification: (() => {
         const baseVerification = {
           latitude: 40.7128,
-          longitude: -74.0060,
+          longitude: -74.006,
           accuracy: 10,
           timestamp: new Date(),
           timestampSource: 'DEVICE' as const,

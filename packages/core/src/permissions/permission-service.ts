@@ -10,8 +10,6 @@ export interface PermissionRule {
   conditions?: PermissionCondition[];
 }
 
- 
-
 export interface PermissionCondition {
   field: string;
   operator: 'equals' | 'in' | 'contains';
@@ -79,12 +77,7 @@ export class PermissionService {
     // Scheduler - scheduling focus
     this.rolePermissions.set(
       'SCHEDULER',
-      new Set([
-        'clients:read',
-        'caregivers:read',
-        'schedules:*',
-        'visits:read',
-      ])
+      new Set(['clients:read', 'caregivers:read', 'schedules:*', 'visits:read'])
     );
 
     // Caregiver - field staff access
@@ -109,25 +102,13 @@ export class PermissionService {
     // Billing - financial access
     this.rolePermissions.set(
       'BILLING',
-      new Set([
-        'clients:read',
-        'visits:read',
-        'billing:*',
-        'invoices:*',
-        'reports:read',
-      ])
+      new Set(['clients:read', 'visits:read', 'billing:*', 'invoices:*', 'reports:read'])
     );
 
     // HR - personnel access
     this.rolePermissions.set(
       'HR',
-      new Set([
-        'staff:*',
-        'caregivers:*',
-        'training:*',
-        'certifications:*',
-        'payroll:*',
-      ])
+      new Set(['staff:*', 'caregivers:*', 'training:*', 'certifications:*', 'payroll:*'])
     );
 
     // Auditor - read-only compliance access
@@ -144,10 +125,7 @@ export class PermissionService {
     );
 
     // Read-only - minimal access
-    this.rolePermissions.set(
-      'READ_ONLY',
-      new Set(['clients:read', 'reports:read'])
-    );
+    this.rolePermissions.set('READ_ONLY', new Set(['clients:read', 'reports:read']));
   }
 
   /**
@@ -189,10 +167,10 @@ export class PermissionService {
    */
   requirePermission(context: UserContext, permission: string): void {
     if (!this.hasPermission(context, permission)) {
-      throw new PermissionError(
-        `Permission denied: ${permission}`,
-        { userId: context.userId, permission }
-      );
+      throw new PermissionError(`Permission denied: ${permission}`, {
+        userId: context.userId,
+        permission,
+      });
     }
   }
 

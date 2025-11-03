@@ -1,6 +1,6 @@
 /**
  * Repository for Scheduling & Visit Management
- * 
+ *
  * Data access layer for service patterns, schedules, visits, and assignments.
  * Handles database operations, queries, and data mapping.
  */
@@ -173,24 +173,22 @@ export class ScheduleRepository {
       ORDER BY created_at DESC
     `;
     const result = await this.pool.query(query, [clientId]);
-    return result.rows.map(row => this.mapRowToServicePattern(row));
+    return result.rows.map((row) => this.mapRowToServicePattern(row));
   }
 
   /**
    * Visit operations
    */
 
-  async createVisit(
-    input: CreateVisitInput,
-    context: UserContext
-  ): Promise<Visit> {
+  async createVisit(input: CreateVisitInput, context: UserContext): Promise<Visit> {
     // Generate visit number
     const visitNumber = await this.generateVisitNumber(input.organizationId);
 
     // Calculate scheduled duration
     const [startHour, startMin] = input.scheduledStartTime.split(':').map(Number);
     const [endHour, endMin] = input.scheduledEndTime.split(':').map(Number);
-    const scheduledDuration = ((endHour ?? 0) * 60 + (endMin ?? 0)) - ((startHour ?? 0) * 60 + (startMin ?? 0));
+    const scheduledDuration =
+      (endHour ?? 0) * 60 + (endMin ?? 0) - ((startHour ?? 0) * 60 + (startMin ?? 0));
 
     const query = `
       INSERT INTO visits (
@@ -290,17 +288,14 @@ export class ScheduleRepository {
 
     const values = [newStatus, JSON.stringify(statusChange), context.userId, id];
     const result = await this.pool.query(query, values);
-    
+
     if (result.rows.length === 0) {
       throw new NotFoundError('Visit not found', { id });
     }
     return this.mapRowToVisit(result.rows[0]);
   }
 
-  async assignCaregiver(
-    input: AssignVisitInput,
-    context: UserContext
-  ): Promise<Visit> {
+  async assignCaregiver(input: AssignVisitInput, context: UserContext): Promise<Visit> {
     const visit = await this.getVisitById(input.visitId);
     if (!visit) {
       throw new NotFoundError('Visit not found', { visitId: input.visitId });
@@ -321,12 +316,7 @@ export class ScheduleRepository {
       RETURNING *
     `;
 
-    const values = [
-      input.caregiverId,
-      context.userId,
-      input.assignmentMethod,
-      input.visitId,
-    ];
+    const values = [input.caregiverId, context.userId, input.assignmentMethod, input.visitId];
 
     const result = await this.pool.query(query, values);
     if (result.rows.length === 0) {
@@ -340,7 +330,7 @@ export class ScheduleRepository {
     pagination: PaginationParams
   ): Promise<PaginatedResult<Visit>> {
     const { conditions, values, paramCount } = this.buildSearchConditions(filters);
-    
+
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Count total
@@ -362,7 +352,7 @@ export class ScheduleRepository {
     values.push(pagination.limit, offset);
 
     const result = await this.pool.query(dataQuery, values);
-    const items = result.rows.map(row => this.mapRowToVisit(row));
+    const items = result.rows.map((row) => this.mapRowToVisit(row));
 
     return {
       items,
@@ -373,7 +363,11 @@ export class ScheduleRepository {
     };
   }
 
-  private buildSearchConditions(filters: VisitSearchFilters): { conditions: string[]; values: unknown[]; paramCount: number } {
+  private buildSearchConditions(filters: VisitSearchFilters): {
+    conditions: string[];
+    values: unknown[];
+    paramCount: number;
+  } {
     const conditions: string[] = ['deleted_at IS NULL'];
     const values: unknown[] = [];
     let paramCount = 1;
@@ -388,7 +382,11 @@ export class ScheduleRepository {
       values.push(filters.branchId);
     }
 
-    if (filters.branchIds !== undefined && filters.branchIds !== null && filters.branchIds.length > 0) {
+    if (
+      filters.branchIds !== undefined &&
+      filters.branchIds !== null &&
+      filters.branchIds.length > 0
+    ) {
       conditions.push(`branch_id = ANY($${paramCount++})`);
       values.push(filters.branchIds);
     }
@@ -398,7 +396,11 @@ export class ScheduleRepository {
       values.push(filters.clientId);
     }
 
-    if (filters.clientIds !== undefined && filters.clientIds !== null && filters.clientIds.length > 0) {
+    if (
+      filters.clientIds !== undefined &&
+      filters.clientIds !== null &&
+      filters.clientIds.length > 0
+    ) {
       conditions.push(`client_id = ANY($${paramCount++})`);
       values.push(filters.clientIds);
     }
@@ -413,7 +415,11 @@ export class ScheduleRepository {
       values.push(filters.status);
     }
 
-    if (filters.visitType !== undefined && filters.visitType !== null && filters.visitType.length > 0) {
+    if (
+      filters.visitType !== undefined &&
+      filters.visitType !== null &&
+      filters.visitType.length > 0
+    ) {
       conditions.push(`visit_type = ANY($${paramCount++})`);
       values.push(filters.visitType);
     }
@@ -428,7 +434,11 @@ export class ScheduleRepository {
       values.push(filters.dateTo);
     }
 
-    if (filters.isUnassigned !== undefined && filters.isUnassigned !== null && filters.isUnassigned) {
+    if (
+      filters.isUnassigned !== undefined &&
+      filters.isUnassigned !== null &&
+      filters.isUnassigned
+    ) {
       conditions.push(`assigned_caregiver_id IS NULL`);
     }
 
@@ -472,13 +482,10 @@ export class ScheduleRepository {
     query += ` ORDER BY scheduled_date ASC, scheduled_start_time ASC`;
 
     const result = await this.pool.query(query, values);
-    return result.rows.map(row => this.mapRowToVisit(row));
+    return result.rows.map((row) => this.mapRowToVisit(row));
   }
 
-  async getUnassignedVisits(
-    organizationId: UUID,
-    branchId?: UUID
-  ): Promise<Visit[]> {
+  async getUnassignedVisits(organizationId: UUID, branchId?: UUID): Promise<Visit[]> {
     let query = `
       SELECT * FROM visits
       WHERE organization_id = $1
@@ -496,7 +503,7 @@ export class ScheduleRepository {
     query += ` ORDER BY scheduled_date ASC, is_urgent DESC, is_priority DESC`;
 
     const result = await this.pool.query(query, values);
-    return result.rows.map(row => this.mapRowToVisit(row));
+    return result.rows.map((row) => this.mapRowToVisit(row));
   }
 
   /**

@@ -26,13 +26,9 @@ export const OpenShiftCard: React.FC<OpenShiftCardProps> = ({ shift, compact = f
             <span className="font-semibold text-gray-900">
               {new Date(shift.scheduledDate).toLocaleDateString()}
             </span>
-            {shift.isUrgent && (
-              <AlertCircle className="h-4 w-4 text-red-500" />
-            )}
+            {shift.isUrgent && <AlertCircle className="h-4 w-4 text-red-500" />}
           </div>
-          {shift.clientName && (
-            <p className="text-sm text-gray-600">{shift.clientName}</p>
-          )}
+          {shift.clientName && <p className="text-sm text-gray-600">{shift.clientName}</p>}
           <p className="text-sm text-gray-500">{shift.serviceTypeName}</p>
         </div>
         <div className="flex flex-col gap-2 items-end">

@@ -29,6 +29,7 @@ psql -d care_commons -c "\dt"
 ```
 
 You should see:
+
 - `care_plans`
 - `task_instances`
 - `progress_notes`
@@ -39,7 +40,10 @@ You should see:
 
 ```typescript
 import { Database, PermissionService } from '@care-commons/core';
-import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
+import {
+  CarePlanService,
+  CarePlanRepository,
+} from '@care-commons/care-plans-tasks';
 
 const db = new Database({
   host: 'localhost',
@@ -65,54 +69,65 @@ const userContext = {
   branchIds: ['branch-789'],
 };
 
-const carePlan = await service.createCarePlan({
-  clientId: 'client-abc',
-  organizationId: 'org-456',
-  name: 'Basic Personal Care Plan',
-  planType: 'PERSONAL_CARE',
-  effectiveDate: new Date(),
-  
-  goals: [{
-    name: 'Maintain Personal Hygiene',
-    description: 'Client will maintain good personal hygiene with assistance',
-    category: 'ADL',
-    status: 'NOT_STARTED',
-    priority: 'MEDIUM',
-  }],
-  
-  interventions: [{
-    name: 'Bathing Assistance',
-    description: 'Assist client with bathing',
-    category: 'ASSISTANCE_WITH_ADL',
-    goalIds: [],
-    frequency: {
-      pattern: 'DAILY',
-      timesPerDay: 1,
-    },
-    instructions: 'Help client with shower or bath, ensuring safety',
-    performedBy: ['CAREGIVER'],
-    requiresDocumentation: true,
-    status: 'ACTIVE',
-    startDate: new Date(),
-  }],
-  
-  taskTemplates: [{
-    name: 'Morning Shower',
-    description: 'Assist with morning shower',
-    category: 'BATHING',
-    frequency: {
-      pattern: 'DAILY',
-      specificTimes: ['09:00'],
-    },
-    instructions: 'Assist client with shower. Check water temperature. Ensure non-slip mat in place.',
-    requiresSignature: true,
-    requiresNote: false,
-    isOptional: false,
-    allowSkip: true,
-    skipReasons: ['Client refused', 'Medical reason'],
-    status: 'ACTIVE',
-  }],
-}, userContext);
+const carePlan = await service.createCarePlan(
+  {
+    clientId: 'client-abc',
+    organizationId: 'org-456',
+    name: 'Basic Personal Care Plan',
+    planType: 'PERSONAL_CARE',
+    effectiveDate: new Date(),
+
+    goals: [
+      {
+        name: 'Maintain Personal Hygiene',
+        description:
+          'Client will maintain good personal hygiene with assistance',
+        category: 'ADL',
+        status: 'NOT_STARTED',
+        priority: 'MEDIUM',
+      },
+    ],
+
+    interventions: [
+      {
+        name: 'Bathing Assistance',
+        description: 'Assist client with bathing',
+        category: 'ASSISTANCE_WITH_ADL',
+        goalIds: [],
+        frequency: {
+          pattern: 'DAILY',
+          timesPerDay: 1,
+        },
+        instructions: 'Help client with shower or bath, ensuring safety',
+        performedBy: ['CAREGIVER'],
+        requiresDocumentation: true,
+        status: 'ACTIVE',
+        startDate: new Date(),
+      },
+    ],
+
+    taskTemplates: [
+      {
+        name: 'Morning Shower',
+        description: 'Assist with morning shower',
+        category: 'BATHING',
+        frequency: {
+          pattern: 'DAILY',
+          specificTimes: ['09:00'],
+        },
+        instructions:
+          'Assist client with shower. Check water temperature. Ensure non-slip mat in place.',
+        requiresSignature: true,
+        requiresNote: false,
+        isOptional: false,
+        allowSkip: true,
+        skipReasons: ['Client refused', 'Medical reason'],
+        status: 'ACTIVE',
+      },
+    ],
+  },
+  userContext
+);
 
 console.log('Care plan created:', carePlan.id);
 ```
@@ -149,7 +164,8 @@ const taskContext = {
 const completed = await service.completeTask(
   tasks[0].id,
   {
-    completionNote: 'Client showered safely. Water temperature comfortable. No issues.',
+    completionNote:
+      'Client showered safely. Water temperature comfortable. No issues.',
     signature: {
       signatureData: 'data:image/png;base64,iVBORw0KGgoAAAANS...',
       signedBy: userContext.userId,
@@ -166,18 +182,24 @@ console.log('Task completed');
 ### 6. Create a Progress Note
 
 ```typescript
-const note = await service.createProgressNote({
-  carePlanId: carePlan.id,
-  clientId: 'client-abc',
-  noteType: 'VISIT_NOTE',
-  content: 'Client in good spirits today. Cooperated well with care. No concerns noted.',
-  
-  observations: [{
-    category: 'PHYSICAL',
-    observation: 'Skin dry, lotion applied after bathing',
-    severity: 'NORMAL',
-  }],
-}, taskContext);
+const note = await service.createProgressNote(
+  {
+    carePlanId: carePlan.id,
+    clientId: 'client-abc',
+    noteType: 'VISIT_NOTE',
+    content:
+      'Client in good spirits today. Cooperated well with care. No concerns noted.',
+
+    observations: [
+      {
+        category: 'PHYSICAL',
+        observation: 'Skin dry, lotion applied after bathing',
+        severity: 'NORMAL',
+      },
+    ],
+  },
+  taskContext
+);
 
 console.log('Progress note created');
 ```
@@ -193,23 +215,32 @@ const visits = await getVisitsForToday(caregiverId);
 // 2. For each visit, get tasks
 for (const visit of visits) {
   const tasks = await service.getTasksByVisitId(visit.id, context);
-  
+
   // 3. Complete each task
   for (const task of tasks) {
-    await service.completeTask(task.id, {
-      completionNote: 'Task completed as planned',
-      signature: { /* signature data */ },
-    }, context);
+    await service.completeTask(
+      task.id,
+      {
+        completionNote: 'Task completed as planned',
+        signature: {
+          /* signature data */
+        },
+      },
+      context
+    );
   }
-  
+
   // 4. Create visit note
-  await service.createProgressNote({
-    carePlanId: visit.carePlanId,
-    clientId: visit.clientId,
-    visitId: visit.id,
-    noteType: 'VISIT_NOTE',
-    content: 'Visit summary...',
-  }, context);
+  await service.createProgressNote(
+    {
+      carePlanId: visit.carePlanId,
+      clientId: visit.clientId,
+      visitId: visit.id,
+      noteType: 'VISIT_NOTE',
+      content: 'Visit summary...',
+    },
+    context
+  );
 }
 ```
 
@@ -225,19 +256,26 @@ console.log(`${expiring.length} care plans need review`);
 for (const plan of expiring) {
   // Get progress notes
   const notes = await service.getProgressNotesByCarePlanId(plan.id, context);
-  
+
   // Get task metrics
-  const metrics = await service.getTaskCompletionMetrics({
-    dateFrom: new Date(Date.now() - 30*24*60*60*1000),
-    dateTo: new Date(),
-    organizationId: context.organizationId,
-  }, context);
-  
+  const metrics = await service.getTaskCompletionMetrics(
+    {
+      dateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      dateTo: new Date(),
+      organizationId: context.organizationId,
+    },
+    context
+  );
+
   // Update plan based on review
-  await service.updateCarePlan(plan.id, {
-    reviewDate: new Date(Date.now() + 90*24*60*60*1000),
-    expirationDate: new Date(Date.now() + 365*24*60*60*1000),
-  }, context);
+  await service.updateCarePlan(
+    plan.id,
+    {
+      reviewDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    },
+    context
+  );
 }
 ```
 
@@ -257,11 +295,14 @@ console.log(`
   Task Completion Rate: ${analytics.taskCompletionRate}%
 `);
 
-const taskMetrics = await service.getTaskCompletionMetrics({
-  dateFrom: new Date('2024-01-01'),
-  dateTo: new Date('2024-01-31'),
-  organizationId: context.organizationId,
-}, context);
+const taskMetrics = await service.getTaskCompletionMetrics(
+  {
+    dateFrom: new Date('2024-01-01'),
+    dateTo: new Date('2024-01-31'),
+    organizationId: context.organizationId,
+  },
+  context
+);
 
 console.log(`
   Tasks Completed: ${taskMetrics.completedTasks}/${taskMetrics.totalTasks}
@@ -290,6 +331,7 @@ npm run test:integration --workspace=@care-commons/care-plans-tasks
 ### Issue: "Care plan not found"
 
 Check that:
+
 - Care plan exists in database
 - User has correct organization access
 - Care plan not soft-deleted
@@ -297,6 +339,7 @@ Check that:
 ### Issue: "Insufficient permissions"
 
 Verify user context has required permissions:
+
 - `care-plans:read`
 - `care-plans:create`
 - `tasks:complete`
@@ -305,6 +348,7 @@ Verify user context has required permissions:
 ### Issue: "Task completion requirements not met"
 
 Check that:
+
 - Signature provided if `requiredSignature = true`
 - Note provided if `requiredNote = true`
 - Custom fields populated if required
@@ -312,6 +356,7 @@ Check that:
 ### Issue: "Cannot activate care plan"
 
 Validate that:
+
 - Plan has at least one goal
 - Plan has at least one intervention
 - Coordinator is assigned
@@ -327,7 +372,7 @@ Validate that:
 
 ## Support
 
-Need help? 
+Need help?
 
 - Open an issue on GitHub
 - Check the documentation

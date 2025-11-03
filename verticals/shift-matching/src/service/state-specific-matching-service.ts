@@ -16,13 +16,10 @@ export class StateSpecificMatchingService {
   /**
    * Find best caregivers for a shift with TX/FL compliance
    */
-  async findMatches(
-    shiftId: UUID,
-    _userContext: UserContext
-  ): Promise<CaregiverMatch[]> {
+  async findMatches(shiftId: UUID, _userContext: UserContext): Promise<CaregiverMatch[]> {
     // Get eligible caregivers (registry checks applied in repository)
     const eligible = await this.repository.findEligibleCaregivers(shiftId);
-    
+
     // Get shift details
     const shift = await this.repository.findById(shiftId);
     if (shift === null) {
@@ -30,9 +27,7 @@ export class StateSpecificMatchingService {
     }
 
     // Apply state-specific scoring
-    const scored = await Promise.all(
-      eligible.map(match => this.scoreMatch(match, shift))
-    );
+    const scored = await Promise.all(eligible.map((match) => this.scoreMatch(match, shift)));
 
     // Sort by score descending
     return scored.sort((a, b) => b.score - a.score);
@@ -41,11 +36,7 @@ export class StateSpecificMatchingService {
   /**
    * Assign caregiver to shift with compliance validation
    */
-  async assignShift(
-    shiftId: UUID,
-    caregiverId: UUID,
-    userContext: UserContext
-  ): Promise<void> {
+  async assignShift(shiftId: UUID, caregiverId: UUID, userContext: UserContext): Promise<void> {
     if (!this.permissionService.hasPermission(userContext, 'shifts:assign')) {
       throw new Error('User does not have permission to assign shifts');
     }
@@ -60,18 +51,18 @@ export class StateSpecificMatchingService {
     await this.repository.assignCaregiver(shiftId, caregiverId, userContext.userId);
   }
 
-  private async scoreMatch(
-    match: CaregiverMatch,
-    shift: any
-  ): Promise<CaregiverMatch> {
+  private async scoreMatch(match: CaregiverMatch, shift: any): Promise<CaregiverMatch> {
     let score = match.score;
     const reasons: string[] = [];
     const warnings: string[] = [];
 
     // Get caregiver details
-    const cg = await this.database.query(`
+    const cg = await this.database.query(
+      `
       SELECT * FROM caregivers WHERE id = $1
-    `, [match.caregiverId]);
+    `,
+      [match.caregiverId]
+    );
 
     if (cg.rows[0] === undefined) return match;
 
@@ -125,14 +116,17 @@ export class StateSpecificMatchingService {
       ...match,
       score,
       matchReasons: reasons,
-      warnings
+      warnings,
     };
   }
 
   private async validateStateCompliance(shift: any, caregiverId: UUID): Promise<void> {
-    const caregiver = await this.database.query(`
+    const caregiver = await this.database.query(
+      `
       SELECT state_specific FROM caregivers WHERE id = $1
-    `, [caregiverId]);
+    `,
+      [caregiverId]
+    );
 
     if (caregiver.rows[0] === undefined) {
       throw new Error('Caregiver not found');
@@ -140,14 +134,22 @@ export class StateSpecificMatchingService {
 
     if (shift.state === 'TX') {
       const txData = (caregiver.rows[0]['state_specific'] as any)?.texas;
-      if (txData === undefined || txData.employee_misconduct_check === undefined || txData.employee_misconduct_check.status !== 'CLEAR') {
+      if (
+        txData === undefined ||
+        txData.employee_misconduct_check === undefined ||
+        txData.employee_misconduct_check.status !== 'CLEAR'
+      ) {
         throw new Error('TX: Caregiver must have clear Employee Misconduct Registry check');
       }
     }
 
     if (shift.state === 'FL') {
       const flData = (caregiver.rows[0]['state_specific'] as any)?.florida;
-      if (flData === undefined || flData.level2_screening === undefined || flData.level2_screening.status !== 'CLEARED') {
+      if (
+        flData === undefined ||
+        flData.level2_screening === undefined ||
+        flData.level2_screening.status !== 'CLEARED'
+      ) {
         throw new Error('FL: Caregiver must have cleared Level 2 background screening');
       }
     }

@@ -58,7 +58,10 @@ describe('ClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ path: 'organizationId', message: expect.stringContaining('UUID') })
+        expect.objectContaining({
+          path: 'organizationId',
+          message: expect.stringContaining('UUID'),
+        })
       );
       expect(result.errors).toContainEqual(
         expect.objectContaining({ path: 'firstName', message: expect.stringContaining('required') })
@@ -117,7 +120,10 @@ describe('ClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ path: 'primaryAddress.state', message: expect.stringContaining('2-letter') })
+        expect.objectContaining({
+          path: 'primaryAddress.state',
+          message: expect.stringContaining('2-letter'),
+        })
       );
     });
 
@@ -143,7 +149,10 @@ describe('ClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ path: 'primaryAddress.postalCode', message: 'Invalid postal code' })
+        expect.objectContaining({
+          path: 'primaryAddress.postalCode',
+          message: 'Invalid postal code',
+        })
       );
     });
 
@@ -251,21 +260,21 @@ describe('ClientValidator', () => {
     it('should return true when age is at or above minimum', () => {
       const dateOfBirth = new Date();
       dateOfBirth.setFullYear(dateOfBirth.getFullYear() - 25); // 25 years old
-      
+
       expect(validator.validateMinimumAge(dateOfBirth, 18)).toBe(true);
     });
 
     it('should return false when age is below minimum', () => {
       const dateOfBirth = new Date();
       dateOfBirth.setFullYear(dateOfBirth.getFullYear() - 10); // 10 years old
-      
+
       expect(validator.validateMinimumAge(dateOfBirth, 18)).toBe(false);
     });
 
     it('should work with default minimum age (18)', () => {
       const dateOfBirth = new Date();
       dateOfBirth.setFullYear(dateOfBirth.getFullYear() - 20); // 20 years old
-      
+
       expect(validator.validateMinimumAge(dateOfBirth)).toBe(true);
     });
   });
@@ -274,7 +283,7 @@ describe('ClientValidator', () => {
     it('should calculate age correctly', () => {
       const dateOfBirth = new Date();
       dateOfBirth.setFullYear(dateOfBirth.getFullYear() - 25); // 25 years old
-      
+
       const age = validator.calculateAge(dateOfBirth);
       expect(age).toBe(25);
     });
@@ -282,29 +291,29 @@ describe('ClientValidator', () => {
     it('should handle different months correctly', () => {
       const today = new Date('2024-03-15');
       const dateOfBirth = new Date('2000-05-15'); // Born in May 2000
-      
+
       // Since today is March 2024, the person hasn't had their birthday yet in 2024
       // So they should be 23 years old (2024 - 2000 - 1 = 23)
       vi.useFakeTimers();
       vi.setSystemTime(today);
-      
+
       const age = validator.calculateAge(dateOfBirth);
       expect(age).toBe(23);
-      
+
       vi.useRealTimers();
     });
 
     it('should handle birthday edge case', () => {
       const today = new Date('2024-05-15');
       const dateOfBirth = new Date('2000-05-15'); // Same day and month as birth date
-      
+
       // Since the person has their birthday today, they should be 24 years old (2024 - 2000 = 24)
       vi.useFakeTimers();
       vi.setSystemTime(today);
-      
+
       const age = validator.calculateAge(dateOfBirth);
       expect(age).toBe(24);
-      
+
       vi.useRealTimers();
     });
   });

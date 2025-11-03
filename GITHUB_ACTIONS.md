@@ -1,6 +1,7 @@
 # GitHub Actions Documentation
 
-This document describes the GitHub Actions workflows used in Care Commons for CI/CD, testing, deployments, and release management.
+This document describes the GitHub Actions workflows used in Care Commons for
+CI/CD, testing, deployments, and release management.
 
 ## Overview
 
@@ -17,47 +18,60 @@ Care Commons uses GitHub Actions to automate:
 ### 1. CI Workflow (`.github/workflows/ci.yml`)
 
 **Triggers:**
+
 - Pull requests to `main` and `develop` branches
 - Pushes to `main` and `develop` branches
 
 **Jobs:**
-- **lint** - Runs `npm run lint` across all packages - must have **zero warnings**
-- **typecheck** - Runs `npm run typecheck` for TypeScript validation - must have **zero errors**
-- **test** - Runs `npm run test:coverage` with PostgreSQL database - must pass **all tests** and meet **coverage thresholds**:
+
+- **lint** - Runs `npm run lint` across all packages - must have **zero
+  warnings**
+- **typecheck** - Runs `npm run typecheck` for TypeScript validation - must have
+  **zero errors**
+- **test** - Runs `npm run test:coverage` with PostgreSQL database - must pass
+  **all tests** and meet **coverage thresholds**:
   - Lines: 82%
   - Statements: 82%
   - Branches: 70%
   - Functions: 87%
-- **build** - Builds all packages and uploads artifacts - depends on all above jobs passing
+- **build** - Builds all packages and uploads artifacts - depends on all above
+  jobs passing
 
 **Environment:**
+
 - Uses PostgreSQL service for integration tests
 - Uploads coverage reports to Codecov (if token configured)
 - Caches npm dependencies for faster builds
 
 **Branch Protection:**
+
 - All jobs must pass before PRs can be merged to `main`
-- This ensures no code with linting errors, type errors, failing tests, or insufficient coverage makes it to production
+- This ensures no code with linting errors, type errors, failing tests, or
+  insufficient coverage makes it to production
 
 ### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
 
 **Vercel Hobby Plan Configuration:**
+
 - Production environment ← `main` branch (pushes only)
 - Preview environment ← `develop` branch (pushes only)
 - Development environment ← local only (not in workflows)
 - **Note**: Pull requests do NOT trigger deployments
 
 **Triggers:**
+
 - Pushes to `main` branch (production deployment)
 - Pushes to `develop` branch (preview deployment)
 - Manual workflow dispatch (production only)
 
 **Jobs:**
+
 - **build** - Builds and tests all packages
 - **deploy-preview** - Preview deployment (develop branch pushes only)
 - **deploy-production** - Production deployment (main branch only)
 
 **Features:**
+
 - Runs database migrations before deployment
 - Supports environment-specific configuration
 - Health checks after deployment
@@ -66,9 +80,11 @@ Care Commons uses GitHub Actions to automate:
 ### 3. Database Operations Workflow (`.github/workflows/database.yml`)
 
 **Triggers:**
+
 - Manual workflow dispatch only
 
 **Operations:**
+
 - `migrate` - Run database migrations
 - `rollback` - Rollback last migration
 - `status` - Check migration status
@@ -76,6 +92,7 @@ Care Commons uses GitHub Actions to automate:
 - `nuke` - Destroy all data (⚠️ dangerous operation)
 
 **Safety Features:**
+
 - Environment selection (staging/production)
 - Explicit confirmation for destructive operations
 - Clear success/failure notifications
@@ -83,15 +100,18 @@ Care Commons uses GitHub Actions to automate:
 ### 4. Security and Dependencies Workflow (`.github/workflows/security.yml`)
 
 **Triggers:**
+
 - Weekly schedule (Mondays at 2 AM UTC)
 - Manual workflow dispatch
 
 **Jobs:**
+
 - **security-audit** - npm audit and CodeQL analysis
 - **dependency-update** - Automated dependency updates with PR
 - **snyk-security-scan** - Additional vulnerability scanning
 
 **Features:**
+
 - Creates pull requests for dependency updates
 - Runs full test suite after updates
 - Configurable severity thresholds
@@ -100,14 +120,17 @@ Care Commons uses GitHub Actions to automate:
 ### 5. Release Workflow (`.github/workflows/release.yml`)
 
 **Triggers:**
+
 - Git tags matching `v*` pattern
 - Manual workflow dispatch
 
 **Jobs:**
+
 - **create-release** - Version management and GitHub release creation
 - **deploy-release** - Production deployment of tagged releases
 
 **Features:**
+
 - Automatic version bumping
 - Changelog generation from git history
 - GitHub release creation with detailed notes
@@ -143,12 +166,14 @@ GITHUB_TOKEN=ghp_your_github_token
 ### Environment-Specific Settings
 
 **Production Environment (Vercel Production):**
+
 - Branch: `main`
 - Uses `DATABASE_URL` and `JWT_SECRET`
 - Requires approval for deployments
 - Runs full migration and seed process
 
 **Preview Environment (Vercel Preview):**
+
 - Branch: `develop` (pushes only)
 - Uses `PREVIEW_DATABASE_URL` and `PREVIEW_JWT_SECRET`
 - Automatic deployments when code is merged to develop
@@ -156,6 +181,7 @@ GITHUB_TOKEN=ghp_your_github_token
 - **No deployments for PRs** - only CI checks run
 
 **Development Environment:**
+
 - Local only (not deployed to Vercel)
 - Use `vercel dev` to link to local machine
 - Local database or development database
@@ -174,12 +200,14 @@ GITHUB_TOKEN=ghp_your_github_token
 ### Creating a Release
 
 **Option 1: Git Tag**
+
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
 **Option 2: Manual Workflow**
+
 1. Go to Actions → Release workflow
 2. Click "Run workflow"
 3. Enter version: `1.0.0`
@@ -189,6 +217,7 @@ git push origin v1.0.0
 ### Updating Dependencies
 
 The security workflow automatically:
+
 1. Checks for outdated packages weekly
 2. Updates patch and minor versions
 3. Runs full test suite
@@ -199,21 +228,25 @@ The security workflow automatically:
 ### Common Issues
 
 **Build Failures:**
+
 - Check that Node.js version matches `package.json` engines
 - Verify all dependencies are properly installed
 - Ensure TypeScript compilation succeeds
 
 **Test Failures:**
+
 - Check PostgreSQL service is running in CI
 - Verify database migrations completed successfully
 - Review test logs for specific error messages
 
 **Deployment Failures:**
+
 - Confirm all required secrets are configured
 - Check database connection strings
 - Verify environment-specific configurations
 
 **Permission Errors:**
+
 - Ensure GitHub Actions have proper permissions
 - Check environment protection rules
 - Verify secret access permissions
@@ -228,20 +261,25 @@ The security workflow automatically:
 
 ## Pre-commit Hooks
 
-Care Commons uses Husky to enforce quality gates **before code is committed**. This ensures that broken code never makes it into the repository.
+Care Commons uses Husky to enforce quality gates **before code is committed**.
+This ensures that broken code never makes it into the repository.
 
 ### What Gets Checked
 
-Every `git commit` automatically runs (via `.husky/pre-commit` → `./scripts/brief-check.sh`):
+Every `git commit` automatically runs (via `.husky/pre-commit` →
+`./scripts/brief-check.sh`):
 
 1. **Build** (`npm run build`) - Ensures all TypeScript compiles
 2. **Lint** (`npm run lint`) - Enforces code style with zero warnings
-3. **Type Check** (`npm run typecheck`) - Validates TypeScript types with zero errors
-4. **Test Coverage** (`npm run test:coverage`) - Runs all tests and validates coverage thresholds
+3. **Type Check** (`npm run typecheck`) - Validates TypeScript types with zero
+   errors
+4. **Test Coverage** (`npm run test:coverage`) - Runs all tests and validates
+   coverage thresholds
 
 ### Coverage Requirements
 
-Tests must meet these minimum thresholds (configured in each package's `vitest.config.ts`):
+Tests must meet these minimum thresholds (configured in each package's
+`vitest.config.ts`):
 
 - **Lines**: 82%
 - **Statements**: 82%
@@ -264,6 +302,7 @@ git commit -m "fix issue"
 ```
 
 If pre-commit checks fail:
+
 1. **Fix the issue** (linting error, type error, failing test, low coverage)
 2. **Stage the fixes** (`git add .`)
 3. **Commit again** - hooks will run automatically
@@ -271,6 +310,7 @@ If pre-commit checks fail:
 ### Why This Matters
 
 Pre-commit hooks catch issues **before they're committed**, which:
+
 - ✅ Prevents broken code from entering the repository
 - ✅ Catches linting and type errors immediately
 - ✅ Ensures test coverage doesn't decrease
@@ -278,6 +318,7 @@ Pre-commit hooks catch issues **before they're committed**, which:
 - ✅ Keeps the codebase clean and maintainable
 
 **Two-Level Protection:**
+
 1. **Local (Pre-commit)** - Catches issues before commit
 2. **Remote (CI)** - Validates before merge to `main`
 

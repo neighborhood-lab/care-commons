@@ -1,11 +1,11 @@
 /**
  * Organization Management Routes
- * 
+ *
  * Handles multi-tenant organization registration and team invitations
  */
 
 import { Router, Request, Response } from 'express';
-import { 
+import {
   OrganizationService,
   Database,
   CreateOrganizationRequest,
@@ -107,110 +107,114 @@ export function createOrganizationRouter(db: Database): Router {
    * POST /api/organizations/:id/invitations
    * Create a new team member invitation
    */
-  router.post('/organizations/:id/invitations', async (req: Request, res: Response): Promise<void> => {
-    try {
-      const organizationId = req.params['id'];
-      if (organizationId === undefined || organizationId.length === 0) {
-        res.status(400).json({
-          success: false,
-          error: 'Organization ID is required',
+  router.post(
+    '/organizations/:id/invitations',
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        const organizationId = req.params['id'];
+        if (organizationId === undefined || organizationId.length === 0) {
+          res.status(400).json({
+            success: false,
+            error: 'Organization ID is required',
+          });
+          return;
+        }
+
+        const request: CreateInviteRequest = req.body;
+
+        // Extract from authenticated user session
+        // In production, this would come from JWT or session middleware
+        const userId = req.headers['x-user-id'];
+        const createdBy = typeof userId === 'string' ? userId : 'admin-001';
+
+        const invitation = await organizationService.createInvitation(
+          organizationId,
+          request,
+          createdBy
+        );
+
+        res.status(201).json({
+          success: true,
+          data: invitation,
         });
-        return;
-      }
-      
-      const request: CreateInviteRequest = req.body;
-      
-      // Extract from authenticated user session
-      // In production, this would come from JWT or session middleware
-      const userId = req.headers['x-user-id'];
-      const createdBy = typeof userId === 'string' ? userId : 'admin-001';
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          res.status(400).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
 
-      const invitation = await organizationService.createInvitation(
-        organizationId,
-        request,
-        createdBy
-      );
+        if (error instanceof ConflictError) {
+          res.status(409).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
 
-      res.status(201).json({
-        success: true,
-        data: invitation,
-      });
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        res.status(400).json({
+        if (error instanceof NotFoundError) {
+          res.status(404).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
+
+        console.error('Create invitation error:', error);
+        res.status(500).json({
           success: false,
-          error: error.message,
-          code: error.code,
+          error: 'Failed to create invitation',
         });
-        return;
       }
-
-      if (error instanceof ConflictError) {
-        res.status(409).json({
-          success: false,
-          error: error.message,
-          code: error.code,
-        });
-        return;
-      }
-
-      if (error instanceof NotFoundError) {
-        res.status(404).json({
-          success: false,
-          error: error.message,
-          code: error.code,
-        });
-        return;
-      }
-
-      console.error('Create invitation error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to create invitation',
-      });
     }
-  });
+  );
 
   /**
    * GET /api/organizations/:id/invitations
    * List all invitations for an organization
    */
-  router.get('/organizations/:id/invitations', async (req: Request, res: Response): Promise<void> => {
-    try {
-      const organizationId = req.params['id'];
-      if (organizationId === undefined || organizationId.length === 0) {
-        res.status(400).json({
-          success: false,
-          error: 'Organization ID is required',
+  router.get(
+    '/organizations/:id/invitations',
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        const organizationId = req.params['id'];
+        if (organizationId === undefined || organizationId.length === 0) {
+          res.status(400).json({
+            success: false,
+            error: 'Organization ID is required',
+          });
+          return;
+        }
+
+        const invitations = await organizationService.getOrganizationInvitations(organizationId);
+
+        res.json({
+          success: true,
+          data: invitations,
         });
-        return;
-      }
+      } catch (error) {
+        if (error instanceof NotFoundError) {
+          res.status(404).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
 
-      const invitations = await organizationService.getOrganizationInvitations(
-        organizationId
-      );
-
-      res.json({
-        success: true,
-        data: invitations,
-      });
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        res.status(404).json({
+        console.error('Get invitations error:', error);
+        res.status(500).json({
           success: false,
-          error: error.message,
-          code: error.code,
+          error: 'Failed to retrieve invitations',
         });
-        return;
       }
-
-      console.error('Get invitations error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to retrieve invitations',
-      });
     }
-  });
+  );
 
   /**
    * GET /api/invitations/:token
@@ -318,7 +322,7 @@ export function createOrganizationRouter(db: Database): Router {
         });
         return;
       }
-      
+
       // Extract from authenticated user session
       // In production, this would come from JWT or session middleware
       const userId = req.headers['x-user-id'];

@@ -201,14 +201,16 @@ describe('ClientRepository', () => {
       expect(result['first_name']).toBe('John');
       expect(result['last_name']).toBe('Doe');
       expect(result['date_of_birth']).toEqual(new Date('1980-01-01'));
-      expect(result['primary_address']).toBe(JSON.stringify({
-        type: 'HOME',
-        line1: '123 Main St',
-        city: 'Anytown',
-        state: 'ST',
-        postalCode: '12345',
-        country: 'US',
-      }));
+      expect(result['primary_address']).toBe(
+        JSON.stringify({
+          type: 'HOME',
+          line1: '123 Main St',
+          city: 'Anytown',
+          state: 'ST',
+          postalCode: '12345',
+          country: 'US',
+        })
+      );
       expect(result['status']).toBe('ACTIVE');
     });
 
@@ -232,11 +234,13 @@ describe('ClientRepository', () => {
       expect(result['middle_name']).toBe('Marie');
       expect(result['preferred_name']).toBe('Johnny');
       expect(result['gender']).toBe('MALE');
-      expect(result['primary_phone']).toBe(JSON.stringify({
-        number: '555-123-4567',
-        type: 'MOBILE',
-        canReceiveSMS: true,
-      }));
+      expect(result['primary_phone']).toBe(
+        JSON.stringify({
+          number: '555-123-4567',
+          type: 'MOBILE',
+          canReceiveSMS: true,
+        })
+      );
       expect(result['email']).toBe('john@example.com');
     });
   });
@@ -319,40 +323,42 @@ describe('ClientRepository', () => {
   describe('search', () => {
     it('should search clients with filters', async () => {
       const mockResult = {
-        rows: [{
-          id: 'test-id',
-          client_number: 'CL-001',
-          first_name: 'John',
-          last_name: 'Doe',
-          date_of_birth: new Date('1980-01-01'),
-          primary_address: JSON.stringify({
-            type: 'HOME',
-            line1: '123 Main St',
-            city: 'Anytown',
-            state: 'ST',
-            postalCode: '12345',
-            country: 'US',
-          }),
-          emergency_contacts: JSON.stringify([]),
-          authorized_contacts: JSON.stringify([]),
-          programs: JSON.stringify([]),
-          service_eligibility: JSON.stringify({
-            medicaidEligible: false,
-            medicareEligible: false,
-            veteransBenefits: false,
-            longTermCareInsurance: false,
-            privatePayOnly: false,
-          }),
-          risk_flags: JSON.stringify([]),
-          status: 'ACTIVE',
-          created_at: new Date(),
-          created_by: 'user-1',
-          updated_at: new Date(),
-          updated_by: 'user-1',
-          version: 1,
-          deleted_at: null,
-          deleted_by: null,
-        }],
+        rows: [
+          {
+            id: 'test-id',
+            client_number: 'CL-001',
+            first_name: 'John',
+            last_name: 'Doe',
+            date_of_birth: new Date('1980-01-01'),
+            primary_address: JSON.stringify({
+              type: 'HOME',
+              line1: '123 Main St',
+              city: 'Anytown',
+              state: 'ST',
+              postalCode: '12345',
+              country: 'US',
+            }),
+            emergency_contacts: JSON.stringify([]),
+            authorized_contacts: JSON.stringify([]),
+            programs: JSON.stringify([]),
+            service_eligibility: JSON.stringify({
+              medicaidEligible: false,
+              medicareEligible: false,
+              veteransBenefits: false,
+              longTermCareInsurance: false,
+              privatePayOnly: false,
+            }),
+            risk_flags: JSON.stringify([]),
+            status: 'ACTIVE',
+            created_at: new Date(),
+            created_by: 'user-1',
+            updated_at: new Date(),
+            updated_by: 'user-1',
+            version: 1,
+            deleted_at: null,
+            deleted_by: null,
+          },
+        ],
         rowCount: 1,
         command: 'SELECT' as const,
         oid: 0,
@@ -398,7 +404,9 @@ describe('ClientRepository', () => {
       const filters = { query: 'John', status: ['ACTIVE' as ClientStatus] };
       const pagination = { page: 1, limit: 10 };
 
-      await expect(repository.search(filters, pagination)).rejects.toThrow('Count query returned no rows');
+      await expect(repository.search(filters, pagination)).rejects.toThrow(
+        'Count query returned no rows'
+      );
     });
 
     it('should search with city filter', async () => {
@@ -469,40 +477,42 @@ describe('ClientRepository', () => {
   describe('findByBranch', () => {
     it('should find clients by branch', async () => {
       const mockResult = {
-        rows: [{
-          id: 'test-id',
-          client_number: 'CL-001',
-          first_name: 'John',
-          last_name: 'Doe',
-          date_of_birth: new Date('1980-01-01'),
-          primary_address: JSON.stringify({
-            type: 'HOME',
-            line1: '123 Main St',
-            city: 'Anytown',
-            state: 'ST',
-            postalCode: '12345',
-            country: 'US',
-          }),
-          emergency_contacts: JSON.stringify([]),
-          authorized_contacts: JSON.stringify([]),
-          programs: JSON.stringify([]),
-          service_eligibility: JSON.stringify({
-            medicaidEligible: false,
-            medicareEligible: false,
-            veteransBenefits: false,
-            longTermCareInsurance: false,
-            privatePayOnly: false,
-          }),
-          risk_flags: JSON.stringify([]),
-          status: 'ACTIVE',
-          created_at: new Date(),
-          created_by: 'user-1',
-          updated_at: new Date(),
-          updated_by: 'user-1',
-          version: 1,
-          deleted_at: null,
-          deleted_by: null,
-        }],
+        rows: [
+          {
+            id: 'test-id',
+            client_number: 'CL-001',
+            first_name: 'John',
+            last_name: 'Doe',
+            date_of_birth: new Date('1980-01-01'),
+            primary_address: JSON.stringify({
+              type: 'HOME',
+              line1: '123 Main St',
+              city: 'Anytown',
+              state: 'ST',
+              postalCode: '12345',
+              country: 'US',
+            }),
+            emergency_contacts: JSON.stringify([]),
+            authorized_contacts: JSON.stringify([]),
+            programs: JSON.stringify([]),
+            service_eligibility: JSON.stringify({
+              medicaidEligible: false,
+              medicareEligible: false,
+              veteransBenefits: false,
+              longTermCareInsurance: false,
+              privatePayOnly: false,
+            }),
+            risk_flags: JSON.stringify([]),
+            status: 'ACTIVE',
+            created_at: new Date(),
+            created_by: 'user-1',
+            updated_at: new Date(),
+            updated_by: 'user-1',
+            version: 1,
+            deleted_at: null,
+            deleted_by: null,
+          },
+        ],
         rowCount: 1,
         command: 'SELECT' as const,
         oid: 0,
@@ -513,10 +523,9 @@ describe('ClientRepository', () => {
 
       const result = await repository.findByBranch('branch-1');
 
-      expect(mockDatabase.query).toHaveBeenCalledWith(
-        expect.stringContaining('branch_id = $1'),
-        ['branch-1']
-      );
+      expect(mockDatabase.query).toHaveBeenCalledWith(expect.stringContaining('branch_id = $1'), [
+        'branch-1',
+      ]);
       expect(result).toHaveLength(1);
     });
 
@@ -533,10 +542,9 @@ describe('ClientRepository', () => {
 
       const result = await repository.findByBranch('branch-1', false);
 
-      expect(mockDatabase.query).toHaveBeenCalledWith(
-        expect.stringContaining('branch_id = $1'),
-        ['branch-1']
-      );
+      expect(mockDatabase.query).toHaveBeenCalledWith(expect.stringContaining('branch_id = $1'), [
+        'branch-1',
+      ]);
       expect(result).toHaveLength(0);
     });
   });

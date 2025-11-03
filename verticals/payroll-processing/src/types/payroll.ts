@@ -1,9 +1,9 @@
 /**
  * Payroll Processing domain model
- * 
+ *
  * Transforms time tracking and visit data into accurate compensation,
  * manages pay periods, deductions, tax withholdings, and payment distribution.
- * 
+ *
  * Key concepts:
  * - Pay Period: Time span for calculating wages (weekly, bi-weekly, etc.)
  * - Pay Run: Execution of payroll for a specific pay period
@@ -14,45 +14,40 @@
  * - Payment: Actual disbursement to caregiver
  */
 
-import {
-  Entity,
-  SoftDeletable,
-  UUID,
-  Timestamp,
-} from '@care-commons/core';
+import { Entity, SoftDeletable, UUID, Timestamp } from '@care-commons/core';
 
 /**
  * Pay Period - Time span for payroll cycle
- * 
+ *
  * Defines the boundaries for accumulating work hours and calculating pay.
  */
 export interface PayPeriod extends Entity {
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Period identity
   periodNumber: number; // Sequential number (e.g., 1, 2, 3...)
   periodYear: number;
   periodType: PayPeriodType;
-  
+
   // Date range
   startDate: Date;
   endDate: Date;
-  
+
   // Pay date
   payDate: Date; // When caregivers receive payment
-  
+
   // Processing
   status: PayPeriodStatus;
   statusHistory: PayPeriodStatusChange[];
-  
+
   // Lock-down dates
   cutoffDate?: Date; // Last date to submit timesheets
   approvalDeadline?: Date; // Deadline for approvals
-  
+
   // Pay run reference
   payRunId?: UUID;
-  
+
   // Statistics
   totalCaregivers?: number;
   totalHours?: number;
@@ -60,7 +55,7 @@ export interface PayPeriod extends Entity {
   totalNetPay?: number;
   totalTaxWithheld?: number;
   totalDeductions?: number;
-  
+
   // Metadata
   notes?: string;
   fiscalQuarter?: number; // 1-4
@@ -98,23 +93,23 @@ export interface PayPeriodStatusChange {
 
 /**
  * Time Sheet - Aggregated time entries for payroll
- * 
+ *
  * Consolidates EVV records and time entries into a single
  * sheet for pay calculation.
  */
 export interface TimeSheet extends Entity, SoftDeletable {
   organizationId: UUID;
   branchId: UUID;
-  
+
   // Period and caregiver
   payPeriodId: UUID;
   caregiverId: UUID;
   caregiverName: string;
   caregiverEmployeeId: string;
-  
+
   // Time entries
   timeEntries: TimeSheetEntry[];
-  
+
   // Hours summary
   regularHours: number;
   overtimeHours: number;
@@ -124,12 +119,12 @@ export interface TimeSheet extends Entity, SoftDeletable {
   sickHours: number;
   otherHours: number;
   totalHours: number;
-  
+
   // Rates and earnings
   regularRate: number; // Base hourly rate
   overtimeRate: number; // OT rate (usually 1.5x)
   doubleTimeRate: number; // DT rate (usually 2x)
-  
+
   regularEarnings: number;
   overtimeEarnings: number;
   doubleTimeEarnings: number;
@@ -138,35 +133,35 @@ export interface TimeSheet extends Entity, SoftDeletable {
   sickEarnings: number;
   otherEarnings: number;
   grossEarnings: number;
-  
+
   // Additional payments
   bonuses: TimeSheetAdjustment[];
   reimbursements: TimeSheetAdjustment[];
   adjustments: TimeSheetAdjustment[];
   totalAdjustments: number;
-  
+
   // Final gross
   totalGrossPay: number;
-  
+
   // Status
   status: TimeSheetStatus;
   statusHistory: TimeSheetStatusChange[];
-  
+
   // Approval
   submittedAt?: Timestamp;
   submittedBy?: UUID;
   approvedAt?: Timestamp;
   approvedBy?: UUID;
   approvalNotes?: string;
-  
+
   // Validation
   hasDiscrepancies: boolean;
   discrepancyFlags?: DiscrepancyFlag[];
-  
+
   // Links
   evvRecordIds: UUID[]; // Source EVV records
   visitIds: UUID[]; // Source visits
-  
+
   // Metadata
   notes?: string;
   reviewNotes?: string;
@@ -194,45 +189,45 @@ export interface TimeSheetStatusChange {
 
 export interface TimeSheetEntry {
   id: UUID;
-  
+
   // Visit reference
   visitId: UUID;
   evvRecordId: UUID;
   clientId: UUID;
   clientName: string;
-  
+
   // Date and time
   workDate: Date;
   clockInTime: Timestamp;
   clockOutTime: Timestamp;
-  
+
   // Hours breakdown
   regularHours: number;
   overtimeHours: number;
   doubleTimeHours: number;
   breakHours: number; // Unpaid breaks
   totalHours: number;
-  
+
   // Pay rates for this entry
   payRate: number; // Applicable rate
   payRateType: PayRateType;
-  
+
   // Modifiers
   isWeekend: boolean;
   isHoliday: boolean;
   isNightShift: boolean;
   isLiveIn: boolean;
-  
+
   // Rate multipliers applied
   appliedMultipliers: PayRateMultiplier[];
-  
+
   // Earnings for this entry
   earnings: number;
-  
+
   // Service type
   serviceType?: string;
   serviceCode?: string;
-  
+
   // Flags
   isBillable: boolean;
   billableItemId?: UUID;
@@ -313,28 +308,28 @@ export type DiscrepancyType =
 
 /**
  * Pay Run - Execution of payroll for a pay period
- * 
+ *
  * Orchestrates the calculation, approval, and payment
  * generation for an entire pay period.
  */
 export interface PayRun extends Entity {
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Period
   payPeriodId: UUID;
   payPeriodStartDate: Date;
   payPeriodEndDate: Date;
   payDate: Date;
-  
+
   // Run identity
   runNumber: string; // Human-readable (e.g., "2025-05")
   runType: PayRunType;
-  
+
   // Status
   status: PayRunStatus;
   statusHistory: PayRunStatusChange[];
-  
+
   // Processing
   initiatedAt?: Timestamp;
   initiatedBy?: UUID;
@@ -343,11 +338,11 @@ export interface PayRun extends Entity {
   approvedBy?: UUID;
   processedAt?: Timestamp;
   processedBy?: UUID;
-  
+
   // Pay stubs
   payStubIds: UUID[];
   totalPayStubs: number;
-  
+
   // Aggregates
   totalCaregivers: number;
   totalHours: number;
@@ -355,19 +350,19 @@ export interface PayRun extends Entity {
   totalDeductions: number;
   totalTaxWithheld: number;
   totalNetPay: number;
-  
+
   // Tax totals
   federalIncomeTax: number;
   stateIncomeTax: number;
   socialSecurityTax: number;
   medicareTax: number;
   localTax: number;
-  
+
   // Other deductions
   benefitsDeductions: number;
   garnishments: number;
   otherDeductions: number;
-  
+
   // Payment summary
   directDepositCount: number;
   directDepositAmount: number;
@@ -375,21 +370,21 @@ export interface PayRun extends Entity {
   checkAmount: number;
   cashCount: number;
   cashAmount: number;
-  
+
   // Files
   payrollRegisterUrl?: string;
   taxReportUrl?: string;
   exportFiles?: ExportFile[];
-  
+
   // Compliance
   complianceChecks?: ComplianceCheck[];
   compliancePassed: boolean;
-  
+
   // Errors and issues
   hasErrors: boolean;
   errors?: PayRunError[];
   warnings?: PayRunWarning[];
-  
+
   // Metadata
   notes?: string;
   internalNotes?: string;
@@ -466,33 +461,33 @@ export interface PayRunWarning {
 
 /**
  * Pay Stub - Individual caregiver's earnings statement
- * 
+ *
  * Complete record of earnings, deductions, and net pay
  * for one caregiver in one pay period.
  */
 export interface PayStub extends Entity {
   organizationId: UUID;
   branchId: UUID;
-  
+
   // References
   payRunId: UUID;
   payPeriodId: UUID;
   caregiverId: UUID;
   timeSheetId: UUID;
-  
+
   // Caregiver info
   caregiverName: string;
   caregiverEmployeeId: string;
   caregiverAddress?: Address;
-  
+
   // Period
   payPeriodStartDate: Date;
   payPeriodEndDate: Date;
   payDate: Date;
-  
+
   // Stub number
   stubNumber: string; // Unique identifier
-  
+
   // Hours
   regularHours: number;
   overtimeHours: number;
@@ -502,7 +497,7 @@ export interface PayStub extends Entity {
   sickHours: number;
   otherHours: number;
   totalHours: number;
-  
+
   // Earnings
   regularPay: number;
   overtimePay: number;
@@ -511,21 +506,21 @@ export interface PayStub extends Entity {
   holidayPay: number;
   sickPay: number;
   otherPay: number;
-  
+
   // Additional earnings
   bonuses: number;
   commissions: number;
   reimbursements: number;
   retroactivePay: number;
   otherEarnings: number;
-  
+
   // Gross pay
   currentGrossPay: number;
   yearToDateGrossPay: number;
-  
+
   // Deductions
   deductions: Deduction[];
-  
+
   // Tax withholdings
   federalIncomeTax: number;
   stateIncomeTax: number;
@@ -534,7 +529,7 @@ export interface PayStub extends Entity {
   medicareTax: number;
   additionalMedicareTax: number;
   totalTaxWithheld: number;
-  
+
   // Other deductions
   healthInsurance: number;
   dentalInsurance: number;
@@ -549,11 +544,11 @@ export interface PayStub extends Entity {
   unionDues: number;
   otherDeductions: number;
   totalOtherDeductions: number;
-  
+
   // Net pay
   currentNetPay: number;
   yearToDateNetPay: number;
-  
+
   // Year-to-date totals
   ytdHours: number;
   ytdGrossPay: number;
@@ -563,45 +558,45 @@ export interface PayStub extends Entity {
   ytdMedicare: number;
   ytdDeductions: number;
   ytdNetPay: number;
-  
+
   // Payment method
   paymentMethod: PaymentMethod;
   paymentId?: UUID; // Reference to payment record
-  
+
   // Bank info (for direct deposit)
   bankAccountId?: UUID;
   bankAccountLast4?: string;
-  
+
   // Check info
   checkNumber?: string;
   checkDate?: Date;
   checkStatus?: CheckStatus;
-  
+
   // Status
   status: PayStubStatus;
   statusHistory: PayStubStatusChange[];
-  
+
   // Approval
   calculatedAt: Timestamp;
   calculatedBy?: UUID;
   approvedAt?: Timestamp;
   approvedBy?: UUID;
-  
+
   // Delivery
   deliveredAt?: Timestamp;
   deliveryMethod?: 'EMAIL' | 'PRINT' | 'PORTAL' | 'MAIL';
   viewedAt?: Timestamp;
-  
+
   // Documents
   pdfUrl?: string;
   pdfGeneratedAt?: Timestamp;
-  
+
   // Flags
   isVoid: boolean;
   voidReason?: string;
   voidedAt?: Timestamp;
   voidedBy?: UUID;
-  
+
   // Metadata
   notes?: string;
   internalNotes?: string;
@@ -662,32 +657,32 @@ export interface Deduction {
   deductionType: DeductionType;
   deductionCode: string;
   description: string;
-  
+
   // Amount
   amount: number;
   calculationMethod: DeductionCalculationMethod;
   percentage?: number; // If percentage-based
-  
+
   // Limits
   hasLimit: boolean;
   yearlyLimit?: number;
   yearToDateAmount?: number;
   remainingAmount?: number;
-  
+
   // Tax treatment
   isPreTax: boolean; // Deducted before taxes calculated
   isPostTax: boolean; // Deducted after taxes
-  
+
   // Statutory
   isStatutory: boolean; // Required by law
-  
+
   // Employer match (for retirement, etc.)
   employerMatch?: number;
   employerMatchPercentage?: number;
-  
+
   // Garnishment specifics
   garnishmentOrder?: GarnishmentOrder;
-  
+
   // Status
   isActive: boolean;
   effectiveFrom?: Date;
@@ -765,42 +760,42 @@ export type GarnishmentType =
 export interface TaxConfiguration extends Entity {
   organizationId: UUID;
   caregiverId: UUID;
-  
+
   // Federal
   federalFilingStatus: FederalFilingStatus;
   federalAllowances: number; // Deprecated but still used
   federalExtraWithholding: number;
   federalExempt: boolean;
-  
+
   // W-4 fields (2020+ format)
   w4Step2: boolean; // Multiple jobs
   w4Step3Dependents: number; // Dependent amount
   w4Step4aOtherIncome: number;
   w4Step4bDeductions: number;
   w4Step4cExtraWithholding: number;
-  
+
   // State
   stateFilingStatus: StateFilingStatus;
   stateAllowances: number;
   stateExtraWithholding: number;
   stateExempt: boolean;
   stateResidence: string; // State code
-  
+
   // Local
   localTaxJurisdiction?: string;
   localExempt: boolean;
-  
+
   // Status
   effectiveFrom: Date;
   effectiveTo?: Date;
   lastUpdated: Timestamp;
   updatedBy: UUID;
-  
+
   // W-4 form
   w4OnFile: boolean;
   w4FileDate?: Date;
   w4DocumentId?: UUID;
-  
+
   // State form
   stateFormOnFile: boolean;
   stateFormDate?: Date;
@@ -828,18 +823,18 @@ export type StateFilingStatus =
 export interface PaymentRecord extends Entity {
   organizationId: UUID;
   branchId: UUID;
-  
+
   // References
   payRunId: UUID;
   payStubId: UUID;
   caregiverId: UUID;
-  
+
   // Payment details
   paymentNumber: string;
   paymentMethod: PaymentMethod;
   paymentAmount: number;
   paymentDate: Date;
-  
+
   // Direct deposit
   bankAccountId?: UUID;
   routingNumber?: string; // Encrypted
@@ -847,39 +842,39 @@ export interface PaymentRecord extends Entity {
   accountType?: 'CHECKING' | 'SAVINGS';
   transactionId?: string;
   traceNumber?: string;
-  
+
   // Check
   checkNumber?: string;
   checkDate?: Date;
   checkStatus?: CheckStatus;
   checkClearedDate?: Date;
   checkImageUrl?: string;
-  
+
   // Status
   status: PaymentStatus;
   statusHistory: PaymentStatusChange[];
-  
+
   // Processing
   initiatedAt: Timestamp;
   initiatedBy: UUID;
   processedAt?: Timestamp;
   settledAt?: Timestamp;
-  
+
   // ACH batch (for direct deposit)
   achBatchId?: UUID;
   achFileId?: string;
-  
+
   // Errors
   hasErrors: boolean;
   errorCode?: string;
   errorMessage?: string;
   errorDetails?: string;
-  
+
   // Reissue tracking
   isReissue: boolean;
   originalPaymentId?: UUID;
   reissueReason?: string;
-  
+
   // Metadata
   notes?: string;
 }
@@ -912,47 +907,47 @@ export interface PaymentStatusChange {
  */
 export interface ACHBatch extends Entity {
   organizationId: UUID;
-  
+
   // Batch details
   batchNumber: string;
   batchDate: Date;
   effectiveDate: Date; // When funds settle
-  
+
   // Company (employer) info
   companyName: string;
   companyId: string; // Company ID for ACH
   companyEntryDescription: string;
-  
+
   // Payments
   paymentIds: UUID[];
   transactionCount: number;
   totalDebitAmount: number; // Usually 0 for payroll
   totalCreditAmount: number;
-  
+
   // File generation
   achFileUrl?: string;
   achFileFormat: 'NACHA' | 'CCD' | 'PPD' | 'CTX';
   achFileGeneratedAt?: Timestamp;
   achFileHash?: string;
-  
+
   // Processing
   status: ACHBatchStatus;
   submittedAt?: Timestamp;
   submittedBy?: UUID;
-  
+
   // Bank info
   originatingBankRoutingNumber: string;
   originatingBankAccountNumber: string; // Encrypted
-  
+
   // Settlement
   settledAt?: Timestamp;
   settlementConfirmation?: string;
-  
+
   // Errors
   hasReturns: boolean;
   returnCount?: number;
   returns?: ACHReturn[];
-  
+
   // Metadata
   notes?: string;
 }
@@ -983,7 +978,7 @@ export interface ACHReturn {
  */
 export interface PayrollTaxFiling extends Entity {
   organizationId: UUID;
-  
+
   // Filing period
   filingType: TaxFilingType;
   filingYear: number;
@@ -991,11 +986,11 @@ export interface PayrollTaxFiling extends Entity {
   filingMonth?: number; // 1-12
   periodStartDate: Date;
   periodEndDate: Date;
-  
+
   // Jurisdiction
   jurisdiction: TaxJurisdiction;
   filingForm: string; // e.g., '941', 'W-2', 'SUTA'
-  
+
   // Amounts
   totalWages: number;
   totalTips: number;
@@ -1008,26 +1003,26 @@ export interface PayrollTaxFiling extends Entity {
   stateIncomeTax: number;
   stateUnemploymentTax: number;
   localTax: number;
-  
+
   // Status
   status: TaxFilingStatus;
-  
+
   // Filing
   dueDate: Date;
   filedDate?: Date;
   filedBy?: UUID;
   confirmationNumber?: string;
-  
+
   // Payment
   paymentAmount?: number;
   paymentDate?: Date;
   paymentMethod?: string;
   paymentConfirmation?: string;
-  
+
   // Documents
   filingDocumentUrl?: string;
   receiptDocumentUrl?: string;
-  
+
   // Metadata
   notes?: string;
 }
@@ -1042,12 +1037,7 @@ export type TaxFilingType =
   | 'LOCAL' // Local tax filing
   | 'YEAR_END'; // Year-end reconciliation
 
-export type TaxJurisdiction =
-  | 'FEDERAL'
-  | 'STATE'
-  | 'LOCAL'
-  | 'COUNTY'
-  | 'CITY';
+export type TaxJurisdiction = 'FEDERAL' | 'STATE' | 'LOCAL' | 'COUNTY' | 'CITY';
 
 export type TaxFilingStatus =
   | 'PENDING' // Not yet filed

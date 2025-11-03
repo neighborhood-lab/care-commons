@@ -1,6 +1,6 @@
 /**
  * State-specific caregiver validation for Texas and Florida
- * 
+ *
  * Texas: 26 TAC §558, HHSC requirements, registry checks
  * Florida: Chapter 59A-8, AHCA requirements, Level 2 screening
  */
@@ -14,25 +14,28 @@ import {
 } from '../types/caregiver';
 
 // Texas validation schemas
-const registryCheckSchema = z.object({
-  checkDate: z.date(),
-  expirationDate: z.date(),
-  status: z.enum(['CLEAR', 'PENDING', 'LISTED', 'EXPIRED']),
-  registryType: z.enum(['EMPLOYEE_MISCONDUCT', 'NURSE_AIDE', 'OTHER']),
-  confirmationNumber: z.string().optional(),
-  performedBy: z.string().uuid(),
-  documentPath: z.string().optional(),
-  notes: z.string().optional(),
-  listingDetails: z.object({
-    listedDate: z.date().optional(),
-    violationType: z.string().optional(),
-    disposition: z.string().optional(),
-    ineligibleForHire: z.boolean(),
-  }).optional(),
-}).refine(
-  (data) => data.expirationDate > data.checkDate,
-  { message: 'Expiration date must be after check date' }
-);
+const registryCheckSchema = z
+  .object({
+    checkDate: z.date(),
+    expirationDate: z.date(),
+    status: z.enum(['CLEAR', 'PENDING', 'LISTED', 'EXPIRED']),
+    registryType: z.enum(['EMPLOYEE_MISCONDUCT', 'NURSE_AIDE', 'OTHER']),
+    confirmationNumber: z.string().optional(),
+    performedBy: z.string().uuid(),
+    documentPath: z.string().optional(),
+    notes: z.string().optional(),
+    listingDetails: z
+      .object({
+        listedDate: z.date().optional(),
+        violationType: z.string().optional(),
+        disposition: z.string().optional(),
+        ineligibleForHire: z.boolean(),
+      })
+      .optional(),
+  })
+  .refine((data) => data.expirationDate > data.checkDate, {
+    message: 'Expiration date must be after check date',
+  });
 
 const texasMandatoryTrainingSchema = z.object({
   abuseNeglectReporting: z.boolean(),
@@ -75,22 +78,23 @@ const texasCaregiverDataSchema = z.object({
 });
 
 // Florida validation schemas
-const floridaBackgroundScreeningSchema = z.object({
-  screeningDate: z.date(),
-  screeningType: z.enum(['INITIAL', 'FIVE_YEAR_RESCREEN', 'UPDATE']),
-  clearanceDate: z.date().optional(),
-  expirationDate: z.date(),
-  status: z.enum(['CLEARED', 'PENDING', 'CONDITIONAL', 'DISQUALIFIED']),
-  clearinghouseId: z.string().optional(),
-  ahcaClearanceNumber: z.string().optional(),
-  exemptionGranted: z.boolean().optional(),
-  exemptionReason: z.string().optional(),
-  disqualifyingOffenses: z.array(z.any()).optional(),
-  documentPath: z.string().optional(),
-}).refine(
-  (data) => data.expirationDate > data.screeningDate,
-  { message: 'Expiration date must be after screening date' }
-);
+const floridaBackgroundScreeningSchema = z
+  .object({
+    screeningDate: z.date(),
+    screeningType: z.enum(['INITIAL', 'FIVE_YEAR_RESCREEN', 'UPDATE']),
+    clearanceDate: z.date().optional(),
+    expirationDate: z.date(),
+    status: z.enum(['CLEARED', 'PENDING', 'CONDITIONAL', 'DISQUALIFIED']),
+    clearinghouseId: z.string().optional(),
+    ahcaClearanceNumber: z.string().optional(),
+    exemptionGranted: z.boolean().optional(),
+    exemptionReason: z.string().optional(),
+    disqualifyingOffenses: z.array(z.any()).optional(),
+    documentPath: z.string().optional(),
+  })
+  .refine((data) => data.expirationDate > data.screeningDate, {
+    message: 'Expiration date must be after screening date',
+  });
 
 const floridaCaregiverDataSchema = z.object({
   level2BackgroundScreening: floridaBackgroundScreeningSchema.optional(),
@@ -124,22 +128,24 @@ const floridaCaregiverDataSchema = z.object({
   nextRescreenDue: z.date().optional(),
 });
 
-const stateSpecificCaregiverDataSchema = z.object({
-  state: z.enum(['TX', 'FL']),
-  texas: texasCaregiverDataSchema.optional(),
-  florida: floridaCaregiverDataSchema.optional(),
-}).refine(
-  (data) => {
-    if (data.state === 'TX') {
-      return data.texas !== undefined;
-    }
-    if (data.state === 'FL') {
-      return data.florida !== undefined;
-    }
-    return true;
-  },
-  { message: 'State-specific data must be provided for the selected state' }
-);
+const stateSpecificCaregiverDataSchema = z
+  .object({
+    state: z.enum(['TX', 'FL']),
+    texas: texasCaregiverDataSchema.optional(),
+    florida: floridaCaregiverDataSchema.optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.state === 'TX') {
+        return data.texas !== undefined;
+      }
+      if (data.state === 'FL') {
+        return data.florida !== undefined;
+      }
+      return true;
+    },
+    { message: 'State-specific data must be provided for the selected state' }
+  );
 
 export class StateSpecificCaregiverValidator {
   /**
@@ -172,16 +178,17 @@ export class StateSpecificCaregiverValidator {
   validateTexasCaregiver(data: TexasCaregiverData, role: CaregiverRole): ValidationResult {
     try {
       texasCaregiverDataSchema.parse(data);
-      
+
       // Additional TX business rules
       const additionalErrors: Array<{ path: string; message: string }> = [];
-      
+
       // Rule: Registry checks required for all caregiving staff
       if (this.isDirectCareRole(role)) {
         if (!data.employeeMisconductRegistryCheck) {
           additionalErrors.push({
             path: 'employeeMisconductRegistryCheck',
-            message: 'Employee Misconduct Registry check required for direct care roles (26 TAC §558)',
+            message:
+              'Employee Misconduct Registry check required for direct care roles (26 TAC §558)',
           });
         } else if (data.employeeMisconductRegistryCheck.status === 'EXPIRED') {
           additionalErrors.push({
@@ -195,7 +202,7 @@ export class StateSpecificCaregiverValidator {
           });
         }
       }
-      
+
       // Rule: Nurse Aide Registry check required for CNAs
       if (role === 'CERTIFIED_NURSING_ASSISTANT') {
         if (!data.nurseAideRegistryCheck) {
@@ -210,7 +217,7 @@ export class StateSpecificCaregiverValidator {
           });
         }
       }
-      
+
       // Rule: HHSC orientation required (26 TAC §558.259)
       if (!data.hhscOrientationComplete) {
         additionalErrors.push({
@@ -218,7 +225,7 @@ export class StateSpecificCaregiverValidator {
           message: 'HHSC orientation required per 26 TAC §558.259',
         });
       }
-      
+
       // Rule: Mandatory training requirements
       if (data.mandatoryTraining) {
         const training = data.mandatoryTraining;
@@ -235,7 +242,7 @@ export class StateSpecificCaregiverValidator {
           });
         }
       }
-      
+
       // Rule: E-Verify and I-9 required
       if (!data.eVerifyCompleted) {
         additionalErrors.push({
@@ -249,7 +256,7 @@ export class StateSpecificCaregiverValidator {
           message: 'I-9 form must be on file',
         });
       }
-      
+
       // Rule: TB screening required if applicable
       if (data.tbScreeningRequired && !data.tbScreening) {
         additionalErrors.push({
@@ -257,7 +264,7 @@ export class StateSpecificCaregiverValidator {
           message: 'TB screening required per DSHS requirements',
         });
       }
-      
+
       // Rule: EVV enrollment for direct care
       if (this.isDirectCareRole(role) && !data.evvSystemEnrolled) {
         additionalErrors.push({
@@ -265,7 +272,7 @@ export class StateSpecificCaregiverValidator {
           message: 'EVV system enrollment required for direct care roles',
         });
       }
-      
+
       // Rule: Check registry status
       if (data.registryCheckStatus === 'FLAGGED' || data.registryCheckStatus === 'INELIGIBLE') {
         additionalErrors.push({
@@ -273,11 +280,11 @@ export class StateSpecificCaregiverValidator {
           message: `Registry check status is ${data.registryCheckStatus} - further review required`,
         });
       }
-      
+
       if (additionalErrors.length > 0) {
         return { success: false, errors: additionalErrors };
       }
-      
+
       return { success: true };
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -302,10 +309,10 @@ export class StateSpecificCaregiverValidator {
   validateFloridaCaregiver(data: FloridaCaregiverData, role: CaregiverRole): ValidationResult {
     try {
       floridaCaregiverDataSchema.parse(data);
-      
+
       // Additional FL business rules
       const additionalErrors: Array<{ path: string; message: string }> = [];
-      
+
       // Rule: Level 2 background screening required (AHCA Clearinghouse)
       if (this.isDirectCareRole(role)) {
         if (!data.level2BackgroundScreening) {
@@ -315,21 +322,21 @@ export class StateSpecificCaregiverValidator {
           });
         } else {
           const screening = data.level2BackgroundScreening;
-          
+
           if (screening.status === 'DISQUALIFIED') {
             additionalErrors.push({
               path: 'level2BackgroundScreening.status',
               message: 'Caregiver disqualified from Level 2 background screening',
             });
           }
-          
+
           if (screening.status === 'PENDING') {
             additionalErrors.push({
               path: 'level2BackgroundScreening.status',
               message: 'Level 2 background screening pending clearance',
             });
           }
-          
+
           // Check for expiration
           if (screening.expirationDate < new Date()) {
             additionalErrors.push({
@@ -337,7 +344,7 @@ export class StateSpecificCaregiverValidator {
               message: 'Level 2 background screening expired - 5-year rescreen required',
             });
           }
-          
+
           // Warn if expiring within 90 days
           const daysUntilExpiration = Math.floor(
             (screening.expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -350,7 +357,7 @@ export class StateSpecificCaregiverValidator {
           }
         }
       }
-      
+
       // Rule: Professional license validation (MQA Portal)
       if (this.requiresFloridaLicense(role)) {
         if (!data.flLicenseNumber) {
@@ -365,14 +372,14 @@ export class StateSpecificCaregiverValidator {
               message: `Florida license status is ${data.flLicenseStatus}`,
             });
           }
-          
+
           if (data.flLicenseStatus === 'SUSPENDED' || data.flLicenseStatus === 'REVOKED') {
             additionalErrors.push({
               path: 'flLicenseStatus',
               message: `Florida license ${data.flLicenseStatus} - ineligible to practice`,
             });
           }
-          
+
           if (data.flLicenseExpiration && data.flLicenseExpiration < new Date()) {
             additionalErrors.push({
               path: 'flLicenseExpiration',
@@ -381,7 +388,7 @@ export class StateSpecificCaregiverValidator {
           }
         }
       }
-      
+
       // Rule: CNA/HHA registration (59A-8.0095)
       if (role === 'CERTIFIED_NURSING_ASSISTANT' && !data.cnaRegistrationNumber) {
         additionalErrors.push({
@@ -389,14 +396,14 @@ export class StateSpecificCaregiverValidator {
           message: 'CNA registration number required (59A-8.0095)',
         });
       }
-      
+
       if (role === 'HOME_HEALTH_AIDE' && !data.hhaRegistrationNumber) {
         additionalErrors.push({
           path: 'hhaRegistrationNumber',
           message: 'HHA registration number required (59A-8.0095)',
         });
       }
-      
+
       // Rule: RN supervision requirements (59A-8.0095)
       if (data.requiresRNSupervision && !data.assignedRNSupervisor) {
         additionalErrors.push({
@@ -404,7 +411,7 @@ export class StateSpecificCaregiverValidator {
           message: 'RN supervisor assignment required per 59A-8.0095',
         });
       }
-      
+
       // Rule: HIV/AIDS training mandatory (59A-8.0095)
       if (!data.hivAidsTrainingComplete) {
         additionalErrors.push({
@@ -412,7 +419,7 @@ export class StateSpecificCaregiverValidator {
           message: 'HIV/AIDS training required per 59A-8.0095',
         });
       }
-      
+
       // Rule: OSHA bloodborne pathogen training
       if (!data.oshaBloodbornePathogenTraining) {
         additionalErrors.push({
@@ -420,7 +427,7 @@ export class StateSpecificCaregiverValidator {
           message: 'OSHA bloodborne pathogen training required',
         });
       }
-      
+
       // Rule: Medicaid provider ID for billing
       if (this.isDirectCareRole(role) && !data.medicaidProviderId) {
         additionalErrors.push({
@@ -428,7 +435,7 @@ export class StateSpecificCaregiverValidator {
           message: 'Medicaid provider ID required for service billing',
         });
       }
-      
+
       // Rule: Check next rescreen due date
       if (data.nextRescreenDue && data.nextRescreenDue < new Date()) {
         additionalErrors.push({
@@ -436,7 +443,7 @@ export class StateSpecificCaregiverValidator {
           message: '5-year background rescreen overdue',
         });
       }
-      
+
       // Rule: AHCA compliance status
       if (data.ahcaComplianceStatus === 'NON_COMPLIANT') {
         additionalErrors.push({
@@ -444,11 +451,11 @@ export class StateSpecificCaregiverValidator {
           message: 'AHCA compliance status is non-compliant - resolve issues before assignment',
         });
       }
-      
+
       if (additionalErrors.length > 0) {
         return { success: false, errors: additionalErrors };
       }
-      
+
       return { success: true };
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -479,10 +486,10 @@ export class StateSpecificCaregiverValidator {
     issues: Array<{ severity: 'CRITICAL' | 'ERROR' | 'WARNING'; message: string }>;
   } {
     const issues: Array<{ severity: 'CRITICAL' | 'ERROR' | 'WARNING'; message: string }> = [];
-    
+
     if (stateData.state === 'TX' && stateData.texas) {
       const tx = stateData.texas;
-      
+
       // Critical issues (prevent assignment)
       if (tx.registryCheckStatus === 'INELIGIBLE') {
         issues.push({
@@ -490,14 +497,14 @@ export class StateSpecificCaregiverValidator {
           message: 'Listed on registry - INELIGIBLE FOR HIRE',
         });
       }
-      
+
       if (tx.employeeMisconductRegistryCheck?.listingDetails?.ineligibleForHire) {
         issues.push({
           severity: 'CRITICAL',
           message: 'Listed on Employee Misconduct Registry - cannot be assigned',
         });
       }
-      
+
       // Errors (missing required items)
       if (!tx.hhscOrientationComplete) {
         issues.push({
@@ -505,21 +512,21 @@ export class StateSpecificCaregiverValidator {
           message: 'HHSC orientation not complete (26 TAC §558.259)',
         });
       }
-      
+
       if (!tx.eVerifyCompleted || !tx.i9FormOnFile) {
         issues.push({
           severity: 'ERROR',
           message: 'E-Verify and I-9 requirements not complete',
         });
       }
-      
+
       if (this.isDirectCareRole(role) && !tx.evvSystemEnrolled) {
         issues.push({
           severity: 'ERROR',
           message: 'Not enrolled in EVV system - required for direct care',
         });
       }
-      
+
       // Warnings (expiring or needing attention)
       if (tx.employeeMisconductRegistryCheck?.status === 'EXPIRED') {
         issues.push({
@@ -527,17 +534,16 @@ export class StateSpecificCaregiverValidator {
           message: 'Employee Misconduct Registry check expired - renewal needed',
         });
       }
-      
+
       if (tx.nextComplianceReview && tx.nextComplianceReview < new Date()) {
         issues.push({
           severity: 'WARNING',
           message: 'Compliance review overdue',
         });
       }
-      
     } else if (stateData.state === 'FL' && stateData.florida) {
       const fl = stateData.florida;
-      
+
       // Critical issues (prevent assignment)
       if (fl.screeningStatus === 'DISQUALIFIED') {
         issues.push({
@@ -545,14 +551,14 @@ export class StateSpecificCaregiverValidator {
           message: 'Disqualified from Level 2 background screening - INELIGIBLE',
         });
       }
-      
+
       if (fl.flLicenseStatus === 'REVOKED' || fl.flLicenseStatus === 'SUSPENDED') {
         issues.push({
           severity: 'CRITICAL',
           message: `Professional license ${fl.flLicenseStatus} - cannot practice`,
         });
       }
-      
+
       // Errors (missing required items)
       if (fl.screeningStatus !== 'CLEARED') {
         issues.push({
@@ -560,28 +566,31 @@ export class StateSpecificCaregiverValidator {
           message: `Level 2 background screening status: ${fl.screeningStatus}`,
         });
       }
-      
+
       if (!fl.hivAidsTrainingComplete) {
         issues.push({
           severity: 'ERROR',
           message: 'HIV/AIDS training not complete (59A-8.0095 requirement)',
         });
       }
-      
+
       if (fl.requiresRNSupervision && !fl.assignedRNSupervisor) {
         issues.push({
           severity: 'ERROR',
           message: 'RN supervisor not assigned (59A-8.0095 requirement)',
         });
       }
-      
-      if (this.requiresFloridaLicense(role) && (!fl.flLicenseNumber || fl.flLicenseStatus !== 'ACTIVE')) {
+
+      if (
+        this.requiresFloridaLicense(role) &&
+        (!fl.flLicenseNumber || fl.flLicenseStatus !== 'ACTIVE')
+      ) {
         issues.push({
           severity: 'ERROR',
           message: 'Valid Florida professional license required',
         });
       }
-      
+
       // Warnings (expiring or needing attention)
       if (fl.nextRescreenDue && fl.nextRescreenDue < new Date()) {
         issues.push({
@@ -589,10 +598,11 @@ export class StateSpecificCaregiverValidator {
           message: '5-year background rescreen overdue',
         });
       }
-      
+
       if (fl.level2BackgroundScreening) {
         const daysUntilExpiration = Math.floor(
-          (fl.level2BackgroundScreening.expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          (fl.level2BackgroundScreening.expirationDate.getTime() - Date.now()) /
+            (1000 * 60 * 60 * 24)
         );
         if (daysUntilExpiration > 0 && daysUntilExpiration <= 90) {
           issues.push({
@@ -601,7 +611,7 @@ export class StateSpecificCaregiverValidator {
           });
         }
       }
-      
+
       if (fl.ahcaComplianceStatus !== 'COMPLIANT') {
         issues.push({
           severity: 'WARNING',
@@ -609,10 +619,10 @@ export class StateSpecificCaregiverValidator {
         });
       }
     }
-    
+
     const hasCritical = issues.some((i) => i.severity === 'CRITICAL');
     const hasErrors = issues.some((i) => i.severity === 'ERROR');
-    
+
     return {
       compliant: !hasErrors && !hasCritical,
       eligibleForAssignment: !hasCritical,
@@ -640,12 +650,7 @@ export class StateSpecificCaregiverValidator {
    * Helper: Check if role requires FL professional license
    */
   private requiresFloridaLicense(role: CaregiverRole): boolean {
-    return [
-      'NURSE_RN',
-      'NURSE_LPN',
-      'THERAPIST',
-      'CERTIFIED_NURSING_ASSISTANT',
-    ].includes(role);
+    return ['NURSE_RN', 'NURSE_LPN', 'THERAPIST', 'CERTIFIED_NURSING_ASSISTANT'].includes(role);
   }
 }
 

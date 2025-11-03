@@ -3,17 +3,17 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., 1.0.0, 1.0.1, 1.1.0)'
+        description: "Release version (e.g., 1.0.0, 1.0.1, 1.1.0)"
         required: true
         type: string
       release_type:
-        description: 'Release type'
+        description: "Release type"
         required: true
-        default: 'patch'
+        default: "patch"
         type: choice
         options:
           - patch
@@ -21,7 +21,7 @@ on:
           - major
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
 
 jobs:
   create-release:
@@ -41,7 +41,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -118,16 +118,16 @@ jobs:
         run: |
           # Get previous tag
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          
+
           if [ -n "$PREVIOUS_TAG" ]; then
             CHANGELOG=$(git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
           else
             CHANGELOG=$(git log --pretty=format:"- %s (%h)")
           fi
-          
+
           # Save changelog to file
           echo "$CHANGELOG" > CHANGELOG.md
-          
+
           # Set output for GitHub release
           {
             echo 'changelog<<EOF'
@@ -144,14 +144,14 @@ jobs:
           release_name: Release v${{ steps.version.outputs.version }}
           body: |
             ## Changes in v${{ steps.version.outputs.version }}
-            
+
             ${{ steps.changelog.outputs.changelog }}
-            
+
             ### Installation
             ```bash
             npm install @care-commons/platform@${{ steps.version.outputs.version }}
             ```
-            
+
             ### Verification
             - [x] All tests pass
             - [x] Type checking passes
@@ -181,7 +181,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci

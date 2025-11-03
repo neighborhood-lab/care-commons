@@ -16,19 +16,13 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  (
-    { error, label, helperText, options, placeholder, className, id, ...props },
-    ref
-  ) => {
+  ({ error, label, helperText, options, placeholder, className, id, ...props }, ref) => {
     const selectId = id || `select-${label?.toLowerCase().replace(/\s/g, '-')}`;
 
     return (
       <div className="w-full">
         {label && (
-          <label
-            htmlFor={selectId}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor={selectId} className="block text-sm font-medium text-gray-700 mb-1">
             {label}
             {props.required && <span className="text-red-500 ml-1">*</span>}
           </label>
@@ -53,11 +47,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             </option>
           )}
           {options.map((option) => (
-            <option
-              key={option.value}
-              value={option.value}
-              disabled={option.disabled}
-            >
+            <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}
             </option>
           ))}
@@ -67,9 +57,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             {error}
           </p>
         )}
-        {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500">{helperText}</p>
-        )}
+        {helperText && !error && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
       </div>
     );
   }

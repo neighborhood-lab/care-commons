@@ -1,6 +1,6 @@
 /**
  * Unit tests for tax calculation utilities
- * 
+ *
  * Tests federal and state income tax withholding calculations,
  * FICA taxes, and compliance with IRS Publication 15-T
  */
@@ -67,12 +67,12 @@ describe('Tax Calculation Utilities', () => {
         ...mockTaxConfig,
         federalFilingStatus: 'SINGLE',
       });
-      
+
       const marriedResult = calculateFederalIncomeTax(1000, 'WEEKLY', {
         ...mockTaxConfig,
         federalFilingStatus: 'MARRIED_JOINTLY',
       });
-      
+
       expect(singleResult).not.toBe(marriedResult);
     });
 
@@ -110,7 +110,7 @@ describe('Tax Calculation Utilities', () => {
       const weekly = calculateFederalIncomeTax(1000, 'WEEKLY', mockTaxConfig);
       const biWeekly = calculateFederalIncomeTax(2000, 'BI_WEEKLY', mockTaxConfig);
       const monthly = calculateFederalIncomeTax(4000, 'MONTHLY', mockTaxConfig);
-      
+
       expect(weekly).toBeGreaterThan(0);
       expect(biWeekly).toBeGreaterThan(0);
       expect(monthly).toBeGreaterThan(0);
@@ -135,7 +135,7 @@ describe('Tax Calculation Utilities', () => {
 
     it('should calculate partial tax when approaching wage base', () => {
       const result = calculateSocialSecurityTax(1000, 168000);
-      expect(result).toBe(37.20); // (168600 - 168000) * 0.062
+      expect(result).toBe(37.2); // (168600 - 168000) * 0.062
     });
 
     it('should handle zero gross pay', () => {
@@ -152,7 +152,7 @@ describe('Tax Calculation Utilities', () => {
   describe('calculateMedicareTax', () => {
     it('should calculate 1.45% of gross pay', () => {
       const result = calculateMedicareTax(1000);
-      expect(result).toBe(14.50); // 1000 * 0.0145
+      expect(result).toBe(14.5); // 1000 * 0.0145
     });
 
     it('should handle zero gross pay', () => {
@@ -240,26 +240,26 @@ describe('Tax Calculation Utilities', () => {
   describe('calculateAllTaxes', () => {
     it('should calculate all tax components', () => {
       const result = calculateAllTaxes(1000, 0, 'WEEKLY', mockTaxConfig);
-      
+
       expect(result.federalIncomeTax).toBeGreaterThanOrEqual(0);
       expect(result.stateIncomeTax).toBeGreaterThanOrEqual(0);
       expect(result.localIncomeTax).toBeGreaterThanOrEqual(0);
       expect(result.socialSecurityTax).toBe(62);
-      expect(result.medicareTax).toBe(14.50);
+      expect(result.medicareTax).toBe(14.5);
       expect(result.additionalMedicareTax).toBeGreaterThanOrEqual(0);
       expect(result.totalTax).toBeGreaterThan(0);
     });
 
     it('should sum taxes correctly', () => {
       const result = calculateAllTaxes(1000, 0, 'WEEKLY', mockTaxConfig);
-      const expectedTotal = 
+      const expectedTotal =
         result.federalIncomeTax +
         result.stateIncomeTax +
         result.localIncomeTax +
         result.socialSecurityTax +
         result.medicareTax +
         result.additionalMedicareTax;
-      
+
       expect(result.totalTax).toBeCloseTo(expectedTotal, 2);
     });
 
@@ -291,7 +291,7 @@ describe('Tax Calculation Utilities', () => {
         payPeriodType: 'BI_WEEKLY' as const,
         taxConfig: mockTaxConfig,
       };
-      
+
       const result = calculateSupplementalWithholding(1000, false, aggregateParams);
       // Should calculate the difference between withholding on $3000 vs $2000
       expect(result).toBeGreaterThan(0);
@@ -318,7 +318,7 @@ describe('Tax Calculation Utilities', () => {
   describe('estimateQuarterlyTaxLiability', () => {
     it('should calculate employer FICA taxes correctly', () => {
       const result = estimateQuarterlyTaxLiability(50000, 5000);
-      
+
       expect(result.employerSocialSecurity).toBe(3100); // 50000 * 0.062
       expect(result.employerMedicare).toBe(725); // 50000 * 0.0145
       expect(result.totalEmployerTaxes).toBe(3825); // 3100 + 725
@@ -326,23 +326,23 @@ describe('Tax Calculation Utilities', () => {
 
     it('should respect Social Security wage base', () => {
       const result = estimateQuarterlyTaxLiability(200000, 20000);
-      
+
       // Should only calculate on wage base of 168600
-      expect(result.employerSocialSecurity).toBe(10453.20); // 168600 * 0.062
+      expect(result.employerSocialSecurity).toBe(10453.2); // 168600 * 0.062
       expect(result.employerMedicare).toBe(2900); // 200000 * 0.0145
     });
 
     it('should calculate total deposits correctly', () => {
       const result = estimateQuarterlyTaxLiability(50000, 5000);
-      
+
       // Total deposits = withheld taxes + employee FICA + employer FICA
-      const expectedDeposits = 5000 + (3100 * 2) + (725 * 2);
+      const expectedDeposits = 5000 + 3100 * 2 + 725 * 2;
       expect(result.totalDeposits).toBeCloseTo(expectedDeposits, 2);
     });
 
     it('should handle zero wages', () => {
       const result = estimateQuarterlyTaxLiability(0, 0);
-      
+
       expect(result.employerSocialSecurity).toBe(0);
       expect(result.employerMedicare).toBe(0);
       expect(result.totalEmployerTaxes).toBe(0);
@@ -375,12 +375,12 @@ describe('Tax Calculation Utilities', () => {
         stateExempt: true,
       };
       const result = calculateAllTaxes(1000, 0, 'WEEKLY', exemptConfig);
-      
+
       expect(result.federalIncomeTax).toBe(0);
       expect(result.stateIncomeTax).toBe(0);
       // FICA taxes should still apply
       expect(result.socialSecurityTax).toBe(62);
-      expect(result.medicareTax).toBe(14.50);
+      expect(result.medicareTax).toBe(14.5);
     });
 
     it('should handle maximum withholding scenarios', () => {
@@ -390,7 +390,7 @@ describe('Tax Calculation Utilities', () => {
         stateExtraWithholding: 500,
       };
       const result = calculateAllTaxes(2000, 0, 'WEEKLY', maxConfig);
-      
+
       expect(result.federalIncomeTax).toBeGreaterThanOrEqual(1000);
       expect(result.stateIncomeTax).toBeGreaterThanOrEqual(500);
     });
@@ -403,7 +403,7 @@ describe('Tax Calculation Utilities', () => {
         { gross: -100, ytd: 0 },
         { gross: 100, ytd: -100 },
       ];
-      
+
       testCases.forEach(({ gross, ytd }) => {
         const result = calculateAllTaxes(gross, ytd, 'WEEKLY', mockTaxConfig);
         expect(result.federalIncomeTax).toBeGreaterThanOrEqual(0);
@@ -424,7 +424,7 @@ describe('Tax Calculation Utilities', () => {
         { gross: 1000, ytd: wageBase, expected: 0 },
         { gross: 1000, ytd: wageBase + 1000, expected: 0 },
       ];
-      
+
       testCases.forEach(({ gross, ytd, expected }) => {
         const result = calculateSocialSecurityTax(gross, ytd);
         expect(result).toBeCloseTo(expected, 2);
@@ -439,7 +439,7 @@ describe('Tax Calculation Utilities', () => {
         { gross: 1000, ytd: threshold, expected: 9 },
         { gross: 1000, ytd: threshold + 1000, expected: 9 },
       ];
-      
+
       testCases.forEach(({ gross, ytd, expected }) => {
         const result = calculateAdditionalMedicareTax(gross, ytd);
         expect(result).toBeCloseTo(expected, 2);

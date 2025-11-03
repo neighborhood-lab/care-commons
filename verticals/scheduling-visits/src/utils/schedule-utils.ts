@@ -33,7 +33,7 @@ import {
  */
 export function formatVisitDate(date: Date | string): string {
   const visitDate = typeof date === 'string' ? parseISO(date) : date;
-  
+
   if (isToday(visitDate)) {
     return 'Today';
   } else if (isTomorrow(visitDate)) {
@@ -41,7 +41,7 @@ export function formatVisitDate(date: Date | string): string {
   } else if (isYesterday(visitDate)) {
     return 'Yesterday';
   }
-  
+
   return format(visitDate, 'MMM d, yyyy');
 }
 
@@ -51,7 +51,7 @@ export function formatVisitDate(date: Date | string): string {
 export function formatVisitTime(startTime: string, endTime: string): string {
   const [startHour, startMin] = startTime.split(':').map(Number);
   const [endHour, endMin] = endTime.split(':').map(Number);
-  
+
   const formatTime = (hour: number, min: number): string => {
     const period = hour >= 12 ? 'PM' : 'AM';
     let displayHour: number;
@@ -64,7 +64,7 @@ export function formatVisitTime(startTime: string, endTime: string): string {
     }
     return `${displayHour}:${min.toString().padStart(2, '0')} ${period}`;
   };
-  
+
   return `${formatTime(startHour ?? 0, startMin ?? 0)} - ${formatTime(endHour ?? 0, endMin ?? 0)}`;
 }
 
@@ -74,10 +74,10 @@ export function formatVisitTime(startTime: string, endTime: string): string {
 export function getVisitDuration(startTime: string, endTime: string): number {
   const [startHour, startMin] = startTime.split(':').map(Number);
   const [endHour, endMin] = endTime.split(':').map(Number);
-  
+
   const startMinutes = (startHour ?? 0) * 60 + (startMin ?? 0);
   const endMinutes = (endHour ?? 0) * 60 + (endMin ?? 0);
-  
+
   return endMinutes - startMinutes;
 }
 
@@ -88,27 +88,24 @@ export function formatDuration(minutes: number): string {
   if (minutes < 60) {
     return `${minutes} min`;
   }
-  
+
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
-  
+
   if (mins === 0) {
     return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
   }
-  
+
   return `${hours}h ${mins}m`;
 }
 
 /**
  * Calculate actual visit duration from timestamps
  */
-export function calculateActualDuration(
-  startTime: Date | string,
-  endTime: Date | string
-): number {
+export function calculateActualDuration(startTime: Date | string, endTime: Date | string): number {
   const start = typeof startTime === 'string' ? parseISO(startTime) : startTime;
   const end = typeof endTime === 'string' ? parseISO(endTime) : endTime;
-  
+
   return differenceInMinutes(end, start);
 }
 
@@ -213,7 +210,7 @@ export function getVisitStatusDisplay(status: VisitStatus): {
       description: 'Caregiver rejected assignment',
     },
   };
-  
+
   return statusMap[status];
 }
 
@@ -258,7 +255,7 @@ export function getVisitTypeDisplay(type: VisitType): {
       description: 'Client assessment or evaluation',
     },
   };
-  
+
   return typeMap[type];
 }
 
@@ -266,10 +263,9 @@ export function getVisitTypeDisplay(type: VisitType): {
  * Check if visit is upcoming (scheduled for future)
  */
 export function isUpcomingVisit(visit: Pick<Visit, 'scheduledDate' | 'status'>): boolean {
-  const visitDate = typeof visit.scheduledDate === 'string' 
-    ? parseISO(visit.scheduledDate) 
-    : visit.scheduledDate;
-    
+  const visitDate =
+    typeof visit.scheduledDate === 'string' ? parseISO(visit.scheduledDate) : visit.scheduledDate;
+
   return (
     isAfter(visitDate, new Date()) &&
     ['SCHEDULED', 'UNASSIGNED', 'ASSIGNED', 'CONFIRMED'].includes(visit.status)
@@ -300,45 +296,38 @@ export function needsAttention(
   if (visit.isUrgent || visit.isPriority) {
     return true;
   }
-  
+
   // Unassigned visits
   if (visit.status === 'UNASSIGNED') {
     return true;
   }
-  
+
   // Problem statuses
   if (['NO_SHOW_CLIENT', 'NO_SHOW_CAREGIVER', 'REJECTED', 'INCOMPLETE'].includes(visit.status)) {
     return true;
   }
-  
+
   // Visit scheduled for today but not confirmed
-  const visitDate = typeof visit.scheduledDate === 'string'
-    ? parseISO(visit.scheduledDate)
-    : visit.scheduledDate;
-    
-  if (
-    isToday(visitDate) &&
-    ['SCHEDULED', 'UNASSIGNED', 'ASSIGNED'].includes(visit.status)
-  ) {
+  const visitDate =
+    typeof visit.scheduledDate === 'string' ? parseISO(visit.scheduledDate) : visit.scheduledDate;
+
+  if (isToday(visitDate) && ['SCHEDULED', 'UNASSIGNED', 'ASSIGNED'].includes(visit.status)) {
     return true;
   }
-  
+
   return false;
 }
 
 /**
  * Get time until visit starts
  */
-export function getTimeUntilVisit(
-  date: Date | string,
-  startTime: string
-): string {
+export function getTimeUntilVisit(date: Date | string, startTime: string): string {
   const visitDate = typeof date === 'string' ? parseISO(date) : date;
   const [hours, minutes] = startTime.split(':').map(Number);
-  
+
   const visitDateTime = new Date(visitDate);
   visitDateTime.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-  
+
   return formatDistanceToNow(visitDateTime, { addSuffix: true });
 }
 
@@ -350,23 +339,25 @@ export function hasTimeConflict(
   visit2: Pick<Visit, 'scheduledDate' | 'scheduledStartTime' | 'scheduledEndTime'>
 ): boolean {
   // Check if same day
-  const date1 = typeof visit1.scheduledDate === 'string' 
-    ? parseISO(visit1.scheduledDate) 
-    : visit1.scheduledDate;
-  const date2 = typeof visit2.scheduledDate === 'string'
-    ? parseISO(visit2.scheduledDate)
-    : visit2.scheduledDate;
-    
+  const date1 =
+    typeof visit1.scheduledDate === 'string'
+      ? parseISO(visit1.scheduledDate)
+      : visit1.scheduledDate;
+  const date2 =
+    typeof visit2.scheduledDate === 'string'
+      ? parseISO(visit2.scheduledDate)
+      : visit2.scheduledDate;
+
   if (!isWithinInterval(date1, { start: startOfDay(date2), end: endOfDay(date2) })) {
     return false;
   }
-  
+
   // Check time overlap
   const start1 = timeToMinutes(visit1.scheduledStartTime);
   const end1 = timeToMinutes(visit1.scheduledEndTime);
   const start2 = timeToMinutes(visit2.scheduledStartTime);
   const end2 = timeToMinutes(visit2.scheduledEndTime);
-  
+
   return (
     (start1 >= start2 && start1 < end2) ||
     (end1 > start2 && end1 <= end2) ||
@@ -388,10 +379,10 @@ function timeToMinutes(time: string): number {
 export function addMinutesToTime(time: string, minutesToAdd: number): string {
   const [hours, mins] = time.split(':').map(Number);
   const totalMinutes = (hours ?? 0) * 60 + (mins ?? 0) + minutesToAdd;
-  
+
   const newHours = Math.floor(totalMinutes / 60) % 24;
   const newMins = totalMinutes % 60;
-  
+
   return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}`;
 }
 
@@ -430,7 +421,7 @@ export function getPatternStatusDisplay(status: PatternStatus): {
       description: 'Pattern cancelled',
     },
   };
-  
+
   return statusMap[status];
 }
 
@@ -461,26 +452,26 @@ export function isPatternActiveOnDate(
   if (pattern.status !== 'ACTIVE') {
     return false;
   }
-  
+
   const checkDate = typeof date === 'string' ? parseISO(date) : date;
-  const effectiveFrom = typeof pattern.effectiveFrom === 'string'
-    ? parseISO(pattern.effectiveFrom)
-    : pattern.effectiveFrom;
-    
+  const effectiveFrom =
+    typeof pattern.effectiveFrom === 'string'
+      ? parseISO(pattern.effectiveFrom)
+      : pattern.effectiveFrom;
+
   if (isBefore(checkDate, effectiveFrom)) {
     return false;
   }
-  
+
   if (pattern.effectiveTo != null) {
-    const effectiveTo = typeof pattern.effectiveTo === 'string'
-      ? parseISO(pattern.effectiveTo)
-      : pattern.effectiveTo;
-      
+    const effectiveTo =
+      typeof pattern.effectiveTo === 'string' ? parseISO(pattern.effectiveTo) : pattern.effectiveTo;
+
     if (isAfter(checkDate, effectiveTo)) {
       return false;
     }
   }
-  
+
   return true;
 }
 
@@ -489,7 +480,7 @@ export function isPatternActiveOnDate(
  */
 export function getTimeOfDay(time: string): TimeOfDay {
   const hour = parseInt(time.split(':')[0] ?? '0');
-  
+
   if (hour >= 5 && hour < 8) {
     return 'EARLY_MORNING';
   } else if (hour >= 8 && hour < 12) {
@@ -508,7 +499,7 @@ export function getTimeOfDay(time: string): TimeOfDay {
  */
 export function calculateVisitsPerWeek(pattern: Pick<ServicePattern, 'recurrence'>): number {
   const { frequency, daysOfWeek, interval } = pattern.recurrence;
-  
+
   switch (frequency) {
     case 'DAILY':
       return 7 / interval;
@@ -531,7 +522,7 @@ export function calculateHoursPerWeek(
 ): number {
   const visitsPerWeek = calculateVisitsPerWeek(pattern);
   const hoursPerVisit = pattern.duration / 60;
-  
+
   return visitsPerWeek * hoursPerVisit;
 }
 
@@ -546,7 +537,7 @@ export function getAssignmentMethodDisplay(method: AssignmentMethod): string {
     PREFERRED: 'Assigned to preferred caregiver',
     OVERFLOW: 'Overflow assignment',
   };
-  
+
   return methodMap[method];
 }
 
@@ -561,23 +552,20 @@ export function formatAddress(address: {
   postalCode: string;
 }): string {
   const parts = [address.line1];
-  
+
   if (address.line2) {
     parts.push(address.line2);
   }
-  
+
   parts.push(`${address.city}, ${address.state} ${address.postalCode}`);
-  
+
   return parts.join(', ');
 }
 
 /**
  * Format short address (city, state)
  */
-export function formatShortAddress(address: {
-  city: string;
-  state: string;
-}): string {
+export function formatShortAddress(address: { city: string; state: string }): string {
   return `${address.city}, ${address.state}`;
 }
 
@@ -591,7 +579,7 @@ export function calculateTaskCompletionPercentage(
   if (tasksTotal == null || tasksTotal === 0) {
     return 0;
   }
-  
+
   return Math.round(((tasksCompleted ?? 0) / tasksTotal) * 100);
 }
 
@@ -605,16 +593,16 @@ export function sortVisitsByTime(
     // First compare dates
     const dateA = typeof a.scheduledDate === 'string' ? parseISO(a.scheduledDate) : a.scheduledDate;
     const dateB = typeof b.scheduledDate === 'string' ? parseISO(b.scheduledDate) : b.scheduledDate;
-    
+
     const dateDiff = dateA.getTime() - dateB.getTime();
     if (dateDiff !== 0) {
       return dateDiff;
     }
-    
+
     // Then compare times
     const timeA = timeToMinutes(a.scheduledStartTime);
     const timeB = timeToMinutes(b.scheduledStartTime);
-    
+
     return timeA - timeB;
   });
 }
@@ -626,24 +614,25 @@ export function groupVisitsByDate<T extends Pick<Visit, 'scheduledDate' | 'sched
   visits: T[]
 ): Record<string, T[]> {
   const groups: Record<string, T[]> = {};
-  
+
   for (const visit of visits) {
-    const date = typeof visit.scheduledDate === 'string'
-      ? visit.scheduledDate
-      : format(visit.scheduledDate, 'yyyy-MM-dd');
-      
+    const date =
+      typeof visit.scheduledDate === 'string'
+        ? visit.scheduledDate
+        : format(visit.scheduledDate, 'yyyy-MM-dd');
+
     if (!groups[date]) {
       groups[date] = [];
     }
-    
+
     groups[date].push(visit);
   }
-  
+
   // Sort each group by time
   for (const date of Object.keys(groups)) {
     groups[date] = sortVisitsByTime(groups[date] ?? []) as T[];
   }
-  
+
   return groups;
 }
 
@@ -654,19 +643,16 @@ export function filterVisitsByStatus(
   visits: Pick<Visit, 'status'>[],
   statuses: VisitStatus[]
 ): typeof visits {
-  return visits.filter(visit => statuses.includes(visit.status));
+  return visits.filter((visit) => statuses.includes(visit.status));
 }
 
 /**
  * Get visits for today
  */
-export function getTodaysVisits(
-  visits: Pick<Visit, 'scheduledDate'>[]
-): typeof visits {
-  return visits.filter(visit => {
-    const visitDate = typeof visit.scheduledDate === 'string'
-      ? parseISO(visit.scheduledDate)
-      : visit.scheduledDate;
+export function getTodaysVisits(visits: Pick<Visit, 'scheduledDate'>[]): typeof visits {
+  return visits.filter((visit) => {
+    const visitDate =
+      typeof visit.scheduledDate === 'string' ? parseISO(visit.scheduledDate) : visit.scheduledDate;
     return isToday(visitDate);
   });
 }
@@ -677,9 +663,7 @@ export function getTodaysVisits(
 export function getUnassignedCount(
   visits: Pick<Visit, 'status' | 'assignedCaregiverId'>[]
 ): number {
-  return visits.filter(
-    v => v.status === 'UNASSIGNED' || v.assignedCaregiverId == null
-  ).length;
+  return visits.filter((v) => v.status === 'UNASSIGNED' || v.assignedCaregiverId == null).length;
 }
 
 /**
@@ -691,14 +675,13 @@ export function isVisitOverdue(
   if (!['ASSIGNED', 'CONFIRMED'].includes(visit.status)) {
     return false;
   }
-  
-  const visitDate = typeof visit.scheduledDate === 'string'
-    ? parseISO(visit.scheduledDate)
-    : visit.scheduledDate;
-    
+
+  const visitDate =
+    typeof visit.scheduledDate === 'string' ? parseISO(visit.scheduledDate) : visit.scheduledDate;
+
   const [hours, minutes] = visit.scheduledStartTime.split(':').map(Number);
   const scheduledStart = new Date(visitDate);
   scheduledStart.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-  
+
   return isBefore(scheduledStart, new Date());
 }

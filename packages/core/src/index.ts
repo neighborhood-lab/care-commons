@@ -1,6 +1,6 @@
 /**
  * @care-commons/core
- * 
+ *
  * Shared foundation for all Care Commons verticals
  */
 

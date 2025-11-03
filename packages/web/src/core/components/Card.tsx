@@ -40,12 +40,7 @@ export interface CardHeaderProps extends BaseComponentProps {
   action?: React.ReactNode;
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({
-  title,
-  subtitle,
-  action,
-  className,
-}) => {
+export const CardHeader: React.FC<CardHeaderProps> = ({ title, subtitle, action, className }) => {
   return (
     <div className={cn('flex items-start justify-between', className)}>
       <div>
@@ -62,9 +57,5 @@ export const CardContent: React.FC<BaseComponentProps> = ({ children, className 
 };
 
 export const CardFooter: React.FC<BaseComponentProps> = ({ children, className }) => {
-  return (
-    <div className={cn('mt-6 pt-4 border-t border-gray-200', className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn('mt-6 pt-4 border-t border-gray-200', className)}>{children}</div>;
 };

@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Play, 
-  User, 
-  Calendar, 
-  Target, 
+import {
+  ArrowLeft,
+  Edit,
+  Play,
+  User,
+  Calendar,
+  Target,
   AlertTriangle,
   CheckCircle,
-  FileText
+  FileText,
 } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage, StatusBadge } from '@/core/components';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardContent,
+  LoadingSpinner,
+  ErrorMessage,
+  StatusBadge,
+} from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { formatDate } from '@/core/utils';
 import { useCarePlan, useActivateCarePlan } from '../hooks';
@@ -25,7 +33,7 @@ export const CarePlanDetail: React.FC = () => {
 
   const handleActivate = async () => {
     if (!carePlan) return;
-    
+
     try {
       await activateCarePlan.mutateAsync(carePlan.id);
       refetch();
@@ -50,15 +58,15 @@ export const CarePlanDetail: React.FC = () => {
       />
     );
   }
-  
-  const isExpiringSoon = carePlan.expirationDate && 
+
+  const isExpiringSoon =
+    carePlan.expirationDate &&
     new Date(carePlan.expirationDate) <= new Date(now + 30 * 24 * 60 * 60 * 1000);
 
-  const isOverdue = carePlan.reviewDate && 
-    new Date(carePlan.reviewDate) < new Date(now);
+  const isOverdue = carePlan.reviewDate && new Date(carePlan.reviewDate) < new Date(now);
 
-  const achievedGoalsCount = carePlan.goals.filter(g => g.status === 'ACHIEVED').length;
-  const inProgressGoalsCount = carePlan.goals.filter(g => 
+  const achievedGoalsCount = carePlan.goals.filter((g) => g.status === 'ACHIEVED').length;
+  const inProgressGoalsCount = carePlan.goals.filter((g) =>
     ['IN_PROGRESS', 'ON_TRACK'].includes(g.status)
   ).length;
 
@@ -76,9 +84,7 @@ export const CarePlanDetail: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{carePlan.name}</h1>
           <p className="text-gray-600 mt-1">{carePlan.planNumber}</p>
-          <p className="text-sm text-gray-500 mt-1">
-            {carePlan.planType.replace(/_/g, ' ')}
-          </p>
+          <p className="text-sm text-gray-500 mt-1">{carePlan.planType.replace(/_/g, ' ')}</p>
         </div>
         <div className="flex gap-2">
           <StatusBadge status={carePlan.status} />
@@ -171,20 +177,23 @@ export const CarePlanDetail: React.FC = () => {
                 {carePlan.estimatedHoursPerWeek && (
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Estimated Hours/Week</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {carePlan.estimatedHoursPerWeek}
-                    </dd>
+                    <dd className="mt-1 text-sm text-gray-900">{carePlan.estimatedHoursPerWeek}</dd>
                   </div>
                 )}
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Priority</dt>
                   <dd className="mt-1">
-                    <span className={`text-sm font-medium ${
-                      carePlan.priority === 'URGENT' ? 'text-red-600' :
-                      carePlan.priority === 'HIGH' ? 'text-orange-600' :
-                      carePlan.priority === 'MEDIUM' ? 'text-yellow-600' :
-                      'text-gray-600'
-                    }`}>
+                    <span
+                      className={`text-sm font-medium ${
+                        carePlan.priority === 'URGENT'
+                          ? 'text-red-600'
+                          : carePlan.priority === 'HIGH'
+                            ? 'text-orange-600'
+                            : carePlan.priority === 'MEDIUM'
+                              ? 'text-yellow-600'
+                              : 'text-gray-600'
+                      }`}
+                    >
                       {carePlan.priority}
                     </span>
                   </dd>
@@ -219,7 +228,10 @@ export const CarePlanDetail: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 {carePlan.goals.map((goal) => (
-                  <div key={goal.id} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
+                  <div
+                    key={goal.id}
+                    className="border-b border-gray-200 last:border-0 pb-4 last:pb-0"
+                  >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900">{goal.name}</h4>
@@ -260,7 +272,10 @@ export const CarePlanDetail: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 {carePlan.interventions.map((intervention) => (
-                  <div key={intervention.id} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
+                  <div
+                    key={intervention.id}
+                    className="border-b border-gray-200 last:border-0 pb-4 last:pb-0"
+                  >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900">{intervention.name}</h4>
@@ -354,18 +369,14 @@ export const CarePlanDetail: React.FC = () => {
                   <div className="h-2 w-2 mt-2 rounded-full bg-blue-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Care Plan Created</p>
-                    <p className="text-xs text-gray-600">
-                      {formatDate(carePlan.createdAt)}
-                    </p>
+                    <p className="text-xs text-gray-600">{formatDate(carePlan.createdAt)}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="h-2 w-2 mt-2 rounded-full bg-green-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Effective Date</p>
-                    <p className="text-xs text-gray-600">
-                      {formatDate(carePlan.effectiveDate)}
-                    </p>
+                    <p className="text-xs text-gray-600">{formatDate(carePlan.effectiveDate)}</p>
                   </div>
                 </div>
                 {carePlan.lastReviewedDate && (

@@ -9,45 +9,45 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('organization_id').notNullable();
     table.uuid('branch_id').nullable();
-    
+
     // State
     table.string('state_code', 2).notNullable();
-    
+
     // Aggregator settings
     table.string('aggregator_type', 50).notNullable();
     table.string('aggregator_entity_id', 100).notNullable();
     table.text('aggregator_endpoint').notNullable();
     table.text('aggregator_api_key_encrypted');
-    
+
     // Program type
     table.string('program_type', 50).notNullable();
-    
+
     // Verification settings
     table.jsonb('allowed_clock_methods').notNullable();
     table.boolean('requires_gps_for_mobile').defaultTo(true);
     table.integer('geo_perimeter_tolerance').defaultTo(100);
-    
+
     // Grace periods (minutes)
     table.integer('clock_in_grace_period').defaultTo(10);
     table.integer('clock_out_grace_period').defaultTo(10);
     table.integer('late_clock_in_threshold').defaultTo(15);
-    
+
     // Visit maintenance (TX-specific)
     table.boolean('vmur_enabled').defaultTo(false);
     table.boolean('vmur_approval_required').defaultTo(true);
     table.boolean('vmur_reason_codes_required').defaultTo(true);
-    
+
     // Multi-aggregator (FL-specific)
     table.jsonb('additional_aggregators');
-    
+
     // MCO requirements (FL-specific)
     table.jsonb('mco_requirements');
-    
+
     // Status
     table.boolean('is_active').defaultTo(true);
     table.date('effective_from').notNullable();
     table.date('effective_to');
-    
+
     // Audit
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('created_by').notNullable();
@@ -115,28 +115,28 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('evv_record_id').notNullable();
     table.uuid('visit_id').notNullable();
     table.uuid('organization_id').notNullable();
-    
+
     // Revision metadata
     table.integer('revision_number').notNullable();
     table.string('revision_type', 50).notNullable();
     table.text('revision_reason').notNullable();
     table.string('revision_reason_code', 50);
-    
+
     // Who made the change
     table.uuid('revised_by').notNullable();
     table.string('revised_by_name', 200).notNullable();
     table.string('revised_by_role', 50).notNullable();
     table.timestamp('revised_at').notNullable().defaultTo(knex.fn.now());
-    
+
     // What changed
     table.string('field_path', 200).notNullable();
     table.jsonb('original_value').notNullable();
     table.jsonb('new_value').notNullable();
-    
+
     // Why it was changed
     table.text('justification').notNullable();
     table.jsonb('supporting_documents');
-    
+
     // Approval workflow
     table.boolean('requires_approval').defaultTo(false);
     table.string('approval_status', 20);
@@ -144,24 +144,24 @@ export async function up(knex: Knex): Promise<void> {
     table.string('approved_by_name', 200);
     table.timestamp('approved_at');
     table.text('denial_reason');
-    
+
     // Aggregator notification
     table.boolean('aggregator_notified').defaultTo(false);
     table.timestamp('aggregator_notified_at');
     table.string('aggregator_confirmation', 200);
     table.boolean('resubmission_required').defaultTo(false);
     table.timestamp('resubmitted_at');
-    
+
     // Integrity chain
     table.string('revision_hash', 64).notNullable();
     table.string('previous_revision_hash', 64);
-    
+
     // Compliance review
     table.text('compliance_notes');
     table.boolean('compliance_reviewed').defaultTo(false);
     table.uuid('compliance_reviewed_by');
     table.timestamp('compliance_reviewed_at');
-    
+
     // Audit
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
   });
@@ -220,31 +220,31 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable('evv_original_data', (table) => {
     table.uuid('evv_record_id').primary();
-    
+
     // Original timing (never modified)
     table.timestamp('original_clock_in_time').notNullable();
     table.timestamp('original_clock_out_time');
     table.integer('original_duration');
-    
+
     // Original location (never modified)
     table.jsonb('original_clock_in_location').notNullable();
     table.jsonb('original_clock_out_location');
-    
+
     // Device and method
     table.string('original_clock_in_device', 100).notNullable();
     table.string('original_clock_out_device', 100);
     table.string('original_verification_method', 50).notNullable();
-    
+
     // Capture metadata
     table.timestamp('captured_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('captured_by').notNullable();
     table.string('captured_via_device', 100).notNullable();
     table.string('captured_via_app', 100).notNullable();
-    
+
     // Integrity
     table.string('original_integrity_hash', 64).notNullable();
     table.string('original_checksum', 64).notNullable();
-    
+
     // Lock mechanism
     table.boolean('locked_for_editing').defaultTo(false);
     table.string('lock_reason', 200);
@@ -271,22 +271,22 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('evv_access_log', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('evv_record_id').notNullable();
-    
+
     // Who accessed
     table.timestamp('accessed_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('accessed_by').notNullable();
     table.string('accessed_by_name', 200).notNullable();
     table.string('accessed_by_role', 50).notNullable();
     table.specificType('accessed_by_ip', 'inet');
-    
+
     // What was accessed
     table.string('access_type', 50).notNullable();
     table.text('access_reason');
-    
+
     // Details
     table.jsonb('fields_accessed');
     table.jsonb('search_filters');
-    
+
     // Export tracking
     table.string('export_format', 20);
     table.text('export_destination');
@@ -332,35 +332,35 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.uuid('evv_record_id').notNullable();
     table.uuid('visit_id').notNullable();
-    
+
     // Request details
     table.uuid('requested_by').notNullable();
     table.string('requested_by_name', 200).notNullable();
     table.timestamp('requested_at').notNullable().defaultTo(knex.fn.now());
     table.string('request_reason', 50).notNullable();
     table.text('request_reason_details').notNullable();
-    
+
     // Approval workflow
     table.string('approval_status', 20).notNullable().defaultTo('PENDING');
     table.uuid('approved_by');
     table.string('approved_by_name', 200);
     table.timestamp('approved_at');
     table.text('denial_reason');
-    
+
     // Original vs corrected data
     table.jsonb('original_data').notNullable();
     table.jsonb('corrected_data').notNullable();
     table.jsonb('changes_summary').notNullable();
-    
+
     // Submission tracking
     table.boolean('submitted_to_aggregator').defaultTo(false);
     table.string('aggregator_confirmation', 200);
     table.timestamp('submitted_at');
-    
+
     // Compliance
     table.timestamp('expires_at').notNullable();
     table.text('compliance_notes');
-    
+
     // Audit
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
@@ -409,19 +409,19 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('evv_record_id').notNullable();
     table.string('aggregator_id', 100).notNullable();
     table.string('aggregator_type', 50).notNullable();
-    
+
     // Submission data
     table.jsonb('submission_payload').notNullable();
     table.string('submission_format', 20).notNullable();
     table.timestamp('submitted_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('submitted_by').notNullable();
-    
+
     // Response tracking
     table.string('submission_status', 20).notNullable().defaultTo('PENDING');
     table.jsonb('aggregator_response');
     table.string('aggregator_confirmation_id', 200);
     table.timestamp('aggregator_received_at');
-    
+
     // Error handling
     table.string('error_code', 50);
     table.text('error_message');
@@ -429,7 +429,7 @@ export async function up(knex: Knex): Promise<void> {
     table.integer('retry_count').defaultTo(0);
     table.integer('max_retries').defaultTo(3);
     table.timestamp('next_retry_at');
-    
+
     // Audit
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
@@ -492,50 +492,50 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('visit_id').notNullable();
     table.uuid('organization_id').notNullable();
     table.uuid('branch_id').notNullable();
-    
+
     // Exception details
     table.string('exception_type', 50).notNullable();
     table.string('exception_code', 50).notNullable();
     table.string('exception_severity', 20).notNullable();
     table.text('exception_description').notNullable();
-    
+
     // Issues
     table.jsonb('issues').notNullable();
     table.integer('issue_count').notNullable();
-    
+
     // Detection
     table.timestamp('detected_at').notNullable().defaultTo(knex.fn.now());
     table.string('detected_by', 20).notNullable();
     table.string('detection_method', 100);
-    
+
     // Assignment
     table.uuid('assigned_to');
     table.string('assigned_to_role', 50);
     table.timestamp('assigned_at');
-    
+
     // Resolution
     table.string('status', 20).notNullable().defaultTo('OPEN');
     table.string('priority', 20).notNullable().defaultTo('MEDIUM');
-    
+
     table.timestamp('due_date');
     table.timestamp('sla_deadline');
-    
+
     table.string('resolution_method', 50);
     table.timestamp('resolved_at');
     table.uuid('resolved_by');
     table.text('resolution_notes');
-    
+
     // Escalation
     table.timestamp('escalated_at');
     table.uuid('escalated_to');
     table.text('escalation_reason');
-    
+
     // Tracking
     table.timestamp('viewed_at');
     table.uuid('viewed_by');
     table.boolean('notification_sent').defaultTo(false);
     table.timestamp('notification_sent_at');
-    
+
     // Audit
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
     table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
@@ -709,18 +709,20 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   // Drop triggers and functions
-  await knex.raw('DROP TRIGGER IF EXISTS trigger_exception_queue_updated_at ON evv_exception_queue');
+  await knex.raw(
+    'DROP TRIGGER IF EXISTS trigger_exception_queue_updated_at ON evv_exception_queue'
+  );
   await knex.raw('DROP FUNCTION IF EXISTS update_exception_queue_updated_at()');
-  
+
   await knex.raw('DROP TRIGGER IF EXISTS trigger_texas_vmur_updated_at ON texas_vmur');
   await knex.raw('DROP FUNCTION IF EXISTS update_texas_vmur_updated_at()');
-  
+
   await knex.raw('DROP TRIGGER IF EXISTS trigger_evv_state_config_updated_at ON evv_state_config');
   await knex.raw('DROP FUNCTION IF EXISTS update_evv_state_config_updated_at()');
-  
+
   await knex.raw('DROP TRIGGER IF EXISTS trigger_set_revision_number ON evv_revisions');
   await knex.raw('DROP FUNCTION IF EXISTS set_revision_number()');
-  
+
   // Drop tables
   await knex.schema.dropTableIfExists('evv_exception_queue');
   await knex.schema.dropTableIfExists('state_aggregator_submissions');

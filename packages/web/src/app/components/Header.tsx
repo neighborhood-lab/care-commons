@@ -14,12 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onMenuClick}
-            className="lg:hidden"
-          >
+          <Button variant="ghost" size="sm" onClick={onMenuClick} className="lg:hidden">
             <Menu className="h-6 w-6" />
           </Button>
           <h1 className="text-xl font-bold text-primary-600">Care Commons</h1>

@@ -1,6 +1,7 @@
 # Caregiver & Staff Management - Usage Examples
 
-This document provides practical examples for using the Caregiver & Staff Management vertical.
+This document provides practical examples for using the Caregiver & Staff
+Management vertical.
 
 ## Table of Contents
 
@@ -16,7 +17,10 @@ This document provides practical examples for using the Caregiver & Staff Manage
 
 ```typescript
 import { initializeDatabase } from '@care-commons/core';
-import { CaregiverService, CaregiverRepository } from '@care-commons/caregiver-staff';
+import {
+  CaregiverService,
+  CaregiverRepository,
+} from '@care-commons/caregiver-staff';
 
 // Initialize database connection
 const db = initializeDatabase({
@@ -90,7 +94,7 @@ const newCaregiver = await caregiverService.createCaregiver(
     payRate: {
       id: uuidv4(),
       rateType: 'BASE',
-      amount: 18.50,
+      amount: 18.5,
       unit: 'HOURLY',
       effectiveDate: new Date(),
       overtimeMultiplier: 1.5,
@@ -144,7 +148,7 @@ const companionCaregiver = await caregiverService.createCaregiver(
     payRate: {
       id: uuidv4(),
       rateType: 'BASE',
-      amount: 15.00,
+      amount: 15.0,
       unit: 'HOURLY',
       effectiveDate: new Date(),
     },
@@ -170,7 +174,7 @@ const activeCaregivers = await caregiverService.searchCaregivers(
 );
 
 console.log(`Found ${activeCaregivers.total} active caregivers`);
-activeCaregivers.items.forEach(cg => {
+activeCaregivers.items.forEach((cg) => {
   console.log(`  - ${cg.firstName} ${cg.lastName} (${cg.employeeNumber})`);
 });
 ```
@@ -217,7 +221,9 @@ const weekendCaregivers = await caregiverService.findAvailableForShift(
   userContext
 );
 
-console.log(`${weekendCaregivers.length} caregivers available for Saturday 8am-4pm`);
+console.log(
+  `${weekendCaregivers.length} caregivers available for Saturday 8am-4pm`
+);
 ```
 
 ## Managing Credentials
@@ -225,9 +231,15 @@ console.log(`${weekendCaregivers.length} caregivers available for Saturday 8am-4
 ### Example 7: Add Credentials to a Caregiver
 
 ```typescript
-import { getExpiredCredentials, getExpiringCredentials } from '@care-commons/caregiver-staff';
+import {
+  getExpiredCredentials,
+  getExpiringCredentials,
+} from '@care-commons/caregiver-staff';
 
-const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
+const caregiver = await caregiverService.getCaregiverById(
+  'cg-123',
+  userContext
+);
 
 // Add new credentials
 const updatedCaregiver = await caregiverService.updateCaregiver(
@@ -254,17 +266,20 @@ const updatedCaregiver = await caregiverService.updateCaregiver(
 ### Example 8: Find Caregivers with Expiring Credentials
 
 ```typescript
-const expiringCredentials = await caregiverService.getCaregiversWithExpiringCredentials(
-  'org-456',
-  30, // 30 days
-  userContext
-);
+const expiringCredentials =
+  await caregiverService.getCaregiversWithExpiringCredentials(
+    'org-456',
+    30, // 30 days
+    userContext
+  );
 
-console.log(`${expiringCredentials.length} caregivers have credentials expiring soon:`);
-expiringCredentials.forEach(cg => {
+console.log(
+  `${expiringCredentials.length} caregivers have credentials expiring soon:`
+);
+expiringCredentials.forEach((cg) => {
   const expiring = getExpiringCredentials(cg, 30);
   console.log(`  - ${cg.firstName} ${cg.lastName}:`);
-  expiring.forEach(cred => {
+  expiring.forEach((cred) => {
     console.log(`    • ${cred.name} expires ${cred.expirationDate}`);
   });
 });
@@ -280,25 +295,25 @@ await caregiverService.updateCaregiver(
   {
     availability: {
       schedule: {
-        monday: { 
-          available: true, 
-          timeSlots: [{ startTime: '08:00', endTime: '17:00' }]
+        monday: {
+          available: true,
+          timeSlots: [{ startTime: '08:00', endTime: '17:00' }],
         },
-        tuesday: { 
-          available: true, 
-          timeSlots: [{ startTime: '08:00', endTime: '17:00' }]
+        tuesday: {
+          available: true,
+          timeSlots: [{ startTime: '08:00', endTime: '17:00' }],
         },
-        wednesday: { 
-          available: true, 
-          timeSlots: [{ startTime: '08:00', endTime: '17:00' }]
+        wednesday: {
+          available: true,
+          timeSlots: [{ startTime: '08:00', endTime: '17:00' }],
         },
-        thursday: { 
-          available: true, 
-          timeSlots: [{ startTime: '08:00', endTime: '17:00' }]
+        thursday: {
+          available: true,
+          timeSlots: [{ startTime: '08:00', endTime: '17:00' }],
         },
-        friday: { 
-          available: true, 
-          timeSlots: [{ startTime: '08:00', endTime: '17:00' }]
+        friday: {
+          available: true,
+          timeSlots: [{ startTime: '08:00', endTime: '17:00' }],
         },
         saturday: { available: false },
         sunday: { available: false },
@@ -318,7 +333,10 @@ await caregiverService.updateCaregiver(
 ### Example 10: Add Blackout Dates
 
 ```typescript
-const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
+const caregiver = await caregiverService.getCaregiverById(
+  'cg-123',
+  userContext
+);
 
 await caregiverService.updateCaregiver(
   'cg-123',
@@ -343,16 +361,22 @@ await caregiverService.updateCaregiver(
 ### Example 11: Check Assignment Eligibility
 
 ```typescript
-import { canBeAssignedToVisits, getAssignmentBlockers } from '@care-commons/caregiver-staff';
+import {
+  canBeAssignedToVisits,
+  getAssignmentBlockers,
+} from '@care-commons/caregiver-staff';
 
-const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
+const caregiver = await caregiverService.getCaregiverById(
+  'cg-123',
+  userContext
+);
 
 if (canBeAssignedToVisits(caregiver)) {
   console.log('Caregiver is eligible for assignments');
 } else {
   const blockers = getAssignmentBlockers(caregiver);
   console.log('Caregiver cannot be assigned:');
-  blockers.forEach(blocker => console.log(`  - ${blocker}`));
+  blockers.forEach((blocker) => console.log(`  - ${blocker}`));
 }
 ```
 
@@ -367,7 +391,7 @@ const eligibility = await caregiverService.checkEligibilityForAssignment(
 );
 
 console.log(`Eligible: ${eligibility.isEligible}`);
-eligibility.reasons.forEach(reason => {
+eligibility.reasons.forEach((reason) => {
   console.log(`  [${reason.severity}] ${reason.message}`);
 });
 ```
@@ -397,7 +421,10 @@ import {
   calculateTotalTrainingHours,
 } from '@care-commons/caregiver-staff';
 
-const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
+const caregiver = await caregiverService.getCaregiverById(
+  'cg-123',
+  userContext
+);
 
 console.log('Caregiver Profile:');
 console.log(`  Name: ${getFullName(caregiver, { includeMiddle: true })}`);
@@ -409,8 +436,12 @@ console.log(`  Years of Service: ${formatYearsOfService(caregiver.hireDate)}`);
 const statusDisplay = getStatusDisplay(caregiver.status);
 console.log(`  Status: ${statusDisplay.label} (${statusDisplay.description})`);
 
-const complianceDisplay = getComplianceStatusDisplay(caregiver.complianceStatus);
-console.log(`  Compliance: ${complianceDisplay.icon} ${complianceDisplay.label}`);
+const complianceDisplay = getComplianceStatusDisplay(
+  caregiver.complianceStatus
+);
+console.log(
+  `  Compliance: ${complianceDisplay.icon} ${complianceDisplay.label}`
+);
 
 const trainingHours = calculateTotalTrainingHours(caregiver);
 console.log(`  Total Training Hours: ${trainingHours}`);
@@ -421,7 +452,10 @@ console.log(`  Total Training Hours: ${trainingHours}`);
 ```typescript
 import { hasSkill, hasActiveCredentials } from '@care-commons/caregiver-staff';
 
-const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
+const caregiver = await caregiverService.getCaregiverById(
+  'cg-123',
+  userContext
+);
 
 // Check for specific skills
 if (hasSkill(caregiver, 'Dementia Care', 'ADVANCED')) {
@@ -440,7 +474,10 @@ if (hasCNA && hasCPR) {
 ### Example 16: Sort and Filter Caregivers
 
 ```typescript
-import { compareCaregivers, filterByShiftPreference } from '@care-commons/caregiver-staff';
+import {
+  compareCaregivers,
+  filterByShiftPreference,
+} from '@care-commons/caregiver-staff';
 
 const caregivers = await caregiverService.searchCaregivers(
   { organizationId: 'org-456', status: ['ACTIVE'] },
@@ -449,13 +486,15 @@ const caregivers = await caregiverService.searchCaregivers(
 );
 
 // Sort by reliability
-const sorted = [...caregivers.items].sort((a, b) => 
+const sorted = [...caregivers.items].sort((a, b) =>
   compareCaregivers(a, b, 'reliability')
 );
 
 console.log('Top 5 most reliable caregivers:');
 sorted.slice(0, 5).forEach((cg, index) => {
-  console.log(`  ${index + 1}. ${getFullName(cg)} - Score: ${cg.reliabilityScore}`);
+  console.log(
+    `  ${index + 1}. ${getFullName(cg)} - Score: ${cg.reliabilityScore}`
+  );
 });
 
 // Filter by shift preference
@@ -483,16 +522,18 @@ const caregivers = await caregiverService.searchCaregivers(
 console.log('Caregiver Summary Report');
 console.log('========================\n');
 
-caregivers.items.forEach(cg => {
+caregivers.items.forEach((cg) => {
   const trainings = getCompletedTraining(cg);
   const trainingHours = calculateTotalTrainingHours(cg);
-  const activeCreds = cg.credentials.filter(c => c.status === 'ACTIVE');
-  
+  const activeCreds = cg.credentials.filter((c) => c.status === 'ACTIVE');
+
   console.log(`${getFullName(cg)} (${cg.employeeNumber})`);
   console.log(`  Role: ${cg.role}`);
   console.log(`  Service: ${formatYearsOfService(cg.hireDate)}`);
   console.log(`  Credentials: ${activeCreds.length} active`);
-  console.log(`  Training: ${trainings.length} completed (${trainingHours} hours)`);
+  console.log(
+    `  Training: ${trainings.length} completed (${trainingHours} hours)`
+  );
   console.log(`  Languages: ${cg.languages?.join(', ') || 'English'}`);
   console.log(`  Reliability: ${(cg.reliabilityScore || 0) * 100}%`);
   console.log();
@@ -510,7 +551,7 @@ import { parse } from 'csv-parse/sync';
 async function importCaregiversFromCSV(filePath: string) {
   const csvContent = await readFile(filePath, 'utf-8');
   const records = parse(csvContent, { columns: true });
-  
+
   for (const record of records) {
     try {
       await caregiverService.createCaregiver(
@@ -538,7 +579,10 @@ async function importCaregiversFromCSV(filePath: string) {
       );
       console.log(`✓ Imported ${record.firstName} ${record.lastName}`);
     } catch (error) {
-      console.error(`✗ Failed to import ${record.firstName} ${record.lastName}:`, error);
+      console.error(
+        `✗ Failed to import ${record.firstName} ${record.lastName}:`,
+        error
+      );
     }
   }
 }
@@ -554,23 +598,26 @@ async function monitorComplianceDaily() {
     30,
     userContext
   );
-  
+
   // Send notifications
   for (const caregiver of expiring) {
     const expiringCreds = getExpiringCredentials(caregiver, 30);
-    console.log(`Alert: ${getFullName(caregiver)} has ${expiringCreds.length} credential(s) expiring soon`);
+    console.log(
+      `Alert: ${getFullName(caregiver)} has ${expiringCreds.length} credential(s) expiring soon`
+    );
     // TODO: Send email/SMS notification
   }
-  
+
   // Find non-compliant caregivers
   const nonCompliant = await caregiverService.getCaregiversByComplianceStatus(
     'org-456',
     ['EXPIRED', 'NON_COMPLIANT'],
     userContext
   );
-  
+
   console.log(`${nonCompliant.length} caregivers require immediate attention`);
 }
 ```
 
-See [README.md](./README.md) for more information about the Caregiver & Staff Management vertical.
+See [README.md](./README.md) for more information about the Caregiver & Staff
+Management vertical.

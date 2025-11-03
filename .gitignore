@@ -3,6 +3,9 @@
 .snyk/
 claude/
 
+.vscode/
+care-commons.code-workspace
+
 # Logs
 logs
 *.log

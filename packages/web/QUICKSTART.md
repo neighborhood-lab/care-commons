@@ -5,6 +5,7 @@ Get the Care Commons web UI running in under 5 minutes.
 ## Prerequisites
 
 Ensure you have:
+
 - Node.js >= 20.0.0
 - npm >= 10.0.0
 - PostgreSQL database running (for the backend)
@@ -28,7 +29,8 @@ cd packages/web
 cp .env.example .env
 ```
 
-The default configuration assumes the backend API runs at `http://localhost:3000`.
+The default configuration assumes the backend API runs at
+`http://localhost:3000`.
 
 ## Step 3: Start the Backend API (if not running)
 
@@ -66,7 +68,8 @@ Use the demo credentials shown on the login page:
 - **Coordinator**: coordinator@example.com / password123
 - **Caregiver**: caregiver@example.com / password123
 
-Note: These are placeholder credentials. You'll need to implement actual authentication on the backend.
+Note: These are placeholder credentials. You'll need to implement actual
+authentication on the backend.
 
 ## What's Available
 
@@ -74,7 +77,7 @@ Note: These are placeholder credentials. You'll need to implement actual authent
 
 - **Authentication Flow**: Login/logout with protected routes
 - **Dashboard**: Role-based dashboard with stats and activity feed
-- **Clients Module**: 
+- **Clients Module**:
   - Client list with search and filters
   - Client detail view
   - Client cards with contact information
@@ -108,11 +111,13 @@ packages/web/
 
 ### Hot Reload
 
-Vite provides instant hot module replacement. Changes to components will reflect immediately without losing state.
+Vite provides instant hot module replacement. Changes to components will reflect
+immediately without losing state.
 
 ### API Proxy
 
-The dev server proxies `/api/*` requests to `http://localhost:3000` automatically. No CORS issues during development.
+The dev server proxies `/api/*` requests to `http://localhost:3000`
+automatically. No CORS issues during development.
 
 ### TypeScript
 
@@ -162,11 +167,13 @@ If port 5173 is in use, Vite will automatically try the next available port.
 
 ### API Connection Issues
 
-Ensure the backend is running at `http://localhost:3000`. Check `VITE_API_BASE_URL` in `.env`.
+Ensure the backend is running at `http://localhost:3000`. Check
+`VITE_API_BASE_URL` in `.env`.
 
 ### TypeScript Errors
 
-Run `npm install` to ensure all types are installed. Check `tsconfig.json` for path aliases.
+Run `npm install` to ensure all types are installed. Check `tsconfig.json` for
+path aliases.
 
 ### Build Errors
 
@@ -181,7 +188,8 @@ npm run dev
 
 1. **Implement Backend API**: The frontend expects REST endpoints at `/api/*`
 2. **Add Authentication**: Implement actual JWT-based authentication
-3. **Create Remaining Verticals**: Build out care plans, scheduling, billing, etc.
+3. **Create Remaining Verticals**: Build out care plans, scheduling, billing,
+   etc.
 4. **Add Tests**: Write component and integration tests with Vitest
 5. **Deploy**: Build for production with `npm run build`
 

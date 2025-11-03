@@ -6,10 +6,7 @@ interface PayRunSearchProps {
   onFiltersChange: (filters: PayRunSearchFilters) => void;
 }
 
-export const PayRunSearch: React.FC<PayRunSearchProps> = ({ 
-  filters, 
-  onFiltersChange 
-}) => {
+export const PayRunSearch: React.FC<PayRunSearchProps> = ({ filters, onFiltersChange }) => {
   const handleFilterChange = (key: keyof PayRunSearchFilters, value: string) => {
     onFiltersChange({
       ...filters,
@@ -21,9 +18,7 @@ export const PayRunSearch: React.FC<PayRunSearchProps> = ({
     <div className="bg-white rounded-lg shadow p-6 space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select
             value={filters.status || ''}
             onChange={(e) => handleFilterChange('status', e.target.value as PayRunStatus)}
@@ -44,9 +39,7 @@ export const PayRunSearch: React.FC<PayRunSearchProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Start Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
           <input
             type="date"
             value={filters.startDate || ''}
@@ -56,9 +49,7 @@ export const PayRunSearch: React.FC<PayRunSearchProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            End Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
           <input
             type="date"
             value={filters.endDate || ''}

@@ -290,10 +290,7 @@ describe('ClientHandlers', () => {
 
       await handlers.createClient(mockReq, mockRes, mockNext);
 
-      expect(mockClientService.createClient).toHaveBeenCalledWith(
-        mockReq.body,
-        mockUserContext
-      );
+      expect(mockClientService.createClient).toHaveBeenCalledWith(mockReq.body, mockUserContext);
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
@@ -556,13 +553,15 @@ describe('ClientHandlers', () => {
         gender: 'MALE',
         status: 'ACTIVE',
         primaryPhone: { number: '555-123-4567', type: 'MOBILE', canReceiveSMS: true },
-        emergencyContacts: [{
-          id: 'contact-1',
-          name: 'Jane Doe',
-          isPrimary: true,
-          relationship: 'Spouse',
-          phone: { number: '555-987-6543', type: 'HOME', canReceiveSMS: false },
-        }],
+        emergencyContacts: [
+          {
+            id: 'contact-1',
+            name: 'Jane Doe',
+            isPrimary: true,
+            relationship: 'Spouse',
+            phone: { number: '555-987-6543', type: 'HOME', canReceiveSMS: false },
+          },
+        ],
         riskFlags: [
           { id: 'flag-1', severity: 'CRITICAL', resolvedDate: null, type: 'FALL_RISK' },
           { id: 'flag-2', severity: 'HIGH', resolvedDate: new Date(), type: 'WANDERING' },
@@ -603,13 +602,17 @@ describe('ClientHandlers', () => {
         phone: { number: '555-987-6543', type: 'HOME', canReceiveSMS: false },
       });
       expect(expectedData.activeRiskFlags).toBe(1); // Only the unresolved risk flag
-      expect(expectedData.criticalRiskFlags).toEqual([{ id: 'flag-1', severity: 'CRITICAL', resolvedDate: null, type: 'FALL_RISK' }]);
+      expect(expectedData.criticalRiskFlags).toEqual([
+        { id: 'flag-1', severity: 'CRITICAL', resolvedDate: null, type: 'FALL_RISK' },
+      ]);
       expect(expectedData.address).toEqual({
         line1: '123 Main St',
         city: 'Springfield',
         state: 'IL',
       });
-      expect(expectedData.programs).toEqual([{ id: 'prog-1', programName: 'Personal Care', status: 'ACTIVE' }]);
+      expect(expectedData.programs).toEqual([
+        { id: 'prog-1', programName: 'Personal Care', status: 'ACTIVE' },
+      ]);
       expect(expectedData.hasAllergies).toBe(false);
       expect(expectedData.specialInstructions).toBe('No special instructions');
       expect(expectedData.accessInstructions).toBe('Access via front door');
@@ -764,9 +767,9 @@ describe('ClientHandlers', () => {
       mockReq.userContext = mockUserContext;
 
       // Since this handler throws synchronously, we need to wrap the call in a function
-      await expect(() => handlers.getClientAuditTrail(mockReq, mockRes, mockNext))
-        .rejects
-        .toThrow('Audit trail retrieval not yet implemented');
+      await expect(() => handlers.getClientAuditTrail(mockReq, mockRes, mockNext)).rejects.toThrow(
+        'Audit trail retrieval not yet implemented'
+      );
     });
   });
 
@@ -778,9 +781,13 @@ describe('ClientHandlers', () => {
       const mockClients = [
         { id: 'client-1', status: 'ACTIVE', riskFlags: [] },
         { id: 'client-2', status: 'PENDING_INTAKE', riskFlags: [] },
-        { id: 'client-3', status: 'ACTIVE', riskFlags: [
-          { id: 'flag-1', severity: 'CRITICAL', resolvedDate: null, type: 'FALL_RISK' }
-        ]},
+        {
+          id: 'client-3',
+          status: 'ACTIVE',
+          riskFlags: [
+            { id: 'flag-1', severity: 'CRITICAL', resolvedDate: null, type: 'FALL_RISK' },
+          ],
+        },
       ];
 
       const mockSearchResult = {

@@ -19,7 +19,7 @@ export class FloridaEVVProvider implements IFloridaEVVProvider {
    */
   async submitToAggregators(evvRecord: EVVRecord): Promise<AggregatorSubmission[]> {
     const aggregator = await this.routeByMCO(evvRecord.clientId);
-    
+
     const payload = {
       visitId: evvRecord.visitId,
       curesActData: {
@@ -29,15 +29,16 @@ export class FloridaEVVProvider implements IFloridaEVVProvider {
         serviceDate: evvRecord.serviceDate,
         location: {
           latitude: evvRecord.clockInVerification.latitude,
-          longitude: evvRecord.clockInVerification.longitude
+          longitude: evvRecord.clockInVerification.longitude,
         },
         timeStart: evvRecord.clockInTime,
-        timeEnd: evvRecord.clockOutTime
-      }
+        timeEnd: evvRecord.clockOutTime,
+      },
     };
 
     // TODO: Replace with actual aggregator API calls
-    const submissionId = await this.database.query(`
+    const submissionId = await this.database.query(
+      `
       INSERT INTO state_aggregator_submissions (
         id, state_code, evv_record_id, aggregator_id, aggregator_type,
         submission_payload, submission_format, submitted_by, submission_status
@@ -45,25 +46,32 @@ export class FloridaEVVProvider implements IFloridaEVVProvider {
         gen_random_uuid(), 'FL', $1, $2, 'MCO_ASSIGNED',
         $3::jsonb, 'JSON', $4, 'PENDING'
       ) RETURNING id
-    `, [evvRecord.id, aggregator, JSON.stringify(payload), evvRecord.recordedBy]);
+    `,
+      [evvRecord.id, aggregator, JSON.stringify(payload), evvRecord.recordedBy]
+    );
 
-    return [{
-      submissionId: submissionId.rows[0]!['id'] as UUID,
-      status: 'PENDING',
-      aggregator,
-      submittedAt: new Date()
-    }];
+    return [
+      {
+        submissionId: submissionId.rows[0]!['id'] as UUID,
+        status: 'PENDING',
+        aggregator,
+        submittedAt: new Date(),
+      },
+    ];
   }
 
   /**
    * Route to correct aggregator based on client's MCO
    */
   async routeByMCO(clientId: UUID): Promise<string> {
-    const result = await this.database.query(`
+    const result = await this.database.query(
+      `
       SELECT state_specific->'florida'->>'evv_aggregator' as aggregator
       FROM clients
       WHERE id = $1
-    `, [clientId]);
+    `,
+      [clientId]
+    );
 
     return (result.rows[0]?.['aggregator'] as string) || 'HHAEEXCHANGE';
   }

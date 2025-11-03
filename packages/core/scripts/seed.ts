@@ -1,10 +1,10 @@
 /**
  * Database seeding script
- * 
+ *
  * Seeds initial data for development and testing
  */
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import { Database, DatabaseConfig } from '../src/db/connection';
 import { Pool, PoolClient } from 'pg';
@@ -17,15 +17,20 @@ async function seedDatabase() {
   const env = process.env.NODE_ENV || 'development';
   const dbName = process.env.DB_NAME || 'care_commons';
 
-  let db: Database | { transaction: (callback: (client: PoolClient) => Promise<void>) => Promise<void>; close: () => Promise<void> };
+  let db:
+    | Database
+    | {
+        transaction: (callback: (client: PoolClient) => Promise<void>) => Promise<void>;
+        close: () => Promise<void>;
+      };
 
   // Use DATABASE_URL if provided (for CI/CD and production)
   if (process.env.DATABASE_URL) {
     console.log('📝 Using DATABASE_URL for seeding\n');
-    
+
     // Parse DATABASE_URL to extract connection details
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    
+
     // Create a Database-like wrapper to work with the existing seed code
     db = {
       transaction: async (callback: (client: PoolClient) => Promise<void>) => {
@@ -46,7 +51,7 @@ async function seedDatabase() {
   } else {
     // Use individual DB_* variables for local development
     const database = env === 'test' ? `${dbName}_test` : dbName;
-    
+
     const config: DatabaseConfig = {
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT || '5432'),
@@ -55,7 +60,7 @@ async function seedDatabase() {
       password: process.env.DB_PASSWORD || 'postgres',
       ssl: process.env.DB_SSL === 'true',
     };
-    
+
     db = new Database(config);
   }
 
@@ -380,7 +385,8 @@ async function seedDatabase() {
               severity: 'HIGH',
               description: 'History of falls, uses walker, stairs in home',
               identifiedDate: '2024-01-15',
-              mitigationPlan: 'Walker use enforced, fall prevention exercises, stair safety assessment completed',
+              mitigationPlan:
+                'Walker use enforced, fall prevention exercises, stair safety assessment completed',
               requiresAcknowledgment: true,
             },
             {
@@ -466,8 +472,8 @@ async function seedDatabase() {
             postalCode: '62703',
             county: 'Sangamon',
             country: 'US',
-            latitude: 39.7990,
-            longitude: -89.6440,
+            latitude: 39.799,
+            longitude: -89.644,
           }),
           JSON.stringify({
             type: 'WITH_FAMILY',
@@ -804,12 +810,32 @@ async function seedDatabase() {
         )
       `,
         [
-          cg1Id, orgId, [branchId], branchId,
-          '1001', 'Sarah', 'Marie', 'Johnson', 'Sarah',
-          '1985-04-12', 'FEMALE', 'she/her',
-          JSON.stringify({ number: '555-1001', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
-          JSON.stringify({ number: '555-1002', type: 'HOME', canReceiveSMS: false, isPrimary: false }),
-          'sarah.johnson@example.com', 'SMS',
+          cg1Id,
+          orgId,
+          [branchId],
+          branchId,
+          '1001',
+          'Sarah',
+          'Marie',
+          'Johnson',
+          'Sarah',
+          '1985-04-12',
+          'FEMALE',
+          'she/her',
+          JSON.stringify({
+            number: '555-1001',
+            type: 'MOBILE',
+            canReceiveSMS: true,
+            isPrimary: true,
+          }),
+          JSON.stringify({
+            number: '555-1002',
+            type: 'HOME',
+            canReceiveSMS: false,
+            isPrimary: false,
+          }),
+          'sarah.johnson@example.com',
+          'SMS',
           ['English', 'Spanish'],
           JSON.stringify({
             type: 'HOME',
@@ -830,7 +856,9 @@ async function seedDatabase() {
               isPrimary: true,
             },
           ]),
-          'FULL_TIME', 'ACTIVE', '2019-03-15',
+          'FULL_TIME',
+          'ACTIVE',
+          '2019-03-15',
           'SENIOR_CAREGIVER',
           ['visits:create', 'visits:read', 'visits:update', 'clients:read', 'caregivers:read'],
           JSON.stringify([
@@ -878,7 +906,7 @@ async function seedDatabase() {
               id: uuidv4(),
               name: 'Dementia Care Specialist',
               category: 'SPECIALIZED_CARE',
-              provider: 'Alzheimer\'s Association',
+              provider: "Alzheimer's Association",
               completionDate: '2020-06-15',
               expirationDate: '2025-06-15',
               hours: 16,
@@ -895,11 +923,36 @@ async function seedDatabase() {
             },
           ]),
           JSON.stringify([
-            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-            { id: uuidv4(), name: 'Dementia Care', category: 'Specialized', proficiencyLevel: 'ADVANCED' },
-            { id: uuidv4(), name: 'Medication Reminders', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
-            { id: uuidv4(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-            { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
+            {
+              id: uuidv4(),
+              name: 'Personal Care',
+              category: 'Clinical',
+              proficiencyLevel: 'EXPERT',
+            },
+            {
+              id: uuidv4(),
+              name: 'Dementia Care',
+              category: 'Specialized',
+              proficiencyLevel: 'ADVANCED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Medication Reminders',
+              category: 'Clinical',
+              proficiencyLevel: 'ADVANCED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Transfer Assistance',
+              category: 'Clinical',
+              proficiencyLevel: 'EXPERT',
+            },
+            {
+              id: uuidv4(),
+              name: 'Meal Preparation',
+              category: 'Daily Living',
+              proficiencyLevel: 'ADVANCED',
+            },
           ]),
           ['Dementia Care', 'Fall Prevention'],
           JSON.stringify({
@@ -920,21 +973,25 @@ async function seedDatabase() {
             willingToWorkHolidays: true,
             preferredClients: [client1Id],
           }),
-          40, true, 25,
+          40,
+          true,
+          25,
           JSON.stringify({
             id: cg1PayRateId,
             rateType: 'BASE',
-            amount: 18.50,
+            amount: 18.5,
             unit: 'HOURLY',
             effectiveDate: '2024-01-01',
             overtimeMultiplier: 1.5,
             weekendMultiplier: 1.2,
             holidayMultiplier: 1.5,
           }),
-          'COMPLIANT', 0.95,
+          'COMPLIANT',
+          0.95,
           'ACTIVE',
           'Excellent caregiver with strong dementia care skills. Preferred by multiple clients.',
-          systemUserId, systemUserId,
+          systemUserId,
+          systemUserId,
         ]
       );
 
@@ -961,11 +1018,23 @@ async function seedDatabase() {
         )
       `,
         [
-          cg2Id, orgId, [branchId], branchId,
-          '1002', 'Michael', 'Chen',
-          '1992-08-25', 'MALE',
-          JSON.stringify({ number: '555-1101', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
-          'michael.chen@example.com', 'SMS',
+          cg2Id,
+          orgId,
+          [branchId],
+          branchId,
+          '1002',
+          'Michael',
+          'Chen',
+          '1992-08-25',
+          'MALE',
+          JSON.stringify({
+            number: '555-1101',
+            type: 'MOBILE',
+            canReceiveSMS: true,
+            isPrimary: true,
+          }),
+          'michael.chen@example.com',
+          'SMS',
           ['English', 'Mandarin'],
           JSON.stringify({
             type: 'HOME',
@@ -984,7 +1053,9 @@ async function seedDatabase() {
               isPrimary: true,
             },
           ]),
-          'FULL_TIME', 'ACTIVE', '2024-02-15',
+          'FULL_TIME',
+          'ACTIVE',
+          '2024-02-15',
           'CERTIFIED_NURSING_ASSISTANT',
           ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
           JSON.stringify([
@@ -1027,9 +1098,24 @@ async function seedDatabase() {
             },
           ]),
           JSON.stringify([
-            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
-            { id: uuidv4(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
-            { id: uuidv4(), name: 'Transfer Assistance', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
+            {
+              id: uuidv4(),
+              name: 'Personal Care',
+              category: 'Clinical',
+              proficiencyLevel: 'INTERMEDIATE',
+            },
+            {
+              id: uuidv4(),
+              name: 'Vital Signs',
+              category: 'Clinical',
+              proficiencyLevel: 'ADVANCED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Transfer Assistance',
+              category: 'Clinical',
+              proficiencyLevel: 'INTERMEDIATE',
+            },
           ]),
           JSON.stringify({
             schedule: {
@@ -1043,11 +1129,13 @@ async function seedDatabase() {
             },
             lastUpdated: new Date().toISOString(),
           }),
-          40, true, 30,
+          40,
+          true,
+          30,
           JSON.stringify({
             id: cg2PayRateId,
             rateType: 'BASE',
-            amount: 16.00,
+            amount: 16.0,
             unit: 'HOURLY',
             effectiveDate: '2024-02-15',
             overtimeMultiplier: 1.5,
@@ -1056,7 +1144,8 @@ async function seedDatabase() {
           'PENDING_VERIFICATION',
           'ONBOARDING',
           'Completing onboarding training. Background check in progress.',
-          systemUserId, systemUserId,
+          systemUserId,
+          systemUserId,
         ]
       );
 
@@ -1083,11 +1172,24 @@ async function seedDatabase() {
         )
       `,
         [
-          cg3Id, orgId, [branchId], branchId,
-          '1003', 'Maria', 'Garcia', 'Mari',
-          '1978-11-30', 'FEMALE',
-          JSON.stringify({ number: '555-1201', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
-          'maria.garcia@example.com', 'SMS',
+          cg3Id,
+          orgId,
+          [branchId],
+          branchId,
+          '1003',
+          'Maria',
+          'Garcia',
+          'Mari',
+          '1978-11-30',
+          'FEMALE',
+          JSON.stringify({
+            number: '555-1201',
+            type: 'MOBILE',
+            canReceiveSMS: true,
+            isPrimary: true,
+          }),
+          'maria.garcia@example.com',
+          'SMS',
           ['Spanish', 'English'],
           JSON.stringify({
             type: 'HOME',
@@ -1106,7 +1208,9 @@ async function seedDatabase() {
               isPrimary: true,
             },
           ]),
-          'PART_TIME', 'ACTIVE', '2021-06-01',
+          'PART_TIME',
+          'ACTIVE',
+          '2021-06-01',
           'COMPANION',
           ['visits:create', 'visits:read', 'clients:read'],
           JSON.stringify([
@@ -1147,9 +1251,24 @@ async function seedDatabase() {
           ]),
           JSON.stringify([
             { id: uuidv4(), name: 'Companionship', category: 'Social', proficiencyLevel: 'EXPERT' },
-            { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
-            { id: uuidv4(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'ADVANCED' },
-            { id: uuidv4(), name: 'Transportation', category: 'Support', proficiencyLevel: 'INTERMEDIATE' },
+            {
+              id: uuidv4(),
+              name: 'Meal Preparation',
+              category: 'Daily Living',
+              proficiencyLevel: 'ADVANCED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Light Housekeeping',
+              category: 'Daily Living',
+              proficiencyLevel: 'ADVANCED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Transportation',
+              category: 'Support',
+              proficiencyLevel: 'INTERMEDIATE',
+            },
           ]),
           JSON.stringify({
             schedule: {
@@ -1170,18 +1289,22 @@ async function seedDatabase() {
             requiresFixedSchedule: true,
             notes: 'Prefers consistent schedule due to childcare needs',
           }),
-          25, true, 15,
+          25,
+          true,
+          15,
           JSON.stringify({
             id: cg3PayRateId,
             rateType: 'BASE',
-            amount: 15.00,
+            amount: 15.0,
             unit: 'HOURLY',
             effectiveDate: '2024-01-01',
             weekendMultiplier: 1.2,
           }),
-          'COMPLIANT', 0.92,
+          'COMPLIANT',
+          0.92,
           'ACTIVE',
-          systemUserId, systemUserId,
+          systemUserId,
+          systemUserId,
         ]
       );
 
@@ -1211,11 +1334,23 @@ async function seedDatabase() {
         )
       `,
         [
-          cg4Id, orgId, [branchId], branchId,
-          '1004', 'Jennifer', 'Williams',
-          '1980-03-18', 'FEMALE',
-          JSON.stringify({ number: '555-1301', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
-          'jennifer.williams@example.com', 'EMAIL',
+          cg4Id,
+          orgId,
+          [branchId],
+          branchId,
+          '1004',
+          'Jennifer',
+          'Williams',
+          '1980-03-18',
+          'FEMALE',
+          JSON.stringify({
+            number: '555-1301',
+            type: 'MOBILE',
+            canReceiveSMS: true,
+            isPrimary: true,
+          }),
+          'jennifer.williams@example.com',
+          'EMAIL',
           ['English'],
           JSON.stringify({
             type: 'HOME',
@@ -1234,7 +1369,9 @@ async function seedDatabase() {
               isPrimary: true,
             },
           ]),
-          'FULL_TIME', 'ACTIVE', '2020-01-10',
+          'FULL_TIME',
+          'ACTIVE',
+          '2020-01-10',
           'HOME_HEALTH_AIDE',
           ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
           JSON.stringify([
@@ -1278,10 +1415,25 @@ async function seedDatabase() {
             },
           ]),
           JSON.stringify([
-            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+            {
+              id: uuidv4(),
+              name: 'Personal Care',
+              category: 'Clinical',
+              proficiencyLevel: 'EXPERT',
+            },
             { id: uuidv4(), name: 'Vital Signs', category: 'Clinical', proficiencyLevel: 'EXPERT' },
-            { id: uuidv4(), name: 'Wound Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
-            { id: uuidv4(), name: 'Catheter Care', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+            {
+              id: uuidv4(),
+              name: 'Wound Care',
+              category: 'Clinical',
+              proficiencyLevel: 'ADVANCED',
+            },
+            {
+              id: uuidv4(),
+              name: 'Catheter Care',
+              category: 'Clinical',
+              proficiencyLevel: 'ADVANCED',
+            },
           ]),
           ['Wound Care', 'Post-Surgical Care'],
           JSON.stringify({
@@ -1296,21 +1448,25 @@ async function seedDatabase() {
             },
             lastUpdated: new Date().toISOString(),
           }),
-          40, true, 30,
+          40,
+          true,
+          30,
           JSON.stringify({
             id: cg4PayRateId,
             rateType: 'BASE',
-            amount: 17.50,
+            amount: 17.5,
             unit: 'HOURLY',
             effectiveDate: '2024-01-01',
             overtimeMultiplier: 1.5,
             weekendMultiplier: 1.2,
             holidayMultiplier: 1.5,
           }),
-          'EXPIRING_SOON', 0.88,
+          'EXPIRING_SOON',
+          0.88,
           'ACTIVE',
           'HHA certification expiring soon - renewal in progress. Excellent clinical skills.',
-          systemUserId, systemUserId,
+          systemUserId,
+          systemUserId,
         ]
       );
 
@@ -1337,11 +1493,23 @@ async function seedDatabase() {
         )
       `,
         [
-          cg5Id, orgId, [branchId], branchId,
-          '1005', 'James', 'Robinson',
-          '1995-07-22', 'MALE',
-          JSON.stringify({ number: '555-1401', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
-          'james.robinson@example.com', 'SMS',
+          cg5Id,
+          orgId,
+          [branchId],
+          branchId,
+          '1005',
+          'James',
+          'Robinson',
+          '1995-07-22',
+          'MALE',
+          JSON.stringify({
+            number: '555-1401',
+            type: 'MOBILE',
+            canReceiveSMS: true,
+            isPrimary: true,
+          }),
+          'james.robinson@example.com',
+          'SMS',
           ['English'],
           JSON.stringify({
             type: 'HOME',
@@ -1360,7 +1528,9 @@ async function seedDatabase() {
               isPrimary: true,
             },
           ]),
-          'PER_DIEM', 'ACTIVE', '2023-05-01',
+          'PER_DIEM',
+          'ACTIVE',
+          '2023-05-01',
           'CAREGIVER',
           ['visits:create', 'visits:read', 'visits:update', 'clients:read'],
           JSON.stringify([
@@ -1400,9 +1570,24 @@ async function seedDatabase() {
             },
           ]),
           JSON.stringify([
-            { id: uuidv4(), name: 'Personal Care', category: 'Clinical', proficiencyLevel: 'INTERMEDIATE' },
-            { id: uuidv4(), name: 'Meal Preparation', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
-            { id: uuidv4(), name: 'Light Housekeeping', category: 'Daily Living', proficiencyLevel: 'INTERMEDIATE' },
+            {
+              id: uuidv4(),
+              name: 'Personal Care',
+              category: 'Clinical',
+              proficiencyLevel: 'INTERMEDIATE',
+            },
+            {
+              id: uuidv4(),
+              name: 'Meal Preparation',
+              category: 'Daily Living',
+              proficiencyLevel: 'INTERMEDIATE',
+            },
+            {
+              id: uuidv4(),
+              name: 'Light Housekeeping',
+              category: 'Daily Living',
+              proficiencyLevel: 'INTERMEDIATE',
+            },
           ]),
           JSON.stringify({
             schedule: {
@@ -1422,19 +1607,23 @@ async function seedDatabase() {
             willingToWorkHolidays: true,
             notes: 'Weekend-only availability due to full-time student status',
           }),
-          20, true, 20,
+          20,
+          true,
+          20,
           JSON.stringify({
             id: cg5PayRateId,
             rateType: 'BASE',
-            amount: 16.50,
+            amount: 16.5,
             unit: 'HOURLY',
             effectiveDate: '2024-01-01',
             weekendMultiplier: 1.3,
             holidayMultiplier: 1.6,
           }),
-          'COMPLIANT', 0.85,
+          'COMPLIANT',
+          0.85,
           'ACTIVE',
-          systemUserId, systemUserId,
+          systemUserId,
+          systemUserId,
         ]
       );
 
@@ -1447,7 +1636,9 @@ async function seedDatabase() {
       console.log(`\n👥 Clients: 5`);
       console.log(`    • CL-2024-001: Margaret Thompson (Active) - Fall risk, uses walker`);
       console.log(`    • CL-2024-002: Robert Martinez (Active) - Veteran, wheelchair user`);
-      console.log(`    • CL-2024-003: Dorothy Williams (Pending Intake) - Post-stroke assessment needed`);
+      console.log(
+        `    • CL-2024-003: Dorothy Williams (Pending Intake) - Post-stroke assessment needed`
+      );
       console.log(`    • CL-2024-004: George Patterson (On Hold) - Hospitalized`);
       console.log(`    • CL-2024-005: Eleanor Rodriguez (Inquiry) - Respite care inquiry`);
       console.log(`\n👨‍⚕️ Caregivers: 5`);

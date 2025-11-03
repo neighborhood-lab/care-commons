@@ -1,10 +1,12 @@
 # Contributing to Care Commons
 
-Thank you for your interest in contributing to Care Commons! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Care Commons! This document
+provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
-We are committed to providing a welcoming and inclusive environment. Please be respectful and constructive in all interactions.
+We are committed to providing a welcoming and inclusive environment. Please be
+respectful and constructive in all interactions.
 
 ## How to Contribute
 
@@ -24,6 +26,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 ### Submitting Pull Requests
 
 1. **Fork the repository** and create a feature branch
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -34,10 +37,11 @@ We are committed to providing a welcoming and inclusive environment. Please be r
    - Update documentation as needed
 
 3. **Test your changes locally**
+
    ```bash
    # Run comprehensive checks (same as pre-commit)
    ./scripts/check.sh
-   
+
    # Or run individually:
    npm run build
    npm run lint
@@ -53,6 +57,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
    - If hooks fail, fix the issues before committing
 
 5. **Push and create a pull request**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -69,19 +74,28 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 This project enforces strict quality standards at two levels:
 
 #### 1. Pre-commit Hooks (Local)
-**Every commit automatically triggers** pre-commit checks via Husky (`.husky/pre-commit`):
+
+**Every commit automatically triggers** pre-commit checks via Husky
+(`.husky/pre-commit`):
+
 - ✅ Build all packages (`npm run build`)
 - ✅ Run linters (`npm run lint`) - must have zero warnings
 - ✅ Run type checking (`npm run typecheck`) - must have zero errors
-- ✅ Run tests with coverage (`npm run test:coverage`) - all tests must pass and meet coverage thresholds
+- ✅ Run tests with coverage (`npm run test:coverage`) - all tests must pass and
+  meet coverage thresholds
 
-**⚠️ CRITICAL**: These checks are **MANDATORY** and **CANNOT BE BYPASSED**. Do not use:
+**⚠️ CRITICAL**: These checks are **MANDATORY** and **CANNOT BE BYPASSED**. Do
+not use:
+
 - ❌ `git commit --no-verify`
 - ❌ `git commit -n`
 - ❌ Any other method to skip pre-commit hooks
 
 #### 2. CI Pipeline (GitHub Actions)
-**Every pull request automatically triggers** comprehensive CI checks (`.github/workflows/ci.yml`):
+
+**Every pull request automatically triggers** comprehensive CI checks
+(`.github/workflows/ci.yml`):
+
 - ✅ **Lint Job**: Validates code style with `npm run lint`
 - ✅ **Type Check Job**: Ensures types are correct with `npm run typecheck`
 - ✅ **Test Job**: Runs full test suite with coverage (`npm run test:coverage`)
@@ -115,11 +129,13 @@ This project enforces strict quality standards at two levels:
   - Functions: 87%
 - Test edge cases and error conditions
 - **Write deterministic tests** - no flaky tests that depend on:
-  - ❌ Multiple `new Date()` calls in assertions (use a single timestamp variable)
+  - ❌ Multiple `new Date()` calls in assertions (use a single timestamp
+    variable)
   - ❌ Random values without fixed seeds
   - ❌ External state or timing
   - ❌ Non-mocked external dependencies
-- Tests must pass consistently across all environments (local, CI, different machines)
+- Tests must pass consistently across all environments (local, CI, different
+  machines)
 
 ### Documentation
 
@@ -206,7 +222,8 @@ Fixes #55
 ## Review Process
 
 1. **Local validation** - Pre-commit hooks validate your changes
-2. **Automated checks** - CI runs comprehensive checks (lint, typecheck, test, build)
+2. **Automated checks** - CI runs comprehensive checks (lint, typecheck, test,
+   build)
 3. **Code review** - Maintainer reviews code quality and design
 4. **Testing** - Verify functionality in development environment
 5. **Documentation** - Ensure docs are complete and accurate
@@ -215,6 +232,7 @@ Fixes #55
 ### Why PRs Get Blocked
 
 A PR cannot be merged if:
+
 - ❌ Any CI check fails (lint, typecheck, test, or build)
 - ❌ Code review is not approved
 - ❌ There are unresolved conversations
@@ -230,6 +248,7 @@ A PR cannot be merged if:
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the same license as the project.
+By contributing, you agree that your contributions will be licensed under the
+same license as the project.
 
 Thank you for contributing to Care Commons! 🏡

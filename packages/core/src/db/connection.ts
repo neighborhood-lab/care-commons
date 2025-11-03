@@ -60,9 +60,7 @@ export class Database {
   /**
    * Execute within a transaction
    */
-  async transaction<T>(
-    callback: (client: PoolClient) => Promise<T>
-  ): Promise<T> {
+  async transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
     const client = await this.getClient();
     try {
       await client.query('BEGIN');

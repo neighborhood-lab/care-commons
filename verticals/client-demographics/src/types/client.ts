@@ -1,6 +1,6 @@
 /**
  * Client domain model
- * 
+ *
  * Foundational record for individuals receiving care:
  * - Identity and demographics
  * - Contact structure
@@ -12,11 +12,7 @@
  * - Lifecycle management
  */
 
-import {
-  Entity,
-  SoftDeletable,
-  UUID,
-} from '@care-commons/core';
+import { Entity, SoftDeletable, UUID } from '@care-commons/core';
 
 /**
  * State-specific client data for TX and FL compliance
@@ -36,26 +32,26 @@ export interface TexasClientData {
   medicaidProgram?: TexasMedicaidProgram;
   hhscClientId?: string; // HHSC community care client ID
   serviceDeliveryOption?: 'AGENCY' | 'CDS'; // Consumer Directed Services vs Agency
-  
+
   // Authorization & Plan of Care
   planOfCareNumber?: string; // HHSC Form 1746/8606 reference
   authorizedServices: TexasAuthorizedService[];
   currentAuthorization?: TexasServiceAuthorization;
-  
+
   // EVV Requirements
   evvEntityId?: string; // HHAeXchange Entity ID
   evvRequirements?: TexasEVVRequirements;
-  
+
   // Emergency Planning & Safety
   emergencyPlanOnFile: boolean;
   emergencyPlanDate?: Date;
   disasterEvacuationPlan?: string;
-  
+
   // Privacy & Compliance
   form1746Consent?: ConsentRecord; // Service delivery consent
   biometricDataConsent?: ConsentRecord; // Texas Privacy Protection Act
   releaseOfInformation?: ReleaseRecord[];
-  
+
   // Risk Classification
   acuityLevel?: 'LOW' | 'MODERATE' | 'HIGH' | 'COMPLEX';
   starPlusWaiverServices?: string[];
@@ -70,35 +66,35 @@ export interface FloridaClientData {
   managedCarePlan?: FloridaManagedCarePlan;
   apdWaiverEnrollment?: APDWaiverInfo; // Agency for Persons with Disabilities
   doeaRiskClassification?: 'LOW' | 'MODERATE' | 'HIGH'; // Dept of Elder Affairs
-  
+
   // Plan of Care (Florida Statute 400.487)
   planOfCareId?: string; // AHCA Form 484 adaptation
   planOfCareReviewDate?: Date;
   nextReviewDue?: Date; // 60/90-day mandatory review
   authorizedServices: FloridaAuthorizedService[];
-  
+
   // EVV & Billing
   evvAggregatorId?: string; // HHAeXchange or Netsmart/Tellus ID
   evvSystemType?: 'HHAX' | 'NETSMART' | 'OTHER';
   smmcProgramEnrollment?: boolean; // Statewide Medicaid Managed Care
   ltcProgramEnrollment?: boolean; // Long-Term Care
-  
+
   // Clinical Oversight (59A-8.0095)
   rnSupervisorId?: string;
   lastSupervisoryVisit?: Date;
   nextSupervisoryVisitDue?: Date;
   supervisoryVisitFrequency?: number; // days
-  
+
   // Safety & Environment
   hurricaneZone?: string; // For disaster planning per 59A-8.027
   biomedicalWasteExposure?: BiomedicalWasteRecord[];
-  
+
   // Compliance
   ahcaLicenseVerification?: Date;
   backgroundScreeningStatus?: 'COMPLIANT' | 'PENDING' | 'NON_COMPLIANT';
 }
 
-export type TexasMedicaidProgram = 
+export type TexasMedicaidProgram =
   | 'STAR'
   | 'STAR_PLUS'
   | 'STAR_KIDS'
@@ -447,7 +443,13 @@ export interface ServiceEligibility {
 
 export interface FundingSource {
   id: UUID;
-  type: 'MEDICAID' | 'MEDICARE' | 'PRIVATE_INSURANCE' | 'PRIVATE_PAY' | 'VETERANS_BENEFITS' | 'OTHER';
+  type:
+    | 'MEDICAID'
+    | 'MEDICARE'
+    | 'PRIVATE_INSURANCE'
+    | 'PRIVATE_PAY'
+    | 'VETERANS_BENEFITS'
+    | 'OTHER';
   name: string;
   priority: number; // 1 = primary, 2 = secondary, etc.
   accountNumber?: string;

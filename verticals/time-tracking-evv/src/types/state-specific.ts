@@ -1,6 +1,6 @@
 /**
  * State-Specific EVV Requirements
- * 
+ *
  * Texas and Florida have distinct EVV compliance requirements beyond the
  * federal 21st Century Cures Act baseline.
  */
@@ -20,32 +20,32 @@ export type StateCode = 'TX' | 'FL';
 
 /**
  * Texas EVV Aggregator System (HHAeXchange / TMHP)
- * 
+ *
  * Texas operates a mandatory aggregator model. All EVV data must flow through
  * the HHSC-approved aggregator for Medicaid claims matching.
  */
 export interface TexasEVVConfig {
   state: 'TX';
-  
+
   // Aggregator configuration
   aggregatorType: 'HHAEEXCHANGE' | 'PROPRIETARY_SYSTEM_OPERATOR';
   aggregatorEntityId: string; // HHSC-assigned Entity ID
   aggregatorSubmissionEndpoint: string;
   aggregatorApiKey?: string;
-  
+
   // Texas program types
   programType: TexasMedicaidProgram;
-  
+
   // Clock method requirements
   allowedClockMethods: TexasClockMethod[];
   requiresGPSForMobile: boolean; // Mandatory for mobile visits
   geoPerimeterTolerance: number; // Meters, typically 100m baseline + allowance
-  
+
   // Grace period rules
   clockInGracePeriodMinutes: number; // Minutes before scheduled start
   clockOutGracePeriodMinutes: number; // Minutes after scheduled end
   lateClockInThresholdMinutes: number; // When late flag triggers
-  
+
   // Visit maintenance
   vmurEnabled: boolean; // Visit Maintenance Unlock Request
   vmurApprovalRequired: boolean;
@@ -65,7 +65,7 @@ export type TexasMedicaidProgram =
   | 'HAB' // Habilitation services
   | 'CDS' // Consumer Directed Services
   | 'CLASS' // Community Living Assistance and Support Services
-  | 'DBMD' // Deaf-Blind with Multiple Disabilities;
+  | 'DBMD'; // Deaf-Blind with Multiple Disabilities;
 
 /**
  * Texas HHSC Clock Methods
@@ -79,7 +79,7 @@ export type TexasClockMethod =
 
 /**
  * Texas Visit Maintenance Unlock Request (VMUR)
- * 
+ *
  * Required when correcting EVV data after initial submission.
  * Strict audit trail and reason code requirements per HHSC policy.
  */
@@ -87,31 +87,31 @@ export interface TexasVMUR {
   id: UUID;
   evvRecordId: UUID;
   visitId: UUID;
-  
+
   // Request details
   requestedBy: UUID;
   requestedByName: string;
   requestedAt: Timestamp;
   requestReason: TexasVMURReasonCode;
   requestReasonDetails: string;
-  
+
   // Approval workflow
   approvalStatus: 'PENDING' | 'APPROVED' | 'DENIED' | 'EXPIRED';
   approvedBy?: UUID;
   approvedByName?: string;
   approvedAt?: Timestamp;
   denialReason?: string;
-  
+
   // Original vs corrected data
   originalData: TexasEVVDataSnapshot;
   correctedData: TexasEVVDataSnapshot;
   changesSummary: string[];
-  
+
   // Submission tracking
   submittedToAggregator: boolean;
   aggregatorConfirmation?: string;
   submittedAt?: Timestamp;
-  
+
   // Compliance
   expiresAt: Timestamp; // VMURs expire if not completed
   complianceNotes?: string;
@@ -119,7 +119,7 @@ export interface TexasVMUR {
 
 /**
  * Texas HHSC VMUR Reason Codes
- * 
+ *
  * Per HHSC EVV Policy Handbook, specific reason codes must be used
  * for all visit data corrections.
  */
@@ -130,19 +130,19 @@ export type TexasVMURReasonCode =
   | 'NETWORK_OUTAGE' // Internet/cellular outage
   | 'APP_ERROR' // Application error or crash
   | 'SYSTEM_DOWNTIME' // EVV system unavailable
-  
+
   // Location exceptions
   | 'RURAL_POOR_SIGNAL' // Rural area with poor GPS/cellular
   | 'SERVICE_LOCATION_CHANGE' // Service at alternate location
   | 'EMERGENCY_EVACUATION' // Emergency/disaster evacuation
   | 'HOSPITAL_TRANSPORT' // Service during hospital transport
-  
+
   // Operational
   | 'FORGOT_TO_CLOCK' // Attendant forgot to clock in/out
   | 'TRAINING_NEW_STAFF' // New staff training period
   | 'INCORRECT_CLOCK_TIME' // Wrong time entered
   | 'DUPLICATE_ENTRY' // Duplicate clock entry error
-  
+
   // Other
   | 'OTHER_APPROVED'; // Other reason, requires detailed explanation
 
@@ -168,32 +168,32 @@ export interface TexasEVVDataSnapshot {
 
 /**
  * Florida EVV Configuration (Open Model)
- * 
+ *
  * Florida allows agencies to choose their own EVV vendor, but data must
  * integrate with AHCA-designated aggregators. Multi-aggregator support
  * required for different payers/MCOs.
  */
 export interface FloridaEVVConfig {
   state: 'FL';
-  
+
   // Multi-aggregator support
   aggregators: FloridaAggregatorConnection[];
   defaultAggregator: string; // Primary aggregator ID
-  
+
   // Program types
   programType: FloridaMedicaidProgram;
-  
+
   // Verification requirements
   requiredDataElements: 'CURES_ACT_MINIMUM' | 'AHCA_ENHANCED';
   allowedVerificationMethods: FloridaVerificationMethod[];
-  
+
   // MCO-specific settings
   mcoRequirements?: FloridaMCORequirements;
-  
+
   // Geographic validation
   geoPerimeterTolerance: number; // Meters, often more lenient than TX
   allowTelephonyFallback: boolean; // Phone verification as backup
-  
+
   // Submission windows
   submissionDeadlineDays: number; // Days to submit after service
   lateSubmissionGracePeriodDays: number;
@@ -221,11 +221,11 @@ export interface FloridaAggregatorConnection {
   endpoint: string;
   apiKey?: string;
   isActive: boolean;
-  
+
   // Payer/MCO mappings
   assignedPayers: string[]; // Which payers route through this aggregator
   assignedMCOs: string[]; // Which MCOs route through this aggregator
-  
+
   // Submission settings
   batchSubmission: boolean;
   realTimeSubmission: boolean;
@@ -244,23 +244,23 @@ export type FloridaVerificationMethod =
 
 /**
  * Florida MCO-Specific Requirements
- * 
+ *
  * Different Managed Care Organizations may have additional requirements
  * beyond state minimums.
  */
 export interface FloridaMCORequirements {
   mcoName: string;
   mcoId: string;
-  
+
   // Additional data elements
   requiresClientSignature: boolean;
   requiresTaskDocumentation: boolean;
   requiresPhotoVerification: boolean;
-  
+
   // Billing interface
   billingInterfaceType: 'ELECTRONIC_837' | 'PORTAL_UPLOAD' | 'BATCH_FILE' | 'API';
   billingSubmissionEndpoint?: string;
-  
+
   // Service authorization
   requiresPriorAuth: boolean;
   authorizationValidationEndpoint?: string;
@@ -277,28 +277,28 @@ export interface FloridaMCORequirements {
  */
 export interface StateEVVRules {
   state: StateCode;
-  
+
   // Geographic validation
   geoFenceRadius: number; // Base radius in meters
   geoFenceTolerance: number; // Additional tolerance in meters
   geoFenceToleranceReason?: string; // Why tolerance is applied
-  
+
   // Timing rules
   maxClockInEarlyMinutes: number; // How early can clock in
   maxClockOutLateMinutes: number; // How late can clock out
   overtimeThresholdMinutes: number; // When overtime rules apply
-  
+
   // Verification requirements
   minimumGPSAccuracy: number; // Meters
   requiresBiometric: boolean;
   requiresPhoto: boolean;
   requiresClientAttestation: boolean;
-  
+
   // Exception handling
   allowManualOverride: boolean;
   manualOverrideRequiresSupervisor: boolean;
   manualOverrideReasonCodesRequired: string[];
-  
+
   // Data retention
   retentionYears: number; // Minimum retention period
   immutableAfterDays: number; // Days after which record becomes immutable
@@ -313,19 +313,19 @@ export interface StateAggregatorSubmission {
   evvRecordId: UUID;
   aggregatorId: string;
   aggregatorType: string;
-  
+
   // Submission data
   submissionPayload: Record<string, unknown>; // State-specific format
   submissionFormat: 'JSON' | 'XML' | 'HL7' | 'PROPRIETARY';
   submittedAt: Timestamp;
   submittedBy: UUID;
-  
+
   // Response tracking
   submissionStatus: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'PARTIAL' | 'RETRY';
   aggregatorResponse?: Record<string, unknown>;
   aggregatorConfirmationId?: string;
   aggregatorReceivedAt?: Timestamp;
-  
+
   // Error handling
   errorCode?: string;
   errorMessage?: string;
@@ -333,7 +333,7 @@ export interface StateAggregatorSubmission {
   retryCount: number;
   maxRetries: number;
   nextRetryAt?: Timestamp;
-  
+
   // Audit
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -347,25 +347,25 @@ export interface StateEVVException {
   state: StateCode;
   evvRecordId: UUID;
   visitId: UUID;
-  
+
   exceptionType: StateExceptionType;
   exceptionCode: string; // State-specific code
   severity: 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
-  
+
   description: string;
   detectedAt: Timestamp;
   detectedBy: 'SYSTEM' | 'AGGREGATOR' | 'SUPERVISOR' | 'AUDIT';
-  
+
   // Resolution
   requiresAction: boolean;
   actionRequired?: string;
   actionDeadline?: Timestamp;
-  
+
   resolvedAt?: Timestamp;
   resolvedBy?: UUID;
   resolutionNotes?: string;
   resolutionMethod?: 'VMUR' | 'OVERRIDE' | 'RESUBMISSION' | 'WAIVER';
-  
+
   // State-specific data
   stateSpecificData?: TexasVMUR | FloridaEVVException;
 }
@@ -376,20 +376,20 @@ export type StateExceptionType =
   | 'GPS_ACCURACY_LOW'
   | 'LOCATION_JUMP' // Impossible distance in time
   | 'MOCK_LOCATION_DETECTED'
-  
+
   // Timing
   | 'CLOCK_IN_TOO_EARLY'
   | 'CLOCK_IN_TOO_LATE'
   | 'CLOCK_OUT_TOO_LATE'
   | 'VISIT_DURATION_ANOMALY'
   | 'TIME_GAP_DETECTED'
-  
+
   // Technical
   | 'DEVICE_SECURITY_ISSUE' // Rooted/jailbroken
   | 'OFFLINE_SYNC_CONFLICT'
   | 'INTEGRITY_HASH_MISMATCH'
   | 'DUPLICATE_SUBMISSION'
-  
+
   // Compliance
   | 'MISSING_SIGNATURE'
   | 'MISSING_TASK_DOCUMENTATION'
@@ -444,7 +444,7 @@ export function getStateEVVRules(state: StateCode): StateEVVRules {
         retentionYears: 6, // HHSC minimum
         immutableAfterDays: 30, // After 30 days, requires VMUR
       };
-      
+
     case 'FL':
       return {
         state: 'FL',
@@ -471,7 +471,7 @@ export function getStateEVVRules(state: StateCode): StateEVVRules {
         retentionYears: 6, // AHCA minimum
         immutableAfterDays: 45, // More lenient correction window
       };
-      
+
     default:
       throw new Error(`Unsupported state: ${state}`);
   }
@@ -490,26 +490,27 @@ export function selectAggregator(
     // Texas has single mandatory aggregator
     return (config as TexasEVVConfig).aggregatorEntityId;
   }
-  
+
   if (state === 'FL') {
     const flConfig = config as FloridaEVVConfig;
-    
+
     // Match aggregator by payer or MCO
     if (payerId || mcoId) {
-      const matchedAgg = flConfig.aggregators.find(agg =>
-        agg.isActive &&
-        (payerId && agg.assignedPayers.includes(payerId) ||
-         mcoId && agg.assignedMCOs.includes(mcoId))
+      const matchedAgg = flConfig.aggregators.find(
+        (agg) =>
+          agg.isActive &&
+          ((payerId && agg.assignedPayers.includes(payerId)) ||
+            (mcoId && agg.assignedMCOs.includes(mcoId)))
       );
-      
+
       if (matchedAgg) {
         return matchedAgg.id;
       }
     }
-    
+
     // Fall back to default
     return flConfig.defaultAggregator;
   }
-  
+
   throw new Error(`Unsupported state: ${state}`);
 }

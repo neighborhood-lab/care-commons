@@ -18,11 +18,7 @@ declare module 'express' {
  * Mock authentication middleware
  * In production, this would validate JWT tokens and populate context
  */
-export function authContextMiddleware(
-  req: Request,
-  _res: Response,
-  next: NextFunction
-): void {
+export function authContextMiddleware(req: Request, _res: Response, next: NextFunction): void {
   // Extract from headers (set by frontend or API gateway)
   const userId = req.header('X-User-Id') ?? 'system';
   const organizationId = req.header('X-Organization-Id') ?? '';
@@ -46,11 +42,7 @@ export function authContextMiddleware(
  * Require authentication middleware
  * Returns 401 if no valid user context
  */
-export function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function requireAuth(req: Request, res: Response, next: NextFunction): void {
   if (req.userContext?.userId === undefined) {
     res.status(401).json({
       success: false,

@@ -1,6 +1,6 @@
 /**
  * Organization API Client
- * 
+ *
  * Handles API calls for organization registration and team invitations
  */
 
@@ -194,9 +194,10 @@ export class OrganizationApi {
   async acceptInvitation(
     request: AcceptInviteRequest
   ): Promise<{ userId: string; message: string }> {
-    const response = await this.apiClient.post<
-      ApiResponse<{ userId: string; message: string }>
-    >('/api/invitations/accept', request);
+    const response = await this.apiClient.post<ApiResponse<{ userId: string; message: string }>>(
+      '/api/invitations/accept',
+      request
+    );
 
     if (!response.success || !response.data) {
       throw new Error(response.error ?? 'Failed to accept invitation');
@@ -224,9 +225,7 @@ export class OrganizationApi {
    * Revoke an invitation
    */
   async revokeInvitation(token: string): Promise<void> {
-    const response = await this.apiClient.delete<ApiResponse<void>>(
-      `/api/invitations/${token}`
-    );
+    const response = await this.apiClient.delete<ApiResponse<void>>(`/api/invitations/${token}`);
 
     if (!response.success) {
       throw new Error(response.error ?? 'Failed to revoke invitation');

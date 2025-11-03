@@ -1,10 +1,13 @@
 export const formatDate = (date: string | Date, options?: Intl.DateTimeFormatOptions): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('en-US', options || { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  }).format(d);
+  return new Intl.DateTimeFormat(
+    'en-US',
+    options || {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }
+  ).format(d);
 };
 
 export const formatDateTime = (date: string | Date): string => {
@@ -43,7 +46,7 @@ export const formatCurrency = (amount: number, currency = 'USD'): string => {
 export const formatDuration = (minutes: number): string => {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
-  
+
   if (hours === 0) return `${mins}m`;
   if (mins === 0) return `${hours}h`;
   return `${hours}h ${mins}m`;

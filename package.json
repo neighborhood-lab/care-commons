@@ -18,7 +18,10 @@
     "start": "cd packages/app && npm run start",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
-    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run format:check && turbo lint",
+    "lint:fix": "npm run format && turbo lint -- --fix",
     "typecheck": "turbo run build && tsc -b",
     "db:migrate": "cd packages/core && npm run db:migrate",
     "db:migrate:rollback": "cd packages/core && npm run db:migrate:rollback",
@@ -34,13 +37,21 @@
     "vercel:prepare": "mkdir -p api/_server && cp -r packages/app/dist/src/* api/_server/ && cp -r verticals/*/dist api/_server/ 2>/dev/null || true && cp -r packages/core/dist api/_server/ 2>/dev/null || true",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md,yml,yaml}": "prettier --write",
+    "*.{ts,tsx}": "eslint --fix"
+  },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.6",
     "dotenv-cli": "^11.0.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.6.2",
     "snyk": "^1.1300.2",
     "sql-lint": "^1.0.2",
     "turbo": "^2.6.0",

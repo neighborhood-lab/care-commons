@@ -38,26 +38,20 @@ export const InvoiceList: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Billing & Invoicing</h1>
-          <p className="text-gray-600 mt-1">
-            {invoiceData?.total || 0} total invoices
-          </p>
+          <p className="text-gray-600 mt-1">{invoiceData?.total || 0} total invoices</p>
         </div>
         <div className="flex gap-2">
           <div className="flex border border-gray-300 rounded-md">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${
-                viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               aria-label="Grid view"
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${
-                viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
+              className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               aria-label="List view"
             >
               <List className="h-5 w-5" />
@@ -65,9 +59,7 @@ export const InvoiceList: React.FC = () => {
           </div>
           {can('billing:write') && (
             <Link to="/billing/new">
-              <Button leftIcon={<Plus className="h-4 w-4" />}>
-                New Invoice
-              </Button>
+              <Button leftIcon={<Plus className="h-4 w-4" />}>New Invoice</Button>
             </Link>
           )}
         </div>
@@ -84,9 +76,7 @@ export const InvoiceList: React.FC = () => {
           action={
             can('billing:write') ? (
               <Link to="/billing/new">
-                <Button leftIcon={<Plus className="h-4 w-4" />}>
-                  Create Invoice
-                </Button>
+                <Button leftIcon={<Plus className="h-4 w-4" />}>Create Invoice</Button>
               </Link>
             ) : undefined
           }
@@ -100,11 +90,7 @@ export const InvoiceList: React.FC = () => {
           }
         >
           {invoices.map((invoice) => (
-            <InvoiceCard
-              key={invoice.id}
-              invoice={invoice}
-              compact={viewMode === 'list'}
-            />
+            <InvoiceCard key={invoice.id} invoice={invoice} compact={viewMode === 'list'} />
           ))}
         </div>
       )}

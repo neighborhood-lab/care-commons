@@ -1,7 +1,15 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, User } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage, StatusBadge } from '@/core/components';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardContent,
+  LoadingSpinner,
+  ErrorMessage,
+  StatusBadge,
+} from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { formatDate, formatPhone } from '@/core/utils';
 import { useClient, useDeleteClient } from '../hooks';
@@ -43,9 +51,7 @@ export const ClientDetail: React.FC = () => {
     );
   }
 
-  const fullName = [client.firstName, client.middleName, client.lastName]
-    .filter(Boolean)
-    .join(' ');
+  const fullName = [client.firstName, client.middleName, client.lastName].filter(Boolean).join(' ');
 
   return (
     <div className="space-y-6">
@@ -59,9 +65,7 @@ export const ClientDetail: React.FC = () => {
 
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {client.preferredName || fullName}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">{client.preferredName || fullName}</h1>
           <p className="text-gray-600 mt-1">{client.clientNumber}</p>
         </div>
         <div className="flex gap-2">
@@ -104,9 +108,7 @@ export const ClientDetail: React.FC = () => {
                 )}
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Date of Birth</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    {formatDate(client.dateOfBirth)}
-                  </dd>
+                  <dd className="mt-1 text-sm text-gray-900">{formatDate(client.dateOfBirth)}</dd>
                 </div>
                 {client.gender && (
                   <div>
@@ -165,7 +167,10 @@ export const ClientDetail: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   {client.emergencyContacts.map((contact) => (
-                    <div key={contact.id} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
+                    <div
+                      key={contact.id}
+                      className="border-b border-gray-200 last:border-0 pb-4 last:pb-0"
+                    >
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-gray-900">{contact.name}</p>
@@ -178,12 +183,8 @@ export const ClientDetail: React.FC = () => {
                         )}
                       </div>
                       <div className="mt-2 space-y-1">
-                        <p className="text-sm text-gray-600">
-                          {formatPhone(contact.phone.number)}
-                        </p>
-                        {contact.email && (
-                          <p className="text-sm text-gray-600">{contact.email}</p>
-                        )}
+                        <p className="text-sm text-gray-600">{formatPhone(contact.phone.number)}</p>
+                        {contact.email && <p className="text-sm text-gray-600">{contact.email}</p>}
                         {contact.canMakeHealthcareDecisions && (
                           <p className="text-xs text-gray-500">
                             Authorized for healthcare decisions
@@ -227,9 +228,7 @@ export const ClientDetail: React.FC = () => {
                   <div className="h-2 w-2 mt-2 rounded-full bg-green-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Client Created</p>
-                    <p className="text-xs text-gray-600">
-                      {formatDate(client.createdAt)}
-                    </p>
+                    <p className="text-xs text-gray-600">{formatDate(client.createdAt)}</p>
                   </div>
                 </div>
                 {client.intakeDate && (
@@ -237,9 +236,7 @@ export const ClientDetail: React.FC = () => {
                     <div className="h-2 w-2 mt-2 rounded-full bg-blue-500" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Intake Completed</p>
-                      <p className="text-xs text-gray-600">
-                        {formatDate(client.intakeDate)}
-                      </p>
+                      <p className="text-xs text-gray-600">{formatDate(client.intakeDate)}</p>
                     </div>
                   </div>
                 )}

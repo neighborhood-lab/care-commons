@@ -13,15 +13,11 @@ export const MatchingMetricsCard: React.FC<MatchingMetricsCardProps> = ({ metric
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600">Total Open Shifts</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {metrics.totalOpenShifts}
-            </p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.totalOpenShifts}</p>
           </div>
           <Users className="h-8 w-8 text-blue-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Needing assignment
-        </p>
+        <p className="text-xs text-gray-500 mt-2">Needing assignment</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
@@ -34,9 +30,7 @@ export const MatchingMetricsCard: React.FC<MatchingMetricsCardProps> = ({ metric
           </div>
           <TrendingUp className="h-8 w-8 text-green-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          {metrics.shiftsMatched} matched
-        </p>
+        <p className="text-xs text-gray-500 mt-2">{metrics.shiftsMatched} matched</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
@@ -49,9 +43,7 @@ export const MatchingMetricsCard: React.FC<MatchingMetricsCardProps> = ({ metric
           </div>
           <CheckCircle className="h-8 w-8 text-blue-500" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Proposals accepted
-        </p>
+        <p className="text-xs text-gray-500 mt-2">Proposals accepted</p>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
@@ -64,9 +56,7 @@ export const MatchingMetricsCard: React.FC<MatchingMetricsCardProps> = ({ metric
           </div>
           <XCircle className="h-8 w-8 text-gray-400" />
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Out of 100
-        </p>
+        <p className="text-xs text-gray-500 mt-2">Out of 100</p>
       </div>
     </div>
   );

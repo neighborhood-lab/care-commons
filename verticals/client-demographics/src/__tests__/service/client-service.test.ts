@@ -5,7 +5,13 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ClientService } from '../../service/client-service';
 import { ClientRepository } from '../../repository/client-repository';
-import { CreateClientInput, UpdateClientInput, Client, ClientStatus, RiskType } from '../../types/client';
+import {
+  CreateClientInput,
+  UpdateClientInput,
+  Client,
+  ClientStatus,
+  RiskType,
+} from '../../types/client';
 import { UserContext, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
 
 // Mock UUID for consistent test results
@@ -121,7 +127,10 @@ describe('ClientService', () => {
 
       const result = await service.createClient(createInput, mockUserContext);
 
-      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(mockUserContext, 'clients:create');
+      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(
+        mockUserContext,
+        'clients:create'
+      );
       expect(mockRepository.create).toHaveBeenCalled();
       expect(result).toEqual(mockClient);
     });
@@ -181,7 +190,9 @@ describe('ClientService', () => {
         deletedBy: null,
       } as Client);
 
-      await expect(service.createClient(createInput, mockUserContext)).rejects.toThrow(ValidationError);
+      await expect(service.createClient(createInput, mockUserContext)).rejects.toThrow(
+        ValidationError
+      );
       expect(mockRepository.create).not.toHaveBeenCalled();
     });
 
@@ -202,7 +213,9 @@ describe('ClientService', () => {
         },
       };
 
-      await expect(service.createClient(invalidInput, mockUserContext)).rejects.toThrow(ValidationError);
+      await expect(service.createClient(invalidInput, mockUserContext)).rejects.toThrow(
+        ValidationError
+      );
       expect(mockRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -250,7 +263,10 @@ describe('ClientService', () => {
 
       const result = await service.getClientById('client-1', mockUserContext);
 
-      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(mockUserContext, 'clients:read');
+      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(
+        mockUserContext,
+        'clients:read'
+      );
       expect(mockRepository.findById).toHaveBeenCalledWith('client-1');
       expect(result).toEqual(mockClient);
     });
@@ -258,7 +274,9 @@ describe('ClientService', () => {
     it('should throw NotFoundError if client not found', async () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
-      await expect(service.getClientById('non-existent', mockUserContext)).rejects.toThrow(NotFoundError);
+      await expect(service.getClientById('non-existent', mockUserContext)).rejects.toThrow(
+        NotFoundError
+      );
     });
 
     it('should throw PermissionError if no organizational access', async () => {
@@ -301,7 +319,9 @@ describe('ClientService', () => {
 
       vi.mocked(mockRepository.findById).mockResolvedValue(mockClient);
 
-      await expect(service.getClientById('client-1', mockUserContext)).rejects.toThrow(PermissionError);
+      await expect(service.getClientById('client-1', mockUserContext)).rejects.toThrow(
+        PermissionError
+      );
     });
   });
 
@@ -348,7 +368,10 @@ describe('ClientService', () => {
 
       const result = await service.getClientByNumber('CL-001', 'org-1', mockUserContext);
 
-      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(mockUserContext, 'clients:read');
+      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(
+        mockUserContext,
+        'clients:read'
+      );
       expect(mockRepository.findByClientNumber).toHaveBeenCalledWith('CL-001', 'org-1');
       expect(result).toEqual(mockClient);
     });
@@ -356,7 +379,9 @@ describe('ClientService', () => {
     it('should throw NotFoundError if client not found', async () => {
       vi.mocked(mockRepository.findByClientNumber).mockResolvedValue(null);
 
-      await expect(service.getClientByNumber('CL-999', 'org-1', mockUserContext)).rejects.toThrow(NotFoundError);
+      await expect(service.getClientByNumber('CL-999', 'org-1', mockUserContext)).rejects.toThrow(
+        NotFoundError
+      );
     });
   });
 
@@ -408,7 +433,10 @@ describe('ClientService', () => {
 
       const result = await service.updateClient('client-1', updates, mockUserContext);
 
-      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(mockUserContext, 'clients:update');
+      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(
+        mockUserContext,
+        'clients:update'
+      );
       expect(mockRepository.findById).toHaveBeenCalledWith('client-1');
       expect(mockRepository.update).toHaveBeenCalledWith('client-1', updates, mockUserContext);
       expect(result.firstName).toBe('Jane');
@@ -456,11 +484,13 @@ describe('ClientService', () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(mockClient);
 
       // Try to update with an invalid value
-      const invalidUpdates: UpdateClientInput = { 
-        firstName: 'x'.repeat(200) // Too long
+      const invalidUpdates: UpdateClientInput = {
+        firstName: 'x'.repeat(200), // Too long
       };
 
-      await expect(service.updateClient('client-1', invalidUpdates, mockUserContext)).rejects.toThrow(ValidationError);
+      await expect(
+        service.updateClient('client-1', invalidUpdates, mockUserContext)
+      ).rejects.toThrow(ValidationError);
     });
   });
 
@@ -508,7 +538,10 @@ describe('ClientService', () => {
 
       await service.deleteClient('client-1', mockUserContext);
 
-      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(mockUserContext, 'clients:delete');
+      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(
+        mockUserContext,
+        'clients:delete'
+      );
       expect(mockRepository.findById).toHaveBeenCalledWith('client-1');
       expect(mockRepository.delete).toHaveBeenCalledWith('client-1', mockUserContext);
     });
@@ -516,7 +549,9 @@ describe('ClientService', () => {
     it('should throw NotFoundError if client does not exist', async () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
-      await expect(service.deleteClient('non-existent', mockUserContext)).rejects.toThrow(NotFoundError);
+      await expect(service.deleteClient('non-existent', mockUserContext)).rejects.toThrow(
+        NotFoundError
+      );
     });
   });
 
@@ -534,7 +569,10 @@ describe('ClientService', () => {
 
       const result = await service.searchClients({}, { page: 1, limit: 10 }, mockUserContext);
 
-      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(mockUserContext, 'clients:read');
+      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(
+        mockUserContext,
+        'clients:read'
+      );
       expect(mockRepository.search).toHaveBeenCalled();
       expect(result).toEqual(mockSearchResult);
     });
@@ -590,7 +628,10 @@ describe('ClientService', () => {
 
       const result = await service.getClientsByBranch('branch-1', mockUserContext);
 
-      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(mockUserContext, 'clients:read');
+      expect(mockPermissionService.requirePermission).toHaveBeenCalledWith(
+        mockUserContext,
+        'clients:read'
+      );
       expect(mockRepository.findByBranch).toHaveBeenCalledWith('branch-1', true);
       expect(result).toEqual(mockClients);
     });
@@ -601,7 +642,9 @@ describe('ClientService', () => {
         branchIds: ['other-branch'],
       };
 
-      await expect(service.getClientsByBranch('branch-1', contextWithoutBranch)).rejects.toThrow(PermissionError);
+      await expect(service.getClientsByBranch('branch-1', contextWithoutBranch)).rejects.toThrow(
+        PermissionError
+      );
     });
   });
 
@@ -669,9 +712,13 @@ describe('ClientService', () => {
 
       const result = await service.addEmergencyContact('client-1', newContact, mockUserContext);
 
-      expect(mockRepository.update).toHaveBeenCalledWith('client-1', {
-        emergencyContacts: [{ ...newContact, id: 'mocked-uuid' }]
-      }, mockUserContext);
+      expect(mockRepository.update).toHaveBeenCalledWith(
+        'client-1',
+        {
+          emergencyContacts: [{ ...newContact, id: 'mocked-uuid' }],
+        },
+        mockUserContext
+      );
       expect(result.emergencyContacts).toHaveLength(1);
     });
 
@@ -695,8 +742,8 @@ describe('ClientService', () => {
             },
             isPrimary: true,
             canMakeHealthcareDecisions: true,
-          }
-        ]
+          },
+        ],
       };
 
       vi.mocked(mockRepository.findById).mockResolvedValue(clientWithContact);
@@ -715,13 +762,18 @@ describe('ClientService', () => {
             },
             isPrimary: true,
             canMakeHealthcareDecisions: true,
-          }
-        ]
+          },
+        ],
       };
 
       vi.mocked(mockRepository.update).mockResolvedValue(updatedClient);
 
-      const result = await service.updateEmergencyContact('client-1', 'contact-1', updatedContact, mockUserContext);
+      const result = await service.updateEmergencyContact(
+        'client-1',
+        'contact-1',
+        updatedContact,
+        mockUserContext
+      );
 
       expect(result.emergencyContacts[0]?.name).toBe('Jane Smith');
       expect(result.emergencyContacts[0]?.relationship).toBe('Daughter');
@@ -742,8 +794,8 @@ describe('ClientService', () => {
             },
             isPrimary: true,
             canMakeHealthcareDecisions: true,
-          }
-        ]
+          },
+        ],
       };
 
       vi.mocked(mockRepository.findById).mockResolvedValue(clientWithContact);
@@ -821,9 +873,13 @@ describe('ClientService', () => {
 
       const result = await service.addRiskFlag('client-1', newRiskFlag, mockUserContext);
 
-      expect(mockRepository.update).toHaveBeenCalledWith('client-1', {
-        riskFlags: [{ ...newRiskFlag, id: 'mocked-uuid', identifiedDate: expect.any(Date) }]
-      }, mockUserContext);
+      expect(mockRepository.update).toHaveBeenCalledWith(
+        'client-1',
+        {
+          riskFlags: [{ ...newRiskFlag, id: 'mocked-uuid', identifiedDate: expect.any(Date) }],
+        },
+        mockUserContext
+      );
       expect(result.riskFlags).toHaveLength(1);
     });
 
@@ -838,8 +894,8 @@ describe('ClientService', () => {
             description: 'History of falls',
             identifiedDate: new Date(),
             requiresAcknowledgment: true,
-          }
-        ]
+          },
+        ],
       };
 
       vi.mocked(mockRepository.findById).mockResolvedValue(clientWithRisk);
@@ -855,8 +911,8 @@ describe('ClientService', () => {
             identifiedDate: new Date(),
             resolvedDate: expect.any(Date),
             requiresAcknowledgment: true,
-          }
-        ]
+          },
+        ],
       };
 
       vi.mocked(mockRepository.update).mockResolvedValue(updatedClient);
@@ -916,12 +972,21 @@ describe('ClientService', () => {
 
       vi.mocked(mockRepository.update).mockResolvedValue(updatedClient);
 
-      const result = await service.updateClientStatus('client-1', 'DISCHARGED', mockUserContext, 'No longer needed services');
+      const result = await service.updateClientStatus(
+        'client-1',
+        'DISCHARGED',
+        mockUserContext,
+        'No longer needed services'
+      );
 
-      expect(mockRepository.update).toHaveBeenCalledWith('client-1', {
-        status: 'DISCHARGED',
-        notes: 'Discharged: Moved to assisted living\n\nDischarged: No longer needed services',
-      }, mockUserContext);
+      expect(mockRepository.update).toHaveBeenCalledWith(
+        'client-1',
+        {
+          status: 'DISCHARGED',
+          notes: 'Discharged: Moved to assisted living\n\nDischarged: No longer needed services',
+        },
+        mockUserContext
+      );
       expect(result.status).toBe('DISCHARGED');
     });
   });

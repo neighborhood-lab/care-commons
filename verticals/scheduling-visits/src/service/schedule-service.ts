@@ -1,6 +1,6 @@
 /**
  * Service for Scheduling & Visit Management
- * 
+ *
  * Business logic layer for scheduling operations:
  * - Service pattern management
  * - Schedule generation from patterns
@@ -38,17 +38,10 @@ import {
   AvailabilitySlot,
   DayOfWeek,
 } from '../types/schedule';
-import {
-  addDays,
-  addWeeks,
-  startOfDay,
-  endOfDay,
-  isBefore,
-  isSameDay,
-} from 'date-fns';
+import { addDays, addWeeks, startOfDay, endOfDay, isBefore, isSameDay } from 'date-fns';
 
 export class ScheduleService {
-  constructor(private repository: ScheduleRepository) { }
+  constructor(private repository: ScheduleRepository) {}
 
   /**
    * Service Pattern Management
@@ -77,10 +70,7 @@ export class ScheduleService {
     return await this.repository.createServicePattern(patternInput, context);
   }
 
-  async getServicePatternById(
-    id: UUID,
-    context: UserContext
-  ): Promise<ServicePattern> {
+  async getServicePatternById(id: UUID, context: UserContext): Promise<ServicePattern> {
     this.checkPermission(context, 'schedules:read');
 
     const pattern = await this.repository.getServicePatternById(id);
@@ -110,28 +100,20 @@ export class ScheduleService {
     return await this.repository.updateServicePattern(id, validated, context);
   }
 
-  async getPatternsByClient(
-    clientId: UUID,
-    context: UserContext
-  ): Promise<ServicePattern[]> {
+  async getPatternsByClient(clientId: UUID, context: UserContext): Promise<ServicePattern[]> {
     this.checkPermission(context, 'schedules:read');
 
     const patterns = await this.repository.getPatternsByClient(clientId);
 
     // Filter by organization access
-    return patterns.filter(p =>
-      context.organizationId === p.organizationId
-    );
+    return patterns.filter((p) => context.organizationId === p.organizationId);
   }
 
   /**
    * Visit Management
    */
 
-  async createVisit(
-    input: CreateVisitInput,
-    context: UserContext
-  ): Promise<Visit> {
+  async createVisit(input: CreateVisitInput, context: UserContext): Promise<Visit> {
     const validated = ScheduleValidator.validateVisit(input);
     this.checkPermission(context, 'visits:create');
     this.checkOrganizationAccess(context, input.organizationId);
@@ -162,10 +144,7 @@ export class ScheduleService {
     return visit;
   }
 
-  async updateVisitStatus(
-    input: UpdateVisitStatusInput,
-    context: UserContext
-  ): Promise<Visit> {
+  async updateVisitStatus(input: UpdateVisitStatusInput, context: UserContext): Promise<Visit> {
     ScheduleValidator.validateStatusUpdate(input);
     this.checkPermission(context, 'visits:update');
 
@@ -188,10 +167,7 @@ export class ScheduleService {
     );
   }
 
-  async completeVisit(
-    input: CompleteVisitInput,
-    context: UserContext
-  ): Promise<Visit> {
+  async completeVisit(input: CompleteVisitInput, context: UserContext): Promise<Visit> {
     ScheduleValidator.validateCompletion(input);
     this.checkPermission(context, 'visits:update');
 
@@ -218,10 +194,7 @@ export class ScheduleService {
     );
   }
 
-  async assignCaregiver(
-    input: AssignVisitInput,
-    context: UserContext
-  ): Promise<Visit> {
+  async assignCaregiver(input: AssignVisitInput, context: UserContext): Promise<Visit> {
     const validated = ScheduleValidator.validateAssignment(input);
     this.checkPermission(context, 'visits:assign');
 
@@ -273,7 +246,12 @@ export class ScheduleService {
     };
 
     // Enforce branch filtering if user has limited access
-    if (context.roles !== undefined && context.roles !== null && Array.isArray(context.roles) && (context.roles.includes('BRANCH_ADMIN') || context.roles.includes('COORDINATOR'))) {
+    if (
+      context.roles !== undefined &&
+      context.roles !== null &&
+      Array.isArray(context.roles) &&
+      (context.roles.includes('BRANCH_ADMIN') || context.roles.includes('COORDINATOR'))
+    ) {
       orgFilters.branchIds = context.branchIds;
     }
 
@@ -324,7 +302,7 @@ export class ScheduleService {
       pattern,
       options.startDate,
       options.endDate,
-    options.skipHolidays || false
+      options.skipHolidays || false
     );
 
     // Create visits
@@ -340,10 +318,7 @@ export class ScheduleService {
         serviceTypeName: pattern.serviceTypeName,
         scheduledDate: date,
         scheduledStartTime: pattern.recurrence.startTime,
-        scheduledEndTime: this.calculateEndTime(
-          pattern.recurrence.startTime,
-          pattern.duration
-        ),
+        scheduledEndTime: this.calculateEndTime(pattern.recurrence.startTime, pattern.duration),
         address: await this.getClientAddress(pattern.clientId), // Would need to fetch from client service
         taskIds: pattern.taskTemplateIds,
         requiredSkills: pattern.requiredSkills,
@@ -356,7 +331,11 @@ export class ScheduleService {
       visits.push(visit);
 
       // Auto-assign if requested and preferred caregivers exist
-      if (options.autoAssign && pattern.preferredCaregivers && pattern.preferredCaregivers.length > 0) {
+      if (
+        options.autoAssign &&
+        pattern.preferredCaregivers &&
+        pattern.preferredCaregivers.length > 0
+      ) {
         // Try to assign to preferred caregiver
         for (const caregiverId of pattern.preferredCaregivers) {
           try {
@@ -384,9 +363,7 @@ export class ScheduleService {
    * Availability Checking
    */
 
-  async checkCaregiverAvailability(
-    query: CaregiverAvailabilityQuery
-  ): Promise<boolean> {
+  async checkCaregiverAvailability(query: CaregiverAvailabilityQuery): Promise<boolean> {
     const validated = ScheduleValidator.validateAvailabilityQuery(query);
 
     // Get all visits for the caregiver on that date
@@ -401,7 +378,12 @@ export class ScheduleService {
     );
 
     // If no time specified, just check if any visits exist
-    if (validated.startTime === undefined || validated.startTime === null || validated.endTime === undefined || validated.endTime === null) {
+    if (
+      validated.startTime === undefined ||
+      validated.startTime === null ||
+      validated.endTime === undefined ||
+      validated.endTime === null
+    ) {
       return visits.items.length === 0;
     }
 
@@ -575,15 +557,20 @@ export class ScheduleService {
     // For now, throw an error to enforce proper integration
     throw new NotFoundError(
       'Client address integration not configured. ' +
-      'ScheduleService requires a ClientProvider to fetch client addresses. ' +
-      'This must be injected via dependency injection.',
+        'ScheduleService requires a ClientProvider to fetch client addresses. ' +
+        'This must be injected via dependency injection.',
       { clientId }
     );
   }
 
   private async validatePatternBusinessRules(input: CreateServicePatternInput): Promise<void> {
     // Validate authorization dates
-    if (input.authorizationEndDate !== undefined && input.authorizationEndDate !== null && input.authorizationStartDate !== undefined && input.authorizationStartDate !== null) {
+    if (
+      input.authorizationEndDate !== undefined &&
+      input.authorizationEndDate !== null &&
+      input.authorizationStartDate !== undefined &&
+      input.authorizationStartDate !== null
+    ) {
       if (isBefore(input.authorizationEndDate, input.authorizationStartDate)) {
         throw new ValidationError('Authorization end date must be after start date');
       }

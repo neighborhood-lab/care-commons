@@ -1,6 +1,6 @@
 /**
  * EVV API Handlers - HTTP request handlers for EVV operations
- * 
+ *
  * Provides RESTful API endpoints for:
  * - Clock-in / Clock-out
  * - Manual overrides
@@ -101,8 +101,8 @@ export class EVVHandlers {
           },
           clockOutTime: result.evvRecord.clockOutTime,
           totalDuration: result.evvRecord.totalDuration,
-          billableHours: result.evvRecord.totalDuration 
-            ? (result.evvRecord.totalDuration / 60).toFixed(2) 
+          billableHours: result.evvRecord.totalDuration
+            ? (result.evvRecord.totalDuration / 60).toFixed(2)
             : null,
           location: {
             isWithinGeofence: result.evvRecord.clockOutVerification?.isWithinGeofence,
@@ -173,13 +173,9 @@ export class EVVHandlers {
         data: {
           ...evvRecord,
           // Add computed fields for UI
-          durationHours: evvRecord.totalDuration 
-            ? (evvRecord.totalDuration / 60).toFixed(2) 
-            : null,
+          durationHours: evvRecord.totalDuration ? (evvRecord.totalDuration / 60).toFixed(2) : null,
           isCompliant: evvRecord.complianceFlags.includes('COMPLIANT'),
-          hasIssues: evvRecord.complianceFlags.some(
-            flag => flag !== 'COMPLIANT'
-          ),
+          hasIssues: evvRecord.complianceFlags.some((flag) => flag !== 'COMPLIANT'),
         },
       };
     } catch (error: unknown) {
@@ -210,7 +206,7 @@ export class EVVHandlers {
         data: {
           visitId,
           count: timeEntries.length,
-          entries: timeEntries.map(entry => ({
+          entries: timeEntries.map((entry) => ({
             id: entry.id,
             entryType: entry.entryType,
             entryTimestamp: entry.entryTimestamp,
@@ -247,7 +243,7 @@ export class EVVHandlers {
     try {
       // Build filters object, filtering out undefined values
       const filterEntries: Array<[keyof EVVRecordSearchFilters, any]> = [];
-      
+
       if (req['query']['organizationId']) {
         filterEntries.push(['organizationId', req['query']['organizationId']]);
       }
@@ -273,36 +269,57 @@ export class EVVHandlers {
         filterEntries.push(['status', [req['query']['status'] as EVVRecordStatus]]);
       }
       if (req['query']['verificationLevel']) {
-        filterEntries.push(['verificationLevel', [req['query']['verificationLevel'] as VerificationLevel]]);
+        filterEntries.push([
+          'verificationLevel',
+          [req['query']['verificationLevel'] as VerificationLevel],
+        ]);
       }
       if (req['query']['hasComplianceFlags'] === 'true') {
         filterEntries.push(['hasComplianceFlags', true]);
       }
-      
+
       // Validate compliance flags
       if (typeof req['query']['complianceFlags'] === 'string') {
-        const validFlags: ComplianceFlag[] = ['COMPLIANT', 'GEOFENCE_VIOLATION', 'TIME_GAP', 'DEVICE_SUSPICIOUS', 'LOCATION_SUSPICIOUS', 'DUPLICATE_ENTRY', 'MISSING_SIGNATURE', 'LATE_SUBMISSION', 'MANUAL_OVERRIDE', 'AMENDED'];
-        const filtered = req['query']['complianceFlags'].split(',')
-          .map(s => s.trim().toUpperCase())
-          .filter(s => validFlags.includes(s as ComplianceFlag)) as ComplianceFlag[];
+        const validFlags: ComplianceFlag[] = [
+          'COMPLIANT',
+          'GEOFENCE_VIOLATION',
+          'TIME_GAP',
+          'DEVICE_SUSPICIOUS',
+          'LOCATION_SUSPICIOUS',
+          'DUPLICATE_ENTRY',
+          'MISSING_SIGNATURE',
+          'LATE_SUBMISSION',
+          'MANUAL_OVERRIDE',
+          'AMENDED',
+        ];
+        const filtered = req['query']['complianceFlags']
+          .split(',')
+          .map((s) => s.trim().toUpperCase())
+          .filter((s) => validFlags.includes(s as ComplianceFlag)) as ComplianceFlag[];
         if (filtered.length > 0) {
           filterEntries.push(['complianceFlags', filtered]);
         }
       }
-      
+
       if (req['query']['submittedToPayor']) {
         filterEntries.push(['submittedToPayor', req['query']['submittedToPayor'] === 'true']);
       }
-      
+
       // Validate payor approval status
       if (typeof req['query']['payorApprovalStatus'] === 'string') {
-        const validStatuses: PayorApprovalStatus[] = ['PENDING', 'APPROVED', 'DENIED', 'PENDING_INFO', 'APPEALED'];
+        const validStatuses: PayorApprovalStatus[] = [
+          'PENDING',
+          'APPROVED',
+          'DENIED',
+          'PENDING_INFO',
+          'APPEALED',
+        ];
         const status = req['query']['payorApprovalStatus'].trim().toUpperCase();
         if (validStatuses.includes(status as PayorApprovalStatus)) {
           filterEntries.push(['payorApprovalStatus', [status as PayorApprovalStatus]]);
         }
       }
-      
+
       const filters: EVVRecordSearchFilters = Object.fromEntries(filterEntries);
 
       const pagination = {
@@ -326,16 +343,12 @@ export class EVVHandlers {
             clockInTime: record.clockInTime,
             clockOutTime: record.clockOutTime,
             totalDuration: record.totalDuration,
-            durationHours: record.totalDuration 
-              ? (record.totalDuration / 60).toFixed(2) 
-              : null,
+            durationHours: record.totalDuration ? (record.totalDuration / 60).toFixed(2) : null,
             recordStatus: record.recordStatus,
             verificationLevel: record.verificationLevel,
             complianceFlags: record.complianceFlags,
             isCompliant: record.complianceFlags.includes('COMPLIANT'),
-            hasIssues: record.complianceFlags.some(
-              (flag: ComplianceFlag) => flag !== 'COMPLIANT'
-            ),
+            hasIssues: record.complianceFlags.some((flag: ComplianceFlag) => flag !== 'COMPLIANT'),
             submittedToPayor: record.submittedToPayor,
             payorApprovalStatus: record.payorApprovalStatus,
           })),
@@ -376,12 +389,16 @@ export class EVVHandlers {
         endDate: new Date(endDate as string),
       };
 
-      const allRecords = await this.evvService.searchEVVRecords(filters, {
-        page: 1,
-        limit: 10000, // Get all records for summary
-        sortBy: 'serviceDate',
-        sortOrder: 'desc',
-      }, req.user);
+      const allRecords = await this.evvService.searchEVVRecords(
+        filters,
+        {
+          page: 1,
+          limit: 10000, // Get all records for summary
+          sortBy: 'serviceDate',
+          sortOrder: 'desc',
+        },
+        req.user
+      );
 
       const summary = {
         period: {
@@ -429,8 +446,10 @@ export class EVVHandlers {
         // Compliance status
         if (record.recordStatus === 'PENDING') {
           summary.pendingVisits++;
-        } else if (record.complianceFlags.includes('COMPLIANT') && 
-                   record.complianceFlags.length === 1) {
+        } else if (
+          record.complianceFlags.includes('COMPLIANT') &&
+          record.complianceFlags.length === 1
+        ) {
           summary.compliantVisits++;
         } else if (record.complianceFlags.includes('COMPLIANT')) {
           summary.partiallyCompliantVisits++;
@@ -459,13 +478,11 @@ export class EVVHandlers {
       }
 
       // Calculate compliance rate
-      const completedVisits = summary.compliantVisits + 
-        summary.partiallyCompliantVisits + 
-        summary.nonCompliantVisits;
-      
+      const completedVisits =
+        summary.compliantVisits + summary.partiallyCompliantVisits + summary.nonCompliantVisits;
+
       if (completedVisits > 0) {
-        summary.complianceRate = 
-          (summary.compliantVisits / completedVisits) * 100;
+        summary.complianceRate = (summary.compliantVisits / completedVisits) * 100;
       }
 
       return {

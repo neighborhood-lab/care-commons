@@ -51,7 +51,7 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       updatedBy: row.updated_by,
-      version: row.version
+      version: row.version,
     };
   }
 
@@ -69,7 +69,7 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
       max_distance_miles: entity.maxDistanceMiles,
       state: entity.state,
       status: entity.status,
-      assigned_caregiver_id: entity.assignedCaregiverId
+      assigned_caregiver_id: entity.assignedCaregiverId,
     };
   }
 
@@ -113,21 +113,24 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
     `;
 
     const result = await this.database.query(query, [shiftId]);
-    
+
     return result.rows.map((row: any) => ({
       caregiverId: row['id'] as string,
-      score: (Number(row['compliance_score']) > 0 ? Number(row['compliance_score']) : 0),
+      score: Number(row['compliance_score']) > 0 ? Number(row['compliance_score']) : 0,
       matchReasons: [],
       blockers: [],
-      warnings: []
+      warnings: [],
     }));
   }
 
   async assignCaregiver(shiftId: UUID, caregiverId: UUID, assignedBy: UUID): Promise<void> {
-    await this.database.query(`
+    await this.database.query(
+      `
       UPDATE shift_requirements
       SET assigned_caregiver_id = $1, status = 'ASSIGNED', updated_by = $2, updated_at = NOW()
       WHERE id = $3
-    `, [caregiverId, assignedBy, shiftId]);
+    `,
+      [caregiverId, assignedBy, shiftId]
+    );
   }
 }

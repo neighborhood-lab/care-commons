@@ -61,9 +61,9 @@ class ApiClientImpl implements ApiClient {
   }
 
   async get<T>(url: string, config?: RequestConfig): Promise<T> {
-    return this.request<T>(url, { 
-      method: 'GET', 
-      ...(config !== undefined && { config: config }) 
+    return this.request<T>(url, {
+      method: 'GET',
+      ...(config !== undefined && { config: config }),
     });
   }
 
@@ -92,16 +92,13 @@ class ApiClientImpl implements ApiClient {
   }
 
   async delete<T>(url: string, config?: RequestConfig): Promise<T> {
-    return this.request<T>(url, { 
-      method: 'DELETE', 
-      ...(config !== undefined && { config: config }) 
+    return this.request<T>(url, {
+      method: 'DELETE',
+      ...(config !== undefined && { config: config }),
     });
   }
 }
 
-export const createApiClient = (
-  baseUrl: string,
-  getAuthToken: () => string | null
-): ApiClient => {
+export const createApiClient = (baseUrl: string, getAuthToken: () => string | null): ApiClient => {
   return new ApiClientImpl(baseUrl, getAuthToken);
 };

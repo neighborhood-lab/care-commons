@@ -1,6 +1,6 @@
 /**
  * @care-commons/core - Base Types
- * 
+ *
  * Fundamental types shared across all verticals:
  * - Entity identity and lifecycle
  * - Audit metadata
@@ -56,12 +56,7 @@ export interface Revision {
 /**
  * Lifecycle states common across entities
  */
-export type LifecycleStatus =
-  | 'DRAFT'
-  | 'ACTIVE'
-  | 'INACTIVE'
-  | 'SUSPENDED'
-  | 'ARCHIVED';
+export type LifecycleStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'ARCHIVED';
 
 /**
  * User context for permission and audit
@@ -142,9 +137,7 @@ export class ConflictError extends DomainError {
 /**
  * Result type for operations that may fail
  */
-export type Result<T, E = DomainError> =
-  | { success: true; value: T }
-  | { success: false; error: E };
+export type Result<T, E = DomainError> = { success: true; value: T } | { success: false; error: E };
 
 /**
  * Pagination

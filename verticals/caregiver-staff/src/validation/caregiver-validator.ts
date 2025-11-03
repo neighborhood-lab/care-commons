@@ -3,10 +3,7 @@
  */
 
 import { z } from 'zod';
-import {
-  CreateCaregiverInput,
-  UpdateCaregiverInput,
-} from '../types/caregiver';
+import { CreateCaregiverInput, UpdateCaregiverInput } from '../types/caregiver';
 
 // Base schemas
 const PhoneSchema = z.object({
@@ -43,14 +40,7 @@ const EmergencyContactSchema = z.object({
 
 const PayRateSchema = z.object({
   id: z.string().uuid(),
-  rateType: z.enum([
-    'BASE',
-    'OVERTIME',
-    'WEEKEND',
-    'HOLIDAY',
-    'LIVE_IN',
-    'SPECIALIZED_CARE',
-  ]),
+  rateType: z.enum(['BASE', 'OVERTIME', 'WEEKEND', 'HOLIDAY', 'LIVE_IN', 'SPECIALIZED_CARE']),
   amount: z.number().positive('Amount must be positive'),
   unit: z.enum(['HOURLY', 'VISIT', 'DAILY', 'SALARY']),
   effectiveDate: z.date(),
@@ -67,9 +57,7 @@ const PayRateSchema = z.object({
 // Create caregiver schema
 const CreateCaregiverSchema = z.object({
   organizationId: z.string().uuid('Invalid organization ID'),
-  branchIds: z
-    .array(z.string().uuid())
-    .min(1, 'At least one branch is required'),
+  branchIds: z.array(z.string().uuid()).min(1, 'At least one branch is required'),
   primaryBranchId: z.string().uuid('Invalid primary branch ID'),
   employeeNumber: z.string().optional(),
   firstName: z.string().min(1, 'First name is required'),
@@ -251,15 +239,15 @@ export class CaregiverValidator {
    */
   validateDateOfBirth(dateOfBirth: Date): { valid: boolean; message?: string } {
     const age = new Date().getFullYear() - dateOfBirth.getFullYear();
-    
+
     if (age < 16) {
       return { valid: false, message: 'Caregiver must be at least 16 years old' };
     }
-    
+
     if (age > 100) {
       return { valid: false, message: 'Invalid date of birth' };
     }
-    
+
     return { valid: true };
   }
 
@@ -270,17 +258,17 @@ export class CaregiverValidator {
     const now = new Date();
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(now.getFullYear() - 1);
-    
+
     if (hireDate > now) {
       // Allow future hire dates up to 90 days
       const ninetyDaysFromNow = new Date();
       ninetyDaysFromNow.setDate(now.getDate() + 90);
-      
+
       if (hireDate > ninetyDaysFromNow) {
         return { valid: false, message: 'Hire date cannot be more than 90 days in the future' };
       }
     }
-    
+
     return { valid: true };
   }
 }

@@ -1,12 +1,10 @@
 /**
  * State-Specific Compliance Validator
- * 
+ *
  * Validates care plans against TX and FL regulatory requirements
  */
 
-import {
-  CarePlan,
-} from '../types/care-plan';
+import { CarePlan } from '../types/care-plan';
 import {
   StateJurisdiction,
   StateComplianceValidation,
@@ -253,8 +251,7 @@ export class StateComplianceValidator {
       errors.push({
         code: 'FL_MISSING_RN_DELEGATION',
         field: 'rnDelegationId',
-        message:
-          'RN delegation required for nursing tasks performed by non-licensed personnel',
+        message: 'RN delegation required for nursing tasks performed by non-licensed personnel',
         requirement: 'AHCA 59A-8.0216',
         severity: 'BLOCKING',
       });
@@ -336,7 +333,8 @@ export class StateComplianceValidator {
   ): StateComplianceValidation {
     const errors: StateComplianceError[] = [];
     const warnings: StateComplianceWarning[] = [];
-    const jurisdiction = stateJurisdiction || (carePlan.stateJurisdiction as StateJurisdiction) || 'OTHER';
+    const jurisdiction =
+      stateJurisdiction || (carePlan.stateJurisdiction as StateJurisdiction) || 'OTHER';
 
     // Run state-specific validation
     const stateValidation = this.validateCarePlanCompliance(carePlan, jurisdiction);

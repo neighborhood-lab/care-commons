@@ -1,12 +1,12 @@
 /**
  * Texas Employee Misconduct Registry Check Service
- * 
+ *
  * Implements registry checks required by 26 TAC §558 and HHSC requirements.
- * 
+ *
  * The Employee Misconduct Registry (EMR) is maintained by HHSC to track individuals
  * who have been determined to have committed abuse, neglect, or exploitation of
  * individuals in care settings.
- * 
+ *
  * Reference: https://apps.hhs.texas.gov/emr/
  */
 
@@ -34,10 +34,10 @@ export interface EmployeeMisconductRegistryCheckResult {
 export class TexasEmployeeMisconductRegistryService {
   /**
    * Perform Employee Misconduct Registry check
-   * 
+   *
    * In production, this would integrate with the HHSC EMR API.
    * For now, this is a framework that requires implementation.
-   * 
+   *
    * @throws Error if the external API is unavailable or returns an error
    */
   async performRegistryCheck(
@@ -45,22 +45,22 @@ export class TexasEmployeeMisconductRegistryService {
   ): Promise<EmployeeMisconductRegistryCheckResult> {
     // Validate input
     this.validateInput(input);
-    
+
     // In production, this would call the HHSC EMR API
     // The actual implementation requires:
     // 1. HHSC account credentials
     // 2. API endpoint configuration
     // 3. Proper authentication/authorization
     // 4. Handling of rate limits and timeouts
-    
+
     // For now, throw an error to indicate this must be implemented
     throw new Error(
       'Texas Employee Misconduct Registry API integration required. ' +
-      'This service must be configured with HHSC credentials and endpoints. ' +
-      'Contact your system administrator to complete the integration at: ' +
-      'https://apps.hhs.texas.gov/emr/'
+        'This service must be configured with HHSC credentials and endpoints. ' +
+        'Contact your system administrator to complete the integration at: ' +
+        'https://apps.hhs.texas.gov/emr/'
     );
-    
+
     // Production implementation would look like:
     /*
     const apiResponse = await this.callEMRApi({
@@ -109,7 +109,7 @@ export class TexasEmployeeMisconductRegistryService {
     requiresRecheck: boolean;
   }> {
     const now = new Date();
-    
+
     // Check if expired
     if (check.expirationDate < now) {
       return {
@@ -118,7 +118,7 @@ export class TexasEmployeeMisconductRegistryService {
         requiresRecheck: true,
       };
     }
-    
+
     // Check if status is not CLEAR or LISTED
     if (check.status === 'PENDING') {
       return {
@@ -127,12 +127,12 @@ export class TexasEmployeeMisconductRegistryService {
         requiresRecheck: false,
       };
     }
-    
+
     // Check if expiring soon (within 30 days)
     const daysUntilExpiration = Math.floor(
       (check.expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
-    
+
     if (daysUntilExpiration <= 30) {
       return {
         valid: true,
@@ -140,7 +140,7 @@ export class TexasEmployeeMisconductRegistryService {
         requiresRecheck: true,
       };
     }
-    
+
     return {
       valid: true,
       requiresRecheck: false,
@@ -165,15 +165,15 @@ export class TexasEmployeeMisconductRegistryService {
     if (!input.firstName || input.firstName.trim().length === 0) {
       throw new Error('First name is required for registry check');
     }
-    
+
     if (!input.lastName || input.lastName.trim().length === 0) {
       throw new Error('Last name is required for registry check');
     }
-    
+
     if (!input.dateOfBirth) {
       throw new Error('Date of birth is required for registry check');
     }
-    
+
     // Validate date of birth is reasonable
     const age = this.calculateAge(input.dateOfBirth);
     if (age < 16 || age > 100) {
@@ -188,11 +188,11 @@ export class TexasEmployeeMisconductRegistryService {
     const today = new Date();
     let age = today.getFullYear() - dateOfBirth.getFullYear();
     const monthDiff = today.getMonth() - dateOfBirth.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) {
       age--;
     }
-    
+
     return age;
   }
 
@@ -203,19 +203,19 @@ export class TexasEmployeeMisconductRegistryService {
     if (check.status === 'CLEAR') {
       return 'Cleared - No listing found on Employee Misconduct Registry';
     }
-    
+
     if (check.status === 'LISTED') {
       return 'LISTED - Individual found on Employee Misconduct Registry. INELIGIBLE FOR HIRE.';
     }
-    
+
     if (check.status === 'PENDING') {
       return 'Pending - Registry check in progress';
     }
-    
+
     if (check.status === 'EXPIRED') {
       return 'Expired - Registry check must be renewed';
     }
-    
+
     return 'Unknown status';
   }
 
@@ -232,35 +232,35 @@ export class TexasEmployeeMisconductRegistryService {
         reason: 'Employee Misconduct Registry check not performed',
       };
     }
-    
+
     if (check.status === 'LISTED') {
       return {
         allowed: false,
         reason: 'Listed on Employee Misconduct Registry - INELIGIBLE per HHSC requirements',
       };
     }
-    
+
     if (check.status === 'EXPIRED') {
       return {
         allowed: false,
         reason: 'Employee Misconduct Registry check expired',
       };
     }
-    
+
     if (check.status === 'PENDING') {
       return {
         allowed: false,
         reason: 'Employee Misconduct Registry check pending',
       };
     }
-    
+
     if (check.expirationDate < new Date()) {
       return {
         allowed: false,
         reason: 'Employee Misconduct Registry check expired',
       };
     }
-    
+
     return {
       allowed: true,
     };

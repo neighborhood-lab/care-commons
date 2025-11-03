@@ -1,6 +1,6 @@
 /**
  * Enhanced seed data for Texas and Florida state-specific scenarios
- * 
+ *
  * Creates realistic demo data for:
  * - Texas clients with STAR+PLUS, CDS, and EVV requirements
  * - Florida clients with SMMC, LTC, and RN supervision needs
@@ -611,7 +611,12 @@ async function seedTexasCaregivers(db: ReturnType<typeof initializeDatabase>) {
       'Williams',
       new Date('1985-06-15'),
       'FEMALE',
-      JSON.stringify({ number: '+1-713-555-0501', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
+      JSON.stringify({
+        number: '+1-713-555-0501',
+        type: 'MOBILE',
+        canReceiveSMS: true,
+        isPrimary: true,
+      }),
       'jennifer.williams@example.com',
       JSON.stringify({
         type: 'HOME',
@@ -665,7 +670,12 @@ async function seedTexasCaregivers(db: ReturnType<typeof initializeDatabase>) {
       ]),
       JSON.stringify([
         { id: uuidv4(), name: 'Personal Care', category: 'ADL', proficiencyLevel: 'EXPERT' },
-        { id: uuidv4(), name: 'Medication Reminders', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
+        {
+          id: uuidv4(),
+          name: 'Medication Reminders',
+          category: 'Clinical',
+          proficiencyLevel: 'ADVANCED',
+        },
       ]),
       JSON.stringify({
         schedule: {
@@ -682,7 +692,7 @@ async function seedTexasCaregivers(db: ReturnType<typeof initializeDatabase>) {
       JSON.stringify({
         id: uuidv4(),
         rateType: 'BASE',
-        amount: 18.50,
+        amount: 18.5,
         unit: 'HOURLY',
         effectiveDate: new Date('2024-01-01'),
       }),
@@ -775,7 +785,12 @@ async function seedFloridaCaregivers(db: ReturnType<typeof initializeDatabase>) 
       'Johnson',
       new Date('1980-09-22'),
       'FEMALE',
-      JSON.stringify({ number: '+1-305-555-0601', type: 'MOBILE', canReceiveSMS: true, isPrimary: true }),
+      JSON.stringify({
+        number: '+1-305-555-0601',
+        type: 'MOBILE',
+        canReceiveSMS: true,
+        isPrimary: true,
+      }),
       'patricia.johnson@example.com',
       JSON.stringify({
         type: 'HOME',
@@ -835,7 +850,12 @@ async function seedFloridaCaregivers(db: ReturnType<typeof initializeDatabase>) 
         },
       ]),
       JSON.stringify([
-        { id: uuidv4(), name: 'Patient Assessment', category: 'Clinical', proficiencyLevel: 'EXPERT' },
+        {
+          id: uuidv4(),
+          name: 'Patient Assessment',
+          category: 'Clinical',
+          proficiencyLevel: 'EXPERT',
+        },
         { id: uuidv4(), name: 'Wound Care', category: 'Clinical', proficiencyLevel: 'EXPERT' },
         { id: uuidv4(), name: 'IV Therapy', category: 'Clinical', proficiencyLevel: 'ADVANCED' },
       ]),
@@ -854,7 +874,7 @@ async function seedFloridaCaregivers(db: ReturnType<typeof initializeDatabase>) 
       JSON.stringify({
         id: uuidv4(),
         rateType: 'BASE',
-        amount: 42.00,
+        amount: 42.0,
         unit: 'HOURLY',
         effectiveDate: new Date('2024-01-01'),
       }),

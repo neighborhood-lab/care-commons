@@ -14,9 +14,7 @@ export interface StateSpecificCarePlanRules {
 }
 
 export class CarePlanStateService implements StateSpecificCarePlanRules {
-  constructor(
-    private database: Database
-  ) {}
+  constructor(private database: Database) {}
 
   /**
    * TX 26 TAC §558.287: Physician orders required
@@ -30,7 +28,7 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
       WHERE id = $1 AND deleted_at IS NULL
     `;
     const result = await this.database.query(query, [carePlan.id]);
-    
+
     if (!result.rows[0]) {
       return { valid: false, errors: ['Care plan not found'] };
     }
@@ -56,7 +54,10 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
         errors.push('FL AHCA 59A-8.0095: RN supervisor required for this service type');
       }
       // FL: Plan review every 60-90 days per Florida Statute 400.487
-      if (!plan['plan_review_interval_days'] || (plan['plan_review_interval_days'] as number) > 90) {
+      if (
+        !plan['plan_review_interval_days'] ||
+        (plan['plan_review_interval_days'] as number) > 90
+      ) {
         errors.push('FL Statute 400.487: Plan review interval must be ≤90 days');
       }
     }
@@ -74,19 +75,21 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
       WHERE id = $1 AND deleted_at IS NULL
     `;
     const queryResult = await this.database.query(query, [carePlan.id]);
-    
+
     if (!queryResult.rows[0] || queryResult.rows[0]['state_jurisdiction'] !== 'FL') {
       return { required: false, overdue: false };
     }
 
     const plan = queryResult.rows[0] as Record<string, unknown>;
     const now = new Date();
-    const nextDue = plan['next_supervisory_visit_due'] ? new Date(plan['next_supervisory_visit_due'] as string) : null;
+    const nextDue = plan['next_supervisory_visit_due']
+      ? new Date(plan['next_supervisory_visit_due'] as string)
+      : null;
 
     const checkResult: SupervisoryVisitCheck = {
       required: true,
       overdue: nextDue ? nextDue < now : false,
-      nextDueDate: nextDue
+      nextDueDate: nextDue,
     };
     if (plan['last_supervisory_visit_date']) {
       checkResult.lastVisitDate = new Date(plan['last_supervisory_visit_date'] as string);
@@ -113,12 +116,9 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
       ORDER BY sa.authorization_end_date DESC NULLS LAST
       LIMIT 1
     `;
-    
+
     const serviceCode = this.mapTaskCategoryToServiceCode(taskInstance.category);
-    const result = await this.database.query(query, [
-      taskInstance.carePlanId,
-      serviceCode
-    ]);
+    const result = await this.database.query(query, [taskInstance.carePlanId, serviceCode]);
 
     if (!result.rows[0]) {
       throw new Error(`No active service authorization found for service code: ${serviceCode}`);
@@ -126,7 +126,9 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
 
     const auth = result.rows[0];
     if ((auth['units_remaining'] as number) <= 0) {
-      throw new Error(`Service authorization exhausted. Units remaining: ${auth['units_remaining']}`);
+      throw new Error(
+        `Service authorization exhausted. Units remaining: ${auth['units_remaining']}`
+      );
     }
 
     return true;
@@ -135,24 +137,24 @@ export class CarePlanStateService implements StateSpecificCarePlanRules {
   private mapTaskCategoryToServiceCode(category: string): string {
     // Map task categories to standard service codes for authorization validation
     const codeMap: Record<string, string> = {
-      'PERSONAL_HYGIENE': 'S5125',
-      'BATHING': 'S5125',
-      'DRESSING': 'S5125',
-      'GROOMING': 'S5125',
-      'TOILETING': 'S5125',
-      'MOBILITY': 'S5125',
-      'TRANSFERRING': 'S5125',
-      'AMBULATION': 'S5125',
-      'MEDICATION': 'S0215',
-      'MEAL_PREPARATION': 'S5125',
-      'FEEDING': 'S5125',
-      'HOUSEKEEPING': 'S5125',
-      'LAUNDRY': 'S5125',
-      'SHOPPING': 'S5125',
-      'TRANSPORTATION': 'S5125',
-      'COMPANIONSHIP': 'S5125',
-      'MONITORING': 'S0215',
-      'DOCUMENTATION': 'S0215'
+      PERSONAL_HYGIENE: 'S5125',
+      BATHING: 'S5125',
+      DRESSING: 'S5125',
+      GROOMING: 'S5125',
+      TOILETING: 'S5125',
+      MOBILITY: 'S5125',
+      TRANSFERRING: 'S5125',
+      AMBULATION: 'S5125',
+      MEDICATION: 'S0215',
+      MEAL_PREPARATION: 'S5125',
+      FEEDING: 'S5125',
+      HOUSEKEEPING: 'S5125',
+      LAUNDRY: 'S5125',
+      SHOPPING: 'S5125',
+      TRANSPORTATION: 'S5125',
+      COMPANIONSHIP: 'S5125',
+      MONITORING: 'S0215',
+      DOCUMENTATION: 'S0215',
     };
     return codeMap[category] || 'UNKNOWN';
   }

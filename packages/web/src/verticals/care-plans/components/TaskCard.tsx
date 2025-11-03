@@ -11,18 +11,18 @@ export interface TaskCardProps {
   onCompleted?: () => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ 
-  task, 
+export const TaskCard: React.FC<TaskCardProps> = ({
+  task,
   showCompleteButton = false,
-  onCompleted 
+  onCompleted,
 }) => {
   const completeTask = useCompleteTask();
 
   const handleComplete = async () => {
     try {
-      await completeTask.mutateAsync({ 
-        id: task.id, 
-        input: { completionNote: 'Task completed via dashboard' } 
+      await completeTask.mutateAsync({
+        id: task.id,
+        input: { completionNote: 'Task completed via dashboard' },
       });
       onCompleted?.();
     } catch {
@@ -30,22 +30,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     }
   };
 
-  const isOverdue = new Date(task.scheduledDate) < new Date() && 
-    task.status === 'SCHEDULED';
-
-
+  const isOverdue = new Date(task.scheduledDate) < new Date() && task.status === 'SCHEDULED';
 
   return (
     <Card padding="md" className="h-full">
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {task.name}
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">{task.name}</h3>
           <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-          <p className="text-xs text-gray-500 mt-1">
-            {task.category.replace(/_/g, ' ')}
-          </p>
+          <p className="text-xs text-gray-500 mt-1">{task.category.replace(/_/g, ' ')}</p>
         </div>
         <div className="flex flex-col items-end gap-2">
           <StatusBadge status={task.status} />
@@ -62,9 +55,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Calendar className="h-4 w-4" />
           {formatDate(task.scheduledDate)}
-          {task.scheduledTime && (
-            <span>at {formatTime(task.scheduledTime)}</span>
-          )}
+          {task.scheduledTime && <span>at {formatTime(task.scheduledTime)}</span>}
         </div>
 
         {task.assignedCaregiverId && (

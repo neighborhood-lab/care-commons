@@ -3,21 +3,21 @@ name: Deploy
 on:
   push:
     branches:
-      - main      # Production deployments
-      - develop   # Preview deployments (develop branch uses Vercel preview environment)
+      - main # Production deployments
+      - develop # Preview deployments (develop branch uses Vercel preview environment)
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to deploy to'
+        description: "Environment to deploy to"
         required: true
-        default: 'production'
+        default: "production"
         type: choice
         options:
           - production
 
 env:
-  NODE_VERSION: '22'
-  NPM_VERSION: '11'
+  NODE_VERSION: "22"
+  NPM_VERSION: "11"
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
@@ -25,7 +25,7 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Upgrade npm
         run: npm install -g npm@11.6.2
@@ -78,7 +78,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Upgrade npm
         run: npm install -g npm@11.6.2
@@ -144,7 +144,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Upgrade npm
         run: npm install -g npm@11.6.2

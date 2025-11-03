@@ -1,6 +1,6 @@
 /**
  * Validation schemas for Care Plans & Tasks
- * 
+ *
  * Uses Zod for runtime type validation
  */
 
@@ -278,14 +278,16 @@ const CustomFieldSchema = z.object({
   ]),
   required: z.boolean(),
   options: z.array(z.string()).optional(),
-  validation: z.object({
-    pattern: z.string().optional(),
-    minLength: z.number().int().positive().optional(),
-    maxLength: z.number().int().positive().optional(),
-    min: z.number().optional(),
-    max: z.number().optional(),
-    customValidator: z.string().optional(),
-  }).optional(),
+  validation: z
+    .object({
+      pattern: z.string().optional(),
+      minLength: z.number().int().positive().optional(),
+      maxLength: z.number().int().positive().optional(),
+      min: z.number().optional(),
+      max: z.number().optional(),
+      customValidator: z.string().optional(),
+    })
+    .optional(),
   defaultValue: z.unknown().optional(),
   helpText: z.string().max(500).optional(),
 });
@@ -372,27 +374,26 @@ const QualityCheckResponseSchema = z.object({
 });
 
 // Input validation schemas
-export const CreateCarePlanInputSchema = z.object({
-  clientId: UUIDSchema,
-  organizationId: UUIDSchema,
-  branchId: UUIDSchema.optional(),
-  name: z.string().min(1).max(255),
-  planType: CarePlanTypeSchema,
-  effectiveDate: DateSchema,
-  expirationDate: DateSchema.optional(),
-  goals: z.array(CarePlanGoalSchema.omit({ id: true })),
-  interventions: z.array(InterventionSchema.omit({ id: true })),
-  taskTemplates: z.array(TaskTemplateSchema.omit({ id: true })).optional(),
-  serviceFrequency: ServiceFrequencySchema.optional(),
-  coordinatorId: UUIDSchema.optional(),
-  notes: z.string().max(5000).optional(),
-}).refine(
-  (data) => !data.expirationDate || data.expirationDate > data.effectiveDate,
-  {
+export const CreateCarePlanInputSchema = z
+  .object({
+    clientId: UUIDSchema,
+    organizationId: UUIDSchema,
+    branchId: UUIDSchema.optional(),
+    name: z.string().min(1).max(255),
+    planType: CarePlanTypeSchema,
+    effectiveDate: DateSchema,
+    expirationDate: DateSchema.optional(),
+    goals: z.array(CarePlanGoalSchema.omit({ id: true })),
+    interventions: z.array(InterventionSchema.omit({ id: true })),
+    taskTemplates: z.array(TaskTemplateSchema.omit({ id: true })).optional(),
+    serviceFrequency: ServiceFrequencySchema.optional(),
+    coordinatorId: UUIDSchema.optional(),
+    notes: z.string().max(5000).optional(),
+  })
+  .refine((data) => !data.expirationDate || data.expirationDate > data.effectiveDate, {
     message: 'Expiration date must be after effective date',
     path: ['expirationDate'],
-  }
-);
+  });
 
 export const UpdateCarePlanInputSchema = z.object({
   name: z.string().min(1).max(255).optional(),
@@ -446,29 +447,37 @@ export const CreateProgressNoteInputSchema = z.object({
     'OTHER',
   ]),
   content: z.string().min(1).max(10000),
-  goalProgress: z.array(z.object({
-    goalId: UUIDSchema,
-    goalName: z.string().max(255),
-    status: GoalStatusSchema,
-    progressDescription: z.string().max(2000),
-    progressPercentage: z.number().min(0).max(100).optional(),
-    barriers: z.array(z.string().max(500)).optional(),
-    nextSteps: z.array(z.string().max(500)).optional(),
-  })).optional(),
-  observations: z.array(z.object({
-    category: z.enum([
-      'PHYSICAL',
-      'COGNITIVE',
-      'EMOTIONAL',
-      'BEHAVIORAL',
-      'SOCIAL',
-      'ENVIRONMENTAL',
-      'SAFETY',
-    ]),
-    observation: z.string().max(1000),
-    severity: z.enum(['NORMAL', 'ATTENTION', 'URGENT']).optional(),
-    timestamp: DateSchema,
-  })).optional(),
+  goalProgress: z
+    .array(
+      z.object({
+        goalId: UUIDSchema,
+        goalName: z.string().max(255),
+        status: GoalStatusSchema,
+        progressDescription: z.string().max(2000),
+        progressPercentage: z.number().min(0).max(100).optional(),
+        barriers: z.array(z.string().max(500)).optional(),
+        nextSteps: z.array(z.string().max(500)).optional(),
+      })
+    )
+    .optional(),
+  observations: z
+    .array(
+      z.object({
+        category: z.enum([
+          'PHYSICAL',
+          'COGNITIVE',
+          'EMOTIONAL',
+          'BEHAVIORAL',
+          'SOCIAL',
+          'ENVIRONMENTAL',
+          'SAFETY',
+        ]),
+        observation: z.string().max(1000),
+        severity: z.enum(['NORMAL', 'ATTENTION', 'URGENT']).optional(),
+        timestamp: DateSchema,
+      })
+    )
+    .optional(),
   concerns: z.array(z.string().max(500)).optional(),
   recommendations: z.array(z.string().max(500)).optional(),
   signature: SignatureWithoutTimestampSchema.optional(),
@@ -484,12 +493,9 @@ export const CarePlanSearchFiltersSchema = z.object({
   coordinatorId: UUIDSchema.optional(),
   expiringWithinDays: z.number().int().positive().optional(),
   needsReview: z.boolean().optional(),
-  complianceStatus: z.array(z.enum([
-    'COMPLIANT',
-    'PENDING_REVIEW',
-    'EXPIRED',
-    'NON_COMPLIANT',
-  ])).optional(),
+  complianceStatus: z
+    .array(z.enum(['COMPLIANT', 'PENDING_REVIEW', 'EXPIRED', 'NON_COMPLIANT']))
+    .optional(),
 });
 
 export const TaskInstanceSearchFiltersSchema = z.object({
@@ -534,13 +540,13 @@ export class CarePlanValidator {
       noteType: parsed.noteType,
       content: parsed.content,
     };
-    
+
     // Add optional properties only if they are defined
     if (parsed.visitId !== undefined) result.visitId = parsed.visitId;
-    
+
     if (parsed.goalProgress !== undefined) {
       // Filter out undefined progressPercentage from goalProgress items
-      result.goalProgress = parsed.goalProgress.map(goal => {
+      result.goalProgress = parsed.goalProgress.map((goal) => {
         const filteredGoal: any = {
           goalId: goal.goalId,
           goalName: goal.goalName,
@@ -559,10 +565,10 @@ export class CarePlanValidator {
         return filteredGoal;
       });
     }
-    
+
     if (parsed.observations !== undefined) {
       // Filter out undefined severity from observation items
-      result.observations = parsed.observations.map(obs => {
+      result.observations = parsed.observations.map((obs) => {
         const filteredObs: any = {
           category: obs.category,
           observation: obs.observation,
@@ -574,10 +580,10 @@ export class CarePlanValidator {
         return filteredObs;
       });
     }
-    
+
     if (parsed.concerns !== undefined) result.concerns = parsed.concerns;
     if (parsed.recommendations !== undefined) result.recommendations = parsed.recommendations;
-    
+
     if (parsed.signature !== undefined) {
       // Filter out undefined properties from signature
       const filteredSig: any = {
@@ -594,7 +600,7 @@ export class CarePlanValidator {
       }
       result.signature = filteredSig;
     }
-    
+
     return result;
   }
 
@@ -619,7 +625,10 @@ export class CarePlanValidator {
       errors.push('Signature is required for this task');
     }
 
-    if (task.requiredNote && (!completion.completionNote || completion.completionNote.trim() === '')) {
+    if (
+      task.requiredNote &&
+      (!completion.completionNote || completion.completionNote.trim() === '')
+    ) {
       errors.push('Completion note is required for this task');
     }
 
@@ -646,7 +655,8 @@ export class CarePlanValidator {
       warnings.push('Oxygen saturation is critically low');
     }
     if (parsed.temperature) {
-      const tempF = parsed.temperatureUnit === 'C' ? (parsed.temperature * 9 / 5) + 32 : parsed.temperature;
+      const tempF =
+        parsed.temperatureUnit === 'C' ? (parsed.temperature * 9) / 5 + 32 : parsed.temperature;
       if (tempF > 103) {
         warnings.push('Temperature is critically high');
       } else if (tempF < 95) {

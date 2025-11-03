@@ -1,6 +1,6 @@
 /**
  * Overtime Calculations and Edge Cases Tests
- * 
+ *
  * Tests comprehensive overtime scenarios including federal, state-specific rules,
  * California overtime, daily overtime, and complex edge cases
  */
@@ -19,37 +19,37 @@ import { describe, it, expect } from 'vitest';
 describe('Overtime Calculations and Edge Cases', () => {
   describe('Basic Overtime Calculations', () => {
     it('should calculate simple overtime pay', () => {
-      const result = calculateOvertimePay(40, 10, 0, 20.00, 1.5);
+      const result = calculateOvertimePay(40, 10, 0, 20.0, 1.5);
       expect(result.overtimePay).toBe(300); // 10 * 20 * 1.5
     });
 
     it('should calculate double time pay', () => {
-      const result = calculateOvertimePay(40, 0, 5, 25.00, 1.5, 2.0);
+      const result = calculateOvertimePay(40, 0, 5, 25.0, 1.5, 2.0);
       expect(result.doubleTimePay).toBe(250); // 5 * 25 * 2.0
     });
 
     it('should calculate triple time pay', () => {
-      const result = calculateOvertimePay(40, 2, 0, 30.00, 3.0);
+      const result = calculateOvertimePay(40, 2, 0, 30.0, 3.0);
       expect(result.overtimePay).toBe(180); // 2 * 30 * 3.0
     });
 
     it('should handle zero overtime hours', () => {
-      const result = calculateOvertimePay(40, 0, 0, 25.00, 1.5);
+      const result = calculateOvertimePay(40, 0, 0, 25.0, 1.5);
       expect(result.overtimePay).toBe(0);
     });
 
     it('should handle fractional overtime hours', () => {
-      const result = calculateOvertimePay(40, 2.5, 0, 24.00, 1.5);
+      const result = calculateOvertimePay(40, 2.5, 0, 24.0, 1.5);
       expect(result.overtimePay).toBe(90); // 2.5 * 24 * 1.5
     });
 
     it('should handle very small overtime fractions', () => {
-      const result = calculateOvertimePay(40, 0.25, 0, 40.00, 1.5);
+      const result = calculateOvertimePay(40, 0.25, 0, 40.0, 1.5);
       expect(result.overtimePay).toBe(15); // 0.25 * 40 * 1.5
     });
 
     it('should handle large overtime hours', () => {
-      const result = calculateOvertimePay(40, 60, 0, 50.00, 1.5);
+      const result = calculateOvertimePay(40, 60, 0, 50.0, 1.5);
       expect(result.overtimePay).toBe(4500); // 60 * 50 * 1.5
     });
   });
@@ -57,7 +57,7 @@ describe('Overtime Calculations and Edge Cases', () => {
   describe('Weekly Overtime Calculations', () => {
     it('should calculate regular week with no overtime', () => {
       const hours = calculateOvertimeHours(40, 40);
-      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 25.00);
+      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 25.0);
       expect(result.regularHours).toBe(40);
       expect(result.overtimeHours).toBe(0);
       expect(result.doubleTimeHours).toBe(0);
@@ -68,7 +68,7 @@ describe('Overtime Calculations and Edge Cases', () => {
 
     it('should calculate week with overtime only', () => {
       const hours = calculateOvertimeHours(45, 40);
-      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 25.00);
+      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 25.0);
       expect(result.regularHours).toBe(40);
       expect(result.overtimeHours).toBe(5);
       expect(result.doubleTimeHours).toBe(0);
@@ -79,7 +79,7 @@ describe('Overtime Calculations and Edge Cases', () => {
 
     it('should calculate week with fractional overtime', () => {
       const hours = calculateOvertimeHours(42.5, 40);
-      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 24.00);
+      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 24.0);
       expect(result.regularHours).toBe(40);
       expect(result.overtimeHours).toBe(2.5);
       expect(result.doubleTimeHours).toBe(0);
@@ -90,7 +90,7 @@ describe('Overtime Calculations and Edge Cases', () => {
 
     it('should calculate week with double time', () => {
       const hours = calculateOvertimeHours(60, 40, 48);
-      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 30.00);
+      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 30.0);
       expect(result.regularHours).toBe(40);
       expect(result.overtimeHours).toBe(8);
       expect(result.doubleTimeHours).toBe(12);
@@ -101,7 +101,7 @@ describe('Overtime Calculations and Edge Cases', () => {
 
     it('should handle zero hours worked', () => {
       const hours = calculateOvertimeHours(0, 40);
-      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 25.00);
+      const result = calculateOvertimePay(hours.regular, hours.overtime, hours.doubleTime, 25.0);
       expect(result.overtimeHours).toBe(0);
       expect(result.regularPay).toBe(0);
       expect(result.overtimePay).toBe(0);
@@ -112,18 +112,20 @@ describe('Overtime Calculations and Edge Cases', () => {
   describe('California Daily Overtime', () => {
     it('should calculate regular day with no overtime', () => {
       const dailyHours = [8, 8, 8, 8, 8];
-      const rate = 25.00;
-      
-      let totalRegular = 0, totalOvertime = 0, totalDoubleTime = 0;
+      const rate = 25.0;
+
+      let totalRegular = 0,
+        totalOvertime = 0,
+        totalDoubleTime = 0;
       for (const hours of dailyHours) {
         const dayResult = calculateDailyOvertime(hours, 8, 12);
         totalRegular += dayResult.regular;
         totalOvertime += dayResult.overtime;
         totalDoubleTime += dayResult.doubleTime;
       }
-      
+
       const result = calculateOvertimePay(totalRegular, totalOvertime, totalDoubleTime, rate);
-      
+
       expect(result.regularHours).toBe(40);
       expect(result.overtimeHours).toBe(0);
       expect(result.doubleTimeHours).toBe(0);
@@ -134,18 +136,20 @@ describe('Overtime Calculations and Edge Cases', () => {
 
     it('should calculate day with overtime only', () => {
       const dailyHours = [8, 8, 8, 8, 10];
-      const rate = 25.00;
-      
-      let totalRegular = 0, totalOvertime = 0, totalDoubleTime = 0;
+      const rate = 25.0;
+
+      let totalRegular = 0,
+        totalOvertime = 0,
+        totalDoubleTime = 0;
       for (const hours of dailyHours) {
         const dayResult = calculateDailyOvertime(hours, 8, 12);
         totalRegular += dayResult.regular;
         totalOvertime += dayResult.overtime;
         totalDoubleTime += dayResult.doubleTime;
       }
-      
+
       const result = calculateOvertimePay(totalRegular, totalOvertime, totalDoubleTime, rate);
-      
+
       expect(result.regularHours).toBe(40);
       expect(result.overtimeHours).toBe(2);
       expect(result.doubleTimeHours).toBe(0);
@@ -156,18 +160,20 @@ describe('Overtime Calculations and Edge Cases', () => {
 
     it('should calculate day with double time', () => {
       const dailyHours = [8, 8, 8, 8, 14];
-      const rate = 25.00;
-      
-      let totalRegular = 0, totalOvertime = 0, totalDoubleTime = 0;
+      const rate = 25.0;
+
+      let totalRegular = 0,
+        totalOvertime = 0,
+        totalDoubleTime = 0;
       for (const hours of dailyHours) {
         const dayResult = calculateDailyOvertime(hours, 8, 12);
         totalRegular += dayResult.regular;
         totalOvertime += dayResult.overtime;
         totalDoubleTime += dayResult.doubleTime;
       }
-      
+
       const result = calculateOvertimePay(totalRegular, totalOvertime, totalDoubleTime, rate);
-      
+
       expect(result.regularHours).toBe(40);
       expect(result.overtimeHours).toBe(4);
       expect(result.doubleTimeHours).toBe(2);

@@ -59,15 +59,7 @@ const createClientSchema = z.object({
   referralSource: z.string().max(200).optional(),
   intakeDate: z.date().optional(),
   status: z
-    .enum([
-      'INQUIRY',
-      'PENDING_INTAKE',
-      'ACTIVE',
-      'INACTIVE',
-      'ON_HOLD',
-      'DISCHARGED',
-      'DECEASED',
-    ])
+    .enum(['INQUIRY', 'PENDING_INTAKE', 'ACTIVE', 'INACTIVE', 'ON_HOLD', 'DISCHARGED', 'DECEASED'])
     .optional(),
 });
 
@@ -173,10 +165,7 @@ export class ClientValidator {
     let age = today.getFullYear() - dateOfBirth.getFullYear();
     const monthDiff = today.getMonth() - dateOfBirth.getMonth();
 
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())
-    ) {
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) {
       age--;
     }
 

@@ -3,6 +3,7 @@
 ## Core Entities
 
 ### CarePlan
+
 ```typescript
 {
   id: UUID
@@ -23,6 +24,7 @@
 ```
 
 ### CarePlanGoal
+
 ```typescript
 {
   id: UUID
@@ -39,6 +41,7 @@
 ```
 
 ### Intervention
+
 ```typescript
 {
   id: UUID
@@ -54,6 +57,7 @@
 ```
 
 ### TaskTemplate
+
 ```typescript
 {
   id: UUID
@@ -70,6 +74,7 @@
 ```
 
 ### TaskInstance
+
 ```typescript
 {
   id: UUID
@@ -86,6 +91,7 @@
 ```
 
 ### ProgressNote
+
 ```typescript
 {
   id: UUID
@@ -102,6 +108,7 @@
 ## Enums & Types
 
 ### Plan Types
+
 - `PERSONAL_CARE` - Personal care services
 - `COMPANION` - Companionship services
 - `SKILLED_NURSING` - Skilled nursing care
@@ -111,6 +118,7 @@
 - `LIVE_IN` - Live-in care
 
 ### Care Plan Status
+
 - `DRAFT` - Plan in draft state
 - `PENDING_APPROVAL` - Awaiting approval
 - `ACTIVE` - Currently active
@@ -120,6 +128,7 @@
 - `COMPLETED` - Services completed
 
 ### Goal Categories
+
 - `MOBILITY` - Movement and ambulation
 - `ADL` - Activities of daily living
 - `IADL` - Instrumental ADL
@@ -134,6 +143,7 @@
 - `CHRONIC_DISEASE_MANAGEMENT` - Disease management
 
 ### Task Categories
+
 - `PERSONAL_HYGIENE` / `BATHING` / `DRESSING` / `GROOMING` / `TOILETING`
 - `MOBILITY` / `TRANSFERRING` / `AMBULATION`
 - `MEDICATION` - Med administration/reminder
@@ -145,6 +155,7 @@
 - `DOCUMENTATION`
 
 ### Task Status
+
 - `SCHEDULED` - Not yet started
 - `IN_PROGRESS` - Currently being performed
 - `COMPLETED` - Successfully completed
@@ -154,6 +165,7 @@
 - `ISSUE_REPORTED` - Issue flagged
 
 ### Verification Types
+
 - `NONE` - No verification needed
 - `CHECKBOX` - Simple checkbox
 - `SIGNATURE` - Electronic signature required
@@ -254,11 +266,19 @@ const tasks = await service.createTasksForVisit(
 
 // Complete each task
 for (const task of tasks) {
-  await service.completeTask(task.id, {
-    completionNote: 'Task completed successfully',
-    signature: { /* signature data */ },
-    verificationData: { /* GPS, photos, etc. */ },
-  }, context);
+  await service.completeTask(
+    task.id,
+    {
+      completionNote: 'Task completed successfully',
+      signature: {
+        /* signature data */
+      },
+      verificationData: {
+        /* GPS, photos, etc. */
+      },
+    },
+    context
+  );
 }
 ```
 
@@ -266,22 +286,29 @@ for (const task of tasks) {
 
 ```typescript
 // Create visit note
-await service.createProgressNote({
-  carePlanId,
-  clientId,
-  visitId,
-  noteType: 'VISIT_NOTE',
-  content: 'Client doing well today...',
-  goalProgress: [{
-    goalId: 'goal-123',
-    status: 'ON_TRACK',
-    progressDescription: 'Making good progress',
-  }],
-  observations: [{
-    category: 'PHYSICAL',
-    observation: 'Client walked 15 minutes today',
-  }],
-}, context);
+await service.createProgressNote(
+  {
+    carePlanId,
+    clientId,
+    visitId,
+    noteType: 'VISIT_NOTE',
+    content: 'Client doing well today...',
+    goalProgress: [
+      {
+        goalId: 'goal-123',
+        status: 'ON_TRACK',
+        progressDescription: 'Making good progress',
+      },
+    ],
+    observations: [
+      {
+        category: 'PHYSICAL',
+        observation: 'Client walked 15 minutes today',
+      },
+    ],
+  },
+  context
+);
 ```
 
 ### 4. Monitor & Review
@@ -296,17 +323,21 @@ console.log(`Active plans: ${analytics.activePlans}`);
 console.log(`Goal completion: ${analytics.goalCompletionRate}%`);
 
 // Get task metrics
-const metrics = await service.getTaskCompletionMetrics({
-  dateFrom: startDate,
-  dateTo: endDate,
-  organizationId: orgId,
-}, context);
+const metrics = await service.getTaskCompletionMetrics(
+  {
+    dateFrom: startDate,
+    dateTo: endDate,
+    organizationId: orgId,
+  },
+  context
+);
 console.log(`Completion rate: ${metrics.completionRate}%`);
 ```
 
 ## Search Filters
 
 ### Care Plan Filters
+
 ```typescript
 {
   query?: string                // Text search
@@ -323,6 +354,7 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 ```
 
 ### Task Filters
+
 ```typescript
 {
   carePlanId?: UUID
@@ -341,6 +373,7 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 ## Validation Rules
 
 ### Care Plan Activation
+
 - ✅ Must have at least 1 goal
 - ✅ Must have at least 1 intervention
 - ✅ Must have assigned coordinator
@@ -348,12 +381,14 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 - ✅ Expiration date after effective date
 
 ### Task Completion
+
 - ✅ Signature if `requiredSignature = true`
 - ✅ Note if `requiredNote = true`
 - ✅ Custom fields if required
 - ✅ Valid vital signs ranges
 
 ### Vital Signs Ranges
+
 - BP Systolic: 50-250 mmHg (warn > 180)
 - BP Diastolic: 30-150 mmHg (warn > 120)
 - Heart Rate: 30-200 bpm
@@ -366,6 +401,7 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 ## Permissions
 
 ### Required Permissions
+
 - `care-plans:create` - Create care plans
 - `care-plans:read` - View care plans
 - `care-plans:update` - Modify care plans
@@ -382,6 +418,7 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 ## Common Patterns
 
 ### Frequency Specification
+
 ```typescript
 {
   pattern: 'DAILY',
@@ -401,6 +438,7 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 ```
 
 ### Signature Capture
+
 ```typescript
 {
   signatureData: 'base64-encoded-image',
@@ -413,6 +451,7 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 ```
 
 ### GPS Verification
+
 ```typescript
 {
   verificationType: 'GPS',
@@ -425,6 +464,7 @@ console.log(`Completion rate: ${metrics.completionRate}%`);
 ```
 
 ### Vital Signs
+
 ```typescript
 {
   bloodPressureSystolic: 120,

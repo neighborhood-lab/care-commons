@@ -14,7 +14,10 @@ export async function up(knex: Knex): Promise<void> {
     table.string('gender_preference', 20);
     table.decimal('max_distance_miles', 5, 2);
     table.string('state', 2).notNullable();
-    table.string('status', 20).notNullable().defaultTo('OPEN')
+    table
+      .string('status', 20)
+      .notNullable()
+      .defaultTo('OPEN')
       .checkIn(['OPEN', 'ASSIGNED', 'FULFILLED', 'CANCELLED']);
     table.uuid('assigned_caregiver_id').references('id').inTable('caregivers');
 
@@ -28,11 +31,21 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   // Create indexes with WHERE clause for soft deletes
-  await knex.raw('CREATE INDEX idx_shift_requirements_client ON shift_requirements(client_id) WHERE deleted_at IS NULL');
-  await knex.raw('CREATE INDEX idx_shift_requirements_visit ON shift_requirements(visit_id) WHERE deleted_at IS NULL');
-  await knex.raw('CREATE INDEX idx_shift_requirements_status ON shift_requirements(status) WHERE deleted_at IS NULL');
-  await knex.raw('CREATE INDEX idx_shift_requirements_state ON shift_requirements(state) WHERE deleted_at IS NULL');
-  await knex.raw('CREATE INDEX idx_shift_requirements_start_time ON shift_requirements(start_time) WHERE deleted_at IS NULL');
+  await knex.raw(
+    'CREATE INDEX idx_shift_requirements_client ON shift_requirements(client_id) WHERE deleted_at IS NULL'
+  );
+  await knex.raw(
+    'CREATE INDEX idx_shift_requirements_visit ON shift_requirements(visit_id) WHERE deleted_at IS NULL'
+  );
+  await knex.raw(
+    'CREATE INDEX idx_shift_requirements_status ON shift_requirements(status) WHERE deleted_at IS NULL'
+  );
+  await knex.raw(
+    'CREATE INDEX idx_shift_requirements_state ON shift_requirements(state) WHERE deleted_at IS NULL'
+  );
+  await knex.raw(
+    'CREATE INDEX idx_shift_requirements_start_time ON shift_requirements(start_time) WHERE deleted_at IS NULL'
+  );
 }
 
 export async function down(knex: Knex): Promise<void> {

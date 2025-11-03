@@ -1,6 +1,6 @@
 /**
  * @care-commons/core - Organization Service
- * 
+ *
  * Business logic for multi-tenant organization management with state-based isolation
  */
 
@@ -24,7 +24,7 @@ export interface IOrganizationService {
     adminUserId: UUID;
   }>;
   getOrganizationById(id: UUID): Promise<Organization>;
-  
+
   // Invitation management
   createInvitation(
     organizationId: UUID,
@@ -152,10 +152,7 @@ export class OrganizationService implements IOrganizationService {
     }
 
     // Check if user already exists
-    const existingUser = await this.userRepo.getUserByEmail(
-      request.email,
-      organizationId
-    );
+    const existingUser = await this.userRepo.getUserByEmail(request.email, organizationId);
     if (existingUser !== null) {
       throw new ConflictError('User with this email already exists in the organization', {
         email: request.email,
@@ -163,11 +160,7 @@ export class OrganizationService implements IOrganizationService {
     }
 
     // Create invitation token
-    return await this.userRepo.createInviteToken(
-      organizationId,
-      request,
-      createdBy
-    );
+    return await this.userRepo.createInviteToken(organizationId, request, createdBy);
   }
 
   async getInvitationDetails(token: string): Promise<InviteDetails> {
@@ -340,14 +333,14 @@ export class OrganizationService implements IOrganizationService {
     // Splits on @ and . to avoid backtracking issues
     const parts = email.split('@');
     if (parts.length !== 2) return false;
-    
+
     const [localPart, domain] = parts;
     if (localPart === undefined || domain === undefined) return false;
     if (localPart.length === 0 || domain.length === 0) return false;
-    
+
     const domainParts = domain.split('.');
     if (domainParts.length < 2) return false;
-    
+
     return domainParts.every((part) => part.length > 0);
   }
 

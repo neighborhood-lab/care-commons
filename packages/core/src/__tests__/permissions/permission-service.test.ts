@@ -61,7 +61,7 @@ describe('PermissionService', () => {
         'READ_ONLY',
       ];
 
-      expectedRoles.forEach(role => {
+      expectedRoles.forEach((role) => {
         const context = createMockUserContext({ roles: [role] });
         expect(permissionService.hasPermission(context, 'test:permission')).toBeDefined();
       });
@@ -202,9 +202,9 @@ describe('PermissionService', () => {
     });
 
     it('should return false when user has none of the required permissions', () => {
-      const context = createMockUserContext({ 
+      const context = createMockUserContext({
         roles: ['READ_ONLY'],
-        permissions: [] // Clear explicit permissions to test role-based only
+        permissions: [], // Clear explicit permissions to test role-based only
       });
 
       const result = permissionService.hasAnyPermission(context, [
@@ -265,7 +265,7 @@ describe('PermissionService', () => {
       const filtered = permissionService.filterByScope(context, entities);
 
       expect(filtered).toHaveLength(2);
-      expect(filtered.map(e => e.name)).toEqual(['Entity 1', 'Entity 3']);
+      expect(filtered.map((e) => e.name)).toEqual(['Entity 1', 'Entity 3']);
     });
 
     it('should handle entities without branch ID', () => {
@@ -346,9 +346,9 @@ describe('PermissionService', () => {
       });
 
       it('should not have administrative access', () => {
-        const context = createMockUserContext({ 
+        const context = createMockUserContext({
           roles: ['CAREGIVER'],
-          permissions: [] // Clear explicit permissions to test role-based only
+          permissions: [], // Clear explicit permissions to test role-based only
         });
 
         expect(permissionService.hasPermission(context, 'clients:write')).toBe(false);
@@ -366,9 +366,9 @@ describe('PermissionService', () => {
       });
 
       it('should not have write access', () => {
-        const context = createMockUserContext({ 
+        const context = createMockUserContext({
           roles: ['READ_ONLY'],
-          permissions: [] // Clear explicit permissions to test role-based only
+          permissions: [], // Clear explicit permissions to test role-based only
         });
 
         expect(permissionService.hasPermission(context, 'clients:write')).toBe(false);
@@ -380,9 +380,9 @@ describe('PermissionService', () => {
 
   describe('Edge Cases', () => {
     it('should handle empty roles array', () => {
-      const context = createMockUserContext({ 
+      const context = createMockUserContext({
         roles: [],
-        permissions: [] // Clear explicit permissions to test role-based only
+        permissions: [], // Clear explicit permissions to test role-based only
       });
 
       expect(permissionService.hasPermission(context, 'clients:read')).toBe(false);

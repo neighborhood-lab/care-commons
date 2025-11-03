@@ -51,10 +51,7 @@ export class AuditService {
   /**
    * Log an audit event
    */
-  async logEvent(
-    context: UserContext,
-    event: CreateAuditEvent
-  ): Promise<void> {
+  async logEvent(context: UserContext, event: CreateAuditEvent): Promise<void> {
     const eventId = uuidv4();
     const timestamp = new Date();
 
@@ -164,11 +161,7 @@ export class AuditService {
       LIMIT $3
     `;
 
-    const result = await this.database.query(query, [
-      resourceType,
-      resourceId,
-      limit,
-    ]);
+    const result = await this.database.query(query, [resourceType, resourceId, limit]);
 
     return result.rows.map((row): AuditEvent => {
       const event: AuditEvent = {
@@ -182,8 +175,7 @@ export class AuditService {
         action: row['action'] as string,
         result: row['result'] as 'SUCCESS' | 'FAILURE',
         metadata: JSON.parse(
-          (row['metadata'] as string | null) !== null &&
-            (row['metadata'] as string).length > 0
+          (row['metadata'] as string | null) !== null && (row['metadata'] as string).length > 0
             ? (row['metadata'] as string)
             : '{}'
         ),

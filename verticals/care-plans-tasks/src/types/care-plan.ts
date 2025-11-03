@@ -1,6 +1,6 @@
 /**
  * Care Plans & Tasks Library domain model
- * 
+ *
  * Structured plan of care:
  * - Goals, interventions, per-visit tasks
  * - "done/not done" tracking
@@ -9,12 +9,7 @@
  * - Validation that documented work aligns with authorized services
  */
 
-import {
-  Entity,
-  SoftDeletable,
-  UUID,
-  Timestamp,
-} from '@care-commons/core';
+import { Entity, SoftDeletable, UUID, Timestamp } from '@care-commons/core';
 
 /**
  * Care Plan - Comprehensive care strategy for a client
@@ -23,29 +18,29 @@ export interface CarePlan extends Entity, SoftDeletable {
   // Plan identification
   planNumber: string; // Human-readable identifier
   name: string;
-  
+
   // Associations
   clientId: UUID;
   organizationId: UUID;
   branchId?: UUID;
-  
+
   // Plan metadata
   planType: CarePlanType;
   status: CarePlanStatus;
   priority: Priority;
-  
+
   // Dates
   effectiveDate: Date;
   expirationDate?: Date;
   reviewDate?: Date;
   lastReviewedDate?: Date;
-  
+
   // Care team
   primaryCaregiverId?: UUID;
   coordinatorId?: UUID;
   supervisorId?: UUID;
   physicianId?: UUID;
-  
+
   // Plan content
   assessmentSummary?: string;
   medicalDiagnosis?: string[];
@@ -53,11 +48,11 @@ export interface CarePlan extends Entity, SoftDeletable {
   goals: CarePlanGoal[];
   interventions: Intervention[];
   taskTemplates: TaskTemplate[];
-  
+
   // Frequency and schedule
   serviceFrequency?: ServiceFrequency;
   estimatedHoursPerWeek?: number;
-  
+
   // Authorization
   authorizedBy?: UUID;
   authorizedDate?: Date;
@@ -66,29 +61,29 @@ export interface CarePlan extends Entity, SoftDeletable {
   authorizationHours?: number;
   authorizationStartDate?: Date;
   authorizationEndDate?: Date;
-  
+
   // Documentation requirements
   requiredDocumentation?: DocumentRequirement[];
   signatureRequirements?: SignatureRequirement[];
-  
+
   // Restrictions and precautions
   restrictions?: string[];
   precautions?: string[];
   allergies?: Allergy[];
   contraindications?: string[];
-  
+
   // Progress and outcomes
   progressNotes?: ProgressNote[];
   outcomesMeasured?: OutcomeMeasure[];
-  
+
   // Compliance
   regulatoryRequirements?: string[];
   complianceStatus: ComplianceStatus;
   lastComplianceCheck?: Date;
-  
+
   // Modifications
   modificationHistory?: PlanModification[];
-  
+
   // Metadata
   notes?: string;
   tags?: string[];
@@ -116,11 +111,7 @@ export type CarePlanStatus =
 
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
-export type ComplianceStatus =
-  | 'COMPLIANT'
-  | 'PENDING_REVIEW'
-  | 'EXPIRED'
-  | 'NON_COMPLIANT';
+export type ComplianceStatus = 'COMPLIANT' | 'PENDING_REVIEW' | 'EXPIRED' | 'NON_COMPLIANT';
 
 /**
  * Care Plan Goal - Specific, measurable objective
@@ -133,22 +124,22 @@ export interface CarePlanGoal {
   targetDate?: Date;
   status: GoalStatus;
   priority: Priority;
-  
+
   // Measurable criteria
   measurementType?: 'QUANTITATIVE' | 'QUALITATIVE' | 'BINARY';
   targetValue?: number;
   currentValue?: number;
   unit?: string;
-  
+
   // Progress tracking
   milestones?: Milestone[];
   progressPercentage?: number;
   lastAssessedDate?: Date;
-  
+
   // Related items
   interventionIds?: UUID[];
   taskIds?: UUID[];
-  
+
   // Outcomes
   achievedDate?: Date;
   outcome?: string;
@@ -198,35 +189,35 @@ export interface Intervention {
   description: string;
   category: InterventionCategory;
   goalIds: UUID[]; // Goals this intervention supports
-  
+
   // Implementation details
   frequency: Frequency;
   duration?: number; // minutes per occurrence
   instructions: string;
   precautions?: string[];
-  
+
   // Responsibility
   performedBy: PerformerType[];
   requiresSupervision?: boolean;
   supervisorRole?: string;
-  
+
   // Equipment and supplies
   requiredEquipment?: string[];
   requiredSupplies?: string[];
-  
+
   // Documentation requirements
   requiresDocumentation: boolean;
   documentationTemplate?: string;
-  
+
   // Status
   status: 'ACTIVE' | 'SUSPENDED' | 'DISCONTINUED';
   startDate: Date;
   endDate?: Date;
-  
+
   // Outcomes
   expectedOutcome?: string;
   contraindications?: string[];
-  
+
   notes?: string;
 }
 
@@ -271,38 +262,38 @@ export interface TaskTemplate {
   name: string;
   description: string;
   category: TaskCategory;
-  
+
   // Assignment
   interventionIds?: UUID[]; // Interventions this task supports
-  
+
   // Timing
   frequency: Frequency;
   estimatedDuration?: number; // minutes
   timeOfDay?: TimeOfDay[];
-  
+
   // Instructions
   instructions: string;
   steps?: TaskStep[];
-  
+
   // Requirements
   requiresSignature: boolean;
   requiresNote: boolean;
   requiresPhoto?: boolean;
   requiresVitals?: boolean;
   requiredFields?: CustomField[];
-  
+
   // Options
   isOptional: boolean;
   allowSkip: boolean;
   skipReasons?: string[];
-  
+
   // Verification
   verificationType?: VerificationType;
   qualityChecks?: QualityCheck[];
-  
+
   // Status
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-  
+
   notes?: string;
   tags?: string[];
 }
@@ -373,19 +364,19 @@ export interface TaskInstance extends Entity {
   visitId?: UUID; // Associated visit
   clientId: UUID;
   assignedCaregiverId?: UUID;
-  
+
   // Task details (copied from template or custom)
   name: string;
   description: string;
   category: TaskCategory;
   instructions: string;
-  
+
   // Scheduling
   scheduledDate: Date;
   scheduledTime?: string; // HH:MM
   timeOfDay?: TimeOfDay;
   estimatedDuration?: number;
-  
+
   // Completion
   status: TaskStatus;
   completedAt?: Timestamp;
@@ -393,28 +384,28 @@ export interface TaskInstance extends Entity {
   completionNote?: string;
   completionSignature?: Signature;
   completionPhoto?: string[];
-  
+
   // Verification
   verificationData?: VerificationData;
   qualityCheckResponses?: QualityCheckResponse[];
-  
+
   // Skipping
   skippedAt?: Timestamp;
   skippedBy?: UUID;
   skipReason?: string;
   skipNote?: string;
-  
+
   // Issues
   issueReported?: boolean;
   issueDescription?: string;
   issueReportedAt?: Timestamp;
   issueReportedBy?: UUID;
-  
+
   // Required data
   requiredSignature: boolean;
   requiredNote: boolean;
   customFieldValues?: Record<string, unknown>;
-  
+
   notes?: string;
 }
 
@@ -515,12 +506,7 @@ export interface Frequency {
   specificDays?: DayOfWeek[];
 }
 
-export type FrequencyUnit =
-  | 'MINUTES'
-  | 'HOURS'
-  | 'DAYS'
-  | 'WEEKS'
-  | 'MONTHS';
+export type FrequencyUnit = 'MINUTES' | 'HOURS' | 'DAYS' | 'WEEKS' | 'MONTHS';
 
 /**
  * Documentation requirements
@@ -577,33 +563,33 @@ export interface ProgressNote extends Entity {
   carePlanId: UUID;
   clientId: UUID;
   visitId?: UUID;
-  
+
   noteType: ProgressNoteType;
   noteDate: Date;
-  
+
   authorId: UUID;
   authorName: string;
   authorRole: string;
-  
+
   content: string;
-  
+
   // Structured data
   goalProgress?: GoalProgress[];
   observations?: Observation[];
   concerns?: string[];
   recommendations?: string[];
-  
+
   // Review and approval
   reviewedBy?: UUID;
   reviewedAt?: Timestamp;
   approved?: boolean;
-  
+
   // Attachments
   attachments?: string[];
-  
+
   // Signature
   signature?: Signature;
-  
+
   tags?: string[];
   isPrivate?: boolean;
 }
@@ -652,7 +638,7 @@ export interface OutcomeMeasure {
   name: string;
   measureType: MeasureType;
   category: string;
-  
+
   // Measurement
   baselineValue?: number;
   baselineDate?: Date;
@@ -660,18 +646,18 @@ export interface OutcomeMeasure {
   currentValue?: number;
   currentDate?: Date;
   unit?: string;
-  
+
   // Assessment schedule
   frequency: Frequency;
   nextAssessmentDate?: Date;
-  
+
   // History
   measurements?: Measurement[];
-  
+
   // Analysis
   trend?: 'IMPROVING' | 'STABLE' | 'DECLINING';
   varianceFromTarget?: number;
-  
+
   notes?: string;
 }
 
@@ -705,18 +691,9 @@ export interface Allergy {
   notes?: string;
 }
 
-export type AllergyType =
-  | 'MEDICATION'
-  | 'FOOD'
-  | 'ENVIRONMENTAL'
-  | 'LATEX'
-  | 'OTHER';
+export type AllergyType = 'MEDICATION' | 'FOOD' | 'ENVIRONMENTAL' | 'LATEX' | 'OTHER';
 
-export type AllergySeverity =
-  | 'MILD'
-  | 'MODERATE'
-  | 'SEVERE'
-  | 'LIFE_THREATENING';
+export type AllergySeverity = 'MILD' | 'MODERATE' | 'SEVERE' | 'LIFE_THREATENING';
 
 /**
  * Payer source for authorization

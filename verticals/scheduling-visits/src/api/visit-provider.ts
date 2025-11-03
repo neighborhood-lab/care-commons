@@ -1,17 +1,12 @@
 /**
  * Visit Provider Implementation
- * 
+ *
  * Concrete implementation of IVisitProvider interface from time-tracking-evv.
  * Provides visit data to the EVV vertical while maintaining decoupling.
  */
 
 import { Pool } from 'pg';
-import {
-  UUID,
-  NotFoundError,
-  ValidationError,
-  UserContext,
-} from '@care-commons/core';
+import { UUID, NotFoundError, ValidationError, UserContext } from '@care-commons/core';
 import type {
   IVisitProvider,
   EVVVisitData,
@@ -21,7 +16,7 @@ import { VisitStatus } from '../types/schedule';
 
 /**
  * Visit Provider for EVV Integration
- * 
+ *
  * Fetches visit data from the scheduling vertical and transforms it
  * into the format required by EVV operations.
  */
@@ -34,17 +29,17 @@ export class VisitProvider implements IVisitProvider {
 
   /**
    * Get visit data by ID for EVV operations
-   * 
+   *
    * Retrieves complete visit information including client address,
    * service details, and authorization information needed for EVV compliance.
-   * 
+   *
    * @throws NotFoundError if visit doesn't exist
    * @throws ValidationError if visit data is incomplete
    */
   async getVisitForEVV(visitId: UUID): Promise<EVVVisitData> {
     // Fetch visit from repository
     const visit = await this.repository.getVisitById(visitId);
-    
+
     if (visit === null) {
       throw new NotFoundError('Visit not found', { visitId });
     }
@@ -56,10 +51,10 @@ export class VisitProvider implements IVisitProvider {
 
     // Validate address has required geolocation data
     if (visit.address.latitude == null || visit.address.longitude == null) {
-      throw new ValidationError(
-        'Visit address must be geocoded before EVV operations',
-        { visitId, address: visit.address }
-      );
+      throw new ValidationError('Visit address must be geocoded before EVV operations', {
+        visitId,
+        address: visit.address,
+      });
     }
 
     // Fetch client details for EVV
@@ -123,19 +118,19 @@ export class VisitProvider implements IVisitProvider {
 
   /**
    * Validate that a visit exists and is in a valid state for clock-in
-   * 
+   *
    * Checks:
    * - Visit exists and is not deleted
    * - Visit is assigned to the caregiver
    * - Visit status allows clock-in
    * - Visit is scheduled for today or within allowed grace period
-   * 
+   *
    * @returns true if visit can be clocked into
    * @throws ValidationError with reason if visit cannot be clocked into
    */
   async canClockIn(visitId: UUID, caregiverId: UUID): Promise<boolean> {
     const visit = await this.repository.getVisitById(visitId);
-    
+
     if (visit === null) {
       throw new ValidationError('Visit not found', { visitId });
     }
@@ -146,35 +141,38 @@ export class VisitProvider implements IVisitProvider {
     }
 
     if (visit.assignedCaregiverId !== caregiverId) {
-      throw new ValidationError(
-        'Visit is not assigned to this caregiver',
-        { visitId, caregiverId, assignedTo: visit.assignedCaregiverId }
-      );
+      throw new ValidationError('Visit is not assigned to this caregiver', {
+        visitId,
+        caregiverId,
+        assignedTo: visit.assignedCaregiverId,
+      });
     }
 
     // Check visit status - can only clock in if ASSIGNED, CONFIRMED, or EN_ROUTE
     const validStatuses: VisitStatus[] = ['ASSIGNED', 'CONFIRMED', 'EN_ROUTE'];
     if (!validStatuses.includes(visit.status)) {
-      throw new ValidationError(
-        `Cannot clock in - visit status is ${visit.status}`,
-        { visitId, status: visit.status, validStatuses }
-      );
+      throw new ValidationError(`Cannot clock in - visit status is ${visit.status}`, {
+        visitId,
+        status: visit.status,
+        validStatuses,
+      });
     }
 
     // Check if visit date is valid (today or within grace period)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const visitDate = new Date(visit.scheduledDate);
     visitDate.setHours(0, 0, 0, 0);
 
     // Allow clock-in for visits scheduled today or in the past (late clock-in)
     // Future validation can add state-specific grace period rules
     if (visitDate > today) {
-      throw new ValidationError(
-        'Cannot clock in - visit is scheduled for a future date',
-        { visitId, scheduledDate: visit.scheduledDate, today }
-      );
+      throw new ValidationError('Cannot clock in - visit is scheduled for a future date', {
+        visitId,
+        scheduledDate: visit.scheduledDate,
+        today,
+      });
     }
 
     return true;
@@ -182,18 +180,18 @@ export class VisitProvider implements IVisitProvider {
 
   /**
    * Validate that a visit is in progress and can be clocked out
-   * 
+   *
    * Checks:
    * - Visit exists and is not deleted
    * - Visit is assigned to the caregiver
    * - Visit status is IN_PROGRESS (already clocked in)
-   * 
+   *
    * @returns true if visit can be clocked out
    * @throws ValidationError with reason if visit cannot be clocked out
    */
   async canClockOut(visitId: UUID, caregiverId: UUID): Promise<boolean> {
     const visit = await this.repository.getVisitById(visitId);
-    
+
     if (visit === null) {
       throw new ValidationError('Visit not found', { visitId });
     }
@@ -204,10 +202,11 @@ export class VisitProvider implements IVisitProvider {
     }
 
     if (visit.assignedCaregiverId !== caregiverId) {
-      throw new ValidationError(
-        'Visit is not assigned to this caregiver',
-        { visitId, caregiverId, assignedTo: visit.assignedCaregiverId }
-      );
+      throw new ValidationError('Visit is not assigned to this caregiver', {
+        visitId,
+        caregiverId,
+        assignedTo: visit.assignedCaregiverId,
+      });
     }
 
     // Check visit status - can only clock out if IN_PROGRESS or PAUSED
@@ -224,11 +223,11 @@ export class VisitProvider implements IVisitProvider {
 
   /**
    * Update visit status based on EVV events
-   * 
+   *
    * Syncs visit status when EVV clock events occur:
    * - Clock-in → IN_PROGRESS
    * - Clock-out → COMPLETED or INCOMPLETE
-   * 
+   *
    * @param visitId Visit to update
    * @param status New status
    * @param evvRecordId EVV record that triggered the status change
@@ -258,22 +257,28 @@ export class VisitProvider implements IVisitProvider {
 
   /**
    * Private helper: Generate deterministic address ID
-   * 
+   *
    * Creates a consistent UUID based on address components for geofence tracking.
    * NOTE: This is a temporary implementation. Replace with actual address table lookup
    * once address management is implemented.
    */
-  private generateAddressId(address: { line1: string; city: string; state: string; postalCode: string }): UUID {
+  private generateAddressId(address: {
+    line1: string;
+    city: string;
+    state: string;
+    postalCode: string;
+  }): UUID {
     // Create deterministic ID from address components
     // This ensures same address always gets same ID for geofence reuse
-    const addressString = `${address.line1}|${address.city}|${address.state}|${address.postalCode}`.toLowerCase();
-    
+    const addressString =
+      `${address.line1}|${address.city}|${address.state}|${address.postalCode}`.toLowerCase();
+
     // Simple hash-based UUID generation (for demo purposes)
     // In production, would look up address table or use proper UUID v5
     const hash = addressString.split('').reduce((acc, char) => {
-      return ((acc << 5) - acc) + char.charCodeAt(0);
+      return (acc << 5) - acc + char.charCodeAt(0);
     }, 0);
-    
+
     // Format as UUID (not cryptographically secure, just deterministic)
     const hashStr = Math.abs(hash).toString(16).padStart(32, '0').slice(0, 32);
     return `${hashStr.slice(0, 8)}-${hashStr.slice(8, 12)}-${hashStr.slice(12, 16)}-${hashStr.slice(16, 20)}-${hashStr.slice(20, 32)}` as UUID;
@@ -281,7 +286,7 @@ export class VisitProvider implements IVisitProvider {
 
   /**
    * Private helper: Fetch client data from database
-   * 
+   *
    * This is a temporary implementation that queries basic client data.
    * NOTE: Replace with IClientProvider once client-demographics API is implemented.
    */
@@ -308,13 +313,13 @@ export class VisitProvider implements IVisitProvider {
     `;
 
     const result = await this.pool.query(query, [clientId]);
-    
+
     if (result.rows.length === 0) {
       throw new NotFoundError('Client not found', { clientId });
     }
 
     const row = result.rows[0];
-    
+
     // NOTE: Fetch authorization data from care plans once that integration is complete
     return {
       name: `${row.first_name} ${row.last_name}`,
@@ -324,7 +329,7 @@ export class VisitProvider implements IVisitProvider {
       authorizedUnits: undefined, // Get from care plan
       authorizedStartDate: undefined, // Get from care plan
       authorizedEndDate: undefined, // Get from care plan
-      fundingSource: (row.state_code != null) ? `${row.state_code}_MEDICAID` : undefined,
+      fundingSource: row.state_code != null ? `${row.state_code}_MEDICAID` : undefined,
       carePlanId: row.active_care_plan_id,
     };
   }

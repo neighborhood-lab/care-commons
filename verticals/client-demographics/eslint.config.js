@@ -1,9 +1,9 @@
-import js from '@eslint/js'
-import typescript from '@typescript-eslint/eslint-plugin'
-import typescriptParser from '@typescript-eslint/parser'
-import sonarjs from 'eslint-plugin-sonarjs'
-import unicorn from 'eslint-plugin-unicorn'
-import promise from 'eslint-plugin-promise'
+import js from '@eslint/js';
+import typescript from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+import sonarjs from 'eslint-plugin-sonarjs';
+import unicorn from 'eslint-plugin-unicorn';
+import promise from 'eslint-plugin-promise';
 
 export default [
   js.configs.recommended,
@@ -125,4 +125,4 @@ export default [
       'scripts/**/*.js.map',
     ],
   },
-]
+];

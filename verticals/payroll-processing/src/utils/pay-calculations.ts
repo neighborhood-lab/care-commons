@@ -1,13 +1,10 @@
 /**
  * Pay calculation utilities
- * 
+ *
  * Handles overtime calculations, rate multipliers, and earnings computations
  */
 
-import {
-  OvertimeCalculationResult,
-  PayRateMultiplier,
-} from '../types/payroll';
+import { OvertimeCalculationResult, PayRateMultiplier } from '../types/payroll';
 
 /**
  * Calculate overtime hours based on weekly threshold
@@ -149,10 +146,10 @@ export function calculateBlendedOvertimeRate(
   overtimeMultiplier: number = 1.5
 ): number {
   if (regularHours === 0) return 0;
-  
+
   const regularRate = regularEarnings / regularHours;
   const overtimeRate = regularRate * overtimeMultiplier;
-  
+
   return roundToTwoDecimals(overtimeRate);
 }
 
@@ -165,10 +162,7 @@ export function calculateLiveInOvertime(
   threshold: number = 44, // Many states use 44-hour threshold for live-in
   rate: number
 ): OvertimeCalculationResult {
-  const { regular, overtime, doubleTime } = calculateOvertimeHours(
-    hoursWorked,
-    threshold
-  );
+  const { regular, overtime, doubleTime } = calculateOvertimeHours(hoursWorked, threshold);
 
   return calculateOvertimePay(regular, overtime, doubleTime, rate);
 }
@@ -215,9 +209,11 @@ export function calculateTotalCompensation(earnings: {
 /**
  * Calculate seventh consecutive day overtime (California rule)
  */
-export function calculateSeventhDayOvertime(
-  hoursOnSeventhDay: number
-): { regular: number; overtime: number; doubleTime: number } {
+export function calculateSeventhDayOvertime(hoursOnSeventhDay: number): {
+  regular: number;
+  overtime: number;
+  doubleTime: number;
+} {
   // In California, 7th consecutive workday: first 8 hours at 1.5x, over 8 at 2x
   if (hoursOnSeventhDay <= 0) {
     return { regular: 0, overtime: 0, doubleTime: 0 };
@@ -259,10 +255,7 @@ export function prorateSalary(
  * Calculate on-call pay
  * Typically paid at a lower rate for hours on-call but not actively working
  */
-export function calculateOnCallPay(
-  onCallHours: number,
-  onCallRate: number
-): number {
+export function calculateOnCallPay(onCallHours: number, onCallRate: number): number {
   return roundToTwoDecimals(onCallHours * onCallRate);
 }
 

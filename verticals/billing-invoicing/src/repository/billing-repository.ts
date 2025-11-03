@@ -1,6 +1,6 @@
 /**
  * Billing repository layer
- * 
+ *
  * Database access for billing entities
  */
 
@@ -283,9 +283,7 @@ export class BillingRepository {
     return this.mapAuthorization(result.rows[0]);
   }
 
-  async findAuthorizationByNumber(
-    authNumber: string
-  ): Promise<ServiceAuthorization | null> {
+  async findAuthorizationByNumber(authNumber: string): Promise<ServiceAuthorization | null> {
     const result = await this.pool.query(
       'SELECT * FROM service_authorizations WHERE authorization_number = $1 AND deleted_at IS NULL',
       [authNumber]
@@ -448,9 +446,7 @@ export class BillingRepository {
     return this.mapBillableItem(result.rows[0]);
   }
 
-  async searchBillableItems(
-    filters: BillableItemSearchFilters
-  ): Promise<BillableItem[]> {
+  async searchBillableItems(filters: BillableItemSearchFilters): Promise<BillableItem[]> {
     const conditions: string[] = ['deleted_at IS NULL'];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
@@ -521,7 +517,7 @@ export class BillingRepository {
     id: UUID,
     status: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  statusChange: any,
+    statusChange: any,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -713,7 +709,7 @@ export class BillingRepository {
     id: UUID,
     paymentAmount: number,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paymentReference: any,
+    paymentReference: any,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -817,9 +813,7 @@ export class BillingRepository {
   }
 
   async findPaymentById(id: UUID): Promise<Payment | null> {
-    const result = await this.pool.query('SELECT * FROM payments WHERE id = $1', [
-      id,
-    ]);
+    const result = await this.pool.query('SELECT * FROM payments WHERE id = $1', [id]);
     return result.rows[0] ? this.mapPayment(result.rows[0]) : null;
   }
 
@@ -874,7 +868,7 @@ export class BillingRepository {
   async allocatePayment(
     paymentId: UUID,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  allocation: any,
+    allocation: any,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -1006,7 +1000,9 @@ export class BillingRepository {
       reviewedBy: row.reviewed_by,
       reviewedAt: row.reviewed_at,
       reviewNotes: row.review_notes,
-      ...(row.low_units_threshold ? { lowUnitsThreshold: parseFloat(row.low_units_threshold) } : {}),
+      ...(row.low_units_threshold
+        ? { lowUnitsThreshold: parseFloat(row.low_units_threshold) }
+        : {}),
       expirationWarningDays: row.expiration_warning_days,
       documentIds: row.document_ids,
       notes: row.notes,
@@ -1051,7 +1047,9 @@ export class BillingRepository {
       authorizationId: row.authorization_id,
       authorizationNumber: row.authorization_number,
       isAuthorized: row.is_authorized,
-      ...(row.authorization_remaining_units ? { authorizationRemainingUnits: parseFloat(row.authorization_remaining_units) } : {}),
+      ...(row.authorization_remaining_units
+        ? { authorizationRemainingUnits: parseFloat(row.authorization_remaining_units) }
+        : {}),
       payerId: row.payer_id,
       payerType: row.payer_type,
       payerName: row.payer_name,

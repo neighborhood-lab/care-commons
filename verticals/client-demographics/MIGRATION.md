@@ -61,39 +61,39 @@ File → Save As → CSV (Comma delimited)
 
 Map these fields from your source system to Care Commons:
 
-| Care Commons Field | Description | Required | Example |
-|-------------------|-------------|----------|---------|
-| `firstName` | Client first name | ✅ | "Margaret" |
-| `lastName` | Client last name | ✅ | "Thompson" |
-| `dateOfBirth` | Date of birth | ✅ | "1942-06-15" |
-| `primaryAddress.line1` | Street address | ✅ | "456 Oak Avenue" |
-| `primaryAddress.city` | City | ✅ | "Springfield" |
-| `primaryAddress.state` | State (2-letter code) | ✅ | "IL" |
-| `primaryAddress.postalCode` | ZIP code | ✅ | "62702" |
-| `primaryAddress.country` | Country code | ✅ | "US" |
+| Care Commons Field          | Description           | Required | Example          |
+| --------------------------- | --------------------- | -------- | ---------------- |
+| `firstName`                 | Client first name     | ✅       | "Margaret"       |
+| `lastName`                  | Client last name      | ✅       | "Thompson"       |
+| `dateOfBirth`               | Date of birth         | ✅       | "1942-06-15"     |
+| `primaryAddress.line1`      | Street address        | ✅       | "456 Oak Avenue" |
+| `primaryAddress.city`       | City                  | ✅       | "Springfield"    |
+| `primaryAddress.state`      | State (2-letter code) | ✅       | "IL"             |
+| `primaryAddress.postalCode` | ZIP code              | ✅       | "62702"          |
+| `primaryAddress.country`    | Country code          | ✅       | "US"             |
 
 ### Optional but Recommended Fields
 
-| Care Commons Field | Source System Field | Example |
-|-------------------|---------------------|---------|
-| `middleName` | Middle Name | "Rose" |
-| `preferredName` | Nickname / Preferred | "Maggie" |
-| `gender` | Gender | "FEMALE" |
-| `primaryPhone.number` | Phone / Primary Phone | "555-0201" |
-| `email` | Email Address | "maggie@example.com" |
-| `ssn` | SSN / Social Security | "123-45-6789" |
-| `medicareNumber` | Medicare ID | "MCR123456789A" |
-| `medicaidNumber` | Medicaid ID | "MCD123456" |
-| `status` | Status / Active | "ACTIVE" |
+| Care Commons Field    | Source System Field   | Example              |
+| --------------------- | --------------------- | -------------------- |
+| `middleName`          | Middle Name           | "Rose"               |
+| `preferredName`       | Nickname / Preferred  | "Maggie"             |
+| `gender`              | Gender                | "FEMALE"             |
+| `primaryPhone.number` | Phone / Primary Phone | "555-0201"           |
+| `email`               | Email Address         | "maggie@example.com" |
+| `ssn`                 | SSN / Social Security | "123-45-6789"        |
+| `medicareNumber`      | Medicare ID           | "MCR123456789A"      |
+| `medicaidNumber`      | Medicaid ID           | "MCD123456"          |
+| `status`              | Status / Active       | "ACTIVE"             |
 
 ### Emergency Contact Mapping
 
-| Care Commons Field | Source Field | Example |
-|-------------------|--------------|---------|
-| `emergencyContacts[0].name` | Emergency Contact Name | "Sarah Thompson" |
-| `emergencyContacts[0].relationship` | Relationship | "Daughter" |
-| `emergencyContacts[0].phone.number` | Emergency Phone | "555-0210" |
-| `emergencyContacts[0].isPrimary` | Primary Contact | true |
+| Care Commons Field                  | Source Field           | Example          |
+| ----------------------------------- | ---------------------- | ---------------- |
+| `emergencyContacts[0].name`         | Emergency Contact Name | "Sarah Thompson" |
+| `emergencyContacts[0].relationship` | Relationship           | "Daughter"       |
+| `emergencyContacts[0].phone.number` | Emergency Phone        | "555-0210"       |
+| `emergencyContacts[0].isPrimary`    | Primary Contact        | true             |
 
 ## Data Transformation
 
@@ -138,7 +138,11 @@ interface SourceRow {
   medicaidNumber?: string;
 }
 
-function transformRow(row: SourceRow, organizationId: string, branchId: string): CreateClientInput {
+function transformRow(
+  row: SourceRow,
+  organizationId: string,
+  branchId: string
+): CreateClientInput {
   return {
     organizationId,
     branchId,
@@ -148,11 +152,13 @@ function transformRow(row: SourceRow, organizationId: string, branchId: string):
     preferredName: row.preferredName?.trim(),
     dateOfBirth: new Date(row.dateOfBirth),
     gender: mapGender(row.gender),
-    primaryPhone: row.phone ? {
-      number: row.phone.replace(/\D/g, ''),
-      type: 'HOME',
-      canReceiveSMS: false,
-    } : undefined,
+    primaryPhone: row.phone
+      ? {
+          number: row.phone.replace(/\D/g, ''),
+          type: 'HOME',
+          canReceiveSMS: false,
+        }
+      : undefined,
     email: row.email?.trim(),
     primaryAddress: {
       type: 'HOME',
@@ -163,17 +169,21 @@ function transformRow(row: SourceRow, organizationId: string, branchId: string):
       postalCode: row.zip.replace(/\D/g, ''),
       country: 'US',
     },
-    emergencyContacts: row.emergencyName ? [{
-      name: row.emergencyName.trim(),
-      relationship: row.emergencyRelation?.trim() || 'Family',
-      phone: {
-        number: row.emergencyPhone?.replace(/\D/g, '') || '',
-        type: 'MOBILE',
-        canReceiveSMS: true,
-      },
-      isPrimary: true,
-      canMakeHealthcareDecisions: true,
-    }] : [],
+    emergencyContacts: row.emergencyName
+      ? [
+          {
+            name: row.emergencyName.trim(),
+            relationship: row.emergencyRelation?.trim() || 'Family',
+            phone: {
+              number: row.emergencyPhone?.replace(/\D/g, '') || '',
+              type: 'MOBILE',
+              canReceiveSMS: true,
+            },
+            isPrimary: true,
+            canMakeHealthcareDecisions: true,
+          },
+        ]
+      : [],
     status: mapStatus(row.status),
     intakeDate: row.intakeDate ? new Date(row.intakeDate) : undefined,
   };
@@ -181,34 +191,40 @@ function transformRow(row: SourceRow, organizationId: string, branchId: string):
 
 function mapGender(gender?: string): any {
   if (!gender) return undefined;
-  
+
   const normalized = gender.toLowerCase().trim();
-  
+
   if (normalized === 'm' || normalized === 'male') return 'MALE';
   if (normalized === 'f' || normalized === 'female') return 'FEMALE';
   if (normalized === 'nb' || normalized === 'non-binary') return 'NON_BINARY';
-  
+
   return 'OTHER';
 }
 
 function mapStatus(status?: string): any {
   if (!status) return 'PENDING_INTAKE';
-  
+
   const normalized = status.toLowerCase().trim();
-  
+
   if (normalized === 'active') return 'ACTIVE';
   if (normalized === 'inactive') return 'INACTIVE';
   if (normalized === 'discharged') return 'DISCHARGED';
   if (normalized === 'hold' || normalized === 'on hold') return 'ON_HOLD';
-  if (normalized === 'pending' || normalized === 'pending intake') return 'PENDING_INTAKE';
+  if (normalized === 'pending' || normalized === 'pending intake')
+    return 'PENDING_INTAKE';
   if (normalized === 'inquiry') return 'INQUIRY';
-  
+
   return 'ACTIVE';
 }
 
-async function transformCSV(inputFile: string, outputFile: string, orgId: string, branchId: string) {
+async function transformCSV(
+  inputFile: string,
+  outputFile: string,
+  orgId: string,
+  branchId: string
+) {
   const transformed: CreateClientInput[] = [];
-  
+
   return new Promise((resolve, reject) => {
     fs.createReadStream(inputFile)
       .pipe(csv())
@@ -222,7 +238,9 @@ async function transformCSV(inputFile: string, outputFile: string, orgId: string
       })
       .on('end', () => {
         fs.writeFileSync(outputFile, JSON.stringify(transformed, null, 2));
-        console.log(`Transformed ${transformed.length} clients to ${outputFile}`);
+        console.log(
+          `Transformed ${transformed.length} clients to ${outputFile}`
+        );
         resolve(transformed);
       })
       .on('error', reject);
@@ -241,14 +259,18 @@ async function transformCSV(inputFile: string, outputFile: string, orgId: string
 import { ClientService } from '@care-commons/client-demographics';
 import * as fs from 'fs';
 
-async function importClients(jsonFile: string, clientService: ClientService, userContext: any) {
+async function importClients(
+  jsonFile: string,
+  clientService: ClientService,
+  userContext: any
+) {
   const clients = JSON.parse(fs.readFileSync(jsonFile, 'utf-8'));
-  
+
   const results = {
     successful: [] as any[],
     failed: [] as any[],
   };
-  
+
   for (const clientData of clients) {
     try {
       const client = await clientService.createClient(clientData, userContext);
@@ -262,21 +284,20 @@ async function importClients(jsonFile: string, clientService: ClientService, use
         client: `${clientData.firstName} ${clientData.lastName}`,
         error: error.message,
       });
-      console.error(`❌ Failed: ${clientData.firstName} ${clientData.lastName}`);
+      console.error(
+        `❌ Failed: ${clientData.firstName} ${clientData.lastName}`
+      );
       console.error(`   Error: ${error.message}`);
     }
   }
-  
+
   console.log(`\n📊 Import Summary:`);
   console.log(`   Successful: ${results.successful.length}`);
   console.log(`   Failed: ${results.failed.length}`);
-  
+
   // Write results
-  fs.writeFileSync(
-    'import-results.json',
-    JSON.stringify(results, null, 2)
-  );
-  
+  fs.writeFileSync('import-results.json', JSON.stringify(results, null, 2));
+
   return results;
 }
 ```
@@ -304,7 +325,7 @@ CREATE TABLE clients_staging (
 );
 
 -- Import from CSV
-COPY clients_staging FROM '/path/to/clients.csv' 
+COPY clients_staging FROM '/path/to/clients.csv'
 WITH (FORMAT csv, HEADER true);
 
 -- Transform and insert
@@ -314,7 +335,7 @@ INSERT INTO clients (
     emergency_contacts, service_eligibility, status,
     created_by, updated_by
 )
-SELECT 
+SELECT
     uuid_generate_v4(),
     'org-456',
     'branch-789',
@@ -346,18 +367,20 @@ DROP TABLE clients_staging;
 ### Post-Import Checks
 
 1. **Count Verification**
+
 ```sql
 -- Total clients imported
 SELECT COUNT(*) FROM clients WHERE organization_id = 'org-456';
 
 -- By status
-SELECT status, COUNT(*) 
-FROM clients 
+SELECT status, COUNT(*)
+FROM clients
 WHERE organization_id = 'org-456'
 GROUP BY status;
 ```
 
 2. **Data Quality Checks**
+
 ```sql
 -- Clients missing emergency contacts
 SELECT id, first_name, last_name, client_number
@@ -379,6 +402,7 @@ WHERE primary_address->>'city' IS NULL
 ```
 
 3. **Duplicate Detection**
+
 ```sql
 -- Potential duplicates by name and DOB
 SELECT first_name, last_name, date_of_birth, COUNT(*)
@@ -406,12 +430,13 @@ HAVING COUNT(*) > 1;
 **Error:** `Invalid date format`
 
 **Solution:** Ensure dates are in ISO format (YYYY-MM-DD):
+
 ```typescript
 // Wrong
-dateOfBirth: '03/15/1945'
+dateOfBirth: '03/15/1945';
 
 // Correct
-dateOfBirth: '1945-03-15'
+dateOfBirth: '1945-03-15';
 ```
 
 #### Issue: Invalid Phone Numbers
@@ -419,8 +444,9 @@ dateOfBirth: '1945-03-15'
 **Error:** `Invalid phone number format`
 
 **Solution:** Strip all non-digits from phone numbers:
+
 ```typescript
-phone: phoneString.replace(/\D/g, '')
+phone: phoneString.replace(/\D/g, '');
 ```
 
 #### Issue: Missing Required Fields
@@ -428,6 +454,7 @@ phone: phoneString.replace(/\D/g, '')
 **Error:** `Validation failed: firstName is required`
 
 **Solution:** Ensure all required fields are present and not empty:
+
 ```typescript
 if (!row.firstName || row.firstName.trim() === '') {
   console.error('Skipping row: missing first name');
@@ -439,13 +466,15 @@ if (!row.firstName || row.firstName.trim() === '') {
 
 **Error:** `Client number already exists`
 
-**Solution:** System auto-generates client numbers. Don't provide them during import.
+**Solution:** System auto-generates client numbers. Don't provide them during
+import.
 
 #### Issue: Permission Denied
 
 **Error:** `Permission denied: clients:create`
 
 **Solution:** Ensure user context has proper permissions:
+
 ```typescript
 const userContext = {
   userId: 'admin-user-id',
@@ -475,7 +504,7 @@ If import fails or data issues are discovered:
 
 ```sql
 -- Rollback recent import (be careful with this!)
-DELETE FROM clients 
+DELETE FROM clients
 WHERE organization_id = 'org-456'
   AND created_at > '2024-03-15 10:00:00';
 
@@ -501,8 +530,10 @@ After successful import:
 ## Support
 
 For migration assistance:
+
 - **Documentation:** https://docs.carecommons.org
-- **Community Forum:** https://github.com/neighborhood-lab/care-commons/discussions
+- **Community Forum:**
+  https://github.com/neighborhood-lab/care-commons/discussions
 - **Issues:** https://github.com/neighborhood-lab/care-commons/issues
 
 ---

@@ -1,6 +1,6 @@
 /**
  * Integration Service - Connects EVV with other verticals
- * 
+ *
  * This service handles fetching data from client, caregiver, and scheduling verticals.
  * In a production system, this would use proper service-to-service communication.
  */
@@ -90,20 +90,19 @@ export class IntegrationService {
     }
 
     const row = result.rows[0];
-    const address = typeof row['address'] === 'string' 
-      ? JSON.parse(row['address']) 
-      : row['address'];
+    const address =
+      typeof row['address'] === 'string' ? JSON.parse(row['address']) : row['address'];
 
     // Build client full name
     const nameParts = [row['first_name'], row['middle_name'], row['last_name']].filter(Boolean);
     const clientName = nameParts.join(' ');
 
     // Extract address from visit or fall back to client primary address
-    const serviceAddress = address || (
-      typeof row['primary_address'] === 'string' 
-        ? JSON.parse(row['primary_address']) 
-        : row['primary_address']
-    );
+    const serviceAddress =
+      address ||
+      (typeof row['primary_address'] === 'string'
+        ? JSON.parse(row['primary_address'])
+        : row['primary_address']);
 
     const visitDataBase = {
       visitId: row['visit_id'] as UUID,
@@ -114,8 +113,14 @@ export class IntegrationService {
       serviceTypeCode: row['service_type_code'] as string,
       serviceTypeName: row['service_type_name'] as string,
       serviceDate: row['scheduled_date'] as Date,
-      scheduledStartTime: this.combineDateTime(row['scheduled_date'] as Date, row['scheduled_start_time'] as string),
-      scheduledEndTime: this.combineDateTime(row['scheduled_date'] as Date, row['scheduled_end_time'] as string),
+      scheduledStartTime: this.combineDateTime(
+        row['scheduled_date'] as Date,
+        row['scheduled_start_time'] as string
+      ),
+      scheduledEndTime: this.combineDateTime(
+        row['scheduled_date'] as Date,
+        row['scheduled_end_time'] as string
+      ),
       scheduledDuration: row['scheduled_duration'] as number,
     };
 
@@ -187,12 +192,13 @@ export class IntegrationService {
     // Extract NPI from credentials if available
     let npi: string | undefined;
     try {
-      const credentials = typeof row['credentials'] === 'string'
-        ? JSON.parse(row['credentials'])
-        : row['credentials'];
-      
+      const credentials =
+        typeof row['credentials'] === 'string'
+          ? JSON.parse(row['credentials'])
+          : row['credentials'];
+
       if (Array.isArray(credentials)) {
-        const npiCred = credentials.find(c => c.type === 'NPI' || c.type === 'PROVIDER_ID');
+        const npiCred = credentials.find((c) => c.type === 'NPI' || c.type === 'PROVIDER_ID');
         if (npiCred) {
           npi = npiCred.number;
         }
@@ -224,11 +230,7 @@ export class IntegrationService {
   /**
    * Update visit status (for real-time tracking)
    */
-  async updateVisitStatus(
-    visitId: UUID,
-    status: string,
-    updatedBy: UUID
-  ): Promise<void> {
+  async updateVisitStatus(visitId: UUID, status: string, updatedBy: UUID): Promise<void> {
     const query = `
       UPDATE visits
       SET status = $1,
@@ -323,7 +325,7 @@ export class IntegrationService {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     return Math.abs(hash).toString(16).padStart(32, '0');

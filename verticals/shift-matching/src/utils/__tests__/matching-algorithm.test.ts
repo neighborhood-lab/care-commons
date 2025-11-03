@@ -1,6 +1,6 @@
 /**
  * Tests for Matching Algorithm
- * 
+ *
  * Tests cover:
  * - Candidate evaluation and scoring
  * - Eligibility checking
@@ -10,14 +10,8 @@
  */
 
 import { MatchingAlgorithm, CaregiverContext } from '../matching-algorithm';
-import {
-  MatchCandidate,
-  MatchScores,
-  ConflictingVisit,
-} from '../../types/shift-matching';
+import { MatchCandidate, MatchScores, ConflictingVisit } from '../../types/shift-matching';
 import { describe, it, expect } from 'vitest';
-
-
 
 describe('MatchingAlgorithm', () => {
   const mockOpenShift: any = {
@@ -47,7 +41,7 @@ describe('MatchingAlgorithm', () => {
       country: 'USA',
     },
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: -74.006,
     priority: 'NORMAL' as const,
     isUrgent: false,
     matchingStatus: 'NEW' as const,
@@ -108,7 +102,12 @@ describe('MatchingAlgorithm', () => {
     employmentType: 'FULL_TIME',
     skills: [
       { id: 'skill-1', name: 'Personal Care', category: 'CARE', proficiencyLevel: 'ADVANCED' },
-      { id: 'skill-2', name: 'Medication Management', category: 'CARE', proficiencyLevel: 'INTERMEDIATE' },
+      {
+        id: 'skill-2',
+        name: 'Medication Management',
+        category: 'CARE',
+        proficiencyLevel: 'INTERMEDIATE',
+      },
     ],
     credentials: [
       { id: 'cred-1', type: 'CNA', status: 'ACTIVE', expirationDate: new Date('2025-12-31') },
@@ -118,7 +117,7 @@ describe('MatchingAlgorithm', () => {
     maxHoursPerWeek: 40,
     languages: ['English', 'Spanish'],
     primaryAddress: {
-      latitude: 40.7580,
+      latitude: 40.758,
       longitude: -73.9855,
     },
     availability: {
@@ -171,7 +170,11 @@ describe('MatchingAlgorithm', () => {
         blockedCaregivers: ['cg-123'],
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(blockedShift, mockCaregiverContext, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        blockedShift,
+        mockCaregiverContext,
+        mockConfig
+      );
 
       expect(result.isEligible).toBe(false);
       expect(result.eligibilityIssues).toContainEqual(
@@ -193,7 +196,11 @@ describe('MatchingAlgorithm', () => {
         caregiver: caregiverWithMissingSkills,
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithMissingSkills, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithMissingSkills,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({
@@ -214,7 +221,11 @@ describe('MatchingAlgorithm', () => {
         caregiver: caregiverWithMissingCerts,
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithMissingCerts, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithMissingCerts,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({
@@ -238,7 +249,11 @@ describe('MatchingAlgorithm', () => {
         conflictingVisits: [conflictingVisit],
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithConflict, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithConflict,
+        mockConfig
+      );
 
       expect(result.hasConflict).toBe(true);
       expect(result.conflictingVisits).toContain(conflictingVisit);
@@ -256,7 +271,11 @@ describe('MatchingAlgorithm', () => {
         distanceFromShift: 50, // Over maxTravelDistance of 30
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithFarDistance, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithFarDistance,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({
@@ -267,7 +286,11 @@ describe('MatchingAlgorithm', () => {
     });
 
     it('should handle gender preference mismatch', () => {
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, mockCaregiverContext, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        mockCaregiverContext,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({
@@ -283,7 +306,11 @@ describe('MatchingAlgorithm', () => {
         languagePreference: 'Spanish',
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(shiftWithSpanishPreference, mockCaregiverContext, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        shiftWithSpanishPreference,
+        mockCaregiverContext,
+        mockConfig
+      );
 
       // Should not have language mismatch warning since caregiver speaks Spanish
       expect(result.eligibilityIssues).not.toContainEqual(
@@ -311,7 +338,11 @@ describe('MatchingAlgorithm', () => {
         currentWeekHours: 24, // 2-hour shift would exceed 25-hour limit (24 + 2 = 26 > 25)
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(shiftWithoutGenderPreference, contextWithHighHours, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        shiftWithoutGenderPreference,
+        contextWithHighHours,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({
@@ -322,7 +353,11 @@ describe('MatchingAlgorithm', () => {
     });
 
     it('should calculate scores correctly', () => {
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, mockCaregiverContext, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        mockCaregiverContext,
+        mockConfig
+      );
 
       expect(result.scores).toBeDefined();
       expect(result.scores.skillMatch).toBe(100); // Has all required skills
@@ -332,11 +367,15 @@ describe('MatchingAlgorithm', () => {
     });
 
     it('should generate match reasons', () => {
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, mockCaregiverContext, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        mockCaregiverContext,
+        mockConfig
+      );
 
       expect(result.matchReasons).toBeDefined();
       expect(result.matchReasons.length).toBeGreaterThan(0);
-      
+
       // Should have positive reasons for good matches
       expect(result.matchReasons).toContainEqual(
         expect.objectContaining({
@@ -347,7 +386,11 @@ describe('MatchingAlgorithm', () => {
     });
 
     it('should calculate overall score correctly', () => {
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, mockCaregiverContext, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        mockCaregiverContext,
+        mockConfig
+      );
 
       expect(result.overallScore).toBeGreaterThanOrEqual(0);
       expect(result.overallScore).toBeLessThanOrEqual(100);
@@ -363,7 +406,11 @@ describe('MatchingAlgorithm', () => {
         requiredCertifications: ['CNA'], // Caregiver has this cert
       };
 
-      const perfectResult = MatchingAlgorithm.evaluateMatch(perfectMatchShift, mockCaregiverContext, mockConfig);
+      const perfectResult = MatchingAlgorithm.evaluateMatch(
+        perfectMatchShift,
+        mockCaregiverContext,
+        mockConfig
+      );
       expect(perfectResult.matchQuality).toBeDefined();
       expect(['EXCELLENT', 'GOOD', 'FAIR', 'POOR']).toContain(perfectResult.matchQuality);
 
@@ -375,9 +422,15 @@ describe('MatchingAlgorithm', () => {
         requiredCertifications: ['RN'], // Caregiver doesn't have this cert
       };
 
-      const poorResult = MatchingAlgorithm.evaluateMatch(poorMatchShift, mockCaregiverContext, mockConfig);
+      const poorResult = MatchingAlgorithm.evaluateMatch(
+        poorMatchShift,
+        mockCaregiverContext,
+        mockConfig
+      );
       expect(poorResult.matchQuality).toBeDefined();
-      expect(['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'INELIGIBLE']).toContain(poorResult.matchQuality);
+      expect(['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'INELIGIBLE']).toContain(
+        poorResult.matchQuality
+      );
     });
   });
 
@@ -473,7 +526,9 @@ describe('MatchingAlgorithm', () => {
           matchQuality: 'INELIGIBLE',
           scores: {} as MatchScores,
           isEligible: false,
-          eligibilityIssues: [{ type: 'BLOCKED_BY_CLIENT', severity: 'BLOCKING', message: 'Blocked' }],
+          eligibilityIssues: [
+            { type: 'BLOCKED_BY_CLIENT', severity: 'BLOCKING', message: 'Blocked' },
+          ],
           warnings: [],
           hasConflict: false,
           availableHours: 20,
@@ -531,7 +586,11 @@ describe('MatchingAlgorithm', () => {
         caregiver: caregiverWithNoSkills,
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithNoSkills, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithNoSkills,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({
@@ -571,11 +630,15 @@ describe('MatchingAlgorithm', () => {
         languagePreference: undefined,
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(shiftWithNoRequirements, mockCaregiverContext, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        shiftWithNoRequirements,
+        mockCaregiverContext,
+        mockConfig
+      );
 
       // Should be eligible since no blocking requirements
       expect(result.isEligible).toBe(true);
-      expect(result.eligibilityIssues.filter(i => i.severity === 'BLOCKING')).toHaveLength(0);
+      expect(result.eligibilityIssues.filter((i) => i.severity === 'BLOCKING')).toHaveLength(0);
     });
 
     it('should handle caregiver with no address', () => {
@@ -590,7 +653,11 @@ describe('MatchingAlgorithm', () => {
         distanceFromShift: 0,
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithNoAddress, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithNoAddress,
+        mockConfig
+      );
 
       // Should have neutral proximity score when distance is unknown
       expect(result.scores.proximityMatch).toBe(50);
@@ -624,7 +691,11 @@ describe('MatchingAlgorithm', () => {
         caregiver: nonCompliantCaregiver,
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithNonCompliant, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithNonCompliant,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({
@@ -646,7 +717,11 @@ describe('MatchingAlgorithm', () => {
         caregiver: expiringCaregiver,
       };
 
-      const result = MatchingAlgorithm.evaluateMatch(mockOpenShift, contextWithExpiring, mockConfig);
+      const result = MatchingAlgorithm.evaluateMatch(
+        mockOpenShift,
+        contextWithExpiring,
+        mockConfig
+      );
 
       expect(result.eligibilityIssues).toContainEqual(
         expect.objectContaining({

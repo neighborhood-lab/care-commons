@@ -1,6 +1,6 @@
 /**
  * Billing Service
- * 
+ *
  * Core billing service implementing SOLID principles
  * Orchestrates billing operations with proper separation of concerns
  */
@@ -45,10 +45,7 @@ export class BillingService {
   /**
    * Create billable item from completed visit/EVV record
    */
-  async createBillableItem(
-    input: CreateBillableItemInput,
-    userId: UUID
-  ): Promise<BillableItem> {
+  async createBillableItem(input: CreateBillableItemInput, userId: UUID): Promise<BillableItem> {
     // Validate input
     const validation = validateCreateBillableItem(input);
     if (!validation.valid) {
@@ -66,26 +63,18 @@ export class BillingService {
     }
 
     // Find matching rate for service
-    const serviceRate = rateSchedule.rates.find(
-      (r) => r.serviceTypeCode === input.serviceTypeCode
-    );
+    const serviceRate = rateSchedule.rates.find((r) => r.serviceTypeCode === input.serviceTypeCode);
 
     if (!serviceRate) {
-      throw new Error(
-        `No rate found for service code ${input.serviceTypeCode}`
-      );
+      throw new Error(`No rate found for service code ${input.serviceTypeCode}`);
     }
 
     // Calculate units and amounts
-    const units = input.units || calculateUnits(
-      input.durationMinutes,
-      input.unitType,
-      serviceRate.roundingRule
-    );
+    const units =
+      input.units ||
+      calculateUnits(input.durationMinutes, input.unitType, serviceRate.roundingRule);
 
-    const unitRate = input.rateScheduleId
-      ? serviceRate.unitRate
-      : serviceRate.unitRate;
+    const unitRate = input.rateScheduleId ? serviceRate.unitRate : serviceRate.unitRate;
 
     const subtotal = calculateBaseAmount(units, unitRate);
     const finalAmount = applyModifiers(subtotal, input.modifiers);
@@ -95,9 +84,7 @@ export class BillingService {
     let isAuthorized = false;
 
     if (input.authorizationId) {
-      const auth = await this.repository.findAuthorizationByNumber(
-        input.authorizationNumber!
-      );
+      const auth = await this.repository.findAuthorizationByNumber(input.authorizationNumber!);
 
       if (!auth) {
         throw new Error('Authorization not found');
@@ -167,11 +154,7 @@ export class BillingService {
   /**
    * Create invoice from billable items
    */
-  async createInvoice(
-    input: CreateInvoiceInput,
-    userId: UUID,
-    orgCode: string
-  ): Promise<Invoice> {
+  async createInvoice(input: CreateInvoiceInput, userId: UUID, orgCode: string): Promise<Invoice> {
     // Validate input
     const validation = validateCreateInvoice(input);
     if (!validation.valid) {
@@ -187,9 +170,7 @@ export class BillingService {
         organizationId: input.organizationId,
       });
 
-      const items = billableItems.filter((item) =>
-        input.billableItemIds.includes(item.id)
-      );
+      const items = billableItems.filter((item) => input.billableItemIds.includes(item.id));
 
       if (items.length === 0) {
         throw new Error('No billable items found');
@@ -204,9 +185,7 @@ export class BillingService {
       // Verify all items are in READY status
       const notReady = items.filter((item) => item.status !== 'READY');
       if (notReady.length > 0) {
-        throw new Error(
-          `${notReady.length} items are not in READY status`
-        );
+        throw new Error(`${notReady.length} items are not in READY status`);
       }
 
       // Calculate totals
@@ -271,7 +250,11 @@ export class BillingService {
         payerId: input.payerId,
         payerType: input.payerType,
         payerName: input.payerName,
-        ...(payer.billingAddress ? { payerAddress: payer.billingAddress } : (payer.address ? { payerAddress: payer.address } : {})),
+        ...(payer.billingAddress
+          ? { payerAddress: payer.billingAddress }
+          : payer.address
+            ? { payerAddress: payer.address }
+            : {}),
         ...(input.clientId ? { clientId: input.clientId } : {}),
         periodStart: input.periodStart,
         periodEnd: input.periodEnd,
@@ -336,11 +319,7 @@ export class BillingService {
   /**
    * Create payment from payer
    */
-  async createPayment(
-    input: CreatePaymentInput,
-    userId: UUID,
-    orgCode: string
-  ): Promise<Payment> {
+  async createPayment(input: CreatePaymentInput, userId: UUID, orgCode: string): Promise<Payment> {
     // Validate input
     const validation = validateCreatePayment(input);
     if (!validation.valid) {
@@ -348,10 +327,7 @@ export class BillingService {
     }
 
     // Generate payment number
-    const paymentCount = await this.getPaymentCount(
-      input.organizationId,
-      new Date().getFullYear()
-    );
+    const paymentCount = await this.getPaymentCount(input.organizationId, new Date().getFullYear());
     const paymentNumber = generatePaymentNumber(
       orgCode,
       paymentCount + 1,
@@ -398,10 +374,7 @@ export class BillingService {
   /**
    * Allocate payment to invoices
    */
-  async allocatePayment(
-    input: AllocatePaymentInput,
-    userId: UUID
-  ): Promise<void> {
+  async allocatePayment(input: AllocatePaymentInput, userId: UUID): Promise<void> {
     // Get payment
     const payment = await this.repository.findPaymentById(input.paymentId);
     if (!payment) {
@@ -444,12 +417,7 @@ export class BillingService {
           notes: allocation.notes,
         };
 
-        await this.repository.allocatePayment(
-          payment.id,
-          paymentAllocation,
-          userId,
-          client
-        );
+        await this.repository.allocatePayment(payment.id, paymentAllocation, userId, client);
 
         // Update invoice payment status
         await this.repository.updateInvoicePayment(
@@ -477,10 +445,7 @@ export class BillingService {
   /**
    * Approve billable item (move from PENDING to READY)
    */
-  async approveBillableItem(
-    billableItemId: UUID,
-    userId: UUID
-  ): Promise<void> {
+  async approveBillableItem(billableItemId: UUID, userId: UUID): Promise<void> {
     const item = await this.repository.searchBillableItems({
       organizationId: undefined!,
     });
@@ -548,10 +513,7 @@ export class BillingService {
   /**
    * Get payment count for number generation
    */
-  private async getPaymentCount(
-    organizationId: UUID,
-    year: number
-  ): Promise<number> {
+  private async getPaymentCount(organizationId: UUID, year: number): Promise<number> {
     const result = await this.pool.query(
       `SELECT COUNT(*) as count FROM payments 
        WHERE organization_id = $1 

@@ -23,16 +23,10 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice, compact = fal
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <FileText className="h-5 w-5 text-gray-400" />
-            <span className="font-semibold text-gray-900">
-              {invoice.invoiceNumber}
-            </span>
-            {overdue && (
-              <AlertCircle className="h-4 w-4 text-red-500" />
-            )}
+            <span className="font-semibold text-gray-900">{invoice.invoiceNumber}</span>
+            {overdue && <AlertCircle className="h-4 w-4 text-red-500" />}
           </div>
-          {invoice.clientName && (
-            <p className="text-sm text-gray-600">{invoice.clientName}</p>
-          )}
+          {invoice.clientName && <p className="text-sm text-gray-600">{invoice.clientName}</p>}
           <p className="text-sm text-gray-500">{invoice.payerName}</p>
         </div>
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColor}`}>

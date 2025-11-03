@@ -19,7 +19,7 @@ export const useCarePlanApi = () => {
 
 export const useCarePlans = (filters?: CarePlanSearchFilters & SearchParams) => {
   const carePlanApi = useCarePlanApi();
-  
+
   return useQuery({
     queryKey: ['care-plans', filters],
     queryFn: () => carePlanApi.getCarePlans(filters),
@@ -28,7 +28,7 @@ export const useCarePlans = (filters?: CarePlanSearchFilters & SearchParams) => 
 
 export const useCarePlan = (id: string | undefined) => {
   const carePlanApi = useCarePlanApi();
-  
+
   return useQuery({
     queryKey: ['care-plans', id],
     queryFn: () => carePlanApi.getCarePlanById(id!),
@@ -89,7 +89,7 @@ export const useActivateCarePlan = () => {
 
 export const useTasks = (filters?: TaskInstanceSearchFilters & SearchParams) => {
   const carePlanApi = useCarePlanApi();
-  
+
   return useQuery({
     queryKey: ['tasks', filters],
     queryFn: () => carePlanApi.getTasks(filters),
@@ -98,7 +98,7 @@ export const useTasks = (filters?: TaskInstanceSearchFilters & SearchParams) => 
 
 export const useTask = (id: string | undefined) => {
   const carePlanApi = useCarePlanApi();
-  
+
   return useQuery({
     queryKey: ['tasks', id],
     queryFn: () => carePlanApi.getTaskById(id!),

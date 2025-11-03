@@ -10,7 +10,7 @@ interface MatchCandidateCardProps {
   isCreatingProposal?: boolean;
 }
 
-export const MatchCandidateCard: React.FC<MatchCandidateCardProps> = ({ 
+export const MatchCandidateCard: React.FC<MatchCandidateCardProps> = ({
   candidate,
   onCreateProposal,
   isCreatingProposal = false,
@@ -31,9 +31,7 @@ export const MatchCandidateCard: React.FC<MatchCandidateCardProps> = ({
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span className={`text-2xl font-bold ${scoreColor}`}>
-            {candidate.overallScore}
-          </span>
+          <span className={`text-2xl font-bold ${scoreColor}`}>{candidate.overallScore}</span>
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${qualityColor}`}>
             {candidate.matchQuality}
           </span>
@@ -51,15 +49,16 @@ export const MatchCandidateCard: React.FC<MatchCandidateCardProps> = ({
           </div>
         )}
 
-        {candidate.previousVisitsWithClient !== undefined && candidate.previousVisitsWithClient > 0 && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2 text-gray-600">
-              <TrendingUp className="h-4 w-4" />
-              Previous visits:
-            </span>
-            <span className="font-medium">{candidate.previousVisitsWithClient}</span>
-          </div>
-        )}
+        {candidate.previousVisitsWithClient !== undefined &&
+          candidate.previousVisitsWithClient > 0 && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-2 text-gray-600">
+                <TrendingUp className="h-4 w-4" />
+                Previous visits:
+              </span>
+              <span className="font-medium">{candidate.previousVisitsWithClient}</span>
+            </div>
+          )}
 
         {candidate.clientRating !== undefined && (
           <div className="flex items-center justify-between text-sm">
@@ -116,7 +115,9 @@ export const MatchCandidateCard: React.FC<MatchCandidateCardProps> = ({
           <ul className="text-xs text-gray-600 space-y-1">
             {candidate.matchReasons.slice(0, 3).map((reason, idx) => (
               <li key={idx} className="flex items-start gap-1">
-                <span className={reason.impact === 'POSITIVE' ? 'text-green-600' : 'text-gray-400'}>•</span>
+                <span className={reason.impact === 'POSITIVE' ? 'text-green-600' : 'text-gray-400'}>
+                  •
+                </span>
                 {reason.description}
               </li>
             ))}

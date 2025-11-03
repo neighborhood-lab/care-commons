@@ -9,12 +9,10 @@ export interface InterventionSectionProps {
   onInterventionClick?: (intervention: Intervention) => void;
 }
 
-export const InterventionSection: React.FC<InterventionSectionProps> = ({ 
-  interventions, 
-  onInterventionClick 
+export const InterventionSection: React.FC<InterventionSectionProps> = ({
+  interventions,
+  onInterventionClick,
 }) => {
-
-
   if (interventions.length === 0) {
     return (
       <Card>
@@ -23,7 +21,9 @@ export const InterventionSection: React.FC<InterventionSectionProps> = ({
           <div className="text-center py-8">
             <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No interventions defined yet</p>
-            <p className="text-sm text-gray-400 mt-1">Add interventions to outline care activities</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Add interventions to outline care activities
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -47,18 +47,18 @@ export const InterventionSection: React.FC<InterventionSectionProps> = ({
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900 mb-2">{intervention.name}</h4>
                   <p className="text-sm text-gray-600 mb-3">{intervention.description}</p>
-                  
+
                   <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
                     <span className="flex items-center gap-1">
                       <Activity className="h-3 w-3" />
                       {intervention.category.replace(/_/g, ' ')}
                     </span>
-                    
+
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       Started: {formatDate(intervention.startDate)}
                     </span>
-                    
+
                     {intervention.endDate && (
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
@@ -67,10 +67,10 @@ export const InterventionSection: React.FC<InterventionSectionProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-end gap-2">
                   <StatusBadge status={intervention.status} />
-                  
+
                   {intervention.status === 'SUSPENDED' && (
                     <div className="flex items-center gap-1 text-xs text-orange-600">
                       <AlertCircle className="h-3 w-3" />
@@ -97,7 +97,8 @@ export const InterventionSection: React.FC<InterventionSectionProps> = ({
               {intervention.status === 'SUSPENDED' && (
                 <div className="mt-3 p-3 bg-orange-50 rounded-md">
                   <p className="text-sm text-orange-700">
-                    This intervention is currently suspended. Care activities should be paused until further notice.
+                    This intervention is currently suspended. Care activities should be paused until
+                    further notice.
                   </p>
                 </div>
               )}
@@ -114,10 +115,9 @@ export const InterventionSection: React.FC<InterventionSectionProps> = ({
               <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
                 <Calendar className="h-3 w-3" />
                 <span>
-                  {intervention.endDate 
+                  {intervention.endDate
                     ? `Duration: ${formatDate(intervention.startDate)} - ${formatDate(intervention.endDate)}`
-                    : `Started: ${formatDate(intervention.startDate)} (Ongoing)`
-                  }
+                    : `Started: ${formatDate(intervention.startDate)} (Ongoing)`}
                 </span>
               </div>
             </div>

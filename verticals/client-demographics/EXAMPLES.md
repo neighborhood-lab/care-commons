@@ -1,6 +1,7 @@
 # Client & Demographics - Usage Examples
 
-This document provides practical examples for common operations in the Client & Demographics Management vertical.
+This document provides practical examples for common operations in the Client &
+Demographics Management vertical.
 
 ## Table of Contents
 
@@ -74,7 +75,7 @@ const completeClient = await clientService.createClient(
   {
     organizationId: 'org-456',
     branchId: 'branch-789',
-    
+
     // Identity
     firstName: 'Robert',
     middleName: 'James',
@@ -82,7 +83,7 @@ const completeClient = await clientService.createClient(
     preferredName: 'Bob',
     dateOfBirth: new Date('1948-03-15'),
     gender: 'MALE',
-    
+
     // Contact
     primaryPhone: {
       number: '555-123-4567',
@@ -90,7 +91,7 @@ const completeClient = await clientService.createClient(
       canReceiveSMS: true,
     },
     email: 'bob.anderson@example.com',
-    
+
     // Address
     primaryAddress: {
       type: 'HOME',
@@ -102,7 +103,7 @@ const completeClient = await clientService.createClient(
       county: 'Sangamon',
       country: 'US',
     },
-    
+
     // Emergency contacts
     emergencyContacts: [
       {
@@ -132,7 +133,7 @@ const completeClient = await clientService.createClient(
         notes: 'Contact only if Susan unavailable',
       },
     ],
-    
+
     // Intake details
     intakeDate: new Date(),
     status: 'PENDING_INTAKE',
@@ -159,7 +160,9 @@ const searchResults = await clientService.searchClients(
 
 console.log(`Found ${searchResults.total} clients matching "Johnson"`);
 searchResults.items.forEach((client) => {
-  console.log(`  - ${client.firstName} ${client.lastName} (${client.clientNumber})`);
+  console.log(
+    `  - ${client.firstName} ${client.lastName} (${client.clientNumber})`
+  );
 });
 ```
 
@@ -294,7 +297,8 @@ await clientService.addRiskFlag(
     type: 'FALL_RISK',
     severity: 'HIGH',
     description: 'History of 3 falls in past 6 months, uses walker',
-    mitigationPlan: 'Fall prevention mat installed, walker required, PT exercises',
+    mitigationPlan:
+      'Fall prevention mat installed, walker required, PT exercises',
     requiresAcknowledgment: true,
   },
   userContext
@@ -319,7 +323,10 @@ console.log('Risk flags added');
 ### Example 11: Monitor and Resolve Risk Flags
 
 ```typescript
-import { getActiveRiskFlags, getCriticalRiskFlags } from '@care-commons/client-demographics';
+import {
+  getActiveRiskFlags,
+  getCriticalRiskFlags,
+} from '@care-commons/client-demographics';
 
 const client = await clientService.getClientById(clientId, userContext);
 
@@ -360,7 +367,9 @@ const newClient = await clientService.createClient(
     firstName: 'Alice',
     lastName: 'Williams',
     dateOfBirth: new Date('1960-10-05'),
-    primaryAddress: { /* ... */ },
+    primaryAddress: {
+      /* ... */
+    },
     status: 'INQUIRY',
   },
   userContext
@@ -442,7 +451,9 @@ console.log(`Address: ${formatAddressSingleLine(client.primaryAddress)}`);
 // Emergency contact
 const primaryContact = getPrimaryEmergencyContact(client);
 if (primaryContact) {
-  console.log(`Emergency: ${primaryContact.name} (${primaryContact.relationship})`);
+  console.log(
+    `Emergency: ${primaryContact.name} (${primaryContact.relationship})`
+  );
   console.log(`  Phone: ${formatPhoneNumber(primaryContact.phone.number)}`);
 }
 ```
@@ -496,7 +507,10 @@ console.log(`Total authorized hours/week: ${totalHours}`);
 ### Example 15: Export Client Data
 
 ```typescript
-import { exportClientToCSV, generateClientSummary } from '@care-commons/client-demographics';
+import {
+  exportClientToCSV,
+  generateClientSummary,
+} from '@care-commons/client-demographics';
 
 const client = await clientService.getClientById(clientId, userContext);
 
@@ -735,7 +749,9 @@ async function generateDailyReport(branchId: string) {
   // High-risk clients
   const highRiskClients = activeClients.items.filter((c) => {
     const active = getActiveRiskFlags(c);
-    return active.some((r) => r.severity === 'HIGH' || r.severity === 'CRITICAL');
+    return active.some(
+      (r) => r.severity === 'HIGH' || r.severity === 'CRITICAL'
+    );
   });
   console.log(`High-Risk Clients: ${highRiskClients.length}`);
 
@@ -747,7 +763,9 @@ async function generateDailyReport(branchId: string) {
   if (criticalAlerts.length > 0) {
     console.log(`\n🚨 CRITICAL ALERTS: ${criticalAlerts.length}`);
     criticalAlerts.forEach((client) => {
-      console.log(`  - ${client.firstName} ${client.lastName} (${client.clientNumber})`);
+      console.log(
+        `  - ${client.firstName} ${client.lastName} (${client.clientNumber})`
+      );
       getCriticalRiskFlags(client).forEach((risk) => {
         console.log(`    ⚠️  ${risk.type}: ${risk.description}`);
       });
@@ -858,7 +876,9 @@ async function importClientsFromSpreadsheet(rows: SpreadsheetRow[]) {
         row,
         error: error.message,
       });
-      console.log(`❌ Failed: ${row.firstName} ${row.lastName} - ${error.message}`);
+      console.log(
+        `❌ Failed: ${row.firstName} ${row.lastName} - ${error.message}`
+      );
     }
   }
 
@@ -872,4 +892,5 @@ async function importClientsFromSpreadsheet(rows: SpreadsheetRow[]) {
 
 ---
 
-For more information, see the [main README](./README.md) or visit the [Care Commons documentation](https://docs.carecommons.org).
+For more information, see the [main README](./README.md) or visit the
+[Care Commons documentation](https://docs.carecommons.org).

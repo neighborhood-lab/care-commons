@@ -12,7 +12,9 @@ export interface ClientApiService {
 
 export const createClientApiService = (apiClient: ApiClient): ClientApiService => {
   return {
-    async getClients(filters?: ClientSearchFilters & SearchParams): Promise<PaginatedResult<Client>> {
+    async getClients(
+      filters?: ClientSearchFilters & SearchParams
+    ): Promise<PaginatedResult<Client>> {
       const params = new URLSearchParams();
       if (filters?.query) params.append('query', filters.query);
       if (filters?.status) for (const s of filters.status) params.append('status', s);

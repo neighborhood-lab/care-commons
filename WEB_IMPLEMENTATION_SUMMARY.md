@@ -2,15 +2,20 @@
 
 ## Overview
 
-A comprehensive React-based web UI has been implemented for the Care Commons platform, following the same architectural principles as the backend with vertical-based modularity, type safety, and clear separation of concerns.
+A comprehensive React-based web UI has been implemented for the Care Commons
+platform, following the same architectural principles as the backend with
+vertical-based modularity, type safety, and clear separation of concerns.
 
 ## What Was Built
 
 ### 1. Core Infrastructure (`src/core/`)
 
 #### Components
-- **Button**: Flexible button with variants (primary, secondary, outline, ghost, danger), sizes, loading states, and icon support
-- **Card**: Container component with CardHeader, CardContent, and CardFooter sub-components
+
+- **Button**: Flexible button with variants (primary, secondary, outline, ghost,
+  danger), sizes, loading states, and icon support
+- **Card**: Container component with CardHeader, CardContent, and CardFooter
+  sub-components
 - **Badge**: Status badge with color-coded variants
 - **Input**: Form input with label, error messages, and helper text
 - **Select**: Dropdown select with options
@@ -20,28 +25,39 @@ A comprehensive React-based web UI has been implemented for the Care Commons pla
 - **ErrorMessage**: Error display with retry functionality
 
 #### Hooks
-- **useAuth**: Authentication state management with Zustand (persisted to localStorage)
-- **usePermissions**: Permission checking (`can`, `canAny`, `canAll`, `hasRole`, `hasAnyRole`)
+
+- **useAuth**: Authentication state management with Zustand (persisted to
+  localStorage)
+- **usePermissions**: Permission checking (`can`, `canAny`, `canAll`, `hasRole`,
+  `hasAnyRole`)
 - **useApiClient**: HTTP client factory with auth token injection
 - **useAuthService**: Authentication service hooks
 
 #### Services
+
 - **ApiClient**: Base HTTP client with GET, POST, PATCH, DELETE, PUT methods
-- **AuthService**: Authentication service interface (login, logout, getCurrentUser, refreshToken)
+- **AuthService**: Authentication service interface (login, logout,
+  getCurrentUser, refreshToken)
 
 #### Types
-- **API types**: ApiResponse, PaginatedResult, ApiError, RequestConfig, SearchParams
+
+- **API types**: ApiResponse, PaginatedResult, ApiError, RequestConfig,
+  SearchParams
 - **UI types**: Size, Variant, Status, BaseComponentProps, LoadingState
 - **Auth types**: User, Role, AuthState, LoginCredentials, AuthResponse
 
 #### Utilities
-- **Formatters**: date, dateTime, time, phone, currency, duration, truncate, capitalize
-- **Validators**: email, phone, zipCode, SSN, isEmpty, isValidDate, minLength, maxLength
+
+- **Formatters**: date, dateTime, time, phone, currency, duration, truncate,
+  capitalize
+- **Validators**: email, phone, zipCode, SSN, isEmpty, isValidDate, minLength,
+  maxLength
 - **Classnames**: cn() utility for conditional class merging
 
 ### 2. Application Shell (`src/app/`)
 
 #### Components
+
 - **AppShell**: Main layout wrapper with sidebar and header
 - **Header**: Top navigation with menu toggle, notifications, and user profile
 - **Sidebar**: Collapsible side navigation with permission-based menu items
@@ -55,7 +71,9 @@ A comprehensive React-based web UI has been implemented for the Care Commons pla
   - Settings
 
 #### Pages
-- **Dashboard**: Role-based dashboard with stats, activity feed, and upcoming visits
+
+- **Dashboard**: Role-based dashboard with stats, activity feed, and upcoming
+  visits
 - **Login**: Authentication page with form validation and demo credentials
 - **NotFound**: 404 error page
 
@@ -64,12 +82,15 @@ A comprehensive React-based web UI has been implemented for the Care Commons pla
 A complete reference implementation demonstrating the vertical pattern:
 
 #### Types
-- Frontend types matching backend models (Client, Phone, Address, EmergencyContact, etc.)
+
+- Frontend types matching backend models (Client, Phone, Address,
+  EmergencyContact, etc.)
 - Input types (CreateClientInput, UpdateClientInput)
 - Filter types (ClientSearchFilters)
 - Enums (Gender, ClientStatus, ContactMethod)
 
 #### Services
+
 - **ClientApiService**: Full CRUD operations
   - getClients (with filters and pagination)
   - getClientById
@@ -78,6 +99,7 @@ A complete reference implementation demonstrating the vertical pattern:
   - deleteClient
 
 #### Hooks
+
 - **useClients**: Query hook for client list
 - **useClient**: Query hook for single client
 - **useCreateClient**: Mutation hook with optimistic updates
@@ -85,12 +107,15 @@ A complete reference implementation demonstrating the vertical pattern:
 - **useDeleteClient**: Mutation hook with confirmation
 
 #### Components
+
 - **ClientCard**: Card display with client summary (supports compact mode)
 - **ClientSearch**: Search bar with advanced filters (status, city, state)
 
 #### Pages
+
 - **ClientList**: List view with grid/list toggle, search, filters, empty state
-- **ClientDetail**: Full client details with contact info, emergency contacts, timeline, and quick actions
+- **ClientDetail**: Full client details with contact info, emergency contacts,
+  timeline, and quick actions
 
 ### 4. Routing & Authentication
 
@@ -118,7 +143,8 @@ A complete reference implementation demonstrating the vertical pattern:
 
 ### 6. Documentation
 
-- **README.md**: Comprehensive guide covering architecture, setup, and best practices
+- **README.md**: Comprehensive guide covering architecture, setup, and best
+  practices
 - **QUICKSTART.md**: 5-minute getting started guide
 - **WEB_IMPLEMENTATION_SUMMARY.md**: This document
 
@@ -140,6 +166,7 @@ A complete reference implementation demonstrating the vertical pattern:
 ## Key Features Implemented
 
 ### User Experience
+
 - ✅ Responsive design (mobile, tablet, desktop)
 - ✅ Dark mode ready (theme system in place)
 - ✅ Permission-based UI (show/hide based on user permissions)
@@ -151,6 +178,7 @@ A complete reference implementation demonstrating the vertical pattern:
 - ✅ Accessible components (ARIA labels)
 
 ### Developer Experience
+
 - ✅ Hot module replacement (instant updates)
 - ✅ TypeScript strict mode
 - ✅ Path aliases (@/core, @/app, @/verticals)
@@ -161,6 +189,7 @@ A complete reference implementation demonstrating the vertical pattern:
 - ✅ Service abstraction layers
 
 ### Architecture
+
 - ✅ Vertical-based organization
 - ✅ SOLID principles (DI, SRP, OCP, ISP)
 - ✅ API abstraction with interfaces
@@ -208,12 +237,14 @@ Total: ~75 TypeScript/TSX files
 The frontend expects the following REST endpoints:
 
 **Authentication**
+
 - POST `/api/auth/login` - Login with credentials
 - POST `/api/auth/logout` - Logout
 - GET `/api/auth/me` - Get current user
 - POST `/api/auth/refresh` - Refresh token
 
 **Clients**
+
 - GET `/api/clients` - List clients (with query params for filters/pagination)
 - GET `/api/clients/:id` - Get client details
 - POST `/api/clients` - Create client
@@ -249,24 +280,28 @@ The frontend expects the following REST endpoints:
 ## Next Steps for Development
 
 ### Immediate (Ready to implement)
+
 1. **Backend API**: Implement the expected REST endpoints
 2. **Authentication**: Add JWT-based auth to match frontend expectations
 3. **Client CRUD**: Complete create/edit forms for clients
 4. **Data Seeding**: Populate database with demo data
 
 ### Short Term
+
 1. **Caregivers Vertical**: Mirror the client-demographics pattern
 2. **Scheduling Vertical**: Calendar view and visit management
 3. **Care Plans Vertical**: Task lists and care plan management
 4. **Testing**: Add component and integration tests
 
 ### Medium Term
+
 1. **Time Tracking (EVV)**: Clock in/out, GPS verification
 2. **Billing**: Invoice generation, payment tracking
 3. **Reporting**: Analytics and dashboards
 4. **File Uploads**: Document management
 
 ### Long Term
+
 1. **Mobile App**: React Native or PWA
 2. **Real-time Updates**: WebSocket integration
 3. **Advanced Features**: Chat, notifications, scheduling AI
@@ -342,7 +377,8 @@ The implementation successfully demonstrates:
 
 ## Conclusion
 
-The Care Commons web UI provides a solid foundation for building a comprehensive care management platform. The architecture is designed for:
+The Care Commons web UI provides a solid foundation for building a comprehensive
+care management platform. The architecture is designed for:
 
 - **Easy vertical addition**: Follow the client-demographics pattern
 - **Type safety**: TypeScript integration with backend types
@@ -350,4 +386,7 @@ The Care Commons web UI provides a solid foundation for building a comprehensive
 - **Maintainability**: Clear patterns, good documentation
 - **Extensibility**: Plugin architecture, service abstractions
 
-The implementation prioritizes pragmatism while maintaining high code quality and architectural integrity. All core infrastructure is in place, with one complete vertical (client demographics) serving as a reference for future development.
+The implementation prioritizes pragmatism while maintaining high code quality
+and architectural integrity. All core infrastructure is in place, with one
+complete vertical (client demographics) serving as a reference for future
+development.

@@ -1,6 +1,6 @@
 /**
  * Payroll Processing vertical - Main exports
- * 
+ *
  * Transforms time tracking data into accurate compensation for caregivers.
  */
 

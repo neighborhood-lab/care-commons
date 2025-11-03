@@ -20,11 +20,7 @@ export type CarePlanStatus =
 
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
-export type ComplianceStatus =
-  | 'COMPLIANT'
-  | 'PENDING_REVIEW'
-  | 'EXPIRED'
-  | 'NON_COMPLIANT';
+export type ComplianceStatus = 'COMPLIANT' | 'PENDING_REVIEW' | 'EXPIRED' | 'NON_COMPLIANT';
 
 export type GoalCategory =
   | 'MOBILITY'

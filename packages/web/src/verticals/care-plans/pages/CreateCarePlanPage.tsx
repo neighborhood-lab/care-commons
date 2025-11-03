@@ -49,10 +49,7 @@ export const CreateCarePlanPage: React.FC = () => {
 
       {/* Form */}
       <div className="bg-white rounded-lg shadow-sm border p-6">
-        <CarePlanForm
-          onSubmit={handleSubmit}
-          isLoading={createCarePlan.isPending}
-        />
+        <CarePlanForm onSubmit={handleSubmit} isLoading={createCarePlan.isPending} />
       </div>
 
       {/* Loading Overlay */}

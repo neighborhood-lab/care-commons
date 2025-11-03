@@ -1,6 +1,6 @@
 /**
  * EVV Seed Data - Realistic scenarios for demonstration
- * 
+ *
  * Creates comprehensive EVV data including:
  * - Compliant visits with successful verification
  * - Geofence violations requiring supervisor review
@@ -45,20 +45,32 @@ async function seedEVVData() {
     await db.transaction(async (client) => {
       // First, fetch existing data we need to reference
       console.log('Fetching existing data...');
-      
+
       const orgsResult = await client.query('SELECT id FROM organizations LIMIT 1');
       const orgId = orgsResult.rows[0]?.id;
-      
-      const branchesResult = await client.query('SELECT id FROM branches WHERE organization_id = $1 LIMIT 1', [orgId]);
+
+      const branchesResult = await client.query(
+        'SELECT id FROM branches WHERE organization_id = $1 LIMIT 1',
+        [orgId]
+      );
       const branchId = branchesResult.rows[0]?.id;
-      
-      const clientsResult = await client.query('SELECT id, client_number, first_name, last_name, primary_address FROM clients WHERE organization_id = $1 LIMIT 3', [orgId]);
+
+      const clientsResult = await client.query(
+        'SELECT id, client_number, first_name, last_name, primary_address FROM clients WHERE organization_id = $1 LIMIT 3',
+        [orgId]
+      );
       const clients = clientsResult.rows;
-      
-      const caregiversResult = await client.query('SELECT id, employee_number, first_name, last_name FROM caregivers WHERE organization_id = $1 LIMIT 3', [orgId]);
+
+      const caregiversResult = await client.query(
+        'SELECT id, employee_number, first_name, last_name FROM caregivers WHERE organization_id = $1 LIMIT 3',
+        [orgId]
+      );
       const caregivers = caregiversResult.rows;
-      
-      const systemUser = await client.query('SELECT id FROM users WHERE organization_id = $1 LIMIT 1', [orgId]);
+
+      const systemUser = await client.query(
+        'SELECT id FROM users WHERE organization_id = $1 LIMIT 1',
+        [orgId]
+      );
       const systemUserId = systemUser.rows[0]?.id;
 
       if (!orgId || !branchId || clients.length === 0 || caregivers.length === 0) {
@@ -79,10 +91,11 @@ async function seedEVVData() {
       const geofences: Geofence[] = [];
 
       for (const client of clients) {
-        const address = typeof client.primary_address === 'string' 
-          ? JSON.parse(client.primary_address) 
-          : client.primary_address;
-        
+        const address =
+          typeof client.primary_address === 'string'
+            ? JSON.parse(client.primary_address)
+            : client.primary_address;
+
         const geofenceId = uuidv4();
         await client.query(
           `
@@ -128,9 +141,10 @@ async function seedEVVData() {
 
       // Visit 1: Completed yesterday - fully compliant
       const visit1Id = uuidv4();
-      const visit1Address = typeof clients[0].primary_address === 'string'
-        ? JSON.parse(clients[0].primary_address)
-        : clients[0].primary_address;
+      const visit1Address =
+        typeof clients[0].primary_address === 'string'
+          ? JSON.parse(clients[0].primary_address)
+          : clients[0].primary_address;
 
       await client.query(
         `
@@ -179,9 +193,10 @@ async function seedEVVData() {
 
       // Visit 2: Completed with geofence violation (caregiver slightly outside radius)
       const visit2Id = uuidv4();
-      const visit2Address = typeof clients[1].primary_address === 'string'
-        ? JSON.parse(clients[1].primary_address)
-        : clients[1].primary_address;
+      const visit2Address =
+        typeof clients[1].primary_address === 'string'
+          ? JSON.parse(clients[1].primary_address)
+          : clients[1].primary_address;
 
       await client.query(
         `
@@ -230,9 +245,10 @@ async function seedEVVData() {
 
       // Visit 3: In progress (clocked in, not clocked out yet)
       const visit3Id = uuidv4();
-      const visit3Address = typeof clients[2].primary_address === 'string'
-        ? JSON.parse(clients[2].primary_address)
-        : clients[2].primary_address;
+      const visit3Address =
+        typeof clients[2].primary_address === 'string'
+          ? JSON.parse(clients[2].primary_address)
+          : clients[2].primary_address;
 
       await client.query(
         `
@@ -284,11 +300,12 @@ async function seedEVVData() {
 
       for (const visit of visits) {
         const geofence = visit.geofence;
-        const client = clients.find(c => c.id === visit.clientId);
-        const caregiver = caregivers.find(cg => cg.id === visit.caregiverId);
-        const address = typeof client.primary_address === 'string'
-          ? JSON.parse(client.primary_address)
-          : client.primary_address;
+        const client = clients.find((c) => c.id === visit.clientId);
+        const caregiver = caregivers.find((cg) => cg.id === visit.caregiverId);
+        const address =
+          typeof client.primary_address === 'string'
+            ? JSON.parse(client.primary_address)
+            : client.primary_address;
 
         // Calculate clock-in location based on scenario
         let clockInLat = geofence?.latitude || 39.7817;
@@ -332,7 +349,9 @@ async function seedEVVData() {
           biometricVerified: true,
           biometricMethod: 'FINGERPRINT',
           verificationPassed: isWithinGeofence,
-          verificationFailureReasons: isWithinGeofence ? null : ['Location outside geofence boundary'],
+          verificationFailureReasons: isWithinGeofence
+            ? null
+            : ['Location outside geofence boundary'],
         };
 
         // Create time entry for clock-in
@@ -397,12 +416,7 @@ async function seedEVVData() {
               updated_at = NOW()
           WHERE id = $4
         `,
-          [
-            isWithinGeofence ? 1 : 0,
-            isWithinGeofence ? 0 : 1,
-            clockInAccuracy,
-            geofence?.id || '',
-          ]
+          [isWithinGeofence ? 1 : 0, isWithinGeofence ? 0 : 1, clockInAccuracy, geofence?.id || '']
         );
 
         // Create clock-out data if visit is completed
@@ -483,7 +497,9 @@ async function seedEVVData() {
           );
 
           // Calculate duration
-          const durationMinutes = Math.round((clockOutTime.getTime() - clockInTime.getTime()) / 60000);
+          const durationMinutes = Math.round(
+            (clockOutTime.getTime() - clockInTime.getTime()) / 60000
+          );
 
           // Create EVV record
           const evvRecordId = uuidv4();
@@ -545,10 +561,11 @@ async function seedEVVData() {
           );
 
           // Link time entries to EVV record
-          await client.query(
-            'UPDATE time_entries SET evv_record_id = $1 WHERE id IN ($2, $3)',
-            [evvRecordId, timeEntryIdIn, timeEntryIdOut]
-          );
+          await client.query('UPDATE time_entries SET evv_record_id = $1 WHERE id IN ($2, $3)', [
+            evvRecordId,
+            timeEntryIdIn,
+            timeEntryIdOut,
+          ]);
 
           console.log(`  ✓ Created EVV record for visit ${visit.id} - ${visit.scenario}`);
         } else {
@@ -608,10 +625,10 @@ async function seedEVVData() {
           );
 
           // Link time entry to EVV record
-          await client.query(
-            'UPDATE time_entries SET evv_record_id = $1 WHERE id = $2',
-            [evvRecordId, timeEntryIdIn]
-          );
+          await client.query('UPDATE time_entries SET evv_record_id = $1 WHERE id = $2', [
+            evvRecordId,
+            timeEntryIdIn,
+          ]);
 
           console.log(`  ✓ Created EVV record for in-progress visit ${visit.id}`);
         }

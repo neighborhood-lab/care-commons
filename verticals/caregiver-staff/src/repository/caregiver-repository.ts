@@ -3,7 +3,17 @@
  */
 
 import { Repository, Database, UserContext, PaginatedResult } from '@care-commons/core';
-import { Caregiver, CaregiverSearchFilters, ComplianceStatus, Gender, ContactMethod, EmploymentType, EmploymentStatus, CaregiverRole, CaregiverStatus } from '../types/caregiver';
+import {
+  Caregiver,
+  CaregiverSearchFilters,
+  ComplianceStatus,
+  Gender,
+  ContactMethod,
+  EmploymentType,
+  EmploymentStatus,
+  CaregiverRole,
+  CaregiverStatus,
+} from '../types/caregiver';
 
 export class CaregiverRepository extends Repository<Caregiver> {
   constructor(database: Database) {
@@ -77,10 +87,12 @@ export class CaregiverRepository extends Repository<Caregiver> {
     if (alternatePhone !== undefined) entity.alternatePhone = JSON.parse(alternatePhone);
 
     const preferredContactMethod = row['preferred_contact_method'] as ContactMethod | undefined;
-    if (preferredContactMethod !== undefined) entity.preferredContactMethod = preferredContactMethod;
+    if (preferredContactMethod !== undefined)
+      entity.preferredContactMethod = preferredContactMethod;
 
     const communicationPreferences = row['communication_preferences'] as string | undefined;
-    if (communicationPreferences !== undefined) entity.communicationPreferences = JSON.parse(communicationPreferences);
+    if (communicationPreferences !== undefined)
+      entity.communicationPreferences = JSON.parse(communicationPreferences);
 
     const language = row['language'] as string | undefined;
     if (language !== undefined) entity.language = language;
@@ -187,56 +199,75 @@ export class CaregiverRepository extends Repository<Caregiver> {
     if (entity.ssn !== undefined) row['ssn'] = entity.ssn;
     if (entity.gender !== undefined) row['gender'] = entity.gender;
     if (entity.pronouns !== undefined) row['pronouns'] = entity.pronouns;
-    if (entity.primaryPhone !== undefined) row['primary_phone'] = JSON.stringify(entity.primaryPhone);
-    if (entity.alternatePhone !== undefined) row['alternate_phone'] = JSON.stringify(entity.alternatePhone);
+    if (entity.primaryPhone !== undefined)
+      row['primary_phone'] = JSON.stringify(entity.primaryPhone);
+    if (entity.alternatePhone !== undefined)
+      row['alternate_phone'] = JSON.stringify(entity.alternatePhone);
     if (entity.email !== undefined) row['email'] = entity.email;
-    if (entity.preferredContactMethod !== undefined) row['preferred_contact_method'] = entity.preferredContactMethod;
-    if (entity.communicationPreferences !== undefined) row['communication_preferences'] = JSON.stringify(entity.communicationPreferences);
+    if (entity.preferredContactMethod !== undefined)
+      row['preferred_contact_method'] = entity.preferredContactMethod;
+    if (entity.communicationPreferences !== undefined)
+      row['communication_preferences'] = JSON.stringify(entity.communicationPreferences);
     if (entity.language !== undefined) row['language'] = entity.language;
     if (entity.languages !== undefined) row['languages'] = entity.languages;
     if (entity.ethnicity !== undefined) row['ethnicity'] = entity.ethnicity;
     if (entity.race !== undefined) row['race'] = entity.race;
-    if (entity.primaryAddress !== undefined) row['primary_address'] = JSON.stringify(entity.primaryAddress);
-    if (entity.mailingAddress !== undefined) row['mailing_address'] = JSON.stringify(entity.mailingAddress);
-    if (entity.emergencyContacts !== undefined) row['emergency_contacts'] = JSON.stringify(entity.emergencyContacts);
+    if (entity.primaryAddress !== undefined)
+      row['primary_address'] = JSON.stringify(entity.primaryAddress);
+    if (entity.mailingAddress !== undefined)
+      row['mailing_address'] = JSON.stringify(entity.mailingAddress);
+    if (entity.emergencyContacts !== undefined)
+      row['emergency_contacts'] = JSON.stringify(entity.emergencyContacts);
     if (entity.employmentType !== undefined) row['employment_type'] = entity.employmentType;
     if (entity.employmentStatus !== undefined) row['employment_status'] = entity.employmentStatus;
     if (entity.hireDate !== undefined) row['hire_date'] = entity.hireDate;
     if (entity.terminationDate !== undefined) row['termination_date'] = entity.terminationDate;
-    if (entity.terminationReason !== undefined) row['termination_reason'] = entity.terminationReason;
+    if (entity.terminationReason !== undefined)
+      row['termination_reason'] = entity.terminationReason;
     if (entity.rehireEligible !== undefined) row['rehire_eligible'] = entity.rehireEligible;
     if (entity.role !== undefined) row['role'] = entity.role;
     if (entity.permissions !== undefined) row['permissions'] = entity.permissions;
     if (entity.supervisorId !== undefined) row['supervisor_id'] = entity.supervisorId;
     if (entity.credentials !== undefined) row['credentials'] = JSON.stringify(entity.credentials);
-    if (entity.backgroundCheck !== undefined) row['background_check'] = JSON.stringify(entity.backgroundCheck);
-    if (entity.drugScreening !== undefined) row['drug_screening'] = JSON.stringify(entity.drugScreening);
-    if (entity.healthScreening !== undefined) row['health_screening'] = JSON.stringify(entity.healthScreening);
+    if (entity.backgroundCheck !== undefined)
+      row['background_check'] = JSON.stringify(entity.backgroundCheck);
+    if (entity.drugScreening !== undefined)
+      row['drug_screening'] = JSON.stringify(entity.drugScreening);
+    if (entity.healthScreening !== undefined)
+      row['health_screening'] = JSON.stringify(entity.healthScreening);
     if (entity.training !== undefined) row['training'] = JSON.stringify(entity.training);
     if (entity.skills !== undefined) row['skills'] = JSON.stringify(entity.skills);
     if (entity.specializations !== undefined) row['specializations'] = entity.specializations;
-    if (entity.availability !== undefined) row['availability'] = JSON.stringify(entity.availability);
-    if (entity.workPreferences !== undefined) row['work_preferences'] = JSON.stringify(entity.workPreferences);
+    if (entity.availability !== undefined)
+      row['availability'] = JSON.stringify(entity.availability);
+    if (entity.workPreferences !== undefined)
+      row['work_preferences'] = JSON.stringify(entity.workPreferences);
     if (entity.maxHoursPerWeek !== undefined) row['max_hours_per_week'] = entity.maxHoursPerWeek;
     if (entity.minHoursPerWeek !== undefined) row['min_hours_per_week'] = entity.minHoursPerWeek;
     if (entity.willingToTravel !== undefined) row['willing_to_travel'] = entity.willingToTravel;
-    if (entity.maxTravelDistance !== undefined) row['max_travel_distance'] = entity.maxTravelDistance;
+    if (entity.maxTravelDistance !== undefined)
+      row['max_travel_distance'] = entity.maxTravelDistance;
     if (entity.payRate !== undefined) row['pay_rate'] = JSON.stringify(entity.payRate);
-    if (entity.alternatePayRates !== undefined) row['alternate_pay_rates'] = JSON.stringify(entity.alternatePayRates);
+    if (entity.alternatePayRates !== undefined)
+      row['alternate_pay_rates'] = JSON.stringify(entity.alternatePayRates);
     if (entity.payrollInfo !== undefined) row['payroll_info'] = JSON.stringify(entity.payrollInfo);
-    if (entity.performanceRating !== undefined) row['performance_rating'] = entity.performanceRating;
+    if (entity.performanceRating !== undefined)
+      row['performance_rating'] = entity.performanceRating;
     if (entity.lastReviewDate !== undefined) row['last_review_date'] = entity.lastReviewDate;
     if (entity.nextReviewDate !== undefined) row['next_review_date'] = entity.nextReviewDate;
     if (entity.complianceStatus !== undefined) row['compliance_status'] = entity.complianceStatus;
-    if (entity.lastComplianceCheck !== undefined) row['last_compliance_check'] = entity.lastComplianceCheck;
+    if (entity.lastComplianceCheck !== undefined)
+      row['last_compliance_check'] = entity.lastComplianceCheck;
     if (entity.reliabilityScore !== undefined) row['reliability_score'] = entity.reliabilityScore;
     if (entity.preferredClients !== undefined) row['preferred_clients'] = entity.preferredClients;
-    if (entity.restrictedClients !== undefined) row['restricted_clients'] = entity.restrictedClients;
+    if (entity.restrictedClients !== undefined)
+      row['restricted_clients'] = entity.restrictedClients;
     if (entity.status !== undefined) row['status'] = entity.status;
     if (entity.statusReason !== undefined) row['status_reason'] = entity.statusReason;
     if (entity.documents !== undefined) row['documents'] = JSON.stringify(entity.documents);
     if (entity.notes !== undefined) row['notes'] = entity.notes;
-    if (entity.customFields !== undefined) row['custom_fields'] = JSON.stringify(entity.customFields);
+    if (entity.customFields !== undefined)
+      row['custom_fields'] = JSON.stringify(entity.customFields);
 
     return row;
   }
@@ -323,7 +354,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
 
     if (filters.skills && filters.skills.length > 0) {
       whereClauses.push(`skills::jsonb @> $${paramIndex}::jsonb`);
-      params.push(JSON.stringify(filters.skills.map(skill => ({ name: skill }))));
+      params.push(JSON.stringify(filters.skills.map((skill) => ({ name: skill }))));
       paramIndex++;
     }
 
@@ -371,11 +402,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
-    const result = await this.database.query(query, [
-      ...params,
-      pagination.limit,
-      offset,
-    ]);
+    const result = await this.database.query(query, [...params, pagination.limit, offset]);
 
     const items = result.rows.map((row) => this.mapRowToEntity(row));
 

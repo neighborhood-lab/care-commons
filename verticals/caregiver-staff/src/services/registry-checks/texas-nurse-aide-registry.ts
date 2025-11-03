@@ -1,11 +1,11 @@
 /**
  * Texas Nurse Aide Registry Check Service
- * 
+ *
  * Implements registry checks required for CNAs under 26 TAC §558 and HHSC requirements.
- * 
+ *
  * The Nurse Aide Registry (NAR) is maintained by HHSC to track certified nurse aides
  * in Texas, including their certification status, any abuse findings, and employment history.
- * 
+ *
  * Reference: https://vo.hhsc.state.tx.us/
  */
 
@@ -39,10 +39,10 @@ export interface NurseAideRegistryCheckResult {
 export class TexasNurseAideRegistryService {
   /**
    * Perform Nurse Aide Registry check
-   * 
+   *
    * In production, this would integrate with the HHSC Nurse Aide Registry API.
    * For now, this is a framework that requires implementation.
-   * 
+   *
    * @throws Error if the external API is unavailable or returns an error
    */
   async performRegistryCheck(
@@ -50,22 +50,22 @@ export class TexasNurseAideRegistryService {
   ): Promise<NurseAideRegistryCheckResult> {
     // Validate input
     this.validateInput(input);
-    
+
     // In production, this would call the HHSC Nurse Aide Registry API
     // The actual implementation requires:
     // 1. HHSC Nurse Aide Registry credentials
     // 2. API endpoint configuration
     // 3. Proper authentication/authorization
     // 4. Handling of rate limits and timeouts
-    
+
     // For now, throw an error to indicate this must be implemented
     throw new Error(
       'Texas Nurse Aide Registry API integration required. ' +
-      'This service must be configured with HHSC credentials and endpoints. ' +
-      'Contact your system administrator to complete the integration at: ' +
-      'https://vo.hhsc.state.tx.us/'
+        'This service must be configured with HHSC credentials and endpoints. ' +
+        'Contact your system administrator to complete the integration at: ' +
+        'https://vo.hhsc.state.tx.us/'
     );
-    
+
     // Production implementation would look like:
     /*
     const apiResponse = await this.callNurseAideRegistryApi({
@@ -125,11 +125,11 @@ export class TexasNurseAideRegistryService {
         reason: 'Certification number is required',
       };
     }
-    
+
     // In production, this would verify against the HHSC NAR
     throw new Error(
       'Texas Nurse Aide Registry certification verification requires API integration. ' +
-      'Contact your system administrator to complete the integration.'
+        'Contact your system administrator to complete the integration.'
     );
   }
 
@@ -142,7 +142,7 @@ export class TexasNurseAideRegistryService {
     requiresRecheck: boolean;
   }> {
     const now = new Date();
-    
+
     // Check if expired
     if (check.expirationDate < now) {
       return {
@@ -151,7 +151,7 @@ export class TexasNurseAideRegistryService {
         requiresRecheck: true,
       };
     }
-    
+
     // Check if status indicates a problem
     if (check.status === 'LISTED' && check.listingDetails?.ineligibleForHire) {
       return {
@@ -160,7 +160,7 @@ export class TexasNurseAideRegistryService {
         requiresRecheck: false,
       };
     }
-    
+
     if (check.status === 'PENDING') {
       return {
         valid: false,
@@ -168,12 +168,12 @@ export class TexasNurseAideRegistryService {
         requiresRecheck: false,
       };
     }
-    
+
     // Check if expiring soon (within 30 days)
     const daysUntilExpiration = Math.floor(
       (check.expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
-    
+
     if (daysUntilExpiration <= 30) {
       return {
         valid: true,
@@ -181,7 +181,7 @@ export class TexasNurseAideRegistryService {
         requiresRecheck: true,
       };
     }
-    
+
     return {
       valid: true,
       requiresRecheck: false,
@@ -202,35 +202,35 @@ export class TexasNurseAideRegistryService {
         reason: 'Nurse Aide Registry check not performed',
       };
     }
-    
+
     if (check.status === 'LISTED' && check.listingDetails?.ineligibleForHire) {
       return {
         allowed: false,
         reason: 'Has findings on Nurse Aide Registry - ineligible for CNA duties',
       };
     }
-    
+
     if (check.status === 'EXPIRED') {
       return {
         allowed: false,
         reason: 'Nurse Aide Registry check expired',
       };
     }
-    
+
     if (check.status === 'PENDING') {
       return {
         allowed: false,
         reason: 'Nurse Aide Registry check pending - cannot perform CNA duties until cleared',
       };
     }
-    
+
     if (check.expirationDate < new Date()) {
       return {
         allowed: false,
         reason: 'Nurse Aide Registry check expired',
       };
     }
-    
+
     // Check for restrictions in notes or listing details
     const restrictions: string[] = [];
     if (check.listingDetails) {
@@ -238,15 +238,15 @@ export class TexasNurseAideRegistryService {
         restrictions.push(`Registry disposition: ${check.listingDetails.disposition}`);
       }
     }
-    
+
     const result: { allowed: boolean; reason?: string; restrictions?: string[] } = {
       allowed: true,
     };
-    
+
     if (restrictions.length > 0) {
       result.restrictions = restrictions;
     }
-    
+
     return result;
   }
 
@@ -268,15 +268,15 @@ export class TexasNurseAideRegistryService {
     if (!input.firstName || input.firstName.trim().length === 0) {
       throw new Error('First name is required for Nurse Aide Registry check');
     }
-    
+
     if (!input.lastName || input.lastName.trim().length === 0) {
       throw new Error('Last name is required for Nurse Aide Registry check');
     }
-    
+
     if (!input.dateOfBirth) {
       throw new Error('Date of birth is required for Nurse Aide Registry check');
     }
-    
+
     // Validate date of birth is reasonable
     const age = this.calculateAge(input.dateOfBirth);
     if (age < 16 || age > 100) {
@@ -291,11 +291,11 @@ export class TexasNurseAideRegistryService {
     const today = new Date();
     let age = today.getFullYear() - dateOfBirth.getFullYear();
     const monthDiff = today.getMonth() - dateOfBirth.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) {
       age--;
     }
-    
+
     return age;
   }
 
@@ -306,22 +306,22 @@ export class TexasNurseAideRegistryService {
     if (check.status === 'CLEAR') {
       return 'Cleared - CNA certification verified and in good standing';
     }
-    
+
     if (check.status === 'LISTED') {
       if (check.listingDetails?.ineligibleForHire) {
         return 'LISTED - CNA has findings on registry. INELIGIBLE FOR EMPLOYMENT.';
       }
       return 'LISTED - CNA found on registry with restrictions. Review required.';
     }
-    
+
     if (check.status === 'PENDING') {
       return 'Pending - Nurse Aide Registry check in progress';
     }
-    
+
     if (check.status === 'EXPIRED') {
       return 'Expired - Nurse Aide Registry check must be renewed';
     }
-    
+
     return 'Unknown status';
   }
 
@@ -329,22 +329,24 @@ export class TexasNurseAideRegistryService {
    * Determine recommended action based on check result
    */
   // @ts-expect-error - Utility function kept for future use
-  private _determineRecommendedAction(apiResponse: Record<string, unknown>): 'APPROVE' | 'REJECT' | 'REVIEW' {
+  private _determineRecommendedAction(
+    apiResponse: Record<string, unknown>
+  ): 'APPROVE' | 'REJECT' | 'REVIEW' {
     // If not found or not certified, needs review
     if (!apiResponse['found'] || !apiResponse['certified']) {
       return 'REVIEW';
     }
-    
+
     // If has findings that make ineligible, reject
     if (apiResponse['hasFindings'] && apiResponse['ineligibleForEmployment']) {
       return 'REJECT';
     }
-    
+
     // Check certification status
     if (apiResponse['certificationStatus'] && apiResponse['certificationStatus'] !== 'ACTIVE') {
       return 'REVIEW';
     }
-    
+
     // Check expiration
     if (apiResponse['certificationExpiration']) {
       const expiration = new Date(apiResponse['certificationExpiration'] as string);
@@ -352,22 +354,25 @@ export class TexasNurseAideRegistryService {
         return 'REVIEW';
       }
     }
-    
+
     // If has findings that make ineligible, reject
     if (apiResponse['hasFindings'] && apiResponse['ineligibleForEmployment']) {
       return 'REJECT';
     }
-    
+
     // If certification is not active, reject
     if (apiResponse['certificationStatus'] !== 'ACTIVE') {
       return 'REJECT';
     }
-    
+
     // If certification is expired, reject
-    if (apiResponse['certificationExpiration'] && apiResponse['certificationExpiration'] < new Date()) {
+    if (
+      apiResponse['certificationExpiration'] &&
+      apiResponse['certificationExpiration'] < new Date()
+    ) {
       return 'REJECT';
     }
-    
+
     // Otherwise approve
     return 'APPROVE';
   }
@@ -378,22 +383,26 @@ export class TexasNurseAideRegistryService {
   // @ts-expect-error - Utility function kept for future use
   private _buildDetailedNotes(apiResponse: Record<string, unknown>): string {
     const notes: string[] = [];
-    
+
     if (apiResponse['certified']) {
       notes.push(`CNA Certification: ${apiResponse['certificationNumber']}`);
       notes.push(`Certification Status: ${apiResponse['certificationStatus']}`);
-      
+
       if (apiResponse['certificationDate']) {
-        notes.push(`Certified Since: ${(apiResponse['certificationDate'] as Date).toLocaleDateString()}`);
+        notes.push(
+          `Certified Since: ${(apiResponse['certificationDate'] as Date).toLocaleDateString()}`
+        );
       }
-      
+
       if (apiResponse['certificationExpiration']) {
-        notes.push(`Expires: ${(apiResponse['certificationExpiration'] as Date).toLocaleDateString()}`);
+        notes.push(
+          `Expires: ${(apiResponse['certificationExpiration'] as Date).toLocaleDateString()}`
+        );
       }
     } else {
       notes.push('Not certified as a CNA in Texas');
     }
-    
+
     if (apiResponse['hasFindings']) {
       notes.push('⚠️ FINDINGS ON REGISTRY');
       if (apiResponse['findingType']) {
@@ -403,7 +412,7 @@ export class TexasNurseAideRegistryService {
         notes.push(`Disposition: ${apiResponse['disposition']}`);
       }
     }
-    
+
     return notes.join('\n');
   }
 }

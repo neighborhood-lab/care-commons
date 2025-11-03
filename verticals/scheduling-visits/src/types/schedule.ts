@@ -1,10 +1,10 @@
 /**
  * Scheduling & Visit Management domain model
- * 
+ *
  * Definition of service episodes, recurring patterns, manual and rule-assisted
  * scheduling, real-time status during the day, exceptions handling, and calendar
  * views across roles.
- * 
+ *
  * Key concepts:
  * - Service Pattern: Template defining recurring service requirements
  * - Schedule: Instance of a pattern for a specific time period
@@ -13,16 +13,11 @@
  * - Visit Event: State transitions during visit lifecycle
  */
 
-import {
-  Entity,
-  SoftDeletable,
-  UUID,
-  Timestamp,
-} from '@care-commons/core';
+import { Entity, SoftDeletable, UUID, Timestamp } from '@care-commons/core';
 
 /**
  * Service Pattern - Template for recurring services
- * 
+ *
  * Defines what services a client needs, how often, for how long,
  * and what skills/qualifications are required.
  */
@@ -88,12 +83,7 @@ export type PatternType =
   | 'AS_NEEDED' // PRN - scheduled on demand
   | 'RESPITE'; // Temporary respite care
 
-export type PatternStatus =
-  | 'DRAFT'
-  | 'ACTIVE'
-  | 'SUSPENDED'
-  | 'COMPLETED'
-  | 'CANCELLED';
+export type PatternStatus = 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'COMPLETED' | 'CANCELLED';
 
 export type TimeOfDay =
   | 'EARLY_MORNING' // 5am-8am
@@ -116,12 +106,7 @@ export interface RecurrenceRule {
   timezone: string; // IANA timezone
 }
 
-export type Frequency =
-  | 'DAILY'
-  | 'WEEKLY'
-  | 'BIWEEKLY'
-  | 'MONTHLY'
-  | 'CUSTOM';
+export type Frequency = 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'CUSTOM';
 
 export type DayOfWeek =
   | 'MONDAY'
@@ -134,7 +119,7 @@ export type DayOfWeek =
 
 /**
  * Schedule - Generated instances from a pattern
- * 
+ *
  * Represents the actual scheduled visits for a time period,
  * created from a service pattern.
  */
@@ -171,7 +156,7 @@ export type ScheduleStatus =
 
 /**
  * Visit - Single occurrence of a service
- * 
+ *
  * The fundamental unit of care delivery. Tracks lifecycle from
  * planned → assigned → in progress → completed/cancelled.
  */
@@ -421,7 +406,7 @@ export type ExceptionType =
 
 /**
  * Shift Template - Reusable shift definition
- * 
+ *
  * Used for creating open shifts that caregivers can claim.
  */
 export interface ShiftTemplate extends Entity {
@@ -466,20 +451,9 @@ export interface CalendarViewSettings {
   filters?: CalendarFilters;
 }
 
-export type CalendarView =
-  | 'DAY'
-  | 'WEEK'
-  | 'MONTH'
-  | 'LIST'
-  | 'MAP';
+export type CalendarView = 'DAY' | 'WEEK' | 'MONTH' | 'LIST' | 'MAP';
 
-export type TimeRange =
-  | 'TODAY'
-  | 'TOMORROW'
-  | 'THIS_WEEK'
-  | 'NEXT_WEEK'
-  | 'THIS_MONTH'
-  | 'CUSTOM';
+export type TimeRange = 'TODAY' | 'TOMORROW' | 'THIS_WEEK' | 'NEXT_WEEK' | 'THIS_MONTH' | 'CUSTOM';
 
 export interface CalendarFilters {
   branchIds?: UUID[];

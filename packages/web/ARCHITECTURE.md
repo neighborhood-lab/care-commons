@@ -61,6 +61,7 @@
 ## Data Flow
 
 ### 1. User Interaction → Component
+
 ```
 User clicks button
     ↓
@@ -70,6 +71,7 @@ Calls hook function
 ```
 
 ### 2. Component → API (Read)
+
 ```
 Component renders
     ↓
@@ -87,6 +89,7 @@ Component re-renders with data
 ```
 
 ### 3. Component → API (Write)
+
 ```
 User submits form
     ↓
@@ -203,6 +206,7 @@ React & Browser APIs
 ```
 
 ### Rules:
+
 - ✅ Verticals can import from Core
 - ✅ Core can import from external libraries
 - ❌ Core cannot import from Verticals
@@ -330,6 +334,7 @@ Source Code (TypeScript + TSX)
 ## Development vs Production
 
 ### Development (Vite Dev Server)
+
 - Hot Module Replacement (HMR)
 - Source maps
 - Proxy to backend API
@@ -337,6 +342,7 @@ Source Code (TypeScript + TSX)
 - No bundling (ES modules)
 
 ### Production (Static Build)
+
 - Bundled and minified
 - Code split by route
 - Tree-shaken
@@ -413,6 +419,7 @@ E2E Tests (Playwright/Cypress)
 ## Performance Optimizations
 
 ### Implemented
+
 - ✅ React Query caching
 - ✅ Vite's fast dev server
 - ✅ Code splitting ready
@@ -420,6 +427,7 @@ E2E Tests (Playwright/Cypress)
 - ✅ Tree shaking
 
 ### To Implement
+
 - ⚠️ React.lazy() for route-based code splitting
 - ⚠️ Virtual scrolling for large lists
 - ⚠️ Image optimization
@@ -460,11 +468,13 @@ E2E Tests (Playwright/Cypress)
 ## Scalability Considerations
 
 ### Current State
+
 - Single page application
 - Client-side routing
 - REST API integration
 
 ### Future Enhancements
+
 - Server-side rendering (SSR)
 - GraphQL API option
 - Micro-frontends for larger verticals

@@ -1,8 +1,8 @@
 /**
  * @care-commons/scheduling-visits
- * 
+ *
  * Scheduling & Visit Management vertical
- * 
+ *
  * Provides comprehensive scheduling and visit tracking functionality:
  * - Service pattern templates for recurring care
  * - Automated schedule generation

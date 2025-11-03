@@ -1,8 +1,8 @@
 /**
  * @care-commons/shift-matching
- * 
+ *
  * Intelligent caregiver-to-shift matching and assignment system.
- * 
+ *
  * Core capabilities:
  * - Automated matching based on skills, availability, proximity, and preferences
  * - Configurable scoring algorithm with dimensional weights
