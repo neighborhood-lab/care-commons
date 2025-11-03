@@ -1,9 +1,15 @@
 {
   "name": "@care-commons/core",
   "version": "0.1.0",
+  "//": "════════════════════════════════════════════════════════════════",
+  "//": "⚠️  CORE ESM PACKAGE - DO NOT CHANGE type:module",
+  "//": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -27,7 +33,7 @@
   },
   "devDependencies": {
     "@ls-lint/ls-lint": "^2.3.1",
-    "@types/node": "^24.9.2",
+    "@types/node": "^24.10.0",
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",

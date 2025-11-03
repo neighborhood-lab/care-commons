@@ -1,8 +1,17 @@
 {
   "name": "@care-commons/api-serverless",
   "version": "0.1.0",
-  "type": "module",
   "private": true,
+  "//": "════════════════════════════════════════════════════════════════",
+  "//1": "⚠️  VERCEL SERVERLESS - DO NOT CHANGE",
+  "//2": "type:module = Required for .mts ESM support",
+  "//3": "node:22.x = Required by Vercel runtime",
+  "//4": "main:index.mts = Entry point (.mts extension required)",
+  "//": "════════════════════════════════════════════════════════════════",
+  "type": "module",
+  "main": "index.mts",
   "description": "Serverless API handler for Care Commons Vercel deployment",
-  "main": "index.ts"
+  "engines": {
+    "node": "22.x"
+  }
 }
