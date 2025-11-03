@@ -18,8 +18,10 @@ export async function up(knex: Knex): Promise<void> {
     });
   }
 
-  // Create caregiver service authorizations table
-  await knex.schema.createTable('caregiver_service_authorizations', (table) => {
+  // Create caregiver service authorizations table (if not exists)
+  const hasAuthTable = await knex.schema.hasTable('caregiver_service_authorizations');
+  if (!hasAuthTable) {
+    await knex.schema.createTable('caregiver_service_authorizations', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.uuid('caregiver_id').notNullable().references('id').inTable('caregivers').onDelete('CASCADE');
     table.string('service_type_code', 50).notNullable(); // e.g., 'PERSONAL_CARE', 'COMPANION'
@@ -36,13 +38,16 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('updated_by').notNullable().references('id').inTable('users');
     
-    // Constraints
-    table.unique(['caregiver_id', 'service_type_code']);
-    table.check(`status IN ('ACTIVE', 'SUSPENDED', 'EXPIRED', 'REVOKED')`);
-  });
+      // Constraints
+      table.unique(['caregiver_id', 'service_type_code']);
+      table.check(`status IN ('ACTIVE', 'SUSPENDED', 'EXPIRED', 'REVOKED')`);
+    });
+  }
 
   // Create state screening records table (for TX/FL registry checks)
-  await knex.schema.createTable('caregiver_state_screenings', (table) => {
+  const hasScreeningTable = await knex.schema.hasTable('caregiver_state_screenings');
+  if (!hasScreeningTable) {
+    await knex.schema.createTable('caregiver_state_screenings', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.uuid('caregiver_id').notNullable().references('id').inTable('caregivers').onDelete('CASCADE');
     table.string('state_code', 2).notNullable(); // 'TX', 'FL'
@@ -62,28 +67,30 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
     table.uuid('updated_by').notNullable().references('id').inTable('users');
     
-    // Constraints
-    table.check(`state_code IN ('TX', 'FL', 'CA', 'NY', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI', 'NJ', 'VA', 'WA', 'AZ', 'MA', 'TN', 'IN', 'MO', 'MD', 'WI', 'CO', 'MN', 'SC', 'AL', 'LA', 'KY', 'OR', 'OK', 'CT', 'UT', 'IA', 'NV', 'AR', 'MS', 'KS', 'NM', 'NE', 'WV', 'ID', 'HI', 'NH', 'ME', 'RI', 'MT', 'DE', 'SD', 'ND', 'AK', 'VT', 'WY', 'DC')`);
-    table.check(`status IN ('PENDING', 'IN_PROGRESS', 'CLEARED', 'CONDITIONAL', 'FLAGGED', 'DISQUALIFIED', 'EXPIRED')`);
-  });
+      // Constraints
+      table.check(`state_code IN ('TX', 'FL', 'CA', 'NY', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI', 'NJ', 'VA', 'WA', 'AZ', 'MA', 'TN', 'IN', 'MO', 'MD', 'WI', 'CO', 'MN', 'SC', 'AL', 'LA', 'KY', 'OR', 'OK', 'CT', 'UT', 'IA', 'NV', 'AR', 'MS', 'KS', 'NM', 'NE', 'WV', 'ID', 'HI', 'NH', 'ME', 'RI', 'MT', 'DE', 'SD', 'ND', 'AK', 'VT', 'WY', 'DC')`);
+      table.check(`status IN ('PENDING', 'IN_PROGRESS', 'CLEARED', 'CONDITIONAL', 'FLAGGED', 'DISQUALIFIED', 'EXPIRED')`);
+    });
+  }
 
   // Indexes for service authorizations
-  await knex.raw('CREATE INDEX idx_caregiver_service_auths_caregiver ON caregiver_service_authorizations(caregiver_id) WHERE status = \'ACTIVE\'');
-  await knex.raw('CREATE INDEX idx_caregiver_service_auths_service_type ON caregiver_service_authorizations(service_type_code)');
-  await knex.raw('CREATE INDEX idx_caregiver_service_auths_status ON caregiver_service_authorizations(status)');
-  await knex.raw('CREATE INDEX idx_caregiver_service_auths_expiring ON caregiver_service_authorizations(expiration_date) WHERE expiration_date IS NOT NULL AND status = \'ACTIVE\'');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_service_auths_caregiver ON caregiver_service_authorizations(caregiver_id) WHERE status = \'ACTIVE\'');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_service_auths_service_type ON caregiver_service_authorizations(service_type_code)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_service_auths_status ON caregiver_service_authorizations(status)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_service_auths_expiring ON caregiver_service_authorizations(expiration_date) WHERE expiration_date IS NOT NULL AND status = \'ACTIVE\'');
 
   // Indexes for state screenings
-  await knex.raw('CREATE INDEX idx_caregiver_state_screenings_caregiver ON caregiver_state_screenings(caregiver_id)');
-  await knex.raw('CREATE INDEX idx_caregiver_state_screenings_state ON caregiver_state_screenings(state_code, screening_type)');
-  await knex.raw('CREATE INDEX idx_caregiver_state_screenings_status ON caregiver_state_screenings(status)');
-  await knex.raw('CREATE INDEX idx_caregiver_state_screenings_expiring ON caregiver_state_screenings(expiration_date) WHERE expiration_date IS NOT NULL');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_state_screenings_caregiver ON caregiver_state_screenings(caregiver_id)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_state_screenings_state ON caregiver_state_screenings(state_code, screening_type)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_state_screenings_status ON caregiver_state_screenings(status)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregiver_state_screenings_expiring ON caregiver_state_screenings(expiration_date) WHERE expiration_date IS NOT NULL');
 
   // JSONB index for state-specific data
-  await knex.raw('CREATE INDEX idx_caregivers_state_specific ON caregivers USING gin(state_specific)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregivers_state_specific ON caregivers USING gin(state_specific)');
 
   // Trigger for service authorizations updated_at
   await knex.raw(`
+    DROP TRIGGER IF EXISTS update_caregiver_service_authorizations_updated_at ON caregiver_service_authorizations;
     CREATE TRIGGER update_caregiver_service_authorizations_updated_at 
       BEFORE UPDATE ON caregiver_service_authorizations
       FOR EACH ROW
@@ -92,6 +99,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Trigger for state screenings updated_at
   await knex.raw(`
+    DROP TRIGGER IF EXISTS update_caregiver_state_screenings_updated_at ON caregiver_state_screenings;
     CREATE TRIGGER update_caregiver_state_screenings_updated_at 
       BEFORE UPDATE ON caregiver_state_screenings
       FOR EACH ROW
