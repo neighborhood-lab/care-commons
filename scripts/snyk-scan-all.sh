@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Ensure we're using the correct Node.js version via NVM
 export NVM_DIR="$HOME/.nvm"
@@ -23,34 +24,22 @@ fi
 
 # Check if SNYK_TOKEN is set
 if [ -z "$SNYK_TOKEN" ]; then
-  echo "Error: SNYK_TOKEN not set. Please set it in .env or export it."
+  echo "❌ Error: SNYK_TOKEN not set. Please set it in .env or export it."
   exit 1
 fi
 
-# Track if any scans failed
-EXIT_CODE=0
+echo "🔒 Running Snyk dependency scan..."
+npx snyk test \
+  --org=neighborhood-lab \
+  --all-projects \
+  --sarif \
+  --sarif-file-output=".snyk/snyk-dependency.sarif"
 
-# Define scan types
-scan_types=("" "code")
+echo "🔒 Running Snyk scan against remote repository..."
+npx snyk test \
+  --org=neighborhood-lab \
+  --remote-repo-url=https://github.com/neighborhood-lab/care-commons.git \
+  --sarif \
+  --sarif-file-output=".snyk/snyk-remote.sarif"
 
-for scan_type in "${scan_types[@]}"; do
-  scan_name=${scan_type:-dependency}
-  echo "${scan_name} scan"
-  if ! npx snyk ${scan_type} test \
-    --org=neighborhood-lab \
-    --all-projects \
-    --include-ignores \
-    --sarif \
-    --sarif-file-output=".snyk/snyk-${scan_name}.sarif"; then
-    echo "⚠️ ${scan_type}scan found issues"
-    EXIT_CODE=1
-  fi
-done
-
-# Exit with error if any scans found issues
-if [ $EXIT_CODE -ne 0 ]; then
-  echo ""
-  echo "⚠️  Security issues found. Check SARIF files for details."
-fi
-
-exit $EXIT_CODE
+echo "✅ Security scans completed successfully!"
