@@ -10,6 +10,10 @@ export default defineConfig({
       '@/core': path.resolve(__dirname, './src/core'),
       '@/verticals': path.resolve(__dirname, './src/verticals'),
       '@/app': path.resolve(__dirname, './src/app'),
+      '@care-commons/shared-components': path.resolve(
+        __dirname,
+        '../shared-components/src'
+      ),
     },
   },
   server: {
