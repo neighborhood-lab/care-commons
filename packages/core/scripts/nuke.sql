@@ -38,7 +38,8 @@ DROP TABLE IF EXISTS service_authorizations CASCADE;
 DROP TABLE IF EXISTS rate_schedules CASCADE;
 DROP TABLE IF EXISTS payers CASCADE;
 
--- Drop tables created in 007_shift_matching.sql
+-- Drop tables created in 007_shift_matching.sql and shift_requirements
+DROP TABLE IF EXISTS shift_requirements CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS active_open_shifts CASCADE;
 DROP TABLE IF EXISTS match_history CASCADE;
 DROP TABLE IF EXISTS bulk_match_requests CASCADE;
