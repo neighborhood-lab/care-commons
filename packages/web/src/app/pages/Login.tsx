@@ -115,22 +115,6 @@ export const Login: React.FC = () => {
             Sign in
           </Button>
         </form>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">Demo Credentials</span>
-            </div>
-          </div>
-          <div className="mt-4 text-xs text-gray-600 space-y-1">
-            <p>Admin: admin@example.com / password123</p>
-            <p>Coordinator: coordinator@example.com / password123</p>
-            <p>Caregiver: caregiver@example.com / password123</p>
-          </div>
-        </div>
       </div>
     </div>
   );
