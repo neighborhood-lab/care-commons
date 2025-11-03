@@ -144,7 +144,22 @@ DB_NAME=care_commons
 DB_USER=postgres
 DB_PASSWORD=your_password
 DB_SSL=false
+
+# Development Mock Authentication
+MOCK_USER_PASSWORD=password123
 ```
+
+### Development Login Credentials
+
+The development environment includes three mock users for testing:
+
+| Email                      | Password      | Role        |
+|----------------------------|---------------|-------------|
+| `admin@example.com`        | `password123` | ADMIN       |
+| `coordinator@example.com`  | `password123` | COORDINATOR |
+| `caregiver@example.com`    | `password123` | CAREGIVER   |
+
+**Note:** These credentials are for development only. In production, proper authentication with hashed passwords and JWT tokens should be implemented.
 
 ## Development
 
