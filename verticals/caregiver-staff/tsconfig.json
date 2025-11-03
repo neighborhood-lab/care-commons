@@ -21,5 +21,14 @@
     {
       "path": "../../packages/core"
     }
-  ]
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "replacers": {
+      "replace-imports": {
+        "replace": "^(\\.\\.?\\/[^'\"]+?)(\\.ts)?$",
+        "with": "$1.js"
+      }
+    }
+  }
 }
