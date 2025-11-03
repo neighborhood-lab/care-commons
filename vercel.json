@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "outputDirectory": "packages/web/dist",
   "regions": ["iad1"],
   "rewrites": [
     {
