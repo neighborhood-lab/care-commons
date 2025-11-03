@@ -9,8 +9,8 @@ import { Database, PermissionService, UserRepository } from '@care-commons/core'
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
-import authRoutes from './auth';
-import { createOrganizationRouter } from './organizations';
+import { createAuthRouter } from './auth.js';
+import { createOrganizationRouter } from './organizations.js';
 
 /**
  * Setup all API routes for the application
@@ -19,7 +19,8 @@ export function setupRoutes(app: Express, db: Database): void {
   console.log('Setting up API routes...');
 
   // Authentication routes
-  app.use('/api/auth', authRoutes);
+  const authRouter = createAuthRouter(db);
+  app.use('/api/auth', authRouter);
   console.log('  ✓ Authentication routes registered');
 
   // Organization & Invitation routes
