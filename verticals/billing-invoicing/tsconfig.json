@@ -26,7 +26,7 @@
     "resolveFullPaths": true,
     "replacers": {
       "replace-imports": {
-        "replace": "^(\\.\\.?\\/[^'\"]+?)(\\.ts)?$",
+        "replace": "^(\\.{1,2}\\/[^'\"]+)$",
         "with": "$1.js"
       }
     }

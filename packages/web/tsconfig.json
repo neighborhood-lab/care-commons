@@ -7,7 +7,11 @@
     "declaration": true,
     "declarationMap": true,
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
     "noEmit": true,
@@ -16,15 +20,40 @@
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/core/*": ["./src/core/*"],
-      "@/verticals/*": ["./src/verticals/*"],
-      "@/app/*": ["./src/app/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@/core/*": [
+        "./src/core/*"
+      ],
+      "@/verticals/*": [
+        "./src/verticals/*"
+      ],
+      "@/app/*": [
+        "./src/app/*"
+      ]
     }
   },
-  "include": ["src", "vite-env.d.ts"],
-  "exclude": ["node_modules", "dist"],
+  "include": [
+    "src",
+    "vite-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "references": [
-    { "path": "../core" }
-  ]
+    {
+      "path": "../core"
+    }
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "replacers": {
+      "replace-imports": {
+        "replace": "^(\\.{1,2}\\/[^'\"]+)$",
+        "with": "$1.js"
+      }
+    }
+  }
 }

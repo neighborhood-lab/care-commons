@@ -11,14 +11,22 @@
     "resolveFullPaths": true,
     "replacers": {
       "replace-imports": {
-        "replace": "^(\\.\\.?\\/[^'\"]+?)(\\.ts)?$",
+        "replace": "^(\\.{1,2}\\/[^'\"]+)$",
         "with": "$1.js"
       }
     }
   },
-  "include": ["src/**/*", "vitest.config.ts"],
-  "exclude": ["node_modules", "dist"],
+  "include": [
+    "src/**/*",
+    "vitest.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "references": [
-    { "path": "../core" }
+    {
+      "path": "../core"
+    }
   ]
 }
