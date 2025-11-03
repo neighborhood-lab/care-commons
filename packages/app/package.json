@@ -14,7 +14,7 @@
   "scripts": {
     "dev": "node --watch --import tsx --no-warnings src/server.ts",
     "dev:watch": "tsc --watch",
-    "build": "tsc",
+    "build": "tsc && tsc-alias -p tsconfig.json",
     "build:vercel": "tsc -p tsconfig.vercel.json",
     "start": "node dist/server.js",
     "test": "vitest run --passWithNoTests",
@@ -50,6 +50,7 @@
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^4.0.6"
