@@ -27,6 +27,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
+      - name: Upgrade npm
+        run: npm install -g npm@11.6.2
+
       - name: Install dependencies
         run: npm ci
 
@@ -48,6 +51,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.6.2
 
       - name: Install dependencies
         run: npm ci
@@ -84,6 +90,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.6.2
 
       - name: Install dependencies
         run: npm ci
@@ -130,6 +139,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.6.2
 
       - name: Install dependencies
         run: npm ci
