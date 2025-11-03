@@ -4,12 +4,12 @@
   "private": true,
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  VERCEL SERVERLESS - DO NOT CHANGE",
-  "//3": "type:module = Required for .mts ESM support",
+  "//3": "type:module = Required for ESM support",
   "//4": "node:22.x = Required by Vercel runtime",
-  "//5": "main:index.mts = Entry point (.mts extension required)",
+  "//5": "main:index.ts = Entry point",
   "//6": "════════════════════════════════════════════════════════════════",
   "type": "module",
-  "main": "index.mts",
+  "main": "index.ts",
   "description": "Serverless API handler for Care Commons Vercel deployment",
   "engines": {
     "node": "22.x"
