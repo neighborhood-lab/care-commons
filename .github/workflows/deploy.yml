@@ -117,10 +117,12 @@ jobs:
       - name: Deploy to Vercel Preview
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}" --env NODE_ENV="preview")
+          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.PREVIEW_DATABASE_URL }}" --env ENVIRONMENT="preview")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "✅ Preview deployment complete: $DEPLOYMENT_URL"
           echo "Note: Health checks skipped due to Vercel password protection on preview deployments"
+        env:
+          ENVIRONMENT: preview
 
   deploy-production:
     name: Deploy to Production
@@ -188,10 +190,12 @@ jobs:
       - name: Deploy to Vercel Production
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.DATABASE_URL }}" --env NODE_ENV="production")
+          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.DATABASE_URL }}" --env ENVIRONMENT="production")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "✅ Production deployment complete: $DEPLOYMENT_URL"
           echo "Note: Health checks skipped due to Vercel password protection"
+        env:
+          ENVIRONMENT: production
 
       - name: Seed Demo Data (Production)
         if: github.event_name == 'workflow_dispatch'
