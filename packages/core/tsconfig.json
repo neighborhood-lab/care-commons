@@ -8,6 +8,15 @@
     "declarationMap": true,
     "isolatedModules": true
   },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "replacers": {
+      "replace-imports": {
+        "replace": "^(\\.\\.?\\/[^'\"]+?)(\\.ts)?$",
+        "with": "$1.js"
+      }
+    }
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
