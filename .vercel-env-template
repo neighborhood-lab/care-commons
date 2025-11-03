@@ -1,0 +1,45 @@
+# Vercel Production Environment Variables Template
+# 
+# Copy these variable names to Vercel Dashboard → Settings → Environment Variables
+# Set environment to: Production
+#
+# Generate secrets using:
+#   JWT_SECRET:         openssl rand -base64 32
+#   JWT_REFRESH_SECRET: openssl rand -base64 32
+#   ENCRYPTION_KEY:     openssl rand -hex 32
+
+# ============================================================
+# REQUIRED - Application will fail without these
+# ============================================================
+
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+ENCRYPTION_KEY=
+DATABASE_URL=
+
+# ============================================================
+# RECOMMENDED - For production security and functionality
+# ============================================================
+
+NODE_ENV=production
+ENVIRONMENT=production
+CORS_ORIGIN=https://your-production-domain.vercel.app
+
+# ============================================================
+# OPTIONAL - For Google OAuth (if needed)
+# ============================================================
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# ============================================================
+# NOTES
+# ============================================================
+#
+# 1. JWT_SECRET must be at least 32 characters
+# 2. JWT_REFRESH_SECRET must be at least 32 characters and different from JWT_SECRET
+# 3. ENCRYPTION_KEY must be 32 bytes (64 hex characters)
+# 4. DATABASE_URL should use pooled connection string with ?sslmode=require
+# 5. Never commit actual secrets to git
+# 6. Use different secrets for each environment (production, preview, development)
+#
