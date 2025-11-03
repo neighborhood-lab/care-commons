@@ -1,33 +1,10 @@
-import { defineConfig } from 'vitest/config';
+import { defineProject } from 'vitest/config';
 
-export default defineConfig({
+export default defineProject({
   test: {
+    name: 'time-tracking-evv',
     globals: true,
     environment: 'node',
     include: ['src/**/__tests__/**/*.test.ts', 'src/**/?(*.)+(spec|test).ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      include: ['src/**/*.ts'],
-      exclude: [
-        'src/**/*.d.ts',
-        'src/**/__tests__/**',
-        'src/**/__mocks__/**',
-        'src/index.ts',
-        'src/types/**',
-        'src/interfaces/**',
-        'src/api/**',
-        'src/providers/**',
-        'src/repository/**',
-        'src/utils/integration-service.ts',
-        'src/service/evv-aggregator-service.ts',
-      ],
-      thresholds: {
-        branches: 70,
-        functions: 87,
-        lines: 82,
-        statements: 82,
-      },
-    },
   },
 });

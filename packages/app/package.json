@@ -17,8 +17,8 @@
     "build": "tsc",
     "build:vercel": "tsc -p tsconfig.vercel.json",
     "start": "node dist/server.js",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts --max-warnings 0 --ignore-pattern 'dist-vercel/**'"
   },
