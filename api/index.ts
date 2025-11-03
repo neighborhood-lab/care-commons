@@ -1,12 +1,10 @@
 /**
  * Vercel Serverless Function Entry Point
  * 
- * CRITICAL: This file MUST be named index.mts (not .ts) for Vercel ESM support
- * 
- * See: ESM_ARCHITECTURE.md, VERCEL_BEST_PRACTICES_ANALYSIS.md
+ * Imports from compiled dist/ directories for serverless deployment
  */
 
-import { createApp } from '../packages/app/src/server.js';
+import { createApp } from '../packages/app/dist/src/server.js';
 import type { Request, Response } from 'express';
 
 // Cache the initialized app across invocations (warm starts)
