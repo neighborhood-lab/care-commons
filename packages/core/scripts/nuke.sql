@@ -2,6 +2,11 @@
 -- # 1. DROP ALL TABLES (Safely using CASCADE)
 -- #################################################
 
+-- Drop tables created in 013_mobile_support.sql
+DROP TABLE IF EXISTS push_notifications CASCADE;
+DROP TABLE IF EXISTS sync_metadata CASCADE;
+DROP TABLE IF EXISTS mobile_devices CASCADE;
+
 -- Drop tables created in 012_payroll_processing.sql
 DROP TABLE IF EXISTS ach_batches CASCADE;
 DROP TABLE IF EXISTS payment_records CASCADE;
@@ -90,6 +95,11 @@ DROP TABLE IF EXISTS knex_migrations_lock;
 -- #################################################
 -- # 2. DROP CUSTOM FUNCTIONS AND EXTENSIONS
 -- #################################################
+
+-- Functions created in 013_mobile_support.sql
+DROP FUNCTION IF EXISTS update_push_notifications_updated_at() CASCADE;
+DROP FUNCTION IF EXISTS update_sync_metadata_updated_at() CASCADE;
+DROP FUNCTION IF EXISTS update_mobile_devices_updated_at() CASCADE;
 
 -- Functions created in 012_payroll_processing.sql
 DROP FUNCTION IF EXISTS update_payroll_entity_updated_at() CASCADE;
