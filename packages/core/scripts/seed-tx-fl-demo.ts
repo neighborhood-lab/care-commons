@@ -157,13 +157,13 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     'id',
     ctx.texasOrgId,
     `INSERT INTO organizations (
-      id, name, legal_name, organization_type, tax_id,
-      address, city, state, postal_code, country,
+      id, name, legal_name, tax_id,
+      primary_address,
       phone, email, website,
       status, created_at, created_by, updated_at, updated_by
     ) VALUES (
-      $1, 'Lone Star Home Care', 'Lone Star Home Care Services LLC', 'PROVIDER', '74-1234567',
-      '123 Main Street', 'Austin', 'TX', '78701', 'US',
+      $1, 'Lone Star Home Care', 'Lone Star Home Care Services LLC', '74-1234567',
+      '{"street": "123 Main Street", "city": "Austin", "state": "TX", "postalCode": "78701", "country": "US"}'::jsonb,
       '+1-512-555-0100', 'info@lonestarcare.example', 'https://lonestarcare.example',
       'ACTIVE', NOW(), $2, NOW(), $2
     ) ON CONFLICT (id) DO NOTHING`,
@@ -175,13 +175,13 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     'id',
     ctx.texasBranchId,
     `INSERT INTO branches (
-      id, organization_id, name, branch_type,
-      address, city, state, postal_code, country,
+      id, organization_id, name,
+      address,
       phone, email,
       status, created_at, created_by, updated_at, updated_by
     ) VALUES (
-      $1, $2, 'Austin Main Branch', 'MAIN',
-      '123 Main Street', 'Austin', 'TX', '78701', 'US',
+      $1, $2, 'Austin Main Branch',
+      '{"street": "123 Main Street", "city": "Austin", "state": "TX", "postalCode": "78701", "country": "US"}'::jsonb,
       '+1-512-555-0100', 'austin@lonestarcare.example',
       'ACTIVE', NOW(), $3, NOW(), $3
     ) ON CONFLICT (id) DO NOTHING`,
@@ -194,13 +194,13 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     'id',
     ctx.floridaOrgId,
     `INSERT INTO organizations (
-      id, name, legal_name, organization_type, tax_id,
-      address, city, state, postal_code, country,
+      id, name, legal_name, tax_id,
+      primary_address,
       phone, email, website,
       status, created_at, created_by, updated_at, updated_by
     ) VALUES (
-      $1, 'Sunshine Home Health', 'Sunshine Home Health Services Inc', 'PROVIDER', '59-7654321',
-      '456 Ocean Drive', 'Miami', 'FL', '33139', 'US',
+      $1, 'Sunshine Home Health', 'Sunshine Home Health Services Inc', '59-7654321',
+      '{"street": "456 Ocean Drive", "city": "Miami", "state": "FL", "postalCode": "33139", "country": "US"}'::jsonb,
       '+1-305-555-0200', 'info@sunshinehh.example', 'https://sunshinehh.example',
       'ACTIVE', NOW(), $2, NOW(), $2
     ) ON CONFLICT (id) DO NOTHING`,
@@ -212,13 +212,13 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
     'id',
     ctx.floridaBranchId,
     `INSERT INTO branches (
-      id, organization_id, name, branch_type,
-      address, city, state, postal_code, country,
+      id, organization_id, name,
+      address,
       phone, email,
       status, created_at, created_by, updated_at, updated_by
     ) VALUES (
-      $1, $2, 'Miami Beach Branch', 'MAIN',
-      '456 Ocean Drive', 'Miami', 'FL', '33139', 'US',
+      $1, $2, 'Miami Beach Branch',
+      '{"street": "456 Ocean Drive", "city": "Miami", "state": "FL", "postalCode": "33139", "country": "US"}'::jsonb,
       '+1-305-555-0200', 'miami@sunshinehh.example',
       'ACTIVE', NOW(), $3, NOW(), $3
     ) ON CONFLICT (id) DO NOTHING`,
@@ -234,31 +234,37 @@ async function seedOrganizations(ctx: SeedContext): Promise<void> {
 async function seedUsers(ctx: SeedContext): Promise<void> {
   console.log('👥 Seeding users...');
   
+  // Hash for 'Admin123!' - using proper salt:hash format
+  // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+  const adminPasswordHash = '98717edc53d97a37344eac44932b6b40:7187df1055cb4f96d510e1dc24469b868218e32aff39d2045af6750ddd23f0f4e7dc94d1d956ed75207efa7ec34b36f13e28053df2f8cd1074df3cb64b7c05a7';
+  
   // Texas users
   await pool.query(`
     INSERT INTO users (
-      id, organization_id, email, first_name, last_name,
+      id, organization_id, username, email, password_hash, first_name, last_name,
       roles, permissions, status,
-      created_at, updated_at
+      created_at, created_by, updated_at, updated_by
     ) VALUES
-      ($1, $2, 'admin@lonestarcare.example', 'Sarah', 'Johnson',
-       '["ORG_ADMIN"]', '["*"]', 'ACTIVE', NOW(), NOW()),
-      ($3, $2, 'coordinator@lonestarcare.example', 'Michael', 'Rodriguez',
-       '["COORDINATOR"]', '["schedules:*", "visits:*", "evv:*"]', 'ACTIVE', NOW(), NOW())
-  `, [ctx.texasAdminId, ctx.texasOrgId, ctx.texasCoordinatorId]);
+      ($1, $2, 'admin@lonestarcare.example', 'admin@lonestarcare.example', $3, 'Sarah', 'Johnson',
+       '{ORG_ADMIN}', '{*}', 'ACTIVE', NOW(), $1, NOW(), $1),
+      ($4, $2, 'coordinator@lonestarcare.example', 'coordinator@lonestarcare.example', $3, 'Michael', 'Rodriguez',
+       '{COORDINATOR}', '{schedules:*,visits:*,evv:*}', 'ACTIVE', NOW(), $1, NOW(), $1)
+    ON CONFLICT (id) DO NOTHING
+  `, [ctx.texasAdminId, ctx.texasOrgId, adminPasswordHash, ctx.texasCoordinatorId]);
   
   // Florida users
   await pool.query(`
     INSERT INTO users (
-      id, organization_id, email, first_name, last_name,
+      id, organization_id, username, email, password_hash, first_name, last_name,
       roles, permissions, status,
-      created_at, updated_at
+      created_at, created_by, updated_at, updated_by
     ) VALUES
-      ($1, $2, 'admin@sunshinehh.example', 'Maria', 'Garcia',
-       '["ORG_ADMIN"]', '["*"]', 'ACTIVE', NOW(), NOW()),
-      ($3, $2, 'coordinator@sunshinehh.example', 'James', 'Smith',
-       '["COORDINATOR"]', '["schedules:*", "visits:*", "evv:*"]', 'ACTIVE', NOW(), NOW())
-  `, [ctx.floridaAdminId, ctx.floridaOrgId, ctx.floridaCoordinatorId]);
+      ($1, $2, 'admin@sunshinehh.example', 'admin@sunshinehh.example', $3, 'Maria', 'Garcia',
+       '{ORG_ADMIN}', '{*}', 'ACTIVE', NOW(), $1, NOW(), $1),
+      ($4, $2, 'coordinator@sunshinehh.example', 'coordinator@sunshinehh.example', $3, 'James', 'Smith',
+       '{COORDINATOR}', '{schedules:*,visits:*,evv:*}', 'ACTIVE', NOW(), $1, NOW(), $1)
+    ON CONFLICT (id) DO NOTHING
+  `, [ctx.floridaAdminId, ctx.floridaOrgId, adminPasswordHash, ctx.floridaCoordinatorId]);
   
   console.log('  ✓ Users seeded');
 }

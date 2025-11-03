@@ -655,7 +655,7 @@ export class AuthService {
    * @param userAgent - Client user agent
    */
   private async logAuthEvent(
-    userId: UUID | null,
+    userId: string | null,
     eventType: string,
     authMethod: string,
     result: string,
@@ -665,8 +665,8 @@ export class AuthService {
   ): Promise<void> {
     await this.db.query(
       `INSERT INTO auth_events (
-        user_id, event_type, auth_method, result, failure_reason, ip_address, user_agent
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        id, user_id, event_type, auth_method, result, failure_reason, ip_address, user_agent
+      ) VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7)`,
       [userId, eventType, authMethod, result, failureReason, ipAddress, userAgent]
     );
   }
