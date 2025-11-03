@@ -1,16 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "npm run vercel:build",
-  "installCommand": "npm ci",
   "outputDirectory": "packages/web/dist",
   "framework": null,
-  "env": {
-    "NODE_ENV": "production"
-  },
   "regions": ["iad1"],
   "functions": {
-    "api/index.ts": {
+    "api/index.mts": {
       "maxDuration": 10
     }
   },
