@@ -8,11 +8,13 @@
 
 **Care Commons** is a modular, self-hostable software platform designed to support the administration and daily operations of home-based care services. Built by the people at **Neighborhood Lab**.
 
-[Care Commons](https://care-commons.vercel.app/) (web application demo)  
-[Care Commons](https://neighborhood-lab.github.io/product/) (product marketing website)  
-[Neighborhood Lab](https://neighborhood-lab.github.io/) (organization website)  
+[Care Commons](https://care-commons.vercel.app/) (web application demo)
+
+[Substack](https://neighborhoodlab.substack.com/) (updates, news and commentary)  
 [Patreon](https://www.patreon.com/cw/neighborhood_lab) (give your financial support for continued development)
 
+[Care Commons](https://neighborhood-lab.github.io/product/) (product marketing website)  
+[Neighborhood Lab](https://neighborhood-lab.github.io/) (organization website)
 
 ## Vision
 
@@ -142,7 +144,22 @@ DB_NAME=care_commons
 DB_USER=postgres
 DB_PASSWORD=your_password
 DB_SSL=false
+
+# Development Mock Authentication
+MOCK_USER_PASSWORD=password123
 ```
+
+### Development Login Credentials
+
+The development environment includes three mock users for testing:
+
+| Email                      | Password      | Role        |
+|----------------------------|---------------|-------------|
+| `admin@example.com`        | `password123` | ADMIN       |
+| `coordinator@example.com`  | `password123` | COORDINATOR |
+| `caregiver@example.com`    | `password123` | CAREGIVER   |
+
+**Note:** These credentials are for development only. In production, proper authentication with hashed passwords and JWT tokens should be implemented.
 
 ## Development
 

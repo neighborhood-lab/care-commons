@@ -9,8 +9,9 @@ import { Database, PermissionService, UserRepository } from '@care-commons/core'
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
-import { createAuthRouter } from './auth.js';
+import authRoutes from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
+import { createCaregiverRouter } from './caregivers.js';
 
 /**
  * Setup all API routes for the application
@@ -45,13 +46,17 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api', carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered');
 
+  // Caregiver & Staff Management routes
+  const caregiverRouter = createCaregiverRouter(db);
+  app.use('/api/caregivers', caregiverRouter);
+  console.log('  ✓ Caregiver & Staff Management routes registered');
+
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
   // - EVV & Time Tracking
   // - Shift Matching
   // - Billing & Invoicing
   // - Payroll Processing
-  // - Caregiver & Staff Management
 
   console.log('API routes setup complete\n');
 }
