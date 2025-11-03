@@ -18,11 +18,11 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts --max-warnings 0 && npm run lint:sql",
     "lint:sql": "sql-lint --driver postgres migrations/*.sql || echo 'SQL lint completed'",
-    "db:migrate": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate.ts",
-    "db:migrate:rollback": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/rollback.ts",
-    "db:migrate:status": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/migrate-status.ts",
-    "db:seed": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/seed.ts",
-    "db:nuke": "cd ../.. && node --import tsx --no-warnings packages/core/scripts/nuke.ts"
+    "db:migrate": "cd ../.. && tsx packages/core/scripts/migrate.ts",
+    "db:migrate:rollback": "cd ../.. && tsx packages/core/scripts/rollback.ts",
+    "db:migrate:status": "cd ../.. && tsx packages/core/scripts/migrate-status.ts",
+    "db:seed": "cd ../.. && tsx packages/core/scripts/seed.ts",
+    "db:nuke": "cd ../.. && tsx packages/core/scripts/nuke.ts"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
