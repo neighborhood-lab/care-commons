@@ -2,9 +2,15 @@
   "name": "@care-commons/app",
   "version": "0.1.0",
   "private": true,
+  "//": "════════════════════════════════════════════════════════════════",
+  "//": "⚠️  ESM PACKAGE - type:module + node:22.x required",
+  "//": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "description": "Care Commons API server",
   "main": "dist/server.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "node --watch --import tsx --no-warnings src/server.ts",
     "dev:watch": "tsc --watch",
@@ -36,7 +42,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^24.9.2",
+    "@types/node": "^24.10.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "@vitest/coverage-v8": "^4.0.6",
