@@ -139,6 +139,13 @@ export class ConflictError extends DomainError {
   }
 }
 
+export class AuthenticationError extends DomainError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, 'AUTHENTICATION_FAILED', context);
+    this.name = 'AuthenticationError';
+  }
+}
+
 /**
  * Result type for operations that may fail
  */
