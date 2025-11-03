@@ -5,8 +5,11 @@
  * Implements access token + refresh token pattern for security.
  */
 
-import { sign, verify, type JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { UUID } from '../types/base.js';
+
+// Re-export types for convenience
+type JwtPayload = jwt.JwtPayload;
 
 /**
  * Payload stored in JWT access token
@@ -84,7 +87,7 @@ export class JWTUtils {
    */
   static generateTokenPair(payload: TokenPayload): TokenPair {
     // Generate short-lived access token with full payload
-    const accessToken = sign(
+    const accessToken = jwt.sign(
       payload,
       this.getAccessTokenSecret(),
       { 
@@ -100,7 +103,7 @@ export class JWTUtils {
       tokenVersion: payload.tokenVersion
     };
 
-    const refreshToken = sign(
+    const refreshToken = jwt.sign(
       refreshPayload,
       this.getRefreshTokenSecret(),
       { 
@@ -126,7 +129,7 @@ export class JWTUtils {
    */
    static verifyAccessToken(token: string): TokenPayload {
     try {
-      const decoded = verify(token, this.getAccessTokenSecret(), {
+      const decoded = jwt.verify(token, this.getAccessTokenSecret(), {
         issuer: 'care-commons',
         audience: 'care-commons-api'
       });
@@ -178,7 +181,7 @@ export class JWTUtils {
    */
    static verifyRefreshToken(token: string): RefreshTokenPayload {
     try {
-      const decoded = verify(token, this.getRefreshTokenSecret(), {
+      const decoded = jwt.verify(token, this.getRefreshTokenSecret(), {
         issuer: 'care-commons',
         audience: 'care-commons-api'
       });
@@ -239,7 +242,7 @@ export class JWTUtils {
     const payload = await getUserPayload(decoded.userId, decoded.tokenVersion);
 
     // Generate new access token
-    return sign(
+    return jwt.sign(
       payload,
       this.getAccessTokenSecret(),
       { 
@@ -284,7 +287,7 @@ export class JWTUtils {
    */
   static decodeWithoutVerify(token: string): JwtPayload | null {
     try {
-      const decoded = verify(token, this.getAccessTokenSecret(), { 
+      const decoded = jwt.verify(token, this.getAccessTokenSecret(), { 
         ignoreExpiration: true 
       });
       return typeof decoded === 'string' ? null : decoded;
