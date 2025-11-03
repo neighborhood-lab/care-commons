@@ -52,76 +52,36 @@ export function createAuthRouter(db: Database): Router {
         organizationId as string | undefined
       );
 
-/**
- * POST /api/auth/login
- * Authenticate user and return user info
- */
-router.post('/login', (req, res) => {
-  console.log('🔐 Login attempt:', { 
-    email: req.body?.email,
-    hasPassword: Boolean(req.body?.password),
-    timestamp: new Date().toISOString(),
-  });
+      return res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        return res.status(400).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+          context: error.context
+        });
+      }
 
-  // Validate request body exists
-  if (req.body === undefined || req.body === null || typeof req.body !== 'object') {
-    console.error('❌ Login failed: Invalid request body');
-    return res.status(400).json({
-      success: false,
-      error: 'Invalid request body',
-    });
-  }
+      if (error instanceof AuthenticationError) {
+        return res.status(401).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+          context: error.context
+        });
+      }
 
-  const { email, password } = req.body;
-
-  // Validate required fields
-  if (typeof email !== 'string' || typeof password !== 'string') {
-    console.error('❌ Login failed: Missing email or password');
-    return res.status(400).json({
-      success: false,
-      error: 'Email and password are required',
-    });
-  }
-
-  // Find user by email
-  const users = getUsers();
-  const expectedPassword = getMockPassword();
-  const user = users.find(u => u.email === email && u.password === password);
-
-  if (user === undefined) {
-    console.error('❌ Login failed: Invalid credentials', {
-      email,
-      providedPassword: password,
-      expectedPassword,
-      availableEmails: users.map(u => u.email),
-    });
-    return res.status(401).json({
-      success: false,
-      error: 'Invalid credentials',
-    });
-  }
-
-  console.log('✅ Login successful:', { 
-    userId: user.id,
-    email: user.email,
-    roles: user.roles,
-  });
-
-  // Return user info (in production, this would include JWT tokens)
-  return res.json({
-    success: true,
-    data: {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        roles: user.roles,
-        organizationId: user.organizationId,
-      },
-      // Mock tokens - in production these would be real JWTs
-      accessToken: 'mock-access-token-' + Date.now(),
-      refreshToken: 'mock-refresh-token-' + Date.now(),
-    },
+      console.error('Google login error:', error);
+      return res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Authentication failed',
+        code: 'AUTH_ERROR'
+      });
+    }
   });
 
   /**
