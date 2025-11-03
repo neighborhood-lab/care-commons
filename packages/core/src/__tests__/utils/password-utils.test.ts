@@ -73,6 +73,24 @@ describe('PasswordUtils', () => {
         PasswordUtils.verifyPassword('password', 'invalid-hash');
       }).toThrow(ValidationError);
     });
+
+    it('should throw error for hash with empty salt', () => {
+      expect(() => {
+        PasswordUtils.verifyPassword('password', ':hash');
+      }).toThrow(ValidationError);
+      expect(() => {
+        PasswordUtils.verifyPassword('password', ':hash');
+      }).toThrow('Invalid password hash - missing salt or hash');
+    });
+
+    it('should throw error for hash with empty hash part', () => {
+      expect(() => {
+        PasswordUtils.verifyPassword('password', 'salt:');
+      }).toThrow(ValidationError);
+      expect(() => {
+        PasswordUtils.verifyPassword('password', 'salt:');
+      }).toThrow('Invalid password hash - missing salt or hash');
+    });
   });
 
   describe('needsRehash', () => {

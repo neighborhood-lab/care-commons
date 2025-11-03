@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { sign } from 'jsonwebtoken';
 import { JWTUtils, type TokenPayload } from '../../utils/jwt-utils.js';
 
 // Set up test environment variables
@@ -37,9 +38,6 @@ describe('JWTUtils', () => {
       expect(tokens.refreshToken).toBeDefined();
       expect(tokens.expiresIn).toBe(15 * 60); // 15 minutes
     });
-
-    // Note: JWT tokens include timestamps (iat) in seconds, so tokens generated
-    // in the same second will be identical. This is expected JWT behavior.
   });
 
   describe('verifyAccessToken', () => {
@@ -66,6 +64,80 @@ describe('JWTUtils', () => {
         JWTUtils.verifyAccessToken('not-a-jwt');
       }).toThrow();
     });
+
+    it('should handle token with missing userId', () => {
+      const badToken = sign(
+        { email: 'test@example.com', organizationId: mockPayload.organizationId },
+        TEST_JWT_SECRET,
+        { issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      expect(() => {
+        JWTUtils.verifyAccessToken(badToken);
+      }).toThrow();
+    });
+
+    it('should handle token with missing email', () => {
+      const badToken = sign(
+        { userId: mockPayload.userId, organizationId: mockPayload.organizationId },
+        TEST_JWT_SECRET,
+        { issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      expect(() => {
+        JWTUtils.verifyAccessToken(badToken);
+      }).toThrow();
+    });
+
+    it('should handle token with missing organizationId', () => {
+      const badToken = sign(
+        { userId: mockPayload.userId, email: 'test@example.com' },
+        TEST_JWT_SECRET,
+        { issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      expect(() => {
+        JWTUtils.verifyAccessToken(badToken);
+      }).toThrow();
+    });
+
+    it('should default to empty arrays for missing roles/permissions', () => {
+      const tokenWithoutArrays = sign(
+        { userId: mockPayload.userId, email: 'test@example.com', organizationId: mockPayload.organizationId },
+        TEST_JWT_SECRET,
+        { issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      const decoded = JWTUtils.verifyAccessToken(tokenWithoutArrays);
+      expect(decoded.roles).toEqual([]);
+      expect(decoded.permissions).toEqual([]);
+    });
+
+    it('should default tokenVersion to 1 if missing', () => {
+      const tokenWithoutVersion = sign(
+        { userId: mockPayload.userId, email: 'test@example.com', organizationId: mockPayload.organizationId },
+        TEST_JWT_SECRET,
+        { issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      const decoded = JWTUtils.verifyAccessToken(tokenWithoutVersion);
+      expect(decoded.tokenVersion).toBe(1);
+    });
+
+    it('should handle TokenExpiredError', async () => {
+      const expiredToken = sign(
+        mockPayload,
+        TEST_JWT_SECRET,
+        { expiresIn: '0s', issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      // Wait to ensure expiration
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(() => {
+        JWTUtils.verifyAccessToken(expiredToken);
+      }).toThrow('Access token has expired');
+    });
   });
 
   describe('verifyRefreshToken', () => {
@@ -81,6 +153,45 @@ describe('JWTUtils', () => {
       expect(() => {
         JWTUtils.verifyRefreshToken('invalid.token.here');
       }).toThrow();
+    });
+
+    it('should handle refresh token with missing userId', () => {
+      const badToken = sign(
+        { tokenVersion: 1 },
+        TEST_JWT_REFRESH_SECRET,
+        { issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      expect(() => {
+        JWTUtils.verifyRefreshToken(badToken);
+      }).toThrow();
+    });
+
+    it('should handle refresh token with missing tokenVersion', () => {
+      const badToken = sign(
+        { userId: mockPayload.userId },
+        TEST_JWT_REFRESH_SECRET,
+        { issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      expect(() => {
+        JWTUtils.verifyRefreshToken(badToken);
+      }).toThrow();
+    });
+
+    it('should handle TokenExpiredError for refresh token', async () => {
+      const expiredToken = sign(
+        { userId: mockPayload.userId, tokenVersion: 1 },
+        TEST_JWT_REFRESH_SECRET,
+        { expiresIn: '0s', issuer: 'care-commons', audience: 'care-commons-api' }
+      );
+
+      // Wait to ensure expiration
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(() => {
+        JWTUtils.verifyRefreshToken(expiredToken);
+      }).toThrow('Refresh token has expired - please login again');
     });
   });
 
@@ -125,6 +236,12 @@ describe('JWTUtils', () => {
       expect(token).toBeNull();
     });
 
+    it('should return null for empty string', () => {
+      const token = JWTUtils.extractBearerToken('');
+
+      expect(token).toBeNull();
+    });
+
     it('should return null for invalid header format', () => {
       const token = JWTUtils.extractBearerToken('Basic abc123');
 
@@ -136,12 +253,44 @@ describe('JWTUtils', () => {
 
       expect(token).toBeNull();
     });
+
+    it('should return null for Bearer with only whitespace', () => {
+      const token = JWTUtils.extractBearerToken('Bearer   ');
+
+      expect(token).toBeNull();
+    });
+  });
+
+  describe('decodeWithoutVerify', () => {
+    it('should decode valid token without verification', () => {
+      const tokens = JWTUtils.generateTokenPair(mockPayload);
+      const decoded = JWTUtils.decodeWithoutVerify(tokens.accessToken);
+
+      expect(decoded).toBeDefined();
+      expect(decoded?.userId).toBe(mockPayload.userId);
+    });
+
+    it('should return null for invalid token', () => {
+      const decoded = JWTUtils.decodeWithoutVerify('invalid-token');
+      expect(decoded).toBeNull();
+    });
   });
 
   describe('environment validation', () => {
     it('should throw error if JWT_SECRET not set', () => {
       const originalSecret = process.env['JWT_SECRET'];
       delete process.env['JWT_SECRET'];
+
+      expect(() => {
+        JWTUtils.generateTokenPair(mockPayload);
+      }).toThrow('JWT_SECRET environment variable not set');
+
+      process.env['JWT_SECRET'] = originalSecret;
+    });
+
+    it('should throw error if JWT_SECRET is empty string', () => {
+      const originalSecret = process.env['JWT_SECRET'];
+      process.env['JWT_SECRET'] = '';
 
       expect(() => {
         JWTUtils.generateTokenPair(mockPayload);
@@ -159,6 +308,39 @@ describe('JWTUtils', () => {
       }).toThrow('JWT_SECRET must be at least 32 characters');
 
       process.env['JWT_SECRET'] = originalSecret;
+    });
+
+    it('should throw error if JWT_REFRESH_SECRET not set', () => {
+      const originalSecret = process.env['JWT_REFRESH_SECRET'];
+      delete process.env['JWT_REFRESH_SECRET'];
+
+      expect(() => {
+        JWTUtils.generateTokenPair(mockPayload);
+      }).toThrow('JWT_REFRESH_SECRET environment variable not set');
+
+      process.env['JWT_REFRESH_SECRET'] = originalSecret;
+    });
+
+    it('should throw error if JWT_REFRESH_SECRET is empty string', () => {
+      const originalSecret = process.env['JWT_REFRESH_SECRET'];
+      process.env['JWT_REFRESH_SECRET'] = '';
+
+      expect(() => {
+        JWTUtils.generateTokenPair(mockPayload);
+      }).toThrow('JWT_REFRESH_SECRET environment variable not set');
+
+      process.env['JWT_REFRESH_SECRET'] = originalSecret;
+    });
+
+    it('should throw error if JWT_REFRESH_SECRET too short', () => {
+      const originalSecret = process.env['JWT_REFRESH_SECRET'];
+      process.env['JWT_REFRESH_SECRET'] = 'short';
+
+      expect(() => {
+        JWTUtils.generateTokenPair(mockPayload);
+      }).toThrow('JWT_REFRESH_SECRET must be at least 32 characters');
+
+      process.env['JWT_REFRESH_SECRET'] = originalSecret;
     });
   });
 });
