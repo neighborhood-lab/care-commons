@@ -48,7 +48,7 @@ export class AuthMiddleware {
       // Extract token from Authorization header
       const authHeader = req.headers['authorization'];
       
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-optional-chain
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({
           success: false,
@@ -246,7 +246,7 @@ export class AuthMiddleware {
 
         const user = result.rows[0] as unknown as UserStatus | undefined;
 
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-optional-chain
         if (user && user.status === 'ACTIVE' && user.token_version === payload.tokenVersion) {
           req.user = payload;
         }
