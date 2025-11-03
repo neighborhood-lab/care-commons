@@ -4,11 +4,6 @@
   "outputDirectory": "packages/web/dist",
   "framework": null,
   "regions": ["iad1"],
-  "functions": {
-    "api/index.mts": {
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
