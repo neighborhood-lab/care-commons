@@ -7,9 +7,26 @@
     "declarationMap": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*", "vitest.config.ts"],
-  "exclude": ["node_modules", "dist"],
+  "include": [
+    "src/**/*",
+    "vitest.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "references": [
-    { "path": "../../packages/core" }
-  ]
+    {
+      "path": "../../packages/core"
+    }
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "replacers": {
+      "replace-imports": {
+        "replace": "^(\\.\\.?\\/[^'\"]+?)(\\.ts)?$",
+        "with": "$1.js"
+      }
+    }
+  }
 }
