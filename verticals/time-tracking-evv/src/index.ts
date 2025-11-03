@@ -13,6 +13,7 @@
 
 // Types
 export * from './types/evv';
+export * from './types/state-specific';
 
 // Repository
 export { EVVRepository } from './repository/evv-repository';
@@ -22,6 +23,8 @@ export { EVVValidator } from './validation/evv-validator';
 
 // Service
 export { EVVService } from './service/evv-service';
+export { VMURService } from './service/vmur-service';
+export type { CreateVMURInput, ApproveVMURInput, DenyVMURInput } from './service/vmur-service';
 
 // Utilities
 export { IntegrationService } from './utils/integration-service';
