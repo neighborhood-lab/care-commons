@@ -1,8 +1,14 @@
 {
   "name": "@care-commons/scheduling-visits",
   "version": "0.1.0",
+  "//": "════════════════════════════════════════════════════════════════",
+  "//": "⚠️  ESM VERTICAL - type:module required",
+  "//": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "description": "Scheduling & Visit Management vertical for Care Commons",
+  "engines": {
+    "node": "22.x"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -20,7 +26,8 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/node": "^24.9.2",
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^24.10.0",
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",

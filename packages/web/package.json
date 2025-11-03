@@ -2,7 +2,13 @@
   "name": "@care-commons/web",
   "version": "0.1.0",
   "private": true,
+  "//": "════════════════════════════════════════════════════════════════",
+  "//": "⚠️  FRONTEND ESM PACKAGE - Vite requires type:module",
+  "//": "════════════════════════════════════════════════════════════════",
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

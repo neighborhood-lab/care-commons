@@ -1,8 +1,14 @@
 {
   "name": "@care-commons/caregiver-staff",
   "version": "0.1.0",
+  "//": "════════════════════════════════════════════════════════════════",
+  "//": "⚠️  ESM VERTICAL - type:module required",
+  "//": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "description": "Caregiver & Staff Management vertical for Care Commons",
+  "engines": {
+    "node": "22.x"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -19,7 +25,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/node": "^24.9.2",
+    "@types/node": "^24.10.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "@vitest/coverage-v8": "^4.0.6",
