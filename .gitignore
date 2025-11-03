@@ -71,11 +71,27 @@ packages/*/scripts/*.js.map
 packages/*/scripts/*.d.ts
 packages/*/scripts/*.d.ts.map
 
-# Compiled config files in root
+# Compiled config files (root and all packages)
 vitest.config.js
 vitest.config.js.map
 vitest.config.d.ts
 vitest.config.d.ts.map
+packages/*/vitest.config.js
+packages/*/vitest.config.js.map
+packages/*/vitest.config.d.ts
+packages/*/vitest.config.d.ts.map
+packages/*/vite.config.js
+packages/*/vite.config.js.map
+packages/*/vite.config.d.ts
+packages/*/vite.config.d.ts.map
+verticals/*/vitest.config.js
+verticals/*/vitest.config.js.map
+verticals/*/vitest.config.d.ts
+verticals/*/vitest.config.d.ts.map
+packages/core/knexfile.js
+packages/core/knexfile.js.map
+packages/core/knexfile.d.ts
+packages/core/knexfile.d.ts.map
 
 # Optional npm cache directory
 .npm
