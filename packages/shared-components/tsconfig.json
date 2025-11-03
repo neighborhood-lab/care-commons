@@ -3,10 +3,18 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
-    "composite": true
+    "jsx": "react-jsx"
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "replacers": {
+      "replace-imports": {
+        "replace": "^(\\.\\.?\\/[^'\"]+?)(\\.ts)?$",
+        "with": "$1.js"
+      }
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
