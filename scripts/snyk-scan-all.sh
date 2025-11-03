@@ -35,11 +35,10 @@ npx snyk test \
   --sarif \
   --sarif-file-output=".snyk/snyk-dependency.sarif"
 
-echo "🔒 Running Snyk scan against remote repository..."
-npx snyk test \
+echo "🔒 Running Snyk code scan..."
+npx snyk code test \
   --org=neighborhood-lab \
-  --remote-repo-url=https://github.com/neighborhood-lab/care-commons.git \
   --sarif \
-  --sarif-file-output=".snyk/snyk-remote.sarif"
+  --sarif-file-output=".snyk/snyk-code.sarif"
 
 echo "✅ Security scans completed successfully!"
