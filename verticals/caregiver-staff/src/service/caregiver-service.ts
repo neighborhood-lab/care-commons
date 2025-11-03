@@ -23,6 +23,37 @@ import {
 } from '../types/caregiver';
 import { CaregiverValidator } from '../validation/caregiver-validator';
 
+interface ServiceAuthorization {
+  id: string;
+  caregiverId: string;
+  serviceTypeCode: string;
+  serviceTypeName: string;
+  authorizationSource: string;
+  effectiveDate: Date;
+  expirationDate: Date | null;
+  status: 'ACTIVE' | 'SUSPENDED' | 'EXPIRED' | 'REVOKED';
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface StateScreening {
+  id: string;
+  caregiverId: string;
+  stateCode: string;
+  screeningType: string;
+  status: string;
+  initiationDate: Date;
+  completionDate: Date | null;
+  expirationDate: Date | null;
+  confirmationNumber: string | null;
+  clearanceNumber: string | null;
+  results: Record<string, unknown> | null;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class CaregiverService {
   private repository: CaregiverRepository;
   private validator: CaregiverValidator;
@@ -418,6 +449,218 @@ export class CaregiverService {
     // Check if caregiver has active assignments (would be in scheduling vertical)
     // For now, just perform the delete
     await this.repository.delete(id, context);
+  }
+
+  /**
+   * Add service authorization for caregiver
+   */
+  async addServiceAuthorization(
+    caregiverId: string,
+    serviceTypeCode: string,
+    serviceTypeName: string,
+    options: {
+      authorizationSource?: string;
+      effectiveDate?: Date;
+      expirationDate?: Date;
+      notes?: string;
+    },
+    context: UserContext
+  ): Promise<string> {
+    this.checkPermission(context, 'caregivers:update');
+
+    const caregiver = await this.repository.findById(caregiverId);
+    if (!caregiver) {
+      throw new NotFoundError(`Caregiver not found: ${caregiverId}`);
+    }
+
+    return this.repository.createServiceAuthorization(
+      {
+        caregiverId,
+        serviceTypeCode,
+        serviceTypeName,
+        authorizationSource: options.authorizationSource,
+        effectiveDate: options.effectiveDate || new Date(),
+        expirationDate: options.expirationDate,
+        notes: options.notes,
+      },
+      context
+    );
+  }
+
+  /**
+   * Get service authorizations for caregiver
+   */
+  async getServiceAuthorizations(
+    caregiverId: string,
+    context: UserContext
+  ): Promise<ServiceAuthorization[]> {
+    this.checkPermission(context, 'caregivers:read');
+
+    const caregiver = await this.repository.findById(caregiverId);
+    if (!caregiver) {
+      throw new NotFoundError(`Caregiver not found: ${caregiverId}`);
+    }
+
+    return this.repository.getServiceAuthorizations(caregiverId);
+  }
+
+  /**
+   * Validate caregiver can be assigned to visit
+   * Enhanced to check service authorizations and state registrations
+   */
+  async validateAssignment(
+    caregiverId: string,
+    serviceTypeCode: string,
+    stateJurisdiction: string,
+    context: UserContext
+  ): Promise<{ eligible: boolean; reasons: string[] }> {
+    this.checkPermission(context, 'caregivers:read');
+
+    const caregiver = await this.repository.findById(caregiverId);
+    if (!caregiver) {
+      throw new NotFoundError(`Caregiver not found: ${caregiverId}`);
+    }
+
+    const reasons: string[] = [];
+
+    // Check status
+    if (caregiver.status !== 'ACTIVE') {
+      reasons.push(`Caregiver status is ${caregiver.status}, not ACTIVE`);
+    }
+
+    // Check compliance status
+    if (caregiver.complianceStatus !== 'COMPLIANT') {
+      reasons.push(`Compliance status is ${caregiver.complianceStatus}`);
+    }
+
+    // Check service authorization
+    const authorizations = await this.repository.getServiceAuthorizations(caregiverId);
+    const hasAuthorization = authorizations.some(
+      auth => auth.serviceTypeCode === serviceTypeCode && 
+              auth.status === 'ACTIVE' &&
+              (!auth.expirationDate || new Date(auth.expirationDate) > new Date())
+    );
+    if (!hasAuthorization) {
+      reasons.push(`Not authorized for service type ${serviceTypeCode}`);
+    }
+
+    // Check active credentials
+    const hasActiveCredentials = caregiver.credentials.some(
+      cred => cred.status === 'ACTIVE' &&
+        (!cred.expirationDate || new Date(cred.expirationDate) > new Date())
+    );
+    if (!hasActiveCredentials) {
+      reasons.push('No active credentials on file');
+    }
+
+    // Check state-specific registrations if stateJurisdiction is provided
+    if (stateJurisdiction) {
+      const screenings = await this.repository.getStateScreenings(caregiverId);
+      const hasStateClean = screenings.some(
+        screening => screening.stateCode === stateJurisdiction &&
+                    screening.status === 'CLEARED' &&
+                    (!screening.expirationDate || new Date(screening.expirationDate) > new Date())
+      );
+      if (!hasStateClean) {
+        reasons.push(`Missing ${stateJurisdiction} registry clearance or background screening`);
+      }
+    }
+
+    return {
+      eligible: reasons.length === 0,
+      reasons
+    };
+  }
+
+  /**
+   * Initiate state-specific background screening
+   */
+  async initiateBackgroundScreening(
+    caregiverId: string,
+    stateCode: string,
+    screeningType: string,
+    context: UserContext
+  ): Promise<string> {
+    this.checkPermission(context, 'caregivers:update');
+
+    const caregiver = await this.repository.findById(caregiverId);
+    if (!caregiver) {
+      throw new NotFoundError(`Caregiver not found: ${caregiverId}`);
+    }
+
+    // Validate state code
+    const validStateCodes = ['TX', 'FL', 'CA', 'NY', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI'];
+    if (!validStateCodes.includes(stateCode)) {
+      throw new ValidationError(`Invalid state code: ${stateCode}`, {
+        errors: [{ field: 'stateCode', message: 'Must be a valid US state code' }]
+      });
+    }
+
+    // Validate screening type based on state
+    const validScreeningTypes: Record<string, string[]> = {
+      TX: ['EMPLOYEE_MISCONDUCT_REGISTRY', 'NURSE_AIDE_REGISTRY', 'DPS_FINGERPRINTING'],
+      FL: ['LEVEL_2_BACKGROUND', 'AHCA_CLEARINGHOUSE'],
+    };
+
+    const allowedTypes = validScreeningTypes[stateCode] || ['BACKGROUND_CHECK'];
+    if (!allowedTypes.includes(screeningType)) {
+      throw new ValidationError(`Invalid screening type for ${stateCode}: ${screeningType}`, {
+        errors: [{ field: 'screeningType', message: `Must be one of: ${allowedTypes.join(', ')}` }]
+      });
+    }
+
+    const screeningId = await this.repository.createStateScreening({
+      caregiverId,
+      stateCode,
+      screeningType,
+      initiatedBy: context.userId,
+      initiatedAt: new Date()
+    });
+
+    // External API integration for actual screening will be implemented in future
+    // Texas: HHAeXchange API, Employee Misconduct Registry lookup
+    // Florida: AHCA Clearinghouse API
+    // For now, screening record is created in PENDING status
+
+    return screeningId;
+  }
+
+  /**
+   * Update background screening result
+   */
+  async updateBackgroundScreening(
+    screeningId: string,
+    updates: {
+      status?: string;
+      completionDate?: Date;
+      expirationDate?: Date;
+      confirmationNumber?: string;
+      clearanceNumber?: string;
+      results?: Record<string, unknown>;
+      notes?: string;
+    },
+    context: UserContext
+  ): Promise<void> {
+    this.checkPermission(context, 'caregivers:update');
+
+    await this.repository.updateStateScreening(screeningId, updates, context);
+  }
+
+  /**
+   * Get state screenings for caregiver
+   */
+  async getStateScreenings(
+    caregiverId: string,
+    context: UserContext
+  ): Promise<StateScreening[]> {
+    this.checkPermission(context, 'caregivers:read');
+
+    const caregiver = await this.repository.findById(caregiverId);
+    if (!caregiver) {
+      throw new NotFoundError(`Caregiver not found: ${caregiverId}`);
+    }
+
+    return this.repository.getStateScreenings(caregiverId);
   }
 
   /**

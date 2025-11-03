@@ -532,4 +532,219 @@ export class CaregiverRepository extends Repository<Caregiver> {
     const lastNumber = parseInt(String(result.rows[0]!['employee_number']));
     return (lastNumber + 1).toString();
   }
+
+  /**
+   * Create service authorization for caregiver
+   */
+  async createServiceAuthorization(data: {
+    caregiverId: string;
+    serviceTypeCode: string;
+    serviceTypeName: string;
+    authorizationSource?: string;
+    effectiveDate: Date;
+    expirationDate?: Date;
+    notes?: string;
+  }, context: UserContext): Promise<string> {
+    const query = `
+      INSERT INTO caregiver_service_authorizations (
+        caregiver_id, service_type_code, service_type_name,
+        authorization_source, effective_date, expiration_date,
+        notes, created_by, updated_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING id
+    `;
+
+    const result = await this.database.query(query, [
+      data.caregiverId,
+      data.serviceTypeCode,
+      data.serviceTypeName,
+      data.authorizationSource || 'MANUAL',
+      data.effectiveDate,
+      data.expirationDate || null,
+      data.notes || null,
+      context.userId,
+      context.userId
+    ]);
+
+    return result.rows[0]!['id'] as string;
+  }
+
+  /**
+   * Get service authorizations for caregiver
+   */
+  async getServiceAuthorizations(caregiverId: string): Promise<ServiceAuthorization[]> {
+    const query = `
+      SELECT * FROM caregiver_service_authorizations
+      WHERE caregiver_id = $1
+      ORDER BY service_type_code
+    `;
+
+    const result = await this.database.query(query, [caregiverId]);
+    return result.rows.map(row => ({
+      id: row['id'] as string,
+      caregiverId: row['caregiver_id'] as string,
+      serviceTypeCode: row['service_type_code'] as string,
+      serviceTypeName: row['service_type_name'] as string,
+      authorizationSource: row['authorization_source'] as string,
+      effectiveDate: row['effective_date'] as Date,
+      expirationDate: row['expiration_date'] as Date | null,
+      status: row['status'] as 'ACTIVE' | 'SUSPENDED' | 'EXPIRED' | 'REVOKED',
+      notes: row['notes'] as string | null,
+      createdAt: row['created_at'] as Date,
+      updatedAt: row['updated_at'] as Date
+    }));
+  }
+
+  /**
+   * Create state screening record
+   */
+  async createStateScreening(data: {
+    caregiverId: string;
+    stateCode: string;
+    screeningType: string;
+    initiatedBy: string;
+    initiatedAt: Date;
+  }): Promise<string> {
+    const query = `
+      INSERT INTO caregiver_state_screenings (
+        caregiver_id, state_code, screening_type,
+        initiation_date, created_by, updated_by
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id
+    `;
+
+    const result = await this.database.query(query, [
+      data.caregiverId,
+      data.stateCode,
+      data.screeningType,
+      data.initiatedAt,
+      data.initiatedBy,
+      data.initiatedBy
+    ]);
+
+    return result.rows[0]!['id'] as string;
+  }
+
+  /**
+   * Update state screening record
+   */
+  async updateStateScreening(
+    screeningId: string,
+    updates: {
+      status?: string;
+      completionDate?: Date;
+      expirationDate?: Date;
+      confirmationNumber?: string;
+      clearanceNumber?: string;
+      results?: Record<string, unknown>;
+      notes?: string;
+    },
+    context: UserContext
+  ): Promise<void> {
+    const fields: string[] = [];
+    const values: unknown[] = [];
+    let paramIndex = 1;
+
+    if (updates.status !== undefined) {
+      fields.push(`status = $${paramIndex++}`);
+      values.push(updates.status);
+    }
+    if (updates.completionDate !== undefined) {
+      fields.push(`completion_date = $${paramIndex++}`);
+      values.push(updates.completionDate);
+    }
+    if (updates.expirationDate !== undefined) {
+      fields.push(`expiration_date = $${paramIndex++}`);
+      values.push(updates.expirationDate);
+    }
+    if (updates.confirmationNumber !== undefined) {
+      fields.push(`confirmation_number = $${paramIndex++}`);
+      values.push(updates.confirmationNumber);
+    }
+    if (updates.clearanceNumber !== undefined) {
+      fields.push(`clearance_number = $${paramIndex++}`);
+      values.push(updates.clearanceNumber);
+    }
+    if (updates.results !== undefined) {
+      fields.push(`results = $${paramIndex++}`);
+      values.push(JSON.stringify(updates.results));
+    }
+    if (updates.notes !== undefined) {
+      fields.push(`notes = $${paramIndex++}`);
+      values.push(updates.notes);
+    }
+
+    fields.push(`updated_by = $${paramIndex++}`);
+    values.push(context.userId);
+
+    values.push(screeningId);
+
+    const query = `
+      UPDATE caregiver_state_screenings
+      SET ${fields.join(', ')}
+      WHERE id = $${paramIndex}
+    `;
+
+    await this.database.query(query, values);
+  }
+
+  /**
+   * Get state screenings for caregiver
+   */
+  async getStateScreenings(caregiverId: string): Promise<StateScreening[]> {
+    const query = `
+      SELECT * FROM caregiver_state_screenings
+      WHERE caregiver_id = $1
+      ORDER BY initiation_date DESC
+    `;
+
+    const result = await this.database.query(query, [caregiverId]);
+    return result.rows.map(row => ({
+      id: row['id'] as string,
+      caregiverId: row['caregiver_id'] as string,
+      stateCode: row['state_code'] as string,
+      screeningType: row['screening_type'] as string,
+      status: row['status'] as string,
+      initiationDate: row['initiation_date'] as Date,
+      completionDate: row['completion_date'] as Date | null,
+      expirationDate: row['expiration_date'] as Date | null,
+      confirmationNumber: row['confirmation_number'] as string | null,
+      clearanceNumber: row['clearance_number'] as string | null,
+      results: row['results'] ? JSON.parse(row['results'] as string) : null,
+      notes: row['notes'] as string | null,
+      createdAt: row['created_at'] as Date,
+      updatedAt: row['updated_at'] as Date
+    }));
+  }
+}
+
+interface ServiceAuthorization {
+  id: string;
+  caregiverId: string;
+  serviceTypeCode: string;
+  serviceTypeName: string;
+  authorizationSource: string;
+  effectiveDate: Date;
+  expirationDate: Date | null;
+  status: 'ACTIVE' | 'SUSPENDED' | 'EXPIRED' | 'REVOKED';
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface StateScreening {
+  id: string;
+  caregiverId: string;
+  stateCode: string;
+  screeningType: string;
+  status: string;
+  initiationDate: Date;
+  completionDate: Date | null;
+  expirationDate: Date | null;
+  confirmationNumber: string | null;
+  clearanceNumber: string | null;
+  results: Record<string, unknown> | null;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
