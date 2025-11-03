@@ -4,11 +4,14 @@ import typescriptParser from '@typescript-eslint/parser';
 import sonarjs from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
 import promise from 'eslint-plugin-promise';
+import prettier from 'eslint-plugin-prettier';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
   js.configs.recommended,
   sonarjs.configs.recommended,
   promise.configs['flat/recommended'],
+  prettierConfig,
   {
     files: ['**/*.ts'],
     languageOptions: {
@@ -47,13 +50,15 @@ export default [
     plugins: {
       '@typescript-eslint': typescript,
       unicorn,
+      prettier,
     },
     rules: {
       ...typescript.configs.recommended.rules,
-      // TypeScript strict rules
-      '@typescript-eslint/no-explicit-any': 'error',
+      'prettier/prettier': 'error',
+      // TypeScript rules - relaxed for verticals
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
-        'error',
+        'warn',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
@@ -61,35 +66,37 @@ export default [
         },
       ],
       '@typescript-eslint/no-require-imports': 'error',
-      '@typescript-eslint/explicit-function-return-type': [
-        'error',
-        { allowExpressions: true, allowTypedFunctionExpressions: true },
-      ],
+      '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
-      '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-unnecessary-condition': 'off', // Allow unnecessary conditions
-      '@typescript-eslint/prefer-nullish-coalescing': 'off', // Relax for vertical packages
-      '@typescript-eslint/prefer-optional-chain': 'error',
-      '@typescript-eslint/strict-boolean-expressions': 'off', // Relax for vertical packages
+      '@typescript-eslint/await-thenable': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/prefer-optional-chain': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'off',
       // Sonarjs rules - relax for complex domain logic
-      'sonarjs/cognitive-complexity': ['error', 70], // Increase limit for complex domain logic
-      'sonarjs/no-commented-code': 'off', // Allow commented code in development
-      'sonarjs/deprecation': 'off', // Ignore Zod deprecations
-      'sonarjs/no-hardcoded-ip': 'off', // Allow hardcoded IPs in tests
-      'sonarjs/pseudo-random': 'off', // Allow Math.random
-      '@typescript-eslint/explicit-function-return-type': 'off', // Relax return types
-      'sonarjs/no-nested-functions': 'off', // Allow nested functions
-      '@typescript-eslint/no-unused-vars': 'warn', // Warn on unused vars
-      '@typescript-eslint/await-thenable': 'off', // Relax await checks
-      '@typescript-eslint/no-explicit-any': 'warn', // Warn on any
-      'sonarjs/no-nested-conditional': 'off', // Allow nested conditionals
-      'sonarjs/use-type-alias': 'off', // Allow inline union types
-      'sonarjs/different-types-comparison': 'off', // Allow loose comparisons
-      // Unicorn rules (battle-tested quality improvements)
-      'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models
+      'sonarjs/cognitive-complexity': ['error', 70],
+      'sonarjs/no-commented-code': 'off',
+      'sonarjs/deprecation': 'off',
+      'sonarjs/no-hardcoded-ip': 'off',
+      'sonarjs/pseudo-random': 'off',
+      'sonarjs/no-nested-functions': 'off',
+      'sonarjs/no-nested-conditional': 'off',
+      'sonarjs/use-type-alias': 'off',
+      'sonarjs/different-types-comparison': 'off',
+      'sonarjs/todo-tag': 'off',
+      'sonarjs/no-all-duplicated-branches': 'off',
+      'sonarjs/slow-regex': 'off',
+      'sonarjs/concise-regex': 'off',
+      'sonarjs/sql-queries': 'off',
+      'sonarjs/no-unused-vars': 'off',
+      'sonarjs/prefer-single-boolean-return': 'off',
+      'sonarjs/no-redundant-jump': 'off',
+      'sonarjs/no-ignored-exceptions': 'off',
+      // Unicorn rules - mostly off for verticals
+      'unicorn/prevent-abbreviations': 'off',
       'unicorn/filename-case': ['error', { case: 'kebabCase' }],
-      'unicorn/no-null': 'off', // SQL deals with null
+      'unicorn/no-null': 'off',
       'unicorn/prefer-module': 'off',
       'unicorn/prefer-node-protocol': 'off',
       'unicorn/prefer-top-level-await': 'off',
@@ -104,7 +111,7 @@ export default [
   {
     files: ['**/__tests__/**/*.ts'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' in test mocks
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {

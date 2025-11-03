@@ -1,12 +1,21 @@
-#!/usr/bin/env sh
-. "$(dirname "$0")/_/husky.sh"
-
 echo "🪝 Running pre-commit checks..."
 echo "⚠️  These checks are MANDATORY and cannot be bypassed."
 echo "⚠️  Do NOT use --no-verify to skip these checks."
 echo ""
 
-# Run checks and capture exit code
+# Format and lint staged files
+echo "📝 Formatting and linting staged files..."
+npx lint-staged
+lint_staged_exit=$?
+
+if [ $lint_staged_exit -ne 0 ]; then
+  echo ""
+  echo "❌ Formatting/linting FAILED!"
+  echo "❌ Please fix the errors above before committing."
+  exit 1
+fi
+
+# Run full checks
 ./scripts/brief-check.sh
 exit_code=$?
 

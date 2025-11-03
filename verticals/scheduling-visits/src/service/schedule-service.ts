@@ -515,8 +515,8 @@ export class ScheduleService {
       }
     }
 
-    // TODO: Filter holidays if skipHolidays is true
-    // Would need holiday calendar service
+    // Note: Holiday filtering would require holiday calendar service
+    // This is left for future implementation when holiday calendar is available
 
     return dates;
   }

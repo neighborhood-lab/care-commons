@@ -38,19 +38,18 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,css,md,yml,yaml}": "prettier --write",
-    "*.{ts,tsx}": "eslint --fix"
+    "*.{ts,tsx,js,jsx,json,css,md,yml,yaml}": "prettier --write"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.6",
     "dotenv-cli": "^11.0.0",
-    "eslint-config-prettier": "^9.1.2",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
     "snyk": "^1.1300.2",
     "sql-lint": "^1.0.2",

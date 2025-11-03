@@ -7,11 +7,14 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import sonarjs from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
 import promise from 'eslint-plugin-promise';
+import prettier from 'eslint-plugin-prettier';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
   js.configs.recommended,
   sonarjs.configs.recommended,
   promise.configs['flat/recommended'],
+  prettierConfig,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -63,12 +66,14 @@ export default [
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       unicorn,
+      prettier,
     },
     rules: {
       ...typescript.configs.recommended.rules,
       // React rules
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      'prettier/prettier': 'error',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'react/no-unescaped-entities': 'off',
       // TypeScript strict rules (relaxed for now)

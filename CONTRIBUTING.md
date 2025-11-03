@@ -78,6 +78,8 @@ This project enforces strict quality standards at two levels:
 **Every commit automatically triggers** pre-commit checks via Husky
 (`.husky/pre-commit`):
 
+- ✅ **Format staged files** (`lint-staged`) - automatically formats with
+  Prettier and fixes ESLint issues
 - ✅ Build all packages (`npm run build`)
 - ✅ Run linters (`npm run lint`) - must have zero warnings
 - ✅ Run type checking (`npm run typecheck`) - must have zero errors
@@ -110,6 +112,42 @@ not use:
 - Keep functions small and focused
 - Add JSDoc comments for public APIs
 - Use meaningful variable names
+
+#### Code Formatting with Prettier
+
+This project uses **Prettier** for automated code formatting to ensure
+consistency:
+
+- **Automatic formatting** on save (if VS Code is configured)
+- **Pre-commit hooks** format staged files automatically via `lint-staged`
+- **Manual formatting**: `npm run format` (formats all files)
+- **Check formatting**: `npm run format:check` (used in CI)
+
+**Prettier Configuration** (`.prettierrc`):
+
+- Single quotes for strings
+- Semicolons required
+- 2-space indentation
+- 100-character line width
+- ES5 trailing commas
+- Unix line endings (LF)
+
+**Editor Setup (VS Code)**:
+
+1. Install the Prettier extension:
+
+   ```bash
+   code --install-extension esbenp.prettier-vscode
+   ```
+
+2. Settings are pre-configured in `.vscode/settings.json`:
+   - Format on save enabled
+   - Prettier as default formatter
+   - ESLint auto-fix on save
+
+**Important**: Never commit code that fails Prettier checks. The pre-commit
+hooks will automatically format your code, but ensure you've configured your
+editor properly for the best experience.
 
 ### Database Changes
 

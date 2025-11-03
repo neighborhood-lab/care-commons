@@ -4,11 +4,14 @@ import typescriptParser from '@typescript-eslint/parser';
 import sonarjs from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
 import promise from 'eslint-plugin-promise';
+import prettier from 'eslint-plugin-prettier';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
   js.configs.recommended,
   sonarjs.configs.recommended,
   promise.configs['flat/recommended'],
+  prettierConfig,
   {
     files: ['**/*.ts'],
     languageOptions: {
@@ -47,9 +50,11 @@ export default [
     plugins: {
       '@typescript-eslint': typescript,
       unicorn,
+      prettier,
     },
     rules: {
       ...typescript.configs.recommended.rules,
+      'prettier/prettier': 'error',
       // TypeScript strict rules
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
