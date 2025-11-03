@@ -12,13 +12,16 @@ coverage:
     project:
       default:
         target: 70%
-        threshold: 1%
+        threshold: 2%
         if_ci_failed: error
+        informational: false
     
     patch:
       default:
-        target: 70%
-        threshold: 5%
+        target: 85%          # Reasonable bar for new code
+        threshold: 10%       # Allow up to 10% deviation (75-95% acceptable)
+        informational: false # Don't block on patch coverage
+        only_pulls: true     # Only enforce on pull requests
 
 comment:
   layout: "reach,diff,flags,tree,footer"

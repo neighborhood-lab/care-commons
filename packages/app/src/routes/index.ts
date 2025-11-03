@@ -11,8 +11,7 @@ import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-ta
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import authRoutes from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
-import { createMobileRouter } from './mobile.js';
-import { createSyncRouter } from './sync.js';
+import { createCaregiverRouter } from './caregivers.js';
 
 /**
  * Setup all API routes for the application
@@ -46,12 +45,10 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api', carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered');
 
-  // Mobile & Sync routes
-  const mobileRouter = createMobileRouter(db);
-  const syncRouter = createSyncRouter(db);
-  app.use('/api', mobileRouter);
-  app.use('/api', syncRouter);
-  console.log('  ✓ Mobile & Sync routes registered');
+  // Caregiver & Staff Management routes
+  const caregiverRouter = createCaregiverRouter(db);
+  app.use('/api/caregivers', caregiverRouter);
+  console.log('  ✓ Caregiver & Staff Management routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
@@ -59,7 +56,6 @@ export function setupRoutes(app: Express, db: Database): void {
   // - Shift Matching
   // - Billing & Invoicing
   // - Payroll Processing
-  // - Caregiver & Staff Management
 
   console.log('API routes setup complete\n');
 }

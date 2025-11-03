@@ -59,8 +59,15 @@ function getUsers(): MockUser[] {
  * Authenticate user and return user info
  */
 router.post('/login', (req, res) => {
+  console.log('🔐 Login attempt:', { 
+    email: req.body?.email,
+    hasPassword: Boolean(req.body?.password),
+    timestamp: new Date().toISOString(),
+  });
+
   // Validate request body exists
   if (req.body === undefined || req.body === null || typeof req.body !== 'object') {
+    console.error('❌ Login failed: Invalid request body');
     return res.status(400).json({
       success: false,
       error: 'Invalid request body',
@@ -71,6 +78,7 @@ router.post('/login', (req, res) => {
 
   // Validate required fields
   if (typeof email !== 'string' || typeof password !== 'string') {
+    console.error('❌ Login failed: Missing email or password');
     return res.status(400).json({
       success: false,
       error: 'Email and password are required',
@@ -79,14 +87,27 @@ router.post('/login', (req, res) => {
 
   // Find user by email
   const users = getUsers();
+  const expectedPassword = getMockPassword();
   const user = users.find(u => u.email === email && u.password === password);
 
   if (user === undefined) {
+    console.error('❌ Login failed: Invalid credentials', {
+      email,
+      providedPassword: password,
+      expectedPassword,
+      availableEmails: users.map(u => u.email),
+    });
     return res.status(401).json({
       success: false,
       error: 'Invalid credentials',
     });
   }
+
+  console.log('✅ Login successful:', { 
+    userId: user.id,
+    email: user.email,
+    roles: user.roles,
+  });
 
   // Return user info (in production, this would include JWT tokens)
   return res.json({
