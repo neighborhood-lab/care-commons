@@ -10,6 +10,7 @@
 
 [Care Commons](https://care-commons.vercel.app/) (web application demo)
 
+[Discord](https://discord.gg/EkeXQZFq)
 [Substack](https://neighborhoodlab.substack.com/) (updates, news and commentary)  
 [Patreon](https://www.patreon.com/cw/neighborhood_lab) (give your financial support for continued development)
 
