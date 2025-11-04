@@ -1,3 +1,17 @@
+# Codecov Configuration
+# 
+# Philosophy:
+# - High coverage for production code paths (90% target)
+# - Informational mode allows developer judgment for edge cases
+# - Stub implementations (marked TODO) are acceptable uncovered
+# - Focus on testing business logic and user-facing paths
+# - Report trends, don't block development for minor gaps
+#
+# This configuration balances:
+# 1. Quality: High bar for tested production code
+# 2. Pragmatism: Allow incomplete stubs until production-ready
+# 3. Velocity: Don't block PRs for acceptable edge cases
+
 codecov:
   require_ci_to_pass: true
   notify:
@@ -22,6 +36,12 @@ coverage:
         threshold: 15%       # Allow up to 15% deviation (65-95% acceptable)
         informational: true  # Show status but don't block PRs
         only_pulls: true     # Only enforce on pull requests
+        
+        # Rationale:
+        # - 90% is achievable for production code paths
+        # - Stub implementations (marked with TODO) are acceptable uncovered
+        # - Focus on testing business logic, not placeholder code
+        # - Informational mode allows developer discretion for edge cases
 
 comment:
   layout: "reach,diff,flags,tree,footer"
@@ -31,11 +51,44 @@ comment:
   require_head: true
 
 ignore:
+  # Test and configuration files
   - "**/__tests__/**"
   - "**/__mocks__/**"
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
   - "**/*.d.ts"
-  - "**/index.ts"
-  - "scripts/**"
-  - "migrations/**"
   - "**/*.config.ts"
   - "**/*.config.js"
+  
+  # Build and tooling
+  - "scripts/**"
+  - "migrations/**"
+  - "**/dist/**"
+  - "**/build/**"
+  
+  # Entry points (minimal logic)
+  - "**/index.ts"
+  
+  # Development and documentation
+  - "**/*.md"
+  - "**/examples/**"
+  - "**/docs/**"
+
+# Ignore specific patterns for stub implementations
+# These are intentionally incomplete until production credentials are available
+ignore_patterns:
+  # Stub HTTP implementations marked with TODO comments
+  # Pattern: private async send* methods that throw "not implemented"
+  - ".*sendToSandata.*"
+  - ".*sendToTellus.*"
+  - ".*sendToHHAeXchange.*"
+  
+flags:
+  # Multi-state EVV vertical
+  time-tracking-evv:
+    paths:
+      - verticals/time-tracking-evv/src
+    carryforward: true
+    # Allow stub implementations in aggregators
+    ignore:
+      - "verticals/time-tracking-evv/src/aggregators/*-aggregator.ts#L.*sendTo.*"
