@@ -685,6 +685,95 @@ npm run test:integration
 npm run test:compliance
 ```
 
+## Provider Integrations
+
+The EVV vertical integrates with other verticals through clean provider interfaces that maintain decoupling while enabling real-time data access for compliance operations.
+
+### Client Provider
+
+The `ClientProvider` fetches real client demographic data needed for EVV record creation:
+
+```typescript
+import { createClientProvider } from '@care-commons/time-tracking-evv';
+
+const clientProvider = createClientProvider(database);
+
+// Get client data for EVV compliance
+const client = await clientProvider.getClientForEVV(clientId);
+// Returns: { id, name, medicaidId, dateOfBirth, stateCode, ... }
+```
+
+**Features:**
+- Fetches client name, Medicaid ID, and state code for EVV records
+- Extracts Medicaid information from service eligibility JSONB
+- Handles multiple Medicaid program structures (state-specific variations)
+- Returns contact information for notifications
+
+### Caregiver Provider
+
+The `CaregiverProvider` validates caregiver credentials and authorizations:
+
+```typescript
+import { createCaregiverProvider } from '@care-commons/time-tracking-evv';
+
+const caregiverProvider = createCaregiverProvider(database);
+
+// Get caregiver credentials
+const caregiver = await caregiverProvider.getCaregiverForEVV(caregiverId);
+
+// Validate authorization to provide service
+const authCheck = await caregiverProvider.canProvideService(
+  caregiverId,
+  serviceTypeCode,
+  clientId
+);
+
+if (!authCheck.authorized) {
+  console.log(`Blocked: ${authCheck.reason}`);
+  console.log(`Missing: ${authCheck.missingCredentials}`);
+}
+```
+
+**Features:**
+- Validates background screening status (CLEARED, EXPIRED, FAILED, PENDING)
+- Filters active vs. expired credentials based on expiration dates
+- Checks client-specific restrictions
+- Validates service-type requirements (e.g., RN license for skilled nursing)
+- Extracts NPI (National Provider Identifier) for state submissions
+- Checks state registry status for multi-state operations
+
+### Visit Provider
+
+The `VisitProvider` (in scheduling-visits vertical) supplies visit details:
+
+```typescript
+import { createVisitProvider } from '@care-commons/scheduling-visits';
+
+const visitProvider = createVisitProvider(pool, database);
+
+// Get visit data for EVV
+const visit = await visitProvider.getVisitForEVV(visitId);
+
+// Validate clock-in eligibility
+const canClockIn = await visitProvider.canClockIn(visitId, caregiverId);
+```
+
+**Features:**
+- Fetches visit scheduling details (date, time, duration)
+- Provides service address with geocoded coordinates for geofencing
+- Validates visit assignment and status before clock operations
+- Updates visit status based on EVV events
+- Integrates with care plan data for authorization information
+
+### Zero Mock Data
+
+⚠️ **Production-Ready**: All providers use **real database queries** with zero mock data or temporary implementations. Regression tests ensure we never regress back to mocks.
+
+Run regression tests to verify:
+```bash
+npm run test -- provider-integration.regression.test.ts
+```
+
 ## License
 
 See [LICENSE](../../LICENSE) for details.
