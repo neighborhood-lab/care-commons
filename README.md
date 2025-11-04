@@ -120,11 +120,17 @@ npm install
 cp .env.example .env
 # Edit .env with your database credentials
 
-# Run database migrations
+# Run database migrations (DDL only - creates schema)
 npm run db:migrate
 
-# Seed sample data (optional)
+# Seed minimal operational data (org, branch, admin user)
 npm run db:seed
+
+# Optional: Seed demo data (sample clients, caregivers, programs)
+npm run db:seed:demo
+
+# Or use the convenience command for complete setup:
+npm run db:reset:demo
 
 # Build all packages
 npm run build
