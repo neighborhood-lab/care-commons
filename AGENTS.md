@@ -458,6 +458,100 @@ PRs **cannot merge** until all checks pass.
 - ✅ **ESM architecture** maintained throughout
 - ✅ **`.mts` for serverless** - explicit ESM for Vercel
 
+## Deployment & Branching Strategy
+
+### Critical Deployment Lessons (DO NOT REGRESS!)
+
+**November 2025 - Production Deployment Success**
+
+The following critical issues were resolved to achieve successful production deployment. **NEVER regress on these**:
+
+1. **ESM Import Resolution in Vercel Serverless**
+   - **Problem**: Node.js serverless functions failed with module resolution errors
+   - **Solution**: Added `tsc-alias` to all packages to append `.js` extensions to relative imports
+   - **Implementation**: 
+     - All `package.json` build scripts: `tsc && tsc-alias -p tsconfig.json`
+     - All `tsconfig.json` files include tsc-alias config with pattern `^(\\.{1,2}\\/[^'\"]+)$`
+     - API entry point (`api/index.ts`) imports from compiled `dist/` directory
+   - **Test**: Health check at `/health` must return 200 with database connection status
+
+2. **SPA Client-Side Routing**
+   - **Problem**: Direct navigation to routes like `/login` returned 404
+   - **Solution**: Added catch-all rewrite in `vercel.json`
+   - **Implementation**: `{"source": "/(.*)", "destination": "/index.html"}`
+   - **Test**: All frontend routes must be directly accessible via URL
+
+3. **Admin User Authentication**
+   - **Problem**: No admin user existed in production database
+   - **Solution**: Created temporary seed endpoint, then immediately removed after use
+   - **Security**: NEVER deploy unauthenticated admin creation endpoints to production
+   - **Test**: Login at `/login` with `admin@carecommons.example` must work
+
+4. **Database Schema Alignment**
+   - **Problem**: Production database schema didn't match code expectations
+   - **Solution**: Ensured migrations run before deployment, verified schema
+   - **Implementation**: Organizations table requires `primary_address`, `created_by`, `updated_by`
+   - **Test**: All database operations must succeed without schema errors
+
+### Branching & PR Strategy
+
+**Workflow**: `feature/*` → `develop` → `preview` → `main`
+
+- **`feature/*` branches**: Development work, no deployment
+- **`develop` branch**: Integration testing, **NEVER deployed** (was previously preview, now unused for deployment)
+- **`preview` branch**: Pre-production validation, deploys to **Vercel preview environment**
+- **`main` branch**: Production, deploys to **Vercel production environment**
+
+### Pull Request Requirements
+
+**ALL PRs to `preview` or `main` must**:
+
+1. Pass CI checks (lint, typecheck, test, build)
+2. Include regression tests for critical paths
+3. Be reviewed before merging
+4. Never bypass pre-commit hooks
+
+**Critical Regression Tests** (must pass):
+
+- Health check endpoint returns 200 with database connection
+- Authentication login flow works end-to-end
+- Frontend routes are accessible (SPA routing)
+- Database migrations complete successfully
+- ESM imports resolve in serverless environment
+
+### Local Development
+
+- `npm run dev` - Watch mode for all packages
+- `npm run build` - Production build (must succeed before commit)
+- `npm run lint` - Linting (must pass before commit)
+- `npm run typecheck` - Type checking (must pass before commit)
+- `npm run test` - All tests (must pass before commit)
+- `./scripts/check.sh` - Full validation before PR
+
+### Deployment Environments
+
+| Branch | Environment | URL | Database | Purpose |
+|--------|-------------|-----|----------|---------|
+| `main` | Production | care-commons.vercel.app | Production DB | Live system |
+| `preview` | Preview | preview-*.vercel.app | Preview DB | Pre-prod testing |
+| `develop` | None | N/A | Local | Integration only |
+| `feature/*` | None | N/A | Local | Development |
+
+### GitHub Actions Workflows
+
+**CI Workflow** (`.github/workflows/ci.yml`):
+- Triggers: PRs to `main`, `preview`, `develop`
+- Jobs: lint, typecheck, test, build
+- Must pass before merge
+
+**Deploy Workflow** (`.github/workflows/deploy.yml`):
+- Triggers: Push to `main` or `preview`
+- Jobs: 
+  - `main` → production deployment
+  - `preview` → preview deployment
+- Runs migrations before deployment
+- Validates environment configuration
+
 ---
 
 ## Your Mission

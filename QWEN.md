@@ -508,6 +508,71 @@ I approach every task with:
 - ✅ **ESM architecture** maintained throughout
 - ✅ **`.mts` for serverless** - explicit ESM for Vercel
 
+## Deployment & Branching Strategy
+
+### Critical Deployment Lessons (DO NOT REGRESS!)
+
+**November 2025 - Production Deployment Success**
+
+These critical issues were resolved for successful production deployment. **I must NEVER regress on these**:
+
+1. **ESM Import Resolution in Vercel Serverless**
+   - **Problem**: Node.js serverless functions failed with module resolution errors
+   - **Solution**: Added `tsc-alias` to all packages to append `.js` extensions
+   - **Test**: Health check at `/health` must return 200 with database status
+   - **Files**: All `package.json` build scripts use `tsc && tsc-alias -p tsconfig.json`
+
+2. **SPA Client-Side Routing**
+   - **Problem**: Direct navigation to `/login` returned 404
+   - **Solution**: Catch-all rewrite in `vercel.json`: `{"source": "/(.*)", "destination": "/index.html"}`
+   - **Test**: All frontend routes must be directly accessible
+
+3. **Admin Authentication**
+   - **Problem**: No admin user in production
+   - **Solution**: Temporary seed endpoint (immediately removed after use)
+   - **Security**: NEVER deploy unauthenticated admin endpoints
+   - **Test**: Login with `admin@carecommons.example` must work
+
+4. **Database Schema Alignment**
+   - **Solution**: Run migrations before deployment
+   - **Test**: All database operations succeed without schema errors
+
+### Branching & PR Workflow
+
+**Workflow**: `feature/*` → `develop` → `preview` → `main`
+
+| Branch | Deployment | Environment | Purpose |
+|--------|------------|-------------|---------|
+| `feature/*` | None | Local only | Feature development |
+| `develop` | **NEVER** | Local only | Integration testing |
+| `preview` | Vercel Preview | Preview DB | Pre-production validation |
+| `main` | Vercel Production | Production DB | Live system |
+
+**Pull Request Rules**:
+- All PRs to `preview` or `main` trigger CI checks
+- CI must pass: lint, typecheck, test, build
+- Regression tests must pass (health check, auth, routing)
+- Pre-commit hooks cannot be bypassed
+
+### Critical Regression Tests
+
+I must ensure these always work:
+
+1. **Health Check**: `GET /health` returns 200 with database connection
+2. **Authentication**: Login flow works end-to-end
+3. **SPA Routing**: Frontend routes accessible directly
+4. **Database**: Migrations complete successfully
+5. **ESM Imports**: Serverless functions resolve modules correctly
+
+### Local Development Commands
+
+- `npm run dev` - Watch mode development
+- `npm run build` - Production build (pre-commit check)
+- `npm run lint` - Linting (pre-commit check)
+- `npm run typecheck` - Type checking (pre-commit check)
+- `npm run test` - All tests (pre-commit check)
+- `./scripts/check.sh` - Full validation before PR
+
 ---
 
 **Following these guidelines ensures regulatory compliance, technical
