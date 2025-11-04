@@ -79,6 +79,12 @@ const navItems: NavItem[] = [
     icon: <DollarSign className="h-5 w-5" />,
     permission: 'billing:read',
   },
+  {
+    label: 'Admin',
+    path: '/admin',
+    icon: <Settings className="h-5 w-5" />,
+    permission: 'admin:access',
+  },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {

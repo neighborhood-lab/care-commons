@@ -1,6 +1,7 @@
 import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@vitest/browser/matchers';
+import '@testing-library/jest-dom/vitest';
 
 // Cleanup after each test case
 afterEach(() => {
