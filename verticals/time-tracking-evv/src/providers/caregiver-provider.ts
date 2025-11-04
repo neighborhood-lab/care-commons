@@ -100,6 +100,11 @@ export class CaregiverProvider implements ICaregiverProvider {
           const credType = cred.type ?? 'UNKNOWN';
           const credName = cred.name ?? credType;
           
+          // Skip NPI - it's tracked separately
+          if (credType === 'NPI') {
+            continue;
+          }
+          
           // Categorize as credential or certification
           if (credType.includes('LICENSE') || credType.includes('CERTIFICATION')) {
             activeCertifications.push(credName);
