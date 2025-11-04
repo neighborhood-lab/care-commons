@@ -259,10 +259,11 @@ export const StateConfigPanel: React.FC = () => {
 
               {/* Geofence Tolerance */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="geofence-tolerance" className="block text-sm font-medium text-gray-900 mb-2">
                   Geofence Tolerance (meters)
                 </label>
                 <input
+                  id="geofence-tolerance"
                   type="number"
                   min={50}
                   max={300}
@@ -280,10 +281,11 @@ export const StateConfigPanel: React.FC = () => {
 
               {/* Grace Period */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="grace-period" className="block text-sm font-medium text-gray-900 mb-2">
                   Clock-In Grace Period (minutes)
                 </label>
                 <input
+                  id="grace-period"
                   type="number"
                   min={5}
                   max={30}
@@ -301,10 +303,11 @@ export const StateConfigPanel: React.FC = () => {
 
               {/* GPS Accuracy Threshold */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="gps-accuracy" className="block text-sm font-medium text-gray-900 mb-2">
                   GPS Accuracy Threshold (meters)
                 </label>
                 <input
+                  id="gps-accuracy"
                   type="number"
                   min={50}
                   max={200}
@@ -322,10 +325,11 @@ export const StateConfigPanel: React.FC = () => {
 
               {/* Aggregator Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="evv-aggregator" className="block text-sm font-medium text-gray-900 mb-2">
                   EVV Aggregator
                 </label>
                 <select
+                  id="evv-aggregator"
                   value={currentConfig.aggregator}
                   onChange={(e) => updateConfig('aggregator', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"

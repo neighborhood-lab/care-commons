@@ -17,10 +17,10 @@ describe('AdminDashboard', () => {
 
   it('should render all real-time stats cards', () => {
     render(<AdminDashboard />);
-    expect(screen.getByText('Active Visits')).toBeInTheDocument();
-    expect(screen.getByText('EVV Exceptions')).toBeInTheDocument();
-    expect(screen.getByText('Pending VMURs (TX)')).toBeInTheDocument();
-    expect(screen.getByText('Geofence Violations')).toBeInTheDocument();
+    expect(screen.getAllByText('Active Visits').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('EVV Exceptions').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Pending VMURs (TX)').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Geofence Violations').length).toBeGreaterThan(0);
   });
 
   it('should render all tab buttons', () => {

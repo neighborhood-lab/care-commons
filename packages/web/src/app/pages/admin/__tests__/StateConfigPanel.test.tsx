@@ -26,36 +26,36 @@ describe('StateConfigPanel', () => {
 
   it('should render geofence tolerance input', () => {
     render(<StateConfigPanel />);
-    const input = screen.getByLabelText(/Geofence Tolerance/i);
+    const input = screen.getByLabelText(/geofence tolerance/i);
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('type', 'number');
   });
 
   it('should render grace period input', () => {
     render(<StateConfigPanel />);
-    const input = screen.getByLabelText(/Clock-In Grace Period/i);
+    const input = screen.getByLabelText(/clock-in grace period/i);
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('type', 'number');
   });
 
   it('should render GPS accuracy threshold input', () => {
     render(<StateConfigPanel />);
-    const input = screen.getByLabelText(/GPS Accuracy Threshold/i);
+    const input = screen.getByLabelText(/gps accuracy threshold/i);
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('type', 'number');
   });
 
   it('should render aggregator select', () => {
     render(<StateConfigPanel />);
-    const select = screen.getByLabelText(/EVV Aggregator/i);
+    const select = screen.getByLabelText(/evv aggregator/i);
     expect(select).toBeInTheDocument();
     expect(select.tagName).toBe('SELECT');
   });
 
   it('should have Save and Reset buttons disabled initially', () => {
     render(<StateConfigPanel />);
-    const saveButton = screen.getByText(/Save Changes/i);
-    const resetButton = screen.getByText(/Reset/i);
+    const saveButton = screen.getByRole('button', { name: /save changes/i });
+    const resetButton = screen.getByRole('button', { name: /reset/i });
     expect(saveButton).toBeDisabled();
     expect(resetButton).toBeDisabled();
   });
@@ -64,11 +64,11 @@ describe('StateConfigPanel', () => {
     render(<StateConfigPanel />);
     
     // Make a change to geofence tolerance
-    const input = screen.getByLabelText(/Geofence Tolerance/i);
+    const input = screen.getByLabelText(/geofence tolerance/i);
     fireEvent.change(input, { target: { value: '150' } });
 
-    const saveButton = screen.getByText(/Save Changes/i);
-    const resetButton = screen.getByText(/Reset/i);
+    const saveButton = screen.getByRole('button', { name: /save changes/i });
+    const resetButton = screen.getByRole('button', { name: /reset/i });
     expect(saveButton).not.toBeDisabled();
     expect(resetButton).not.toBeDisabled();
   });
@@ -77,10 +77,10 @@ describe('StateConfigPanel', () => {
     render(<StateConfigPanel />);
     
     // Make a change
-    const input = screen.getByLabelText(/Geofence Tolerance/i);
+    const input = screen.getByLabelText(/geofence tolerance/i);
     fireEvent.change(input, { target: { value: '150' } });
 
-    expect(screen.getByText(/You have unsaved changes/i)).toBeInTheDocument();
+    expect(screen.getByText(/you have unsaved changes/i)).toBeInTheDocument();
   });
 
   it('should switch states when state button is clicked', () => {
@@ -95,24 +95,24 @@ describe('StateConfigPanel', () => {
 
   it('should render enable/disable toggle', () => {
     render(<StateConfigPanel />);
-    expect(screen.getByText(/Enable TX Operations/i)).toBeInTheDocument();
+    expect(screen.getByText(/enable tx operations/i)).toBeInTheDocument();
   });
 
   it('should render required documentation checkboxes', () => {
     render(<StateConfigPanel />);
-    expect(screen.getByText(/EVV 6 Required Elements/i)).toBeInTheDocument();
-    expect(screen.getByText(/GPS Coordinates/i)).toBeInTheDocument();
+    expect(screen.getByText(/evv 6 required elements/i)).toBeInTheDocument();
+    expect(screen.getByText(/gps coordinates/i)).toBeInTheDocument();
   });
 
   it('should have proper input constraints', () => {
     render(<StateConfigPanel />);
     
-    const geofenceInput = screen.getByLabelText(/Geofence Tolerance/i);
+    const geofenceInput = screen.getByLabelText(/geofence tolerance/i);
     expect(geofenceInput).toHaveAttribute('min', '50');
     expect(geofenceInput).toHaveAttribute('max', '300');
     expect(geofenceInput).toHaveAttribute('step', '10');
 
-    const graceInput = screen.getByLabelText(/Clock-In Grace Period/i);
+    const graceInput = screen.getByLabelText(/clock-in grace period/i);
     expect(graceInput).toHaveAttribute('min', '5');
     expect(graceInput).toHaveAttribute('max', '30');
     expect(graceInput).toHaveAttribute('step', '5');
