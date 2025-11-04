@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ClientProvider } from '../client-provider.js';
+import { ClientProvider, createClientProvider } from '../client-provider.js';
 import { NotFoundError } from '@care-commons/core';
 import type { Database } from '@care-commons/core';
 
@@ -224,6 +224,15 @@ describe('ClientProvider', () => {
       await expect(
         clientProvider.getClientForEVV('client-123' as any)
       ).rejects.toThrow('Database connection failed');
+    });
+  });
+
+  describe('Factory Function', () => {
+    it('should create ClientProvider instance via factory', () => {
+      const provider = createClientProvider(mockDatabase);
+      
+      expect(provider).toBeInstanceOf(ClientProvider);
+      expect(provider).toHaveProperty('getClientForEVV');
     });
   });
 });

@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CaregiverProvider } from '../caregiver-provider.js';
+import { CaregiverProvider, createCaregiverProvider } from '../caregiver-provider.js';
 import { NotFoundError } from '@care-commons/core';
 import type { Database } from '@care-commons/core';
 
@@ -281,6 +281,42 @@ describe('CaregiverProvider', () => {
         caregiverProvider.getCaregiverForEVV('nonexistent-caregiver' as any)
       ).rejects.toThrow(NotFoundError);
     });
+
+    it('should categorize non-certification/non-license credentials as activeCredentials', async () => {
+      const mockCaregiverData = {
+        id: 'caregiver-555',
+        first_name: 'Test',
+        last_name: 'User',
+        employee_number: 'EMP-555',
+        credentials: JSON.stringify([
+          {
+            type: 'TRAINING',
+            name: 'First Aid Training',
+            status: 'ACTIVE',
+            expirationDate: '2026-12-31',
+          },
+          {
+            type: 'SKILL',
+            name: 'Wound Care Skill',
+            status: 'ACTIVE',
+          },
+        ]),
+        background_check: JSON.stringify({ status: 'CLEARED' }),
+        custom_fields: null,
+        compliance_status: 'COMPLIANT',
+      };
+
+      (mockDatabase.query as ReturnType<typeof vi.fn>).mockResolvedValue({
+        rows: [mockCaregiverData],
+      });
+
+      const result = await caregiverProvider.getCaregiverForEVV('caregiver-555' as any);
+
+      // These should be in activeCredentials since they don't contain LICENSE or CERTIFICATION
+      expect(result.activeCredentials).toContain('First Aid Training');
+      expect(result.activeCredentials).toContain('Wound Care Skill');
+      expect(result.activeCertifications).toEqual([]);
+    });
   });
 
   describe('canProvideService', () => {
@@ -485,6 +521,16 @@ describe('CaregiverProvider', () => {
       expect(result.blockedReasons).toContain('Background screening expired');
       expect(result.blockedReasons).toContain('Caregiver is restricted from this client');
       expect(result.missingCredentials).toContain('HHA_CERTIFICATION');
+    });
+  });
+
+  describe('Factory Function', () => {
+    it('should create CaregiverProvider instance via factory', () => {
+      const provider = createCaregiverProvider(mockDatabase);
+      
+      expect(provider).toBeInstanceOf(CaregiverProvider);
+      expect(provider).toHaveProperty('getCaregiverForEVV');
+      expect(provider).toHaveProperty('canProvideService');
     });
   });
 });
