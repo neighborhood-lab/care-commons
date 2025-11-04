@@ -12,8 +12,6 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
-// TEMPORARY - REMOVE AFTER SEEDING!
-import { createSeedAdminRouter } from './seed-admin.js';
 
 /**
  * Setup all API routes for the application
@@ -52,11 +50,6 @@ export function setupRoutes(app: Express, db: Database): void {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
-
-  // TEMPORARY - REMOVE AFTER SEEDING!
-  const seedAdminRouter = createSeedAdminRouter(db);
-  app.use(seedAdminRouter);
-  console.log('  ⚠️  TEMPORARY seed-admin endpoint active - REMOVE AFTER USE!');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
