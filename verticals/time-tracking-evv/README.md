@@ -4,6 +4,15 @@
 
 The **Time Tracking & EVV** vertical provides comprehensive Electronic Visit Verification capabilities that meet federal and state requirements under the 21st Century Cures Act. It ensures accurate documentation of when and where home care services are delivered, with robust integrity checks to prevent fraud and maintain regulatory compliance.
 
+## Multi-State Support
+
+**7 States Supported**: TX, FL, OH, PA, GA, NC, AZ
+
+- **Massive Code Reuse**: Single Sandata aggregator serves OH, PA, NC, AZ (4 states)
+- **State-Specific Configurations**: Geofence rules, grace periods, retention policies
+- **Aggregator Integration**: HHAeXchange (TX), Multi-aggregator (FL), Sandata (OH, PA, NC, AZ), Tellus (GA)
+- **28,000+ Potential Customers**: Expanded from 2 states to 7 states (3x+ market expansion)
+
 ## Features
 
 ### Core EVV Compliance

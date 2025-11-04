@@ -424,12 +424,14 @@ export class EVVAggregatorService {
   private extractStateCode(evvRecord: EVVRecord): StateCode {
     const stateAbbr = evvRecord.serviceAddress.state;
 
-    if (stateAbbr === 'TX') return 'TX';
-    if (stateAbbr === 'FL') return 'FL';
+    const validStates: StateCode[] = ['TX', 'FL', 'OH', 'PA', 'GA', 'NC', 'AZ'];
+    if (validStates.includes(stateAbbr as StateCode)) {
+      return stateAbbr as StateCode;
+    }
 
     throw new ValidationError(
       `Unsupported state for EVV aggregator: ${stateAbbr}`,
-      { state: stateAbbr, evvRecordId: evvRecord.id }
+      { state: stateAbbr, evvRecordId: evvRecord.id, supportedStates: validStates }
     );
   }
 
