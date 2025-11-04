@@ -13,6 +13,7 @@
  */
 
 import type { Database } from '@nozbe/watermelondb';
+import { Q } from '@nozbe/watermelondb';
 import type {
   ClockInInput,
   ClockOutInput,
@@ -147,11 +148,8 @@ export class OfflineQueueService {
       const pendingOps = await this.database
         .get('sync_queue')
         .query(
-          // @ts-expect-error - WatermelonDB query API
           Q.where('status', 'PENDING'),
-          // @ts-expect-error - WatermelonDB query API
           Q.sortBy('priority', Q.desc),
-          // @ts-expect-error - WatermelonDB query API
           Q.sortBy('created_at', Q.asc)
         )
         .fetch();
@@ -344,7 +342,6 @@ export class OfflineQueueService {
     const pending = await this.database
       .get('sync_queue')
       .query(
-        // @ts-expect-error - WatermelonDB query API
         Q.where('status', 'PENDING')
       )
       .fetchCount();
@@ -352,7 +349,6 @@ export class OfflineQueueService {
     const inProgress = await this.database
       .get('sync_queue')
       .query(
-        // @ts-expect-error - WatermelonDB query API
         Q.where('status', 'IN_PROGRESS')
       )
       .fetchCount();
@@ -360,7 +356,6 @@ export class OfflineQueueService {
     const failed = await this.database
       .get('sync_queue')
       .query(
-        // @ts-expect-error - WatermelonDB query API
         Q.where('status', 'FAILED')
       )
       .fetchCount();
@@ -368,7 +363,6 @@ export class OfflineQueueService {
     const completed = await this.database
       .get('sync_queue')
       .query(
-        // @ts-expect-error - WatermelonDB query API
         Q.where('status', 'COMPLETED')
       )
       .fetchCount();
@@ -392,9 +386,7 @@ export class OfflineQueueService {
     const completed = await this.database
       .get('sync_queue')
       .query(
-        // @ts-expect-error - WatermelonDB query API
         Q.where('status', 'COMPLETED'),
-        // @ts-expect-error - WatermelonDB query API
         Q.where('completed_at', Q.lt(cutoffDate))
       )
       .fetch();

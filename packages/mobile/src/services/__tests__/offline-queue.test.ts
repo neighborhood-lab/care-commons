@@ -32,6 +32,24 @@ describe('OfflineQueueService', () => {
   
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset create mock to default implementation
+    mockCollection.create.mockImplementation((callback) => {
+      const record = {
+        id: '',
+        operationType: '',
+        entityType: '',
+        entityId: '',
+        payloadJson: '',
+        priority: 0,
+        retryCount: 0,
+        maxRetries: 0,
+        status: '',
+        createdAt: 0,
+        updatedAt: 0,
+      };
+      callback(record);
+      return Promise.resolve(record);
+    });
     mockDatabase.collections.get.mockReturnValue(mockCollection);
     mockDatabase.get.mockReturnValue(mockCollection);
     service = new OfflineQueueService(mockDatabase);
@@ -88,7 +106,13 @@ describe('OfflineQueueService', () => {
       expect(mockRecord.entityId).toBe('visit-123');
       expect(mockRecord.priority).toBe(100); // Highest priority
       expect(mockRecord.status).toBe('PENDING');
-      expect(JSON.parse(mockRecord.payloadJson)).toEqual(clockInInput);
+      
+      const parsed = JSON.parse(mockRecord.payloadJson);
+      expect(parsed.visitId).toBe(clockInInput.visitId);
+      expect(parsed.caregiverId).toBe(clockInInput.caregiverId);
+      expect(parsed.location.latitude).toBe(clockInInput.location.latitude);
+      expect(parsed.location.longitude).toBe(clockInInput.location.longitude);
+      expect(parsed.location.timestamp).toBe(clockInInput.location.timestamp.toISOString());
     });
 
     it('should handle errors gracefully', async () => {
