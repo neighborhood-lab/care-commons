@@ -7,8 +7,10 @@ export default defineProject({
   test: {
     name: 'web',
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
     setupFiles: './src/test/setup.ts',
+    maxConcurrency: 1,
+    pool: 'vmThreads',
   },
   resolve: {
     alias: {
