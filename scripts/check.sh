@@ -47,6 +47,7 @@ echo "🗄️  Setting up database..."
 npm run db:nuke
 npm run db:migrate
 npm run db:seed
+npm run db:seed:demo
 
 echo "🏗️  Building project..."
 npm run build
