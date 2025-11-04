@@ -58,7 +58,12 @@ const mockCaregiverProvider = {
   canProvideService: vi.fn(),
 } as any;
 
-const mockDatabase = {} as Database;
+const mockDatabase = {
+  query: vi.fn(),
+  execute: vi.fn(),
+  transaction: vi.fn(),
+  close: vi.fn(),
+} as any as Database;
 
 describe('EVVService', () => {
   let service: EVVService;
@@ -742,6 +747,264 @@ describe('EVVService', () => {
 
       await expect(service.searchEVVRecords({}, { page: 1, limit: 10 }, unauthorizedUser))
         .rejects.toThrow(PermissionError);
+    });
+  });
+
+  describe('submitToStateAggregator', () => {
+    const createMockEVVRecord = (state: string): EVVRecord => ({
+      id: '11111111-1111-1111-1111-111111111111' as UUID,
+      visitId: '22222222-2222-2222-2222-222222222222' as UUID,
+      organizationId: '33333333-3333-3333-3333-333333333333' as UUID,
+      branchId: '44444444-4444-4444-4444-444444444444' as UUID,
+      clientId: '55555555-5555-5555-5555-555555555555' as UUID,
+      caregiverId: '66666666-6666-6666-6666-666666666666' as UUID,
+      serviceTypeCode: 'T1019',
+      serviceTypeName: 'Personal Care Services',
+      clientName: 'Test Client',
+      clientMedicaidId: 'MED123456',
+      caregiverName: 'Test Caregiver',
+      caregiverEmployeeId: 'EMP001',
+      caregiverNationalProviderId: '1234567890',
+      serviceDate: new Date('2025-11-04'),
+      serviceAddress: {
+        line1: '123 Main St',
+        city: 'Test City',
+        state,
+        postalCode: '12345',
+        country: 'US',
+        latitude: 39.9612,
+        longitude: -82.9988,
+        geofenceRadius: 100,
+        addressVerified: true,
+      },
+      clockInTime: new Date('2025-11-04T10:00:00Z'),
+      clockOutTime: new Date('2025-11-04T12:00:00Z'),
+      totalDuration: 120,
+      clockInVerification: {
+        latitude: 39.9612,
+        longitude: -82.9988,
+        accuracy: 10,
+        timestamp: new Date('2025-11-04T10:00:00Z'),
+        timestampSource: 'GPS',
+        isWithinGeofence: true,
+        distanceFromAddress: 5,
+        geofencePassed: true,
+        verificationPassed: true,
+        deviceId: 'device-123',
+        deviceModel: 'iPhone 14',
+        deviceOS: 'iOS 17',
+        appVersion: '1.0.0',
+        method: 'GPS',
+        locationSource: 'GPS_SATELLITE',
+        mockLocationDetected: false,
+      },
+      clockOutVerification: {
+        latitude: 39.9612,
+        longitude: -82.9988,
+        accuracy: 10,
+        timestamp: new Date('2025-11-04T12:00:00Z'),
+        timestampSource: 'GPS',
+        isWithinGeofence: true,
+        distanceFromAddress: 5,
+        geofencePassed: true,
+        verificationPassed: true,
+        deviceId: 'device-123',
+        deviceModel: 'iPhone 14',
+        deviceOS: 'iOS 17',
+        appVersion: '1.0.0',
+        method: 'GPS',
+        locationSource: 'GPS_SATELLITE',
+        mockLocationDetected: false,
+      },
+      recordStatus: 'COMPLETE',
+      verificationLevel: 'FULL',
+      complianceFlags: ['COMPLIANT'],
+      integrityHash: 'hash123',
+      integrityChecksum: 'checksum123',
+      recordedAt: new Date('2025-11-04T10:00:00Z'),
+      recordedBy: '77777777-7777-7777-7777-777777777777' as UUID,
+      syncMetadata: {
+        syncId: '88888888-8888-8888-8888-888888888888' as UUID,
+        lastSyncedAt: new Date('2025-11-04T10:00:00Z'),
+        syncStatus: 'SYNCED',
+      },
+      createdAt: new Date('2025-11-04T10:00:00Z'),
+      createdBy: '77777777-7777-7777-7777-777777777777' as UUID,
+      updatedAt: new Date('2025-11-04T10:00:00Z'),
+      updatedBy: '77777777-7777-7777-7777-777777777777' as UUID,
+      version: 1,
+    });
+
+    describe('New State Routing (OH, PA, GA, NC, AZ)', () => {
+      it('should route Ohio (OH) EVV record to Sandata via aggregator router', async () => {
+        const ohRecord = createMockEVVRecord('OH');
+        mockRepository.getEVVRecordById.mockResolvedValue(ohRecord);
+
+        const result = await service.submitToStateAggregator(ohRecord.id, userContext);
+
+        expect(result.state).toBe('OH');
+        expect(result.submissions).toHaveLength(1);
+        expect(mockRepository.getEVVRecordById).toHaveBeenCalledWith(ohRecord.id);
+      });
+
+      it('should route Pennsylvania (PA) EVV record to Sandata via aggregator router', async () => {
+        const paRecord = createMockEVVRecord('PA');
+        mockRepository.getEVVRecordById.mockResolvedValue(paRecord);
+
+        const result = await service.submitToStateAggregator(paRecord.id, userContext);
+
+        expect(result.state).toBe('PA');
+        expect(result.submissions).toHaveLength(1);
+      });
+
+      it('should route Georgia (GA) EVV record to Tellus via aggregator router', async () => {
+        const gaRecord = createMockEVVRecord('GA');
+        mockRepository.getEVVRecordById.mockResolvedValue(gaRecord);
+
+        const result = await service.submitToStateAggregator(gaRecord.id, userContext);
+
+        expect(result.state).toBe('GA');
+        expect(result.submissions).toHaveLength(1);
+      });
+
+      it('should route North Carolina (NC) EVV record to Sandata via aggregator router', async () => {
+        const ncRecord = createMockEVVRecord('NC');
+        mockRepository.getEVVRecordById.mockResolvedValue(ncRecord);
+
+        const result = await service.submitToStateAggregator(ncRecord.id, userContext);
+
+        expect(result.state).toBe('NC');
+        expect(result.submissions).toHaveLength(1);
+      });
+
+      it('should route Arizona (AZ) EVV record to Sandata via aggregator router', async () => {
+        const azRecord = createMockEVVRecord('AZ');
+        mockRepository.getEVVRecordById.mockResolvedValue(azRecord);
+
+        const result = await service.submitToStateAggregator(azRecord.id, userContext);
+
+        expect(result.state).toBe('AZ');
+        expect(result.submissions).toHaveLength(1);
+      });
+    });
+
+    describe('Legacy State Routing (TX, FL)', () => {
+      it('should route Texas (TX) EVV record to TexasEVVProvider', async () => {
+        const txRecord = createMockEVVRecord('TX');
+        mockRepository.getEVVRecordById.mockResolvedValue(txRecord);
+        
+        // Mock TX provider database queries
+        (mockDatabase.query as any).mockResolvedValue({
+          rows: [{
+            api_endpoint: 'https://api.hhaeexchange.com/evv',
+            api_key: 'test-key',
+            tenant_id: 'test-tenant',
+          }],
+        });
+
+        const result = await service.submitToStateAggregator(txRecord.id, userContext);
+
+        expect(result.state).toBe('TX');
+        expect(result.submissions).toHaveLength(1);
+        expect(mockRepository.getEVVRecordById).toHaveBeenCalledWith(txRecord.id);
+      });
+
+      it('should route Florida (FL) EVV record to FloridaEVVProvider', async () => {
+        const flRecord = createMockEVVRecord('FL');
+        mockRepository.getEVVRecordById.mockResolvedValue(flRecord);
+        
+        // Mock FL provider database queries
+        (mockDatabase.query as any).mockResolvedValue({
+          rows: [{
+            aggregator: 'HHAEEXCHANGE',
+            api_endpoint: 'https://api.hhaeexchange.com/evv',
+            api_key: 'test-key',
+          }],
+        });
+
+        const result = await service.submitToStateAggregator(flRecord.id, userContext);
+
+        expect(result.state).toBe('FL');
+        expect(result.submissions).toBeInstanceOf(Array);
+        expect(mockRepository.getEVVRecordById).toHaveBeenCalledWith(flRecord.id);
+      });
+    });
+
+    describe('Error Handling', () => {
+      it('should throw NotFoundError when EVV record does not exist', async () => {
+        mockRepository.getEVVRecordById.mockResolvedValue(null);
+
+        await expect(
+          service.submitToStateAggregator('nonexistent-id' as UUID, userContext)
+        ).rejects.toThrow(NotFoundError);
+      });
+
+      it('should throw ValidationError for unsupported state', async () => {
+        const invalidStateRecord = createMockEVVRecord('CA'); // California not supported
+        mockRepository.getEVVRecordById.mockResolvedValue(invalidStateRecord);
+
+        await expect(
+          service.submitToStateAggregator(invalidStateRecord.id, userContext)
+        ).rejects.toThrow(ValidationError);
+      });
+
+      it('should throw ValidationError with helpful message for unsupported state', async () => {
+        const invalidStateRecord = createMockEVVRecord('NY'); // New York not supported
+        mockRepository.getEVVRecordById.mockResolvedValue(invalidStateRecord);
+
+        try {
+          await service.submitToStateAggregator(invalidStateRecord.id, userContext);
+          expect.fail('Should have thrown ValidationError');
+        } catch (error) {
+          expect(error).toBeInstanceOf(ValidationError);
+          expect((error as ValidationError).message).toContain('does not have EVV aggregator configured');
+          expect((error as ValidationError).context).toEqual({
+            state: 'NY',
+            supportedStates: ['TX', 'FL', 'OH', 'PA', 'GA', 'NC', 'AZ'],
+          });
+        }
+      });
+    });
+
+    describe('Code Reuse Validation', () => {
+      it('should demonstrate single Sandata instance serves multiple states', async () => {
+        const sandataStates = ['OH', 'PA', 'NC', 'AZ'];
+        
+        for (const state of sandataStates) {
+          const record = createMockEVVRecord(state);
+          mockRepository.getEVVRecordById.mockResolvedValue(record);
+          
+          const result = await service.submitToStateAggregator(record.id, userContext);
+          
+          expect(result.state).toBe(state);
+          expect(result.submissions).toHaveLength(1);
+        }
+      });
+
+      it('should show all 7 supported states work end-to-end', async () => {
+        const allStates = ['TX', 'FL', 'OH', 'PA', 'GA', 'NC', 'AZ'];
+        
+        // Mock database queries for TX/FL providers
+        (mockDatabase.query as any).mockResolvedValue({
+          rows: [{
+            api_endpoint: 'https://api.example.com/evv',
+            api_key: 'test-key',
+            tenant_id: 'test-tenant',
+            aggregator: 'HHAEEXCHANGE',
+          }],
+        });
+        
+        for (const state of allStates) {
+          const record = createMockEVVRecord(state);
+          mockRepository.getEVVRecordById.mockResolvedValue(record);
+          
+          const result = await service.submitToStateAggregator(record.id, userContext);
+          
+          expect(result.state).toBe(state);
+          expect(result.submissions).toBeDefined();
+          expect(result.submissions.length).toBeGreaterThan(0);
+        }
+      });
     });
   });
 });
