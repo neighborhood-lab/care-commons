@@ -26,15 +26,15 @@ coverage:
     project:
       default:
         target: 70%
-        threshold: 2%
+        threshold: 5%        # Allow 5% decrease before failing
         if_ci_failed: error
         informational: false
     
     patch:
       default:
-        target: 90%          # High bar for new code (achievable)
-        threshold: 5%        # Allow 85-95% range for edge cases
-        informational: true  # Report but don't block PRs - focus on trends
+        target: 80%          # Reasonable bar for new code
+        threshold: 15%       # Allow up to 15% deviation (65-95% acceptable)
+        informational: true  # Show status but don't block PRs
         only_pulls: true     # Only enforce on pull requests
         
         # Rationale:

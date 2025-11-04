@@ -241,7 +241,6 @@ STAGING_JWT_SECRET=your-staging-jwt-secret
 
 # Optional services
 CODECOV_TOKEN=your-codecov-token
-SNYK_TOKEN=your-snyk-token
 ```
 
 ### Manual Workflows
