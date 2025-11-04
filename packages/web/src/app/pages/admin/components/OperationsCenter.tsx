@@ -43,93 +43,98 @@ interface PendingVMUR {
   status: 'PENDING' | 'APPROVED' | 'DENIED';
 }
 
+// Mock data - in production, this would come from real-time API/WebSocket
+// Using fixed timestamps to avoid impure Date.now() calls during render
+const MOCK_ACTIVE_VISITS: ActiveVisit[] = [
+  {
+    id: '1',
+    caregiverName: 'Sarah Johnson',
+    clientName: 'John Doe',
+    clockInTime: new Date('2024-01-15T14:15:00Z'), // 45 mins ago (example)
+    gpsStatus: 'good',
+    geofenceStatus: 'within',
+    state: 'TX',
+  },
+  {
+    id: '2',
+    caregiverName: 'Michael Brown',
+    clientName: 'Emily Davis',
+    clockInTime: new Date('2024-01-15T13:00:00Z'), // 2 hours ago (example)
+    gpsStatus: 'weak',
+    geofenceStatus: 'within',
+    state: 'FL',
+  },
+  {
+    id: '3',
+    caregiverName: 'Jennifer Wilson',
+    clientName: 'Robert Smith',
+    clockInTime: new Date('2024-01-15T14:30:00Z'), // 30 mins ago (example)
+    gpsStatus: 'good',
+    geofenceStatus: 'outside',
+    state: 'TX',
+  },
+];
+
+const MOCK_EVV_EXCEPTIONS: EVVException[] = [
+  {
+    id: '1',
+    type: 'GEOFENCE_VIOLATION',
+    severity: 'critical',
+    description: 'Clock-in location 245m from client address',
+    visitId: '3',
+    caregiverName: 'Jennifer Wilson',
+    detectedAt: new Date('2024-01-15T14:30:00Z'), // 30 mins ago (example)
+    requiresAction: true,
+  },
+  {
+    id: '2',
+    type: 'GPS_ACCURACY_LOW',
+    severity: 'warning',
+    description: 'GPS accuracy 180m (below 100m threshold)',
+    visitId: '2',
+    caregiverName: 'Michael Brown',
+    detectedAt: new Date('2024-01-15T14:45:00Z'), // 15 mins ago (example)
+    requiresAction: false,
+  },
+  {
+    id: '3',
+    type: 'CLOCK_IN_TOO_EARLY',
+    severity: 'error',
+    description: 'Clock-in 18 minutes early (TX allows max 10 minutes)',
+    visitId: '5',
+    caregiverName: 'David Martinez',
+    detectedAt: new Date('2024-01-15T14:00:00Z'), // 1 hour ago (example)
+    requiresAction: true,
+  },
+];
+
+const MOCK_PENDING_VMURS: PendingVMUR[] = [
+  {
+    id: '1',
+    visitId: '101',
+    caregiverName: 'Sarah Johnson',
+    requestedBy: 'Admin User',
+    requestReason: 'FORGOT_TO_CLOCK',
+    requestedAt: new Date('2024-01-14T15:00:00Z'), // 1 day ago (example)
+    deadline: new Date('2024-01-21T15:00:00Z'), // 6 days from now (example)
+    status: 'PENDING',
+  },
+  {
+    id: '2',
+    visitId: '102',
+    caregiverName: 'Michael Brown',
+    requestedBy: 'Coordinator Smith',
+    requestReason: 'GPS_UNAVAILABLE',
+    requestedAt: new Date('2024-01-15T03:00:00Z'), // 12 hours ago (example)
+    deadline: new Date('2024-01-21T15:00:00Z'), // 6.5 days from now (example)
+    status: 'PENDING',
+  },
+];
+
 export const OperationsCenter: React.FC = () => {
-  // Mock data - in production, this would come from real-time API/WebSocket
-  const [activeVisits] = useState<ActiveVisit[]>([
-    {
-      id: '1',
-      caregiverName: 'Sarah Johnson',
-      clientName: 'John Doe',
-      clockInTime: new Date(Date.now() - 1000 * 60 * 45), // 45 mins ago
-      gpsStatus: 'good',
-      geofenceStatus: 'within',
-      state: 'TX',
-    },
-    {
-      id: '2',
-      caregiverName: 'Michael Brown',
-      clientName: 'Emily Davis',
-      clockInTime: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
-      gpsStatus: 'weak',
-      geofenceStatus: 'within',
-      state: 'FL',
-    },
-    {
-      id: '3',
-      caregiverName: 'Jennifer Wilson',
-      clientName: 'Robert Smith',
-      clockInTime: new Date(Date.now() - 1000 * 60 * 30), // 30 mins ago
-      gpsStatus: 'good',
-      geofenceStatus: 'outside',
-      state: 'TX',
-    },
-  ]);
-
-  const [exceptions] = useState<EVVException[]>([
-    {
-      id: '1',
-      type: 'GEOFENCE_VIOLATION',
-      severity: 'critical',
-      description: 'Clock-in location 245m from client address',
-      visitId: '3',
-      caregiverName: 'Jennifer Wilson',
-      detectedAt: new Date(Date.now() - 1000 * 60 * 30),
-      requiresAction: true,
-    },
-    {
-      id: '2',
-      type: 'GPS_ACCURACY_LOW',
-      severity: 'warning',
-      description: 'GPS accuracy 180m (below 100m threshold)',
-      visitId: '2',
-      caregiverName: 'Michael Brown',
-      detectedAt: new Date(Date.now() - 1000 * 60 * 15),
-      requiresAction: false,
-    },
-    {
-      id: '3',
-      type: 'CLOCK_IN_TOO_EARLY',
-      severity: 'error',
-      description: 'Clock-in 18 minutes early (TX allows max 10 minutes)',
-      visitId: '5',
-      caregiverName: 'David Martinez',
-      detectedAt: new Date(Date.now() - 1000 * 60 * 60),
-      requiresAction: true,
-    },
-  ]);
-
-  const [pendingVMURs] = useState<PendingVMUR[]>([
-    {
-      id: '1',
-      visitId: '101',
-      caregiverName: 'Sarah Johnson',
-      requestedBy: 'Admin User',
-      requestReason: 'FORGOT_TO_CLOCK',
-      requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 6), // 6 days from now
-      status: 'PENDING',
-    },
-    {
-      id: '2',
-      visitId: '102',
-      caregiverName: 'Michael Brown',
-      requestedBy: 'Coordinator Smith',
-      requestReason: 'GPS_UNAVAILABLE',
-      requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 hours ago
-      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 6.5), // 6.5 days from now
-      status: 'PENDING',
-    },
-  ]);
+  const [activeVisits] = useState<ActiveVisit[]>(MOCK_ACTIVE_VISITS);
+  const [exceptions] = useState<EVVException[]>(MOCK_EVV_EXCEPTIONS);
+  const [pendingVMURs] = useState<PendingVMUR[]>(MOCK_PENDING_VMURS);
 
   const getGPSStatusColor = (status: ActiveVisit['gpsStatus']) => {
     switch (status) {
@@ -162,7 +167,8 @@ export const OperationsCenter: React.FC = () => {
   };
 
   const formatDuration = (date: Date) => {
-    const minutes = Math.floor((Date.now() - date.getTime()) / 1000 / 60);
+    const now = new Date();
+    const minutes = Math.floor((now.getTime() - date.getTime()) / 1000 / 60);
     if (minutes < 60) return `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
     return `${hours}h ${minutes % 60}m ago`;

@@ -10,17 +10,17 @@ describe('DataGridPanel', () => {
 
   it('should render search input', () => {
     render(<DataGridPanel />);
-    const searchInput = screen.getByPlaceholderText(/Search tables/i);
+    const searchInput = screen.getByPlaceholderText(/search tables/i);
     expect(searchInput).toBeInTheDocument();
   });
 
   it('should render category filter buttons', () => {
     render(<DataGridPanel />);
-    expect(screen.getByText(/All Tables/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Core/i)).toBeInTheDocument();
-    expect(screen.getByText(/^EVV/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Billing/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Scheduling/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /all tables/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /core \(\d+\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /evv \(\d+\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /billing \(\d+\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /scheduling \(\d+\)/i })).toBeInTheDocument();
   });
 
   it('should display all database tables by default', () => {
@@ -36,7 +36,7 @@ describe('DataGridPanel', () => {
     render(<DataGridPanel />);
     
     // Click EVV category
-    const evvButton = screen.getByText(/^EVV/i);
+    const evvButton = screen.getByRole('button', { name: /evv \(\d+\)/i });
     fireEvent.click(evvButton);
 
     // EVV tables should be visible
@@ -51,7 +51,7 @@ describe('DataGridPanel', () => {
   it('should search tables by name', () => {
     render(<DataGridPanel />);
     
-    const searchInput = screen.getByPlaceholderText(/Search tables/i);
+    const searchInput = screen.getByPlaceholderText(/search tables/i);
     fireEvent.change(searchInput, { target: { value: 'evv' } });
 
     // Should find EVV-related tables
@@ -69,29 +69,29 @@ describe('DataGridPanel', () => {
   it('should render View and Export buttons for each table', () => {
     render(<DataGridPanel />);
     
-    const viewButtons = screen.getAllByText(/View/i);
+    const viewButtons = screen.getAllByText(/view/i);
     expect(viewButtons.length).toBeGreaterThan(0);
     
     // Export buttons have download icons, check for those
-    const cards = screen.getAllByRole('button', { name: /Export to CSV/i });
+    const cards = screen.getAllByRole('button', { name: /export to csv/i });
     expect(cards.length).toBeGreaterThan(0);
   });
 
   it('should show empty state when no tables match search', () => {
     render(<DataGridPanel />);
     
-    const searchInput = screen.getByPlaceholderText(/Search tables/i);
+    const searchInput = screen.getByPlaceholderText(/search tables/i);
     fireEvent.change(searchInput, { target: { value: 'nonexistent_table_xyz' } });
 
-    expect(screen.getByText(/No tables found matching your search/i)).toBeInTheDocument();
+    expect(screen.getByText(/no tables found matching your search/i)).toBeInTheDocument();
   });
 
   it('should display table descriptions', () => {
     render(<DataGridPanel />);
     
     // Check for description text (each table should have one)
-    expect(screen.getByText(/Client demographics and profile information/i)).toBeInTheDocument();
-    expect(screen.getByText(/Electronic Visit Verification records/i)).toBeInTheDocument();
+    expect(screen.getByText(/client demographics and profile information/i)).toBeInTheDocument();
+    expect(screen.getByText(/electronic visit verification records/i)).toBeInTheDocument();
   });
 
   it('should show category badges on table cards', () => {
