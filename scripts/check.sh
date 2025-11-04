@@ -60,7 +60,4 @@ npm run typecheck
 echo "🧪 Running tests with coverage..."
 npm run test:coverage
 
-echo "🔒 Running security scan..."
-./scripts/snyk-scan-all.sh
-
 echo "✅ All checks completed successfully!"

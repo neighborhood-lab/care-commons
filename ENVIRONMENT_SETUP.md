@@ -298,10 +298,7 @@ DATABASE_URL="postgresql://..." npm run db:migrate
 
 ### Security Workflow
 
-The `.github/workflows/security.yml` workflow runs Snyk scans:
-- **Trigger**: Weekly schedule + manual dispatch
-- **Scans**: Dependencies, code vulnerabilities
-- **Reporting**: Creates GitHub security alerts
+Using snyk GitHub integration instead of git workflow/action for this.
 
 ---
 
