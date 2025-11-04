@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, preview, develop]
   push:
-    branches: [main, develop]
+    branches: [main, preview, develop]
 
 # Ensure this workflow is required for PRs to merge
 # Configure branch protection rules to require this workflow to pass
