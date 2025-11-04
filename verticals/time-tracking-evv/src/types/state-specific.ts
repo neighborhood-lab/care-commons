@@ -8,9 +8,9 @@
 import { UUID, Timestamp } from '@care-commons/core';
 
 /**
- * State Codes
+ * State Codes - All states with EVV mandates
  */
-export type StateCode = 'TX' | 'FL';
+export type StateCode = 'TX' | 'FL' | 'OH' | 'PA' | 'GA' | 'NC' | 'AZ';
 
 /**
  * =============================================================================
@@ -470,6 +470,137 @@ export function getStateEVVRules(state: StateCode): StateEVVRules {
         ],
         retentionYears: 6, // AHCA minimum
         immutableAfterDays: 45, // More lenient correction window
+      };
+      
+    case 'OH':
+      return {
+        state: 'OH',
+        geoFenceRadius: 125, // Ohio Dept of Medicaid standard
+        geoFenceTolerance: 75, // Moderate tolerance
+        geoFenceToleranceReason: 'ODM allows reasonable GPS accuracy variance',
+        maxClockInEarlyMinutes: 10,
+        maxClockOutLateMinutes: 10,
+        overtimeThresholdMinutes: 15,
+        minimumGPSAccuracy: 125, // Meters
+        requiresBiometric: false,
+        requiresPhoto: false,
+        requiresClientAttestation: false,
+        allowManualOverride: true,
+        manualOverrideRequiresSupervisor: true,
+        manualOverrideReasonCodesRequired: [
+          'GPS_UNAVAILABLE',
+          'DEVICE_MALFUNCTION',
+          'EMERGENCY',
+          'TECHNICAL_ISSUE',
+          'OTHER',
+        ],
+        retentionYears: 6, // Federal minimum
+        immutableAfterDays: 30,
+      };
+      
+    case 'PA':
+      return {
+        state: 'PA',
+        geoFenceRadius: 100, // Pennsylvania DHS requirement
+        geoFenceTolerance: 50, // Conservative tolerance
+        geoFenceToleranceReason: 'DHS EVV standards allow GPS accuracy variance',
+        maxClockInEarlyMinutes: 15,
+        maxClockOutLateMinutes: 15,
+        overtimeThresholdMinutes: 15,
+        minimumGPSAccuracy: 100, // Meters
+        requiresBiometric: false,
+        requiresPhoto: false,
+        requiresClientAttestation: false,
+        allowManualOverride: true,
+        manualOverrideRequiresSupervisor: true,
+        manualOverrideReasonCodesRequired: [
+          'GPS_UNAVAILABLE',
+          'DEVICE_MALFUNCTION',
+          'RURAL_AREA',
+          'EMERGENCY',
+          'OTHER',
+        ],
+        retentionYears: 7, // PA requires 7 years
+        immutableAfterDays: 35,
+      };
+      
+    case 'GA':
+      return {
+        state: 'GA',
+        geoFenceRadius: 150, // Georgia DCH - most lenient
+        geoFenceTolerance: 100, // Generous tolerance
+        geoFenceToleranceReason: 'DCH allows larger variance for rural areas',
+        maxClockInEarlyMinutes: 15,
+        maxClockOutLateMinutes: 15,
+        overtimeThresholdMinutes: 20,
+        minimumGPSAccuracy: 150, // Meters
+        requiresBiometric: false,
+        requiresPhoto: false,
+        requiresClientAttestation: false,
+        allowManualOverride: true,
+        manualOverrideRequiresSupervisor: true,
+        manualOverrideReasonCodesRequired: [
+          'GPS_UNAVAILABLE',
+          'DEVICE_MALFUNCTION',
+          'RURAL_AREA',
+          'CLIENT_LOCATION_CHANGE',
+          'EMERGENCY',
+          'OTHER',
+        ],
+        retentionYears: 6,
+        immutableAfterDays: 45, // Lenient correction window
+      };
+      
+    case 'NC':
+      return {
+        state: 'NC',
+        geoFenceRadius: 120, // North Carolina DHHS
+        geoFenceTolerance: 60, // Moderate tolerance
+        geoFenceToleranceReason: 'DHHS allows moderate GPS variance',
+        maxClockInEarlyMinutes: 10,
+        maxClockOutLateMinutes: 10,
+        overtimeThresholdMinutes: 15,
+        minimumGPSAccuracy: 120, // Meters
+        requiresBiometric: false,
+        requiresPhoto: false,
+        requiresClientAttestation: false,
+        allowManualOverride: true,
+        manualOverrideRequiresSupervisor: true,
+        manualOverrideReasonCodesRequired: [
+          'GPS_UNAVAILABLE',
+          'DEVICE_MALFUNCTION',
+          'EMERGENCY',
+          'RURAL_AREA',
+          'OTHER',
+        ],
+        retentionYears: 6,
+        immutableAfterDays: 30,
+      };
+      
+    case 'AZ':
+      return {
+        state: 'AZ',
+        geoFenceRadius: 100, // Arizona AHCCCS standard
+        geoFenceTolerance: 50, // Conservative
+        geoFenceToleranceReason: 'AHCCCS EVV policy GPS tolerance',
+        maxClockInEarlyMinutes: 10,
+        maxClockOutLateMinutes: 10,
+        overtimeThresholdMinutes: 15,
+        minimumGPSAccuracy: 100, // Meters
+        requiresBiometric: false,
+        requiresPhoto: false,
+        requiresClientAttestation: false,
+        allowManualOverride: true,
+        manualOverrideRequiresSupervisor: true,
+        manualOverrideReasonCodesRequired: [
+          'GPS_UNAVAILABLE',
+          'DEVICE_MALFUNCTION',
+          'EMERGENCY',
+          'RURAL_AREA',
+          'OTHER',
+        ],
+        retentionYears: 6,
+        immutableAfterDays: 30,
       };
       
     default:

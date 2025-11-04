@@ -22,6 +22,7 @@
     "db:migrate:rollback": "cd ../.. && tsx packages/core/scripts/rollback.ts",
     "db:migrate:status": "cd ../.. && tsx packages/core/scripts/migrate-status.ts",
     "db:seed": "cd ../.. && tsx packages/core/scripts/seed.ts",
+    "db:seed:demo": "cd ../.. && tsx packages/core/scripts/seed-demo-complete.ts",
     "db:seed-users": "cd ../.. && tsx packages/core/scripts/seed-users.ts",
     "db:set-admin-password": "cd ../.. && tsx packages/core/scripts/set-admin-password.ts",
     "db:nuke": "cd ../.. && tsx packages/core/scripts/nuke.ts"
@@ -42,8 +43,8 @@
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
-    "@vitest/coverage-v8": "^4.0.6",
-    "eslint": "^9.39.0",
+    "@vitest/coverage-v8": "^4.0.7",
+    "eslint": "^9.39.1",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
@@ -51,6 +52,6 @@
     "tsc-alias": "^1.8.16",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.6"
+    "vitest": "^4.0.7"
   }
 }

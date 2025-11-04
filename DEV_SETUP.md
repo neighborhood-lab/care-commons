@@ -42,6 +42,39 @@ Three role-based accounts are now available for testing:
 
 ## Database Scripts
 
+### Database Workflow
+
+The database setup is organized in three layers:
+
+1. **Schema (DDL)** - `npm run db:migrate`
+   - Creates all tables, indexes, functions, extensions
+   - Pure DDL, no data inserts
+
+2. **Operational Data** - `npm run db:seed`
+   - Minimal data required for any installation
+   - Creates: 1 organization, 1 branch, 1 admin user
+   - Login: `admin@carecommons.example` / `Admin123!`
+
+3. **Demo Data** - `npm run db:seed:demo`
+   - Sample data for testing and development
+   - Creates: 1 program, 5 clients, 5 caregivers
+
+### Quick Setup Commands
+
+```bash
+# Clean slate with minimal data
+npm run db:reset
+
+# Clean slate with demo data
+npm run db:reset:demo
+
+# Or step-by-step:
+npm run db:nuke      # Drop everything
+npm run db:migrate   # Create schema
+npm run db:seed      # Add operational data
+npm run db:seed:demo # Add demo data (optional)
+```
+
 ### Seed Role-Based Users
 
 To recreate or reset user accounts:
@@ -51,7 +84,7 @@ cd packages/core
 npm run db:seed-users
 ```
 
-This creates/updates the three role-based accounts with proper permissions.
+This creates/updates additional role-based accounts (coordinator, caregiver) with proper permissions.
 
 ### Custom Password
 

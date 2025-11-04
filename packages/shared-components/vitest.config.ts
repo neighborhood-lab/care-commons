@@ -1,15 +1,13 @@
-import { defineConfig } from 'vitest/config';
+import { defineProject } from 'vitest/config';
 
-export default defineConfig({
+export default defineProject({
   test: {
+    name: 'shared-components',
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
     setupFiles: ['./src/__tests__/setup.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.d.ts', 'src/__tests__/**'],
-    },
+    include: ['src/**/__tests__/**/*.test.{ts,tsx}', 'src/**/?(*.)+(spec|test).{ts,tsx}'],
+    maxConcurrency: 1,
+    pool: 'vmThreads',
   },
 });

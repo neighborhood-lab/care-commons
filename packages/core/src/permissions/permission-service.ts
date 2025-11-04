@@ -47,6 +47,10 @@ export class PermissionService {
         'billing:*',
         'reports:*',
         'settings:*',
+        'admin:access',
+        'admin:state-config',
+        'admin:data-access',
+        'admin:compliance',
       ])
     );
 

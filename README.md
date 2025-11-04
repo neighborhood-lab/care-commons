@@ -10,6 +10,7 @@
 
 [Care Commons](https://care-commons.vercel.app/) (web application demo)
 
+[Discord](https://discord.gg/EkeXQZFq)
 [Substack](https://neighborhoodlab.substack.com/) (updates, news and commentary)  
 [Patreon](https://www.patreon.com/cw/neighborhood_lab) (give your financial support for continued development)
 
@@ -120,11 +121,17 @@ npm install
 cp .env.example .env
 # Edit .env with your database credentials
 
-# Run database migrations
+# Run database migrations (DDL only - creates schema)
 npm run db:migrate
 
-# Seed sample data (optional)
+# Seed minimal operational data (org, branch, admin user)
 npm run db:seed
+
+# Optional: Seed demo data (sample clients, caregivers, programs)
+npm run db:seed:demo
+
+# Or use the convenience command for complete setup:
+npm run db:reset:demo
 
 # Build all packages
 npm run build
@@ -241,7 +248,6 @@ STAGING_JWT_SECRET=your-staging-jwt-secret
 
 # Optional services
 CODECOV_TOKEN=your-codecov-token
-SNYK_TOKEN=your-snyk-token
 ```
 
 ### Manual Workflows
