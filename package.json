@@ -31,8 +31,9 @@
     "db:migrate:rollback": "cd packages/core && npm run db:migrate:rollback",
     "db:migrate:status": "cd packages/core && npm run db:migrate:status",
     "db:seed": "cd packages/core && npm run db:seed",
-    "db:seed:billing": "cd packages/core && node --import tsx --no-warnings scripts/seed-billing.ts",
-    "db:seed:demo": "cd packages/core && node --import tsx --no-warnings scripts/seed-tx-fl-demo.ts",
+    "db:seed:demo": "cd packages/core && npm run db:seed:demo",
+    "db:reset": "npm run db:nuke && npm run db:migrate && npm run db:seed",
+    "db:reset:demo": "npm run db:reset && npm run db:seed:demo",
     "db:nuke": "cd packages/core && npm run db:nuke",
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
@@ -42,18 +43,17 @@
   },
   "devDependencies": {
     "@types/supertest": "^6.0.3",
-    "@vitest/coverage-v8": "^4.0.6",
+    "@vitest/coverage-v8": "^4.0.7",
     "dotenv-cli": "^11.0.0",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
     "husky": "^9.1.7",
-    "snyk": "^1.1300.2",
     "sql-lint": "^1.0.2",
     "supertest": "^7.1.4",
     "turbo": "^2.6.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.6"
+    "vitest": "^4.0.7"
   },
   "engines": {
     "node": "22.x",

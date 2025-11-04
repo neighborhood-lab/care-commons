@@ -15,15 +15,44 @@ import { describe, it, expect } from 'vitest';
 describe('Critical Regression Tests - ESM Module Resolution', () => {
   describe('Server Module (DO NOT REGRESS)', () => {
     it('should import server module without errors', async () => {
-      // This verifies ESM import resolution works in Node.js
-      const serverModule = await import('../server.js');
-      expect(serverModule).toBeDefined();
-    });
+      // Set VERCEL env var to prevent auto-start during import
+      // This allows us to test ESM imports without triggering database connection
+      const originalVercel = process.env['VERCEL'];
+      process.env['VERCEL'] = '1';
+      
+      try {
+        // This verifies ESM import resolution works in Node.js
+        const serverModule = await import('../server.js');
+        expect(serverModule).toBeDefined();
+        expect(serverModule.createApp).toBeDefined();
+        expect(typeof serverModule.createApp).toBe('function');
+      } finally {
+        // Restore original env var
+        if (originalVercel === undefined) {
+          delete process.env['VERCEL'];
+        } else {
+          process.env['VERCEL'] = originalVercel;
+        }
+      }
+    }, 10000); // Increase timeout for module import
 
     it('should export expected functions', async () => {
-      const serverModule = await import('../server.js');
-      // Verify the module structure is correct
-      expect(typeof serverModule).toBe('object');
+      // Set VERCEL env var to prevent auto-start
+      const originalVercel = process.env['VERCEL'];
+      process.env['VERCEL'] = '1';
+      
+      try {
+        const serverModule = await import('../server.js');
+        // Verify the module structure is correct
+        expect(typeof serverModule).toBe('object');
+        expect(serverModule.createApp).toBeDefined();
+      } finally {
+        if (originalVercel === undefined) {
+          delete process.env['VERCEL'];
+        } else {
+          process.env['VERCEL'] = originalVercel;
+        }
+      }
     });
   });
 
@@ -95,14 +124,26 @@ describe('Critical Regression Tests - ESM Module Resolution', () => {
 
   describe('TypeScript Compilation (DO NOT REGRESS)', () => {
     it('should have compiled .js files with proper exports', async () => {
-      // This test verifies tsc-alias worked correctly
-      const serverModule = await import('../server.js');
-      const routesModule = await import('../routes/index.js');
-      const authModule = await import('../routes/auth.js');
+      // Set VERCEL to prevent auto-start
+      const originalVercel = process.env['VERCEL'];
+      process.env['VERCEL'] = '1';
       
-      expect(serverModule).toBeDefined();
-      expect(routesModule).toBeDefined();
-      expect(authModule).toBeDefined();
+      try {
+        // This test verifies tsc-alias worked correctly
+        const serverModule = await import('../server.js');
+        const routesModule = await import('../routes/index.js');
+        const authModule = await import('../routes/auth.js');
+        
+        expect(serverModule).toBeDefined();
+        expect(routesModule).toBeDefined();
+        expect(authModule).toBeDefined();
+      } finally {
+        if (originalVercel === undefined) {
+          delete process.env['VERCEL'];
+        } else {
+          process.env['VERCEL'] = originalVercel;
+        }
+      }
     });
   });
 });
@@ -114,9 +155,22 @@ describe('Critical Regression Tests - ESM Module Resolution', () => {
  */
 describe('API Structure Tests', () => {
   it('should have health check route handler', async () => {
-    // Import server to verify it compiles
-    const server = await import('../server.js');
-    expect(server).toBeDefined();
+    // Set VERCEL to prevent auto-start
+    const originalVercel = process.env['VERCEL'];
+    process.env['VERCEL'] = '1';
+    
+    try {
+      // Import server to verify it compiles
+      const server = await import('../server.js');
+      expect(server).toBeDefined();
+      expect(server.createApp).toBeDefined();
+    } finally {
+      if (originalVercel === undefined) {
+        delete process.env['VERCEL'];
+      } else {
+        process.env['VERCEL'] = originalVercel;
+      }
+    }
   });
 
   it('should have auth routes configured', async () => {

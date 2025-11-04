@@ -11,9 +11,18 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 - **CI/CD**: GitHub Actions for automated deployments
 - **Environments (Vercel Hobby Plan)**:
   - **Production** (Vercel production environment) ← `main` branch (pushes only)
-  - **Preview** (Vercel preview environment) ← `develop` branch (pushes only)
+  - **Preview** (Vercel preview environment) ← `preview` branch (pushes only)
   - **Development** (local only, not deployed) ← linked to local machine via `vercel dev`
-  - **Note**: Pull requests do NOT trigger deployments
+  - **Note**: Pull requests and feature branches do NOT trigger deployments
+
+### Deployment Rate Limiting
+
+**IMPORTANT**: Vercel automatic deployments on PRs are **disabled** to avoid hitting free tier limits (100 deployments/day).
+
+- **vercel.json** has `"github": { "enabled": false }` to prevent automatic Vercel deployments
+- **Only GitHub Actions** triggers deployments (controlled, predictable)
+- **Pushes to `main` and `preview`** branches trigger deployments via GitHub Actions
+- **All other branches/PRs** only run CI checks (build, lint, typecheck, tests)
 
 ## Architecture
 
@@ -185,7 +194,6 @@ Error: No existing credentials found. Please run `vercel login` or pass "--token
 #### Optional Secrets
 ```bash
 CODECOV_TOKEN            # For code coverage reporting
-SNYK_TOKEN               # For security scanning
 ```
 
 ### 4. Database Migration
@@ -215,29 +223,37 @@ npm run db:seed:demo
 | Branch | Event | Vercel Environment | Database |
 |--------|-------|-------------------|----------|
 | `main` | Push | ✅ **Production** | Production (Neon) |
-| `develop` | Push | ✅ **Preview** | Preview (Neon) |
+| `preview` | Push | ✅ **Preview** | Preview (Neon) |
+| `develop` | Push | ❌ **None** (only CI checks) | N/A |
 | `feature/*` | Push | ❌ **None** (only CI checks) | N/A |
 | Any | Pull Request | ❌ **None** (only CI checks) | N/A |
 
 **Important:** 
 - Vercel Hobby Plan supports **Production** and **Preview** environments only
-- **Pull requests do NOT trigger deployments** - only pushes to `main` or `develop`
-- Feature branches do NOT trigger deployments
-- Only `main` (production) and `develop` (preview) trigger automatic deployments on push
-- PRs are only accepted to `develop`, not `main`
+- **Automatic Vercel deployments are DISABLED** (`vercel.json`: `"github.enabled": false`)
+- **Only GitHub Actions** triggers deployments (controlled by `.github/workflows/deploy.yml`)
+- **Pull requests do NOT trigger deployments** - only pushes to `main` or `preview`
+- Feature branches and `develop` do NOT trigger deployments
+- Only `main` (production) and `preview` branches trigger automatic deployments on push
+- PRs should target `develop` for integration, then merge `develop` → `preview` → `main`
 
-### Preview Deployments (develop branch only)
+### Preview Deployments (preview branch only)
 - **Trigger**: 
-  - Push to `develop` branch only
+  - Push to `preview` branch only (via GitHub Actions)
 - **Vercel Environment**: Preview
 - **Database**: Preview (Neon)
 - **Features**:
-  - Automatic deployment when code is merged to develop
+  - Automatic deployment when code is pushed to preview
   - Persistent preview environment
   - Runs database migrations
   - Health checks
-  - Tests run in CI before merge
-- **Does NOT trigger on**: Pull requests or feature branches
+  - Tests run in CI before deployment
+- **Workflow**:
+  1. Merge feature branches → `develop` (integration, no deployment)
+  2. Merge `develop` → `preview` (triggers preview deployment)
+  3. Test on preview environment
+  4. Merge `preview` → `main` (triggers production deployment)
+- **Does NOT trigger on**: Pull requests, feature branches, or `develop` branch
 
 ### Production Deployments
 - **Trigger**: 

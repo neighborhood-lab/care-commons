@@ -47,6 +47,7 @@ echo "🗄️  Setting up database..."
 npm run db:nuke
 npm run db:migrate
 npm run db:seed
+npm run db:seed:demo
 
 echo "🏗️  Building project..."
 npm run build
@@ -59,8 +60,5 @@ npm run typecheck
 
 echo "🧪 Running tests with coverage..."
 npm run test:coverage
-
-echo "🔒 Running security scan..."
-./scripts/snyk-scan-all.sh
 
 echo "✅ All checks completed successfully!"

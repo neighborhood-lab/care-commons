@@ -36,9 +36,10 @@ import {
   IClientProvider,
   ICaregiverProvider,
 } from '../interfaces/visit-provider';
-import { TexasEVVProvider } from '../providers/texas-evv-provider';
-import { FloridaEVVProvider } from '../providers/florida-evv-provider';
+import { TexasEVVProvider } from '../providers/texas-evv-provider.js';
+import { FloridaEVVProvider } from '../providers/florida-evv-provider.js';
 import { Database } from '@care-commons/core';
+import { StateCode } from '../types/state-specific.js';
 
 export class EVVService {
   private texasProvider?: TexasEVVProvider;
@@ -738,7 +739,11 @@ export class EVVService {
 
   /**
     * Submit EVV record to state aggregator(s)
+    * 
     * SOLID: Open/Closed - extends functionality without modifying core clock-in/out
+    * APIE: Polymorphism - uses router pattern to delegate to correct aggregator
+    * 
+    * Supports all 7 states: TX, FL, OH, PA, GA, NC, AZ
     */
   async submitToStateAggregator(
     evvRecordId: UUID,
@@ -746,16 +751,24 @@ export class EVVService {
   ): Promise<SubmissionResult> {
     const evvRecord = await this.repository.getEVVRecordById(evvRecordId);
     if (!evvRecord) {
-      throw new Error('EVV record not found');
+      throw new NotFoundError('EVV record not found');
     }
 
-    // Get client's state
-    const client = await this.database.query(`
-      SELECT state FROM clients WHERE id = $1
-    `, [evvRecord.clientId]);
-    
-    const state = client.rows[0]?.['state'];
+    // Extract state from service address
+    const state = evvRecord.serviceAddress.state as StateCode;
 
+    // Validate state is supported
+    const validStates: StateCode[] = ['TX', 'FL', 'OH', 'PA', 'GA', 'NC', 'AZ'];
+    if (!validStates.includes(state)) {
+      throw new ValidationError(
+        `State ${state} does not have EVV aggregator configured`,
+        { state, supportedStates: validStates }
+      );
+    }
+
+    // Route based on state
+    // TX and FL use existing providers (legacy pattern)
+    // OH, PA, GA, NC, AZ use new aggregator router pattern
     if (state === 'TX') {
       if (!this.texasProvider) {
         this.texasProvider = new TexasEVVProvider(this.database);
@@ -772,7 +785,44 @@ export class EVVService {
       return { submissions, state: 'FL' };
     }
 
-    throw new Error(`State ${state} does not have EVV aggregator configured`);
+    // New states (OH, PA, GA, NC, AZ) use aggregator router
+    const { getAggregatorRouter } = await import('../aggregators/aggregator-router.js');
+    const router = getAggregatorRouter();
+    
+    try {
+      const result = await router.submit(evvRecord, state);
+      
+      // Convert to SubmissionResult format
+      return {
+        submissions: [{
+          submissionId: result.submissionId as UUID,
+          status: result.success ? 'ACCEPTED' : 'REJECTED',
+          aggregator: this.getAggregatorName(state),
+          submittedAt: new Date(),
+        }],
+        state,
+      };
+    } catch (error: any) {
+      throw new Error(
+        `Failed to submit EVV record to ${state} aggregator: ${error.message}`
+      );
+    }
+  }
+
+  /**
+   * Helper: Get aggregator name for state
+   */
+  private getAggregatorName(state: StateCode): string {
+    const aggregatorMap: Record<StateCode, string> = {
+      TX: 'HHAEEXCHANGE',
+      FL: 'MULTI',
+      OH: 'SANDATA',
+      PA: 'SANDATA',
+      GA: 'TELLUS',
+      NC: 'SANDATA',
+      AZ: 'SANDATA',
+    };
+    return aggregatorMap[state] || 'UNKNOWN';
   }
 
   /**
