@@ -287,8 +287,11 @@ process.on('SIGINT', () => {
 
 // Only start the server if this file is run directly (not imported)
 // This allows Vercel to import createApp() without starting a server
-// Check if running in Vercel environment
-if (process.env['VERCEL'] === undefined && process.env['VERCEL_ENV'] === undefined) {
-  // Not in Vercel, start the server for local development
+// Check if running in Vercel or test environment
+const isVercel = process.env['VERCEL'] !== undefined || process.env['VERCEL_ENV'] !== undefined;
+const isTest = process.env['NODE_ENV'] === 'test' || process.env['VITEST'] === 'true';
+
+if (!isVercel && !isTest) {
+  // Not in Vercel or test environment, start the server for local development
   void start().catch(console.error);
 }

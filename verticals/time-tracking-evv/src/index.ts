@@ -39,3 +39,9 @@ export { CryptoUtils } from './utils/crypto-utils';
 
 // API Handlers
 export { EVVHandlers } from './api/evv-handlers';
+
+// Aggregators (multi-state support)
+export * from './aggregators/index.js';
+
+// State configurations
+export * from './config/state-evv-configs.js';
