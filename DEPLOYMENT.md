@@ -194,7 +194,6 @@ Error: No existing credentials found. Please run `vercel login` or pass "--token
 #### Optional Secrets
 ```bash
 CODECOV_TOKEN            # For code coverage reporting
-SNYK_TOKEN               # For security scanning
 ```
 
 ### 4. Database Migration

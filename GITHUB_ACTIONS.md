@@ -89,7 +89,6 @@ Care Commons uses GitHub Actions to automate:
 **Jobs:**
 - **security-audit** - npm audit and CodeQL analysis
 - **dependency-update** - Automated dependency updates with PR
-- **snyk-security-scan** - Additional vulnerability scanning
 
 **Features:**
 - Creates pull requests for dependency updates
@@ -136,7 +135,6 @@ PREVIEW_JWT_SECRET=your-preview-jwt-secret-key
 
 # Optional Integrations
 CODECOV_TOKEN=your-codecov-token
-SNYK_TOKEN=your-snyk-token
 GITHUB_TOKEN=ghp_your_github_token
 ```
 
