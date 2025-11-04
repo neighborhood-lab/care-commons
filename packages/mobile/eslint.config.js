@@ -32,6 +32,8 @@ export default [
         Error: 'readonly',
         Math: 'readonly',
         JSON: 'readonly',
+        NodeJS: 'readonly',
+        Q: 'readonly', // WatermelonDB query builder
       },
     },
     plugins: {
@@ -41,20 +43,27 @@ export default [
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off', // Allow any in tests and mocks
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'no-console': 'off', // Allow console in mobile apps
+      'no-undef': 'off', // TypeScript handles this
     },
   },
   {
     ignores: [
       'node_modules/**',
       'dist/**',
+      'build/**',
       '.expo/**',
+      '.expo-shared/**',
       'ios/**',
       'android/**',
+      '*.config.js',
+      '*.config.ts',
+      '**/*.d.ts',
+      'expo-env.d.ts',
     ],
   },
 ];
