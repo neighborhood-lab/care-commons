@@ -5,12 +5,16 @@
  * Different from the demo to make them distinguishable.
  */
 
-import type { Client } from '@/verticals/client-demographics/types';
-import type { CarePlan, TaskInstance } from '@/verticals/care-plans/types';
-import type { Caregiver } from '@/verticals/caregivers/types';
-import type { Invoice } from '@/verticals/billing-invoicing/types';
-import type { PayrollPeriod } from '@/verticals/payroll-processing/types';
-import type { ShiftListing, ShiftApplication } from '@/verticals/shift-matching/types';
+import type {
+  Client,
+  CarePlan,
+  TaskInstance,
+  Caregiver,
+  Invoice,
+  PayrollPeriod,
+  ShiftListing,
+  ShiftApplication,
+} from '../types/showcase-types.js';
 
 const now = new Date();
 const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
