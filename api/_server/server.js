@@ -37,9 +37,7 @@ function initDb() {
             host: dbConfig.host,
             port: dbConfig.port,
             database: dbConfig.database,
-            user: dbConfig.user,
-            ssl: dbConfig.ssl,
-            hasPassword: Boolean(dbConfig.password)
+            ssl: dbConfig.ssl
         });
         return (0, core_1.initializeDatabase)(dbConfig);
     }
