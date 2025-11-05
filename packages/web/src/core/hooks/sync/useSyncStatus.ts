@@ -2,170 +2,84 @@
  * useSyncStatus Hook
  * 
  * React hook for tracking synchronization status in real-time.
- * Monitors the sync queue and provides callbacks for manual sync triggers.
+ * Subscribes to the global SyncService and provides status updates.
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { database } from '../../../db/index.js';
-import { Q } from '@nozbe/watermelondb';
+import { getSyncService } from '../../services/sync-service.js';
+import type { SyncState } from '../../services/sync-service.js';
 
-export interface SyncStatus {
+export interface UseSyncStatusResult {
   pendingCount: number;
   failedCount: number;
+  conflictCount: number;
   isSyncing: boolean;
   lastSyncTime: number | null;
+  lastSyncError: string | null;
   isOnline: boolean;
-}
-
-export interface UseSyncStatusResult extends SyncStatus {
   syncNow: () => Promise<void>;
-  clearFailed: () => Promise<void>;
 }
 
 /**
  * Hook to monitor sync status
  * 
- * @param pollInterval - How often to check sync status (milliseconds)
+ * Subscribes to the global SyncService and provides status updates
+ * and manual sync trigger.
+ * 
  * @returns Sync status and control functions
  */
-export function useSyncStatus(pollInterval: number = 10000): UseSyncStatusResult {
-  const [status, setStatus] = useState<SyncStatus>({
-    pendingCount: 0,
-    failedCount: 0,
+export function useSyncStatus(): UseSyncStatusResult {
+  const [syncState, setSyncState] = useState<SyncState>({
+    isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     isSyncing: false,
-    lastSyncTime: null,
-    isOnline: navigator.onLine,
+    lastSyncAt: null,
+    lastSyncError: null,
+    pendingCount: 0,
+    conflictCount: 0,
+    failedCount: 0,
   });
 
   /**
-   * Load current sync status from database
+   * Subscribe to sync service state changes
    */
-  const loadStatus = useCallback(async () => {
-    try {
-      const pending = await database
-        .get('sync_queue')
-        .query(Q.where('status', 'PENDING'))
-        .fetchCount();
-
-      const failed = await database
-        .get('sync_queue')
-        .query(Q.where('status', 'FAILED'))
-        .fetchCount();
-
-      const inProgress = await database
-        .get('sync_queue')
-        .query(Q.where('status', 'IN_PROGRESS'))
-        .fetchCount();
-
-      // Get last sync time from most recent synced item
-      const lastSynced = await database
-        .get('sync_queue')
-        .query(
-          Q.where('status', 'SYNCED'),
-          Q.where('synced_at', Q.notEq(null)),
-          Q.sortBy('synced_at', Q.desc),
-          Q.take(1)
-        )
-        .fetch();
-
-      const lastSyncTime = lastSynced[0]
-        ? ((lastSynced[0] as unknown as { syncedAt: number }).syncedAt)
-        : null;
-
-      setStatus({
-        pendingCount: pending,
-        failedCount: failed,
-        isSyncing: inProgress > 0,
-        lastSyncTime,
-        isOnline: navigator.onLine,
-      });
-    } catch (error) {
-      console.error('Failed to load sync status:', error);
+  useEffect(() => {
+    const syncService = getSyncService();
+    
+    if (!syncService) {
+      console.warn('[useSyncStatus] SyncService not initialized');
+      return;
     }
+
+    // Subscribe to state changes
+    const unsubscribe = syncService.subscribe((state) => {
+      setSyncState(state);
+    });
+
+    return unsubscribe;
   }, []);
 
   /**
    * Trigger manual sync
    */
   const syncNow = useCallback(async () => {
-    if (!navigator.onLine) {
-      console.warn('Cannot sync while offline');
+    const syncService = getSyncService();
+    
+    if (!syncService) {
+      console.error('[useSyncStatus] SyncService not initialized');
       return;
     }
 
-    try {
-      setStatus(prev => ({ ...prev, isSyncing: true }));
-      
-      // Call sync service
-      // NOTE: This will be implemented when API endpoints are integrated
-      console.log('Manual sync triggered');
-      
-      // Reload status after sync
-      await loadStatus();
-    } catch (error) {
-      console.error('Sync failed:', error);
-    } finally {
-      setStatus(prev => ({ ...prev, isSyncing: false }));
-    }
-  }, [loadStatus]);
-
-  /**
-   * Clear all failed sync items
-   */
-  const clearFailed = useCallback(async () => {
-    try {
-      const failed = await database
-        .get('sync_queue')
-        .query(Q.where('status', 'FAILED'))
-        .fetch();
-
-      await database.write(async () => {
-        for (const item of failed) {
-          await item.destroyPermanently();
-        }
-      });
-
-      await loadStatus();
-    } catch (error) {
-      console.error('Failed to clear failed items:', error);
-    }
-  }, [loadStatus]);
-
-  /**
-   * Set up polling and event listeners
-   */
-  useEffect(() => {
-    // Initial load
-    void loadStatus();
-
-    // Poll for updates
-    const interval = setInterval(() => {
-      void loadStatus();
-    }, pollInterval);
-
-    // Listen for online/offline events
-    const handleOnline = () => {
-      setStatus(prev => ({ ...prev, isOnline: true }));
-      void loadStatus();
-    };
-
-    const handleOffline = () => {
-      setStatus(prev => ({ ...prev, isOnline: false }));
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, [loadStatus, pollInterval]);
+    await syncService.sync();
+  }, []);
 
   return {
-    ...status,
+    pendingCount: syncState.pendingCount,
+    failedCount: syncState.failedCount,
+    conflictCount: syncState.conflictCount,
+    isSyncing: syncState.isSyncing,
+    lastSyncTime: syncState.lastSyncAt,
+    lastSyncError: syncState.lastSyncError,
+    isOnline: syncState.isOnline,
     syncNow,
-    clearFailed,
   };
 }
