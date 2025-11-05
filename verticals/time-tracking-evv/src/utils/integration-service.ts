@@ -197,7 +197,7 @@ export class IntegrationService {
           npi = npiCred.number;
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore parsing errors
     }
 

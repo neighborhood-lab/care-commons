@@ -101,7 +101,7 @@ export const AdminDashboard: React.FC = () => {
                 <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
                 <p className="mt-1 text-sm text-gray-600">{stat.change}</p>
               </div>
-              <div className="flex-shrink-0">{stat.icon}</div>
+              <div className="shrink-0">{stat.icon}</div>
             </div>
           </Card>
         ))}
