@@ -15,7 +15,6 @@ import { createRequestLogger } from './middleware/request-logger.js';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
-import { authLimiter } from './middleware/rate-limit.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index.js';
 
