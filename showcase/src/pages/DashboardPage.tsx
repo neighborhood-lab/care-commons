@@ -19,7 +19,6 @@ import {
   AlertCircle,
   TrendingUp,
   Clock,
-  FileText,
   ArrowRight,
   Activity,
 } from 'lucide-react';

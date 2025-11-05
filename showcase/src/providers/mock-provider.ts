@@ -18,8 +18,6 @@ import type {
   CreateClientInput,
   UpdateClientInput,
   ClientSearchFilters,
-} from '@/verticals/client-demographics/types';
-import type {
   CarePlan,
   TaskInstance,
   CreateCarePlanInput,
@@ -27,32 +25,24 @@ import type {
   CompleteTaskInput,
   CarePlanSearchFilters,
   TaskInstanceSearchFilters,
-} from '@/verticals/care-plans/types';
-import type {
   Caregiver,
   CreateCaregiverInput,
   UpdateCaregiverInput,
   CaregiverSearchFilters,
-} from '@/verticals/caregivers/types';
-import type {
   Invoice,
   CreateInvoiceInput,
   UpdateInvoiceInput,
   InvoiceSearchFilters,
-} from '@/verticals/billing-invoicing/types';
-import type {
   PayrollPeriod,
   CreatePayrollPeriodInput,
   ProcessPayrollInput,
   PayrollSearchFilters,
-} from '@/verticals/payroll-processing/types';
-import type {
   ShiftListing,
   ShiftApplication,
   CreateShiftListingInput,
   UpdateShiftListingInput,
   ShiftSearchFilters,
-} from '@/verticals/shift-matching/types';
+} from '../types/showcase-types.js';
 
 const STORAGE_KEY = 'care-commons-showcase-data';
 const SIMULATE_DELAY = 100; // ms
@@ -100,9 +90,9 @@ function paginate<T>(
 }
 
 /**
- * Generic search helper
+ * Generic text search across specified fields
  */
-function searchItems<T extends Record<string, unknown>>(
+function searchItems<T>(
   items: T[],
   query: string,
   searchFields: (keyof T)[]
@@ -185,6 +175,7 @@ export const createMockProvider = (seedData: MockDataStore): DataProvider => {
         results.sort((a, b) => {
           const aVal = a[sortField];
           const bVal = b[sortField];
+          if (!aVal || !bVal) return 0;
           if (aVal < bVal) return -1 * direction;
           if (aVal > bVal) return 1 * direction;
           return 0;

@@ -7,7 +7,7 @@
 
 import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { UserCircle, ChevronDown, User, Users, Heart, Briefcase, Shield } from 'lucide-react';
+import { ChevronDown, User, Users, Heart, Briefcase, Shield } from 'lucide-react';
 import { useRole, type UserRole, rolePersonas } from '../contexts/RoleContext';
 
 const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> = {
