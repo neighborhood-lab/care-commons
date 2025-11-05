@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -248,6 +249,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <DemoModeBar />
         <AppRoutes />
         <Toaster position="top-right" />
       </BrowserRouter>
