@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShowcaseLayout } from '../components/ShowcaseLayout';
+import { useRole, type UserRole, rolePersonas } from '../contexts/RoleContext';
 import {
   Users,
   ClipboardList,
@@ -12,6 +13,11 @@ import {
   Laptop,
   Zap,
   ArrowRight,
+  User,
+  Heart,
+  Briefcase,
+  Shield,
+  LayoutDashboard,
 } from 'lucide-react';
 
 const features = [
@@ -80,7 +86,29 @@ const differences = [
   },
 ];
 
+const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> = {
+  patient: User,
+  family: Heart,
+  caregiver: Users,
+  coordinator: Briefcase,
+  admin: Shield,
+};
+
+const roleColors: Record<UserRole, string> = {
+  patient: 'bg-blue-500',
+  family: 'bg-pink-500',
+  caregiver: 'bg-green-500',
+  coordinator: 'bg-purple-500',
+  admin: 'bg-gray-800',
+};
+
 export const LandingPage: React.FC = () => {
+  const { setRole } = useRole();
+
+  const handleRoleSelect = (role: UserRole) => {
+    setRole(role);
+  };
+
   return (
     <ShowcaseLayout>
       {/* Hero Section */}
@@ -89,15 +117,16 @@ export const LandingPage: React.FC = () => {
           Care Commons Showcase
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-          Explore the features of Care Commons in this interactive browser-based demo.
+          Experience the complete care coordination platform from multiple perspectives.
           All data runs locally in your browser - no backend required.
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4 justify-center flex-wrap">
           <Link
-            to="/clients"
+            to="/dashboard"
             className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-6 py-3 text-base font-medium text-white hover:bg-blue-700 transition-colors"
           >
-            Start Exploring
+            <LayoutDashboard className="h-5 w-5" />
+            View Dashboard
             <ArrowRight className="h-5 w-5" />
           </Link>
           <a
@@ -108,6 +137,56 @@ export const LandingPage: React.FC = () => {
           >
             Visit Full Demo
           </a>
+        </div>
+      </div>
+
+      {/* Multi-Role Experience Section */}
+      <div className="mb-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            Experience From Different Perspectives
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Switch between roles to see how different users interact with the system.
+            Click a persona to view their personalized dashboard.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {(Object.keys(rolePersonas) as UserRole[]).map((role) => {
+            const persona = rolePersonas[role];
+            const Icon = roleIcons[role];
+            return (
+              <Link
+                key={role}
+                to="/dashboard"
+                onClick={() => handleRoleSelect(role)}
+                className="group bg-white rounded-lg border-2 border-gray-200 p-6 hover:border-blue-500 hover:shadow-lg transition-all"
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`${roleColors[role]} rounded-lg p-3 group-hover:scale-110 transition-transform`}>
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      {persona.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-3">
+                      {persona.description}
+                    </p>
+                    <div className="space-y-1">
+                      {persona.primaryFeatures.slice(0, 3).map((feature, idx) => (
+                        <p key={idx} className="text-xs text-gray-500 flex items-center gap-1">
+                          <span className="inline-block w-1 h-1 bg-gray-400 rounded-full"></span>
+                          {feature}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
