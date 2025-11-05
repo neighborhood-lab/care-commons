@@ -10,6 +10,8 @@ import { EnhancedLandingPage } from './pages/EnhancedLandingPage';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { EnhancedRoleSelector } from './components/onboarding/EnhancedRoleSelector';
 import { ComparisonTable } from './components/visual/ComparisonTable';
+import { TourProvider, TourOverlay } from './tours';
+import { TourButton } from './components/tours/TourButton';
 import { AppShell } from '../app/components';
 import { Dashboard, NotFound, AdminDashboard } from '../app/pages';
 import { ClientList, ClientDetail } from '../verticals/client-demographics';
@@ -40,7 +42,7 @@ export const ShowcaseRouter: React.FC = () => {
   };
 
   return (
-    <>
+    <TourProvider>
       <Routes>
         {/* Landing Page */}
         <Route
@@ -229,6 +231,12 @@ export const ShowcaseRouter: React.FC = () => {
         onSelectRole={handleRoleSelect}
         currentRole={currentRole}
       />
-    </>
+
+      {/* Tour Overlay */}
+      <TourOverlay />
+
+      {/* Tour FAB Button */}
+      <TourButton currentRole={currentRole as any} />
+    </TourProvider>
   );
 };
