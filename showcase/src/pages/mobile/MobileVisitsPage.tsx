@@ -109,7 +109,7 @@ export const MobileVisitsPage: React.FC = () => {
     }
   };
 
-  const filteredVisits = visits.filter((visit) => {
+  const filteredVisits = visits.filter(() => {
     if (filter === 'today') return true;
     if (filter === 'week') return true;
     return true;

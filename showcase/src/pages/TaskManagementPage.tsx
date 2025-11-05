@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useCarePlanProvider } from '@/core/providers/context';
-import { Search, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
 const getStatusColor = (status: string) => {

@@ -9,8 +9,10 @@ import {
   Calendar,
   FileText,
   Info,
-  ExternalLink
+  ExternalLink,
+  LayoutDashboard,
 } from 'lucide-react';
+import { RoleSwitcher } from './RoleSwitcher';
 
 interface ShowcaseLayoutProps {
   children: ReactNode;
@@ -20,6 +22,7 @@ interface ShowcaseLayoutProps {
 
 const navigation = [
   { name: 'Overview', href: '/', icon: Home },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Clients', href: '/clients', icon: Users },
   { name: 'Care Plans', href: '/care-plans', icon: ClipboardList },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
@@ -70,6 +73,7 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
               </h1>
               <p className="text-sm text-gray-500">Showcase Edition</p>
             </div>
+            <RoleSwitcher />
           </div>
         </div>
       </header>
