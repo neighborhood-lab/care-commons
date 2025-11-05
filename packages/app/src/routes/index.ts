@@ -12,6 +12,7 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
+import { createAnalyticsRouter } from './analytics.js';
 
 /**
  * Setup all API routes for the application
@@ -50,6 +51,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
+
+  // Analytics & Reporting routes
+  const analyticsRouter = createAnalyticsRouter(db);
+  app.use('/api/analytics', analyticsRouter);
+  console.log('  ✓ Analytics & Reporting routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits

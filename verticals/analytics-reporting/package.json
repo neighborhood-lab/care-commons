@@ -1,0 +1,27 @@
+{
+  "name": "@care-commons/analytics-reporting",
+  "version": "0.1.0",
+  "description": "Analytics and reporting vertical for Care Commons",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types/analytics": "./src/types/analytics.ts",
+    "./service/analytics-service": "./src/service/analytics-service.ts",
+    "./service/report-service": "./src/service/report-service.ts",
+    "./service/export-service": "./src/service/export-service.ts",
+    "./repository/analytics-repository": "./src/repository/analytics-repository.ts"
+  },
+  "scripts": {
+    "test": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@care-commons/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
