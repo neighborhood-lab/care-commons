@@ -4,6 +4,7 @@ import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useCarePlanProvider } from '@/core/providers/context';
 import { Plus, Search, Target, Calendar, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import type { Goal } from '../types/showcase-types.js';
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -183,7 +184,7 @@ export const CarePlansPage: React.FC = () => {
                     </h4>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
-                    {carePlan.goals.map((goal) => (
+                    {carePlan.goals.map((goal: Goal) => (
                       <div
                         key={goal.id}
                         className="rounded-md border border-gray-200 bg-gray-50 p-3"

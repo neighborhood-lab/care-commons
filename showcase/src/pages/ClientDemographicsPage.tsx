@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useClientProvider } from '@/core/providers/context';
 import { Plus, Search, Mail, Phone, MapPin } from 'lucide-react';
-import type { Client } from '@/verticals/client-demographics/types';
 
 export const ClientDemographicsPage: React.FC = () => {
   const clientProvider = useClientProvider();
