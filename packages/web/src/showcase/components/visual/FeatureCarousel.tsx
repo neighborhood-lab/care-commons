@@ -98,6 +98,11 @@ export const FeatureCarousel: React.FC = () => {
   };
 
   const currentFeature = features[currentIndex];
+  
+  if (!currentFeature) {
+    return null;
+  }
+  
   const Icon = currentFeature.icon;
 
   return (

@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { UserPlus, FileCheck, Calendar, CheckCircle, Shield, CreditCard } from 'lucide-react';
+import { UserPlus, FileCheck, CheckCircle, Shield } from 'lucide-react';
 import { Scenario } from '../types';
 import { NarrationBox } from './components/NarrationBox';
 import { ActionButtons } from './components/ActionButtons';
