@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -35,7 +34,9 @@
   },
   "include": [
     "src",
-    "vite-env.d.ts"
+    "vite-env.d.ts",
+    "vite.config.ts",
+    "vite.config.showcase.ts"
   ],
   "exclude": [
     "node_modules",
