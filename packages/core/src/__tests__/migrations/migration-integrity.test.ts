@@ -30,7 +30,7 @@ describe('Migration Integrity', () => {
       for (const file of migrationFiles) {
         // Format: 20240101120000_description.ts
         // 14-digit timestamp followed by underscore and description
-        const timestampRegex = /^\d{14}_[a-z0-9-_]+\.ts$/;
+        const timestampRegex = /^\d{14}_[\d_a-z-]+\.ts$/;
         expect(
           file,
           `Migration file "${file}" does not match expected format: YYYYMMDDHHMMSS_description.ts`
@@ -42,7 +42,7 @@ describe('Migration Integrity', () => {
       const files = fs.readdirSync(migrationsPath);
       const migrationFiles = files.filter(f => f.endsWith('.ts') && f !== 'README.md');
 
-      const timestamps = migrationFiles.map(f => f.substring(0, 14));
+      const timestamps = migrationFiles.map(f => f.slice(0, 14));
       const uniqueTimestamps = new Set(timestamps);
 
       expect(
@@ -55,9 +55,9 @@ describe('Migration Integrity', () => {
       const files = fs.readdirSync(migrationsPath);
       const migrationFiles = files
         .filter(f => f.endsWith('.ts') && f !== 'README.md')
-        .sort();
+        .sort((a, b) => a.localeCompare(b));
 
-      const timestamps = migrationFiles.map(f => Number.parseInt(f.substring(0, 14), 10));
+      const timestamps = migrationFiles.map(f => Number.parseInt(f.slice(0, 14), 10));
 
       for (let i = 1; i < timestamps.length; i++) {
         expect(
@@ -107,7 +107,7 @@ describe('Migration Integrity', () => {
         expect(
           content,
           `Migration ${file} should import Knex type from 'knex'`
-        ).toMatch(/import.*Knex.*from\s+['"]knex['"]/);
+        ).toMatch(/import.*Knex.*from\s+["']knex["']/);
       }
     });
 
@@ -119,7 +119,7 @@ describe('Migration Integrity', () => {
 
       for (const file of migrationFiles) {
         // Extract description (part after timestamp and underscore)
-        const description = file.substring(15, file.length - 3); // Remove timestamp_ and .ts
+        const description = file.slice(15, file.length - 3); // Remove timestamp_ and .ts
 
         // Description should be at least 3 characters
         expect(
@@ -131,7 +131,7 @@ describe('Migration Integrity', () => {
         expect(
           description,
           `Migration ${file} description contains invalid characters. Use only lowercase letters, numbers, hyphens, and underscores.`
-        ).toMatch(/^[a-z0-9-_]+$/);
+        ).toMatch(/^[\d_a-z-]+$/);
       }
     });
   });
@@ -187,10 +187,10 @@ describe('Migration Integrity', () => {
       const files = fs.readdirSync(migrationsPath);
       const migrationFiles = files
         .filter(f => f.endsWith('.ts') && f !== 'README.md')
-        .sort();
+        .sort((a, b) => a.localeCompare(b));
 
       // Verify the sorted array is the same as the natural order
-      const naturalOrder = [...migrationFiles].sort();
+      const naturalOrder = [...migrationFiles].sort((a, b) => a.localeCompare(b));
       expect(migrationFiles).toEqual(naturalOrder);
     });
   });
@@ -217,6 +217,8 @@ describe('Migration Integrity', () => {
 
       // This is a guideline check - migrations that create/alter tables
       // should ideally use transactions
+      let tableOperationsCount = 0;
+      
       for (const file of migrationFiles) {
         const filePath = path.join(migrationsPath, file);
         const content = fs.readFileSync(filePath, 'utf-8');
@@ -226,11 +228,14 @@ describe('Migration Integrity', () => {
           content.includes('createTable') || content.includes('alterTable');
 
         if (hasTableOperations) {
+          tableOperationsCount++;
           // Note: Knex migrations are automatically wrapped in transactions
           // This is just documentation
-          // console.log(`Migration ${file} uses table operations`);
         }
       }
+      
+      // Assert that we found migrations with table operations
+      expect(tableOperationsCount).toBeGreaterThan(0);
     });
   });
 });
