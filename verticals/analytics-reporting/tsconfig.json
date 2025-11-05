@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../../packages/core" }
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false,
+    "replacers": {
+      "pathsToModuleNameMapper": [
+        {
+          "pattern": "^(\\.{1,2}\\/[^'\"]+)$",
+          "replace": "$1.js"
+        }
+      ]
+    }
+  }
+}
