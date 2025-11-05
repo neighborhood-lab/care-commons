@@ -5,8 +5,8 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
-import { Button, Input } from '@care-commons/shared-components/native';
+import { View, Text, StyleSheet, Alert, ScrollView, TextInput } from 'react-native';
+import { Button } from '../../components/index.js';
 import { createAuthService } from '../../services/auth.js';
 
 export function LoginScreen() {
@@ -78,33 +78,41 @@ export function LoginScreen() {
         <Text style={styles.subtitle}>Caregiver Mobile App</Text>
 
         <View style={styles.form}>
-          <Input
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
+          <View>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect={false}
+              editable={!isLoading}
+              placeholder="Enter your email"
+            />
+          </View>
 
-          <Input
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="password"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
+          <View>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password"
+              autoCorrect={false}
+              editable={!isLoading}
+              placeholder="Enter your password"
+            />
+          </View>
 
           <Button
             variant="primary"
-            size="lg"
             onPress={handleLogin}
-            isLoading={isLoading}
+            disabled={isLoading}
+            loading={isLoading}
             style={styles.button}
           >
             Login
@@ -112,8 +120,7 @@ export function LoginScreen() {
 
           {biometricAvailable && (
             <Button
-              variant="outline"
-              size="lg"
+              variant="secondary"
               onPress={handleBiometricLogin}
               disabled={isLoading}
               style={styles.button}
@@ -157,6 +164,21 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: '#111827',
+    backgroundColor: '#FFFFFF',
   },
   button: {
     marginTop: 8,
