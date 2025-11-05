@@ -4,7 +4,7 @@
  * Main router for the enhanced showcase experience
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { EnhancedLandingPage } from './pages/EnhancedLandingPage';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
@@ -220,7 +220,7 @@ export const ShowcaseRouter: React.FC = () => {
       </Routes>
 
       {/* Welcome Modal */}
-      <WelcomeModal onComplete={handleRoleSelect} />
+      <WelcomeModal onComplete={(role) => role && handleRoleSelect(role)} />
 
       {/* Enhanced Role Selector */}
       <EnhancedRoleSelector

@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { X, Clock, BarChart3, ArrowRight, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { personas, getPersona } from '../../data/personas';
+import { personas } from '../../data/personas';
 
 interface EnhancedRoleSelectorProps {
   isOpen: boolean;
@@ -38,7 +38,9 @@ export const EnhancedRoleSelector: React.FC<EnhancedRoleSelectorProps> = ({
 
   const handleSurpriseMe = () => {
     const randomPersona = personas[Math.floor(Math.random() * personas.length)];
-    handleSelectRole(randomPersona.id);
+    if (randomPersona) {
+      handleSelectRole(randomPersona.id);
+    }
   };
 
   if (!isOpen) return null;
@@ -145,7 +147,7 @@ const PersonaDetailCard: React.FC<PersonaDetailCardProps> = ({
   onSelect,
   onConfirm,
 }) => {
-  const difficultyColors = {
+  const difficultyColors: Record<string, string> = {
     beginner: 'green',
     intermediate: 'yellow',
     advanced: 'red',
@@ -218,7 +220,7 @@ const PersonaDetailCard: React.FC<PersonaDetailCardProps> = ({
         <div className="mb-4">
           <h4 className="text-sm font-semibold text-gray-700 mb-2">Key Features:</h4>
           <ul className="space-y-1">
-            {persona.features.slice(0, 3).map((feature, index) => (
+            {persona.features.slice(0, 3).map((feature: string, index: number) => (
               <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
                 <span className="text-green-500 mt-0.5">✓</span>
                 <span>{feature}</span>
@@ -237,7 +239,7 @@ const PersonaDetailCard: React.FC<PersonaDetailCardProps> = ({
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               onConfirm();
             }}

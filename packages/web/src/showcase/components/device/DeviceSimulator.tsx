@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { X, RotateCw, Smartphone, Tablet } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export interface DeviceConfig {
   id: string;
@@ -77,8 +77,8 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
   onClose,
   defaultDevice = 'iphone-15-pro',
 }) => {
-  const [currentDevice, setCurrentDevice] = useState(
-    DEVICE_CONFIGS.find(d => d.id === defaultDevice) || DEVICE_CONFIGS[0]
+  const [currentDevice, setCurrentDevice] = useState<DeviceConfig>(
+    () => DEVICE_CONFIGS.find(d => d.id === defaultDevice) || DEVICE_CONFIGS[0]!
   );
   const [isLandscape, setIsLandscape] = useState(false);
   const [showDeviceSelector, setShowDeviceSelector] = useState(false);

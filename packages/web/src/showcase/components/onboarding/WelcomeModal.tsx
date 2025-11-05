@@ -11,6 +11,34 @@ import { personas } from '../../data/personas';
 
 const STORAGE_KEY = 'care-commons-showcase-visited';
 
+// Color mapping for Tailwind classes (must be complete class names)
+const colorClasses = {
+  purple: {
+    border: 'border-purple-500',
+    bg: 'bg-purple-50',
+    bgDark: 'bg-purple-100',
+    text: 'text-purple-500',
+  },
+  blue: {
+    border: 'border-blue-500',
+    bg: 'bg-blue-50',
+    bgDark: 'bg-blue-100',
+    text: 'text-blue-500',
+  },
+  green: {
+    border: 'border-green-500',
+    bg: 'bg-green-50',
+    bgDark: 'bg-green-100',
+    text: 'text-green-500',
+  },
+  pink: {
+    border: 'border-pink-500',
+    bg: 'bg-pink-50',
+    bgDark: 'bg-pink-100',
+    text: 'text-pink-500',
+  },
+} as const;
+
 interface WelcomeModalProps {
   onComplete?: (selectedRole?: string) => void;
 }
@@ -85,36 +113,39 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
             Which perspective would you like to explore first?
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {personas.map((persona) => (
-              <button
-                key={persona.id}
-                onClick={() => setSelectedRole(persona.id)}
-                className={`text-left p-4 rounded-lg border-2 transition-all ${
-                  selectedRole === persona.id
-                    ? `border-${persona.color}-500 bg-${persona.color}-50`
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`w-12 h-12 rounded-full bg-${persona.color}-100 flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-2xl">
-                      {persona.id === 'admin' && '👨‍💼'}
-                      {persona.id === 'coordinator' && '👩‍⚕️'}
-                      {persona.id === 'caregiver' && '👩‍🔬'}
-                      {persona.id === 'patient' && '👵'}
-                    </span>
+            {personas.map((persona) => {
+              const colors = colorClasses[persona.color as keyof typeof colorClasses] || colorClasses.blue;
+              return (
+                <button
+                  key={persona.id}
+                  onClick={() => setSelectedRole(persona.id)}
+                  className={`text-left p-4 rounded-lg border-2 transition-all ${
+                    selectedRole === persona.id
+                      ? `${colors.border} ${colors.bg}`
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-12 h-12 rounded-full ${colors.bgDark} flex items-center justify-center flex-shrink-0`}>
+                      <span className="text-2xl">
+                        {persona.id === 'admin' && '👨‍💼'}
+                        {persona.id === 'coordinator' && '👩‍⚕️'}
+                        {persona.id === 'caregiver' && '👩‍🔬'}
+                        {persona.id === 'patient' && '👵'}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{persona.name}</h4>
+                      <p className="text-sm text-gray-600">{persona.title}</p>
+                      <p className="text-xs text-gray-500 mt-1">{persona.estimatedTime} min experience</p>
+                    </div>
+                    {selectedRole === persona.id && (
+                      <Check className={`h-5 w-5 ${colors.text}`} />
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{persona.name}</h4>
-                    <p className="text-sm text-gray-600">{persona.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">{persona.estimatedTime} min experience</p>
-                  </div>
-                  {selectedRole === persona.id && (
-                    <Check className={`h-5 w-5 text-${persona.color}-500`} />
-                  )}
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         </div>
       ),
@@ -125,7 +156,14 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
         <div className="space-y-4">
           <p className="text-lg text-gray-700">
             {selectedRole ? (
-              <>You'll start as <strong>{personas.find(p => p.id === selectedRole)?.name}</strong> - {personas.find(p => p.id === selectedRole)?.title}</>
+              (() => {
+                const persona = personas.find(p => p.id === selectedRole);
+                return persona ? (
+                  <>You'll start as <strong>{persona.name}</strong> - {persona.title}</>
+                ) : (
+                  <>You're all set to explore the Care Commons platform!</>
+                );
+              })()
             ) : (
               <>You're all set to explore the Care Commons platform!</>
             )}
@@ -172,6 +210,9 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
 
   if (!isOpen) return null;
 
+  const currentStepData = steps[currentStep];
+  if (!currentStepData) return null;
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
@@ -185,7 +226,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
           <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold">{steps[currentStep].title}</h2>
+                <h2 className="text-2xl font-bold">{currentStepData.title}</h2>
                 <p className="text-purple-100 text-sm mt-1">
                   Step {currentStep + 1} of {steps.length}
                 </p>
@@ -220,7 +261,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
               >
-                {steps[currentStep].content}
+                {currentStepData.content}
               </motion.div>
             </AnimatePresence>
           </div>
