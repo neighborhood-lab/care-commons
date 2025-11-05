@@ -12,7 +12,10 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
-import { createAnalyticsRouter } from './analytics.js';
+// TODO: Analytics routes temporarily disabled - requires architectural refactor
+// The analytics-reporting vertical uses Knex query builder, but the codebase uses raw SQL via Database class
+// See verticals/analytics-reporting/README.md for implementation details
+// import { createAnalyticsRouter } from './analytics.js';
 
 /**
  * Setup all API routes for the application
@@ -52,10 +55,11 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
 
-  // Analytics & Reporting routes
-  const analyticsRouter = createAnalyticsRouter(db);
-  app.use('/api/analytics', analyticsRouter);
-  console.log('  ✓ Analytics & Reporting routes registered');
+  // Analytics & Reporting routes - TEMPORARILY DISABLED
+  // Requires architectural refactor: analytics-reporting uses Knex, but codebase uses raw SQL
+  // const analyticsRouter = createAnalyticsRouter(db);
+  // app.use('/api/analytics', analyticsRouter);
+  // console.log('  ✓ Analytics & Reporting routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
