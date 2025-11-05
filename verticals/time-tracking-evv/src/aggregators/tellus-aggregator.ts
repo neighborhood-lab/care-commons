@@ -164,13 +164,24 @@ export class TellusAggregator implements IAggregator {
         requiresRetry: true,
         retryAfterSeconds: EXPONENTIAL_BACKOFF.baseDelaySeconds,
       };
-    } catch (error: any) {
+    } catch (error) {
       // Network error - should retry
+      let message: string;
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else{
+        const debugOutput = (typeof error === 'object' && error !== null)
+        ? JSON.stringify(error, null, 2)
+        : String(error);
+        message = `${debugOutput}`;
+      }
       return {
         success: false,
         submissionId: '',
         errorCode: 'NETWORK_ERROR',
-        errorMessage: error.message || 'Failed to connect to Tellus',
+        errorMessage: message || 'Failed to connect to Tellus',
         requiresRetry: true,
         retryAfterSeconds: EXPONENTIAL_BACKOFF.baseDelaySeconds,
       };

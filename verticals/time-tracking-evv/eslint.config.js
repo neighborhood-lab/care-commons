@@ -87,7 +87,7 @@ export default [
       'sonarjs/prefer-single-boolean-return': 'off', // Allow if-else returns
       'sonarjs/use-type-alias': 'off', // Allow inline union types
       '@typescript-eslint/no-explicit-any': 'warn', // Warn on any
-      '@typescript-eslint/no-unused-vars': 'warn', // Warn on unused vars
+      // '@typescript-eslint/no-unused-vars': 'warn', // Do not Warn on unused vars, the config above allows var names that start with `_` to be unused
       // Unicorn rules (battle-tested quality improvements)
       'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models
       'unicorn/filename-case': ['error', { case: 'kebabCase' }],

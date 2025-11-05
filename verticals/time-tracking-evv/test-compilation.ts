@@ -53,7 +53,7 @@ interface TestTimeEntry {
 }
 
 // Test the fixed variable naming and optional property handling
-function testClockInProcessing(input: any): TestEVVRecord {
+function _testClockInProcessing(input: any): TestEVVRecord {
   const baseRecord: TestEVVRecord = {
     organizationId: input.organizationId,
     branchId: input.branchId,
@@ -85,7 +85,7 @@ function testClockInProcessing(input: any): TestEVVRecord {
 }
 
 // Test the fixed variable naming for clock out
-function testClockOutProcessing(input: any): TestEVVRecord {
+function _testClockOutProcessing(input: any): TestEVVRecord {
   const baseRecord: TestEVVRecord = {
     organizationId: input.organizationId,
     branchId: input.branchId,
@@ -117,7 +117,7 @@ function testClockOutProcessing(input: any): TestEVVRecord {
 }
 
 // Test the fixed bracket notation access
-function testDatabaseRowProcessing(row: any): TestTimeEntry {
+function _testDatabaseRowProcessing(row: any): TestTimeEntry {
   // Fixed: Use bracket notation for dynamic property access
   return {
     evvRecordId: row['evv_record_id'] as string,
@@ -138,7 +138,7 @@ function testDatabaseRowProcessing(row: any): TestTimeEntry {
 }
 
 // Test the fixed type assertions
-function testTypeAssertions() {
+function _testTypeAssertions() {
   const complianceFlags = ['MISSING_CLOCK_OUT', 'GEOFENCE_VIOLATION'] as const;
   const verificationLevel = 'PARTIAL' as const;
   
