@@ -242,7 +242,7 @@ describe('ClientRepository', () => {
   });
 
   describe('findByClientNumber', () => {
-    it.skip('should find client by client number successfully', async () => {
+    it('should find client by client number successfully', async () => {
       const mockClient = {
         id: 'test-id',
         client_number: 'CL-001',
