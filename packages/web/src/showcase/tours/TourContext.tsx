@@ -5,7 +5,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { Tour, TourStep } from '../types';
+import { Tour } from '../types';
 
 interface TourContextValue {
   currentTour: Tour | null;
@@ -54,6 +54,25 @@ export const TourProvider: React.FC<TourProviderProps> = ({ children }) => {
     setTourStartTime(Date.now());
   }, []);
 
+  const completeTour = useCallback(() => {
+    const duration = Date.now() - tourStartTime;
+
+    if (currentTour?.onComplete) {
+      currentTour.onComplete();
+    }
+
+    // Could track completion analytics here
+    console.log('Tour completed:', {
+      tourId: currentTour?.id,
+      duration,
+      stepsCompleted: currentStep + 1,
+    });
+
+    setIsActive(false);
+    setCurrentTour(null);
+    setCurrentStep(0);
+  }, [currentTour, currentStep, tourStartTime]);
+
   const nextStep = useCallback(() => {
     if (!currentTour) return;
 
@@ -65,7 +84,7 @@ export const TourProvider: React.FC<TourProviderProps> = ({ children }) => {
     }
 
     // Validate if interactive step
-    if (step?.isInteractive && step?.validation) {
+    if (step?.isInteractive && step.validation) {
       if (!step.validation()) {
         // Show error or hint - could add toast notification here
         console.warn('Step validation failed');
@@ -79,7 +98,7 @@ export const TourProvider: React.FC<TourProviderProps> = ({ children }) => {
     } else {
       completeTour();
     }
-  }, [currentTour, currentStep]);
+  }, [currentTour, currentStep, completeTour]);
 
   const previousStep = useCallback(() => {
     if (currentStep > 0) {
@@ -103,25 +122,6 @@ export const TourProvider: React.FC<TourProviderProps> = ({ children }) => {
   const resumeTour = useCallback(() => {
     setIsPaused(false);
   }, []);
-
-  const completeTour = useCallback(() => {
-    const duration = Date.now() - tourStartTime;
-
-    if (currentTour?.onComplete) {
-      currentTour.onComplete();
-    }
-
-    // Could track completion analytics here
-    console.log('Tour completed:', {
-      tourId: currentTour?.id,
-      duration,
-      stepsCompleted: currentStep + 1,
-    });
-
-    setIsActive(false);
-    setCurrentTour(null);
-    setCurrentStep(0);
-  }, [currentTour, currentStep, tourStartTime]);
 
   // Keyboard shortcuts
   useEffect(() => {
