@@ -109,9 +109,9 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     allowOverage: false, // Still cannot exceed authorized units
   };
 
-  protected async validateStateSpecificCredentials(
+  protected override async validateStateSpecificCredentials(
     caregiver: CaregiverCredentials,
-    visit: VisitDetails,
+    _visit: VisitDetails,
     client: ClientDetails
   ): Promise<ComplianceIssue[]> {
     const issues: ComplianceIssue[] = [];
@@ -129,7 +129,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     issues.push(...this.validateRNSupervisionAssignment(caregiver, client));
 
     // 5. Plan of Care Currency
-    issues.push(...this.validatePlanOfCare(client));
+    issues.push(...this.validateFloridaClientCompliance(client));
 
     return issues;
   }
@@ -138,7 +138,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     const issues: ComplianceIssue[] = [];
     const flData = caregiver.stateSpecificData?.florida as FloridaCredentials | undefined;
 
-    if (!flData?.level2ScreeningDate) {
+    if (flData?.level2ScreeningDate === undefined) {
       issues.push({
         type: 'FL_LEVEL2_SCREENING_MISSING',
         severity: 'BLOCKING',
@@ -177,7 +177,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check expiration (5-year cycle)
-    if (flData.level2ScreeningExpiration) {
+    if (flData.level2ScreeningExpiration !== undefined) {
       const expirationDate = new Date(flData.level2ScreeningExpiration);
 
       if (isExpired(expirationDate)) {
@@ -212,7 +212,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     // Check if caregiver has Florida license
     const flLicense = caregiver.licenses.find(l => l.state === 'FL');
 
-    if (!flLicense) {
+    if (flLicense === undefined) {
       issues.push({
         type: 'FL_LICENSE_MISSING',
         severity: 'BLOCKING',
@@ -237,8 +237,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
       }
 
       // Check expiration
-      if (flLicense.expirationDate) {
-        const expirationDate = new Date(flLicense.expirationDate);
+      const expirationDate = new Date(flLicense.expirationDate); {
 
         if (isExpired(expirationDate)) {
           issues.push({
@@ -272,7 +271,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     const flData = caregiver.stateSpecificData?.florida as FloridaCredentials | undefined;
 
     // HIV/AIDS training required per 59A-8.0095
-    if (!flData?.hivAidsTrainingCompleted) {
+    if (flData?.hivAidsTrainingCompleted !== true) {
       issues.push({
         type: 'FL_HIV_AIDS_TRAINING_MISSING',
         severity: 'BLOCKING',
@@ -292,9 +291,9 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     const flClientData = client.stateSpecificData?.florida as FloridaClientData | undefined;
 
     // Check if service requires RN supervision
-    const requiresSupervision = flClientData?.authorizedServices?.some(s => s.requiresRNSupervision);
+    const requiresSupervision = flClientData?.authorizedServices?.some(s => s.requiresRNSupervision) ?? false;
 
-    if (requiresSupervision && !caregiver.stateSpecificData?.florida) {
+    if (requiresSupervision === true && caregiver.stateSpecificData?.florida === undefined) {
       issues.push({
         type: 'FL_RN_SUPERVISOR_NOT_ASSIGNED',
         severity: 'WARNING',
@@ -309,12 +308,12 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     return issues;
   }
 
-  private validatePlanOfCare(client: ClientDetails): ComplianceIssue[] {
+  private validateFloridaClientCompliance(client: ClientDetails): ComplianceIssue[] {
     const issues: ComplianceIssue[] = [];
     const flData = client.stateSpecificData?.florida as FloridaClientData | undefined;
 
     // Check POC review currency (Florida Statute 400.487)
-    if (flData?.pocNextReviewDue) {
+    if (flData?.pocNextReviewDue !== undefined) {
       const reviewDueDate = new Date(flData.pocNextReviewDue);
 
       if (isExpired(reviewDueDate)) {
@@ -323,7 +322,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
           type: 'FL_POC_REVIEW_OVERDUE',
           severity: 'BLOCKING',
           category: 'CLIENT_AUTHORIZATION',
-          message: `Plan of Care review overdue by ${daysPastDue} days. Florida requires review every ${flData.pocReviewFrequency || 60} days.`,
+          message: `Plan of Care review overdue by ${daysPastDue} days. Florida requires review every ${flData.pocReviewFrequency ?? 60} days.`,
           regulation: 'Florida Statute 400.487',
           remediation: 'RN must conduct POC review and obtain physician signature',
           canBeOverridden: false,
@@ -333,7 +332,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check RN supervisory visit (59A-8.0095)
-    if (flData?.lastRNSupervisoryVisit) {
+    if (flData?.lastRNSupervisoryVisit !== undefined) {
       const lastVisit = new Date(flData.lastRNSupervisoryVisit);
       const daysSinceVisit = daysSince(lastVisit);
 
@@ -363,7 +362,7 @@ export class FloridaComplianceValidator extends BaseComplianceValidator {
     return 'Florida Administrative Code 59A-8.0095';
   }
 
-  protected getRegistryRegulation(type: string): string {
+  protected getRegistryRegulation(_type: string): string {
     return 'Florida Statutes Chapter 435';
   }
 

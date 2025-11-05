@@ -130,9 +130,9 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
   /**
    * State-specific credential validations
    */
-  protected async validateStateSpecificCredentials(
+  protected override async validateStateSpecificCredentials(
     caregiver: CaregiverCredentials,
-    visit: VisitDetails,
+    _visit: VisitDetails,
     client: ClientDetails
   ): Promise<ComplianceIssue[]> {
     const issues: ComplianceIssue[] = [];
@@ -168,7 +168,7 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     const ohioData = caregiver.stateSpecificData?.ohio as OhioCredentials | undefined;
 
     // Missing background check entirely
-    if (!ohioData?.backgroundCheck) {
+    if (ohioData?.backgroundCheck === undefined) {
       issues.push({
         type: 'OH_FBI_BCI_MISSING',
         severity: 'BLOCKING',
@@ -185,8 +185,11 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
 
     const check = ohioData.backgroundCheck;
 
-    // Must be FBI+BCI type (not name-based)
-    if (check.type !== 'FBI_BCI') {
+    // Verify type is FBI_BCI (runtime safety check)
+    // Note: TypeScript interface guarantees this, but we validate for data integrity
+    // Type check: While TypeScript enforces this via interface, we keep this for runtime safety
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (check.type !== "FBI_BCI") {
       issues.push({
         type: 'OH_WRONG_BACKGROUND_TYPE',
         severity: 'BLOCKING',
@@ -199,7 +202,6 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check expiration status
-    const today = new Date();
     const expirationDate = new Date(check.expirationDate);
 
     if (isExpired(expirationDate)) {
@@ -287,7 +289,7 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     }
 
     // CNA must have STNA number
-    if (!ohioData?.stnaNumber) {
+    if (ohioData?.stnaNumber === undefined || ohioData.stnaNumber === '') {
       issues.push({
         type: 'OH_STNA_NUMBER_MISSING',
         severity: 'BLOCKING',
@@ -325,7 +327,7 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check STNA certification expiration
-    if (ohioData.stnaCertificationExpiration) {
+    if (ohioData.stnaCertificationExpiration !== undefined) {
       const expirationDate = new Date(ohioData.stnaCertificationExpiration);
 
       if (isExpired(expirationDate)) {
@@ -353,7 +355,7 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check 24-month work requirement
-    if (ohioData.stnaLastPaidWork) {
+    if (ohioData.stnaLastPaidWork !== undefined) {
       const lastWorkDate = new Date(ohioData.stnaLastPaidWork);
       const daysSinceWork = daysSince(lastWorkDate);
 
@@ -392,7 +394,7 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     }
 
     // HHA must have 75-hour training completion
-    if (!ohioData?.hhaTrainingCompletion) {
+    if (ohioData?.hhaTrainingCompletion === undefined) {
       issues.push({
         type: 'OH_HHA_TRAINING_MISSING',
         severity: 'BLOCKING',
@@ -418,7 +420,7 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check when last competency was done
-    if (ohioData?.lastCompetencyCheck) {
+    if (ohioData?.lastCompetencyCheck !== undefined) {
       const lastCheck = new Date(ohioData.lastCompetencyCheck);
       const daysSinceCheck = daysSince(lastCheck);
 
@@ -466,7 +468,7 @@ export class OhioComplianceValidator extends BaseComplianceValidator {
     const ohioData = client.stateSpecificData?.ohio as OhioClientData | undefined;
 
     // Check if last RN visit is on record
-    if (!ohioData?.lastRNSupervisionVisit) {
+    if (ohioData?.lastRNSupervisionVisit === undefined) {
       issues.push({
         type: 'OH_RN_SUPERVISION_MISSING',
         severity: 'WARNING',

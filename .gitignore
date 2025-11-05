@@ -225,3 +225,4 @@ packages/mobile/.metro-health-check*
 # Temporary files
 packages/mobile/tmp/
 packages/mobile/temp/
+packages/web/dist-showcase
