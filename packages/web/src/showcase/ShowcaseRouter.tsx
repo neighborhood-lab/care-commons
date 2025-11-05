@@ -10,6 +10,9 @@ import { EnhancedLandingPage } from './pages/EnhancedLandingPage';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { EnhancedRoleSelector } from './components/onboarding/EnhancedRoleSelector';
 import { ComparisonTable } from './components/visual/ComparisonTable';
+import { TourProvider, TourOverlay } from './tours';
+import { TourButton } from './components/tours/TourButton';
+import { PersonaRole } from './types';
 import { AppShell } from '../app/components';
 import { Dashboard, NotFound, AdminDashboard } from '../app/pages';
 import { ClientList, ClientDetail } from '../verticals/client-demographics';
@@ -21,16 +24,30 @@ import { OpenShiftList, OpenShiftDetail } from '../verticals/shift-matching';
 
 const CURRENT_ROLE_KEY = 'showcase-current-role';
 
+const isValidRole = (role: string): role is PersonaRole => {
+  return ['admin', 'coordinator', 'caregiver', 'patient'].includes(role);
+};
+
 export const ShowcaseRouter: React.FC = () => {
   const navigate = useNavigate();
   const [showRoleSelector, setShowRoleSelector] = useState(false);
-  const [currentRole, setCurrentRole] = useState<string>(() => {
-    return localStorage.getItem(CURRENT_ROLE_KEY) || '';
+  const [currentRole, setCurrentRole] = useState<PersonaRole | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = window.localStorage.getItem(CURRENT_ROLE_KEY);
+      if (stored && isValidRole(stored)) {
+        return stored;
+      }
+    }
+    return undefined;
   });
 
   const handleRoleSelect = (roleId: string) => {
-    setCurrentRole(roleId);
-    localStorage.setItem(CURRENT_ROLE_KEY, roleId);
+    if (isValidRole(roleId)) {
+      setCurrentRole(roleId);
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(CURRENT_ROLE_KEY, roleId);
+      }
+    }
     setShowRoleSelector(false);
     navigate('/dashboard');
   };
@@ -40,7 +57,7 @@ export const ShowcaseRouter: React.FC = () => {
   };
 
   return (
-    <>
+    <TourProvider>
       <Routes>
         {/* Landing Page */}
         <Route
@@ -229,6 +246,12 @@ export const ShowcaseRouter: React.FC = () => {
         onSelectRole={handleRoleSelect}
         currentRole={currentRole}
       />
-    </>
+
+      {/* Tour Overlay */}
+      <TourOverlay />
+
+      {/* Tour FAB Button */}
+      <TourButton currentRole={currentRole} />
+    </TourProvider>
   );
 };
