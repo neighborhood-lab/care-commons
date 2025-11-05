@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, RotateCcw, Pause, Play } from 'lucide-react';
+import { X, RotateCcw } from 'lucide-react';
 import { useScenario } from '../ScenarioContext';
 
 export const ScenarioContainer: React.FC = () => {

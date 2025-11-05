@@ -31,20 +31,21 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     // Intersection Observer to trigger animation when element is visible
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
+        if (entry && entry.isIntersecting && !isVisible) {
           setIsVisible(true);
         }
       },
       { threshold: 0.1 }
     );
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observer.observe(currentElement);
     }
 
     return () => {
-      if (elementRef.current) {
-        observer.unobserve(elementRef.current);
+      if (currentElement) {
+        observer.unobserve(currentElement);
       }
     };
   }, [isVisible]);
@@ -55,11 +56,11 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     let startTime: number | null = null;
     const startValue = 0;
     const endValue = end;
-    const duration = Math.max(1000, Math.min(3000, duration)); // Clamp between 1-3s
+    const animationDuration = Math.max(1000, Math.min(3000, duration)); // Clamp between 1-3s
 
     const animate = (currentTime: number) => {
       if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / duration, 1);
+      const progress = Math.min((currentTime - startTime) / animationDuration, 1);
 
       // Easing function (ease-out)
       const easeOut = 1 - Math.pow(1 - progress, 3);

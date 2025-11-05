@@ -5,7 +5,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Scenario, ScenarioStep } from '../types';
+import { Scenario } from '../types';
 
 interface ScenarioContextValue {
   currentScenario: Scenario | null;

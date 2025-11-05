@@ -10,11 +10,7 @@ import { Play, Clock, User, Award, ArrowRight } from 'lucide-react';
 import { allScenarios, scenarioCategories, useScenario } from '../scenarios';
 import { Scenario, PersonaRole } from '../types';
 
-interface ScenarioLibraryPageProps {
-  onBack?: () => void;
-}
-
-export const ScenarioLibraryPage: React.FC<ScenarioLibraryPageProps> = ({ onBack }) => {
+export const ScenarioLibraryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
   const { startScenario } = useScenario();
