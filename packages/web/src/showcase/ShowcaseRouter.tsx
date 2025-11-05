@@ -6,12 +6,14 @@
 
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { EnhancedLandingPage } from './pages/EnhancedLandingPage';
+import { EnhancedLandingPage, ScenarioLibraryPage } from './pages';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { EnhancedRoleSelector } from './components/onboarding/EnhancedRoleSelector';
 import { ComparisonTable } from './components/visual/ComparisonTable';
 import { TourProvider, TourOverlay } from './tours';
 import { TourButton } from './components/tours/TourButton';
+import { ScenarioProvider, ScenarioContainer } from './scenarios';
+import { ScenarioButton } from './components/scenarios/ScenarioButton';
 import { PersonaRole } from './types';
 import { AppShell } from '../app/components';
 import { Dashboard, NotFound, AdminDashboard } from '../app/pages';
@@ -58,29 +60,36 @@ export const ShowcaseRouter: React.FC = () => {
 
   return (
     <TourProvider>
-      <Routes>
-        {/* Landing Page */}
-        <Route
-          path="/"
-          element={
-            <EnhancedLandingPage
-              onSelectRole={handleRoleSelect}
-              onStartTour={handleStartTour}
-            />
-          }
-        />
+      <ScenarioProvider>
+        <Routes>
+          {/* Landing Page */}
+          <Route
+            path="/"
+            element={
+              <EnhancedLandingPage
+                onSelectRole={handleRoleSelect}
+                onStartTour={handleStartTour}
+              />
+            }
+          />
 
-        {/* Comparison Page */}
-        <Route
-          path="/comparison"
-          element={
-            <div className="min-h-screen bg-gray-50 py-12">
-              <div className="max-w-6xl mx-auto px-4">
-                <ComparisonTable />
+          {/* Scenario Library */}
+          <Route
+            path="/scenarios"
+            element={<ScenarioLibraryPage />}
+          />
+
+          {/* Comparison Page */}
+          <Route
+            path="/comparison"
+            element={
+              <div className="min-h-screen bg-gray-50 py-12">
+                <div className="max-w-6xl mx-auto px-4">
+                  <ComparisonTable />
+                </div>
               </div>
-            </div>
-          }
-        />
+            }
+          />
 
         {/* App Routes */}
         <Route
@@ -236,22 +245,29 @@ export const ShowcaseRouter: React.FC = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* Welcome Modal */}
-      <WelcomeModal onComplete={(role) => role && handleRoleSelect(role)} />
+        {/* Welcome Modal */}
+        <WelcomeModal onComplete={(role) => role && handleRoleSelect(role)} />
 
-      {/* Enhanced Role Selector */}
-      <EnhancedRoleSelector
-        isOpen={showRoleSelector}
-        onClose={() => setShowRoleSelector(false)}
-        onSelectRole={handleRoleSelect}
-        currentRole={currentRole}
-      />
+        {/* Enhanced Role Selector */}
+        <EnhancedRoleSelector
+          isOpen={showRoleSelector}
+          onClose={() => setShowRoleSelector(false)}
+          onSelectRole={handleRoleSelect}
+          currentRole={currentRole}
+        />
 
-      {/* Tour Overlay */}
-      <TourOverlay />
+        {/* Tour Overlay */}
+        <TourOverlay />
 
-      {/* Tour FAB Button */}
-      <TourButton currentRole={currentRole} />
+        {/* Scenario Container */}
+        <ScenarioContainer />
+
+        {/* Tour FAB Button */}
+        <TourButton currentRole={currentRole} />
+
+        {/* Scenario FAB Button */}
+        <ScenarioButton />
+      </ScenarioProvider>
     </TourProvider>
   );
 };
