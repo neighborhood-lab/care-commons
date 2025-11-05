@@ -17,6 +17,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
+    "baseUrl": ".",
     "paths": {
       "@care-commons/core": ["../core/src"],
       "@care-commons/core/*": ["../core/src/*"],

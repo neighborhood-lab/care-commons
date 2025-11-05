@@ -52,14 +52,14 @@ export function CameraScreen({ route, navigation }: Props) {
    * Toggle camera facing (front/back)
    */
   const toggleCameraFacing = () => {
-    setFacing((current) => (current === 'back' ? 'front' : 'back'));
+    setFacing((current: CameraType) => (current === 'back' ? 'front' : 'back'));
   };
 
   /**
    * Toggle flash mode
    */
   const toggleFlash = () => {
-    setFlash((current) => {
+    setFlash((current: FlashMode) => {
       if (current === 'off') return 'on';
       if (current === 'on') return 'auto';
       return 'off';

@@ -694,8 +694,8 @@ export class EVVValidator {
 
         // Check client signature requirement
         if (mco.requiresClientSignature) {
-          // In production, check if signature exists on record
-          if (!record.clientSignature) {
+          // Check if signature exists on record
+          if (!record.clientAttestation?.signatureData) {
             issues.push({
               issueType: 'MISSING_SIGNATURE',
               severity: 'HIGH',
@@ -710,8 +710,8 @@ export class EVVValidator {
 
         // Check photo verification requirement
         if (mco.requiresPhotoVerification) {
-          // In production, check if photo exists on record
-          if (!record.photoVerification) {
+          // Check if photo exists on record (clock-in or clock-out)
+          if (!record.clockInVerification?.photoUrl && !record.clockOutVerification?.photoUrl) {
             issues.push({
               issueType: 'MISSING_PHOTO_VERIFICATION',
               severity: 'HIGH',
