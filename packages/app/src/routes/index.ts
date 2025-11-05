@@ -12,7 +12,8 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
-// TODO: Analytics routes temporarily disabled - requires architectural refactor
+import { createDemoRouter } from './demo.js';
+// NOTE: Analytics routes temporarily disabled - requires architectural refactor
 // The analytics-reporting vertical uses Knex query builder, but the codebase uses raw SQL via Database class
 // See verticals/analytics-reporting/README.md for implementation details
 // import { createAnalyticsRouter } from './analytics.js';
@@ -55,6 +56,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
+
+  // Demo routes (interactive demo system)
+  const demoRouter = createDemoRouter(db);
+  app.use('/api/demo', demoRouter);
+  console.log('  ✓ Demo routes registered');
 
   // Analytics & Reporting routes - TEMPORARILY DISABLED
   // Requires architectural refactor: analytics-reporting uses Knex, but codebase uses raw SQL
