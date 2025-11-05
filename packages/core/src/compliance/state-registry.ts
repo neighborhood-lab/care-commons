@@ -106,7 +106,7 @@ export const STATE_REGISTRY: Partial<Record<StateCode, StateInfo>> = {
 export async function getValidator(state: StateCode): Promise<StateComplianceValidator> {
   const stateInfo = STATE_REGISTRY[state];
 
-  if (!stateInfo) {
+  if (stateInfo === undefined) {
     throw new Error(`No validator registered for state: ${state}`);
   }
 
@@ -131,8 +131,8 @@ export function getSupportedStates(): StateCode[] {
  * Get states by aggregator
  */
 export function getStatesByAggregator(aggregator: string): StateCode[] {
-  return Object.values(STATE_REGISTRY)
-    .filter((s): s is StateInfo => s !== undefined && s.evvAggregator === aggregator)
+  return (Object.values(STATE_REGISTRY) as StateInfo[])
+    .filter(s => s.evvAggregator === aggregator)
     .map(s => s.code);
 }
 

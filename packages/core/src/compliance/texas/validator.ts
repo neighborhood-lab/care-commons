@@ -24,9 +24,6 @@ import {
   CaregiverCredentials,
   VisitDetails,
   ClientDetails,
-  isExpired,
-  isExpiringSoon,
-  daysUntilExpiration,
   daysSince,
 } from '../types/index.js';
 
@@ -119,9 +116,9 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     allowOverage: false,                // TX is STRICT - cannot exceed
   };
 
-  protected async validateStateSpecificCredentials(
+  protected override async validateStateSpecificCredentials(
     caregiver: CaregiverCredentials,
-    visit: VisitDetails,
+    _visit: VisitDetails,
     client: ClientDetails
   ): Promise<ComplianceIssue[]> {
     const issues: ComplianceIssue[] = [];
@@ -148,7 +145,7 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     const issues: ComplianceIssue[] = [];
     const txData = caregiver.stateSpecificData?.texas as TexasCredentials | undefined;
 
-    if (!txData?.emrCheckDate) {
+    if (txData?.emrCheckDate === undefined) {
       issues.push({
         type: 'TX_EMR_CHECK_MISSING',
         severity: 'BLOCKING',
@@ -203,7 +200,7 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     const isCNA = caregiver.licenses.some(l => l.type === 'CNA' && l.state === 'TX');
     if (!isCNA) return issues;
 
-    if (!txData?.narNumber) {
+    if (txData?.narNumber === undefined || txData.narNumber === '') {
       issues.push({
         type: 'TX_NAR_NUMBER_MISSING',
         severity: 'BLOCKING',
@@ -213,7 +210,10 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
         remediation: 'Verify NAR status at https://vo.hhsc.state.tx.us/',
         canBeOverridden: false,
       });
-    } else if (txData.narStatus !== 'ACTIVE') {
+      return issues;
+    }
+    
+    if (txData.narStatus !== 'ACTIVE') {
       issues.push({
         type: 'TX_NAR_INACTIVE',
         severity: 'BLOCKING',
@@ -226,7 +226,7 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check NAR verification date
-    if (txData.narVerificationDate) {
+    if (txData.narVerificationDate !== undefined) {
       const verificationDate = new Date(txData.narVerificationDate);
       const daysSinceVerification = daysSince(verificationDate);
       if (daysSinceVerification > 365) {
@@ -249,7 +249,7 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     const issues: ComplianceIssue[] = [];
     const txData = caregiver.stateSpecificData?.texas as TexasCredentials | undefined;
 
-    if (!txData?.hhscOrientationCompleted) {
+    if (txData?.hhscOrientationCompleted !== true) {
       issues.push({
         type: 'TX_HHSC_ORIENTATION_MISSING',
         severity: 'BLOCKING',
@@ -270,7 +270,7 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     const txClientData = client.stateSpecificData?.texas as TexasClientData | undefined;
 
     // Check if service requires EVV
-    const requiresEVV = txClientData?.authorizedServices?.some(s => s.requiresEVV);
+    const requiresEVV = txClientData?.authorizedServices?.some(s => s.requiresEVV) ?? false;
 
     if (requiresEVV && txCaregiverData?.evvEnrollmentStatus !== 'ACTIVE') {
       issues.push({
@@ -294,7 +294,8 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     // Emergency plan required for STAR+PLUS
     const isSTARPlus = txData?.medicaidProgram === 'STAR_PLUS';
 
-    if (isSTARPlus && !txData.emergencyPlanOnFile) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (isSTARPlus && txData?.emergencyPlanOnFile !== true) {
       issues.push({
         type: 'TX_EMERGENCY_PLAN_MISSING',
         severity: 'BLOCKING',
@@ -307,7 +308,8 @@ export class TexasComplianceValidator extends BaseComplianceValidator {
     }
 
     // Check if plan is outdated (>1 year)
-    if (isSTARPlus && txData.emergencyPlanLastUpdated) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (isSTARPlus && txData?.emergencyPlanLastUpdated !== undefined) {
       const lastUpdated = new Date(txData.emergencyPlanLastUpdated);
       const daysSinceUpdate = daysSince(lastUpdated);
       if (daysSinceUpdate > 365) {
