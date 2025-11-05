@@ -37,7 +37,7 @@
     "lint": "eslint . --ext ts"
   },
   "dependencies": {
-    "@care-commons/core": "workspace:*"
+    "@care-commons/core": "file:../../packages/core"
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
