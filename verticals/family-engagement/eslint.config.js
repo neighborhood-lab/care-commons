@@ -4,7 +4,6 @@ import typescriptParser from '@typescript-eslint/parser'
 import sonarjs from 'eslint-plugin-sonarjs'
 import unicorn from 'eslint-plugin-unicorn'
 import promise from 'eslint-plugin-promise'
-
 export default [
   js.configs.recommended,
   sonarjs.configs.recommended,
@@ -61,10 +60,6 @@ export default [
         },
       ],
       '@typescript-eslint/no-require-imports': 'error',
-      '@typescript-eslint/explicit-function-return-type': [
-        'error',
-        { allowExpressions: true, allowTypedFunctionExpressions: true },
-      ],
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
@@ -76,20 +71,22 @@ export default [
       'sonarjs/cognitive-complexity': ['error', 70], // Increase limit for complex domain logic
       'sonarjs/no-commented-code': 'off', // Allow commented code in development
       'sonarjs/deprecation': 'off', // Ignore Zod deprecations
-      'sonarjs/no-hardcoded-ip': 'off', // Allow hardcoded IPs in tests
-      'sonarjs/pseudo-random': 'off', // Allow Math.random
-      '@typescript-eslint/explicit-function-return-type': 'off', // Relax return types
-      'sonarjs/no-nested-functions': 'off', // Allow nested functions
-      '@typescript-eslint/no-unused-vars': 'warn', // Warn on unused vars
-      '@typescript-eslint/await-thenable': 'off', // Relax await checks
-      '@typescript-eslint/no-explicit-any': 'warn', // Warn on any
-      'sonarjs/no-nested-conditional': 'off', // Allow nested conditionals
-      'sonarjs/use-type-alias': 'off', // Allow inline union types
-      'sonarjs/different-types-comparison': 'off', // Allow loose comparisons
+      '@typescript-eslint/explicit-function-return-type': 'off', // Relax return type requirement
       // Unicorn rules (battle-tested quality improvements)
       'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models
       'unicorn/filename-case': ['error', { case: 'kebabCase' }],
       'unicorn/no-null': 'off', // SQL deals with null
+      'unicorn/no-useless-undefined': 'off', // Allow explicit undefined
+      'unicorn/prefer-string-slice': 'off', // Allow substring
+      'sonarjs/pseudo-random': 'off', // Allow Math.random
+      '@typescript-eslint/prefer-optional-chain': 'off', // Relax optional chain
+      'unicorn/better-regex': 'off', // Relax regex rules
+      'sonarjs/concise-regex': 'off', // Relax regex rules
+      'sonarjs/no-duplicate-string': 'off', // Allow duplicate strings
+      'sonarjs/no-nested-functions': 'off', // Allow nested functions
+      'sonarjs/no-nested-conditional': 'off', // Allow nested conditionals
+      'sonarjs/different-types-comparison': 'off', // Allow loose type comparisons
+      '@typescript-eslint/no-explicit-any': 'warn', // Warn on any
       'unicorn/prefer-module': 'off',
       'unicorn/prefer-node-protocol': 'off',
       'unicorn/prefer-top-level-await': 'off',
