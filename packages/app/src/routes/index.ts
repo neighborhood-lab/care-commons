@@ -16,6 +16,7 @@ import { createCaregiverRouter } from './caregivers.js';
 // The analytics-reporting vertical uses Knex query builder, but the codebase uses raw SQL via Database class
 // See verticals/analytics-reporting/README.md for implementation details
 // import { createAnalyticsRouter } from './analytics.js';
+import { createSyncRouter } from '../api/sync/sync-routes.js';
 
 /**
  * Setup all API routes for the application
@@ -60,6 +61,11 @@ export function setupRoutes(app: Express, db: Database): void {
   // const analyticsRouter = createAnalyticsRouter(db);
   // app.use('/api/analytics', analyticsRouter);
   // console.log('  ✓ Analytics & Reporting routes registered');
+
+  // Offline Sync routes
+  const syncRouter = createSyncRouter(db);
+  app.use('/api/sync', syncRouter);
+  console.log('  ✓ Offline Sync routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
