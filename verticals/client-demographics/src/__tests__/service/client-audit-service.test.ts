@@ -193,7 +193,7 @@ describe('ClientAuditService', () => {
   });
 
   describe('getDisclosureHistory', () => {
-    it.skip('should get disclosure history for a client', async () => {
+    it('should get disclosure history for a client', async () => {
       const sixYearsAgo = new Date();
       sixYearsAgo.setFullYear(sixYearsAgo.getFullYear() - 6);
 
