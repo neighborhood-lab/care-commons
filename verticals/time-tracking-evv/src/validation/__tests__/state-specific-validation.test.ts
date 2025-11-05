@@ -395,39 +395,28 @@ describe('State-Specific EVV Validation', () => {
 
   describe('Geographic Validation with State Tolerance', () => {
     it('should validate geographic location with Texas tolerance', () => {
-      const record = createBaseRecord();
-      const expectedLocation = {
-        latitude: 30.2711,
-        longitude: -97.7437,
-        radiusMeters: 100,
-      };
-      
       const result = validator.validateGeographicWithStateTolerance(
         'TX',
-        { geoPerimeterTolerance: 100 },
-        record,
-        expectedLocation
+        30.2711, // locationLat
+        -97.7437, // locationLon
+        10, // accuracy
+        30.2711, // geofenceLat (same as location for this test)
+        -97.7437, // geofenceLon (same as location for this test)
+        100 // baseRadius
       );
 
       expect(result.isWithinGeofence).toBe(true);
     });
 
     it('should validate geographic location with Florida tolerance', () => {
-      const record = createBaseRecord();
-      record.clockInVerification.geofencePassed = false;
-      record.clockInVerification.distanceFromAddress = 200;
-      
-      const expectedLocation = {
-        latitude: 30.2711,
-        longitude: -97.7437,
-        radiusMeters: 150,
-      };
-      
       const result = validator.validateGeographicWithStateTolerance(
         'FL',
-        { geoPerimeterTolerance: 150 },
-        record,
-        expectedLocation
+        30.2711, // locationLat
+        -97.7437, // locationLon
+        10, // accuracy
+        30.2711, // geofenceLat
+        -97.7437, // geofenceLon
+        150 // baseRadius
       );
 
       // With 150m + tolerance, result depends on calculation
@@ -436,19 +425,15 @@ describe('State-Specific EVV Validation', () => {
     });
 
     it('should throw error for unsupported state in geographic validation', () => {
-      const record = createBaseRecord();
-      const expectedLocation = {
-        latitude: 30.2711,
-        longitude: -97.7437,
-        radiusMeters: 100,
-      };
-      
       expect(() => {
         validator.validateGeographicWithStateTolerance(
           'NY' as any,
-          {},
-          record,
-          expectedLocation
+          30.2711, // locationLat
+          -97.7437, // locationLon
+          10, // accuracy
+          30.2711, // geofenceLat
+          -97.7437, // geofenceLon
+          100 // baseRadius
         );
       }).toThrow('Unsupported state code: NY');
     });

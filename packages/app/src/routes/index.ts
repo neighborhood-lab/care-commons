@@ -12,9 +12,9 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
-// TODO: Analytics routes temporarily disabled - requires architectural refactor
+// FIXME: Analytics routes temporarily disabled - requires architectural refactor
 // The analytics-reporting vertical uses Knex query builder, but the codebase uses raw SQL via Database class
-// See verticals/analytics-reporting/README.md for implementation details
+// See verticals/analytics-reporting/ARCHITECTURAL_ISSUES.md for implementation details
 // import { createAnalyticsRouter } from './analytics.js';
 
 /**

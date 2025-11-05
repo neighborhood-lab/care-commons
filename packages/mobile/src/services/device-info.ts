@@ -75,7 +75,7 @@ export class DeviceInfoService {
           return 'WIFI';
         case 'ethernet':
           return 'ETHERNET';
-        case 'cellular':
+        case 'cellular': {
           // Try to determine if 4G or 5G based on details
           const cellularGeneration = state.details?.cellularGeneration;
           if (cellularGeneration === '5g') {
@@ -83,6 +83,7 @@ export class DeviceInfoService {
           }
           // Default to 4G for cellular connections
           return '4G';
+        }
         default:
           return 'WIFI'; // Fallback to WIFI for unknown types
       }
