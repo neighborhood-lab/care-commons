@@ -32,12 +32,10 @@ export const TouchSimulator: React.FC<TouchSimulatorProps> = ({
 
     if ('touches' in e) {
       // Touch event
-      if (e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else {
-        return;
-      }
+      const touch = e.touches[0];
+      if (!touch) return;
+      clientX = touch.clientX;
+      clientY = touch.clientY;
     } else {
       // Mouse event
       clientX = e.clientX;
