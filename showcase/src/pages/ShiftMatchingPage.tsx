@@ -4,6 +4,7 @@ import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useShiftMatchingProvider } from '@/core/providers/context';
 import { Calendar, Clock, DollarSign, Users, Award } from 'lucide-react';
 import { format } from 'date-fns';
+import type { ShiftListing } from '../types/showcase-types.js';
 
 export const ShiftMatchingPage: React.FC = () => {
   const shiftProvider = useShiftMatchingProvider();
@@ -27,19 +28,19 @@ export const ShiftMatchingPage: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm font-medium text-gray-600">Open</p>
           <p className="mt-1 text-2xl font-semibold text-blue-600">
-            {data?.items.filter(s => s.status === 'OPEN').length || 0}
+            {data?.items.filter((s: ShiftListing) => s.status === 'OPEN').length || 0}
           </p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm font-medium text-gray-600">Filled</p>
           <p className="mt-1 text-2xl font-semibold text-green-600">
-            {data?.items.filter(s => s.status === 'FILLED').length || 0}
+            {data?.items.filter((s: ShiftListing) => s.status === 'FILLED').length || 0}
           </p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm font-medium text-gray-600">Applications</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">
-            {data?.items.reduce((sum, s) => sum + (s.applicationCount || 0), 0) || 0}
+            {data?.items.reduce((sum: number, s: ShiftListing) => sum + (s.applicationCount || 0), 0) || 0}
           </p>
         </div>
       </div>
@@ -53,7 +54,7 @@ export const ShiftMatchingPage: React.FC = () => {
 
       {data && data.items.length > 0 && (
         <div className="space-y-4">
-          {data.items.map((shift) => (
+          {data.items.map((shift: ShiftListing) => (
             <div
               key={shift.id}
               className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
@@ -107,7 +108,7 @@ export const ShiftMatchingPage: React.FC = () => {
                     <p className="text-xs font-medium text-gray-700">Required Certifications</p>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {shift.requiredCertifications.map((cert, idx) => (
+                    {shift.requiredCertifications.map((cert: string, idx: number) => (
                       <span
                         key={idx}
                         className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700"
@@ -123,7 +124,7 @@ export const ShiftMatchingPage: React.FC = () => {
                 <div className="border-t border-gray-100 pt-3 mt-3">
                   <p className="text-xs font-medium text-gray-700 mb-2">Preferred Specializations</p>
                   <div className="flex flex-wrap gap-1">
-                    {shift.preferredSpecializations.map((spec, idx) => (
+                    {shift.preferredSpecializations.map((spec: string, idx: number) => (
                       <span
                         key={idx}
                         className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700"

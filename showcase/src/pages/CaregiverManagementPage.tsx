@@ -4,6 +4,7 @@ import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useCaregiverProvider } from '@/core/providers/context';
 import { Search, Award, DollarSign, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import type { Certification } from '../types/showcase-types.js';
 
 export const CaregiverManagementPage: React.FC = () => {
   const caregiverProvider = useCaregiverProvider();
@@ -105,7 +106,7 @@ export const CaregiverManagementPage: React.FC = () => {
                     <p className="text-xs font-medium text-gray-700">Certifications</p>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {caregiver.certifications.map((cert, idx) => (
+                    {caregiver.certifications.map((cert: Certification, idx: number) => (
                       <span
                         key={idx}
                         className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
@@ -121,7 +122,7 @@ export const CaregiverManagementPage: React.FC = () => {
                 <div className="border-t border-gray-100 pt-3">
                   <p className="text-xs font-medium text-gray-700 mb-2">Specializations</p>
                   <div className="flex flex-wrap gap-1">
-                    {caregiver.specializations.map((spec, idx) => (
+                    {caregiver.specializations.map((spec: string, idx: number) => (
                       <span
                         key={idx}
                         className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700"
