@@ -8,7 +8,7 @@
  * about their loved one's care.
  */
 
-import type { Entity, UUID, Timestamp, UserContext } from '@care-commons/core/types';
+import type { Entity, UUID, Timestamp } from '@care-commons/core';
 
 // ============================================================================
 // Family Member & Portal Access Types
