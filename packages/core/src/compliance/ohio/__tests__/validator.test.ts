@@ -105,16 +105,39 @@ describe('OhioComplianceValidator', () => {
     });
 
     it('should WARN if background check expires within 60 days', async () => {
-      const checkDate = new Date();
-      checkDate.setFullYear(checkDate.getFullYear() - 4);
-      checkDate.setMonth(checkDate.getMonth() - 10); // ~4 years 10 months ago
+      const today = new Date();
+      const checkDate = new Date(today);
+      checkDate.setDate(checkDate.getDate() - (365 * 5 - 50)); // 5 years ago minus 50 days
 
       const expirationDate = new Date(checkDate);
-      expirationDate.setFullYear(expirationDate.getFullYear() + 5); // Expires in ~2 months
+      expirationDate.setDate(expirationDate.getDate() + (365 * 5)); // Expires in ~50 days
 
       const caregiver: CaregiverCredentials = {
-        licenses: [],
-        registryChecks: [],
+        backgroundScreening: {
+          type: 'FINGERPRINT',
+          checkDate,
+          expirationDate,
+          status: 'CLEAR',
+        },
+        licenses: [
+          {
+            type: 'HHA',
+            state: 'OH',
+            number: 'HHA123456',
+            issueDate: new Date('2020-01-01'),
+            expirationDate: new Date('2026-01-01'),
+            status: 'ACTIVE',
+          },
+        ],
+        registryChecks: [
+          {
+            name: 'Ohio Nurse Aide Registry',
+            type: 'NURSE_AIDE',
+            checkDate: new Date(),
+            status: 'CLEAR',
+            state: 'OH',
+          },
+        ],
         stateSpecificData: {
           ohio: {
             backgroundCheck: {
@@ -125,6 +148,9 @@ describe('OhioComplianceValidator', () => {
               documentation: 'clearance.pdf',
               status: 'CLEAR',
             },
+            hhaTrainingCompletion: new Date('2020-01-01'),
+            hhaCompetencyStatus: 'PASSED',
+            lastCompetencyCheck: new Date(), // Recent competency check
           } as OhioCredentials,
         },
       };
