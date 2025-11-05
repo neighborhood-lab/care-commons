@@ -11,7 +11,6 @@
 - [GitHub Secrets](#github-secrets)
 - [Vercel Configuration](#vercel-configuration)
 - [Neon Database](#neon-database)
-- [Snyk Security](#snyk-security)
 - [Codecov](#codecov)
 - [Environment Variables Reference](#environment-variables-reference)
 
@@ -141,7 +140,6 @@ Go to: **Repository → Settings → Secrets and variables → Actions → New r
 | Secret Name | Description | How to Get | Used By |
 |-------------|-------------|------------|---------|
 | `CODECOV_TOKEN` | Codecov upload token | [Codecov Settings](https://codecov.io/gh/neighborhood-lab/care-commons/settings) | CI workflow |
-| `SNYK_TOKEN` | Snyk security scanning token | [Snyk Account Settings](https://app.snyk.io/account) | Security workflow |
 
 #### 4. JWT Secrets (Production)
 
@@ -281,27 +279,6 @@ DATABASE_URL="postgresql://..." npm run db:migrate
 
 ---
 
-## Snyk Security
-
-### Setup
-
-1. **Create Snyk Account**: https://snyk.io
-2. **Connect GitHub Repository**:
-   - Go to https://app.snyk.io
-   - Click "Add project"
-   - Select GitHub → `neighborhood-lab/care-commons`
-
-3. **Get API Token**:
-   - Go to https://app.snyk.io/account
-   - Copy your API token
-   - Add to GitHub Secrets as `SNYK_TOKEN`
-
-### Security Workflow
-
-Using snyk GitHub integration instead of git workflow/action for this.
-
----
-
 ## Codecov
 
 ### Setup
@@ -356,7 +333,6 @@ The CI workflow automatically uploads coverage:
 | `VERCEL_TOKEN` | Yes (deploy) | - | Vercel API token |
 | `VERCEL_ORG_ID` | Yes (deploy) | - | Vercel organization ID |
 | `VERCEL_PROJECT_ID` | Yes (deploy) | - | Vercel project ID |
-| `SNYK_TOKEN` | Yes (security) | - | Snyk API token |
 | `CODECOV_TOKEN` | Yes (coverage) | - | Codecov upload token |
 
 ---
@@ -381,7 +357,6 @@ The CI workflow automatically uploads coverage:
 - [ ] Add `VERCEL_ORG_ID` secret
 - [ ] Add `VERCEL_PROJECT_ID` secret
 - [ ] Add `CODECOV_TOKEN` secret
-- [ ] Add `SNYK_TOKEN` secret
 - [ ] Enable branch protection for `main` and `preview`
 - [ ] Require CI checks to pass before merging
 
@@ -410,12 +385,11 @@ The CI workflow automatically uploads coverage:
 
 ### Security & Monitoring
 
-- [ ] Connect Snyk to repository
-- [ ] Add Snyk token to GitHub Secrets
 - [ ] Connect Codecov to repository
 - [ ] Add Codecov token to GitHub Secrets
 - [ ] Enable Dependabot alerts
 - [ ] Configure GitHub security advisories
+- [ ] Snyk integration managed via GitHub App (not CLI)
 
 ---
 
@@ -469,7 +443,7 @@ The CI workflow automatically uploads coverage:
 2. **Rotate secrets** regularly (every 90 days recommended)
 3. **Use different secrets** for each environment
 4. **Enable 2FA** on all external accounts (GitHub, Vercel, Neon)
-5. **Review Snyk alerts** weekly
+5. **Review security alerts** weekly (Snyk GitHub integration, Dependabot)
 6. **Monitor Vercel logs** for suspicious activity
 7. **Use branch protection** to prevent direct commits to `main` and `preview`
 
@@ -480,7 +454,6 @@ The CI workflow automatically uploads coverage:
 - **Vercel Documentation**: https://vercel.com/docs
 - **Neon Documentation**: https://neon.tech/docs
 - **GitHub Actions**: https://docs.github.com/actions
-- **Snyk Documentation**: https://docs.snyk.io
 - **Codecov Documentation**: https://docs.codecov.com
 
 ---
