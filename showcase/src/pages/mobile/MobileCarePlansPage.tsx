@@ -3,9 +3,7 @@ import { MobileLayout } from '../../components/MobileLayout';
 import {
   FileText,
   Target,
-  TrendingUp,
   Calendar,
-  User,
   ChevronRight,
   CheckCircle,
   Circle,

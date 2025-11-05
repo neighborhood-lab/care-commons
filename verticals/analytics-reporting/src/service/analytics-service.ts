@@ -419,7 +419,7 @@ export class AnalyticsService {
     }
 
     // If branchId specified, check branch access
-    if (branchId && context.branchId && context.branchId !== branchId) {
+    if (branchId && context.branchIds && !context.branchIds.includes(branchId)) {
       throw new Error('Unauthorized: Access denied to this branch');
     }
   }

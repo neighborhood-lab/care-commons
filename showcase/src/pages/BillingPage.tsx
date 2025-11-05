@@ -4,6 +4,7 @@ import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useBillingProvider } from '@/core/providers/context';
 import { FileText, DollarSign, Calendar, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
+import type { InvoiceLineItem } from '../types/showcase-types.js';
 
 export const BillingPage: React.FC = () => {
   const billingProvider = useBillingProvider();
@@ -126,7 +127,7 @@ export const BillingPage: React.FC = () => {
               <div className="border-t border-gray-100 pt-4">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Line Items</h4>
                 <div className="space-y-2">
-                  {invoice.lineItems.map((item) => (
+                  {invoice.lineItems.map((item: InvoiceLineItem) => (
                     <div key={item.id} className="flex justify-between text-sm">
                       <div>
                         <p className="text-gray-900">{item.description}</p>
