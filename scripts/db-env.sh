@@ -131,8 +131,32 @@ echo -e "${BLUE}═════════════════════�
 echo ""
 
 # Export environment variables from the selected env file
-# Use a subshell to avoid polluting the current shell
-export $(grep -v '^#' "$ENV_FILE" | grep -v '^[[:space:]]*$' | xargs)
+# Handle both simple KEY=value and KEY="value with spaces" formats
+while IFS='=' read -r key value; do
+  # Skip comments and empty lines
+  [[ $key =~ ^[[:space:]]*# ]] && continue
+  [[ -z "$key" ]] && continue
+  
+  # Remove leading/trailing whitespace
+  key=$(echo "$key" | xargs)
+  value=$(echo "$value" | xargs)
+  
+  # Remove quotes if present
+  value="${value%\"}"
+  value="${value#\"}"
+  
+  # Export the variable
+  export "$key=$value"
+done < "$ENV_FILE"
+
+# Verify DATABASE_URL is set (critical for remote databases)
+if [ -n "$DATABASE_URL" ]; then
+  echo -e "${GREEN}✓ DATABASE_URL loaded from $ENV_FILE${NC}"
+  echo -e "${GREEN}  Database: $(echo $DATABASE_URL | sed 's/postgresql:\/\/[^@]*@/postgresql:\/\/***:***@/')${NC}"
+else
+  echo -e "${YELLOW}⚠️  No DATABASE_URL found - using local database config${NC}"
+fi
+echo ""
 
 # Execute the command
 case $COMMAND in
