@@ -1,0 +1,35 @@
+{
+  "name": "@care-commons/family-engagement",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@care-commons/core": "workspace:*",
+    "twilio": "^5.3.5",
+    "@anthropic-ai/sdk": "^0.34.1",
+    "zod": "^3.24.1",
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^4.17.21",
+    "typescript": "^5.7.3",
+    "tsc-alias": "^1.8.10",
+    "vitest": "^2.1.8"
+  }
+}
