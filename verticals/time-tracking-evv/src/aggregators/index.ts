@@ -11,7 +11,7 @@
  * Total: 7 states supported
  */
 
-export {
+export type {
   IAggregator,
   StateEVVConfig,
   AggregatorSubmissionResult,
@@ -20,6 +20,9 @@ export {
   ValidationWarning,
   RetryPolicy,
   SubmissionStatus,
+} from './base-aggregator.js';
+
+export {
   EXPONENTIAL_BACKOFF,
   LINEAR_BACKOFF,
   calculateRetryDelay,
