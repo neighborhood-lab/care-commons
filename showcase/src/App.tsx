@@ -15,6 +15,14 @@ import { CaregiverManagementPage } from './pages/CaregiverManagementPage';
 import { ShiftMatchingPage } from './pages/ShiftMatchingPage';
 import { BillingPage } from './pages/BillingPage';
 
+// Mobile Pages
+import { MobileHomePage } from './pages/mobile/MobileHomePage';
+import { MobileVisitsPage } from './pages/mobile/MobileVisitsPage';
+import { MobileTasksPage } from './pages/mobile/MobileTasksPage';
+import { MobileProfilePage } from './pages/mobile/MobileProfilePage';
+import { MobileClientsPage } from './pages/mobile/MobileClientsPage';
+import { MobileCarePlansPage } from './pages/mobile/MobileCarePlansPage';
+
 // Create React Query client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,12 +44,22 @@ export const App: React.FC = () => {
         <BrowserRouter basename="/care-commons">
           <Routes>
             <Route path="/" element={<LandingPage />} />
+
+            {/* Desktop/Web Routes */}
             <Route path="/clients" element={<ClientDemographicsPage />} />
             <Route path="/care-plans" element={<CarePlansPage />} />
             <Route path="/tasks" element={<TaskManagementPage />} />
             <Route path="/caregivers" element={<CaregiverManagementPage />} />
             <Route path="/shifts" element={<ShiftMatchingPage />} />
             <Route path="/billing" element={<BillingPage />} />
+
+            {/* Mobile Routes */}
+            <Route path="/mobile" element={<MobileHomePage />} />
+            <Route path="/mobile/visits" element={<MobileVisitsPage />} />
+            <Route path="/mobile/tasks" element={<MobileTasksPage />} />
+            <Route path="/mobile/profile" element={<MobileProfilePage />} />
+            <Route path="/mobile/clients" element={<MobileClientsPage />} />
+            <Route path="/mobile/care-plans" element={<MobileCarePlansPage />} />
           </Routes>
         </BrowserRouter>
         <Toaster position="top-right" />

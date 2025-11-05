@@ -12,6 +12,8 @@ import {
   Laptop,
   Zap,
   ArrowRight,
+  Monitor,
+  Smartphone,
 } from 'lucide-react';
 
 const features = [
@@ -92,21 +94,81 @@ export const LandingPage: React.FC = () => {
           Explore the features of Care Commons in this interactive browser-based demo.
           All data runs locally in your browser - no backend required.
         </p>
-        <div className="flex gap-4 justify-center">
+      </div>
+
+      {/* Experience Selection */}
+      <div className="mb-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          Choose Your Experience
+        </h2>
+        <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
+          {/* Desktop/Web Experience */}
           <Link
             to="/clients"
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-6 py-3 text-base font-medium text-white hover:bg-blue-700 transition-colors"
+            className="group relative bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 p-8 hover:shadow-xl hover:border-blue-400 transition-all"
           >
-            Start Exploring
-            <ArrowRight className="h-5 w-5" />
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-blue-600 rounded-full p-4 mb-4 group-hover:scale-110 transition-transform">
+                <Monitor className="h-12 w-12 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                Desktop / Web
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Full-featured web interface for coordinators, admins, and office staff.
+                Manage clients, care plans, billing, analytics, and more.
+              </p>
+              <div className="flex items-center gap-2 text-blue-600 font-medium group-hover:gap-3 transition-all">
+                Launch Web Experience
+                <ArrowRight className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="absolute top-4 right-4">
+              <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                FULL FEATURES
+              </span>
+            </div>
           </Link>
+
+          {/* Mobile App Experience */}
+          <Link
+            to="/mobile"
+            className="group relative bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 p-8 hover:shadow-xl hover:border-purple-400 transition-all"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-purple-600 rounded-full p-4 mb-4 group-hover:scale-110 transition-transform">
+                <Smartphone className="h-12 w-12 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                Mobile App
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Caregiver-focused mobile interface for field work.
+                Clock in/out, complete tasks, manage visits, and update records on the go.
+              </p>
+              <div className="flex items-center gap-2 text-purple-600 font-medium group-hover:gap-3 transition-all">
+                Launch Mobile Experience
+                <ArrowRight className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="absolute top-4 right-4">
+              <span className="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                FIELD WORK
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Quick Link to Full Demo */}
+        <div className="text-center mt-8">
           <a
             href="https://care-commons.vercel.app/login"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-md border-2 border-blue-600 px-6 py-3 text-base font-medium text-blue-600 hover:bg-blue-50 transition-colors"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
           >
-            Visit Full Demo
+            Or visit the full production demo with authentication
+            <ArrowRight className="h-4 w-4" />
           </a>
         </div>
       </div>
