@@ -250,7 +250,7 @@ beforeEach(() => {
       },
     ];
 
-    it.skip('should match shift and create proposals', async () => {
+    it('should match shift and create proposals', async () => {
       const input: MatchShiftInput = {
         openShiftId: 'shift-123',
         autoPropose: true,
@@ -300,7 +300,7 @@ beforeEach(() => {
       expect(mockRepository.updateOpenShiftStatus).toHaveBeenCalledWith('shift-123', 'PROPOSED', mockContext);
     });
 
-    it.skip('should handle no eligible candidates', async () => {
+    it('should handle no eligible candidates', async () => {
       const input: MatchShiftInput = {
         openShiftId: 'shift-123',
         autoPropose: false,
@@ -367,7 +367,7 @@ beforeEach(() => {
         .rejects.toThrow(ValidationError);
     });
 
-    it.skip('should handle blocked caregivers', async () => {
+    it('should handle blocked caregivers', async () => {
       const shiftWithBlocked = {
         ...mockOpenShift,
         blockedCaregivers: ['cg-123'],
@@ -528,7 +528,7 @@ beforeEach(() => {
       totalPages: 1,
     };
 
-    it.skip('should get available shifts for caregiver', async () => {
+    it('should get available shifts for caregiver', async () => {
       mockCaregiverService.getCaregiverById.mockResolvedValue(mockCaregiver);
       mockRepository.searchOpenShifts.mockResolvedValue(mockOpenShifts);
       mockRepository.getDefaultConfiguration.mockResolvedValue({
@@ -618,7 +618,7 @@ beforeEach(() => {
       computedAt: new Date(),
     };
 
-    it.skip('should allow caregiver to select shift', async () => {
+    it('should allow caregiver to select shift', async () => {
       mockRepository.getOpenShift.mockResolvedValue(mockOpenShift);
       mockRepository.getDefaultConfiguration.mockResolvedValue({
         minScoreForProposal: 60,
@@ -740,7 +740,7 @@ beforeEach(() => {
   });
 
   describe('expireStaleProposals', () => {
-    it.skip('should expire stale proposals', async () => {
+    it('should expire stale proposals', async () => {
       const staleProposals = [
         { id: 'proposal-123', open_shift_id: 'shift-123' },
         { id: 'proposal-456', open_shift_id: 'shift-456' },
@@ -757,7 +757,7 @@ beforeEach(() => {
       expect(mockRepository.createMatchHistory).toHaveBeenCalledTimes(2);
     });
 
-    it.skip('should return 0 if no stale proposals', async () => {
+    it('should return 0 if no stale proposals', async () => {
       (mockPool.query as any).mockResolvedValue({ rows: [] });
 
       const result = await service.expireStaleProposals(mockContext);

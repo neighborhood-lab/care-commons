@@ -19,7 +19,7 @@ import {
 import { EVVRecord, VerificationMethod, ComplianceFlag, EVVRecordStatus } from '../../types/evv';
 import { UUID } from '@care-commons/core';
 
-describe.skip('EVVValidator - State-Specific Validation', () => {
+describe('EVVValidator - State-Specific Validation', () => {
   let validator: EVVValidator;
   let mockEVVRecord: EVVRecord;
   let texasConfig: TexasEVVConfig;
