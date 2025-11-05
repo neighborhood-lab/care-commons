@@ -11,8 +11,11 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:showcase": "vite --config vite.config.showcase.ts",
     "build": "vite build",
+    "build:showcase": "vite build --config vite.config.showcase.ts",
     "preview": "vite preview",
+    "preview:showcase": "vite preview --config vite.config.showcase.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
