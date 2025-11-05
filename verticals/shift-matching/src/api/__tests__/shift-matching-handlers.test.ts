@@ -647,7 +647,7 @@ describe('ShiftMatchingHandlers', () => {
 
   describe('Analytics & Reporting', () => {
     describe('getMatchingMetrics', () => {
-      it.skip('should get matching metrics', async () => {
+      it('should get matching metrics', async () => {
         const periodStart = new Date('2024-01-01');
         const periodEnd = new Date('2024-01-31');
 
@@ -689,7 +689,7 @@ describe('ShiftMatchingHandlers', () => {
     });
 
     describe('getCaregiverPerformance', () => {
-      it.skip('should get caregiver performance', async () => {
+      it('should get caregiver performance', async () => {
         const caregiverId = 'cg-123';
         const periodStart = new Date('2024-01-01');
         const periodEnd = new Date('2024-01-31');

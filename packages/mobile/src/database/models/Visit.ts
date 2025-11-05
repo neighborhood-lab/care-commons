@@ -14,8 +14,7 @@ export class Visit extends Model {
     time_entries: { type: 'has_many' as const, foreignKey: 'visit_id' },
   };
 
-  // id is inherited from Model base class
-  declare id: string;
+  // Note: id is inherited from Model base class as an accessor
 
   @field('organization_id') organizationId!: string;
   @field('branch_id') branchId!: string;
