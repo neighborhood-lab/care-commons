@@ -4,12 +4,15 @@ An interactive, browser-based demonstration of Care Commons features, designed t
 
 ## Overview
 
-The Showcase is a **static, client-side demo** that demonstrates the capabilities of Care Commons without requiring server infrastructure. It's perfect for:
+The Showcase is a **static, client-side demo** that demonstrates the capabilities of Care Commons without requiring server infrastructure. It features a **multi-role experience** that allows you to explore the system from different perspectives: patient, family member, caregiver, care coordinator, and administrator.
+
+Perfect for:
 
 - Quick demos and presentations
 - Feature exploration without setup
-- Understanding the UI/UX
+- Understanding the UI/UX from multiple user perspectives
 - Testing workflows with mock data
+- Experiencing real-world care coordination scenarios
 
 ## Key Differences from Full Demo
 
@@ -24,9 +27,24 @@ The Showcase is a **static, client-side demo** that demonstrates the capabilitie
 
 ## Architecture
 
+### Role Context System
+
+The showcase implements a **role-based context system** that manages the current user perspective:
+
+```typescript
+// Role switching
+const { currentRole, setRole } = useRole();
+
+// Access current persona information
+const { currentPersona } = useRole();
+
+// Check role permissions
+const canAccess = isRoleAllowed(['coordinator', 'admin']);
+```
+
 ### Provider Abstraction Pattern
 
-The showcase introduces a **provider abstraction layer** following SOLID principles:
+The showcase uses a **provider abstraction layer** following SOLID principles:
 
 ```typescript
 // Core abstraction
@@ -61,11 +79,15 @@ This architecture allows the **same frontend code** to work with either:
 showcase/
 ├── src/
 │   ├── components/        # Shared components
-│   │   └── ShowcaseLayout.tsx
+│   │   ├── ShowcaseLayout.tsx
+│   │   └── RoleSwitcher.tsx      # NEW: Role switching UI
+│   ├── contexts/         # React contexts
+│   │   └── RoleContext.tsx       # NEW: Role management
 │   ├── data/             # Mock data
 │   │   └── seed-data.ts
 │   ├── pages/            # Feature pages
 │   │   ├── LandingPage.tsx
+│   │   ├── DashboardPage.tsx     # NEW: Role-based dashboard
 │   │   ├── ClientDemographicsPage.tsx
 │   │   ├── CarePlansPage.tsx
 │   │   ├── TaskManagementPage.tsx
@@ -74,6 +96,8 @@ showcase/
 │   │   └── BillingPage.tsx
 │   ├── providers/        # Data provider implementation
 │   │   └── mock-provider.ts
+│   ├── types/            # Type definitions
+│   │   └── showcase-types.ts     # NEW: Simplified types
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
@@ -164,9 +188,34 @@ Changes you make (creating, updating, deleting) are saved to browser localStorag
 
 To reset to original seed data, clear your browser's localStorage for this domain.
 
+## 🎭 Multi-Role Experience (New in Part 3!)
+
+The showcase now features a **role-based navigation system** that lets you experience the platform from different perspectives:
+
+### Available Personas
+
+1. **Patient (Margaret Thompson)** - View your own care plan, upcoming tasks, and caregiver schedule
+2. **Family Member (Sarah Thompson)** - Monitor loved one's care status and communicate with care team
+3. **Caregiver (Emily Rodriguez)** - Manage daily schedule, complete tasks, and apply to shifts
+4. **Care Coordinator** - Oversee care plans, assign caregivers, and monitor compliance
+5. **System Administrator** - Full system access including billing, payroll, and analytics
+
+### How to Use
+
+- **Role Switcher**: Click the persona selector in the top-right corner of any page
+- **Dashboard**: Each role has a personalized dashboard showing relevant information
+- **Filtered Views**: Data is automatically filtered based on the selected role
+- **Quick Actions**: Role-specific actions are highlighted for easy access
+
 ## Features Demonstrated
 
-### 1. Client Demographics
+### 1. Role-Based Dashboards (NEW!)
+- Personalized views for each user type
+- Real-time statistics and metrics
+- Role-specific quick actions
+- Contextual task lists and schedules
+
+### 2. Client Demographics
 - Comprehensive client profiles
 - Emergency contacts
 - Insurance information
@@ -215,6 +264,31 @@ To reset to original seed data, clear your browser's localStorage for this domai
 - React Query caching
 - Optimized bundle splitting
 
+## Development Status
+
+### ✅ Completed (Parts 1-3)
+- [x] Provider abstraction pattern
+- [x] Mock data provider with localStorage
+- [x] Comprehensive seed data
+- [x] Feature pages (Clients, Care Plans, Tasks, Caregivers, Shifts, Billing)
+- [x] Role-based context system
+- [x] Multi-persona experience
+- [x] Role switcher UI component
+- [x] Personalized dashboards
+- [x] Enhanced landing page
+
+### 🚧 In Progress
+- [ ] Type alignment between showcase and production types
+- [ ] Complete TypeScript compilation without errors
+- [ ] Build optimization and testing
+
+### 📋 Future Enhancements
+- [ ] Guided tours/walkthroughs
+- [ ] Scenario-based demonstrations
+- [ ] Interactive tutorials
+- [ ] Data reset/reseed functionality
+- [ ] Export/import demo data
+
 ## Contributing
 
 To add new features to the showcase:
@@ -224,6 +298,15 @@ To add new features to the showcase:
 3. Create page components in `src/pages/`
 4. Add routes to `src/App.tsx`
 5. Update navigation in `src/components/ShowcaseLayout.tsx`
+6. Add role-specific logic in `src/contexts/RoleContext.tsx` if needed
+
+### Type Alignment Notes
+
+The showcase currently uses simplified types in `src/types/showcase-types.ts`. To align with production types:
+
+1. Update mock provider to use production type imports
+2. Adjust seed data to match production type structure
+3. Handle type differences between showcase and production features
 
 ## Links
 
