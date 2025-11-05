@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 200",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 201",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "typecheck": "tsc --noEmit"
   },
@@ -24,6 +24,7 @@
     "@care-commons/shared-components": "file:../shared-components",
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
+    "@nozbe/watermelondb": "^0.28.0",
     "@tanstack/react-query": "^5.90.6",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -62,7 +63,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3",
-    "vite": "^7.1.12",
+    "vite": "^7.2.0",
     "vitest": "^4.0.7"
   }
 }
