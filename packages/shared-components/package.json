@@ -3,11 +3,34 @@
   "version": "0.1.0",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  SHARED ESM PACKAGE - Platform-agnostic React components",
-  "//3": "Used by both web (Vite) and future mobile (React Native) apps",
+  "//3": "Used by both web (Vite) and mobile (React Native) apps",
   "//4": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./native": {
+      "types": "./dist/native/index.d.ts",
+      "default": "./dist/native/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    }
+  },
+  "react-native": "./dist/native/index.js",
   "engines": {
     "node": "22.x"
   },
@@ -23,10 +46,17 @@
     "clsx": "^2.1.1"
   },
   "peerDependencies": {
-    "react": "^19.2.0"
+    "react": "^19.2.0",
+    "react-native": "*"
+  },
+  "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.2.2",

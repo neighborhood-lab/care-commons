@@ -84,7 +84,7 @@ describe('ClientHandlers', () => {
   });
 
   describe('listClients', () => {
-    it.skip('should list clients with default pagination', async () => {
+    it('should list clients with default pagination', async () => {
       mockReq.userContext = mockUserContext;
       mockReq.query = {};
 
@@ -662,7 +662,7 @@ describe('ClientHandlers', () => {
   });
 
   describe('bulkImportClients', () => {
-    it.skip('should bulk import clients successfully', async () => {
+    it('should bulk import clients successfully', async () => {
       mockReq.userContext = mockUserContext;
       mockReq.body = {
         clients: [
@@ -699,7 +699,7 @@ describe('ClientHandlers', () => {
       expect(callData.failed).toHaveLength(0);
     });
 
-    it.skip('should handle failed imports during bulk import', async () => {
+    it('should handle failed imports during bulk import', async () => {
       mockReq.userContext = mockUserContext;
       mockReq.body = {
         clients: [
@@ -760,7 +760,7 @@ describe('ClientHandlers', () => {
   });
 
   describe('getClientAuditTrail', () => {
-    it.skip('should throw error for unimplemented audit trail retrieval', async () => {
+    it('should throw error for unimplemented audit trail retrieval', async () => {
       mockReq.userContext = mockUserContext;
 
       // Since this handler throws synchronously, we need to wrap the call in a function

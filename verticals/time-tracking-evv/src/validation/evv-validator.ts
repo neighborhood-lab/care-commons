@@ -493,20 +493,14 @@ export class EVVValidator {
    */
   validateStateRequirements(
     stateCode: string,
-    config: { 
-      geoPerimeterTolerance?: number; 
-      clockInGracePeriodMinutes?: number; 
-      clockOutGracePeriodMinutes?: number;
-    },
+    config: any, // Accept full state config with all properties
     record: EVVRecord,
-    scheduledStartTime?: Date
-  ): {
-    passed: boolean;
-    issues: VerificationIssue[];
-    complianceFlags: ComplianceFlag[];
-  } {
+    scheduledStartTime?: Date,
+    scheduledEndTime?: Date
+  ): VerificationResult {
     const issues: VerificationIssue[] = [];
     const complianceFlags: ComplianceFlag[] = ['COMPLIANT'];
+    let requiresSupervisorReview = false;
 
     // Validate state code
     if (stateCode !== 'TX' && stateCode !== 'FL') {
@@ -515,16 +509,30 @@ export class EVVValidator {
 
     // Texas-specific validations (26 TAC §558 - HHSC)
     if (stateCode === 'TX') {
-      // 1. GPS requirement for mobile visits per HHSC
-      if (record.clockInVerification.method !== 'GPS' && record.clockInVerification.method !== 'BIOMETRIC') {
-        issues.push({
-          issueType: 'LOCATION_UNCERTAIN',
-          severity: 'HIGH',
-          description: 'Texas HHSC requires GPS verification for mobile visits (26 TAC §558)',
-          canBeOverridden: true,
-          requiresSupervisor: true,
-        });
-        complianceFlags.push('MANUAL_OVERRIDE');
+      // 1. Check allowed clock methods
+      if (config.allowedClockMethods) {
+        const method = record.clockInVerification.method;
+        const methodMap: Record<string, string[]> = {
+          'GPS': ['MOBILE_GPS'],
+          'PHONE': ['FIXED_TELEPHONY'],
+          'BIOMETRIC': ['FIXED_BIOMETRIC'],
+          'MANUAL': [],
+        };
+
+        const methodMappings = methodMap[method] || [];
+        const isAllowed = methodMappings.some(m => config.allowedClockMethods.includes(m));
+
+        if (!isAllowed) {
+          issues.push({
+            issueType: 'INVALID_CLOCK_METHOD',
+            severity: 'HIGH',
+            description: `Clock method ${method} is not allowed for Texas. Allowed methods: ${config.allowedClockMethods.join(', ')}`,
+            canBeOverridden: false,
+            requiresSupervisor: true,
+          });
+          complianceFlags.push('MANUAL_OVERRIDE');
+          requiresSupervisorReview = true;
+        }
       }
 
       // 2. Grace period validation
@@ -533,47 +541,64 @@ export class EVVValidator {
         const minutesEarly = (scheduledStartTime.getTime() - record.clockInTime.getTime()) / 60000;
         if (minutesEarly > clockInGracePeriod) {
           issues.push({
-            issueType: 'VISIT_TOO_SHORT',
+            issueType: 'CLOCK_IN_TOO_EARLY',
             severity: 'MEDIUM',
-            description: `Clock-in is ${Math.round(minutesEarly)} minutes early. Texas allows maximum ${clockInGracePeriod} minutes early clock-in.`,
+            description: `Clock-in is ${Math.round(minutesEarly)} minutes before scheduled start. Texas allows maximum ${clockInGracePeriod} minutes early clock-in.`,
             canBeOverridden: true,
             requiresSupervisor: true,
           });
           complianceFlags.push('TIME_GAP');
+          requiresSupervisorReview = true;
         }
       }
 
-      // 3. Geofence validation: 100m base + GPS accuracy tolerance (HHSC guidance)
-      const geoTolerance = config.geoPerimeterTolerance ?? 100;
+      // 3. Geofence validation: Base radius + tolerance (HHSC guidance)
+      const geoTolerance = config.geoPerimeterTolerance ?? 150; // 100m base + 50m tolerance
       const distance = record.clockInVerification.distanceFromAddress || 0;
-      const gpsAccuracy = record.clockInVerification.accuracy || 0;
-      const totalAllowance = geoTolerance + gpsAccuracy;
 
-      if (!record.clockInVerification.geofencePassed && distance > totalAllowance) {
+      if (distance > geoTolerance) {
         issues.push({
           issueType: 'GEOFENCE_VIOLATION',
           severity: 'CRITICAL',
-          description: `Location exceeds Texas geofence tolerance: ${Math.round(distance)}m from address. ` +
-                       `Allowed: ${geoTolerance}m base + ${Math.round(gpsAccuracy)}m GPS accuracy = ${Math.round(totalAllowance)}m total.`,
+          description: `Location exceeds Texas geofence tolerance: ${Math.round(distance)}m from address. Texas: 100m + 50m tolerance`,
           canBeOverridden: true,
           requiresSupervisor: true,
         });
         complianceFlags.push('GEOFENCE_VIOLATION');
+        requiresSupervisorReview = true;
       }
 
-      // 4. GPS accuracy requirement (≤100m per HHSC standards)
-      if (record.clockInVerification.accuracy > 100) {
+      // 4. GPS accuracy requirement (check against tolerance)
+      const accuracyThreshold = geoTolerance;
+      if (record.clockInVerification.accuracy > accuracyThreshold) {
         issues.push({
           issueType: 'LOW_GPS_ACCURACY',
           severity: 'HIGH',
-          description: `GPS accuracy ${Math.round(record.clockInVerification.accuracy)}m exceeds Texas requirement of ≤100m.`,
+          description: `GPS accuracy ${Math.round(record.clockInVerification.accuracy)}m exceeds Texas tolerance of ${accuracyThreshold}m.`,
           canBeOverridden: true,
           requiresSupervisor: true,
         });
-        complianceFlags.push('LOCATION_SUSPICIOUS');
+        requiresSupervisorReview = true;
       }
 
-      // 5. Mock location detection (security violation)
+      // 5. VMUR requirement for amended records
+      if (record.recordStatus === 'AMENDED') {
+        if (config.vmurEnabled && config.vmurApprovalRequired) {
+          // Check if VMUR data exists (this would be in a separate field in production)
+          // For now, we always flag amended records as needing VMUR
+          issues.push({
+            issueType: 'MISSING_VMUR',
+            severity: 'HIGH',
+            description: 'Texas requires VMUR approval for amended EVV records',
+            canBeOverridden: false,
+            requiresSupervisor: true,
+          });
+          complianceFlags.push('AMENDED');
+          requiresSupervisorReview = true;
+        }
+      }
+
+      // 6. Mock location detection (security violation)
       if (record.clockInVerification.mockLocationDetected) {
         issues.push({
           issueType: 'GPS_SPOOFING',
@@ -583,69 +608,123 @@ export class EVVValidator {
           requiresSupervisor: true,
         });
         complianceFlags.push('LOCATION_SUSPICIOUS');
+        requiresSupervisorReview = true;
       }
     }
 
     // Florida-specific validations (Chapter 59A-8 AHCA)
     if (stateCode === 'FL') {
-      // 1. More lenient geofence (150m base + GPS accuracy)
-      const geoTolerance = config.geoPerimeterTolerance ?? 150;
-      const distance = record.clockInVerification.distanceFromAddress || 0;
-      const gpsAccuracy = record.clockInVerification.accuracy || 0;
-      const totalAllowance = geoTolerance + gpsAccuracy;
-      
-      if (!record.clockInVerification.geofencePassed && distance > totalAllowance) {
-        issues.push({
-          issueType: 'GEOFENCE_VIOLATION',
-          severity: 'HIGH',
-          description: `Location exceeds Florida geofence tolerance: ${Math.round(distance)}m from address. ` +
-                       `Allowed: ${geoTolerance}m base + ${Math.round(gpsAccuracy)}m GPS accuracy = ${Math.round(totalAllowance)}m total.`,
-          canBeOverridden: true,
-          requiresSupervisor: true,
-        });
-        complianceFlags.push('GEOFENCE_VIOLATION');
+      // 1. Check allowed verification methods
+      if (config.allowedVerificationMethods) {
+        const method = record.clockInVerification.method;
+        const methodMap: Record<string, string[]> = {
+          'GPS': ['MOBILE_GPS'],
+          'PHONE': ['TELEPHONY_IVR'],
+          'BIOMETRIC': ['BIOMETRIC_FIXED'],
+          'MANUAL': [],
+        };
+
+        const methodMappings = methodMap[method] || [];
+        const isAllowed = methodMappings.some(m => config.allowedVerificationMethods.includes(m));
+
+        if (!isAllowed) {
+          issues.push({
+            issueType: 'INVALID_VERIFICATION_METHOD',
+            severity: 'HIGH',
+            description: `Verification method ${method} is not allowed for Florida. Allowed methods: ${config.allowedVerificationMethods.join(', ')}`,
+            canBeOverridden: false,
+            requiresSupervisor: true,
+          });
+          complianceFlags.push('MANUAL_OVERRIDE');
+          requiresSupervisorReview = true;
+        }
       }
 
-      // 2. Grace period validation (Florida allows 15 minutes)
+      // 2. Grace period validation (Florida allows 15 minutes by default)
       const clockInGracePeriod = config.clockInGracePeriodMinutes ?? 15;
       if (scheduledStartTime) {
         const minutesEarly = (scheduledStartTime.getTime() - record.clockInTime.getTime()) / 60000;
         if (minutesEarly > clockInGracePeriod) {
           issues.push({
-            issueType: 'VISIT_TOO_SHORT',
+            issueType: 'CLOCK_IN_TOO_EARLY',
             severity: 'MEDIUM',
-            description: `Clock-in is ${Math.round(minutesEarly)} minutes early. Florida allows maximum ${clockInGracePeriod} minutes early clock-in.`,
+            description: `Clock-in is ${Math.round(minutesEarly)} minutes before scheduled start. Florida allows maximum ${clockInGracePeriod} minutes early clock-in.`,
             canBeOverridden: true,
             requiresSupervisor: true,
           });
           complianceFlags.push('TIME_GAP');
+          requiresSupervisorReview = true;
         }
       }
 
-      // 3. Verification method - Florida allows telephony fallback
+      // 3. Geofence validation: Base radius + tolerance
+      const geoTolerance = config.geoPerimeterTolerance ?? 250; // 150m base + 100m tolerance
+      const distance = record.clockInVerification.distanceFromAddress || 0;
+
+      if (distance > geoTolerance) {
+        issues.push({
+          issueType: 'GEOFENCE_VIOLATION',
+          severity: 'HIGH',
+          description: `Location exceeds Florida geofence tolerance: ${Math.round(distance)}m from address. Florida: 150m + 100m tolerance`,
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('GEOFENCE_VIOLATION');
+        requiresSupervisorReview = true;
+      }
+
+      // 4. Telephony fallback validation
       if (record.clockInVerification.method === 'PHONE') {
-        issues.push({
-          issueType: 'LOCATION_UNCERTAIN',
-          severity: 'MEDIUM',
-          description: 'Phone verification used - lower verification level. GPS preferred for AHCA compliance.',
-          canBeOverridden: true,
-          requiresSupervisor: false,
-        });
+        if (config.allowTelephonyFallback === false) {
+          issues.push({
+            issueType: 'UNAUTHORIZED_TELEPHONY',
+            severity: 'HIGH',
+            description: 'Telephony verification not authorized for this configuration',
+            canBeOverridden: false,
+            requiresSupervisor: true,
+          });
+          complianceFlags.push('MANUAL_OVERRIDE');
+          requiresSupervisorReview = true;
+        }
       }
 
-      // 4. GPS accuracy (Florida allows ≤150m)
-      if (record.clockInVerification.accuracy > 150) {
-        issues.push({
-          issueType: 'LOW_GPS_ACCURACY',
-          severity: 'MEDIUM',
-          description: `GPS accuracy ${Math.round(record.clockInVerification.accuracy)}m exceeds Florida guideline of ≤150m.`,
-          canBeOverridden: true,
-          requiresSupervisor: false,
-        });
-        complianceFlags.push('LOCATION_SUSPICIOUS');
+      // 5. MCO-specific requirements
+      if (config.mcoRequirements) {
+        const mco = config.mcoRequirements;
+
+        // Check client signature requirement
+        if (mco.requiresClientSignature) {
+          // Check if signature exists on record
+          if (!record.clientAttestation?.signatureData) {
+            issues.push({
+              issueType: 'MISSING_SIGNATURE',
+              severity: 'HIGH',
+              description: `MCO ${mco.mcoName} requires client signature`,
+              canBeOverridden: false,
+              requiresSupervisor: true,
+            });
+            complianceFlags.push('MISSING_SIGNATURE');
+            requiresSupervisorReview = true;
+          }
+        }
+
+        // Check photo verification requirement
+        if (mco.requiresPhotoVerification) {
+          // Check if photo exists on record (clock-in or clock-out)
+          if (!record.clockInVerification?.photoUrl && !record.clockOutVerification?.photoUrl) {
+            issues.push({
+              issueType: 'MISSING_PHOTO_VERIFICATION',
+              severity: 'HIGH',
+              description: `MCO ${mco.mcoName} requires photo verification`,
+              canBeOverridden: false,
+              requiresSupervisor: true,
+            });
+            requiresSupervisorReview = true;
+          }
+        }
       }
 
-      // 5. Mock location detection
+      // 6. Mock location detection
       if (record.clockInVerification.mockLocationDetected) {
         issues.push({
           issueType: 'GPS_SPOOFING',
@@ -655,6 +734,7 @@ export class EVVValidator {
           requiresSupervisor: true,
         });
         complianceFlags.push('LOCATION_SUSPICIOUS');
+        requiresSupervisorReview = true;
       }
     }
 
@@ -666,21 +746,42 @@ export class EVVValidator {
       }
     }
 
+    // Determine verification level based on issue severity
+    let verificationLevel: VerificationLevel = 'FULL';
+    if (issues.length > 0) {
+      const hasCritical = issues.some(i => i.severity === 'CRITICAL');
+      const hasHigh = issues.some(i => i.severity === 'HIGH');
+      const hasMedium = issues.some(i => i.severity === 'MEDIUM');
+
+      if (hasCritical) {
+        verificationLevel = 'EXCEPTION';
+      } else if (hasHigh || hasMedium) {
+        verificationLevel = 'PARTIAL';
+      }
+    }
+
     return {
       passed: issues.length === 0,
-      issues,
+      verificationLevel,
       complianceFlags,
+      issues,
+      requiresSupervisorReview,
     };
   }
 
   /**
    * Validate geographic location with state-specific tolerance
+   *
+   * Tests call this method directly with raw parameters for geographic validation
    */
   validateGeographicWithStateTolerance(
     stateCode: string,
-    config: { geoPerimeterTolerance?: number },
-    record: EVVRecord,
-    expectedLocation: { latitude: number; longitude: number; radiusMeters: number }
+    locationLat: number,
+    locationLon: number,
+    accuracy: number,
+    geofenceLat: number,
+    geofenceLon: number,
+    baseRadius: number
   ): GeofenceCheckResult {
     // Validate state code
     if (stateCode !== 'TX' && stateCode !== 'FL') {
@@ -688,28 +789,21 @@ export class EVVValidator {
     }
 
     // Get state-specific tolerance
-    const stateTolerance = config.geoPerimeterTolerance ?? (stateCode === 'TX' ? 100 : 150);
+    // Texas: 100m base + 50m tolerance = 150m total
+    // Florida: 150m base + 100m tolerance = 250m total
+    const stateTolerance = stateCode === 'TX' ? 50 : 100;
 
     // Use the standard geofence check with state-specific tolerance
     const geofenceCheck = this.checkGeofence(
-      record.clockInVerification.latitude,
-      record.clockInVerification.longitude,
-      record.clockInVerification.accuracy,
-      expectedLocation.latitude,
-      expectedLocation.longitude,
-      expectedLocation.radiusMeters,
+      locationLat,
+      locationLon,
+      accuracy,
+      geofenceLat,
+      geofenceLon,
+      baseRadius,
       stateTolerance
     );
 
-    // Add state-specific context to the result
-    let reason = geofenceCheck.reason;
-    if (!geofenceCheck.isWithinGeofence) {
-      reason = `${stateCode} geofence validation failed: ${geofenceCheck.distanceFromCenter}m from center (tolerance: ${stateTolerance}m)`;
-    }
-
-    return {
-      ...geofenceCheck,
-      reason,
-    };
+    return geofenceCheck;
   }
 }

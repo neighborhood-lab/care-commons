@@ -1,6 +1,6 @@
 /**
  * Device Info Service
- * 
+ *
  * Captures device information for EVV compliance and fraud detection.
  * This includes device model, OS version, root/jailbreak detection,
  * battery level, and network status.
@@ -8,6 +8,9 @@
 
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import * as Battery from 'expo-battery';
+import NetInfo from '@react-native-community/netinfo';
+import { Platform } from 'react-native';
 import type { DeviceInfo } from '../shared/index.js';
 
 export class DeviceInfoService {
@@ -45,75 +48,142 @@ export class DeviceInfoService {
   /**
    * Get current battery level (0-100)
    */
-  private async getBatteryLevel(): Promise<number> {
-    // TODO: Implement battery level detection
-    // Requires: expo-battery or react-native-device-info
-    return 100; // Placeholder
+  async getBatteryLevel(): Promise<number> {
+    try {
+      const batteryLevel = await Battery.getBatteryLevelAsync();
+      // Convert from 0-1 to 0-100
+      return Math.round(batteryLevel * 100);
+    } catch (error) {
+      console.warn('Failed to get battery level:', error);
+      return 100; // Return 100 as fallback if unable to detect
+    }
   }
 
   /**
    * Get network connection type
    */
   private async getNetworkType(): Promise<'WIFI' | '4G' | '5G' | 'ETHERNET' | 'OFFLINE'> {
-    // TODO: Implement network type detection
-    // Requires: @react-native-community/netinfo
-    return 'WIFI'; // Placeholder
+    try {
+      const state = await NetInfo.fetch();
+
+      if (!state.isConnected || !state.isInternetReachable) {
+        return 'OFFLINE';
+      }
+
+      switch (state.type) {
+        case 'wifi':
+          return 'WIFI';
+        case 'ethernet':
+          return 'ETHERNET';
+        case 'cellular': {
+          // Try to determine if 4G or 5G based on details
+          const cellularGeneration = state.details?.cellularGeneration;
+          if (cellularGeneration === '5g') {
+            return '5G';
+          }
+          // Default to 4G for cellular connections
+          return '4G';
+        }
+        default:
+          return 'WIFI'; // Fallback to WIFI for unknown types
+      }
+    } catch (error) {
+      console.warn('Failed to get network type:', error);
+      return 'WIFI'; // Fallback
+    }
   }
 
   /**
    * Check if Android device is rooted
-   * 
+   *
    * Root detection is important for fraud prevention as rooted
    * devices can bypass location security measures.
+   *
+   * Note: This is basic detection. For production, consider using
+   * a native module with more comprehensive checks.
    */
   private checkIfRooted(): boolean {
-    if (Device.osName !== 'Android') {
+    if (Platform.OS !== 'android') {
       return false;
     }
 
-    // TODO: Implement root detection
-    // Check for:
-    // - su binary existence
-    // - Magisk, SuperSU packages
-    // - Test root access
-    // - Check for known root files/directories
-    
-    return false; // Placeholder
+    try {
+      // Check build tags for test-keys (common on rooted devices)
+      const buildTags = String(Constants.systemVersion || '');
+      if (buildTags.includes('test-keys')) {
+        return true;
+      }
+
+      // In React Native/Expo, we have limited ability to check files
+      // For more comprehensive detection, a native module would be needed
+      // that checks for:
+      // - su binary in /system/bin, /system/xbin, /sbin, /system/sd/xbin
+      // - Busybox binary
+      // - Root management apps (Magisk, SuperSU, etc.)
+      // - Dangerous system properties
+      // - Ability to execute su commands
+
+      // For now, return false as we cannot reliably detect without native code
+      // This should be enhanced with a native module for production
+      return false;
+    } catch (error) {
+      console.warn('Root detection check failed:', error);
+      return false;
+    }
   }
 
   /**
    * Check if iOS device is jailbroken
-   * 
+   *
    * Jailbreak detection is important for fraud prevention.
+   *
+   * Note: This is basic detection. For production, consider using
+   * a native module with more comprehensive checks.
    */
   private checkIfJailbroken(): boolean {
-    if (Device.osName !== 'iOS') {
+    if (Platform.OS !== 'ios') {
       return false;
     }
 
-    // TODO: Implement jailbreak detection
-    // Check for:
-    // - Cydia app
-    // - Fork, system, popen availability
-    // - Known jailbreak files
-    // - Sandbox escape attempts
-    
-    return false; // Placeholder
+    try {
+      // In React Native/Expo, we have limited ability to detect jailbreak
+      // For comprehensive detection, a native module would be needed that checks:
+      // - Cydia app (cydia:// URL scheme)
+      // - Common jailbreak files (/Applications/Cydia.app, /Library/MobileSubstrate, etc.)
+      // - Ability to write outside app sandbox
+      // - Fork/system/popen function availability
+      // - Suspicious dyld environment variables
+      // - Symbolic links in /Applications
+
+      // Check if running on simulator (simulators are development tools, not jailbroken)
+      if (!Device.isDevice) {
+        return false;
+      }
+
+      // For production, this should be implemented with a native module
+      // that performs comprehensive jailbreak detection
+      return false;
+    } catch (error) {
+      console.warn('Jailbreak detection check failed:', error);
+      return false;
+    }
   }
 
   /**
    * Get device capabilities for EVV
    */
   async getDeviceCapabilities() {
+    const networkState = await NetInfo.fetch();
+
     return {
       hasGPS: true, // Most modern devices have GPS
       hasCellular: Device.isDevice, // Physical device likely has cellular
       hasWiFi: true,
-      hasBiometric: false, // TODO: Check if biometric hardware available
+      hasBiometric: false, // TODO: Check if biometric hardware available (requires expo-local-authentication)
       hasCamera: Device.isDevice,
       batteryLevel: await this.getBatteryLevel(),
-      isOnline: true, // TODO: Use NetInfo
-      canBackgroundLocation: true, // TODO: Check permissions
+      isOnline: networkState.isConnected && networkState.isInternetReachable,
+      canBackgroundLocation: true, // TODO: Check permissions (requires expo-location permissions check)
     };
   }
 }

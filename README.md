@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/neighborhood-lab/care-commons/branch/develop/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/care-commons/tree/develop)
-[![Known Vulnerabilities](https://snyk.io/test/github/neighborhood-lab/care-commons/badge.svg)](https://snyk.io/test/github/neighborhood-lab/care-commons)
 
 > Shared care software, community owned.
 
@@ -75,6 +74,7 @@ care-commons/
 - **[Caregiver & Staff Management](./verticals/caregiver-staff/)** - Secure directory of personnel providing care services
 - **[Scheduling & Visit Management](./verticals/scheduling-visits/)** - Service patterns, automated scheduling, and real-time visit tracking
 - **[Care Plans & Tasks Library](./verticals/care-plans-tasks/)** - Structured care plans with goals, interventions, and task management
+- **[Family Engagement Platform](./verticals/family-engagement/)** - Transparency and communication features for family portal, notifications, and messaging
 
 ### 📋 Planned
 - Time Tracking & Electronic Visit Verification (EVV)
@@ -83,7 +83,6 @@ care-commons/
 - Payroll Processing
 - Compliance & Documentation
 - Mobile App for Field Staff
-- Family Portal / Client Portal
 - Care Notes & Progress Reporting
 - Incident & Risk Reporting
 - Referral & Intake Management
@@ -226,7 +225,7 @@ This project uses GitHub Actions for automated CI/CD workflows:
 - **Security and Dependencies** (`security.yml`) - Automated security
   - Weekly security audits
   - Dependency updates with PR creation
-  - CodeQL analysis and Snyk scanning
+  - CodeQL analysis
 
 - **Release** (`release.yml`) - Version management
   - Automated releases on git tags
@@ -456,6 +455,7 @@ vercel promote <deployment-url> --scope <team-name>
 - [Caregiver & Staff Management](./verticals/caregiver-staff/README.md) - Caregiver and staff management documentation
 - [Scheduling & Visit Management](./verticals/scheduling-visits/README.md) - Scheduling and visit tracking documentation
 - [Care Plans & Tasks Library](./verticals/care-plans-tasks/README.md) - Care plans, goals, interventions, and task management
+- [Family Engagement Platform](./verticals/family-engagement/README.md) - Family portal, transparency, and communication features
 - [Core Package](./packages/core/README.md) - Core functionality documentation
 
 ## Contributing

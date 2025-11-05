@@ -5,13 +5,14 @@ on:
     branches: [main, preview, develop]
   push:
     branches: [main, preview, develop]
+  workflow_dispatch:
 
 # Ensure this workflow is required for PRs to merge
 # Configure branch protection rules to require this workflow to pass
 
 env:
   NODE_VERSION: '22'
-  NPM_VERSION: '11'
+  NPM_VERSION: '10.9.4'
 
 jobs:
   lint:
@@ -27,8 +28,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Upgrade npm
-        run: npm install -g npm@11.6.2
+      - name: Install npm 10.9.4
+        run: npm install -g npm@10.9.4
 
       - name: Install dependencies
         run: npm ci
@@ -52,8 +53,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Upgrade npm
-        run: npm install -g npm@11.6.2
+      - name: Install npm 10.9.4
+        run: npm install -g npm@10.9.4
 
       - name: Install dependencies
         run: npm ci
@@ -91,8 +92,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Upgrade npm
-        run: npm install -g npm@11.6.2
+      - name: Install npm 10.9.4
+        run: npm install -g npm@10.9.4
 
       - name: Install dependencies
         run: npm ci
@@ -140,8 +141,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Upgrade npm
-        run: npm install -g npm@11.6.2
+      - name: Install npm 10.9.4
+        run: npm install -g npm@10.9.4
 
       - name: Install dependencies
         run: npm ci
