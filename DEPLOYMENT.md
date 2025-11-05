@@ -274,6 +274,110 @@ npm run db:seed:demo
 - **Database**: Local PostgreSQL or development database
 - **Purpose**: Local testing and development
 
+## Manual Deployment (Webhook Failures)
+
+When GitHub webhooks are not triggering automatic deployments, you can manually trigger deployments through the GitHub Actions interface or CLI.
+
+### Common Scenarios for Manual Deployment
+
+1. **GitHub Webhook Failures**: Webhooks not being delivered to Vercel
+2. **Emergency Hotfixes**: Critical fixes that need immediate deployment
+3. **Scheduled Deployments**: Deploying at specific times
+4. **Testing Deployment Process**: Validating deployment changes
+
+### Quick Start: Manual Deployment via GitHub UI
+
+1. **Navigate to Actions**: Go to [GitHub Actions](https://github.com/neighborhood-lab/care-commons/actions)
+2. **Select Workflow**: Click "Deploy" in the left sidebar
+3. **Run Workflow**: Click "Run workflow" button
+4. **Configure**:
+   - **Environment**: Select `preview` or `production`
+   - **Deploy Type**: Usually `standard` (or `hotfix` for emergencies)
+   - **Skip Tests**: Leave unchecked unless emergency
+   - **Run Migrations**: Check if database changes are included
+5. **Execute**: Click "Run workflow" to start deployment
+
+### Manual Deployment via GitHub CLI
+
+```bash
+# Install GitHub CLI (one-time setup)
+brew install gh  # macOS
+# or visit: https://cli.github.com/
+
+# Authenticate
+gh auth login
+
+# Deploy to preview
+gh workflow run deploy.yml \
+  -f environment=preview \
+  -f deploy_type=standard \
+  -f run_migrations=true
+
+# Deploy to production
+gh workflow run deploy.yml \
+  -f environment=production \
+  -f deploy_type=standard \
+  -f run_migrations=true
+
+# Monitor deployment
+gh run watch
+```
+
+### Emergency Rollback
+
+If a deployment introduces critical issues:
+
+```bash
+# Via GitHub CLI
+gh workflow run rollback.yml \
+  -f environment=production \
+  -f deployment_id=<deployment-id> \
+  -f reason="Critical bug description"
+
+# Or via Vercel Dashboard
+vercel promote <previous-deployment-url>
+```
+
+### When to Use Manual Deployment
+
+**DO use manual deployment when**:
+- GitHub webhooks are failing or delayed
+- You need to deploy a specific commit outside normal workflow
+- Emergency hotfix required
+- Testing deployment infrastructure changes
+
+**DON'T use manual deployment for**:
+- Normal development workflow (use automatic deployments)
+- Bypassing code review (always get PR approval first)
+- Skipping tests without justification
+
+### Detailed Documentation
+
+For comprehensive manual deployment procedures, troubleshooting, and best practices, see:
+- **[Manual Deployment Runbook](./docs/runbooks/MANUAL_DEPLOYMENT.md)** - Complete step-by-step guide
+- **[Emergency Rollback Procedures](./docs/runbooks/MANUAL_DEPLOYMENT.md#emergency-rollback)** - Rollback instructions
+
+### Verifying Manual Deployments
+
+After manual deployment, always verify:
+
+```bash
+# Check health endpoint
+curl https://care-commons.vercel.app/health
+
+# Expected response
+{
+  "status": "healthy",
+  "database": { "status": "connected" }
+}
+```
+
+Then test:
+1. Login functionality
+2. Critical user flows
+3. Database connectivity
+4. No error spikes in logs
+
 ## Deployment Commands
 
 ### Using NPM Scripts
