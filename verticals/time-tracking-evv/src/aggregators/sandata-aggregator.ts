@@ -128,13 +128,24 @@ export class SandataAggregator implements IAggregator {
         requiresRetry: this.isRetryableError(response.errorCode),
         retryAfterSeconds: this.isRetryableError(response.errorCode) ? 300 : undefined,
       };
-    } catch (error: any) {
-      // Network or system error - should retry
+    } catch (error) {
+        // Network or system error - should retry
+      let message: string;
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else{
+        const debugOutput = (typeof error === 'object' && error !== null)
+        ? JSON.stringify(error, null, 2)
+        : String(error);
+        message = `${debugOutput}`;
+      }
       return {
         success: false,
         submissionId: '',
         errorCode: 'NETWORK_ERROR',
-        errorMessage: error.message || 'Failed to connect to Sandata',
+        errorMessage: message || 'Failed to connect to Sandata',
         requiresRetry: true,
         retryAfterSeconds: EXPONENTIAL_BACKOFF.baseDelaySeconds,
       };

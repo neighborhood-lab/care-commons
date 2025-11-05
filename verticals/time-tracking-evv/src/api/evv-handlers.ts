@@ -246,7 +246,7 @@ export class EVVHandlers {
   async searchEVVRecords(req: APIRequest): Promise<APIResponse> {
     try {
       // Build filters object, filtering out undefined values
-      const filterEntries: Array<[keyof EVVRecordSearchFilters, any]> = [];
+      const filterEntries: Array<[keyof EVVRecordSearchFilters, unknown]> = [];
       
       if (req['query']['organizationId']) {
         filterEntries.push(['organizationId', req['query']['organizationId']]);
