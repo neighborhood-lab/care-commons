@@ -14,6 +14,7 @@
 
 import type { Database } from '@nozbe/watermelondb';
 import { Q } from '@nozbe/watermelondb';
+import NetInfo from '@react-native-community/netinfo';
 import type {
   ClockInInput,
   ClockOutInput,
@@ -43,6 +44,8 @@ interface OfflineQueueConfig {
   baseRetryDelay: number; // milliseconds
   maxRetryDelay: number; // milliseconds
   priorityLevels: Record<QueueOperationType, number>;
+  apiBaseUrl: string;
+  authToken?: string;
 }
 
 const DEFAULT_CONFIG: OfflineQueueConfig = {
@@ -55,6 +58,7 @@ const DEFAULT_CONFIG: OfflineQueueConfig = {
     UPDATE_EVV: 50,
     SYNC_VISIT: 30,
   },
+  apiBaseUrl: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api',
 };
 
 export class OfflineQueueService {
@@ -66,6 +70,13 @@ export class OfflineQueueService {
   constructor(database: Database, config: Partial<OfflineQueueConfig> = {}) {
     this.database = database;
     this.config = { ...DEFAULT_CONFIG, ...config };
+  }
+
+  /**
+   * Update auth token for API requests
+   */
+  setAuthToken(token: string): void {
+    this.config.authToken = token;
   }
 
   /**
@@ -257,50 +268,97 @@ export class OfflineQueueService {
    * Process clock-in operation - send to server
    */
   private async processClockIn(payload: ClockInInput): Promise<void> {
-    // TODO: Implement actual API call to server
-    // For now, this is a placeholder that would call EVVService
-    console.log('Processing clock-in:', payload);
-    
-    // In real implementation:
-    // const evvService = new EVVService(database);
-    // await evvService.clockIn(payload);
+    const response = await this.apiRequest('POST', '/evv/clock-in', payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`Clock-in failed: ${error.message || response.statusText}`);
+    }
+
+    // Store the response data if needed
+    const result = await response.json();
+    console.log('Clock-in successful:', result);
   }
 
   /**
    * Process clock-out operation - send to server
    */
   private async processClockOut(payload: ClockOutInput): Promise<void> {
-    // TODO: Implement actual API call to server
-    console.log('Processing clock-out:', payload);
-    
-    // In real implementation:
-    // const evvService = new EVVService(database);
-    // await evvService.clockOut(payload);
+    const response = await this.apiRequest('POST', '/evv/clock-out', payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`Clock-out failed: ${error.message || response.statusText}`);
+    }
+
+    // Store the response data if needed
+    const result = await response.json();
+    console.log('Clock-out successful:', result);
   }
 
   /**
    * Process EVV update operation
    */
   private async processEVVUpdate(payload: unknown): Promise<void> {
-    console.log('Processing EVV update:', payload);
-    // TODO: Implement
+    const response = await this.apiRequest('PATCH', '/evv/update', payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`EVV update failed: ${error.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('EVV update successful:', result);
   }
 
   /**
    * Process visit sync operation
    */
   private async processSyncVisit(payload: unknown): Promise<void> {
-    console.log('Processing visit sync:', payload);
-    // TODO: Implement
+    const response = await this.apiRequest('POST', '/visits/sync', payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`Visit sync failed: ${error.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Visit sync successful:', result);
+  }
+
+  /**
+   * Make an authenticated API request
+   */
+  private async apiRequest(
+    method: string,
+    endpoint: string,
+    body?: unknown
+  ): Promise<Response> {
+    const url = `${this.config.apiBaseUrl}${endpoint}`;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (this.config.authToken) {
+      headers['Authorization'] = `Bearer ${this.config.authToken}`;
+    }
+
+    const options: RequestInit = {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    };
+
+    return await fetch(url, options);
   }
 
   /**
    * Try to sync if we're online
    */
   private async trySync(): Promise<void> {
-    // Check network status
-    // In real implementation, use NetInfo or similar
-    const isOnline = true; // Placeholder
+    // Check network status using NetInfo
+    const netState = await NetInfo.fetch();
+    const isOnline = netState.isConnected && netState.isInternetReachable;
 
     if (isOnline && !this.syncInProgress) {
       await this.processQueue();
