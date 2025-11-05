@@ -3,8 +3,8 @@ name: Deploy
 on:
   push:
     branches:
-      - main      # Production deployments
-      - preview   # Preview deployments (preview branch uses Vercel preview environment)
+      - production  # Production deployments
+      - preview     # Preview deployments (preview branch uses Vercel preview environment)
   workflow_dispatch:
     inputs:
       environment:
@@ -142,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/production') ||
       (github.event_name == 'workflow_dispatch')
     environment:
       name: production
