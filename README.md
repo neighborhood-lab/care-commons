@@ -74,6 +74,7 @@ care-commons/
 - **[Caregiver & Staff Management](./verticals/caregiver-staff/)** - Secure directory of personnel providing care services
 - **[Scheduling & Visit Management](./verticals/scheduling-visits/)** - Service patterns, automated scheduling, and real-time visit tracking
 - **[Care Plans & Tasks Library](./verticals/care-plans-tasks/)** - Structured care plans with goals, interventions, and task management
+- **[Family Portal & Engagement Platform](./verticals/family-portal/)** - Secure family portal with AI-powered chatbot for family engagement and care transparency
 
 ### 📋 Planned
 - Time Tracking & Electronic Visit Verification (EVV)
@@ -82,7 +83,6 @@ care-commons/
 - Payroll Processing
 - Compliance & Documentation
 - Mobile App for Field Staff
-- Family Portal / Client Portal
 - Care Notes & Progress Reporting
 - Incident & Risk Reporting
 - Referral & Intake Management
