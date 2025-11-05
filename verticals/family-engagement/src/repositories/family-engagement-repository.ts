@@ -5,7 +5,7 @@
  */
 
 import { Repository, Database } from '@care-commons/core';
-import type { UUID, PaginatedResult, PaginationParams } from '@care-commons/core/types';
+import type { UUID, PaginatedResult, PaginationParams } from '@care-commons/core';
 import type {
   FamilyMember,
   FamilyMemberProfile,
