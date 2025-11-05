@@ -205,6 +205,10 @@ export class ReportService {
       resolutionStatus: string;
     }>
   > {
+    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
+    // This method uses Knex query builder which doesn't exist on Database class
+    throw new Error('Not implemented - requires refactor to raw SQL');
+    /* 
     const query = this.database
       .getConnection()
       .from('evv_records as evv')
@@ -243,6 +247,7 @@ export class ReportService {
       complianceFlags: row.compliance_flags,
       resolutionStatus: row.record_status,
     }));
+    */
   }
 
   /**
@@ -274,6 +279,9 @@ export class ReportService {
   ): Promise<void> {
     this.validateAccess(context, orgId);
 
+    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
+    throw new Error('Not implemented - requires refactor to raw SQL');
+    /*
     // Store scheduled report configuration
     await this.database.getConnection().insert({
       organization_id: orgId,
@@ -284,6 +292,7 @@ export class ReportService {
       created_at: new Date(),
       is_active: true,
     }).into('scheduled_reports');
+    */
 
     // In a real implementation, this would:
     // 1. Create a job in a queue (e.g., Bull, BullMQ)

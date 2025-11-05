@@ -5,7 +5,7 @@
  */
 
 import { Repository, Database } from '@care-commons/core';
-import type { UUID, PaginatedResult, PaginationParams } from '@care-commons/core';
+import type { UUID } from '@care-commons/core';
 import type {
   FamilyMember,
   FamilyMemberProfile,
@@ -13,15 +13,10 @@ import type {
   ActivityFeedItem,
   MessageThread,
   Message,
-  VisitSummary,
-  CarePlanProgressReport,
-  FamilyConsent,
-  PortalInvitation,
   InviteFamilyMemberInput,
   SendNotificationInput,
   CreateMessageThreadInput,
-  SendMessageInput,
-  FamilyDashboard
+  SendMessageInput
 } from '../types/family-engagement.js';
 
 /**
@@ -203,17 +198,18 @@ export class FamilyMemberRepository extends Repository<FamilyMember> {
     const result = await this.database.query(query, [familyMemberId]);
     if (result.rows.length === 0) return null;
 
-    const row = result.rows[0];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const row = result.rows[0] as any;
     const familyMember = this.mapRowToEntity(row);
 
     return {
       ...familyMember,
       statistics: {
-        totalNotifications: parseInt(row.total_notifications) || 0,
-        unreadNotifications: parseInt(row.unread_notifications) || 0,
-        totalMessages: parseInt(row.total_message_threads) || 0,
-        unreadMessages: parseInt(row.unread_messages) || 0,
-        lastActivityDate: row.last_activity_date
+        totalNotifications: parseInt(row.total_notifications as string) || 0,
+        unreadNotifications: parseInt(row.unread_notifications as string) || 0,
+        totalMessages: parseInt(row.total_message_threads as string) || 0,
+        unreadMessages: parseInt(row.unread_messages as string) || 0,
+        lastActivityDate: row.last_activity_date as Date | undefined
       }
     };
   }
@@ -259,7 +255,8 @@ export class NotificationRepository extends Repository<Notification> {
       createdAt: row.created_at,
       createdBy: row.created_by,
       updatedAt: row.updated_at,
-      updatedBy: row.updated_by
+      updatedBy: row.updated_by,
+      version: row.version
     };
   }
 
@@ -399,7 +396,8 @@ export class ActivityFeedRepository extends Repository<ActivityFeedItem> {
       createdAt: row.created_at,
       createdBy: row.created_by,
       updatedAt: row.updated_at,
-      updatedBy: row.updated_by
+      updatedBy: row.updated_by,
+      version: row.version
     };
   }
 
@@ -591,7 +589,8 @@ export class MessageRepository {
       createdAt: row.created_at,
       createdBy: row.created_by,
       updatedAt: row.updated_at,
-      updatedBy: row.updated_by
+      updatedBy: row.updated_by,
+      version: row.version
     };
   }
 
@@ -617,7 +616,8 @@ export class MessageRepository {
       createdAt: row.created_at,
       createdBy: row.created_by,
       updatedAt: row.updated_at,
-      updatedBy: row.updated_by
+      updatedBy: row.updated_by,
+      version: row.version
     };
   }
 }
