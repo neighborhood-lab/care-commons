@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Button } from '@care-commons/shared-components/native';
+import { Button } from '../../components/index.js';
 import { createAuthService } from '../../services/auth.js';
 
 export function ProfileScreen() {

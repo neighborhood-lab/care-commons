@@ -48,7 +48,7 @@ export class DeviceInfoService {
   /**
    * Get current battery level (0-100)
    */
-  private async getBatteryLevel(): Promise<number> {
+  async getBatteryLevel(): Promise<number> {
     try {
       const batteryLevel = await Battery.getBatteryLevelAsync();
       // Convert from 0-1 to 0-100
@@ -75,7 +75,7 @@ export class DeviceInfoService {
           return 'WIFI';
         case 'ethernet':
           return 'ETHERNET';
-        case 'cellular':
+        case 'cellular': {
           // Try to determine if 4G or 5G based on details
           const cellularGeneration = state.details?.cellularGeneration;
           if (cellularGeneration === '5g') {
@@ -83,6 +83,7 @@ export class DeviceInfoService {
           }
           // Default to 4G for cellular connections
           return '4G';
+        }
         default:
           return 'WIFI'; // Fallback to WIFI for unknown types
       }
@@ -108,8 +109,8 @@ export class DeviceInfoService {
 
     try {
       // Check build tags for test-keys (common on rooted devices)
-      const buildTags = Constants.systemVersion;
-      if (buildTags?.includes('test-keys')) {
+      const buildTags = String(Constants.systemVersion || '');
+      if (buildTags.includes('test-keys')) {
         return true;
       }
 

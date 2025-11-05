@@ -19,7 +19,9 @@ import { ScheduleScreen } from '../screens/schedule/ScheduleScreen.js';
 import { ProfileScreen } from '../screens/profile/ProfileScreen.js';
 import { VisitDetailScreen as VisitDetailScreenBase } from '../features/visits/screens/VisitDetailScreen.js';
 import { ClockInScreen } from '../screens/visits/ClockInScreen.js';
+import { CameraScreen } from '../screens/visits/CameraScreen.js';
 import { TasksScreen } from '../screens/visits/TasksScreen.js';
+import { SignatureScreen } from '../screens/visits/SignatureScreen.js';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 // Wrapper to adapt VisitDetailScreen to React Navigation
@@ -32,7 +34,9 @@ export type RootStackParamList = {
   Main: undefined;
   VisitDetail: { visitId: string };
   ClockIn: { visitId: string };
+  Camera: { onCapture: (uri: string) => void };
   Tasks: { visitId: string };
+  Signature: { visitId: string; clientName: string };
 };
 
 export type MainTabParamList = {
@@ -118,10 +122,27 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               }}
             />
             <RootStack.Screen
+              name="Camera"
+              component={CameraScreen}
+              options={{
+                title: 'Take Photo',
+                presentation: 'fullScreenModal',
+                headerShown: false,
+              }}
+            />
+            <RootStack.Screen
               name="Tasks"
               component={TasksScreen}
               options={{
                 title: 'Tasks',
+              }}
+            />
+            <RootStack.Screen
+              name="Signature"
+              component={SignatureScreen}
+              options={{
+                title: 'Client Signature',
+                presentation: 'modal',
               }}
             />
           </>
