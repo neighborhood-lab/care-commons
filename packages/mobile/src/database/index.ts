@@ -8,8 +8,15 @@
 
 import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
+import type { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
+import { schemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
 import { schema } from './schema.js';
 import { Visit } from './models/index.js';
+
+// No migrations yet - this is the initial schema
+const migrations: SchemaMigrations = schemaMigrations({
+  migrations: [],
+});
 
 // Configure SQLite adapter
 const adapter = new SQLiteAdapter({
@@ -17,7 +24,7 @@ const adapter = new SQLiteAdapter({
   // Production apps should use JSI for better performance
   jsi: true,
   // Migrations will be added here as schema evolves
-  migrations: [],
+  migrations,
   onSetUpError: (error: Error) => {
     // Handle setup errors - could send to error tracking service
     console.error('Database setup error:', error);
