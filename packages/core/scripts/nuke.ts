@@ -28,16 +28,48 @@ dotenv.config({ path: '.env', quiet: true });
 // }
 
 async function nukeDatabase() {
-  // Determine environment
-  const environment = process.env.NODE_ENV || 'development';
-  const dbName = environment === 'test'
-    ? (process.env.DB_NAME || 'care_commons') + '_test'
-    : process.env.DB_NAME || 'care_commons';
-
   console.log('💣 Database Nuke Script\n');
-  console.log(`Environment: ${environment}`);
-  console.log(`Database: ${dbName}`);
-  console.log(`Host: ${process.env.DB_HOST || 'localhost'}\n`);
+
+  // Check for DATABASE_URL first (cloud/Vercel deployments)
+  const databaseUrl = process.env.DATABASE_URL;
+  let config: Knex.Config;
+
+  if (databaseUrl !== undefined && databaseUrl !== '') {
+    console.log('📝 Using DATABASE_URL for nuke operation');
+    
+    // Parse DATABASE_URL
+    const url = new globalThis.URL(databaseUrl);
+    
+    console.log(`Database: ${url.pathname.slice(1)}`);
+    console.log(`Host: ${url.hostname}\n`);
+    
+    config = {
+      client: 'postgresql',
+      connection: databaseUrl,
+    };
+  } else {
+    // Fall back to individual DB_* variables (local development)
+    const environment = process.env.NODE_ENV || 'development';
+    const dbName = environment === 'test'
+      ? (process.env.DB_NAME || 'care_commons') + '_test'
+      : process.env.DB_NAME || 'care_commons';
+
+    console.log(`Environment: ${environment}`);
+    console.log(`Database: ${dbName}`);
+    console.log(`Host: ${process.env.DB_HOST || 'localhost'}\n`);
+
+    config = {
+      client: 'postgresql',
+      connection: {
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || '5432'),
+        database: dbName,
+        user: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD || 'postgres',
+        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      },
+    };
+  }
 
   // // Confirm with user
   // if (process.env.FORCE_NUKE !== 'true') {
@@ -47,19 +79,6 @@ async function nukeDatabase() {
   //     process.exit(0);
   //   }
   // }
-
-  // Build Knex config
-  const config: Knex.Config = {
-    client: 'postgresql',
-    connection: {
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      database: dbName,
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    },
-  };
 
   // Initialize Knex
   const db = knex(config);

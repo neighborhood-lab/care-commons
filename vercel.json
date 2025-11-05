@@ -64,8 +64,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "github": {
-    "enabled": true,
-    "autoAlias": true,
+    "enabled": false,
+    "autoAlias": false,
     "silent": true
   }
 }

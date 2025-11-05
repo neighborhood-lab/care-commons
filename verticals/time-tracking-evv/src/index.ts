@@ -15,6 +15,13 @@
 export * from './types/evv';
 export * from './types/state-specific';
 
+// Interfaces
+export type { IVisitProvider, IClientProvider, ICaregiverProvider, EVVVisitData } from './interfaces/visit-provider';
+
+// Providers
+export { ClientProvider, createClientProvider } from './providers/client-provider';
+export { CaregiverProvider, createCaregiverProvider } from './providers/caregiver-provider';
+
 // Repository
 export { EVVRepository } from './repository/evv-repository';
 
@@ -32,3 +39,9 @@ export { CryptoUtils } from './utils/crypto-utils';
 
 // API Handlers
 export { EVVHandlers } from './api/evv-handlers';
+
+// Aggregators (multi-state support)
+export * from './aggregators/index.js';
+
+// State configurations
+export * from './config/state-evv-configs.js';

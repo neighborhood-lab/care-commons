@@ -1,6 +1,5 @@
 .turbo/
 .idea/
-.snyk/
 claude/
 
 .vscode/
@@ -192,3 +191,37 @@ packages/core/migrations/*.d.ts.map
 .vercel
 .DS_Store
 *.png
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Mobile-specific (React Native / Expo)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Expo
+packages/mobile/.expo/
+packages/mobile/.expo-shared/
+packages/mobile/expo-env.d.ts
+
+# React Native
+packages/mobile/ios/
+packages/mobile/android/
+packages/mobile/.bundle/
+
+# Native builds
+packages/mobile/*.jks
+packages/mobile/*.p8
+packages/mobile/*.p12
+packages/mobile/*.key
+packages/mobile/*.mobileprovision
+packages/mobile/*.orig.*
+
+# WatermelonDB
+packages/mobile/*.db
+packages/mobile/*.db-shm
+packages/mobile/*.db-wal
+
+# Metro bundler
+packages/mobile/.metro-health-check*
+
+# Temporary files
+packages/mobile/tmp/
+packages/mobile/temp/
