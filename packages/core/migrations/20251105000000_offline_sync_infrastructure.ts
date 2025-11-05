@@ -102,41 +102,16 @@ export async function up(knex: Knex): Promise<void> {
     table.index('resolution_status', 'idx_sync_conflicts_status');
   });
 
-  // 3. Add version column to visits table for optimistic locking
-  await knex.schema.alterTable('visits', (table) => {
-    table.integer('version').notNullable().defaultTo(1);
-    table.index('version', 'idx_visits_version');
-  });
-
-  // 4. Add version column to evv_records table
-  await knex.schema.alterTable('evv_records', (table) => {
-    table.integer('version').notNullable().defaultTo(1);
-    table.index('version', 'idx_evv_records_version');
-  });
-
-  // 5. Add version column to time_entries table
-  await knex.schema.alterTable('time_entries', (table) => {
-    table.integer('version').notNullable().defaultTo(1);
-    table.index('version', 'idx_time_entries_version');
-  });
-
-  // 6. Add version column to care_plan_tasks table
-  await knex.schema.alterTable('care_plan_tasks', (table) => {
-    table.integer('version').notNullable().defaultTo(1);
-    table.index('version', 'idx_care_plan_tasks_version');
-  });
-
-  // 7. Add version column to clients table
-  await knex.schema.alterTable('clients', (table) => {
-    table.integer('version').notNullable().defaultTo(1);
-    table.index('version', 'idx_clients_version');
-  });
-
-  // 8. Add version column to caregivers table
-  await knex.schema.alterTable('caregivers', (table) => {
-    table.integer('version').notNullable().defaultTo(1);
-    table.index('version', 'idx_caregivers_version');
-  });
+  // 3-8. Version columns already exist on these tables from previous migrations
+  // (scheduling_visits, evv_tables, state_specific_fields, billing_invoicing, etc.)
+  // We only add indexes if they don't exist
+  
+  // Add indexes for version columns (using raw SQL to make them idempotent)
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_visits_version ON visits(version)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_evv_records_version ON evv_records(version)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_time_entries_version ON time_entries(version)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_clients_version ON clients(version)');
+  await knex.raw('CREATE INDEX IF NOT EXISTS idx_caregivers_version ON caregivers(version)');
 
   // 9. Create function to auto-increment version on update
   await knex.raw(`
@@ -150,11 +125,11 @@ export async function up(knex: Knex): Promise<void> {
   `);
 
   // 10. Create triggers for version increment on all relevant tables
+  // Note: care_plan_tasks table doesn't exist yet, removed from this list
   const tables = [
     'visits',
     'evv_records',
     'time_entries',
-    'care_plan_tasks',
     'clients',
     'caregivers',
   ];
@@ -207,7 +182,6 @@ export async function down(knex: Knex): Promise<void> {
     'visits',
     'evv_records',
     'time_entries',
-    'care_plan_tasks',
     'clients',
     'caregivers',
   ];
@@ -219,30 +193,12 @@ export async function down(knex: Knex): Promise<void> {
   // Drop function
   await knex.raw('DROP FUNCTION IF EXISTS increment_version();');
 
-  // Remove version columns
-  await knex.schema.alterTable('caregivers', (table) => {
-    table.dropColumn('version');
-  });
-
-  await knex.schema.alterTable('clients', (table) => {
-    table.dropColumn('version');
-  });
-
-  await knex.schema.alterTable('care_plan_tasks', (table) => {
-    table.dropColumn('version');
-  });
-
-  await knex.schema.alterTable('time_entries', (table) => {
-    table.dropColumn('version');
-  });
-
-  await knex.schema.alterTable('evv_records', (table) => {
-    table.dropColumn('version');
-  });
-
-  await knex.schema.alterTable('visits', (table) => {
-    table.dropColumn('version');
-  });
+  // Drop indexes (version columns themselves are owned by other migrations)
+  await knex.raw('DROP INDEX IF EXISTS idx_visits_version');
+  await knex.raw('DROP INDEX IF EXISTS idx_evv_records_version');
+  await knex.raw('DROP INDEX IF EXISTS idx_time_entries_version');
+  await knex.raw('DROP INDEX IF EXISTS idx_clients_version');
+  await knex.raw('DROP INDEX IF EXISTS idx_caregivers_version');
 
   // Drop tables
   await knex.schema.dropTableIfExists('sync_conflicts');
