@@ -250,6 +250,38 @@ care-commons/
 - **Validation**: Zod for runtime type safety
 - **Build**: Turbo (monorepo orchestration)
 
+### Installed CLI Tools
+
+The following CLI tools are installed and available for use:
+
+**GitHub CLI (`gh` v2.83.0)**:
+- GitHub API interactions, PR/issue management
+- Use for creating/reviewing PRs, checking CI status
+- **Responsible Use**: Prefer `gh` commands over manual GitHub API calls
+
+**Hub (`hub` master)**:
+- Git wrapper with GitHub integration
+- Enhanced git commands with GitHub awareness
+- **Responsible Use**: Use for git operations requiring GitHub context
+
+**Vercel CLI (`vercel` v48.8.2)**:
+- Deploy to Vercel, manage environments
+- Use for deployment previews and environment inspection
+- **Responsible Use**: Never deploy directly to production without PR approval
+
+**Neon CLI (`neon` v2.17.1)**:
+- Manage Neon PostgreSQL databases
+- Create branches, manage connection strings
+- **Responsible Use**: Exercise extreme caution with production database operations
+
+**⚠️ Critical Guidelines for CLI Tool Usage**:
+
+1. **Never bypass workflows**: These tools don't replace proper PR/CI processes
+2. **No production shortcuts**: Always use branching strategy (`feature/*` → `develop` → `preview` → `main`)
+3. **Database safety**: Never run destructive `neon` commands against production
+4. **Audit trail**: CLI operations still require proper commit messages and documentation
+5. **Security first**: Never commit credentials or API tokens obtained via CLI tools
+
 ### Key Patterns
 
 - **Repository Pattern**: Data access layer separation
