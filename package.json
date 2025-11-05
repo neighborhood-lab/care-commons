@@ -13,12 +13,14 @@
   "packageManager": "npm@10.9.4",
   "workspaces": [
     "packages/*",
-    "verticals/*"
+    "verticals/*",
+    "showcase"
   ],
   "scripts": {
     "dev": "turbo run dev --parallel --filter=@care-commons/app --filter=@care-commons/web",
     "dev:server": "cd packages/app && npm run dev",
     "dev:web": "cd packages/web && npm run dev",
+    "dev:showcase": "cd showcase && npm run dev",
     "build": "turbo run build && npm run build:copy-web",
     "build:copy-web": "cp -r packages/web/dist/* public/",
     "build:ts": "tsc -b",
