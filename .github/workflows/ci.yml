@@ -5,6 +5,7 @@ on:
     branches: [main, preview, develop]
   push:
     branches: [main, preview, develop]
+  workflow_dispatch:
 
 # Ensure this workflow is required for PRs to merge
 # Configure branch protection rules to require this workflow to pass
