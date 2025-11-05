@@ -13,6 +13,7 @@ import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
+import { authLimiter } from '../middleware/rate-limit.js';
 /**
  * NOTE: Analytics routes temporarily disabled - requires architectural refactor
  * The analytics-reporting vertical uses Knex query builder, but the codebase uses raw SQL via Database class
@@ -27,10 +28,10 @@ import { createSyncRouter } from '../api/sync/sync-routes.js';
 export function setupRoutes(app: Express, db: Database): void {
   console.log('Setting up API routes...');
 
-  // Authentication routes
+  // Authentication routes with rate limiting
   const authRouter = createAuthRouter(db);
-  app.use('/api/auth', authRouter);
-  console.log('  ✓ Authentication routes registered');
+  app.use('/api/auth', authLimiter, authRouter);
+  console.log('  ✓ Authentication routes registered (with rate limiting)');
 
   // Organization & Invitation routes
   const organizationRouter = createOrganizationRouter(db);

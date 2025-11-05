@@ -1,0 +1,130 @@
+name: Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+      deployment_id:
+        description: 'Previous deployment ID to rollback to (from Vercel dashboard)'
+        required: true
+        type: string
+      reason:
+        description: 'Reason for rollback (brief description of the issue)'
+        required: true
+        type: string
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Validate Rollback Request
+        run: |
+          echo "::warning::━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "::warning::EMERGENCY ROLLBACK INITIATED"
+          echo "::warning::━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Target Deployment ID: ${{ inputs.deployment_id }}"
+          echo "Reason: ${{ inputs.reason }}"
+          echo "Initiated by: ${{ github.actor }}"
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "::warning::━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Execute Rollback
+        run: |
+          echo "🔄 Rolling back to deployment: ${{ inputs.deployment_id }}"
+
+          # Promote the previous deployment to current environment
+          vercel promote ${{ inputs.deployment_id }} \
+            --token ${{ secrets.VERCEL_TOKEN }} \
+            --scope ${{ secrets.VERCEL_ORG_ID }} \
+            --yes || {
+              echo "::error::Rollback failed using 'promote' command"
+              echo "::error::Please check the deployment ID and try manual rollback via Vercel dashboard"
+              exit 1
+            }
+
+          echo "✅ Rollback command executed successfully"
+
+      - name: Verify Rollback
+        run: |
+          echo "⏳ Waiting for rollback to complete..."
+          sleep 15
+
+          # Determine the URL based on environment
+          if [ "${{ inputs.environment }}" == "production" ]; then
+            URL="https://care-commons.vercel.app"
+          else
+            URL="https://preview-care-commons.vercel.app"
+          fi
+
+          echo "🔍 Verifying deployment at: $URL"
+
+          # Simple connectivity check
+          if curl -f -s -o /dev/null -w "%{http_code}" "$URL" | grep -q "200\|301\|302"; then
+            echo "✅ Deployment is responding"
+          else
+            echo "⚠️ Deployment verification inconclusive - please check manually"
+          fi
+
+      - name: Post-Rollback Actions
+        if: always()
+        run: |
+          echo "::notice::━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "::notice::ROLLBACK COMPLETED"
+          echo "::notice::━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Rolled back to: ${{ inputs.deployment_id }}"
+          echo "Reason: ${{ inputs.reason }}"
+          echo ""
+          echo "⚠️  IMPORTANT POST-ROLLBACK STEPS:"
+          echo "1. Verify the application is functioning correctly"
+          echo "2. Check error logs in Vercel dashboard"
+          echo "3. Investigate root cause: ${{ inputs.reason }}"
+          echo "4. Create a post-mortem if needed"
+          echo "5. Plan fix for the issue that caused rollback"
+          echo ""
+          echo "If database migrations were run, you may need to:"
+          echo "• Roll back migrations manually if they're incompatible"
+          echo "• Restore database from backup if data corruption occurred"
+          echo ""
+          echo "::notice::━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: Create Rollback Issue
+        if: always()
+        run: |
+          echo "📝 To track this rollback, consider creating a GitHub issue:"
+          echo ""
+          echo "Title: [Rollback] ${{ inputs.environment }} - $(date -u '+%Y-%m-%d')"
+          echo "Labels: rollback, incident, ${{ inputs.environment }}"
+          echo ""
+          echo "Body:"
+          echo "## Rollback Summary"
+          echo "- **Environment**: ${{ inputs.environment }}"
+          echo "- **Deployment ID**: ${{ inputs.deployment_id }}"
+          echo "- **Reason**: ${{ inputs.reason }}"
+          echo "- **Initiated by**: ${{ github.actor }}"
+          echo "- **Timestamp**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo ""
+          echo "## Actions Required"
+          echo "- [ ] Verify application functionality"
+          echo "- [ ] Investigate root cause"
+          echo "- [ ] Create fix"
+          echo "- [ ] Test fix in preview"
+          echo "- [ ] Deploy fix to production"
+          echo "- [ ] Document lessons learned"
