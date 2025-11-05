@@ -43,8 +43,8 @@ This directory contains comprehensive regulatory compliance documentation for al
 
 | State | Code | Aggregator | Market Size | Documentation | Implementation | Tests |
 |-------|------|------------|-------------|---------------|----------------|-------|
-| Ohio | OH | Sandata (FREE) | 5,000+ agencies | 🚧 | 🚧 | ⏳ |
-| Pennsylvania | PA | Sandata (FREE) | 8,000+ agencies | 🚧 | 🚧 | ⏳ |
+| Ohio | OH | Sandata (FREE) | 5,000+ agencies | ✅ | ✅ | 🚧 |
+| Pennsylvania | PA | Sandata (FREE) | 8,000+ agencies | ✅ | 🚧 | ⏳ |
 
 ### Priority 3: Planned 📋
 

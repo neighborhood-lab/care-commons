@@ -117,7 +117,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
     const screening = caregiver.backgroundScreening;
     
     // Missing background check
-    if (!screening || !screening.checkDate) {
+    if (screening === undefined) {
       issues.push({
         type: `${this.state}_BACKGROUND_MISSING`,
         severity: 'BLOCKING',
@@ -161,7 +161,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
     }
     
     // Expired background check
-    const expirationDate = screening.expirationDate || 
+    const expirationDate = screening.expirationDate ?? 
       new Date(screening.checkDate.getTime() + config.expirationDays * 24 * 60 * 60 * 1000);
     
     if (isExpired(expirationDate)) {
@@ -203,7 +203,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
     visit: VisitDetails
   ): ComplianceIssue[] {
     const issues: ComplianceIssue[] = [];
-    const licenses = caregiver.licenses || [];
+    const licenses = caregiver.licenses;
     
     // Check if caregiver has required license for visit state
     const validLicense = licenses.find(
@@ -213,7 +213,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
         !isExpired(license.expirationDate)
     );
     
-    if (!validLicense && this.credentialConfig.licensure.required) {
+    if (validLicense === undefined && this.credentialConfig.licensure.required) {
       issues.push({
         type: `${this.state}_LICENSE_MISSING`,
         severity: 'BLOCKING',
@@ -246,7 +246,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
     }
     
     // Check for licenses expiring soon
-    if (validLicense && isExpiringSoon(validLicense.expirationDate, 30)) {
+    if (validLicense !== undefined && isExpiringSoon(validLicense.expirationDate, 30)) {
       const days = daysUntilExpiration(validLicense.expirationDate);
       issues.push({
         type: `${this.state}_LICENSE_EXPIRING_SOON`,
@@ -268,13 +268,13 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
    */
   protected validateRegistryChecks(caregiver: CaregiverCredentials): ComplianceIssue[] {
     const issues: ComplianceIssue[] = [];
-    const checks = caregiver.registryChecks || [];
+    const checks = caregiver.registryChecks;
     
     for (const requiredCheck of this.credentialConfig.registryChecks) {
       const check = checks.find((c) => c.name === requiredCheck.name);
       
       // Missing registry check
-      if (!check) {
+      if (check === undefined) {
         issues.push({
           type: `${this.state}_REGISTRY_MISSING_${requiredCheck.type}`,
           severity: 'BLOCKING',
@@ -454,39 +454,70 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
     const issues: ComplianceIssue[] = [];
     
     // Check required fields
-    if (requirements.servicesProvided && !documentation.servicesProvided) {
+    this.validateRequiredDocumentationFields(documentation, requirements, issues);
+    
+    // Check signatures
+    this.validateDocumentationSignatures(documentation, requirements, issues);
+    
+    // Check note quality
+    this.validateNoteQuality(documentation, requirements, issues);
+    
+    return issues.length > 0
+      ? createFailureResult(issues, this.state, this.constructor.name)
+      : createSuccessResult(this.state, this.constructor.name);
+  }
+  
+  /**
+   * Validate required documentation fields
+   */
+  private validateRequiredDocumentationFields(
+    documentation: VisitDocumentation,
+    requirements: VisitDocumentationRequirements,
+    issues: ComplianceIssue[]
+  ): void {
+    if (requirements.servicesProvided && (documentation.servicesProvided === undefined || documentation.servicesProvided === '')) {
       issues.push(this.createDocumentationIssue('SERVICES_MISSING', 'Services provided must be documented'));
     }
     
-    if (requirements.clientCondition && !documentation.clientCondition) {
+    if (requirements.clientCondition && (documentation.clientCondition === undefined || documentation.clientCondition === '')) {
       issues.push(this.createDocumentationIssue('CONDITION_MISSING', 'Client condition must be documented'));
     }
     
-    if (requirements.vitalSigns && !documentation.vitalSigns) {
+    if (requirements.vitalSigns && documentation.vitalSigns === undefined) {
       issues.push(this.createDocumentationIssue('VITALS_MISSING', 'Vital signs must be documented'));
     }
     
-    if (requirements.medications && !documentation.medications) {
+    if (requirements.medications && documentation.medications === undefined) {
       issues.push(this.createDocumentationIssue('MEDICATIONS_MISSING', 'Medications must be documented'));
     }
-    
-    // Check signatures
-    if (requirements.signatures.caregiver && !documentation.caregiverSignature) {
+  }
+  
+  /**
+   * Validate documentation signatures
+   */
+  private validateDocumentationSignatures(
+    documentation: VisitDocumentation,
+    requirements: VisitDocumentationRequirements,
+    issues: ComplianceIssue[]
+  ): void {
+    if (requirements.signatures.caregiver && documentation.caregiverSignature === undefined) {
       issues.push(this.createDocumentationIssue('CAREGIVER_SIGNATURE_MISSING', 'Caregiver signature required'));
     }
     
-    if (requirements.signatures.client && !documentation.clientSignature && !documentation.representativeSignature) {
+    if (requirements.signatures.client && documentation.clientSignature === undefined && documentation.representativeSignature === undefined) {
       issues.push(this.createDocumentationIssue('CLIENT_SIGNATURE_MISSING', 'Client or representative signature required'));
     }
-    
-    // Check timeliness
-    if (documentation.completedAt && requirements.timelinessHours) {
-      // Would need visit end time to check properly - this is simplified
-      // Production would check: completedAt - visitEndTime <= timelinessHours
-    }
-    
-    // Check note quality (if minimum length specified)
-    if (requirements.minimumNoteLength && documentation.observations) {
+  }
+  
+  /**
+   * Validate note quality (length and blocked phrases)
+   */
+  private validateNoteQuality(
+    documentation: VisitDocumentation,
+    requirements: VisitDocumentationRequirements,
+    issues: ComplianceIssue[]
+  ): void {
+    if (requirements.minimumNoteLength !== undefined && requirements.minimumNoteLength > 0 && documentation.observations !== undefined && documentation.observations !== '') {
       if (documentation.observations.length < requirements.minimumNoteLength) {
         issues.push({
           type: `${this.state}_NOTE_TOO_SHORT`,
@@ -500,8 +531,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
       }
     }
     
-    // Check for blocked phrases
-    if (requirements.blockedPhrases && documentation.observations) {
+    if (requirements.blockedPhrases !== undefined && requirements.blockedPhrases.length > 0 && documentation.observations !== undefined && documentation.observations !== '') {
       for (const phrase of requirements.blockedPhrases) {
         if (documentation.observations.toLowerCase().includes(phrase.toLowerCase())) {
           issues.push({
@@ -517,10 +547,6 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
         }
       }
     }
-    
-    return issues.length > 0
-      ? createFailureResult(issues, this.state, this.constructor.name)
-      : createSuccessResult(this.state, this.constructor.name);
   }
   
   /**
@@ -530,7 +556,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
     const issues: ComplianceIssue[] = [];
     
     // Review overdue
-    if (planOfCare.nextReviewDue && isExpired(planOfCare.nextReviewDue)) {
+    if (isExpired(planOfCare.nextReviewDue)) {
       const days = daysSince(planOfCare.nextReviewDue);
       issues.push({
         type: `${this.state}_POC_REVIEW_OVERDUE`,
@@ -544,7 +570,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
       });
     }
     // Review due soon
-    else if (planOfCare.nextReviewDue && isExpiringSoon(planOfCare.nextReviewDue, 7)) {
+    else if (isExpiringSoon(planOfCare.nextReviewDue, 7)) {
       const days = daysUntilExpiration(planOfCare.nextReviewDue);
       issues.push({
         type: `${this.state}_POC_REVIEW_DUE_SOON`,
@@ -559,7 +585,7 @@ export abstract class BaseComplianceValidator implements StateComplianceValidato
     }
     
     // Physician orders expired
-    if (planOfCare.ordersExpiration && isExpired(planOfCare.ordersExpiration)) {
+    if (planOfCare.ordersExpiration !== undefined && isExpired(planOfCare.ordersExpiration)) {
       issues.push({
         type: `${this.state}_PHYSICIAN_ORDERS_EXPIRED`,
         severity: 'BLOCKING',

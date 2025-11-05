@@ -278,7 +278,7 @@ export class EVVValidator {
     const hashMatch = computedHash === record.integrityHash;
 
     // Compute checksum - exclude integrity fields to avoid circular dependency
-    const { integrityHash, integrityChecksum, ...recordWithoutIntegrity } = record;
+    const { integrityHash: _integrityHash, integrityChecksum: _integrityChecksum, ...recordWithoutIntegrity } = record;
     const computedChecksum = CryptoUtils.generateChecksum(recordWithoutIntegrity);
     const checksumMatch = computedChecksum === record.integrityChecksum;
 

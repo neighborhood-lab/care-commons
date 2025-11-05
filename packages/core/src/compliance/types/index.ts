@@ -388,6 +388,7 @@ export interface ClientDetails {
   authorization?: ServiceAuthorization;
   planOfCare?: PlanOfCare;
   program?: string;
+  stateSpecificData?: Record<string, unknown>;
 }
 
 /**
@@ -442,7 +443,7 @@ export function createFailureResult(
  * Helper function to check if a date is expired
  */
 export function isExpired(date: Date | null | undefined): boolean {
-  if (!date) return true;
+  if (date === null || date === undefined) return true;
   return new Date() > new Date(date);
 }
 
@@ -450,7 +451,7 @@ export function isExpired(date: Date | null | undefined): boolean {
  * Helper function to check if a date is expiring soon (within days)
  */
 export function isExpiringSoon(date: Date | null | undefined, withinDays: number): boolean {
-  if (!date) return false;
+  if (date === null || date === undefined) return false;
   const expirationDate = new Date(date);
   const warningDate = new Date();
   warningDate.setDate(warningDate.getDate() + withinDays);
@@ -461,7 +462,7 @@ export function isExpiringSoon(date: Date | null | undefined, withinDays: number
  * Helper function to calculate days until expiration
  */
 export function daysUntilExpiration(date: Date | null | undefined): number {
-  if (!date) return -1;
+  if (date === null || date === undefined) return -1;
   const today = new Date();
   const expiration = new Date(date);
   const diff = expiration.getTime() - today.getTime();
@@ -472,7 +473,7 @@ export function daysUntilExpiration(date: Date | null | undefined): number {
  * Helper function to calculate days since date
  */
 export function daysSince(date: Date | null | undefined): number {
-  if (!date) return -1;
+  if (date === null || date === undefined) return -1;
   const today = new Date();
   const past = new Date(date);
   const diff = today.getTime() - past.getTime();
