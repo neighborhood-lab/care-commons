@@ -11,11 +11,14 @@ import {
   NotFoundError,
   ValidationError,
   UserContext,
+  Database,
 } from '@care-commons/core';
 import type {
   IVisitProvider,
+  IClientProvider,
   EVVVisitData,
 } from '@care-commons/time-tracking-evv/src/interfaces/visit-provider';
+import { createClientProvider } from '@care-commons/time-tracking-evv/src/providers/client-provider.js';
 import { ScheduleRepository } from '../repository/schedule-repository';
 import { VisitStatus } from '../types/schedule';
 
@@ -27,9 +30,11 @@ import { VisitStatus } from '../types/schedule';
  */
 export class VisitProvider implements IVisitProvider {
   private repository: ScheduleRepository;
+  private clientProvider: IClientProvider;
 
-  constructor(private pool: Pool) {
+  constructor(private pool: Pool, database: Database) {
     this.repository = new ScheduleRepository(pool);
+    this.clientProvider = createClientProvider(database);
   }
 
   /**
@@ -62,8 +67,11 @@ export class VisitProvider implements IVisitProvider {
       );
     }
 
-    // Fetch client details for EVV
-    const clientData = await this.getClientData(visit.clientId);
+    // Fetch client details for EVV using the real ClientProvider
+    const client = await this.clientProvider.getClientForEVV(visit.clientId);
+    
+    // Get care plan data if available (for authorization info)
+    const carePlanData = await this.getCarePlanData(visit.clientId);
 
     // Transform visit data to EVV format
     const evvVisitData: EVVVisitData = {
@@ -75,12 +83,12 @@ export class VisitProvider implements IVisitProvider {
       caregiverId: visit.assignedCaregiverId ?? undefined,
 
       // Client information
-      clientName: clientData.name,
-      clientMedicaidId: clientData.medicaidId,
+      clientName: client.name,
+      clientMedicaidId: client.medicaidId,
 
       // Service details
       serviceTypeId: visit.serviceTypeId,
-      serviceTypeCode: clientData.serviceTypeCode ?? 'UNKNOWN',
+      serviceTypeCode: carePlanData?.serviceTypeCode ?? 'PERSONAL_CARE', // Default to personal care
       serviceTypeName: visit.serviceTypeName,
       serviceDate: visit.scheduledDate,
       scheduledStartTime: visit.scheduledStartTime,
@@ -102,19 +110,19 @@ export class VisitProvider implements IVisitProvider {
         addressVerified: true, // Assume verified if geocoded
       },
 
-      // Authorization (fetch from care plan if available)
-      authorizationId: clientData.authorizationId,
-      authorizedUnits: clientData.authorizedUnits,
-      authorizedStartDate: clientData.authorizedStartDate,
-      authorizedEndDate: clientData.authorizedEndDate,
-      fundingSource: clientData.fundingSource,
+      // Authorization (from care plan if available)
+      authorizationId: carePlanData?.authorizationId,
+      authorizedUnits: carePlanData?.authorizedUnits,
+      authorizedStartDate: carePlanData?.authorizedStartDate,
+      authorizedEndDate: carePlanData?.authorizedEndDate,
+      fundingSource: carePlanData?.fundingSource ?? (client.stateCode ? `${client.stateCode}_MEDICAID` : undefined),
 
       // Requirements
       requiredSkills: visit.requiredSkills ?? undefined,
       requiredCertifications: visit.requiredCertifications ?? undefined,
 
       // Care plan linkage
-      carePlanId: clientData.carePlanId,
+      carePlanId: carePlanData?.carePlanId,
       taskIds: visit.taskIds ?? undefined,
     };
 
@@ -280,14 +288,12 @@ export class VisitProvider implements IVisitProvider {
   }
 
   /**
-   * Private helper: Fetch client data from database
+   * Private helper: Fetch care plan data for authorization info
    * 
-   * This is a temporary implementation that queries basic client data.
-   * NOTE: Replace with IClientProvider once client-demographics API is implemented.
+   * Queries the active care plan for the client to get authorization details.
+   * Returns undefined if no active care plan exists.
    */
-  private async getClientData(clientId: UUID): Promise<{
-    name: string;
-    medicaidId?: string;
+  private async getCarePlanData(clientId: UUID): Promise<{
     serviceTypeCode?: string;
     authorizationId?: UUID;
     authorizedUnits?: number;
@@ -295,37 +301,39 @@ export class VisitProvider implements IVisitProvider {
     authorizedEndDate?: Date;
     fundingSource?: string;
     carePlanId?: UUID;
-  }> {
+  } | undefined> {
     const query = `
       SELECT 
-        first_name,
-        last_name,
-        medicaid_id,
-        active_care_plan_id,
-        state_code
-      FROM clients
-      WHERE id = $1 AND deleted_at IS NULL
+        id,
+        service_authorization_id,
+        authorized_units,
+        authorization_start_date,
+        authorization_end_date,
+        funding_source
+      FROM care_plans
+      WHERE client_id = $1 
+        AND status = 'ACTIVE'
+        AND deleted_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1
     `;
 
     const result = await this.pool.query(query, [clientId]);
     
     if (result.rows.length === 0) {
-      throw new NotFoundError('Client not found', { clientId });
+      return undefined;
     }
 
     const row = result.rows[0];
     
-    // NOTE: Fetch authorization data from care plans once that integration is complete
     return {
-      name: `${row.first_name} ${row.last_name}`,
-      medicaidId: row.medicaid_id,
-      serviceTypeCode: undefined, // Get from service type lookup
-      authorizationId: undefined, // Get from care plan
-      authorizedUnits: undefined, // Get from care plan
-      authorizedStartDate: undefined, // Get from care plan
-      authorizedEndDate: undefined, // Get from care plan
-      fundingSource: (row.state_code != null) ? `${row.state_code}_MEDICAID` : undefined,
-      carePlanId: row.active_care_plan_id,
+      carePlanId: row.id,
+      authorizationId: row.service_authorization_id,
+      authorizedUnits: row.authorized_units,
+      authorizedStartDate: row.authorization_start_date,
+      authorizedEndDate: row.authorization_end_date,
+      fundingSource: row.funding_source,
+      serviceTypeCode: undefined, // Would need to join to service_types or tasks
     };
   }
 }
@@ -333,6 +341,6 @@ export class VisitProvider implements IVisitProvider {
 /**
  * Factory function to create a VisitProvider instance
  */
-export function createVisitProvider(pool: Pool): IVisitProvider {
-  return new VisitProvider(pool);
+export function createVisitProvider(pool: Pool, database: Database): IVisitProvider {
+  return new VisitProvider(pool, database);
 }

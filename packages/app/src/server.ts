@@ -96,7 +96,7 @@ function setupMiddleware(): void {
   }));
 
   // CORS - restrict to allowed origins in production
-  const allowedOrigins = process.env['CORS_ORIGIN']?.split(',') ?? [];
+  const allowedOrigins = process.env['CORS_ORIGIN']?.split(',').map(o => o.trim()).filter(Boolean) ?? [];
   
   app.use(cors({
     origin: (origin, callback) => {
@@ -112,18 +112,25 @@ function setupMiddleware(): void {
         return;
       }
 
-      // In production, only allow specified origins
-      if (allowedOrigins.length === 0) {
-        console.warn('⚠️  No CORS_ORIGIN configured - blocking all browser requests');
-        callback(new Error('CORS not configured'), false);
+      // Allow Vercel preview deployments (both preview and production)
+      // Format: https://<project>-<hash>-<team>.vercel.app
+      // Or: https://<custom-domain>.vercel.app
+      if (origin.includes('.vercel.app')) {
+        callback(null, true);
         return;
       }
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+      // In production, allow specified origins if configured
+      if (allowedOrigins.length > 0) {
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+          callback(null, true);
+          return;
+        }
       }
+
+      // If no CORS_ORIGIN configured and not a Vercel domain, block
+      console.warn(`⚠️  Origin ${origin} not allowed by CORS`);
+      callback(new Error(`Origin ${origin} not allowed by CORS`), false);
     },
     credentials: true,
   }));
@@ -287,8 +294,11 @@ process.on('SIGINT', () => {
 
 // Only start the server if this file is run directly (not imported)
 // This allows Vercel to import createApp() without starting a server
-// Check if running in Vercel environment
-if (process.env['VERCEL'] === undefined && process.env['VERCEL_ENV'] === undefined) {
-  // Not in Vercel, start the server for local development
+// Check if running in Vercel or test environment
+const isVercel = process.env['VERCEL'] !== undefined || process.env['VERCEL_ENV'] !== undefined;
+const isTest = process.env['NODE_ENV'] === 'test' || process.env['VITEST'] === 'true';
+
+if (!isVercel && !isTest) {
+  // Not in Vercel or test environment, start the server for local development
   void start().catch(console.error);
 }
