@@ -1,10 +1,10 @@
 /**
- * Family Engagement Platform
+ * @care-commons/family-engagement
  *
- * Main entry point for the family engagement vertical
+ * Family Engagement Platform - Transparency & Communication
  */
 
 export * from './types/index.js';
-export * from './repository/index.js';
-export * from './service/index.js';
-export * from './api/index.js';
+export * from './repositories/index.js';
+export * from './services/index.js';
+export * from './routes/index.js';

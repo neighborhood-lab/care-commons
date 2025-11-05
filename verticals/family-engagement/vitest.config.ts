@@ -1,9 +1,10 @@
-import { defineConfig } from 'vitest/config';
+import { defineProject } from 'vitest/config';
 
-export default defineConfig({
+export default defineProject({
   test: {
+    name: 'family-engagement',
     globals: true,
     environment: 'node',
-    include: ['src/**/__tests__/**/*.test.ts', 'src/**/?(*.)+(spec|test).ts'],
+    include: ['src/**/__tests__/**/*.ts', 'src/**/?(*.)+(spec|test).ts'],
   },
 });
