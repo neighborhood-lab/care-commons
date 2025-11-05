@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Shield, Zap, Globe, Users, CheckCircle } from 'lucide-react';
+import { ArrowRight, Shield, Zap, Globe, Users } from 'lucide-react';
 import { personas } from '../data/personas';
 
 interface EnhancedLandingPageProps {
