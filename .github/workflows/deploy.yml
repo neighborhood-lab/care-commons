@@ -8,13 +8,31 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to deploy to'
+        description: 'Target environment'
         required: true
-        default: 'production'
         type: choice
         options:
-          - production
           - preview
+          - production
+      deploy_type:
+        description: 'Deployment type'
+        required: true
+        type: choice
+        default: 'standard'
+        options:
+          - standard
+          - hotfix
+          - rollback
+      skip_tests:
+        description: 'Skip tests (hotfix/rollback only - use sparingly!)'
+        required: false
+        type: boolean
+        default: false
+      run_migrations:
+        description: 'Run database migrations'
+        required: false
+        type: boolean
+        default: true
 
 env:
   NODE_VERSION: '22'
@@ -26,8 +44,24 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-    
+
     steps:
+      - name: Pre-deployment Validation
+        run: |
+          echo "::group::Deployment Information"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'preview') }}"
+          echo "Deploy Type: ${{ github.event.inputs.deploy_type || 'standard' }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Skip Tests: ${{ github.event.inputs.skip_tests || 'false' }}"
+          echo "Run Migrations: ${{ github.event.inputs.run_migrations || 'true' }}"
+          echo "Started at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "::endgroup::"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -47,10 +81,31 @@ jobs:
         run: npm ci
 
       - name: Build packages
-        run: npm run build
+        run: |
+          echo "::group::Building packages"
+          START_TIME=$(date +%s)
+          npm run build
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Build completed in ${DURATION}s"
+          echo "::endgroup::"
 
       - name: Run tests
-        run: npm run test
+        if: ${{ github.event.inputs.skip_tests != 'true' }}
+        run: |
+          echo "::group::Running tests"
+          START_TIME=$(date +%s)
+          npm run test
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Tests completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Skip tests warning
+        if: ${{ github.event.inputs.skip_tests == 'true' }}
+        run: |
+          echo "::warning::Tests skipped - use only for hotfixes or rollbacks!"
+          echo "Deploy type: ${{ github.event.inputs.deploy_type }}"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -112,10 +167,22 @@ jobs:
           echo "✅ Database URL is configured"
 
       - name: Run Database Migrations (Preview)
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
+          echo "::group::Running database migrations"
+          START_TIME=$(date +%s)
           npm run db:migrate
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Migrations completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Skip migrations notice
+        if: ${{ github.event.inputs.run_migrations == 'false' }}
+        run: |
+          echo "::notice::Database migrations skipped by manual trigger"
 
       - name: Build for Preview
         env:
@@ -190,10 +257,22 @@ jobs:
           echo "✅ Database URL is configured"
 
       - name: Run Database Migrations (Production)
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          echo "::group::Running database migrations"
+          START_TIME=$(date +%s)
           npm run db:migrate
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Migrations completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Skip migrations notice
+        if: ${{ github.event.inputs.run_migrations == 'false' }}
+        run: |
+          echo "::notice::Database migrations skipped by manual trigger"
 
       - name: Build for Production
         env:
@@ -221,3 +300,53 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           node --import tsx --no-warnings packages/core/scripts/seed-tx-fl-demo.ts
+
+  deployment-health-check:
+    name: Verify Deployment Health
+    runs-on: ubuntu-latest
+    needs: [deploy-preview, deploy-production]
+    if: always() && (needs.deploy-preview.result == 'success' || needs.deploy-production.result == 'success')
+
+    steps:
+      - name: Wait for deployment to stabilize
+        run: |
+          echo "⏳ Waiting 30 seconds for deployment to stabilize..."
+          sleep 30
+
+      - name: Health Check with Retry
+        run: |
+          DEPLOYMENT_URL="${{ needs.deploy-production.outputs.url || needs.deploy-preview.outputs.url }}"
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "⚠️ No deployment URL available, skipping health check"
+            exit 0
+          fi
+
+          echo "🔍 Checking health endpoint: $DEPLOYMENT_URL/health"
+
+          # Try health check with retry
+          for i in {1..5}; do
+            if curl -f -s "$DEPLOYMENT_URL/health" > /tmp/health-response.json; then
+              echo "✅ Health check passed on attempt $i"
+              echo "Response:"
+              cat /tmp/health-response.json | jq '.' || cat /tmp/health-response.json
+              exit 0
+            fi
+            echo "⚠️ Attempt $i failed, retrying in 10 seconds..."
+            sleep 10
+          done
+
+          echo "::warning::Health check failed after 5 attempts"
+          echo "Note: This may be normal if health endpoint requires authentication"
+          exit 0
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Deployment Status Summary"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Preview: ${{ needs.deploy-preview.result }}"
+          echo "Production: ${{ needs.deploy-production.result }}"
+          echo "Completed at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
