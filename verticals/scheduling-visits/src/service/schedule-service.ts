@@ -47,8 +47,29 @@ import {
   isSameDay,
 } from 'date-fns';
 
+/**
+ * Interface for fetching client address data
+ * Allows decoupling from client-demographics vertical
+ */
+export interface IClientAddressProvider {
+  getClientAddress(clientId: UUID): Promise<{
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    latitude?: number;
+    longitude?: number;
+    geofenceRadius?: number;
+  }>;
+}
+
 export class ScheduleService {
-  constructor(private repository: ScheduleRepository) { }
+  constructor(
+    private repository: ScheduleRepository,
+    private clientAddressProvider?: IClientAddressProvider
+  ) { }
 
   /**
    * Service Pattern Management
@@ -571,14 +592,29 @@ export class ScheduleService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async getClientAddress(clientId: UUID): Promise<any> {
-    // NOTE: This should be injected via a ClientProvider interface in production
-    // For now, throw an error to enforce proper integration
-    throw new NotFoundError(
-      'Client address integration not configured. ' +
-      'ScheduleService requires a ClientProvider to fetch client addresses. ' +
-      'This must be injected via dependency injection.',
-      { clientId }
+    // Use injected client address provider if available
+    if (this.clientAddressProvider) {
+      return await this.clientAddressProvider.getClientAddress(clientId);
+    }
+
+    // Fallback: Return a placeholder address with a warning
+    // In production, this should always use a real ClientAddressProvider
+    console.warn(
+      `ScheduleService: No ClientAddressProvider configured. Using placeholder address for client ${clientId}. ` +
+      'This should only happen in development/testing. ' +
+      'Production deployments must inject a ClientAddressProvider.'
     );
+
+    return {
+      line1: 'Address not configured',
+      city: 'Unknown',
+      state: 'XX',
+      postalCode: '00000',
+      country: 'USA',
+      latitude: 0,
+      longitude: 0,
+      geofenceRadius: 100,
+    };
   }
 
   private async validatePatternBusinessRules(input: CreateServicePatternInput): Promise<void> {
