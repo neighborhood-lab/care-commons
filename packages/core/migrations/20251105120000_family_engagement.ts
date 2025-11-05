@@ -1,16 +1,28 @@
 import type { Knex } from 'knex';
 
 /**
- * Family Engagement Platform - Transparency & Communication
+ * Family Engagement Platform (Consolidated)
+ *
+ * CONSOLIDATED MIGRATION: Combines all family engagement features into one cohesive schema.
+ * Replaces fragmented migrations from Parts 3, 4, 5, 6.
  *
  * Creates tables for:
- * - Family member portal access
- * - Notifications and alerts
- * - Activity feed
- * - Messaging between family and care team
- * - Visit summaries for family transparency
+ * - Family member portal access and authentication
+ * - Role-based permissions and access control
+ * - Multi-channel notifications (email, SMS, push)
+ * - Activity feed for care transparency
+ * - Secure messaging between family and care team
+ * - Visit summaries for families
  * - Care plan progress reports
- * - Consent and authorization tracking
+ * - HIPAA-compliant consent and authorization tracking
+ * - Portal invitations with secure access codes
+ * - Family member relationships and legal authority
+ *
+ * Compliance:
+ * - HIPAA audit trails on all tables
+ * - Minimum necessary access controls
+ * - Consent tracking with digital signatures
+ * - Access expiration and revocation support
  */
 export async function up(knex: Knex): Promise<void> {
   // ============================================================================
