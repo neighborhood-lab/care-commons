@@ -12,6 +12,7 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
+import { createSyncRouter } from '../api/sync/sync-routes.js';
 
 /**
  * Setup all API routes for the application
@@ -50,6 +51,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
+
+  // Offline Sync routes
+  const syncRouter = createSyncRouter(db);
+  app.use('/api/sync', syncRouter);
+  console.log('  ✓ Offline Sync routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits

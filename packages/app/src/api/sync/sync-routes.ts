@@ -5,31 +5,36 @@
  */
 
 import { Router } from 'express';
-import { handlePullChanges, handlePushChanges, handleSyncStatus } from './sync-handlers.js';
-import { authMiddleware } from '@care-commons/core/middleware/auth-middleware.js';
+import type { Database } from '@care-commons/core';
+import { AuthMiddleware } from '@care-commons/core';
+import { createSyncHandlers } from './sync-handlers.js';
 
-const router = Router();
+export function createSyncRouter(db: Database): Router {
+  const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+  const syncHandlers = createSyncHandlers(db);
 
-// All sync routes require authentication
-router.use(authMiddleware);
+  // All sync routes require authentication
+  router.use(authMiddleware.requireAuth);
 
-/**
- * Pull changes from server
- * GET /api/sync/pull?lastPulledAt=<timestamp>&entities=VISIT,TASK&organizationId=<uuid>
- */
-router.get('/pull', handlePullChanges);
+  /**
+   * Pull changes from server
+   * GET /api/sync/pull?lastPulledAt=<timestamp>&entities=VISIT,TASK&organizationId=<uuid>
+   */
+  router.get('/pull', syncHandlers.handlePullChanges);
 
-/**
- * Push local changes to server
- * POST /api/sync/push
- * Body: { changes: [...], deviceId: "...", timestamp: 123, organizationId: "..." }
- */
-router.post('/push', handlePushChanges);
+  /**
+   * Push local changes to server
+   * POST /api/sync/push
+   * Body: { changes: [...], deviceId: "...", timestamp: 123, organizationId: "..." }
+   */
+  router.post('/push', syncHandlers.handlePushChanges);
 
-/**
- * Get sync status
- * GET /api/sync/status
- */
-router.get('/status', handleSyncStatus);
+  /**
+   * Get sync status
+   * GET /api/sync/status
+   */
+  router.get('/status', syncHandlers.handleSyncStatus);
 
-export default router;
+  return router;
+}

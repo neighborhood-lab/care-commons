@@ -79,10 +79,12 @@ export function SyncStatusBadge() {
       }
     };
 
-    loadStatus();
+    void loadStatus();
 
     // Update status every 10 seconds
-    const interval = setInterval(loadStatus, 10000);
+    const interval = setInterval(() => {
+      void loadStatus();
+    }, 10000);
 
     // Listen for online/offline events
     const handleOnline = () => {
@@ -134,7 +136,9 @@ export function SyncStatusBadge() {
         <AlertCircle className="w-4 h-4" />
         <span>{status.failedCount} sync failed</span>
         <button
-          onClick={handleSyncNow}
+          onClick={() => {
+            void handleSyncNow();
+          }}
           className="ml-2 text-xs underline hover:no-underline"
           type="button"
         >

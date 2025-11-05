@@ -11,7 +11,7 @@ import {
   createQueueItem,
   type SyncOperationType,
   type SyncEntityType,
-} from '@care-commons/core/sync/offline-queue.js';
+} from '@care-commons/core';
 
 export interface QueueOperationOptions {
   operationType: SyncOperationType;
@@ -50,6 +50,7 @@ export function useOfflineQueue(): UseOfflineQueueResult {
     );
 
     // Generate unique ID
+    // eslint-disable-next-line sonarjs/pseudo-random
     const id = `queue_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
     // Save to database
