@@ -4,7 +4,7 @@
  * Displays the tour UI with spotlight effect highlighting elements
  */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -44,13 +44,13 @@ export const TourOverlay: React.FC = () => {
   const step = currentTour?.steps[currentStep];
 
   // Update target element position
-  useEffect(() => {
-    if (!step?.target || !isActive) {
-      setTargetPosition(null);
-      return;
-    }
-
+  useLayoutEffect(() => {
     const updatePosition = () => {
+      if (!step?.target || !isActive) {
+        setTargetPosition(null);
+        return;
+      }
+
       const element = document.querySelector(step.target);
       if (element) {
         const rect = element.getBoundingClientRect();
