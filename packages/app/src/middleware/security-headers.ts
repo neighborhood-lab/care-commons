@@ -7,7 +7,7 @@ import type { Request, Response, NextFunction } from 'express';
  * @see https://owasp.org/www-project-secure-headers/
  */
 export function securityHeaders(
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): void {
@@ -80,7 +80,7 @@ export function securityHeaders(
  * @param reset - Timestamp when the limit resets
  */
 export function rateLimitHeaders(limit: number, remaining: number, reset: number) {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (_req: Request, res: Response, next: NextFunction): void => {
     res.setHeader('X-RateLimit-Limit', limit.toString());
     res.setHeader('X-RateLimit-Remaining', remaining.toString());
     res.setHeader('X-RateLimit-Reset', reset.toString());

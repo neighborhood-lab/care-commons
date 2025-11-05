@@ -26,7 +26,8 @@ const store: RateLimitStore = {};
 setInterval(() => {
   const now = Date.now();
   for (const key in store) {
-    if (store[key].resetTime < now) {
+    const entry = store[key];
+    if (entry !== undefined && entry.resetTime < now) {
       delete store[key];
     }
   }
@@ -69,13 +70,13 @@ export function createRateLimiter(options: RateLimitOptions) {
 
   return (req: Request, res: Response, next: NextFunction): void => {
     // Skip if skip function returns true
-    if (skip && skip(req)) {
+    if (skip?.(req) === true) {
       return next();
     }
 
     // Get client identifier (IP address or authenticated user ID)
     const identifier =
-      req.ip || req.socket.remoteAddress || 'unknown';
+      req.ip ?? req.socket.remoteAddress ?? 'unknown';
 
     // Create key for this endpoint and identifier
     const key = `${req.path}:${identifier}`;
@@ -83,17 +84,20 @@ export function createRateLimiter(options: RateLimitOptions) {
     const now = Date.now();
 
     // Initialize or get existing rate limit data
-    if (!store[key] || store[key].resetTime < now) {
+    const existingEntry = store[key];
+    if (existingEntry === undefined || existingEntry.resetTime < now) {
       store[key] = {
         count: 0,
         resetTime: now + windowMs,
       };
     }
 
-    const { count, resetTime } = store[key];
+    // TypeScript now knows store[key] exists
+    const entry = store[key]!;
+    const { count, resetTime } = entry;
 
     // Increment request count
-    store[key].count++;
+    entry.count++;
 
     // Calculate remaining requests
     const remaining = Math.max(0, max - count - 1);
@@ -119,8 +123,9 @@ export function createRateLimiter(options: RateLimitOptions) {
     if (skipSuccessfulRequests) {
       const originalSend = res.send;
       res.send = function (body: unknown) {
-        if (res.statusCode < 400) {
-          store[key].count--;
+        const entry = store[key];
+        if (res.statusCode < 400 && entry !== undefined) {
+          entry.count--;
         }
         return originalSend.call(this, body);
       };
