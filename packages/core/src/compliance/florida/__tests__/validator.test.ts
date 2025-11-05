@@ -177,15 +177,33 @@ describe('FloridaComplianceValidator', () => {
     });
 
     it('should WARN if Level 2 screening expires soon', async () => {
-      const screeningDate = new Date();
-      screeningDate.setFullYear(screeningDate.getFullYear() - 4);
-      screeningDate.setMonth(screeningDate.getMonth() - 10); // ~4 years 10 months ago
+      const today = new Date();
+      const screeningDate = new Date(today);
+      screeningDate.setDate(screeningDate.getDate() - (365 * 5 - 50)); // 5 years ago minus 50 days
 
       const expirationDate = new Date(screeningDate);
-      expirationDate.setFullYear(expirationDate.getFullYear() + 5); // Expires in ~2 months
+      expirationDate.setDate(expirationDate.getDate() + (365 * 5)); // Expires in ~50 days
+
+      const licenseExpiration = new Date(today);
+      licenseExpiration.setDate(licenseExpiration.getDate() + 200); // License expires in 200 days (not soon)
 
       const caregiver: CaregiverCredentials = {
-        licenses: [],
+        backgroundScreening: {
+          type: 'LEVEL_2',
+          checkDate: screeningDate,
+          expirationDate,
+          status: 'CLEAR',
+        },
+        licenses: [
+          {
+            type: 'CNA',
+            state: 'FL',
+            number: 'CNA123456',
+            issueDate: new Date('2020-01-01'),
+            expirationDate: licenseExpiration,
+            status: 'ACTIVE',
+          },
+        ],
         registryChecks: [],
         stateSpecificData: {
           florida: {
@@ -193,6 +211,7 @@ describe('FloridaComplianceValidator', () => {
             level2ScreeningExpiration: expirationDate,
             level2ScreeningStatus: 'CLEARED',
             level2ScreeningId: 'AHCA-123456',
+            hivAidsTrainingCompleted: true,
           } as FloridaCredentials,
         },
       };
