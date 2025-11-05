@@ -300,6 +300,6 @@ export interface PerformanceBenchmark {
   metric: string;
   value: number;
   target: number;
-  industry Average?: number;
+  industryAverage?: number;
   status: 'ABOVE_TARGET' | 'AT_TARGET' | 'BELOW_TARGET' | 'CRITICAL';
 }
