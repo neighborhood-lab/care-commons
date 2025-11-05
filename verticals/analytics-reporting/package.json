@@ -1,0 +1,48 @@
+{
+  "name": "@care-commons/analytics-reporting",
+  "version": "0.1.0",
+  "description": "Analytics and reporting vertical for Care Commons",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types/analytics": {
+      "types": "./dist/types/analytics.d.ts",
+      "default": "./dist/types/analytics.js"
+    },
+    "./service/analytics-service": {
+      "types": "./dist/service/analytics-service.d.ts",
+      "default": "./dist/service/analytics-service.js"
+    },
+    "./service/report-service": {
+      "types": "./dist/service/report-service.d.ts",
+      "default": "./dist/service/report-service.js"
+    },
+    "./service/export-service": {
+      "types": "./dist/service/export-service.d.ts",
+      "default": "./dist/service/export-service.js"
+    },
+    "./repository/analytics-repository": {
+      "types": "./dist/repository/analytics-repository.d.ts",
+      "default": "./dist/repository/analytics-repository.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc && tsc-alias -p tsconfig.json",
+    "test": "vitest",
+    "lint": "eslint . --ext ts"
+  },
+  "dependencies": {
+    "@care-commons/core": "file:../../packages/core"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
