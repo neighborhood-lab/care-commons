@@ -14,6 +14,7 @@ import helmet from 'helmet';
 import { createRequestLogger } from './middleware/request-logger.js';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
+import { securityHeaders } from './middleware/security-headers.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index.js';
 
@@ -94,6 +95,9 @@ function setupMiddleware(): void {
       },
     },
   }));
+
+  // Additional security headers (complements helmet)
+  app.use(securityHeaders);
 
   // CORS - restrict to allowed origins in production
   const allowedOrigins = process.env['CORS_ORIGIN']?.split(',').map(o => o.trim()).filter(Boolean) ?? [];

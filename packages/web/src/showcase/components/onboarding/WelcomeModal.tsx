@@ -4,10 +4,11 @@
  * Multi-step onboarding flow that guides new visitors through the showcase
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { personas } from '../../data/personas';
+import { PersonaRole } from '../../types';
 
 const STORAGE_KEY = 'care-commons-showcase-visited';
 
@@ -44,29 +45,30 @@ interface WelcomeModalProps {
 }
 
 export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => {
+    // Check if user has visited before on initial render
+    if (typeof window !== 'undefined') {
+      const hasVisited = window.localStorage.getItem(STORAGE_KEY);
+      return !hasVisited;
+    }
+    return false;
+  });
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<PersonaRole | null>(null);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
-  useEffect(() => {
-    // Check if user has visited before
-    const hasVisited = localStorage.getItem(STORAGE_KEY);
-    if (!hasVisited) {
-      setIsOpen(true);
-    }
-  }, []);
-
   const handleComplete = () => {
-    if (dontShowAgain) {
-      localStorage.setItem(STORAGE_KEY, 'true');
+    if (dontShowAgain && typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, 'true');
     }
     setIsOpen(false);
-    onComplete?.(selectedRole || undefined);
+    onComplete?.(selectedRole ?? undefined);
   };
 
   const handleSkip = () => {
-    localStorage.setItem(STORAGE_KEY, 'true');
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, 'true');
+    }
     setIsOpen(false);
     onComplete?.();
   };
