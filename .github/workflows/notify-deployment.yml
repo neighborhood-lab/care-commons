@@ -1,0 +1,178 @@
+name: Deployment Notifications
+
+on:
+  workflow_run:
+    workflows: ["Deploy"]
+    types:
+      - completed
+
+jobs:
+  notify:
+    name: Send Deployment Notification
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+
+    steps:
+      - name: Extract Deployment Info
+        id: info
+        run: |
+          echo "status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
+          echo "branch=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
+          echo "actor=${{ github.event.workflow_run.actor.login }}" >> $GITHUB_OUTPUT
+          echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
+
+          # Determine environment based on branch
+          if [ "${{ github.event.workflow_run.head_branch }}" == "main" ]; then
+            echo "environment=Production" >> $GITHUB_OUTPUT
+            echo "deployment_url=https://care-commons.vercel.app" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.head_branch }}" == "preview" ]; then
+            echo "environment=Preview" >> $GITHUB_OUTPUT
+            echo "deployment_url=https://preview-care-commons.vercel.app" >> $GITHUB_OUTPUT
+          else
+            echo "environment=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
+            echo "deployment_url=Unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack Notification
+        if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          # Determine status emoji and color
+          if [ "${{ steps.info.outputs.status }}" == "success" ]; then
+            STATUS_EMOJI="✅"
+            COLOR="good"
+          else
+            STATUS_EMOJI="❌"
+            COLOR="danger"
+          fi
+
+          # Send notification to Slack
+          curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "text": "'"$STATUS_EMOJI"' Deployment to '"${{ steps.info.outputs.environment }}"' '"${{ steps.info.outputs.status }}"'",
+              "attachments": [
+                {
+                  "color": "'"$COLOR"'",
+                  "fields": [
+                    {
+                      "title": "Environment",
+                      "value": "'"${{ steps.info.outputs.environment }}"'",
+                      "short": true
+                    },
+                    {
+                      "title": "Status",
+                      "value": "'"${{ steps.info.outputs.status }}"'",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "'"${{ steps.info.outputs.branch }}"'",
+                      "short": true
+                    },
+                    {
+                      "title": "Deployed By",
+                      "value": "@'"${{ steps.info.outputs.actor }}"'",
+                      "short": true
+                    },
+                    {
+                      "title": "Deployment URL",
+                      "value": "'"${{ steps.info.outputs.deployment_url }}"'",
+                      "short": false
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "button",
+                      "text": "View Logs",
+                      "url": "'"${{ steps.info.outputs.url }}"'"
+                    },
+                    {
+                      "type": "button",
+                      "text": "Open App",
+                      "url": "'"${{ steps.info.outputs.deployment_url }}"'"
+                    }
+                  ],
+                  "footer": "Care Commons CI/CD",
+                  "ts": '"$(date +%s)"'
+                }
+              ]
+            }'
+
+      - name: Send Discord Notification
+        if: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Determine status emoji and color
+          if [ "${{ steps.info.outputs.status }}" == "success" ]; then
+            STATUS_EMOJI="✅"
+            COLOR=3066993  # Green
+          else
+            STATUS_EMOJI="❌"
+            COLOR=15158332  # Red
+          fi
+
+          # Send notification to Discord
+          curl -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "embeds": [
+                {
+                  "title": "'"$STATUS_EMOJI"' Deployment '"${{ steps.info.outputs.status }}"'",
+                  "description": "Deployment to **'"${{ steps.info.outputs.environment }}"'** environment",
+                  "color": '"$COLOR"',
+                  "fields": [
+                    {
+                      "name": "Branch",
+                      "value": "'"${{ steps.info.outputs.branch }}"'",
+                      "inline": true
+                    },
+                    {
+                      "name": "Status",
+                      "value": "'"${{ steps.info.outputs.status }}"'",
+                      "inline": true
+                    },
+                    {
+                      "name": "Deployed By",
+                      "value": "'"${{ steps.info.outputs.actor }}"'",
+                      "inline": true
+                    },
+                    {
+                      "name": "Links",
+                      "value": "[View Logs]('"${{ steps.info.outputs.url }}"') | [Open App]('"${{ steps.info.outputs.deployment_url }}"')",
+                      "inline": false
+                    }
+                  ],
+                  "footer": {
+                    "text": "Care Commons CI/CD"
+                  },
+                  "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+                }
+              ]
+            }'
+
+      - name: Log Notification Status
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Deployment Notification Summary"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ steps.info.outputs.environment }}"
+          echo "Status: ${{ steps.info.outputs.status }}"
+          echo "Branch: ${{ steps.info.outputs.branch }}"
+          echo "Actor: ${{ steps.info.outputs.actor }}"
+          echo "Deployment URL: ${{ steps.info.outputs.deployment_url }}"
+          echo "Workflow URL: ${{ steps.info.outputs.url }}"
+          echo ""
+
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            echo "✅ Slack notification sent"
+          else
+            echo "⚠️  Slack webhook not configured"
+          fi
+
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            echo "✅ Discord notification sent"
+          else
+            echo "⚠️  Discord webhook not configured"
+          fi
+
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
