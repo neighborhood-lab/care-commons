@@ -17,7 +17,10 @@
 export * from './types/schedule';
 
 // Service
-export { ScheduleService } from './service/schedule-service';
+export { ScheduleService, IClientAddressProvider } from './service/schedule-service';
+
+// Providers
+export * from './providers';
 
 // Repository
 export { ScheduleRepository } from './repository/schedule-repository';
