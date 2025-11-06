@@ -86,25 +86,31 @@ export function DemoModeBar() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h4 className="font-semibold text-sm mb-2">Switch Persona</h4>
-              <div className="grid grid-cols-2 gap-2">
-                {session.availablePersonas.map((persona) => (
-                  <button
-                    key={persona.id}
-                    onClick={() => void switchPersona(persona.type)}
-                    disabled={persona.id === session.currentPersona.id}
-                    className={`
-                      px-3 py-2 rounded text-sm font-medium transition-colors text-left
-                      ${persona.id === session.currentPersona.id
-                        ? 'bg-white/30 cursor-not-allowed'
-                        : 'bg-white/20 hover:bg-white/30 cursor-pointer'
-                      }
-                    `}
-                  >
-                    <div className="font-semibold">{persona.name}</div>
-                    <div className="text-xs opacity-75">{persona.role}</div>
-                  </button>
-                ))}
-              </div>
+              {session.availablePersonas.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {session.availablePersonas.map((persona) => (
+                    <button
+                      key={persona.id}
+                      onClick={() => void switchPersona(persona.type)}
+                      disabled={persona.id === session.currentPersona.id}
+                      className={`
+                        px-3 py-2 rounded text-sm font-medium transition-colors text-left
+                        ${persona.id === session.currentPersona.id
+                          ? 'bg-white/30 cursor-not-allowed'
+                          : 'bg-white/20 hover:bg-white/30 cursor-pointer'
+                        }
+                      `}
+                    >
+                      <div className="font-semibold">{persona.name}</div>
+                      <div className="text-xs opacity-75">{persona.role}</div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white/10 px-3 py-2 rounded text-xs opacity-75">
+                  No additional personas available
+                </div>
+              )}
             </div>
 
             <div>

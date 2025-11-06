@@ -458,6 +458,61 @@ async function getDemoSnapshot(db: Database): Promise<DemoSnapshot> {
         permissions: ['*:*']
       }
     ];
+  } else {
+    // Fallback: Create fully synthetic personas if no users exist
+    // This ensures demo mode works even on completely empty databases
+    personas = [
+      {
+        id: `demo-caregiver-1`,
+        type: 'CAREGIVER' as DemoPersonaType,
+        name: 'Sarah Johnson',
+        email: 'sarah.johnson@demo.example',
+        role: 'Certified Nursing Assistant',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:read', 'visits:update']
+      },
+      {
+        id: `demo-caregiver-2`,
+        type: 'CAREGIVER' as DemoPersonaType,
+        name: 'Michael Chen',
+        email: 'michael.chen@demo.example',
+        role: 'Home Health Aide',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:read', 'visits:update']
+      },
+      {
+        id: `demo-coordinator-1`,
+        type: 'COORDINATOR_FIELD' as DemoPersonaType,
+        name: 'Emily Rodriguez',
+        email: 'emily.rodriguez@demo.example',
+        role: 'Field Coordinator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:*', 'caregivers:*', 'clients:*']
+      },
+      {
+        id: `demo-coordinator-2`,
+        type: 'COORDINATOR_SCHEDULING' as DemoPersonaType,
+        name: 'David Williams',
+        email: 'david.williams@demo.example',
+        role: 'Scheduling Coordinator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:*', 'schedule:*']
+      },
+      {
+        id: `demo-admin-1`,
+        type: 'ADMINISTRATOR' as DemoPersonaType,
+        name: 'Alex Morgan',
+        email: 'alex.morgan@demo.example',
+        role: 'Administrator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['*:*']
+      }
+    ];
   }
 
   return {
