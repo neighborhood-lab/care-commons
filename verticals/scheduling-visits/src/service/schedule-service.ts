@@ -704,7 +704,9 @@ export class ScheduleService {
   }
 
   private checkPermission(context: UserContext, permission: string): void {
-    if (!(context.permissions?.includes(permission) && context.roles?.includes('SUPER_ADMIN'))) {
+    // CRITICAL FIX: Changed && to || - previous logic would require BOTH permission AND SUPER_ADMIN role
+    // Correct logic: User needs EITHER the specific permission OR SUPER_ADMIN role
+    if (!(context.permissions?.includes(permission) || context.roles?.includes('SUPER_ADMIN'))) {
       throw new PermissionError(`Missing required permission: ${permission}`, {
         userId: context.userId,
         permission,
