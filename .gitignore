@@ -127,6 +127,10 @@ out
 .nuxt
 dist
 
+# GitHub Pages - Allow root showcase files
+!index.html
+!assets/
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js
