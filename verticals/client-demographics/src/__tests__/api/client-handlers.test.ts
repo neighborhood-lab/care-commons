@@ -763,8 +763,8 @@ describe('ClientHandlers', () => {
     it('should throw error for unimplemented audit trail retrieval', async () => {
       mockReq.userContext = mockUserContext;
 
-      // Since this handler throws synchronously, we need to wrap the call in a function
-      await expect(() => handlers.getClientAuditTrail(mockReq, mockRes, mockNext))
+      // Handler is async and throws NotImplementedError
+      await expect(handlers.getClientAuditTrail(mockReq, mockRes, mockNext))
         .rejects
         .toThrow('Audit trail retrieval not yet implemented');
     });
