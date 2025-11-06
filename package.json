@@ -50,6 +50,7 @@
     "db:env": "./scripts/db-env.sh",
     "db:env:preview": "./scripts/db-env.sh migrate --env=preview",
     "db:env:production": "./scripts/db-env.sh migrate --env=production",
+    "docs:generate": "tsx scripts/export-postman-collection.ts",
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
@@ -60,6 +61,8 @@
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.1",
     "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "@vitest/coverage-v8": "^4.0.7",
     "dotenv-cli": "^11.0.0",
     "eslint-plugin-promise": "^7.2.1",
@@ -67,6 +70,7 @@
     "eslint-plugin-unicorn": "^62.0.0",
     "happy-dom": "^20.0.10",
     "husky": "^9.1.7",
+    "openapi-to-postmanv2": "^5.3.4",
     "sql-lint": "^1.0.2",
     "supertest": "^7.1.4",
     "turbo": "^2.6.0",
@@ -78,6 +82,8 @@
     "npm": ">=10.9.0"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.7"
+    "@tanstack/react-query": "^5.90.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }

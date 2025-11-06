@@ -21,12 +21,17 @@ import { authLimiter } from '../middleware/rate-limit.js';
  * When re-enabling: import { createAnalyticsRouter } from './analytics.js';
  */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
+import docsRoutes from './docs.routes.js';
 
 /**
  * Setup all API routes for the application
  */
 export function setupRoutes(app: Express, db: Database): void {
   console.log('Setting up API routes...');
+
+  // API Documentation routes
+  app.use('/', docsRoutes);
+  console.log('  ✓ API Documentation routes registered');
 
   // Authentication routes with rate limiting
   const authRouter = createAuthRouter(db);
