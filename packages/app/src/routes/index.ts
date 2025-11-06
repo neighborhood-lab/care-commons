@@ -12,6 +12,7 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
+import { createUserRouter } from './users.js';
 import { createDemoRouter } from './demo.js';
 import { authLimiter } from '../middleware/rate-limit.js';
 /**
@@ -59,6 +60,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
+
+  // User Settings routes
+  const userRouter = createUserRouter(db);
+  app.use('/api/users', userRouter);
+  console.log('  ✓ User Settings routes registered');
 
   // Demo routes (interactive demo system)
   const demoRouter = createDemoRouter(db);

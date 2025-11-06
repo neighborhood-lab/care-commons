@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { SettingsLayout } from './verticals/user-settings';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -232,10 +233,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <SettingsLayout />
             </AppShell>
           </ProtectedRoute>
         }
