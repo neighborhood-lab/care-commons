@@ -509,30 +509,32 @@ export class EVVValidator {
 
     // Texas-specific validations (26 TAC §558 - HHSC)
     if (stateCode === 'TX') {
-      // 1. Check allowed clock methods
-      if (config.allowedClockMethods) {
-        const method = record.clockInVerification.method;
-        const methodMap: Record<string, string[]> = {
-          'GPS': ['MOBILE_GPS'],
-          'PHONE': ['FIXED_TELEPHONY'],
-          'BIOMETRIC': ['FIXED_BIOMETRIC'],
-          'MANUAL': [],
-        };
+      // 1. Check allowed clock methods - Texas requires GPS or BIOMETRIC
+      const method = record.clockInVerification.method;
+      
+      // If allowedClockMethods is specified, use it; otherwise use Texas defaults (GPS, BIOMETRIC only)
+      const allowedMethods = config.allowedClockMethods || ['MOBILE_GPS', 'FIXED_BIOMETRIC'];
+      
+      const methodMap: Record<string, string[]> = {
+        'GPS': ['MOBILE_GPS'],
+        'PHONE': ['FIXED_TELEPHONY'],
+        'BIOMETRIC': ['FIXED_BIOMETRIC'],
+        'MANUAL': [],
+      };
 
-        const methodMappings = methodMap[method] || [];
-        const isAllowed = methodMappings.some(m => config.allowedClockMethods.includes(m));
+      const methodMappings = methodMap[method] || [];
+      const isAllowed = methodMappings.some(m => allowedMethods.includes(m));
 
-        if (!isAllowed) {
-          issues.push({
-            issueType: 'INVALID_CLOCK_METHOD',
-            severity: 'HIGH',
-            description: `Clock method ${method} is not allowed for Texas. Allowed methods: ${config.allowedClockMethods.join(', ')}`,
-            canBeOverridden: false,
-            requiresSupervisor: true,
-          });
-          complianceFlags.push('MANUAL_OVERRIDE');
-          requiresSupervisorReview = true;
-        }
+      if (!isAllowed) {
+        issues.push({
+          issueType: 'INVALID_CLOCK_METHOD',
+          severity: 'HIGH',
+          description: `Clock method ${method} is not allowed for Texas. Allowed methods: ${allowedMethods.join(', ')}`,
+          canBeOverridden: false,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('MANUAL_OVERRIDE');
+        requiresSupervisorReview = true;
       }
 
       // 2. Grace period validation
@@ -568,8 +570,8 @@ export class EVVValidator {
         requiresSupervisorReview = true;
       }
 
-      // 4. GPS accuracy requirement (check against tolerance)
-      const accuracyThreshold = geoTolerance;
+      // 4. GPS accuracy requirement - Texas default is 100m, but uses geoPerimeterTolerance if provided
+      const accuracyThreshold = config.geoPerimeterTolerance ?? 100;
       if (record.clockInVerification.accuracy > accuracyThreshold) {
         issues.push({
           issueType: 'LOW_GPS_ACCURACY',
@@ -578,6 +580,7 @@ export class EVVValidator {
           canBeOverridden: true,
           requiresSupervisor: true,
         });
+        complianceFlags.push('LOCATION_SUSPICIOUS');
         requiresSupervisorReview = true;
       }
 
@@ -615,8 +618,9 @@ export class EVVValidator {
     // Florida-specific validations (Chapter 59A-8 AHCA)
     if (stateCode === 'FL') {
       // 1. Check allowed verification methods
+      const method = record.clockInVerification.method;
+      
       if (config.allowedVerificationMethods) {
-        const method = record.clockInVerification.method;
         const methodMap: Record<string, string[]> = {
           'GPS': ['MOBILE_GPS'],
           'PHONE': ['TELEPHONY_IVR'],
@@ -637,6 +641,17 @@ export class EVVValidator {
           });
           complianceFlags.push('MANUAL_OVERRIDE');
           requiresSupervisorReview = true;
+        }
+      } else {
+        // No explicit config - generate warning for PHONE method
+        if (method === 'PHONE') {
+          issues.push({
+            issueType: 'LOCATION_UNCERTAIN',
+            severity: 'MEDIUM',
+            description: 'Phone verification used - location accuracy may be lower than GPS',
+            canBeOverridden: true,
+            requiresSupervisor: false,
+          });
         }
       }
 
@@ -673,60 +688,71 @@ export class EVVValidator {
         requiresSupervisorReview = true;
       }
 
-      // 4. Telephony fallback validation
-      if (record.clockInVerification.method === 'PHONE') {
-        if (config.allowTelephonyFallback === false) {
-          issues.push({
-            issueType: 'UNAUTHORIZED_TELEPHONY',
-            severity: 'HIGH',
-            description: 'Telephony verification not authorized for this configuration',
-            canBeOverridden: false,
-            requiresSupervisor: true,
-          });
-          complianceFlags.push('MANUAL_OVERRIDE');
-          requiresSupervisorReview = true;
-        }
+      // 4. GPS accuracy requirement - Florida standard is 150m max
+      const accuracyThreshold = 150;
+      if (record.clockInVerification.accuracy > accuracyThreshold) {
+        issues.push({
+          issueType: 'LOW_GPS_ACCURACY',
+          severity: 'MEDIUM',
+          description: `GPS accuracy ${Math.round(record.clockInVerification.accuracy)}m exceeds Florida tolerance of ${accuracyThreshold}m.`,
+          canBeOverridden: true,
+          requiresSupervisor: true,
+        });
+        requiresSupervisorReview = true;
       }
 
-      // 5. MCO-specific requirements
+      // 5. Telephony fallback validation
+      if (record.clockInVerification.method === 'PHONE' && config.allowTelephonyFallback === false) {
+        issues.push({
+          issueType: 'UNAUTHORIZED_TELEPHONY',
+          severity: 'HIGH',
+          description: 'Telephony verification not authorized for this configuration',
+          canBeOverridden: false,
+          requiresSupervisor: true,
+        });
+        complianceFlags.push('MANUAL_OVERRIDE');
+        requiresSupervisorReview = true;
+      }
+
+      // 6. MCO-specific requirements
       if (config.mcoRequirements) {
         const mco = config.mcoRequirements;
 
         // Check client signature requirement
         if (mco.requiresClientSignature) {
-          // TODO: Implement client signature validation once EVVRecord type is extended
-          // In production, check if signature exists on record
-          // if (!record.clientSignature) {
-          //   issues.push({
-          //     issueType: 'MISSING_SIGNATURE',
-          //     severity: 'HIGH',
-          //     description: `MCO ${mco.mcoName} requires client signature`,
-          //     canBeOverridden: false,
-          //     requiresSupervisor: true,
-          //   });
-          //   complianceFlags.push('MISSING_SIGNATURE');
-          //   requiresSupervisorReview = true;
-          // }
+          // Check if signature exists on record (use type assertion for extended field)
+          const recordWithSignature = record as EVVRecord & { clientSignature?: string };
+          if (!recordWithSignature.clientSignature) {
+            issues.push({
+              issueType: 'MISSING_SIGNATURE',
+              severity: 'HIGH',
+              description: `MCO ${mco.mcoName} requires client signature`,
+              canBeOverridden: false,
+              requiresSupervisor: true,
+            });
+            complianceFlags.push('MISSING_SIGNATURE');
+            requiresSupervisorReview = true;
+          }
         }
 
         // Check photo verification requirement
         if (mco.requiresPhotoVerification) {
-          // TODO: Implement photo verification validation once EVVRecord type is extended
-          // In production, check if photo exists on record
-          // if (!record.photoVerification) {
-          //   issues.push({
-          //     issueType: 'MISSING_PHOTO_VERIFICATION',
-          //     severity: 'HIGH',
-          //     description: `MCO ${mco.mcoName} requires photo verification`,
-          //     canBeOverridden: false,
-          //     requiresSupervisor: true,
-          //   });
-          //   requiresSupervisorReview = true;
-          // }
+          // Check if photo exists on record (use type assertion for extended field)
+          const recordWithPhoto = record as EVVRecord & { photoVerification?: string };
+          if (!recordWithPhoto.photoVerification) {
+            issues.push({
+              issueType: 'MISSING_PHOTO_VERIFICATION',
+              severity: 'HIGH',
+              description: `MCO ${mco.mcoName} requires photo verification`,
+              canBeOverridden: false,
+              requiresSupervisor: true,
+            });
+            requiresSupervisorReview = true;
+          }
         }
       }
 
-      // 6. Mock location detection
+      // 7. Mock location detection
       if (record.clockInVerification.mockLocationDetected) {
         issues.push({
           issueType: 'GPS_SPOOFING',

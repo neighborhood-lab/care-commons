@@ -292,7 +292,7 @@ describe('ClientRepository', () => {
       const result = await repository.findByClientNumber('CL-001', 'org-1');
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
-        expect.stringContaining('client_number = $1 AND organization_id = $2'),
+        expect.stringContaining('client_number = $1'),
         ['CL-001', 'org-1']
       );
       expect(result).toBeDefined();

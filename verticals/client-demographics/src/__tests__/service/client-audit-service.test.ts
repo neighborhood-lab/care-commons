@@ -155,8 +155,8 @@ describe('ClientAuditService', () => {
     it('should query audit logs with date range', async () => {
       const mockQuery: AuditQuery = {
         clientId: 'client-1',
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-12-31'),
+        startDate: new Date('2025-01-01'),
+        endDate: new Date('2025-12-31'),
       };
 
       const mockCountResult = {
@@ -187,20 +187,21 @@ describe('ClientAuditService', () => {
       const result = await service.queryAuditLog(mockQuery);
 
       expect(result.entries).toHaveLength(1);
-      expect(result.dateRange.start).toEqual(new Date('2024-01-01'));
-      expect(result.dateRange.end).toEqual(new Date('2024-12-31'));
+      expect(result.dateRange.start).toEqual(new Date('2025-01-01'));
+      expect(result.dateRange.end).toEqual(new Date('2025-12-31'));
     });
   });
 
   describe('getDisclosureHistory', () => {
     it('should get disclosure history for a client', async () => {
+      const now = new Date();
       const sixYearsAgo = new Date();
       sixYearsAgo.setFullYear(sixYearsAgo.getFullYear() - 6);
 
       const mockQueryResult = {
         entries: [],
         totalCount: 0,
-        dateRange: { start: sixYearsAgo, end: new Date() },
+        dateRange: { start: sixYearsAgo, end: now },
         disclosureCount: 0,
         accessCount: 0,
       };
@@ -213,7 +214,7 @@ describe('ClientAuditService', () => {
         clientId: 'client-1',
         accessType: ['DISCLOSURE'],
         startDate: sixYearsAgo,
-        endDate: new Date(),
+        endDate: now,
         limit: 1000,
       });
       expect(result).toEqual([]);
@@ -293,7 +294,7 @@ describe('ClientAuditService', () => {
             clientId: 'client-1',
             accessedBy: 'user-1',
             accessType: 'VIEW' as AccessType,
-            accessTimestamp: new Date('2024-01-01T10:00:00.000Z'),
+            accessTimestamp: new Date('2025-01-01T10:00:00.000Z'),
             accessReason: 'Routine check',
             ipAddress: '192.168.1.1',
           }
@@ -310,7 +311,7 @@ describe('ClientAuditService', () => {
       const result = await service.exportAuditLog({});
 
       expect(result).toContain('Timestamp,Client ID,Accessed By,Access Type,Reason,IP Address,Disclosure Recipient,Disclosure Method,Authorization,Information Disclosed');
-      expect(result).toContain('"2024-01-01T10:00:00.000Z","client-1","user-1","VIEW","Routine check","192.168.1.1","","","",""');
+      expect(result).toContain('"2025-01-01T10:00:00.000Z","client-1","user-1","VIEW","Routine check","192.168.1.1","","","",""');
       
       // Check that the export itself was logged
       expect(service.logAccess).toHaveBeenCalledWith({

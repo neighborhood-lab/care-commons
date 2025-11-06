@@ -103,7 +103,7 @@ describe('State-Specific EVV Validation', () => {
       expect(result.passed).toBe(false);
       expect(result.issues).toContainEqual(
         expect.objectContaining({
-          issueType: 'LOCATION_UNCERTAIN',
+          issueType: 'INVALID_CLOCK_METHOD',
           severity: 'HIGH',
         })
       );
@@ -133,7 +133,7 @@ describe('State-Specific EVV Validation', () => {
       expect(result.passed).toBe(false);
       expect(result.issues).toContainEqual(
         expect.objectContaining({
-          issueType: 'VISIT_TOO_SHORT',
+          issueType: 'CLOCK_IN_TOO_EARLY',
           description: expect.stringContaining('10 minutes early'),
         })
       );
@@ -290,7 +290,7 @@ describe('State-Specific EVV Validation', () => {
       expect(result.passed).toBe(false);
       expect(result.issues).toContainEqual(
         expect.objectContaining({
-          issueType: 'VISIT_TOO_SHORT',
+          issueType: 'CLOCK_IN_TOO_EARLY',
           description: expect.stringContaining('15 minutes early'),
         })
       );

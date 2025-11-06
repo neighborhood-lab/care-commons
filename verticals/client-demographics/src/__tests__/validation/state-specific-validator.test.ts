@@ -97,8 +97,8 @@ describe('StateSpecificClientValidator', () => {
             usedUnits: 10,
             unitType: 'HOURS',
             authorizationNumber: 'AUTH-001',
-            effectiveDate: new Date('2024-01-01'),
-            expirationDate: new Date('2024-12-31'),
+            effectiveDate: new Date('2025-01-01'),
+            expirationDate: new Date('2025-12-31'),
             status: 'ACTIVE',
             requiresEVV: false,
           }
@@ -122,8 +122,8 @@ describe('StateSpecificClientValidator', () => {
             usedUnits: 20, // More used than authorized
             unitType: 'HOURS',
             authorizationNumber: 'AUTH-001',
-            effectiveDate: new Date('2024-01-01'),
-            expirationDate: new Date('2024-12-31'),
+            effectiveDate: new Date('2025-01-01'),
+            expirationDate: new Date('2025-12-31'),
             status: 'ACTIVE',
             requiresEVV: false,
           }
@@ -151,8 +151,8 @@ describe('StateSpecificClientValidator', () => {
             usedUnits: 5,
             unitType: 'HOURS',
             authorizationNumber: 'AUTH-001',
-            effectiveDate: new Date('2024-12-31'),
-            expirationDate: new Date('2024-01-01'), // Before effective date
+            effectiveDate: new Date('2025-12-31'),
+            expirationDate: new Date('2025-01-01'), // Before effective date
             status: 'ACTIVE',
             requiresEVV: false,
           }
@@ -238,8 +238,8 @@ describe('StateSpecificClientValidator', () => {
             usedUnits: 10,
             unitType: 'HOURS',
             authorizationNumber: 'AUTH-001',
-            effectiveDate: new Date('2024-01-01'),
-            expirationDate: new Date('2024-12-31'),
+            effectiveDate: new Date('2025-01-01'),
+            expirationDate: new Date('2025-12-31'),
             status: 'ACTIVE',
             requiresEVV: false,
             requiresRNSupervision: false,
@@ -264,8 +264,8 @@ describe('StateSpecificClientValidator', () => {
             usedUnits: 20, // More used than authorized
             unitType: 'HOURS',
             authorizationNumber: 'AUTH-001',
-            effectiveDate: new Date('2024-01-01'),
-            expirationDate: new Date('2024-12-31'),
+            effectiveDate: new Date('2025-01-01'),
+            expirationDate: new Date('2025-12-31'),
             status: 'ACTIVE',
             requiresEVV: false,
             requiresRNSupervision: false,
@@ -294,8 +294,8 @@ describe('StateSpecificClientValidator', () => {
             usedUnits: 10,
             unitType: 'HOURS',
             authorizationNumber: 'AUTH-001',
-            effectiveDate: new Date('2024-01-01'),
-            expirationDate: new Date('2024-12-31'),
+            effectiveDate: new Date('2025-01-01'),
+            expirationDate: new Date('2025-12-31'),
             status: 'ACTIVE',
             requiresEVV: false,
             requiresRNSupervision: true, // Requires RN supervision
@@ -363,8 +363,8 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
-              expirationDate: new Date('2024-12-31'),
+              effectiveDate: new Date('2025-01-01'),
+              expirationDate: new Date('2025-12-31'),
               status: 'ACTIVE',
               requiresEVV: false, // Does not require EVV
             }
@@ -392,8 +392,8 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
-              expirationDate: new Date('2024-12-31'),
+              effectiveDate: new Date('2025-01-01'),
+              expirationDate: new Date('2025-12-31'),
               status: 'ACTIVE',
               requiresEVV: false, // Does not require EVV
               requiresRNSupervision: false,
@@ -422,8 +422,8 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
-              expirationDate: new Date('2024-12-31'),
+              effectiveDate: new Date('2025-01-01'),
+              expirationDate: new Date('2025-12-31'),
               status: 'ACTIVE',
               requiresEVV: true,
             }
@@ -458,8 +458,8 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
-              expirationDate: new Date('2024-12-31'), // Future date
+              effectiveDate: new Date('2025-01-01'),
+              expirationDate: new Date('2025-12-31'), // Future date
               status: 'ACTIVE',
               requiresEVV: true,
             }
@@ -494,8 +494,8 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
-              expirationDate: new Date('2024-12-31'),
+              effectiveDate: new Date('2025-01-01'),
+              expirationDate: new Date('2025-12-31'),
               status: 'ACTIVE',
               requiresEVV: true,
             }
@@ -527,8 +527,8 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
-              expirationDate: new Date('2024-12-31'), // Future date
+              effectiveDate: new Date('2025-01-01'),
+              expirationDate: new Date('2025-12-31'), // Future date
               status: 'ACTIVE',
               requiresEVV: true,
               requiresRNSupervision: true,
@@ -559,7 +559,7 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
+              effectiveDate: new Date('2025-01-01'),
               expirationDate: new Date('2025-12-31'), // Future date
               status: 'ACTIVE',
               requiresEVV: false,
@@ -629,7 +629,7 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
+              effectiveDate: new Date('2025-01-01'),
               expirationDate: new Date('2025-12-31'), // Future date
               status: 'ACTIVE',
               requiresEVV: false,
@@ -704,6 +704,12 @@ describe('StateSpecificClientValidator', () => {
       const emergencyPlanDate = new Date();
       emergencyPlanDate.setFullYear(emergencyPlanDate.getFullYear() - 2); // 2 years ago
 
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 15); // Expires in 15 days (within 30 days)
+
+      const effectiveDate = new Date();
+      effectiveDate.setDate(effectiveDate.getDate() - 30); // Started 30 days ago
+
       const stateData: StateSpecificClientData = {
         state: 'TX',
         texas: {
@@ -718,8 +724,8 @@ describe('StateSpecificClientValidator', () => {
               usedUnits: 10,
               unitType: 'HOURS',
               authorizationNumber: 'AUTH-001',
-              effectiveDate: new Date('2024-01-01'),
-              expirationDate: new Date('2025-02-01'), // Expires within 30 days
+              effectiveDate: effectiveDate,
+              expirationDate: expirationDate, // Expires within 30 days
               status: 'ACTIVE',
               requiresEVV: false,
             }
