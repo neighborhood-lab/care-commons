@@ -5,13 +5,16 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import type { UUID } from '@care-commons/family-engagement';
-import { familyPortalApi } from '../services';
+import { useFamilyPortalApi } from './useFamilyPortal';
 
 /**
  * Hook to get message threads for family member
  */
 export function useMessageThreads(familyMemberId: UUID | null) {
+  const familyPortalApi = useFamilyPortalApi();
+
   return useQuery({
     queryKey: ['messageThreads', familyMemberId],
     queryFn: () => familyPortalApi.getMessageThreads(familyMemberId!),
@@ -24,6 +27,8 @@ export function useMessageThreads(familyMemberId: UUID | null) {
  * Hook to get messages in a thread
  */
 export function useMessagesInThread(threadId: UUID | null) {
+  const familyPortalApi = useFamilyPortalApi();
+
   return useQuery({
     queryKey: ['messages', threadId],
     queryFn: () => familyPortalApi.getMessagesInThread(threadId!),
@@ -36,6 +41,7 @@ export function useMessagesInThread(threadId: UUID | null) {
  * Hook to send a message
  */
 export function useSendMessage() {
+  const familyPortalApi = useFamilyPortalApi();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -43,9 +49,12 @@ export function useSendMessage() {
       familyPortalApi.sendMessage(threadId, messageText),
     onSuccess: (_, variables) => {
       // Invalidate and refetch messages in this thread
-      queryClient.invalidateQueries({ queryKey: ['messages', variables.threadId] });
-      queryClient.invalidateQueries({ queryKey: ['messageThreads'] });
-      queryClient.invalidateQueries({ queryKey: ['familyDashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['messages', variables.threadId] });
+      void queryClient.invalidateQueries({ queryKey: ['messageThreads'] });
+      void queryClient.invalidateQueries({ queryKey: ['familyDashboard'] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to send message');
     },
   });
 }
@@ -54,6 +63,7 @@ export function useSendMessage() {
  * Hook to create a new message thread
  */
 export function useCreateMessageThread() {
+  const familyPortalApi = useFamilyPortalApi();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -69,7 +79,11 @@ export function useCreateMessageThread() {
       initialMessage: string;
     }) => familyPortalApi.createMessageThread(familyMemberId, clientId, subject, initialMessage),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messageThreads'] });
+      void queryClient.invalidateQueries({ queryKey: ['messageThreads'] });
+      toast.success('Message sent successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to send message');
     },
   });
 }

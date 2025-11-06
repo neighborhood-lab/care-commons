@@ -9,14 +9,17 @@ import type { ActivityType } from '@care-commons/family-engagement';
 import { useRecentActivity } from '../hooks';
 import { ActivityFeed, ActivityFilters } from '../components';
 
+// Calculate default date range outside component to avoid impure function during render
+const getDefaultDateRange = () => ({
+  start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  end: new Date().toISOString().split('T')[0],
+});
+
 export const ActivityPage: React.FC = () => {
-  const familyMemberId = sessionStorage.getItem('familyMemberId') || null;
+  const familyMemberId = sessionStorage.getItem('familyMemberId') ?? null;
 
   const [selectedTypes, setSelectedTypes] = useState<ActivityType[]>([]);
-  const [dateRange, setDateRange] = useState({
-    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    end: new Date().toISOString().split('T')[0],
-  });
+  const [dateRange, setDateRange] = useState(getDefaultDateRange);
 
   const { data: activities, isLoading } = useRecentActivity(familyMemberId, 100);
 

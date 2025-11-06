@@ -39,7 +39,7 @@ export const NotificationList: React.FC<NotificationListProps> = ({ notification
     }
     // Navigate to actionUrl if provided
     if (notification.actionUrl) {
-      window.location.href = notification.actionUrl;
+      window.location.assign(notification.actionUrl);
     }
   };
 
