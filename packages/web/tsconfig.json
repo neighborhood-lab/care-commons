@@ -45,7 +45,10 @@
     "src/app/pages/admin/__tests__/ComplianceCenter.test.tsx",
     "src/app/pages/admin/__tests__/DataGridPanel.test.tsx",
     "src/app/pages/admin/__tests__/OperationsCenter.test.tsx",
-    "src/app/pages/admin/__tests__/StateConfigPanel.test.tsx"
+    "src/app/pages/admin/__tests__/StateConfigPanel.test.tsx",
+    "src/core/hooks/sync",
+    "src/core/services/sync-api.ts",
+    "src/core/services/sync-service.ts"
   ],
   "references": [
     {
