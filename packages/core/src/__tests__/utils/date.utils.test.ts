@@ -75,8 +75,8 @@ describe('DateUtils', () => {
       const end = new Date('2024-01-17');
       const range = DateUtils.getDateRange(start, end);
       expect(range).toHaveLength(3);
-      expect(range[0].getDate()).toBe(15);
-      expect(range[2].getDate()).toBe(17);
+      expect(range[0]?.getDate()).toBe(15);
+      expect(range[2]?.getDate()).toBe(17);
     });
   });
 
