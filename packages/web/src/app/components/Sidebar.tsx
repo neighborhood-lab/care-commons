@@ -8,6 +8,7 @@ import {
   CheckSquare,
   FileText,
   DollarSign,
+  BarChart3,
   Settings,
   LogOut,
   X,
@@ -78,6 +79,12 @@ const navItems: NavItem[] = [
     path: '/billing',
     icon: <DollarSign className="h-5 w-5" />,
     permission: 'billing:read',
+  },
+  {
+    label: 'Analytics',
+    path: '/analytics',
+    icon: <BarChart3 className="h-5 w-5" />,
+    permission: 'analytics:read',
   },
   {
     label: 'Admin',

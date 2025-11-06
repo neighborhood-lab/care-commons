@@ -32,12 +32,9 @@
     }
   },
   "scripts": {
-    "build": "echo '⚠️  analytics-reporting build skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
-    "build:real": "tsc && tsc-alias -p tsconfig.json",
-    "test": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
-    "test:real": "vitest",
-    "lint": "echo '⚠️  analytics-reporting lint skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
-    "lint:real": "eslint . --ext ts"
+    "build": "tsc && tsc-alias -p tsconfig.json",
+    "test": "vitest",
+    "lint": "eslint . --ext ts"
   },
   "dependencies": {
     "@care-commons/core": "file:../../packages/core"

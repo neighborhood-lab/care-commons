@@ -55,6 +55,13 @@ export type {
   ShiftSearchFilters,
 } from '@/verticals/shift-matching/types';
 
+export type {
+  OperationalKPIs,
+  ComplianceAlert,
+  DashboardStats,
+  AnalyticsFilters,
+} from '@/verticals/analytics-reporting/types';
+
 /**
  * Client Data Provider
  * Handles all client-related data operations
@@ -131,6 +138,16 @@ export interface ShiftMatchingDataProvider {
 }
 
 /**
+ * Analytics Data Provider
+ * Handles analytics and reporting operations
+ */
+export interface AnalyticsDataProvider {
+  getKPIs(filters?: AnalyticsFilters): Promise<OperationalKPIs>;
+  getComplianceAlerts(filters?: AnalyticsFilters): Promise<ComplianceAlert[]>;
+  getDashboardStats(filters?: AnalyticsFilters): Promise<DashboardStats>;
+}
+
+/**
  * Unified Data Provider
  * Combines all provider interfaces for comprehensive data access
  */
@@ -146,6 +163,11 @@ export interface DataProvider
    */
   readonly name: string;
   readonly type: 'api' | 'mock' | 'hybrid';
+
+  /**
+   * Analytics & Reporting
+   */
+  analytics: AnalyticsDataProvider;
 
   /**
    * Optional initialization method

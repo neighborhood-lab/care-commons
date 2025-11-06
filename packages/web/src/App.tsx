@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { AnalyticsDashboard } from './verticals/analytics-reporting';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -213,6 +214,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <PayRunDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <AnalyticsDashboard />
             </AppShell>
           </ProtectedRoute>
         }

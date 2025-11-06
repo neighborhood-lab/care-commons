@@ -14,12 +14,7 @@ import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
 import { authLimiter } from '../middleware/rate-limit.js';
-/**
- * NOTE: Analytics routes temporarily disabled - requires architectural refactor
- * The analytics-reporting vertical uses Knex query builder, but the codebase uses raw SQL via Database class
- * See verticals/analytics-reporting/ARCHITECTURAL_ISSUES.md for implementation details
- * When re-enabling: import { createAnalyticsRouter } from './analytics.js';
- */
+import { createAnalyticsRouter } from './analytics.js';
 import { createSyncRouter } from '../api/sync/sync-routes.js';
 
 /**
@@ -65,11 +60,10 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/demo', demoRouter);
   console.log('  ✓ Demo routes registered');
 
-  // Analytics & Reporting routes - TEMPORARILY DISABLED
-  // Requires architectural refactor: analytics-reporting uses Knex, but codebase uses raw SQL
-  // const analyticsRouter = createAnalyticsRouter(db);
-  // app.use('/api/analytics', analyticsRouter);
-  // console.log('  ✓ Analytics & Reporting routes registered');
+  // Analytics & Reporting routes
+  const analyticsRouter = createAnalyticsRouter(db);
+  app.use('/api/analytics', analyticsRouter);
+  console.log('  ✓ Analytics & Reporting routes registered');
 
   // Offline Sync routes
   const syncRouter = createSyncRouter(db);

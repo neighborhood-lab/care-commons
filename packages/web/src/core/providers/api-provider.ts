@@ -13,6 +13,7 @@ import { createCaregiverApiService } from '@/verticals/caregivers/services/careg
 import { createBillingApiService } from '@/verticals/billing-invoicing/services/billing-api';
 import { createPayrollApiService } from '@/verticals/payroll-processing/services/payroll-api';
 import { createShiftMatchingApiService } from '@/verticals/shift-matching/services/shift-matching-api';
+import { createAnalyticsApiService } from '@/verticals/analytics-reporting/services/analytics-api';
 
 import type { DataProvider, ProviderConfig } from './types';
 
@@ -27,6 +28,7 @@ export const createApiProvider = (apiClient: ApiClient): DataProvider => {
   const billingService = createBillingApiService(apiClient);
   const payrollService = createPayrollApiService(apiClient);
   const shiftMatchingService = createShiftMatchingApiService(apiClient);
+  const analyticsService = createAnalyticsApiService(apiClient);
 
   return {
     name: 'API Provider',
@@ -76,5 +78,8 @@ export const createApiProvider = (apiClient: ApiClient): DataProvider => {
     updateShiftListing: shiftMatchingService.updateShiftListing.bind(shiftMatchingService),
     getApplicationsForShift: shiftMatchingService.getApplicationsForShift.bind(shiftMatchingService),
     applyToShift: shiftMatchingService.applyToShift.bind(shiftMatchingService),
+
+    // Analytics operations
+    analytics: analyticsService,
   };
 };

@@ -1,26 +1,31 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "composite": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "references": [
-    { "path": "../../packages/core" }
+    {
+      "path": "../../packages/core"
+    }
   ],
   "tsc-alias": {
     "resolveFullPaths": true,
-    "verbose": false,
     "replacers": {
-      "pathsToModuleNameMapper": [
-        {
-          "pattern": "^(\\.{1,2}\\/[^'\"]+)$",
-          "replace": "$1.js"
-        }
-      ]
+      "replace-imports": {
+        "replace": "^(\\.{1,2}\\/[^'\"]+)$",
+        "with": "$1.js"
+      }
     }
   }
 }
