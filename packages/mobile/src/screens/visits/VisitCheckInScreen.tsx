@@ -10,7 +10,7 @@
  * - Offline support with sync queue
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -57,12 +57,7 @@ export function VisitCheckInScreen() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [checkingIn, setCheckingIn] = useState(false);
 
-  useEffect(() => {
-    loadVisit();
-    checkLocation();
-  }, [visitId]);
-
-  const loadVisit = async () => {
+  const loadVisit = useCallback(async () => {
     setIsLoading(true);
     try {
       // TODO: Load from WatermelonDB
@@ -97,14 +92,14 @@ export function VisitCheckInScreen() {
         syncPending: false,
       };
       setVisit(mockVisit);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to load visit details');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [visitId]);
 
-  const checkLocation = async () => {
+  const checkLocation = useCallback(async () => {
     setLocationStatus(prev => ({ ...prev, checking: true, error: null }));
 
     try {
@@ -118,8 +113,15 @@ export function VisitCheckInScreen() {
         longitude: -97.7431,
         accuracy: 10,
         timestamp: new Date(),
-        source: 'GPS',
-        isMocked: false,
+        timestampSource: 'GPS',
+        locationSource: 'GPS_SATELLITE',
+        method: 'GPS',
+        mockLocationDetected: false,
+        isWithinGeofence: true,
+        distanceFromAddress: 45,
+        geofencePassed: true,
+        deviceId: 'mock-device',
+        verificationPassed: true,
       };
 
       // Calculate distance (mock)
@@ -131,10 +133,10 @@ export function VisitCheckInScreen() {
         location: mockLocation,
         withinGeofence,
         distance,
-        mockLocationDetected: mockLocation.isMocked,
+        mockLocationDetected: mockLocation.mockLocationDetected,
         error: null,
       });
-    } catch (error) {
+    } catch {
       setLocationStatus({
         checking: false,
         location: null,
@@ -144,7 +146,12 @@ export function VisitCheckInScreen() {
         error: 'Failed to get location. Please enable GPS.',
       });
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadVisit();
+    checkLocation();
+  }, [loadVisit, checkLocation]);
 
   const handleBiometricVerification = async () => {
     setBiometricChecking(true);
@@ -156,7 +163,7 @@ export function VisitCheckInScreen() {
 
       setBiometricVerified(true);
       Alert.alert('Success', 'Biometric verification successful');
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Biometric verification failed. Please try again.');
     } finally {
       setBiometricChecking(false);
@@ -228,7 +235,7 @@ export function VisitCheckInScreen() {
           },
         ]
       );
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to check in. Please try again.');
     } finally {
       setCheckingIn(false);
@@ -312,7 +319,7 @@ export function VisitCheckInScreen() {
               <View style={styles.statusRow}>
                 <Text style={styles.statusLabel}>Location Source:</Text>
                 <Text style={styles.statusValue}>
-                  {locationStatus.location.source}
+                  {locationStatus.location.locationSource}
                 </Text>
               </View>
             </>

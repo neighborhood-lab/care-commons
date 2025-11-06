@@ -45,7 +45,6 @@ export function VisitHistoryScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
     dateRange: 'last30',
     status: 'all',
@@ -60,6 +59,7 @@ export function VisitHistoryScreen() {
 
   useEffect(() => {
     applyFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visits, searchQuery, filters]);
 
   const loadVisits = async () => {
@@ -192,7 +192,7 @@ export function VisitHistoryScreen() {
       ];
 
       setVisits(mockVisits);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to load visit history');
     } finally {
       setIsLoading(false);

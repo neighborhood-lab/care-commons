@@ -26,7 +26,6 @@ import { ClockInScreen } from '../screens/visits/ClockInScreen.js';
 import { CameraScreen } from '../screens/visits/CameraScreen.js';
 import { TasksScreen } from '../screens/visits/TasksScreen.js';
 import { SignatureScreen } from '../screens/visits/SignatureScreen.js';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type RootStackParamList = {
   Auth: undefined;

@@ -224,7 +224,7 @@ export async function getTaskById(
       .get<Task>('tasks')
       .find(taskId);
     return task;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

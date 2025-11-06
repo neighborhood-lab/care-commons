@@ -73,8 +73,8 @@ export function VisitDocumentationScreen() {
     severity: 'low',
   });
   const [photos, setPhotos] = useState<string[]>([]);
-  const [caregiverSignature, setCaregiverSignature] = useState<string | null>(null);
-  const [clientSignature, setClientSignature] = useState<string | null>(null);
+  const [caregiverSignature] = useState<string | null>(null);
+  const [clientSignature] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -91,6 +91,7 @@ export function VisitDocumentationScreen() {
     }, 30000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tasks, careNotes, vitalSigns, incidentReport, photos]);
 
   const loadDocumentation = async () => {
@@ -106,7 +107,7 @@ export function VisitDocumentationScreen() {
         { id: '5', title: 'Recreational activities', required: false, completed: false },
       ];
       setTasks(mockTasks);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to load documentation');
     } finally {
       setIsLoading(false);
@@ -117,9 +118,8 @@ export function VisitDocumentationScreen() {
     try {
       // TODO: Save to WatermelonDB
       setLastSaved(new Date());
-    } catch (error) {
+    } catch {
       // Silent fail for auto-save
-      console.error('Auto-save failed:', error);
     }
   };
 
@@ -137,7 +137,7 @@ export function VisitDocumentationScreen() {
     });
   };
 
-  const handleCaptureSignature = (type: 'caregiver' | 'client') => {
+  const handleCaptureSignature = (_type: 'caregiver' | 'client') => {
     navigation.navigate('Signature', {
       visitId,
       clientName: 'Client Name', // TODO: Get from visit
@@ -183,7 +183,7 @@ export function VisitDocumentationScreen() {
           },
         ]
       );
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to save documentation. Please try again.');
     } finally {
       setIsSaving(false);
