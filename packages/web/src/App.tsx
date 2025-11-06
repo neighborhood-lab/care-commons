@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { CaregiverList } from './verticals/caregivers';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -85,12 +86,22 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/caregivers/*"
+        path="/caregivers"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CaregiverList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scheduling"
         element={
           <ProtectedRoute>
             <AppShell>
               <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Caregivers Module</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Scheduling & Visits</h2>
                 <p className="text-gray-600 mt-2">Coming soon...</p>
               </div>
             </AppShell>

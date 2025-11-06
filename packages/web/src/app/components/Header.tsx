@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, Bell, User } from 'lucide-react';
 import { useAuth } from '@/core/hooks';
 import { Button } from '@/core/components';
+import { VerticalsDropdown } from './VerticalsDropdown';
 
 export interface HeaderProps {
   onMenuClick: () => void;
@@ -23,6 +24,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             <Menu className="h-6 w-6" />
           </Button>
           <h1 className="text-xl font-bold text-primary-600">Care Commons</h1>
+          <div className="hidden md:block">
+            <VerticalsDropdown />
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
