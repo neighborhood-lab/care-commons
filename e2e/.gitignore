@@ -1,0 +1,28 @@
+# Playwright Test Results
+test-results/
+playwright-report/
+e2e-results.json
+e2e-results.xml
+
+# Screenshots & Videos
+screenshots/
+*.png
+*.webm
+
+# Trace files
+trace.zip
+*.trace
+
+# Coverage
+coverage/
+
+# Environment files
+.env.e2e
+.env.local
+
+# Temporary files
+*.log
+.DS_Store
+
+# Playwright cache
+.playwright/
