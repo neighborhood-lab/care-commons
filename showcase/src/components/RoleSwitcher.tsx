@@ -19,11 +19,11 @@ const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> =
 };
 
 const roleColors: Record<UserRole, string> = {
-  patient: 'bg-blue-500',
-  family: 'bg-pink-500',
-  caregiver: 'bg-green-500',
-  coordinator: 'bg-purple-500',
-  admin: 'bg-gray-800',
+  patient: 'bg-blue-600',
+  family: 'bg-blue-600',
+  caregiver: 'bg-blue-600',
+  coordinator: 'bg-blue-600',
+  admin: 'bg-gray-700',
 };
 
 export const RoleSwitcher: React.FC = () => {
@@ -52,17 +52,8 @@ export const RoleSwitcher: React.FC = () => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          <div className="p-2">
-            <div className="px-3 py-2 mb-2">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Switch Perspective
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Experience the system from different viewpoints
-              </p>
-            </div>
-
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="p-1">
             {(Object.keys(rolePersonas) as UserRole[]).map((role) => {
               const persona = rolePersonas[role];
               const Icon = roleIcons[role];
@@ -74,30 +65,18 @@ export const RoleSwitcher: React.FC = () => {
                     <button
                       onClick={() => setRole(role)}
                       className={`
-                        w-full text-left rounded-md px-3 py-2.5 transition-colors
+                        w-full text-left rounded-md px-3 py-2 transition-colors
                         ${active ? 'bg-gray-50' : ''}
-                        ${isActive ? 'bg-blue-50 ring-1 ring-blue-200' : ''}
+                        ${isActive ? 'bg-blue-50' : ''}
                       `}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={`${roleColors[role]} rounded p-1.5 mt-0.5`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`${roleColors[role]} rounded p-1.5`}>
                           <Icon className="h-4 w-4 text-white" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-semibold text-gray-900">
-                              {persona.name}
-                            </p>
-                            {isActive && (
-                              <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
-                                Active
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {persona.description}
-                          </p>
-                        </div>
+                        <p className="text-sm font-medium text-gray-900">
+                          {persona.name}
+                        </p>
                       </div>
                     </button>
                   )}

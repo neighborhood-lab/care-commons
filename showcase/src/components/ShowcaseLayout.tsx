@@ -8,8 +8,6 @@ import {
   UserCheck,
   Calendar,
   FileText,
-  Info,
-  ExternalLink,
   LayoutDashboard,
 } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -40,39 +38,13 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
-              <p className="text-sm font-medium">
-                Interactive Showcase - All data is stored in your browser
-              </p>
-            </div>
-            <a
-              href="https://care-commons.vercel.app/login"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20 transition-colors"
-            >
-              Full Demo
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        </div>
-      </div>
-
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white border-b border-gray-200">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Care Commons
-              </h1>
-              <p className="text-sm text-gray-500">Showcase Edition</p>
-            </div>
+            <h1 className="text-xl font-semibold text-gray-900">
+              Care Commons
+            </h1>
             <RoleSwitcher />
           </div>
         </div>
@@ -126,23 +98,9 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
 
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white mt-auto">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="text-center text-sm text-gray-500">
-            <p className="mb-2">
-              This is a <strong>showcase demo</strong> running entirely in your browser with mock data.
-            </p>
-            <p>
-              For the full experience with real backend integration, visit the{' '}
-              <a
-                href="https://care-commons.vercel.app/login"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                end-to-end demo
-              </a>
-              .
-            </p>
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <div className="text-center text-xs text-gray-400">
+            Demo
           </div>
         </div>
       </footer>
