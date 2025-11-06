@@ -17,5 +17,20 @@ export * from './service/auth-service.js';
 export * from './middleware/auth-middleware.js';
 export * from './utils/password-utils.js';
 export * from './utils/jwt-utils.js';
+export * from './utils/date.utils.js';
+export * from './validation/common-schemas.js';
+// HTTP error handlers and middleware (import directly if needed)
+export {
+  AppError,
+  UnauthorizedError,
+  UnprocessableEntityError,
+  TooManyRequestsError,
+  ServiceUnavailableError,
+  InternalServerError,
+  DatabaseError,
+  errorHandler,
+  asyncHandler,
+  notFoundHandler,
+} from './errors/app-errors.js';
 export * from './sync/index.js';
 export * from './demo/index.js';
