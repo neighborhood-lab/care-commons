@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
-import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
 import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
@@ -13,13 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
-import {
-  FamilyDashboard,
-  ActivityPage,
-  MessagesPage,
-  NotificationsPage,
-  FamilyLoginPage,
-} from './verticals/family-engagement';
+import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -278,15 +271,15 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      {/* Family Portal Routes */}
-      <Route path="/family-portal/login" element={<FamilyLoginPage />} />
-      <Route path="/family-portal" element={<FamilyPortalLayout />}>
-        <Route index element={<FamilyDashboard />} />
-        <Route path="activity" element={<ActivityPage />} />
-        <Route path="messages" element={<MessagesPage />} />
-        <Route path="messages/:threadId" element={<MessagesPage />} />
-        <Route path="notifications" element={<NotificationsPage />} />
-      </Route>
+      {/* Family Portal Routes - temporarily disabled due to missing @care-commons/family-engagement and @care-commons/core packages */}
+      {/* <Route path="/family-portal/login" element={<FamilyLoginPage />} /> */}
+      {/* <Route path="/family-portal" element={<FamilyPortalLayout />}> */}
+      {/*   <Route index element={<FamilyDashboard />} /> */}
+      {/*   <Route path="activity" element={<ActivityPage />} /> */}
+      {/*   <Route path="messages" element={<MessagesPage />} /> */}
+      {/*   <Route path="messages/:threadId" element={<MessagesPage />} /> */}
+      {/*   <Route path="notifications" element={<NotificationsPage />} /> */}
+      {/* </Route> */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
