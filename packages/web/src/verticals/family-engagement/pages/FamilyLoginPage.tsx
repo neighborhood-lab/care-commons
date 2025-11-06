@@ -27,7 +27,7 @@ export const FamilyLoginPage: React.FC = () => {
 
       // Move to code entry step
       setStep('code');
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to send secure code. Please try again.');
     } finally {
       setLoading(false);
@@ -50,8 +50,8 @@ export const FamilyLoginPage: React.FC = () => {
       sessionStorage.setItem('clientId', 'demo-client-id');
 
       // Redirect to dashboard
-      navigate('/family-portal');
-    } catch (err) {
+      void navigate('/family-portal');
+    } catch (_err) {
       setError('Invalid code. Please try again.');
     } finally {
       setLoading(false);

@@ -17,8 +17,8 @@ import { MessageList, MessageThread, MessageComposer } from '../components';
 export const MessagesPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const navigate = useNavigate();
-  const familyMemberId = sessionStorage.getItem('familyMemberId') || null;
-  const clientId = sessionStorage.getItem('clientId') || null;
+  const familyMemberId = sessionStorage.getItem('familyMemberId') ?? null;
+  const clientId = sessionStorage.getItem('clientId') ?? null;
 
   const [showNewThread, setShowNewThread] = useState(false);
   const [newThreadSubject, setNewThreadSubject] = useState('');
@@ -52,7 +52,7 @@ export const MessagesPage: React.FC = () => {
           setShowNewThread(false);
           setNewThreadSubject('');
           setNewThreadMessage('');
-          navigate(`/family-portal/messages/${thread.id}`);
+          void navigate(`/family-portal/messages/${thread.id}`);
         },
         onError: (error) => {
           alert('Failed to create message thread. Please try again.');

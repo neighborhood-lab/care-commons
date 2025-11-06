@@ -5,13 +5,16 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import type { UUID, NotificationPreferences } from '@care-commons/family-engagement';
-import { familyPortalApi } from '../services';
+import { useFamilyPortalApi } from './useFamilyPortal';
 
 /**
  * Hook to get unread notifications
  */
 export function useUnreadNotifications(familyMemberId: UUID | null) {
+  const familyPortalApi = useFamilyPortalApi();
+
   return useQuery({
     queryKey: ['notifications', 'unread', familyMemberId],
     queryFn: () => familyPortalApi.getUnreadNotifications(familyMemberId!),
@@ -24,14 +27,15 @@ export function useUnreadNotifications(familyMemberId: UUID | null) {
  * Hook to mark notification as read
  */
 export function useMarkNotificationAsRead() {
+  const familyPortalApi = useFamilyPortalApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (notificationId: UUID) => familyPortalApi.markNotificationAsRead(notificationId),
     onSuccess: () => {
       // Invalidate and refetch notifications
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['familyDashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      void queryClient.invalidateQueries({ queryKey: ['familyDashboard'] });
     },
   });
 }
@@ -40,13 +44,18 @@ export function useMarkNotificationAsRead() {
  * Hook to update notification preferences
  */
 export function useUpdateNotificationPreferences(familyMemberId: UUID) {
+  const familyPortalApi = useFamilyPortalApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (preferences: Partial<NotificationPreferences>) =>
       familyPortalApi.updateNotificationPreferences(familyMemberId, preferences),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['familyMember', familyMemberId] });
+      void queryClient.invalidateQueries({ queryKey: ['familyMember', familyMemberId] });
+      toast.success('Notification preferences updated successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to update notification preferences');
     },
   });
 }

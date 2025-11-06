@@ -82,7 +82,7 @@ export const MessageThread: React.FC<MessageThreadProps> = ({ messages, loading 
                 </p>
                 {message.attachmentUrls && message.attachmentUrls.length > 0 && (
                   <div className="mt-2 space-y-1">
-                    {message.attachmentUrls.map((url, idx) => (
+                    {message.attachmentUrls.map((url: string, idx: number) => (
                       <a
                         key={idx}
                         href={url}
