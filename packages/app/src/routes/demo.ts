@@ -40,7 +40,7 @@ export function createDemoRouter(db: Database): Router {
         data: {
           sessionId: session.id,
           currentPersona: session.currentPersona,
-          availablePersonas: session.availablePersonas.map(p => ({
+          availablePersonas: session.availablePersonas.map((p) => ({
             id: p.id,
             type: p.type,
             name: p.name,
