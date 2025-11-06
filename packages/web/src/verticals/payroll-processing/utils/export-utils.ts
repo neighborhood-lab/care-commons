@@ -150,14 +150,14 @@ export function formatPayrollDataForQuickBooksIIF(_payRun: PayRun, payStubs: Pay
     if (stub.regularHours > 0) {
       lines.push([
         'TIMEACT',
-        stub.payPeriodEndDate.toISOString().split('T')[0],
+        stub.payPeriodEndDate.split('T')[0],
         '', // Job
         stub.caregiverName,
         'Regular', // Service item
         '', // Payroll item
         formatDurationForQuickBooks(stub.regularHours),
         '', // Project
-        `Pay period ${stub.payPeriodStartDate.toISOString().split('T')[0]} to ${stub.payPeriodEndDate.toISOString().split('T')[0]}`,
+        `Pay period ${stub.payPeriodStartDate.split('T')[0]} to ${stub.payPeriodEndDate.split('T')[0]}`,
       ].join('\t'));
     }
 
@@ -165,7 +165,7 @@ export function formatPayrollDataForQuickBooksIIF(_payRun: PayRun, payStubs: Pay
     if (stub.overtimeHours > 0) {
       lines.push([
         'TIMEACT',
-        stub.payPeriodEndDate.toISOString().split('T')[0],
+        stub.payPeriodEndDate.split('T')[0],
         '',
         stub.caregiverName,
         'Overtime',
