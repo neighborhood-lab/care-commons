@@ -4,7 +4,6 @@
  * Provides access to backend API services
  */
 
-// @ts-nocheck - Silencing pre-existing type errors (not part of showcase PR)
 
 import type { ApiClient } from '../services/api-client';
 import { createClientApiService } from '@/verticals/client-demographics/services/client-api';

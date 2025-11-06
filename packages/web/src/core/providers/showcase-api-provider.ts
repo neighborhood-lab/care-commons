@@ -4,7 +4,6 @@
  * In-browser demo implementation without backend
  */
 
-// @ts-nocheck - Silencing pre-existing type errors (not part of showcase PR)
 
 import type { ApiProvider } from './api-provider.interface';
 import type { ApiClient } from '../services/api-client';

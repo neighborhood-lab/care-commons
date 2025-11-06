@@ -4,7 +4,6 @@
  * Real backend integration for production deployment
  */
 
-// @ts-nocheck - Silencing pre-existing type errors (not part of showcase PR)
 
 import type { ApiProvider } from './api-provider.interface';
 import type { ApiClient } from '../services/api-client';
