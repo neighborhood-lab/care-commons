@@ -9,6 +9,7 @@ import { Database, PermissionService, UserRepository } from '@care-commons/core'
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
+import { createHealthRouter } from './health.js';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
@@ -27,6 +28,11 @@ import { createSyncRouter } from '../api/sync/sync-routes.js';
  */
 export function setupRoutes(app: Express, db: Database): void {
   console.log('Setting up API routes...');
+
+  // Health check route (no authentication required)
+  const healthRouter = createHealthRouter(db);
+  app.use('/', healthRouter);
+  console.log('  ✓ Health check route registered');
 
   // Authentication routes with rate limiting
   const authRouter = createAuthRouter(db);
