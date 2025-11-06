@@ -4,12 +4,13 @@
  * Type definitions for the interactive demo system frontend
  */
 
-export type DemoPersonaType = 
-  | 'CAREGIVER' 
-  | 'COORDINATOR_FIELD' 
-  | 'COORDINATOR_SCHEDULING' 
-  | 'COORDINATOR_CARE' 
-  | 'ADMIN';
+export type DemoPersonaType =
+  | 'CAREGIVER'
+  | 'COORDINATOR_FIELD'
+  | 'COORDINATOR_SCHEDULING'
+  | 'COORDINATOR_CARE'
+  | 'ADMINISTRATOR'
+  | 'FAMILY_MEMBER';
 
 export interface DemoPersona {
   id: string;
