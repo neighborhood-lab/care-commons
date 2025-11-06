@@ -5,6 +5,7 @@
   },
   "include": [
     "src/**/*",
+    "scripts/**/*",
     "*.ts"
   ],
   "exclude": [

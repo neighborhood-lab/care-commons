@@ -31,11 +31,11 @@ export function requirePermission(...permissions: string[]) {
     const user = req.user;
 
     if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     // Check if user has ANY of the required permissions
-    const hasPermission = permissions.some(permission =>
+    const hasPermission = permissions.some((permission) =>
       user.permissions.includes(permission)
     );
 
@@ -43,15 +43,15 @@ export function requirePermission(...permissions: string[]) {
       // Log unauthorized access attempt
       await auditLog({
         userId: user.id,
-        action: 'unauthorized_access_attempt',
+        action: "unauthorized_access_attempt",
         resource: req.path,
         requiredPermissions: permissions,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       return res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to access this resource'
+        error: "Forbidden",
+        message: "You do not have permission to access this resource",
       });
     }
 
@@ -67,13 +67,13 @@ Create script to verify all routes have permission checks:
 **File**: `scripts/audit-route-permissions.ts`
 
 ```typescript
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 // Find all route files
 const routeFiles = [
-  'packages/app/src/routes/**/*.routes.ts',
-  'verticals/*/src/routes/**/*.routes.ts'
+  "packages/app/src/routes/**/*.routes.ts",
+  "verticals/*/src/routes/**/*.routes.ts",
 ];
 
 // Parse route files and check for permission middleware
@@ -83,11 +83,11 @@ function auditRoutes() {
   // ... scan files for routes without requirePermission()
 
   if (unprotectedRoutes.length > 0) {
-    console.error('❌ Unprotected routes found:');
-    unprotectedRoutes.forEach(route => console.error(`  ${route}`));
+    console.error("❌ Unprotected routes found:");
+    unprotectedRoutes.forEach((route) => console.error(`  ${route}`));
     process.exit(1);
   } else {
-    console.log('✅ All routes have permission checks');
+    console.log("✅ All routes have permission checks");
   }
 }
 
@@ -99,36 +99,36 @@ auditRoutes();
 **File**: `packages/core/src/middleware/rate-limit.ts`
 
 ```typescript
-import rateLimit from 'express-rate-limit';
-import RedisStore from 'rate-limit-redis';
-import { CacheService } from '../services/cache.service';
+import rateLimit from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
+import { CacheService } from "../services/cache.service";
 
 // General API rate limit
 export const apiLimiter = rateLimit({
   store: new RedisStore({
-    client: CacheService.getInstance().client
+    client: CacheService.getInstance().client,
   }),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // 100 requests per window per IP
-  message: 'Too many requests from this IP, please try again later',
+  message: "Too many requests from this IP, please try again later",
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 // Strict rate limit for auth endpoints
 export const authLimiter = rateLimit({
   store: new RedisStore({
-    client: CacheService.getInstance().client
+    client: CacheService.getInstance().client,
   }),
   windowMs: 15 * 60 * 1000,
   max: 5, // Only 5 login attempts per 15 minutes
-  message: 'Too many login attempts, please try again later',
-  skipSuccessfulRequests: true // Don't count successful logins
+  message: "Too many login attempts, please try again later",
+  skipSuccessfulRequests: true, // Don't count successful logins
 });
 
 // Apply in routes
-router.post('/login', authLimiter, loginHandler);
-router.use('/api', apiLimiter);
+router.post("/login", authLimiter, loginHandler);
+router.use("/api", apiLimiter);
 ```
 
 ### 3. Add Input Validation and Sanitization
@@ -138,9 +138,9 @@ router.use('/api', apiLimiter);
 **File**: `packages/core/src/middleware/validation.ts`
 
 ```typescript
-import { Request, Response, NextFunction } from 'express';
-import { z, ZodSchema } from 'zod';
-import DOMPurify from 'isomorphic-dompurify';
+import { Request, Response, NextFunction } from "express";
+import { z, ZodSchema } from "zod";
+import DOMPurify from "isomorphic-dompurify";
 
 export function validateBody<T extends ZodSchema>(schema: T) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -154,8 +154,8 @@ export function validateBody<T extends ZodSchema>(schema: T) {
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
-          error: 'Validation failed',
-          details: error.errors
+          error: "Validation failed",
+          details: error.errors,
         });
       }
       next(error);
@@ -164,7 +164,7 @@ export function validateBody<T extends ZodSchema>(schema: T) {
 }
 
 function sanitizeObject(obj: any): any {
-  if (typeof obj === 'string') {
+  if (typeof obj === "string") {
     return DOMPurify.sanitize(obj);
   }
 
@@ -172,7 +172,7 @@ function sanitizeObject(obj: any): any {
     return obj.map(sanitizeObject);
   }
 
-  if (obj && typeof obj === 'object') {
+  if (obj && typeof obj === "object") {
     const sanitized: any = {};
     for (const [key, value] of Object.entries(obj)) {
       sanitized[key] = sanitizeObject(value);
@@ -188,10 +188,13 @@ const createClientSchema = z.object({
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
   email: z.string().email().optional(),
-  phone: z.string().regex(/^\d{10}$/).optional()
+  phone: z
+    .string()
+    .regex(/^\d{10}$/)
+    .optional(),
 });
 
-router.post('/clients', validateBody(createClientSchema), createClientHandler);
+router.post("/clients", validateBody(createClientSchema), createClientHandler);
 ```
 
 ### 4. Implement CSRF Protection
@@ -199,15 +202,15 @@ router.post('/clients', validateBody(createClientSchema), createClientHandler);
 **File**: `packages/core/src/middleware/csrf.ts`
 
 ```typescript
-import csrf from 'csurf';
-import cookieParser from 'cookie-parser';
+import csrf from "csurf";
+import cookieParser from "cookie-parser";
 
 export const csrfProtection = csrf({
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
-  }
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  },
 });
 
 // Apply to routes
@@ -215,7 +218,7 @@ app.use(cookieParser());
 app.use(csrfProtection);
 
 // Provide token to frontend
-router.get('/csrf-token', (req, res) => {
+router.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 ```
@@ -225,32 +228,32 @@ router.get('/csrf-token', (req, res) => {
 **File**: `packages/core/src/middleware/security-headers.ts`
 
 ```typescript
-import helmet from 'helmet';
+import helmet from "helmet";
 
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"], // Remove unsafe-inline in production
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'https://api.care-commons.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.care-commons.com"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
-      upgradeInsecureRequests: []
-    }
+      upgradeInsecureRequests: [],
+    },
   },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true
+    preload: true,
   },
   frameguard: {
-    action: 'deny'
+    action: "deny",
   },
   noSniff: true,
-  xssFilter: true
+  xssFilter: true,
 });
 
 app.use(securityHeaders);
@@ -261,8 +264,8 @@ app.use(securityHeaders);
 **File**: `packages/core/src/services/password-reset.service.ts`
 
 ```typescript
-import crypto from 'crypto';
-import { sendEmail } from './email.service';
+import crypto from "crypto";
+import { sendEmail } from "./email.service";
 
 export class PasswordResetService {
   async requestReset(email: string): Promise<void> {
@@ -274,55 +277,49 @@ export class PasswordResetService {
     }
 
     // Generate secure token
-    const token = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+    const token = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     // Store hashed token with expiration (1 hour)
-    await knex('password_reset_tokens').insert({
+    await knex("password_reset_tokens").insert({
       user_id: user.id,
       token: hashedToken,
-      expires_at: new Date(Date.now() + 3600000)
+      expires_at: new Date(Date.now() + 3600000),
     });
 
     // Send email with token (not hashed)
     const resetLink = `https://care-commons.com/reset-password?token=${token}`;
     await sendEmail({
       to: user.email,
-      subject: 'Password Reset Request',
-      body: `Click here to reset your password: ${resetLink}\n\nThis link expires in 1 hour.`
+      subject: "Password Reset Request",
+      body: `Click here to reset your password: ${resetLink}\n\nThis link expires in 1 hour.`,
     });
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
     // Hash the token to compare with stored hash
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const resetToken = await knex('password_reset_tokens')
-      .where('token', hashedToken)
-      .where('expires_at', '>', new Date())
+    const resetToken = await knex("password_reset_tokens")
+      .where("token", hashedToken)
+      .where("expires_at", ">", new Date())
       .first();
 
     if (!resetToken) {
-      throw new Error('Invalid or expired token');
+      throw new Error("Invalid or expired token");
     }
 
     // Update password
     const hashedPassword = await hashPassword(newPassword);
-    await knex('users')
-      .where('id', resetToken.user_id)
+    await knex("users")
+      .where("id", resetToken.user_id)
       .update({ password: hashedPassword });
 
     // Delete used token
-    await knex('password_reset_tokens').where('id', resetToken.id).del();
+    await knex("password_reset_tokens").where("id", resetToken.id).del();
 
     // Invalidate all existing sessions
-    await knex('refresh_tokens').where('user_id', resetToken.user_id).del();
+    await knex("refresh_tokens").where("user_id", resetToken.user_id).del();
   }
 }
 ```
@@ -334,33 +331,38 @@ export class PasswordResetService {
 ```typescript
 export class SecurityLogger {
   static async logSecurityEvent(event: {
-    type: 'login_failed' | 'login_success' | 'unauthorized_access' | 'suspicious_activity' | 'data_export';
+    type:
+      | "login_failed"
+      | "login_success"
+      | "unauthorized_access"
+      | "suspicious_activity"
+      | "data_export";
     userId?: string;
     ip: string;
     userAgent: string;
     details?: any;
   }) {
-    await knex('security_logs').insert({
+    await knex("security_logs").insert({
       event_type: event.type,
       user_id: event.userId,
       ip_address: event.ip,
       user_agent: event.userAgent,
       details: JSON.stringify(event.details),
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     // Alert on critical events
-    if (event.type === 'suspicious_activity') {
+    if (event.type === "suspicious_activity") {
       await this.alertSecurityTeam(event);
     }
   }
 
   static async detectBruteForce(ip: string): Promise<boolean> {
-    const recentFailures = await knex('security_logs')
-      .where('ip_address', ip)
-      .where('event_type', 'login_failed')
-      .where('timestamp', '>', new Date(Date.now() - 15 * 60 * 1000))
-      .count('* as count');
+    const recentFailures = await knex("security_logs")
+      .where("ip_address", ip)
+      .where("event_type", "login_failed")
+      .where("timestamp", ">", new Date(Date.now() - 15 * 60 * 1000))
+      .count("* as count");
 
     return parseInt(recentFailures[0].count) >= 5;
   }
@@ -375,15 +377,17 @@ export class SecurityLogger {
 - ✅ **Always** use parameterized queries with Knex
 
 **Bad** (vulnerable to SQL injection):
+
 ```typescript
 const userId = req.params.id;
 const query = `SELECT * FROM users WHERE id = '${userId}'`; // DANGEROUS!
 ```
 
 **Good** (safe):
+
 ```typescript
 const userId = req.params.id;
-const user = await knex('users').where('id', userId).first(); // Safe
+const user = await knex("users").where("id", userId).first(); // Safe
 ```
 
 Create linting rule to catch raw SQL:
@@ -402,44 +406,48 @@ rules: {
 **File**: `packages/core/src/__tests__/security.test.ts`
 
 ```typescript
-describe('Security Tests', () => {
-  test('should prevent SQL injection', async () => {
+describe("Security Tests", () => {
+  test("should prevent SQL injection", async () => {
     const maliciousInput = "1' OR '1'='1";
     const result = await request(app)
       .get(`/api/clients/${maliciousInput}`)
-      .set('Authorization', `Bearer ${token}`);
+      .set("Authorization", `Bearer ${token}`);
 
     expect(result.status).not.toBe(200);
   });
 
-  test('should prevent XSS', async () => {
+  test("should prevent XSS", async () => {
     const xssPayload = '<script>alert("XSS")</script>';
     const result = await request(app)
-      .post('/api/clients')
-      .set('Authorization', `Bearer ${token}`)
+      .post("/api/clients")
+      .set("Authorization", `Bearer ${token}`)
       .send({ firstName: xssPayload });
 
     // Should sanitize input
-    const client = await knex('clients').where('id', result.body.id).first();
-    expect(client.first_name).not.toContain('<script>');
+    const client = await knex("clients").where("id", result.body.id).first();
+    expect(client.first_name).not.toContain("<script>");
   });
 
-  test('should enforce rate limiting', async () => {
+  test("should enforce rate limiting", async () => {
     // Attempt 6 login requests (limit is 5)
-    const requests = Array(6).fill(null).map(() =>
-      request(app).post('/auth/login').send({ email: 'test@example.com', password: 'wrong' })
-    );
+    const requests = Array(6)
+      .fill(null)
+      .map(() =>
+        request(app)
+          .post("/auth/login")
+          .send({ email: "test@example.com", password: "wrong" })
+      );
 
     const results = await Promise.all(requests);
-    const rateLimited = results.filter(r => r.status === 429);
+    const rateLimited = results.filter((r) => r.status === 429);
 
     expect(rateLimited.length).toBeGreaterThan(0);
   });
 
-  test('should not leak user existence', async () => {
+  test("should not leak user existence", async () => {
     const result = await request(app)
-      .post('/auth/password-reset')
-      .send({ email: 'nonexistent@example.com' });
+      .post("/auth/password-reset")
+      .send({ email: "nonexistent@example.com" });
 
     // Should return success even if email doesn't exist
     expect(result.status).toBe(200);
@@ -448,11 +456,6 @@ describe('Security Tests', () => {
 ```
 
 ### 10. Run Security Audit Tools
-
-**Install security tools**:
-```bash
-npm install --save-dev snyk eslint-plugin-security
-```
 
 **Add to CI/CD**:
 
@@ -463,7 +466,7 @@ name: Security Audit
 
 on:
   schedule:
-    - cron: '0 0 * * 1' # Weekly on Monday
+    - cron: "0 0 * * 1" # Weekly on Monday
   push:
     branches: [main, develop]
 
@@ -477,7 +480,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install dependencies
         run: npm ci
@@ -485,10 +488,7 @@ jobs:
       - name: Run npm audit
         run: npm audit --audit-level=moderate
 
-      - name: Run Snyk security scan
-        run: npx snyk test --severity-threshold=high
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # IMPORTANT: DO NOT RUN S.N.Y.K. here.
 
       - name: Run ESLint security plugin
         run: npm run lint:security
@@ -506,7 +506,7 @@ jobs:
 - [ ] SQL injection prevention verified
 - [ ] XSS prevention verified
 - [ ] Security tests passing
-- [ ] Security audit tools passing (npm audit, Snyk)
+- [ ] Security audit tools passing (npm audit)
 - [ ] Zero high/critical vulnerabilities
 - [ ] OWASP Top 10 threats mitigated
 
