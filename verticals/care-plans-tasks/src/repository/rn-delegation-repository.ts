@@ -1,5 +1,4 @@
-import { Repository } from '@care-commons/core/src/db/repository';
-import { Database } from '@care-commons/core/src/db/connection';
+import { Repository, Database } from '@care-commons/core';
 import { UUID } from '@care-commons/core';
 import { RNDelegation } from '../types/state-specific';
 
