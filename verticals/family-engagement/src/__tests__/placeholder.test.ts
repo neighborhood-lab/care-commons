@@ -9,7 +9,7 @@ import { describe, it, expect } from 'vitest';
 
 describe('family-engagement', () => {
   it('should have tests implemented', () => {
-    // TODO: Implement actual tests for family-engagement vertical
+    // Placeholder test - implement actual tests for family-engagement vertical
     expect(true).toBe(true);
   });
 });
