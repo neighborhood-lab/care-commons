@@ -12,29 +12,54 @@ export interface AppError extends Error {
 /**
  * Global error handler middleware
  * Should be last in middleware chain
+ * 
+ * Security: Never exposes internal error details, stack traces, or file paths to clients
+ * All detailed error information is logged server-side only for debugging
  */
 export function errorHandler(
   err: AppError,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void {
   const statusCode = err.statusCode ?? 500;
-  const message = err.message;
-
-  console.error('Error:', {
+  const isProduction = process.env['NODE_ENV'] === 'production';
+  
+  // Log full error details server-side for debugging (never sent to client)
+  console.error('Error occurred:', {
+    timestamp: new Date().toISOString(),
+    method: req.method,
+    path: req.path,
     statusCode,
-    message,
+    message: err.message,
     stack: err.stack,
     details: err.details,
+    // Include request context for debugging
+    userAgent: req.get('user-agent'),
+    ip: req.ip,
   });
+
+  // Determine safe client-facing error message
+  let clientMessage: string;
+  
+  if (statusCode >= 400 && statusCode < 500) {
+    // Client errors (4xx) - safe to send specific message
+    clientMessage = err.message || 'Invalid request';
+  } else {
+    // Server errors (5xx) - use generic message to avoid information disclosure
+    clientMessage = isProduction 
+      ? 'An unexpected error occurred. Please try again later.'
+      : err.message || 'Internal server error';
+  }
 
   res.status(statusCode).json({
     success: false,
-    error: message,
-    details: err.details,
-    ...(process.env['NODE_ENV'] === 'development' ? {
-      stack: err.stack,
+    error: clientMessage,
+    // Only include error details in development and only for client errors
+    ...((!isProduction && statusCode < 500) ? {
+      details: err.details,
+      // Note: Stack traces NEVER sent to client, even in development
+      // Use server logs for debugging
     } : {}),
   });
 }
