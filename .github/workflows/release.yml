@@ -111,7 +111,7 @@ jobs:
           git add package.json
           git commit -m "chore: bump version to v${{ steps.version.outputs.version }}"
           git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
-          git push origin main --follow-tags
+          git push origin production --follow-tags
 
       - name: Generate changelog
         id: changelog
