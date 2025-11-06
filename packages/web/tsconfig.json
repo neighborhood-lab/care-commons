@@ -50,6 +50,9 @@
   "references": [
     {
       "path": "../core"
+    },
+    {
+      "path": "../../verticals/family-engagement"
     }
   ],
   "tsc-alias": {
