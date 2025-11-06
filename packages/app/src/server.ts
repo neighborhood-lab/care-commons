@@ -16,6 +16,8 @@ import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
+import { createFeatureFlagService } from '@care-commons/core/feature-flags';
+import { featureFlagMiddleware } from '@care-commons/core/feature-flags/middleware';
 import { setupRoutes } from './routes/index.js';
 
 const app = express();
@@ -148,6 +150,9 @@ function setupMiddleware(): void {
 
   // User context extraction
   app.use(authContextMiddleware);
+
+  // Feature flags (after auth context)
+  app.use(featureFlagMiddleware);
 }
 
 /**
@@ -243,6 +248,15 @@ export async function createApp(): Promise<express.Express> {
     throw new Error('Database health check failed');
   }
   console.log('Database connection established');
+
+  // Initialize feature flag service
+  try {
+    await createFeatureFlagService();
+    console.log('Feature flag service initialized');
+  } catch (error) {
+    console.warn('Failed to initialize feature flags:', error);
+    // Continue without feature flags - non-critical service
+  }
 
   // Setup middleware and routes
   setupMiddleware();

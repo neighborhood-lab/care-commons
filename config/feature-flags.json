@@ -1,0 +1,558 @@
+{
+  "version": "1.0.0",
+  "environment": "development",
+  "flags": [
+    {
+      "key": "google-oauth-enabled",
+      "name": "Google OAuth Authentication",
+      "description": "Enable Google OAuth 2.0 authentication flow for user login",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["authentication", "security", "oauth"],
+      "owner": "Security Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "password-auth-enabled",
+      "name": "Password Authentication",
+      "description": "Enable traditional password-based authentication",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["authentication", "security"],
+      "owner": "Security Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "biometric-auth-enabled",
+      "name": "Biometric Authentication",
+      "description": "Enable biometric authentication (fingerprint, face ID) for mobile app",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": true,
+      "rollout": {
+        "enabled": true,
+        "percentage": 25,
+        "attribute": "userId"
+      },
+      "tags": ["authentication", "mobile", "security"],
+      "owner": "Mobile Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": true,
+      "removalDate": "2025-06-01"
+    },
+    {
+      "key": "mfa-enabled",
+      "name": "Multi-Factor Authentication",
+      "description": "Enable MFA/2FA for enhanced security",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": false,
+      "tags": ["authentication", "security", "mfa"],
+      "owner": "Security Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "evv-enabled",
+      "name": "Electronic Visit Verification",
+      "description": "Master switch for EVV (Electronic Visit Verification) system",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["compliance", "evv", "core"],
+      "owner": "Compliance Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "evv-texas-enabled",
+      "name": "Texas EVV Compliance",
+      "description": "Enable Texas-specific EVV compliance rules and validation",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "targetingRules": [
+        {
+          "id": "texas-orgs",
+          "description": "Enable for Texas organizations",
+          "conditions": [
+            {
+              "attribute": "stateCode",
+              "operator": "equals",
+              "value": "TX"
+            }
+          ],
+          "value": true
+        }
+      ],
+      "tags": ["compliance", "evv", "state-specific", "texas"],
+      "owner": "Compliance Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "evv-florida-enabled",
+      "name": "Florida EVV Compliance",
+      "description": "Enable Florida-specific EVV compliance rules and validation",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "targetingRules": [
+        {
+          "id": "florida-orgs",
+          "description": "Enable for Florida organizations",
+          "conditions": [
+            {
+              "attribute": "stateCode",
+              "operator": "equals",
+              "value": "FL"
+            }
+          ],
+          "value": true
+        }
+      ],
+      "tags": ["compliance", "evv", "state-specific", "florida"],
+      "owner": "Compliance Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "evv-ohio-enabled",
+      "name": "Ohio EVV Compliance",
+      "description": "Enable Ohio-specific EVV compliance rules and validation",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "targetingRules": [
+        {
+          "id": "ohio-orgs",
+          "description": "Enable for Ohio organizations",
+          "conditions": [
+            {
+              "attribute": "stateCode",
+              "operator": "equals",
+              "value": "OH"
+            }
+          ],
+          "value": true
+        }
+      ],
+      "tags": ["compliance", "evv", "state-specific", "ohio"],
+      "owner": "Compliance Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "evv-geofencing-enabled",
+      "name": "EVV Geofencing Validation",
+      "description": "Enable GPS-based geofencing validation for clock in/out",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["compliance", "evv", "mobile", "geofencing"],
+      "owner": "Mobile Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "evv-offline-mode",
+      "name": "EVV Offline Mode",
+      "description": "Enable offline capture and sync for EVV records",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["compliance", "evv", "mobile", "offline"],
+      "owner": "Mobile Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "scheduling-visits-enabled",
+      "name": "Scheduling & Visits",
+      "description": "Enable visit scheduling and calendar management features",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["features", "scheduling", "core"],
+      "owner": "Product Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "shift-matching-enabled",
+      "name": "Shift Matching",
+      "description": "Enable intelligent caregiver-to-shift matching algorithm",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["features", "shift-matching", "core"],
+      "owner": "Product Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "care-plans-enabled",
+      "name": "Care Plans & Tasks",
+      "description": "Enable care plan creation and task management features",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["features", "care-plans", "core"],
+      "owner": "Product Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "billing-invoicing-enabled",
+      "name": "Billing & Invoicing",
+      "description": "Enable billing, invoicing, and claims processing features",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["features", "billing", "core"],
+      "owner": "Finance Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "payroll-processing-enabled",
+      "name": "Payroll Processing",
+      "description": "Enable payroll calculation and processing features",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["features", "payroll", "core"],
+      "owner": "HR Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "analytics-dashboard-enabled",
+      "name": "Analytics Dashboard",
+      "description": "Enable analytics and reporting dashboard (currently disabled due to architectural issues)",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": false,
+      "tags": ["features", "analytics", "experimental"],
+      "owner": "Data Team",
+      "issueLink": "https://github.com/care-commons/platform/issues/123",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "family-engagement-enabled",
+      "name": "Family Engagement",
+      "description": "Enable family member communication and engagement features",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": true,
+      "rollout": {
+        "enabled": true,
+        "percentage": 50,
+        "attribute": "organizationId"
+      },
+      "tags": ["features", "family", "communication"],
+      "owner": "Product Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": true,
+      "removalDate": "2025-12-31"
+    },
+    {
+      "key": "mobile-offline-sync",
+      "name": "Mobile Offline Sync",
+      "description": "Enable offline-first data sync for mobile app using WatermelonDB",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["mobile", "offline", "sync"],
+      "owner": "Mobile Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "mobile-gps-tracking",
+      "name": "Mobile GPS Tracking",
+      "description": "Enable GPS location tracking for visit verification",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["mobile", "gps", "compliance"],
+      "owner": "Mobile Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "mobile-camera-enabled",
+      "name": "Mobile Camera",
+      "description": "Enable camera access for photo capture (visit evidence)",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["mobile", "camera", "compliance"],
+      "owner": "Mobile Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "mobile-background-location",
+      "name": "Mobile Background Location",
+      "description": "Enable background location tracking (requires explicit user permission)",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": true,
+      "targetingRules": [
+        {
+          "id": "admin-users",
+          "description": "Enable for admin users during testing",
+          "conditions": [
+            {
+              "attribute": "role",
+              "operator": "in",
+              "value": ["SUPER_ADMIN", "ORG_ADMIN"]
+            }
+          ],
+          "value": true
+        }
+      ],
+      "tags": ["mobile", "gps", "experimental"],
+      "owner": "Mobile Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": true,
+      "removalDate": "2025-06-01"
+    },
+    {
+      "key": "new-dashboard-layout",
+      "name": "New Dashboard Layout",
+      "description": "Enable redesigned dashboard layout with improved UX",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": true,
+      "rollout": {
+        "enabled": true,
+        "percentage": 10,
+        "attribute": "userId"
+      },
+      "tags": ["ui", "dashboard", "experimental"],
+      "owner": "Design Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": true,
+      "removalDate": "2025-03-31"
+    },
+    {
+      "key": "dark-mode-enabled",
+      "name": "Dark Mode",
+      "description": "Enable dark mode theme for web and mobile apps",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": false,
+      "tags": ["ui", "theme", "experimental"],
+      "owner": "Design Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "advanced-filters",
+      "name": "Advanced Filters",
+      "description": "Enable advanced filtering and search capabilities across all list views",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["ui", "filters", "search"],
+      "owner": "Product Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "query-caching-enabled",
+      "name": "Query Caching",
+      "description": "Enable server-side query result caching for improved performance",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": true,
+      "rollout": {
+        "enabled": true,
+        "percentage": 30,
+        "attribute": "organizationId"
+      },
+      "tags": ["performance", "caching"],
+      "owner": "Platform Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": true,
+      "removalDate": "2025-04-01"
+    },
+    {
+      "key": "lazy-loading-enabled",
+      "name": "Lazy Loading",
+      "description": "Enable lazy loading for images and components",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["performance", "optimization"],
+      "owner": "Platform Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "demo-mode-enabled",
+      "name": "Demo Mode",
+      "description": "Enable interactive demo mode for new users and organizations",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["demo", "onboarding"],
+      "owner": "Product Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "external-api-integrations",
+      "name": "External API Integrations",
+      "description": "Enable integrations with external APIs and services",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": false,
+      "tags": ["integrations", "api", "experimental"],
+      "owner": "Integration Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "ai-scheduling-assistant",
+      "name": "AI Scheduling Assistant",
+      "description": "Enable AI-powered scheduling recommendations and conflict resolution",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": false,
+      "tags": ["experimental", "ai", "scheduling"],
+      "owner": "AI Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "predictive-matching",
+      "name": "Predictive Matching",
+      "description": "Enable ML-based predictive caregiver-to-shift matching",
+      "type": "boolean",
+      "defaultValue": false,
+      "enabled": false,
+      "targetingRules": [
+        {
+          "id": "beta-orgs",
+          "description": "Enable for beta testing organizations",
+          "conditions": [
+            {
+              "attribute": "organizationId",
+              "operator": "in",
+              "value": ["org_123", "org_456", "org_789"]
+            }
+          ],
+          "value": true
+        }
+      ],
+      "tags": ["experimental", "ai", "matching"],
+      "owner": "AI Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "caregiver-staff-management",
+      "name": "Caregiver & Staff Management",
+      "description": "Enable caregiver and staff profile management features",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["features", "caregivers", "core"],
+      "owner": "HR Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "client-demographics",
+      "name": "Client Demographics",
+      "description": "Enable comprehensive client profile and demographic management",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["features", "clients", "core"],
+      "owner": "Product Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "audit-logging-enabled",
+      "name": "Audit Logging",
+      "description": "Enable HIPAA-compliant audit logging for all sensitive operations",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["security", "compliance", "hipaa"],
+      "owner": "Security Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "role-based-access-control",
+      "name": "Role-Based Access Control",
+      "description": "Enable fine-grained RBAC permission system",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["security", "authorization", "core"],
+      "owner": "Security Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    },
+    {
+      "key": "field-level-encryption",
+      "name": "Field-Level Encryption",
+      "description": "Enable encryption for sensitive fields (SSN, health records)",
+      "type": "boolean",
+      "defaultValue": true,
+      "enabled": true,
+      "tags": ["security", "encryption", "hipaa"],
+      "owner": "Security Team",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "temporary": false
+    }
+  ],
+  "lastUpdated": "2025-01-01T00:00:00Z"
+}

@@ -13,6 +13,7 @@ import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
+import { createFeatureFlagRouter } from './feature-flags.js';
 import { authLimiter } from '../middleware/rate-limit.js';
 /**
  * NOTE: Analytics routes temporarily disabled - requires architectural refactor
@@ -64,6 +65,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const demoRouter = createDemoRouter(db);
   app.use('/api/demo', demoRouter);
   console.log('  ✓ Demo routes registered');
+
+  // Feature Flag routes (management and evaluation)
+  const featureFlagRouter = createFeatureFlagRouter();
+  app.use('/api', featureFlagRouter);
+  console.log('  ✓ Feature Flag routes registered');
 
   // Analytics & Reporting routes - TEMPORARILY DISABLED
   // Requires architectural refactor: analytics-reporting uses Knex, but codebase uses raw SQL
