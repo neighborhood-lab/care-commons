@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, preview, develop]
+    branches: [production, preview, develop]
   push:
-    branches: [main, preview, develop]
+    branches: [production, preview, develop]
   workflow_dispatch:
 
 # Ensure this workflow is required for PRs to merge
