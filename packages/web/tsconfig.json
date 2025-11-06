@@ -45,11 +45,7 @@
     "src/app/pages/admin/__tests__/ComplianceCenter.test.tsx",
     "src/app/pages/admin/__tests__/DataGridPanel.test.tsx",
     "src/app/pages/admin/__tests__/OperationsCenter.test.tsx",
-    "src/app/pages/admin/__tests__/StateConfigPanel.test.tsx",
-    "src/core/providers/api-provider.ts",
-    "src/core/providers/production-api-provider.ts",
-    "src/core/providers/showcase-api-provider.ts",
-    "src/core/providers/types.ts"
+    "src/app/pages/admin/__tests__/StateConfigPanel.test.tsx"
   ],
   "references": [
     {
