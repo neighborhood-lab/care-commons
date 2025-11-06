@@ -5,6 +5,7 @@
  */
 
 import type { ApiClient } from '@/core/services';
+import type { UUID } from '@care-commons/core';
 import type {
   FamilyMember,
   FamilyDashboard,
@@ -13,7 +14,6 @@ import type {
   MessageThread,
   Message,
   NotificationPreferences,
-  UUID,
 } from '@care-commons/family-engagement';
 
 const BASE_URL = '/api/family-engagement';

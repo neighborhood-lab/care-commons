@@ -7,7 +7,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/core/hooks';
-import type { UUID } from '@care-commons/family-engagement';
+import type { UUID } from '@care-commons/core';
 import { createFamilyPortalApiService } from '../services';
 
 /**
