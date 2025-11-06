@@ -67,7 +67,6 @@ export const ShowcaseRouter: React.FC = () => {
             path="/"
             element={
               <EnhancedLandingPage
-                onSelectRole={handleRoleSelect}
                 onStartTour={handleStartTour}
               />
             }
