@@ -39,7 +39,7 @@ export function useDemoSession(): UseDemoSessionResult {
   // Load session from localStorage on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const savedSessionId = window.localStorage.getItem('demoSessionId');
     if (savedSessionId) {
       setIsLoading(true);
@@ -56,12 +56,94 @@ export function useDemoSession(): UseDemoSessionResult {
   // Save session ID to localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     if (session) {
       window.localStorage.setItem('demoSessionId', session.id);
     } else {
       window.localStorage.removeItem('demoSessionId');
     }
+  }, [session]);
+
+  // Automatic cleanup on logout - detect when auth storage is cleared
+  useEffect(() => {
+    if (typeof window === 'undefined' || !session) return;
+
+    const handleStorageChange = (e: StorageEvent) => {
+      // Check if auth storage was cleared (logout event)
+      if (e.key === 'auth-storage' && e.newValue === null) {
+        // Auth was cleared (user logged out), cleanup demo session
+        void demoAPI.deleteSession(session.id)
+          .then(() => {
+            setSession(null);
+            return undefined;
+          })
+          .catch((err: Error) => {
+            console.error('Failed to cleanup demo session on logout:', err);
+            // Still clear local session state even if API call fails
+            setSession(null);
+            return undefined;
+          });
+      }
+    };
+
+    // Also check for visibility changes to detect potential session issues
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && session) {
+        // Verify session is still valid when user returns to tab
+        void demoAPI.getSession(session.id)
+          .catch((err: Error) => {
+            console.error('Demo session no longer valid:', err);
+            setSession(null);
+          });
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [session]);
+
+  // Inactivity timeout - reset session after 15 minutes of inactivity
+  useEffect(() => {
+    if (typeof window === 'undefined' || !session) return;
+
+    let inactivityTimer: NodeJS.Timeout;
+
+    const resetInactivityTimer = () => {
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+      }
+      inactivityTimer = setTimeout(() => {
+        // Reset session to base state after 15 minutes of inactivity
+        void demoAPI.resetSession(session.id)
+          .then(() => demoAPI.getSession(session.id))
+          .then(setSession)
+          .catch((err: Error) => {
+            console.error('Failed to reset demo session on inactivity:', err);
+          });
+      }, 15 * 60 * 1000); // 15 minutes
+    };
+
+    // Track user activity
+    const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    activityEvents.forEach(event => {
+      window.addEventListener(event, resetInactivityTimer);
+    });
+
+    resetInactivityTimer();
+
+    return () => {
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+      }
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, resetInactivityTimer);
+      });
+    };
   }, [session]);
 
   const createSession = useCallback(async (request: DemoSessionCreateRequest = {}) => {

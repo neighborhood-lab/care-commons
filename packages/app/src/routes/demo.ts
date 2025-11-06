@@ -346,43 +346,174 @@ async function getDemoSnapshot(db: Database): Promise<DemoSnapshot> {
   const clientIds = clientsResult.rows.map(row => row.id as string);
 
   const caregiverPersonasResult = await db.query(
-    `SELECT id, first_name, last_name, email, role 
-     FROM caregivers 
-     WHERE organization_id = $1 AND deleted_at IS NULL 
+    `SELECT id, first_name, last_name, email, role
+     FROM caregivers
+     WHERE organization_id = $1 AND deleted_at IS NULL
      LIMIT 3`,
     [orgId]
   );
 
   const coordinatorPersonasResult = await db.query(
-    `SELECT id, first_name, last_name, email, roles 
-     FROM users 
-     WHERE organization_id = $1 AND deleted_at IS NULL 
+    `SELECT id, first_name, last_name, email, roles
+     FROM users
+     WHERE organization_id = $1 AND deleted_at IS NULL
      AND ('FIELD_COORDINATOR' = ANY(roles) OR 'SCHEDULING_COORDINATOR' = ANY(roles))`,
     [orgId]
   );
 
-  const personas = [
-    ...caregiverPersonasResult.rows.map(row => ({
-      id: row.id as string,
-      type: 'CAREGIVER' as DemoPersonaType,
-      name: `${row.first_name as string} ${row.last_name as string}`,
-      email: row.email as string,
-      role: row.role as string,
-      organizationId: orgId,
-      branchId,
-      permissions: ['visits:read', 'visits:update']
-    })),
-    ...coordinatorPersonasResult.rows.map(row => ({
-      id: row.id as string,
-      type: 'COORDINATOR_FIELD' as DemoPersonaType,
-      name: `${row.first_name as string} ${row.last_name as string}`,
-      email: row.email as string,
-      role: 'Field Coordinator',
-      organizationId: orgId,
-      branchId,
-      permissions: ['visits:*', 'caregivers:*']
-    }))
-  ];
+  // Get admin user to create synthetic personas if needed
+  const adminUserResult = await db.query(
+    `SELECT id, first_name, last_name, email FROM users WHERE organization_id = $1 AND deleted_at IS NULL LIMIT 1`,
+    [orgId]
+  );
+
+  let personas: Array<{
+    id: string;
+    type: DemoPersonaType;
+    name: string;
+    email: string;
+    role: string;
+    organizationId: string;
+    branchId: string;
+    permissions: string[];
+  }> = [];
+
+  // If we have real caregiver/coordinator data, use it
+  if (caregiverPersonasResult.rows.length > 0 || coordinatorPersonasResult.rows.length > 0) {
+    personas = [
+      ...caregiverPersonasResult.rows.map(row => ({
+        id: row.id as string,
+        type: 'CAREGIVER' as DemoPersonaType,
+        name: `${row.first_name as string} ${row.last_name as string}`,
+        email: row.email as string,
+        role: row.role as string,
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:read', 'visits:update']
+      })),
+      ...coordinatorPersonasResult.rows.map(row => ({
+        id: row.id as string,
+        type: 'COORDINATOR_FIELD' as DemoPersonaType,
+        name: `${row.first_name as string} ${row.last_name as string}`,
+        email: row.email as string,
+        role: 'Field Coordinator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:*', 'caregivers:*']
+      }))
+    ];
+  } else if (adminUserResult.rows.length > 0) {
+    // Create synthetic personas using admin user as template
+    const adminUser = adminUserResult.rows[0] as { id: string; first_name: string; last_name: string; email: string };
+
+    personas = [
+      {
+        id: `demo-caregiver-1`,
+        type: 'CAREGIVER' as DemoPersonaType,
+        name: 'Sarah Johnson',
+        email: 'sarah.johnson@demo.example',
+        role: 'Certified Nursing Assistant',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:read', 'visits:update']
+      },
+      {
+        id: `demo-caregiver-2`,
+        type: 'CAREGIVER' as DemoPersonaType,
+        name: 'Michael Chen',
+        email: 'michael.chen@demo.example',
+        role: 'Home Health Aide',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:read', 'visits:update']
+      },
+      {
+        id: `demo-coordinator-1`,
+        type: 'COORDINATOR_FIELD' as DemoPersonaType,
+        name: 'Emily Rodriguez',
+        email: 'emily.rodriguez@demo.example',
+        role: 'Field Coordinator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:*', 'caregivers:*', 'clients:*']
+      },
+      {
+        id: `demo-coordinator-2`,
+        type: 'COORDINATOR_SCHEDULING' as DemoPersonaType,
+        name: 'David Williams',
+        email: 'david.williams@demo.example',
+        role: 'Scheduling Coordinator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:*', 'schedule:*']
+      },
+      {
+        id: adminUser.id,
+        type: 'ADMINISTRATOR' as DemoPersonaType,
+        name: `${adminUser.first_name} ${adminUser.last_name}`,
+        email: adminUser.email,
+        role: 'Administrator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['*:*']
+      }
+    ];
+  } else {
+    // Fallback: Create fully synthetic personas if no users exist
+    // This ensures demo mode works even on completely empty databases
+    personas = [
+      {
+        id: `demo-caregiver-1`,
+        type: 'CAREGIVER' as DemoPersonaType,
+        name: 'Sarah Johnson',
+        email: 'sarah.johnson@demo.example',
+        role: 'Certified Nursing Assistant',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:read', 'visits:update']
+      },
+      {
+        id: `demo-caregiver-2`,
+        type: 'CAREGIVER' as DemoPersonaType,
+        name: 'Michael Chen',
+        email: 'michael.chen@demo.example',
+        role: 'Home Health Aide',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:read', 'visits:update']
+      },
+      {
+        id: `demo-coordinator-1`,
+        type: 'COORDINATOR_FIELD' as DemoPersonaType,
+        name: 'Emily Rodriguez',
+        email: 'emily.rodriguez@demo.example',
+        role: 'Field Coordinator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:*', 'caregivers:*', 'clients:*']
+      },
+      {
+        id: `demo-coordinator-2`,
+        type: 'COORDINATOR_SCHEDULING' as DemoPersonaType,
+        name: 'David Williams',
+        email: 'david.williams@demo.example',
+        role: 'Scheduling Coordinator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['visits:*', 'schedule:*']
+      },
+      {
+        id: `demo-admin-1`,
+        type: 'ADMINISTRATOR' as DemoPersonaType,
+        name: 'Alex Morgan',
+        email: 'alex.morgan@demo.example',
+        role: 'Administrator',
+        organizationId: orgId,
+        branchId,
+        permissions: ['*:*']
+      }
+    ];
+  }
 
   return {
     organizationId: orgId,
