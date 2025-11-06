@@ -42,6 +42,11 @@ jobs:
           cd packages/web
           npm run build:showcase
 
+      - name: Rename index file for GitHub Pages
+        run: |
+          cd packages/web/dist-showcase
+          mv index-showcase.html index.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
