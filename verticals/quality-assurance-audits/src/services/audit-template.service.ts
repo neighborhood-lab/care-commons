@@ -7,17 +7,13 @@
 import type {
   UserContext,
   UUID,
-  PermissionError,
-  NotFoundError
+  PermissionError
 } from '@care-commons/core';
 import { PermissionService } from '@care-commons/core';
 import type {
   AuditTemplate,
   AuditChecklistSection,
-  AuditChecklistItem,
-  CreateAuditTemplateInput,
-  AuditType,
-  AuditScope
+  CreateAuditTemplateInput
 } from '../types/audit.js';
 
 /**
