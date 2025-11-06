@@ -8,6 +8,7 @@ export * from './types/base.js';
 export * from './types/organization.js';
 export * from './db/connection.js';
 export * from './db/repository.js';
+export { SearchQueryBuilder } from './db/query-builder.js';
 export * from './permissions/permission-service.js';
 export * from './audit/audit-service.js';
 export * from './repository/user-repository.js';
