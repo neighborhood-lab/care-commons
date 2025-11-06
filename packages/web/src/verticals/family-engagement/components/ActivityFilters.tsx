@@ -42,8 +42,8 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
     const start = new Date();
     start.setDate(start.getDate() - days);
     onDateRangeChange({
-      start: start.toISOString().split('T')[0],
-      end: end.toISOString().split('T')[0],
+      start: start.toISOString().split('T')[0]!,
+      end: end.toISOString().split('T')[0]!,
     });
   };
 
