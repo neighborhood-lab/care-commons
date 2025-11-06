@@ -4,8 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
-import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
+import { Dashboard, Login, NotFound, Settings, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
+import { CaregiverList, CaregiverDetail } from './verticals/caregivers';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
@@ -85,14 +86,21 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/caregivers/*"
+        path="/caregivers"
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Caregivers Module</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <CaregiverList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/caregivers/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CaregiverDetail />
             </AppShell>
           </ProtectedRoute>
         }
@@ -232,10 +240,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <Settings />
             </AppShell>
           </ProtectedRoute>
         }
