@@ -50,7 +50,7 @@ export const FamilyLoginPage: React.FC = () => {
       sessionStorage.setItem('clientId', 'demo-client-id');
 
       // Redirect to dashboard
-      void navigate('/family-portal');
+      navigate('/family-portal');
     } catch (_err) {
       setError('Invalid code. Please try again.');
     } finally {

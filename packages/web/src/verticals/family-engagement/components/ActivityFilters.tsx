@@ -82,7 +82,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
           <label className="block text-xs font-medium text-gray-700 mb-1">From</label>
           <input
             type="date"
-            value={dateRange.start ?? ''}
+            value={dateRange.start}
             onChange={(e) => onDateRangeChange({ ...dateRange, start: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           />
@@ -91,7 +91,7 @@ export const ActivityFilters: React.FC<ActivityFiltersProps> = ({
           <label className="block text-xs font-medium text-gray-700 mb-1">To</label>
           <input
             type="date"
-            value={dateRange.end ?? ''}
+            value={dateRange.end}
             onChange={(e) => onDateRangeChange({ ...dateRange, end: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           />

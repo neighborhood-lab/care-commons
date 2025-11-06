@@ -52,7 +52,7 @@ export const MessagesPage: React.FC = () => {
           setShowNewThread(false);
           setNewThreadSubject('');
           setNewThreadMessage('');
-          void navigate(`/family-portal/messages/${thread.id}`);
+          navigate(`/family-portal/messages/${thread.id}`);
         },
         onError: (error) => {
           alert('Failed to create message thread. Please try again.');
