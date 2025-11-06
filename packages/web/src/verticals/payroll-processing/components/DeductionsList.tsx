@@ -29,7 +29,7 @@ export const DeductionsList: React.FC<DeductionsListProps> = ({ deductions }) =>
     if (!groups[category]) {
       groups[category] = [];
     }
-    groups[category].push(deduction);
+    groups[category]!.push(deduction);
     return groups;
   }, {} as Record<string, Deduction[]>);
 
