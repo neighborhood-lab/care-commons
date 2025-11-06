@@ -10,7 +10,7 @@ import type { Database } from '@care-commons/core';
 export function createHealthRouter(db: Database): Router {
   const router = Router();
 
-  router.get('/health', async (req, res) => {
+  router.get('/health', async (_req, res) => {
     try {
       // Check database connection
       await db.query('SELECT 1');
