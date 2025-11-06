@@ -17,6 +17,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index.js';
+import docsRoutes from './routes/docs.routes.js';
 
 const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
@@ -168,7 +169,10 @@ function setupApiRoutes(): void {
         clients: '/api/clients',
         carePlans: '/api/care-plans',
       },
-      documentation: 'http://localhost:3000/api',
+      documentation: {
+        swaggerUI: '/api-docs',
+        openapi: '/openapi.json',
+      },
     });
   });
 
@@ -180,6 +184,9 @@ function setupApiRoutes(): void {
       environment: NODE_ENV,
     });
   });
+
+  // API documentation routes
+  app.use('/', docsRoutes);
 
   // Setup vertical routes
   setupRoutes(app, db);
@@ -267,7 +274,8 @@ async function start(): Promise<void> {
       console.log(`\n✅ Server running on port ${PORT}`);
       console.log(`   Environment: ${NODE_ENV}`);
       console.log(`   Health check: http://localhost:${PORT}/health`);
-      console.log(`   API docs: http://localhost:${PORT}/api\n`);
+      console.log(`   API docs: http://localhost:${PORT}/api-docs`);
+      console.log(`   OpenAPI spec: http://localhost:${PORT}/openapi.json\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

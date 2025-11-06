@@ -34,8 +34,81 @@ export class ClientHandlers {
   constructor(private clientService: ClientService) { }
 
   /**
-   * GET /api/clients
-   * Search/list clients with pagination and filters
+   * @openapi
+   * /api/clients:
+   *   get:
+   *     tags:
+   *       - Clients
+   *     summary: List clients
+   *     description: Search and list clients with pagination and filters
+   *     parameters:
+   *       - in: query
+   *         name: q
+   *         schema:
+   *           type: string
+   *         description: Search query (name, client number, etc.)
+   *       - in: query
+   *         name: organizationId
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Filter by organization ID
+   *       - in: query
+   *         name: branchId
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Filter by branch ID
+   *       - in: query
+   *         name: status
+   *         schema:
+   *           type: string
+   *           enum: [DRAFT, ACTIVE, INACTIVE, SUSPENDED, ARCHIVED]
+   *         description: Filter by client status
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Items per page
+   *     responses:
+   *       200:
+   *         description: Clients retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   allOf:
+   *                     - $ref: '#/components/schemas/PaginatedResponse'
+   *                     - type: object
+   *                       properties:
+   *                         items:
+   *                           type: array
+   *                           items:
+   *                             $ref: '#/components/schemas/Client'
+   *       401:
+   *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   listClients = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
@@ -166,8 +239,52 @@ export class ClientHandlers {
   }
 
   /**
-   * GET /api/clients/:id
-   * Get single client by ID
+   * @openapi
+   * /api/clients/{id}:
+   *   get:
+   *     tags:
+   *       - Clients
+   *     summary: Get client by ID
+   *     description: Retrieve a single client by their unique identifier
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Client UUID
+   *     responses:
+   *       200:
+   *         description: Client found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   $ref: '#/components/schemas/Client'
+   *       400:
+   *         description: Invalid client ID
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       404:
+   *         description: Client not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   getClient = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);

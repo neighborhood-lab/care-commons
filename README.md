@@ -201,6 +201,43 @@ npm run test:coverage
 
 Coverage reports are available in the `coverage/` directory of each package.
 
+## API Documentation
+
+Interactive API documentation is available through Swagger UI:
+
+- **Local Development**: http://localhost:3000/api-docs
+- **Production**: https://care-commons.vercel.app/api-docs
+
+### OpenAPI Specification
+
+The OpenAPI 3.0 specification is available at:
+- **Local**: http://localhost:3000/openapi.json
+- **Production**: https://care-commons.vercel.app/openapi.json
+
+### Postman Collection
+
+Generate a Postman collection from the OpenAPI spec:
+
+```bash
+npm run docs:postman
+```
+
+This will create:
+- `docs/postman-collection.json` - Importable Postman collection
+- `docs/openapi.json` - OpenAPI specification file
+
+Import the Postman collection to test API endpoints directly in Postman or other API clients.
+
+### Authentication
+
+Most API endpoints require authentication using JWT bearer tokens. To authenticate:
+
+1. Call `POST /api/auth/login` with email and password
+2. Use the returned `accessToken` in the `Authorization` header: `Bearer <token>`
+3. Or use the "Authorize" button in Swagger UI to set your bearer token
+
+See the Authentication section in the API docs for detailed information on login, token refresh, and logout.
+
 ## GitHub Actions
 
 This project uses GitHub Actions for automated CI/CD workflows:

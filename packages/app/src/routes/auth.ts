@@ -23,16 +23,71 @@ export function createAuthRouter(db: Database): Router {
   const authMiddleware = new AuthMiddleware(db);
 
   /**
-   * POST /api/auth/login/google
-   * Authenticate with Google OAuth
-   * 
-   * Body:
-   *   - idToken: Google ID token from client
-   *   - organizationId: (optional) Organization ID for new user registration
-   * 
-   * Returns:
-   *   - user: User profile
-   *   - tokens: Access token and refresh token
+   * @openapi
+   * /api/auth/login/google:
+   *   post:
+   *     tags:
+   *       - Authentication
+   *     summary: Authenticate with Google OAuth
+   *     description: Authenticate user using Google OAuth 2.0 and receive JWT access and refresh tokens
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - idToken
+   *             properties:
+   *               idToken:
+   *                 type: string
+   *                 description: Google ID token from client
+   *               organizationId:
+   *                 type: string
+   *                 format: uuid
+   *                 description: Organization ID for new user registration (optional)
+   *     responses:
+   *       200:
+   *         description: Authentication successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     user:
+   *                       $ref: '#/components/schemas/User'
+   *                     tokens:
+   *                       type: object
+   *                       properties:
+   *                         accessToken:
+   *                           type: string
+   *                         refreshToken:
+   *                           type: string
+   *       400:
+   *         description: Invalid request
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Authentication failed
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   router.post('/login/google', async (req: Request, res: Response) => {
     try {
@@ -85,16 +140,75 @@ export function createAuthRouter(db: Database): Router {
   });
 
   /**
-   * POST /api/auth/login
-   * Authenticate with email and password
-   * 
-   * Body:
-   *   - email: User email
-   *   - password: User password
-   * 
-   * Returns:
-   *   - user: User profile
-   *   - tokens: Access token and refresh token
+   * @openapi
+   * /api/auth/login:
+   *   post:
+   *     tags:
+   *       - Authentication
+   *     summary: Login with email and password
+   *     description: Authenticate user with email and password and receive JWT access and refresh tokens
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - email
+   *               - password
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 example: admin@example.com
+   *                 description: User email address
+   *               password:
+   *                 type: string
+   *                 format: password
+   *                 example: securePassword123
+   *                 description: User password
+   *     responses:
+   *       200:
+   *         description: Login successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     user:
+   *                       $ref: '#/components/schemas/User'
+   *                     tokens:
+   *                       type: object
+   *                       properties:
+   *                         accessToken:
+   *                           type: string
+   *                         refreshToken:
+   *                           type: string
+   *       400:
+   *         description: Invalid request
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Invalid credentials or account locked
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   router.post('/login', async (req: Request, res: Response) => {
     try {
@@ -154,14 +268,61 @@ export function createAuthRouter(db: Database): Router {
   });
 
   /**
-   * POST /api/auth/refresh
-   * Refresh access token using refresh token
-   * 
-   * Body:
-   *   - refreshToken: JWT refresh token
-   * 
-   * Returns:
-   *   - accessToken: New access token
+   * @openapi
+   * /api/auth/refresh:
+   *   post:
+   *     tags:
+   *       - Authentication
+   *     summary: Refresh access token
+   *     description: Use refresh token to obtain a new access token
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - refreshToken
+   *             properties:
+   *               refreshToken:
+   *                 type: string
+   *                 description: JWT refresh token
+   *     responses:
+   *       200:
+   *         description: Token refreshed successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     accessToken:
+   *                       type: string
+   *                       description: New access token
+   *       400:
+   *         description: Invalid request
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Invalid or expired refresh token
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   router.post('/refresh', async (req: Request, res: Response) => {
     try {
@@ -201,10 +362,41 @@ export function createAuthRouter(db: Database): Router {
   });
 
   /**
-   * POST /api/auth/logout
-   * Logout user and invalidate all tokens
-   * 
-   * Requires: Authentication
+   * @openapi
+   * /api/auth/logout:
+   *   post:
+   *     tags:
+   *       - Authentication
+   *     summary: Logout user
+   *     description: Logout user and invalidate all tokens
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Logout successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 message:
+   *                   type: string
+   *                   example: Logged out successfully
+   *       401:
+   *         description: Not authenticated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
    router.post('/logout', authMiddleware.requireAuth, async (req: Request, res: Response) => {
     try {
@@ -234,13 +426,58 @@ export function createAuthRouter(db: Database): Router {
   });
 
   /**
-   * GET /api/auth/me
-   * Get current authenticated user
-   * 
-   * Requires: Authentication
-   * 
-   * Returns:
-   *   - user: Current user profile
+   * @openapi
+   * /api/auth/me:
+   *   get:
+   *     tags:
+   *       - Authentication
+   *     summary: Get current user
+   *     description: Get current authenticated user profile and permissions
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: User profile retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     id:
+   *                       type: string
+   *                       format: uuid
+   *                     email:
+   *                       type: string
+   *                       format: email
+   *                     organizationId:
+   *                       type: string
+   *                       format: uuid
+   *                     roles:
+   *                       type: array
+   *                       items:
+   *                         type: string
+   *                     permissions:
+   *                       type: array
+   *                       items:
+   *                         type: string
+   *       401:
+   *         description: Not authenticated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
    router.get('/me', authMiddleware.requireAuth, (req: Request, res: Response) => {
     try {

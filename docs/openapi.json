@@ -1,0 +1,1668 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Care Commons API",
+    "version": "1.0.0",
+    "description": "Home healthcare platform API documentation",
+    "contact": {
+      "name": "Care Commons Team",
+      "url": "https://github.com/neighborhood-lab/care-commons"
+    },
+    "license": {
+      "name": "AGPL-3.0",
+      "url": "https://www.gnu.org/licenses/agpl-3.0.en.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://care-commons.vercel.app",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique user identifier"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email address"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SUPER_ADMIN",
+                "ORG_ADMIN",
+                "BRANCH_ADMIN",
+                "COORDINATOR",
+                "SCHEDULER",
+                "CAREGIVER",
+                "FAMILY",
+                "CLIENT",
+                "BILLING",
+                "HR",
+                "AUDITOR",
+                "READ_ONLY"
+              ]
+            },
+            "description": "User roles for access control",
+            "maxItems": 2,
+            "minItems": 2
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Organization ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "SUSPENDED"
+            ],
+            "description": "User account status"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Account creation timestamp"
+          }
+        }
+      },
+      "Client": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique client identifier"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Organization ID"
+          },
+          "branchId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Branch ID"
+          },
+          "clientNumber": {
+            "type": "string",
+            "description": "Human-readable client identifier"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Client first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Client last name"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "description": "Client date of birth"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "SUSPENDED",
+              "ARCHIVED"
+            ],
+            "description": "Client status"
+          },
+          "primaryPhone": {
+            "$ref": "#/components/schemas/Phone"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Client email address"
+          },
+          "primaryAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Caregiver": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeNumber": {
+            "type": "string",
+            "description": "Human-readable employee identifier"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "$ref": "#/components/schemas/Phone"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "ON_LEAVE",
+              "TERMINATED"
+            ]
+          },
+          "hireDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "certifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Visit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Client receiving care"
+          },
+          "caregiverId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Caregiver providing care"
+          },
+          "scheduledStart": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled start time"
+          },
+          "scheduledEnd": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled end time"
+          },
+          "actualStart": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Actual start time (EVV check-in)"
+          },
+          "actualEnd": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Actual end time (EVV check-out)"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "CANCELLED",
+              "NO_SHOW"
+            ],
+            "description": "Visit status"
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "Type of care service provided"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Visit notes"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CarePlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Client for this care plan"
+          },
+          "title": {
+            "type": "string",
+            "description": "Care plan title"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date",
+            "description": "When this plan becomes effective"
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "When this plan expires"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "EXPIRED",
+              "CANCELLED"
+            ]
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "targetDate": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "frequency": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "description": "Street address"
+          },
+          "street2": {
+            "type": "string",
+            "description": "Apartment, suite, etc."
+          },
+          "city": {
+            "type": "string",
+            "description": "City name"
+          },
+          "state": {
+            "type": "string",
+            "description": "State code (e.g., TX, FL)",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "zip": {
+            "type": "string",
+            "description": "ZIP code",
+            "pattern": "^\\\\d{5}(-\\\\d{4})?$"
+          },
+          "county": {
+            "type": "string",
+            "description": "County name"
+          },
+          "coordinates": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "format": "double"
+              },
+              "longitude": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          }
+        }
+      },
+      "Phone": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string",
+            "description": "Phone number",
+            "pattern": "^\\\\+?[1-9]\\\\d{1,14}$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "MOBILE",
+              "HOME",
+              "WORK",
+              "FAX"
+            ],
+            "description": "Phone type"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "description": "Whether this is the primary phone"
+          }
+        }
+      },
+      "PaginatedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Array of items for current page",
+            "maxItems": 2
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items across all pages"
+          },
+          "page": {
+            "type": "integer",
+            "description": "Current page number (1-indexed)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Number of items per page"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code",
+            "example": "VALIDATION_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "Invalid input data"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error context"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the error occurred"
+          }
+        }
+      },
+      "HealthCheck": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "healthy",
+              "unhealthy"
+            ],
+            "description": "Overall system health status"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Health check timestamp"
+          },
+          "environment": {
+            "type": "string",
+            "description": "Deployment environment"
+          },
+          "uptime": {
+            "type": "number",
+            "description": "Server uptime in seconds"
+          },
+          "responseTime": {
+            "type": "number",
+            "description": "Response time in milliseconds"
+          },
+          "database": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "connected",
+                  "disconnected"
+                ]
+              },
+              "responseTime": {
+                "type": "number"
+              }
+            }
+          },
+          "memory": {
+            "type": "object",
+            "properties": {
+              "used": {
+                "type": "number",
+                "description": "Used memory in MB"
+              },
+              "total": {
+                "type": "number",
+                "description": "Total memory in MB"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/login/google": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Authenticate with Google OAuth",
+        "description": "Authenticate user using Google OAuth 2.0 and receive JWT access and refresh tokens",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "idToken"
+                ],
+                "properties": {
+                  "idToken": {
+                    "type": "string",
+                    "description": "Google ID token from client",
+                    "default": "<string>"
+                  },
+                  "organizationId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Organization ID for new user registration (optional)",
+                    "default": "<uuid>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "tokens": {
+                          "type": "object",
+                          "properties": {
+                            "accessToken": {
+                              "type": "string"
+                            },
+                            "refreshToken": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login with email and password",
+        "description": "Authenticate user with email and password and receive JWT access and refresh tokens",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "admin@example.com",
+                    "description": "User email address",
+                    "default": "<email>"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "securePassword123",
+                    "description": "User password",
+                    "default": "<password>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "tokens": {
+                          "type": "object",
+                          "properties": {
+                            "accessToken": {
+                              "type": "string"
+                            },
+                            "refreshToken": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials or account locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Refresh access token",
+        "description": "Use refresh token to obtain a new access token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refreshToken"
+                ],
+                "properties": {
+                  "refreshToken": {
+                    "type": "string",
+                    "description": "JWT refresh token",
+                    "default": "<string>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "accessToken": {
+                          "type": "string",
+                          "description": "New access token"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Logout user",
+        "description": "Logout user and invalidate all tokens",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logged out successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get current user",
+        "description": "Get current authenticated user profile and permissions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "organizationId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "maxItems": 2
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "maxItems": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/clients": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "List clients",
+        "description": "Search and list clients with pagination and filters",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string",
+              "default": "<string>"
+            },
+            "description": "Search query (name, client number, etc.)"
+          },
+          {
+            "in": "query",
+            "name": "organizationId",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "default": "<uuid>"
+            },
+            "description": "Filter by organization ID"
+          },
+          {
+            "in": "query",
+            "name": "branchId",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "default": "<uuid>"
+            },
+            "description": "Filter by branch ID"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "ACTIVE",
+                "INACTIVE",
+                "SUSPENDED",
+                "ARCHIVED"
+              ],
+              "default": "<string>"
+            },
+            "description": "Filter by client status"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Clients retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PaginatedResponse"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Client"
+                              },
+                              "maxItems": 2
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clients/{id}": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Get client by ID",
+        "description": "Retrieve a single client by their unique identifier",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "default": "<uuid>"
+            },
+            "description": "Client UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Client found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Client"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid client ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "VALIDATION_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Invalid input data"
+                    },
+                    "details": {
+                      "type": "object",
+                      "description": "Additional error context"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [],
+  "securityDefs": {
+    "bearerAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT"
+    }
+  },
+  "baseUrl": "http://localhost:3000"
+}

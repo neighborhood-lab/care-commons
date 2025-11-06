@@ -54,7 +54,8 @@
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
     "vercel:build": "npm run build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs:postman": "tsx scripts/export-postman-collection.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
@@ -67,6 +68,7 @@
     "eslint-plugin-unicorn": "^62.0.0",
     "happy-dom": "^20.0.10",
     "husky": "^9.1.7",
+    "openapi-to-postmanv2": "^5.3.4",
     "sql-lint": "^1.0.2",
     "supertest": "^7.1.4",
     "turbo": "^2.6.0",
