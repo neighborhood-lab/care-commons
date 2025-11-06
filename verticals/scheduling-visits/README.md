@@ -617,6 +617,78 @@ This vertical integrates with:
 - **Compliance & Documentation** - Visit documentation and audit trails
 - **Communication & Messaging** - Visit notifications and reminders
 
+### Client Address Provider
+
+The scheduling service requires a `ClientAddressProvider` implementation to fetch client addresses for visit generation and geolocation-based features (EVV validation, route optimization, caregiver-to-client matching).
+
+**Architecture:**
+
+The service uses dependency injection to decouple from the client-demographics vertical:
+
+```typescript
+import { ScheduleService, ClientAddressProvider } from '@care-commons/scheduling-visits';
+import { ClientService } from '@care-commons/client-demographics';
+
+// Create the address provider with caching
+const addressProvider = new ClientAddressProvider(
+  clientService,
+  systemContext,
+  300000 // 5-minute cache TTL (optional, default is 5 minutes)
+);
+
+// Inject into schedule service
+const scheduleService = new ScheduleService(
+  scheduleRepository,
+  addressProvider
+);
+```
+
+**Address Selection Priority:**
+
+1. Primary address if type is 'HOME'
+2. First secondary address with type 'HOME'
+3. Any primary address regardless of type
+4. Throws `NotFoundError` if no address found
+
+**Caching Strategy:**
+
+The `ClientAddressProvider` implements in-memory caching to reduce database queries:
+
+- **Cache TTL**: Configurable, defaults to 5 minutes
+- **Cache Invalidation**: Automatic expiration after TTL
+- **Manual Invalidation**: Call `invalidateClient(clientId)` after address updates
+- **Cache Clearing**: Call `clearCache()` for bulk invalidation
+- **Monitoring**: Use `getCacheStats()` to monitor cache size and configuration
+
+**Cache Invalidation Hooks:**
+
+When client addresses are updated in the client-demographics service, invalidate the cache:
+
+```typescript
+// After updating a client's address
+await clientService.updateClient(clientId, { primaryAddress: newAddress }, context);
+
+// Invalidate the cached address
+addressProvider.invalidateClient(clientId);
+```
+
+**Production Considerations:**
+
+For production deployments with multiple application instances, consider:
+
+1. **Redis/Memcached**: Replace in-memory cache with distributed cache
+2. **Event-Driven Invalidation**: Use message queues to broadcast cache invalidation across instances
+3. **Cache Warming**: Pre-populate cache with frequently accessed addresses
+4. **Monitoring**: Track cache hit rates and adjust TTL based on usage patterns
+
+**Future Enhancements:**
+
+- [ ] Redis adapter for distributed caching
+- [ ] Event-driven cache invalidation via message queue
+- [ ] Per-client configurable geofence radius
+- [ ] Address validation and geocoding service integration
+- [ ] Cache warming on service startup
+
 ## Compliance Features
 
 - **EVV Compliance** - Location-based visit verification
