@@ -50,10 +50,8 @@ export const FindingCard: React.FC<FindingCardProps> = ({ finding, onClick }) =>
   const severityInfo = severityConfig[finding.severity];
 
   return (
-    <Card
-      className={`border ${severityInfo.bgColor} ${onClick ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}
-      onClick={onClick}
-    >
+    <div onClick={onClick} className={onClick ? 'cursor-pointer' : undefined}>
+      <Card className={`border ${severityInfo.bgColor} ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
       <div className="p-4">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
@@ -113,5 +111,6 @@ export const FindingCard: React.FC<FindingCardProps> = ({ finding, onClick }) =>
         )}
       </div>
     </Card>
+    </div>
   );
 };

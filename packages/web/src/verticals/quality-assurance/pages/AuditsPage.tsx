@@ -36,7 +36,7 @@ export const AuditsPage: React.FC = () => {
     );
   }
 
-  const audits = auditsResult?.data || [];
+  const audits = auditsResult?.items || [];
 
   return (
     <div className="space-y-6">
