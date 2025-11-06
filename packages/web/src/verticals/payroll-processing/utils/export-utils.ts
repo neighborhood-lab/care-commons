@@ -8,7 +8,7 @@
  * - QuickBooks format
  */
 
-import type { PayStub, PayRun, PayPeriod } from '../types/payroll';
+import type { PayStub, PayRun, PayPeriod } from '../types';
 
 /**
  * Format data for CSV export
@@ -38,9 +38,9 @@ export function formatPayrollDataForCSV(payStubs: PayStub[]): string {
   const rows = payStubs.map(stub => [
     stub.caregiverEmployeeId,
     stub.caregiverName,
-    stub.payPeriodStartDate.toISOString().split('T')[0],
-    stub.payPeriodEndDate.toISOString().split('T')[0],
-    stub.payDate.toISOString().split('T')[0],
+    stub.payPeriodStartDate.split('T')[0],
+    stub.payPeriodEndDate.split('T')[0],
+    stub.payDate.split('T')[0],
     stub.regularHours.toFixed(2),
     stub.overtimeHours.toFixed(2),
     stub.totalHours.toFixed(2),
@@ -117,7 +117,7 @@ export function formatPayrollDataForPaychex(payStubs: PayStub[]): string {
   const rows = payStubs.map(stub => [
     'CLIENT001', // Client ID (would come from configuration)
     stub.caregiverEmployeeId,
-    stub.payDate.toISOString().split('T')[0],
+    stub.payDate.split('T')[0],
     'REG',
     stub.regularHours.toFixed(2),
     stub.regularPay.toFixed(2),
@@ -212,9 +212,9 @@ export function formatPayrollDataForQuickBooksOnline(payStubs: PayStub[]): strin
   const rows = payStubs.map(stub => [
     stub.caregiverName,
     stub.caregiverEmployeeId,
-    stub.payPeriodStartDate.toISOString().split('T')[0],
-    stub.payPeriodEndDate.toISOString().split('T')[0],
-    stub.payDate.toISOString().split('T')[0],
+    stub.payPeriodStartDate.split('T')[0],
+    stub.payPeriodEndDate.split('T')[0],
+    stub.payDate.split('T')[0],
     stub.regularPay.toFixed(2),
     stub.overtimePay.toFixed(2),
     stub.currentGrossPay.toFixed(2),
@@ -237,7 +237,7 @@ export function generateExportFilename(
   type: 'csv' | 'adp' | 'paychex' | 'quickbooks' | 'pdf',
   period: PayPeriod
 ): string {
-  const dateStr = period.startDate.toISOString().split('T')[0];
+  const dateStr = period.startDate.split('T')[0];
   const prefix = type.toUpperCase();
   return `${prefix}_Payroll_${dateStr}.${type === 'pdf' ? 'pdf' : type === 'quickbooks' ? 'iif' : 'csv'}`;
 }

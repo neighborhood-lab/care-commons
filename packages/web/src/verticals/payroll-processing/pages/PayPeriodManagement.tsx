@@ -88,7 +88,7 @@ export const PayPeriodManagement: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               value={filters.status || ''}
               onChange={(e) =>
-                setFilters({ ...filters, status: e.target.value || undefined })
+                setFilters({ ...filters, status: (e.target.value || undefined) as PayrollSearchFilters['status'] })
               }
             >
               <option value="">All Statuses</option>
@@ -126,7 +126,7 @@ export const PayPeriodManagement: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               value={filters.periodType || ''}
               onChange={(e) =>
-                setFilters({ ...filters, periodType: e.target.value || undefined })
+                setFilters({ ...filters, periodType: (e.target.value || undefined) as PayrollSearchFilters['periodType'] })
               }
             >
               <option value="">All Types</option>

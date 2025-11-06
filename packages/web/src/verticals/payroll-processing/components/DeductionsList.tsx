@@ -13,7 +13,7 @@ export const DeductionsList: React.FC<DeductionsListProps> = ({ deductions }) =>
   }
 
   // Group deductions by category
-  const groupedDeductions = deductions.reduce((groups, deduction) => {
+  const groupedDeductions = deductions.reduce<Record<string, Deduction[]>>((groups, deduction) => {
     let category = 'Other';
 
     if (deduction.deductionType.includes('INSURANCE')) {
