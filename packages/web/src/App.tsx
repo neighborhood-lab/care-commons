@@ -8,6 +8,7 @@ import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage } from './verticals/care-plans';
+import { SchedulingPage } from './verticals/scheduling-visits';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
@@ -93,6 +94,16 @@ function AppRoutes() {
                 <h2 className="text-2xl font-bold text-gray-900">Caregivers Module</h2>
                 <p className="text-gray-600 mt-2">Coming soon...</p>
               </div>
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scheduling"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <SchedulingPage />
             </AppShell>
           </ProtectedRoute>
         }

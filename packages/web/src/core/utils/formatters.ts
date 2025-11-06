@@ -17,8 +17,20 @@ export const formatDateTime = (date: string | Date): string => {
   });
 };
 
-export const formatTime = (date: string | Date): string => {
-  const d = typeof date === 'string' ? new Date(date) : date;
+export const formatTime = (time: string | Date): string => {
+  // Handle HH:MM format strings (e.g., "09:00", "14:30")
+  if (typeof time === 'string' && /^\d{2}:\d{2}(:\d{2})?$/.test(time)) {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+    return new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(date);
+  }
+
+  // Handle Date objects or ISO date strings
+  const d = typeof time === 'string' ? new Date(time) : time;
   return new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
     minute: '2-digit',
