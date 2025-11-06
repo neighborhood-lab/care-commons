@@ -39,6 +39,8 @@ env:
   NPM_VERSION: '11'
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
 jobs:
   build:
@@ -84,7 +86,7 @@ jobs:
         run: |
           echo "::group::Building packages"
           START_TIME=$(date +%s)
-          npm run build
+          npx turbo run build
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           echo "✅ Build completed in ${DURATION}s"
@@ -95,7 +97,7 @@ jobs:
         run: |
           echo "::group::Running tests"
           START_TIME=$(date +%s)
-          npm run test
+          npx turbo run test
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           echo "✅ Tests completed in ${DURATION}s"
@@ -187,7 +189,7 @@ jobs:
       - name: Build for Preview
         env:
           NODE_ENV: production
-        run: npm run build
+        run: npx turbo run build
 
       - name: Deploy to Vercel Preview
         id: deploy
@@ -277,7 +279,7 @@ jobs:
       - name: Build for Production
         env:
           NODE_ENV: production
-        run: npm run build
+        run: npx turbo run build
 
       - name: Deploy to Vercel Production
         id: deploy

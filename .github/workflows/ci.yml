@@ -13,6 +13,8 @@ on:
 env:
   NODE_VERSION: '22'
   NPM_VERSION: '10.9.4'
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
 jobs:
   lint:
@@ -34,11 +36,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build packages
-        run: npm run build
-
-      - name: Run linting
-        run: npm run lint
+      - name: Run linting (Turbo)
+        run: npx turbo run lint
 
   typecheck:
     name: Type Check
@@ -59,11 +58,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build packages
-        run: npm run build
-
-      - name: Run type checking
-        run: npm run typecheck
+      - name: Run type checking (Turbo)
+        run: npx turbo run typecheck
 
   test:
     name: Test
@@ -98,8 +94,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build packages
-        run: npm run build
+      - name: Build packages (Turbo)
+        run: npx turbo run build
 
       - name: Setup test database
         env:
@@ -109,11 +105,11 @@ jobs:
           npm run db:migrate
           npm run db:seed
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage (Turbo)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/care_commons_test
           NODE_ENV: test
-        run: npm run test:coverage
+        run: npx turbo run test:coverage
 
       - name: Upload coverage reports
         if: always()
@@ -172,8 +168,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build packages
-        run: npm run build
+      - name: Build packages (Turbo)
+        run: npx turbo run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

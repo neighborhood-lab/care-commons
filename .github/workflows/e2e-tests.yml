@@ -46,6 +46,8 @@ on:
 env:
   NODE_VERSION: '22'
   DATABASE_NAME: 'care_commons_e2e_test'
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
 jobs:
   e2e-tests:
@@ -87,7 +89,7 @@ jobs:
         run: npm ci
 
       - name: Build packages
-        run: npm run build
+        run: npx turbo run build
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
@@ -168,7 +170,7 @@ jobs:
         run: npm ci
 
       - name: Build packages
-        run: npm run build
+        run: npx turbo run build
 
       - name: Install Playwright browsers (Chromium for mobile)
         run: npx playwright install --with-deps chromium webkit
