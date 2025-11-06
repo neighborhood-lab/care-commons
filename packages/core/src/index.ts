@@ -19,3 +19,4 @@ export * from './utils/password-utils.js';
 export * from './utils/jwt-utils.js';
 export * from './sync/index.js';
 export * from './demo/index.js';
+export * from './notifications/index.js';

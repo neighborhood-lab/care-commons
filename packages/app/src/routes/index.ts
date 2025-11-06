@@ -13,6 +13,7 @@ import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
+import { createNotificationRouter } from './notifications.js';
 import { authLimiter } from '../middleware/rate-limit.js';
 /**
  * NOTE: Analytics routes temporarily disabled - requires architectural refactor
@@ -75,6 +76,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const syncRouter = createSyncRouter(db);
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
+
+  // Notification routes
+  const notificationRouter = createNotificationRouter(db);
+  app.use('/api', notificationRouter);
+  console.log('  ✓ Notification routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits

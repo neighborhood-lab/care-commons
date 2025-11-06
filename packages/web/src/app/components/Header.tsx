@@ -1,7 +1,8 @@
 import React from 'react';
-import { Menu, Bell, User } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
 import { useAuth } from '@/core/hooks';
 import { Button } from '@/core/components';
+import { NotificationBell } from '@/core/components/notifications';
 
 export interface HeaderProps {
   onMenuClick: () => void;
@@ -26,9 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm">
-            <Bell className="h-5 w-5" />
-          </Button>
+          <NotificationBell />
           <div className="flex items-center gap-2">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-gray-900">{user?.name}</p>
