@@ -168,6 +168,15 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
+      - name: Validate Migration Safety (Preview)
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "::group::Validating migration safety"
+          ./scripts/validate-migrations-safety.sh preview
+          echo "::endgroup::"
+
       - name: Run Database Migrations (Preview)
         if: ${{ github.event.inputs.run_migrations != 'false' }}
         env:
@@ -200,11 +209,23 @@ jobs:
         env:
           ENVIRONMENT: preview
 
+      - name: Post-Deployment Validation (Preview)
+        if: success()
+        run: |
+          echo "::group::Validating preview deployment"
+          ./scripts/validate-deployment.sh "${{ steps.deploy.outputs.url }}" preview
+          echo "::endgroup::"
+
       - name: Deployment Summary
         run: |
           echo "✅ Preview deployment complete"
           echo "URL: ${{ steps.deploy.outputs.url }}"
-          echo "Note: Health check skipped (requires authentication)"
+          echo ""
+          echo "⚠️  Preview is OAuth protected - manual verification required:"
+          echo "   1. Visit ${{ steps.deploy.outputs.url }}"
+          echo "   2. Authenticate with GitHub"
+          echo "   3. Verify health endpoint: ${{ steps.deploy.outputs.url }}/health"
+          echo "   4. Test login flow and navigation"
 
   deploy-production:
     name: Deploy to Production
@@ -258,6 +279,16 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
+      - name: Validate Migration Safety (Production)
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ACKNOWLEDGE_WARNINGS: ${{ github.event.inputs.deploy_type == 'hotfix' || github.event.inputs.deploy_type == 'rollback' }}
+        run: |
+          echo "::group::Validating migration safety for PRODUCTION"
+          ./scripts/validate-migrations-safety.sh production
+          echo "::endgroup::"
+
       - name: Run Database Migrations (Production)
         if: ${{ github.event.inputs.run_migrations != 'false' }}
         env:
@@ -290,11 +321,25 @@ jobs:
         env:
           ENVIRONMENT: production
 
-      - name: Deployment Summary
+      - name: Post-Deployment Validation (Production)
+        if: success()
         run: |
-          echo "✅ Production deployment complete"
+          echo "::group::Validating production deployment"
+          ./scripts/validate-deployment.sh "https://care-commons.vercel.app" production
+          echo "::endgroup::"
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Production Deployment Complete"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
           echo "URL: https://care-commons.vercel.app"
-          echo "Note: Health check skipped (requires authentication)"
+          echo "Health Check: https://care-commons.vercel.app/health"
+          echo ""
+          echo "Validation Status: See post-deployment checks above"
+          echo ""
 
       - name: Seed Demo Data (Production)
         if: github.event_name == 'workflow_dispatch'

@@ -60,6 +60,14 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
 
+  // Medication Management routes - TEMPORARILY DISABLED
+  // Requires PostgreSQL repository implementation (currently uses SQLite-style API)
+  // const medicationRepository = new MedicationRepository(db);
+  // const medicationService = new MedicationService(medicationRepository);
+  // const medicationRouter = createMedicationRouter(medicationService);
+  // app.use('/api', medicationRouter);
+  // console.log('  ✓ Medication Management routes registered');
+
   // Demo routes (interactive demo system)
   const demoRouter = createDemoRouter(db);
   app.use('/api/demo', demoRouter);

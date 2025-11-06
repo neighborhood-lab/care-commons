@@ -1,0 +1,46 @@
+{
+  "name": "@care-commons/medication-management",
+  "version": "0.1.0",
+  "description": "Medication management vertical for care-commons platform",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "build": "echo '⚠️  medication-management build skipped - requires PostgreSQL repository implementation. See MIGRATION_TODO.md' && exit 0",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "echo '⚠️  medication-management typecheck skipped - requires PostgreSQL repository implementation' && exit 0",
+    "lint": "eslint . --ext ts"
+  },
+  "keywords": [
+    "medication",
+    "medication-management",
+    "prescriptions",
+    "care-commons"
+  ],
+  "dependencies": {
+    "@care-commons/core": "file:../../packages/core",
+    "@care-commons/client-demographics": "file:../client-demographics",
+    "@care-commons/caregiver-staff": "file:../caregiver-staff",
+    "date-fns": "^4.1.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.0",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "eslint": "^9.39.1",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.7"
+  },
+  "peerDependencies": {
+    "express": "^5.0.0"
+  }
+}
