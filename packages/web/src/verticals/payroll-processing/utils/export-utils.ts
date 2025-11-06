@@ -135,7 +135,7 @@ export function formatPayrollDataForPaychex(payStubs: PayStub[]): string {
  * Format data for QuickBooks IIF import
  * IIF (Intuit Interchange Format) for QuickBooks Desktop
  */
-export function formatPayrollDataForQuickBooksIIF(payRun: PayRun, payStubs: PayStub[]): string {
+export function formatPayrollDataForQuickBooksIIF(_payRun: PayRun, payStubs: PayStub[]): string {
   const lines: string[] = [];
 
   // Header
