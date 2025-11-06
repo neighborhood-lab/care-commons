@@ -13,6 +13,8 @@ import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
+import { createHealthRouter } from './health.js';
+import { createMetricsRouter } from './metrics.js';
 import { authLimiter } from '../middleware/rate-limit.js';
 /**
  * NOTE: Analytics routes temporarily disabled - requires architectural refactor
@@ -27,6 +29,16 @@ import { createSyncRouter } from '../api/sync/sync-routes.js';
  */
 export function setupRoutes(app: Express, db: Database): void {
   console.log('Setting up API routes...');
+
+  // Health check routes (no auth required)
+  const healthRouter = createHealthRouter(db);
+  app.use('/health', healthRouter);
+  console.log('  ✓ Health check routes registered');
+
+  // Metrics routes (no auth required - for monitoring systems)
+  const metricsRouter = createMetricsRouter();
+  app.use('/metrics', metricsRouter);
+  console.log('  ✓ Metrics routes registered');
 
   // Authentication routes with rate limiting
   const authRouter = createAuthRouter(db);
