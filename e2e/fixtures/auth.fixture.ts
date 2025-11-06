@@ -1,6 +1,6 @@
 import { test as base, Page } from '@playwright/test';
 import { TestDatabase } from '../setup/test-database.js';
-import { generateToken } from '../../packages/core/src/utils/jwt-utils.js';
+import { JWTUtils, TokenPayload } from '../../packages/core/src/utils/jwt-utils.js';
 
 /**
  * Authenticated User Type
@@ -50,13 +50,15 @@ export const test = base.extend<AuthFixtures>({
     };
 
     // Generate JWT token
-    user.token = generateToken({
+    const tokenPayload: TokenPayload = {
       userId: user.userId,
       email: user.email,
       organizationId: user.organizationId,
       roles: user.roles,
       permissions: user.permissions,
-    });
+      tokenVersion: 1,
+    };
+    user.token = JWTUtils.generateTokenPair(tokenPayload).accessToken;
 
     await use(user);
   },
@@ -87,13 +89,15 @@ export const test = base.extend<AuthFixtures>({
       ],
     };
 
-    user.token = generateToken({
+    const tokenPayload: TokenPayload = {
       userId: user.userId,
       email: user.email,
       organizationId: user.organizationId,
       roles: user.roles,
       permissions: user.permissions,
-    });
+      tokenVersion: 1,
+    };
+    user.token = JWTUtils.generateTokenPair(tokenPayload).accessToken;
 
     await use(user);
   },
@@ -127,13 +131,15 @@ export const test = base.extend<AuthFixtures>({
       ],
     };
 
-    user.token = generateToken({
+    const tokenPayload: TokenPayload = {
       userId: user.userId,
       email: user.email,
       organizationId: user.organizationId,
       roles: user.roles,
       permissions: user.permissions,
-    });
+      tokenVersion: 1,
+    };
+    user.token = JWTUtils.generateTokenPair(tokenPayload).accessToken;
 
     await use(user);
   },
@@ -157,13 +163,15 @@ export const test = base.extend<AuthFixtures>({
       ],
     };
 
-    user.token = generateToken({
+    const tokenPayload: TokenPayload = {
       userId: user.userId,
       email: user.email,
       organizationId: user.organizationId,
       roles: user.roles,
       permissions: user.permissions,
-    });
+      tokenVersion: 1,
+    };
+    user.token = JWTUtils.generateTokenPair(tokenPayload).accessToken;
 
     await use(user);
   },

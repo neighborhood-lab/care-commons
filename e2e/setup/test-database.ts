@@ -1,4 +1,4 @@
-import { Database } from '../../packages/core/src/db/connection.js';
+import { Database, DatabaseConfig } from '../../packages/core/src/db/connection.js';
 
 /**
  * Test Database Helper
@@ -24,11 +24,42 @@ export class TestDatabase {
     this.dbUrl = process.env['E2E_DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/care_commons_e2e_test';
 
     console.log('🔌 Connecting to test database...');
-    this.instance = new Database(this.dbUrl);
-    await this.instance.connect();
+    
+    // Parse DATABASE_URL into config
+    const config = this.parseDatabaseUrl(this.dbUrl);
+    this.instance = new Database(config);
+    
+    // Verify connection with health check
+    const isHealthy = await this.instance.healthCheck();
+    if (!isHealthy) {
+      throw new Error('Database health check failed');
+    }
+    
     console.log('✅ Connected to test database');
 
     return this.instance;
+  }
+
+  /**
+   * Parse PostgreSQL connection URL into DatabaseConfig
+   */
+  private static parseDatabaseUrl(url: string): DatabaseConfig {
+    const match = url.match(/^postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/);
+    if (!match) {
+      throw new Error(`Invalid database URL format: ${url}`);
+    }
+
+    const [, user, password, host, port, database] = match;
+    return {
+      host,
+      port: parseInt(port, 10),
+      database,
+      user,
+      password,
+      ssl: false,
+      max: 10, // Smaller pool for tests
+      idleTimeoutMillis: 30000,
+    };
   }
 
   /**
@@ -104,8 +135,12 @@ export class TestDatabase {
   /**
    * Execute raw SQL query (for custom test setup)
    */
-  static async query<T = unknown>(sql: string, params?: unknown[]): Promise<{ rows: T[] }> {
-    return this.getInstance().query<T>(sql, params);
+  static async query<T extends Record<string, unknown> = Record<string, unknown>>(
+    sql: string,
+    params?: unknown[]
+  ): Promise<{ rows: T[] }> {
+    const result = await this.getInstance().query<T>(sql, params);
+    return { rows: result.rows };
   }
 
   /**

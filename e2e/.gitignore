@@ -16,6 +16,13 @@ trace.zip
 # Coverage
 coverage/
 
+# Environment files
+.env.e2e
+.env.local
+
 # Temporary files
 *.log
 .DS_Store
+
+# Playwright cache
+.playwright/

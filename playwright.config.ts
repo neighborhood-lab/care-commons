@@ -122,6 +122,9 @@ export default defineConfig({
       NODE_ENV: 'test',
       DATABASE_URL: process.env['E2E_DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/care_commons_e2e_test',
       PORT: '3000',
+      // JWT secrets for authentication (must be set in CI/local environment)
+      JWT_SECRET: process.env['JWT_SECRET'] || 'test-jwt-secret-minimum-32-characters-required-for-security',
+      JWT_REFRESH_SECRET: process.env['JWT_REFRESH_SECRET'] || 'test-jwt-refresh-secret-minimum-32-characters-required',
     },
   },
 });

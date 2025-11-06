@@ -74,6 +74,7 @@ jobs:
       - name: Setup E2E test database
         env:
           E2E_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ env.DATABASE_NAME }}
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ env.DATABASE_NAME }}
         run: |
           echo "Setting up E2E test database..."
           createdb -h localhost -U postgres ${{ env.DATABASE_NAME }} || echo "Database already exists"
@@ -84,6 +85,8 @@ jobs:
           E2E_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ env.DATABASE_NAME }}
           E2E_BASE_URL: http://localhost:3000
           CI: true
+          JWT_SECRET: ${{ secrets.JWT_SECRET_E2E || 'ci-test-jwt-secret-minimum-32-characters-required-for-security-testing' }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET_E2E || 'ci-test-jwt-refresh-secret-minimum-32-characters-required-for-testing' }}
         run: npm run test:e2e -- --project=${{ matrix.browser }}
 
       - name: Upload test results
@@ -152,6 +155,7 @@ jobs:
       - name: Setup E2E test database
         env:
           E2E_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ env.DATABASE_NAME }}
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ env.DATABASE_NAME }}
         run: |
           createdb -h localhost -U postgres ${{ env.DATABASE_NAME }} || echo "Database already exists"
           npm run db:migrate
@@ -161,6 +165,8 @@ jobs:
           E2E_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ env.DATABASE_NAME }}
           E2E_BASE_URL: http://localhost:3000
           CI: true
+          JWT_SECRET: ${{ secrets.JWT_SECRET_E2E || 'ci-test-jwt-secret-minimum-32-characters-required-for-security-testing' }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET_E2E || 'ci-test-jwt-refresh-secret-minimum-32-characters-required-for-testing' }}
         run: npm run test:e2e:mobile
 
       - name: Upload test results

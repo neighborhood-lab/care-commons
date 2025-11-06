@@ -1,8 +1,30 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { Database } from '../../packages/core/src/db/connection.js';
+import { Database, DatabaseConfig } from '../../packages/core/src/db/connection.js';
 
 const execAsync = promisify(exec);
+
+/**
+ * Parse PostgreSQL connection URL into DatabaseConfig
+ */
+function parseDatabaseUrl(url: string): DatabaseConfig {
+  const match = url.match(/^postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/);
+  if (!match) {
+    throw new Error(`Invalid database URL format: ${url}`);
+  }
+
+  const [, user, password, host, port, database] = match;
+  return {
+    host,
+    port: parseInt(port, 10),
+    database,
+    user,
+    password,
+    ssl: false,
+    max: 10,
+    idleTimeoutMillis: 30000,
+  };
+}
 
 /**
  * Global Setup for Playwright E2E Tests
@@ -52,8 +74,12 @@ export default async function globalSetup() {
 
     // Step 3: Verify connection
     console.log('\n🔌 Verifying database connection...');
-    const db = new Database(dbUrl);
-    await db.connect();
+    const config = parseDatabaseUrl(dbUrl);
+    const db = new Database(config);
+    const isHealthy = await db.healthCheck();
+    if (!isHealthy) {
+      throw new Error('Database health check failed');
+    }
     const result = await db.query<{ version: string }>('SELECT version()');
     console.log(`✅ Connected to PostgreSQL: ${result.rows[0]?.version.split(',')[0]}`);
     await db.close();
