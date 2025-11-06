@@ -8,12 +8,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface EnhancedLandingPageProps {
-  onSelectRole: (roleId: string) => void;
   onStartTour?: () => void;
 }
 
 export const EnhancedLandingPage: React.FC<EnhancedLandingPageProps> = ({
-  onSelectRole,
   onStartTour,
 }) => {
   return (
