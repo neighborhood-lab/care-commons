@@ -83,7 +83,7 @@ test.describe('EVV Compliance - State-Specific Requirements', () => {
       expect(initialStatus).toMatch(/pending|failed|requires.*amendment/i);
 
       // Create VMUR amendment (Voice/Manual Universal Record)
-      await evvPage.createVMURAmentdment('GPS signal lost during visit', {
+      await evvPage.createVMURAmendment('GPS signal lost during visit', {
         clockInTime: '09:00:00',
         clockOutTime: '11:00:00',
         location: 'Client home address',
