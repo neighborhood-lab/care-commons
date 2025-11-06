@@ -63,8 +63,8 @@ describe('ClientService', () => {
   describe('createClient', () => {
     it('should create a new client successfully', async () => {
       const createInput: CreateClientInput = {
-        organizationId: 'org-1',
-        branchId: 'branch-1',
+        organizationId: '550e8400-e29b-41d4-a716-446655440000',
+        branchId: '550e8400-e29b-41d4-a716-446655440001',
         firstName: 'John',
         lastName: 'Doe',
         dateOfBirth: new Date('1980-01-01'),
@@ -80,8 +80,8 @@ describe('ClientService', () => {
 
       const mockClient: Client = {
         id: 'client-1',
-        organizationId: 'org-1',
-        branchId: 'branch-1',
+        organizationId: '550e8400-e29b-41d4-a716-446655440000',
+        branchId: '550e8400-e29b-41d4-a716-446655440001',
         clientNumber: 'CL-mock-123',
         firstName: 'John',
         lastName: 'Doe',
@@ -897,6 +897,7 @@ describe('ClientService', () => {
         },
         riskFlags: [],
         status: 'ACTIVE',
+        notes: 'Discharged: Moved to assisted living',
         createdAt: new Date(),
         createdBy: 'user-1',
         updatedAt: new Date(),
