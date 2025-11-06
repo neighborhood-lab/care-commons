@@ -25,9 +25,10 @@ export const Card: CardComponent = Object.assign(
     return (
       <div
         className={cn(
-          'bg-white rounded-lg shadow-sm border border-gray-200',
+          'bg-white rounded-xl shadow-md border border-gray-100',
           paddingClasses[padding],
-          hover && 'transition-shadow hover:shadow-md',
+          hover && 'transition-all duration-300 hover:shadow-xl hover:scale-[1.01]',
+          !hover && 'transition-shadow duration-200',
           className
         )}
       >
