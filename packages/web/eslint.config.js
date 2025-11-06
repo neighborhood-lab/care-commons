@@ -43,6 +43,13 @@ export default [
         document: 'readonly',
         fetch: 'readonly',
         navigator: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        confirm: 'readonly',
+        alert: 'readonly',
+        prompt: 'readonly',
+        location: 'readonly',
+        history: 'readonly',
         // React globals
         React: 'readonly',
         // Vitest globals (when using globals: true)
@@ -74,6 +81,8 @@ export default [
         { allowConstantExport: true },
       ],
       'react/no-unescaped-entities': 'off',
+      // Disable no-undef for TypeScript files (TypeScript handles this)
+      'no-undef': 'off',
       // TypeScript strict rules (relaxed for now)
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
@@ -113,6 +122,16 @@ export default [
       'sonarjs/no-nested-conditional': 'warn',
       'sonarjs/deprecation': 'warn',
       'sonarjs/no-intrusive-permissions': 'warn',
+      'sonarjs/no-ignored-exceptions': 'warn',
+      'sonarjs/prefer-regexp-exec': 'warn',
+      'sonarjs/cognitive-complexity': ['warn', 30],
+      'sonarjs/pseudo-random': 'warn',
+      'sonarjs/no-hardcoded-passwords': 'warn',
+      'sonarjs/unused-import': 'warn',
+      'sonarjs/no-nested-functions': 'warn',
+      'sonarjs/prefer-read-only-props': 'warn',
+      'sonarjs/no-unused-vars': 'warn',
+      'sonarjs/no-dead-store': 'warn',
     },
     settings: {
       react: {

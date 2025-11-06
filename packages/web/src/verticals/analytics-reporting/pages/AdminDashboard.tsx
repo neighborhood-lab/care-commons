@@ -12,10 +12,10 @@ import { useOperationalKPIs, useComplianceAlerts, useRevenueTrends } from '../ho
 import { Activity, TrendingUp, Users, DollarSign, Calendar, RefreshCw } from 'lucide-react';
 
 export function AdminDashboard() {
-  const [dateRange, setDateRange] = useState({
+  const [dateRange] = useState(() => ({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     endDate: new Date().toISOString(),
-  });
+  }));
 
   const { data: kpis, isLoading: kpisLoading, refetch: refetchKPIs } = useOperationalKPIs({
     startDate: dateRange.startDate,

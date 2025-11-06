@@ -23,7 +23,6 @@ export interface CarePlanApiService {
 
 export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiService => {
   return {
-    // eslint-disable-next-line sonarjs/cognitive-complexity
     async getCarePlans(filters?: CarePlanSearchFilters & SearchParams): Promise<PaginatedResult<CarePlan>> {
       const params = new URLSearchParams();
       if (filters?.query) params.append('query', filters.query);
@@ -63,7 +62,6 @@ export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiServi
       return apiClient.post<CarePlan>(`/api/care-plans/${id}/activate`);
     },
 
-    // eslint-disable-next-line sonarjs/cognitive-complexity
     async getTasks(filters?: TaskInstanceSearchFilters & SearchParams): Promise<PaginatedResult<TaskInstance>> {
       const params = new URLSearchParams();
       if (filters?.carePlanId) params.append('carePlanId', filters.carePlanId);
