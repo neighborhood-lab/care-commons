@@ -11,8 +11,8 @@ import { ActivityFeed, ActivityFilters } from '../components';
 
 // Calculate default date range outside component to avoid impure function during render
 const getDefaultDateRange = () => ({
-  start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  end: new Date().toISOString().split('T')[0],
+  start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!,
+  end: new Date().toISOString().split('T')[0]!,
 });
 
 export const ActivityPage: React.FC = () => {
@@ -31,7 +31,7 @@ export const ActivityPage: React.FC = () => {
     }
 
     // Date range filter
-    const activityDate = new Date(activity.occurredAt).toISOString().split('T')[0];
+    const activityDate = new Date(activity.occurredAt).toISOString().split('T')[0]!;
     if (activityDate < dateRange.start || activityDate > dateRange.end) {
       return false;
     }
