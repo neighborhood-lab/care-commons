@@ -133,22 +133,18 @@ export function ReportsPage() {
       {showGenerateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card padding="md" className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <Card.Header>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Generate Report</h2>
-                  <p className="text-sm text-gray-600">
-                    Select report type and configure parameters
-                  </p>
-                </div>
+            <Card.Header
+              title="Generate Report"
+              subtitle="Select report type and configure parameters"
+              action={
                 <button
                   onClick={() => setShowGenerateModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
                 >
                   ×
                 </button>
-              </div>
-            </Card.Header>
+              }
+            />
             <Card.Content>
               <div className="space-y-4">
                 {/* Report Type Selection */}
