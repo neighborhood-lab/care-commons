@@ -9,6 +9,7 @@ import { Database, PermissionService, UserRepository } from '@care-commons/core'
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
+import { CareNoteService, CareNoteRepository, createCareNoteHandlers } from '@care-commons/care-notes-reporting';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
@@ -54,6 +55,14 @@ export function setupRoutes(app: Express, db: Database): void {
   const carePlanRouter = createCarePlanRouter(carePlanHandlers);
   app.use('/api', carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered');
+
+  // Care Notes & Progress Reporting routes
+  const careNoteRepository = new CareNoteRepository(db);
+  const careNoteService = new CareNoteService(careNoteRepository, permissionService);
+  const careNoteHandlers = createCareNoteHandlers(careNoteService);
+  const careNoteRouter = createCareNoteRouter(careNoteHandlers);
+  app.use('/api', careNoteRouter);
+  console.log('  ✓ Care Notes & Progress Reporting routes registered');
 
   // Caregiver & Staff Management routes
   const caregiverRouter = createCaregiverRouter(db);
@@ -126,6 +135,36 @@ function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers
   // Analytics
   router.get('/analytics/care-plans', handlers.getCarePlanAnalytics);
   router.get('/analytics/tasks/completion', handlers.getTaskCompletionMetrics);
+
+  return router;
+}
+
+/**
+ * Helper to create router from care note handlers object
+ */
+function createCareNoteRouter(handlers: ReturnType<typeof createCareNoteHandlers>): Router {
+  const router = Router();
+
+  // Care Note endpoints
+  router.post('/care-notes', handlers.createCareNote);
+  router.get('/care-notes', handlers.searchCareNotes);
+  router.get('/care-notes/:id', handlers.getCareNoteById);
+  router.put('/care-notes/:id', handlers.updateCareNote);
+  router.delete('/care-notes/:id', handlers.deleteCareNote);
+
+  // Client-specific care note endpoints
+  router.get('/care-notes/client/:clientId', handlers.getCareNotesByClientId);
+
+  // Review endpoints
+  router.get('/care-notes/review/pending', handlers.getCareNotesRequiringReview);
+  router.post('/care-notes/:id/review', handlers.reviewCareNote);
+  router.post('/care-notes/:id/approve', handlers.approveCareNote);
+
+  // Analytics
+  router.get('/care-notes/analytics', handlers.getCareNoteAnalytics);
+
+  // Progress reports
+  router.post('/progress-reports', handlers.generateProgressReport);
 
   return router;
 }
