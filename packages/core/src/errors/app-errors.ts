@@ -14,6 +14,7 @@ export class AppError extends Error {
   public readonly code?: string;
   public readonly isOperational: boolean;
 
+  // eslint-disable-next-line max-params -- Error base class needs these params
   constructor(
     message: string,
     statusCode: number = 500,
@@ -271,6 +272,7 @@ export function asyncHandler(
   fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
+    // eslint-disable-next-line promise/no-callback-in-promise -- Express pattern requires callback in catch
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
