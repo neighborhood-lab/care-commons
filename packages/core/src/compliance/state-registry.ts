@@ -55,6 +55,38 @@ async function createFloridaValidator(): Promise<StateComplianceValidator> {
   return new FloridaComplianceValidator();
 }
 
+/**
+ * Lazy-load Pennsylvania validator
+ */
+async function createPennsylvaniaValidator(): Promise<StateComplianceValidator> {
+  const { PennsylvaniaComplianceValidator } = await import('./pennsylvania/validator.js');
+  return new PennsylvaniaComplianceValidator();
+}
+
+/**
+ * Lazy-load Georgia validator
+ */
+async function createGeorgiaValidator(): Promise<StateComplianceValidator> {
+  const { GeorgiaComplianceValidator } = await import('./georgia/validator.js');
+  return new GeorgiaComplianceValidator();
+}
+
+/**
+ * Lazy-load North Carolina validator
+ */
+async function createNorthCarolinaValidator(): Promise<StateComplianceValidator> {
+  const { NorthCarolinaComplianceValidator } = await import('./north-carolina/validator.js');
+  return new NorthCarolinaComplianceValidator();
+}
+
+/**
+ * Lazy-load Arizona validator
+ */
+async function createArizonaValidator(): Promise<StateComplianceValidator> {
+  const { ArizonaComplianceValidator } = await import('./arizona/validator.js');
+  return new ArizonaComplianceValidator();
+}
+
 export const STATE_REGISTRY: Partial<Record<StateCode, StateInfo>> = {
   OH: {
     code: 'OH',
@@ -69,6 +101,62 @@ export const STATE_REGISTRY: Partial<Record<StateCode, StateInfo>> = {
     independentAgencyPercentage: 85,
     priorityScore: 9.5,
     validatorFactory: createOhioValidator,
+  },
+  PA: {
+    code: 'PA',
+    name: 'Pennsylvania',
+    abbreviation: 'PA',
+    evvAggregator: 'Sandata',
+    evvAggregatorFree: true,
+    strictness: 'MODERATE',
+    backgroundCheckCycle: 'EVERY_5_YEARS',
+    dataRetentionYears: 7, // PA requires longest retention
+    marketSize: '8,000+ agencies',
+    independentAgencyPercentage: 83,
+    priorityScore: 9.0,
+    validatorFactory: createPennsylvaniaValidator,
+  },
+  GA: {
+    code: 'GA',
+    name: 'Georgia',
+    abbreviation: 'GA',
+    evvAggregator: 'Tellus',
+    evvAggregatorFree: false, // Open/Flex model
+    strictness: 'LENIENT',
+    backgroundCheckCycle: 'EVERY_5_YEARS',
+    dataRetentionYears: 6,
+    marketSize: '6,000+ agencies',
+    independentAgencyPercentage: 86,
+    priorityScore: 8.5,
+    validatorFactory: createGeorgiaValidator,
+  },
+  NC: {
+    code: 'NC',
+    name: 'North Carolina',
+    abbreviation: 'NC',
+    evvAggregator: 'Sandata',
+    evvAggregatorFree: true,
+    strictness: 'MODERATE',
+    backgroundCheckCycle: 'EVERY_5_YEARS',
+    dataRetentionYears: 6,
+    marketSize: '5,000+ agencies',
+    independentAgencyPercentage: 84,
+    priorityScore: 8.0,
+    validatorFactory: createNorthCarolinaValidator,
+  },
+  AZ: {
+    code: 'AZ',
+    name: 'Arizona',
+    abbreviation: 'AZ',
+    evvAggregator: 'Sandata',
+    evvAggregatorFree: true,
+    strictness: 'MODERATE',
+    backgroundCheckCycle: 'EVERY_5_YEARS',
+    dataRetentionYears: 6,
+    marketSize: '4,000+ agencies',
+    independentAgencyPercentage: 88,
+    priorityScore: 8.0,
+    validatorFactory: createArizonaValidator,
   },
   TX: {
     code: 'TX',
