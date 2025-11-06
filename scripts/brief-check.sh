@@ -67,11 +67,11 @@ run_check() {
 # Track failures
 FAILED_CHECKS=()
 
-# Run checks
-run_check "Build" "📦" "npm run build" || FAILED_CHECKS+=("Build")
-run_check "Lint" "🔍" "npm run lint" || FAILED_CHECKS+=("Lint")
-run_check "TypeCheck" "🔎" "npm run typecheck" || FAILED_CHECKS+=("TypeCheck")
-run_check "Tests with Coverage" "🧪" "npm run test:coverage" || FAILED_CHECKS+=("Tests")
+# Run checks (using Turbo for caching and parallelization)
+run_check "Build" "📦" "npx turbo run build" || FAILED_CHECKS+=("Build")
+run_check "Lint" "🔍" "npx turbo run lint" || FAILED_CHECKS+=("Lint")
+run_check "TypeCheck" "🔎" "npx turbo run typecheck" || FAILED_CHECKS+=("TypeCheck")
+run_check "Tests with Coverage" "🧪" "npx turbo run test:coverage" || FAILED_CHECKS+=("Tests")
 
 # Calculate total duration
 OVERALL_END=$(date +%s)

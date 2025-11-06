@@ -50,15 +50,15 @@ npm run db:seed
 npm run db:seed:demo
 
 echo "🏗️  Building project..."
-npm run build
+npx turbo run build
 
 echo "🔍 Running linting..."
-npm run lint
+npx turbo run lint
 
 echo "🔎 Running type checks..."
-npm run typecheck
+npx turbo run typecheck
 
 echo "🧪 Running tests with coverage..."
-npm run test:coverage
+npx turbo run test:coverage
 
 echo "✅ All checks completed successfully!"
