@@ -18,6 +18,46 @@
   body {
     @apply bg-gray-50 text-gray-900;
   }
+
+  /* Skip to main content link - hidden until focused */
+  .skip-to-main {
+    @apply absolute -top-10 left-0 bg-primary-600 text-white px-4 py-2 z-50 rounded-br-md;
+    @apply focus:top-0 transition-all;
+  }
+
+  /* Enhanced focus states for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  /* Shimmer animation for skeleton loading */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(
+      to right,
+      #f3f4f6 0%,
+      #e5e7eb 20%,
+      #f3f4f6 40%,
+      #f3f4f6 100%
+    );
+    background-size: 1000px 100%;
+  }
 }
 
 @layer components {

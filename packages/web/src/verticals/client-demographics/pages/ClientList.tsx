@@ -34,36 +34,41 @@ export const ClientList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Clients</h1>
           <p className="text-gray-600 mt-1">
             {data?.total || 0} total clients
           </p>
         </div>
-        <div className="flex gap-2">
-          <div className="flex border border-gray-300 rounded-md">
+        <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex border border-gray-300 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${
-                viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
+              className={`p-3 min-w-[44px] min-h-[44px] flex items-center justify-center transition-all ${
+                viewMode === 'grid' ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'
               }`}
+              aria-label="Grid view"
+              aria-pressed={viewMode === 'grid'}
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${
-                viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
+              className={`p-3 min-w-[44px] min-h-[44px] flex items-center justify-center transition-all ${
+                viewMode === 'list' ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'
               }`}
+              aria-label="List view"
+              aria-pressed={viewMode === 'list'}
             >
               <List className="h-5 w-5" />
             </button>
           </div>
           {can('clients:write') && (
-            <Link to="/clients/new">
-              <Button leftIcon={<Plus className="h-4 w-4" />}>
-                New Client
+            <Link to="/clients/new" className="flex-1 sm:flex-initial">
+              <Button leftIcon={<Plus className="h-4 w-4" />} className="w-full sm:w-auto">
+                <span className="hidden sm:inline">New Client</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </Link>
           )}
