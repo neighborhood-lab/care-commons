@@ -1,6 +1,5 @@
 .turbo/
 .idea/
-claude/
 
 .vscode/
 care-commons.code-workspace
