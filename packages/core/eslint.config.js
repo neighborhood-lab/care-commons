@@ -92,6 +92,15 @@ export default [
       'unicorn/prefer-string-slice': 'error',
       'unicorn/better-regex': 'error',
       'unicorn/no-for-loop': 'error',
+      // SOLID Principles enforcement
+      // Single Responsibility Principle (SRP) - Keep files and functions small
+      'max-lines': ['warn', { max: 300, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }],
+      // SRP - Keep functions simple
+      'complexity': ['warn', 10],
+      'max-depth': ['warn', 3],
+      // Dependency Inversion Principle (DIP) - Prefer objects over many params
+      'max-params': ['warn', 3],
     },
   },
   {
@@ -104,6 +113,11 @@ export default [
       'sonarjs/constructor-for-side-effects': 'off', // Allow constructor calls for side effects in tests
       'sonarjs/no-hardcoded-ip': 'off', // Allow hardcoded IPs in test fixtures
       'sonarjs/no-nested-functions': 'off', // Allow nested functions in test cases
+      // Relax SOLID rules for tests
+      'max-lines': 'off', // Test files can be longer
+      'max-lines-per-function': 'off', // Test functions can be longer
+      'complexity': 'off', // Test setups can be complex
+      'max-params': 'off', // Allow more params in test helpers
     },
   },
   {
