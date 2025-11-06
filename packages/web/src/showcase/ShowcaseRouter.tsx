@@ -23,6 +23,7 @@ import { EVVRecordList, EVVRecordDetail } from '../verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from '../verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from '../verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from '../verticals/shift-matching';
+import { RoleList, RoleDetail, PermissionList, AuditLogList } from '../verticals/rbac-security';
 
 const CURRENT_ROLE_KEY = 'showcase-current-role';
 
@@ -228,6 +229,38 @@ export const ShowcaseRouter: React.FC = () => {
           element={
             <AppShell>
               <AdminDashboard />
+            </AppShell>
+          }
+        />
+        <Route
+          path="/rbac/roles"
+          element={
+            <AppShell>
+              <RoleList />
+            </AppShell>
+          }
+        />
+        <Route
+          path="/rbac/roles/:id"
+          element={
+            <AppShell>
+              <RoleDetail />
+            </AppShell>
+          }
+        />
+        <Route
+          path="/rbac/permissions"
+          element={
+            <AppShell>
+              <PermissionList />
+            </AppShell>
+          }
+        />
+        <Route
+          path="/rbac/audit-logs"
+          element={
+            <AppShell>
+              <AuditLogList />
             </AppShell>
           }
         />

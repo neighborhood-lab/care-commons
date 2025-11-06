@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { RoleList, RoleDetail, PermissionList, AuditLogList } from './verticals/rbac-security';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -223,6 +224,46 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <AdminDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rbac/roles"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <RoleList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rbac/roles/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <RoleDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rbac/permissions"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PermissionList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rbac/audit-logs"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <AuditLogList />
             </AppShell>
           </ProtectedRoute>
         }
