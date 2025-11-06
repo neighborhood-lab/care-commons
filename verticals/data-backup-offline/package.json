@@ -1,0 +1,40 @@
+{
+  "name": "@care-commons/data-backup-offline",
+  "version": "0.1.0",
+  "description": "Comprehensive backup management and offline synchronization support for care coordination platforms",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "backup",
+    "offline",
+    "sync",
+    "data-protection",
+    "disaster-recovery",
+    "offline-first",
+    "conflict-resolution",
+    "care-commons"
+  ],
+  "dependencies": {
+    "@care-commons/core": "file:../../packages/core",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.2",
+    "eslint": "^9.0.0"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}
