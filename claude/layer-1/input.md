@@ -29,3 +29,7 @@ Your immediate task:
 
 - Review existing `claude/layer-2/input/NNNN-*.md` for context of what is in the work queue, but has not been merged into the default `develop` branch.
 - Create many `claude/layer-2/input/NNNN-*.md` files based on your roles and priorities defined in this file.
+
+Special notes:
+
+- Do not run the S.N.Y.K. `test` or `code test` command line tools. Never run them, not locally in scripts or in GitHub workflow/Actions. Never mention S.N.Y.K. in any files in the repository.
