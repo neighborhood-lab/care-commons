@@ -5,23 +5,21 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ClientAddressProvider } from '../client-address-provider';
-import type { ClientService } from '../../../../client-demographics/src/service/client-service';
-import type { Client, Address } from '../../../../client-demographics/src/types/client';
+import { ClientAddressProvider, IClientService } from '../client-address-provider';
 import type { UserContext, UUID } from '@care-commons/core';
 import { NotFoundError } from '@care-commons/core';
 
 // Mock client service
-const mockClientService = {
+const mockClientService: IClientService = {
   getClientById: vi.fn(),
-} as unknown as ClientService;
+};
 
 // Test context
 const testContext: UserContext = {
   userId: 'system-user' as UUID,
   organizationId: 'org-123' as UUID,
   branchIds: ['branch-123' as UUID],
-  roles: ['SYSTEM'],
+  roles: ['SUPER_ADMIN'],
   permissions: ['clients:read'],
 };
 
@@ -32,21 +30,19 @@ describe('ClientAddressProvider', () => {
 
   describe('Address Selection Logic', () => {
     it('should return primary HOME address when available', async () => {
-      const primaryAddress: Address = {
-        type: 'HOME',
-        line1: '123 Main St',
-        line2: 'Apt 4',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78701',
-        country: 'USA',
-        latitude: 30.2672,
-        longitude: -97.7431,
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-123' as UUID,
-        primaryAddress,
+        primaryAddress: {
+          type: 'HOME' as const,
+          line1: '123 Main St',
+          line2: 'Apt 4',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          country: 'USA',
+          latitude: 30.2672,
+          longitude: -97.7431,
+        },
       };
 
       mockClientService.getClientById = vi.fn().mockResolvedValue(mockClient);
@@ -66,31 +62,27 @@ describe('ClientAddressProvider', () => {
     });
 
     it('should prefer secondary HOME address over non-HOME primary', async () => {
-      const primaryBillingAddress: Address = {
-        type: 'BILLING',
-        line1: 'PO Box 999',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78700',
-        country: 'USA',
-      };
-
-      const secondaryHomeAddress: Address = {
-        type: 'HOME',
-        line1: '456 Oak Ave',
-        line2: 'Unit B',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78702',
-        country: 'USA',
-        latitude: 30.2500,
-        longitude: -97.7300,
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-456' as UUID,
-        primaryAddress: primaryBillingAddress,
-        secondaryAddresses: [secondaryHomeAddress],
+        primaryAddress: {
+          type: 'BILLING' as const,
+          line1: 'PO Box 999',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78700',
+          country: 'USA',
+        },
+        secondaryAddresses: [{
+          type: 'HOME' as const,
+          line1: '456 Oak Ave',
+          line2: 'Unit B',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78702',
+          country: 'USA',
+          latitude: 30.2500,
+          longitude: -97.7300,
+        }],
       };
 
       mockClientService.getClientById = vi.fn().mockResolvedValue(mockClient);
@@ -107,18 +99,16 @@ describe('ClientAddressProvider', () => {
     });
 
     it('should use primary address even if not HOME type when no HOME address exists', async () => {
-      const primaryTemporaryAddress: Address = {
-        type: 'TEMPORARY',
-        line1: '789 Pine Rd',
-        city: 'Dallas',
-        state: 'TX',
-        postalCode: '75201',
-        country: 'USA',
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-789' as UUID,
-        primaryAddress: primaryTemporaryAddress,
+        primaryAddress: {
+          type: 'TEMPORARY' as const,
+          line1: '789 Pine Rd',
+          city: 'Dallas',
+          state: 'TX',
+          postalCode: '75201',
+          country: 'USA',
+        },
         secondaryAddresses: [],
       };
 
@@ -151,18 +141,16 @@ describe('ClientAddressProvider', () => {
 
   describe('Caching', () => {
     it('should cache addresses after first fetch', async () => {
-      const primaryAddress: Address = {
-        type: 'HOME',
-        line1: '123 Main St',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78701',
-        country: 'USA',
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-cache' as UUID,
-        primaryAddress,
+        primaryAddress: {
+          type: 'HOME' as const,
+          line1: '123 Main St',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          country: 'USA',
+        },
       };
 
       mockClientService.getClientById = vi.fn().mockResolvedValue(mockClient);
@@ -188,18 +176,16 @@ describe('ClientAddressProvider', () => {
     });
 
     it('should expire cache after TTL', async () => {
-      const primaryAddress: Address = {
-        type: 'HOME',
-        line1: '123 Main St',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78701',
-        country: 'USA',
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-expire' as UUID,
-        primaryAddress,
+        primaryAddress: {
+          type: 'HOME' as const,
+          line1: '123 Main St',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          country: 'USA',
+        },
       };
 
       mockClientService.getClientById = vi.fn().mockResolvedValue(mockClient);
@@ -223,18 +209,16 @@ describe('ClientAddressProvider', () => {
     });
 
     it('should invalidate specific client from cache', async () => {
-      const primaryAddress: Address = {
-        type: 'HOME',
-        line1: '123 Main St',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78701',
-        country: 'USA',
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-invalidate' as UUID,
-        primaryAddress,
+        primaryAddress: {
+          type: 'HOME' as const,
+          line1: '123 Main St',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          country: 'USA',
+        },
       };
 
       mockClientService.getClientById = vi.fn().mockResolvedValue(mockClient);
@@ -257,28 +241,30 @@ describe('ClientAddressProvider', () => {
     });
 
     it('should clear entire cache', async () => {
-      const address1: Address = {
-        type: 'HOME',
-        line1: '123 Main St',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78701',
-        country: 'USA',
-      };
-
-      const address2: Address = {
-        type: 'HOME',
-        line1: '456 Oak Ave',
-        city: 'Dallas',
-        state: 'TX',
-        postalCode: '75201',
-        country: 'USA',
-      };
-
       mockClientService.getClientById = vi
         .fn()
-        .mockResolvedValueOnce({ id: 'client-1' as UUID, primaryAddress: address1 })
-        .mockResolvedValueOnce({ id: 'client-2' as UUID, primaryAddress: address2 });
+        .mockResolvedValueOnce({
+          id: 'client-1' as UUID,
+          primaryAddress: {
+            type: 'HOME' as const,
+            line1: '123 Main St',
+            city: 'Austin',
+            state: 'TX',
+            postalCode: '78701',
+            country: 'USA',
+          }
+        })
+        .mockResolvedValueOnce({
+          id: 'client-2' as UUID,
+          primaryAddress: {
+            type: 'HOME' as const,
+            line1: '456 Oak Ave',
+            city: 'Dallas',
+            state: 'TX',
+            postalCode: '75201',
+            country: 'USA',
+          }
+        });
 
       const provider = new ClientAddressProvider(
         mockClientService,
@@ -300,20 +286,18 @@ describe('ClientAddressProvider', () => {
 
   describe('Geofencing', () => {
     it('should include default geofence radius', async () => {
-      const primaryAddress: Address = {
-        type: 'HOME',
-        line1: '123 Main St',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78701',
-        country: 'USA',
-        latitude: 30.2672,
-        longitude: -97.7431,
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-geofence' as UUID,
-        primaryAddress,
+        primaryAddress: {
+          type: 'HOME' as const,
+          line1: '123 Main St',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          country: 'USA',
+          latitude: 30.2672,
+          longitude: -97.7431,
+        },
       };
 
       mockClientService.getClientById = vi.fn().mockResolvedValue(mockClient);
@@ -329,20 +313,18 @@ describe('ClientAddressProvider', () => {
     });
 
     it('should include GPS coordinates when available', async () => {
-      const primaryAddress: Address = {
-        type: 'HOME',
-        line1: '123 Main St',
-        city: 'Austin',
-        state: 'TX',
-        postalCode: '78701',
-        country: 'USA',
-        latitude: 30.2672,
-        longitude: -97.7431,
-      };
-
-      const mockClient: Partial<Client> = {
+      const mockClient = {
         id: 'client-gps' as UUID,
-        primaryAddress,
+        primaryAddress: {
+          type: 'HOME' as const,
+          line1: '123 Main St',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          country: 'USA',
+          latitude: 30.2672,
+          longitude: -97.7431,
+        },
       };
 
       mockClientService.getClientById = vi.fn().mockResolvedValue(mockClient);
