@@ -35,7 +35,7 @@ export const CorrectiveActionsPage: React.FC = () => {
     );
   }
 
-  const actions = actionsResult?.data || [];
+  const actions = actionsResult?.items || [];
 
   return (
     <div className="space-y-6">
