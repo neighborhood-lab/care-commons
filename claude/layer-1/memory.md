@@ -275,6 +275,59 @@ care-commons/
 
 ---
 
+## PLANNING SESSION LOG
+
+### Session: 2025-11-06
+
+**Tasks Created**:
+- **0021** (CRITICAL): Fix EVV Service Mocked Data - Replace placeholder client/caregiver data with real provider lookups
+- **0022** (CRITICAL): Fix Scheduling Service Placeholder Addresses - Wire real client addresses for route optimization
+- **0023** (HIGH): Implement Care Plans Frontend UI - Complete coordinator and caregiver UI for care plans and tasks
+- **0024** (CRITICAL): Wire Provider Interfaces Across All Verticals - Comprehensive provider interface implementation
+- **0025** (HIGH): Mobile App Authentication and Onboarding - Biometric auth, secure token storage, first-time UX
+- **0026** (CRITICAL): Timezone Handling Standardization - Multi-timezone support for scheduling, EVV, and display
+- **0027** (MEDIUM): Form Validation Standardization - Shared Zod schemas, consistent error handling across web/mobile
+- **0028** (CRITICAL): Automated Client Address Geocoding - Auto-geocode addresses for GPS verification and routing
+- **0029** (MEDIUM): Care Plan Templates Library - Pre-built templates for common care scenarios
+
+**Previously Existing Tasks**: 0003-0020 (18 tasks)
+
+**Total Task Queue**: 27 implementation tasks (0003-0029)
+
+**Critical Path** (Must complete before production):
+1. **0021, 0022** - Fix mocked data in EVV and Scheduling (HIGHEST PRIORITY)
+2. **0024** - Wire provider interfaces across verticals
+3. **0026** - Timezone handling (multi-state operations)
+4. **0028** - Geocoding automation (required for EVV/routing)
+5. **0014** - Security enhancements and RBAC audit
+6. **0017, 0018** - Monitoring and backups
+7. **0020** - Production launch checklist
+
+**High-Value Quick Wins**:
+- **0025** - Mobile app auth/onboarding (better caregiver UX)
+- **0023** - Care plans UI (core feature completion)
+- **0003** - Family engagement portal (core feature completion)
+
+**Architecture Improvements**:
+- Provider interfaces now consistently wired (0024)
+- Timezone handling standardized (0026)
+- Form validation unified (0027)
+- Geocoding automated (0028)
+
+**Next Planner Session Focus**:
+1. Monitor layer-2 implementation progress
+2. Create additional tasks for:
+   - Real-world testing scenarios and load testing
+   - API rate limiting and caching strategies
+   - Advanced analytics and reporting features
+   - Multi-agency support and white-labeling
+   - Caregiver mobile app advanced features (offline task completion, photo attachments)
+   - Compliance reporting automation
+   - Integration with external EVV aggregators
+   - Advanced scheduling algorithms (machine learning-based matching)
+
+---
+
 ## NEXT SESSION CONTEXT
 
 **For future Claude instances**: This memory provides the strategic direction. When planning work:
@@ -285,4 +338,12 @@ care-commons/
 5. Follow architectural patterns consistently
 
 **Current Phase**: Phase 1 - Production Readiness
-**Top Priority**: Replace mocked service integrations in EVV and Scheduling
+**Top Priority**: Replace mocked service integrations (Tasks 0021, 0022) - PRODUCTION BLOCKERS
+**Task Queue Status**: 27 tasks (6 critical, 8 high, 13 medium)
+**Estimated Effort**: ~200-270 hours total implementation work
+
+**Immediate Action Items for Layer-2 Workers**:
+1. Start with Task 0021 (Fix EVV mocked data)
+2. Follow with Task 0022 (Fix scheduling addresses)
+3. Then Task 0024 (Provider interface wiring)
+4. Tasks 0021-0029 are new and ready for implementation

@@ -17,22 +17,24 @@ import { LoginScreen } from '../screens/auth/LoginScreen.js';
 import { TodayVisitsScreen } from '../screens/visits/TodayVisitsScreen.js';
 import { ScheduleScreen } from '../screens/schedule/ScheduleScreen.js';
 import { ProfileScreen } from '../screens/profile/ProfileScreen.js';
-import { VisitDetailScreen as VisitDetailScreenBase } from '../features/visits/screens/VisitDetailScreen.js';
+import { VisitDetailScreen } from '../screens/visits/VisitDetailScreen.js';
+import { VisitCheckInScreen } from '../screens/visits/VisitCheckInScreen.js';
+import { VisitCheckOutScreen } from '../screens/visits/VisitCheckOutScreen.js';
+import { VisitDocumentationScreen } from '../screens/visits/VisitDocumentationScreen.js';
+import { VisitHistoryScreen } from '../screens/visits/VisitHistoryScreen.js';
 import { ClockInScreen } from '../screens/visits/ClockInScreen.js';
 import { CameraScreen } from '../screens/visits/CameraScreen.js';
 import { TasksScreen } from '../screens/visits/TasksScreen.js';
 import { SignatureScreen } from '../screens/visits/SignatureScreen.js';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-// Wrapper to adapt VisitDetailScreen to React Navigation
-function VisitDetailScreen({ route }: NativeStackScreenProps<RootStackParamList, 'VisitDetail'>) {
-  return <VisitDetailScreenBase visitId={route.params.visitId} />;
-}
 
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   VisitDetail: { visitId: string };
+  VisitCheckIn: { visitId: string };
+  VisitCheckOut: { visitId: string };
+  VisitDocumentation: { visitId: string };
+  VisitHistory: undefined;
   ClockIn: { visitId: string };
   Camera: { onCapture: (uri: string) => void };
   Tasks: { visitId: string };
@@ -42,6 +44,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   TodayVisits: undefined;
   Schedule: undefined;
+  VisitHistory: undefined;
   Profile: undefined;
 };
 
@@ -74,6 +77,14 @@ function MainNavigator() {
         options={{
           title: 'Schedule',
           tabBarLabel: 'Schedule',
+        }}
+      />
+      <MainTab.Screen
+        name="VisitHistory"
+        component={VisitHistoryScreen}
+        options={{
+          title: 'History',
+          tabBarLabel: 'History',
         }}
       />
       <MainTab.Screen
@@ -112,6 +123,27 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               name="VisitDetail"
               component={VisitDetailScreen}
               options={{ title: 'Visit Details' }}
+            />
+            <RootStack.Screen
+              name="VisitCheckIn"
+              component={VisitCheckInScreen}
+              options={{
+                title: 'Check In',
+                presentation: 'modal',
+              }}
+            />
+            <RootStack.Screen
+              name="VisitCheckOut"
+              component={VisitCheckOutScreen}
+              options={{
+                title: 'Check Out',
+                presentation: 'modal',
+              }}
+            />
+            <RootStack.Screen
+              name="VisitDocumentation"
+              component={VisitDocumentationScreen}
+              options={{ title: 'Documentation' }}
             />
             <RootStack.Screen
               name="ClockIn"

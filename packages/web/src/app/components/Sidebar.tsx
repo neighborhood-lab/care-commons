@@ -12,6 +12,7 @@ import {
   LogOut,
   X,
   Plus,
+  ClipboardCheck,
 } from 'lucide-react';
 import { cn } from '@/core/utils';
 import { useAuth, usePermissions } from '@/core/hooks';
@@ -78,6 +79,12 @@ const navItems: NavItem[] = [
     path: '/billing',
     icon: <DollarSign className="h-5 w-5" />,
     permission: 'billing:read',
+  },
+  {
+    label: 'Quality Assurance',
+    path: '/quality-assurance',
+    icon: <ClipboardCheck className="h-5 w-5" />,
+    permission: 'audits:view',
   },
   {
     label: 'Admin',
