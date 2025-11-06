@@ -3,7 +3,7 @@
  * Operational view for day-to-day visit management and EVV exceptions
  */
 
-import React from 'react';
+
 import { StatCard } from '../components/StatCard';
 import { Card, CardHeader, CardContent } from '../../../core/components/Card';
 import { Button } from '../../../core/components/Button';
@@ -109,12 +109,10 @@ export function CoordinatorDashboard() {
 
         {/* EVV Exception Queue */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">EVV Exceptions Requiring Review</h2>
-              <Badge variant="warning">{exceptions?.length || 0} pending</Badge>
-            </div>
-          </CardHeader>
+          <CardHeader 
+            title="EVV Exceptions Requiring Review"
+            action={<Badge variant="warning">{exceptions?.length || 0} pending</Badge>}
+          />
           <CardContent>
             {exceptions && exceptions.length > 0 ? (
               <div className="overflow-x-auto">
@@ -217,9 +215,7 @@ export function CoordinatorDashboard() {
         {/* Quick Stats */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <CardHeader>
-              <h3 className="text-sm font-medium text-gray-600">Today's Visits</h3>
-            </CardHeader>
+            <CardHeader title="Today's Visits" />
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -245,9 +241,7 @@ export function CoordinatorDashboard() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <h3 className="text-sm font-medium text-gray-600">Exception Status</h3>
-            </CardHeader>
+            <CardHeader title="Exception Status" />
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -269,9 +263,7 @@ export function CoordinatorDashboard() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <h3 className="text-sm font-medium text-gray-600">Quick Actions</h3>
-            </CardHeader>
+            <CardHeader title="Quick Actions" />
             <CardContent>
               <div className="space-y-2">
                 <Button variant="secondary" size="sm" className="w-full justify-start">

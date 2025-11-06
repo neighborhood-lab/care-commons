@@ -3,7 +3,6 @@
  * Displays compliance alerts with severity indicators
  */
 
-import React from 'react';
 import { AlertTriangle, AlertCircle, Info, XCircle } from 'lucide-react';
 import { Button } from '../../../core/components/Button';
 

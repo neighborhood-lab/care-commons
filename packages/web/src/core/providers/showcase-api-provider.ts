@@ -13,6 +13,7 @@ import { getInitialShowcaseData, type ShowcaseData, type DemoUser } from './show
 
 const STORAGE_KEY = 'care-commons-showcase-data';
 const AUTH_KEY = 'care-commons-showcase-auth';
+const DEMO_ORG_ID = 'org-1'; // Demo organization ID
 
 export class ShowcaseApiProvider implements ApiProvider {
   private data: ShowcaseData;
@@ -60,7 +61,7 @@ export class ShowcaseApiProvider implements ApiProvider {
     // Auto-login if enabled and no user is logged in
     if (this.autoLogin && !this.currentUser) {
       const defaultUser = this.data.users.find(u => u.roles.includes(this.defaultRole as any)) || this.data.users[0];
-      this.currentUser = defaultUser;
+      this.currentUser = defaultUser || null;
       this.saveAuthState();
     }
   }
@@ -177,7 +178,7 @@ export class ShowcaseApiProvider implements ApiProvider {
     method: string,
     url: string,
     data?: unknown,
-    config?: RequestConfig
+    _config?: RequestConfig
   ): Promise<any> {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
@@ -250,8 +251,8 @@ export class ShowcaseApiProvider implements ApiProvider {
     if (method === 'POST') {
       const newClient = {
         id: `client-${Date.now()}`,
-        ...data,
-        organizationId: this.currentUser?.organizationId,
+        ...(data as object),
+        organizationId: DEMO_ORG_ID,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -270,7 +271,7 @@ export class ShowcaseApiProvider implements ApiProvider {
         }
         this.data.clients[index] = {
           ...this.data.clients[index],
-          ...data,
+          ...(data as object),
           updatedAt: new Date().toISOString(),
         };
         this.saveData();
@@ -312,8 +313,8 @@ export class ShowcaseApiProvider implements ApiProvider {
     if (method === 'POST') {
       const newPlan = {
         id: `plan-${Date.now()}`,
-        ...data,
-        organizationId: this.currentUser?.organizationId,
+        ...(data as object),
+        organizationId: DEMO_ORG_ID,
         coordinatorId: this.currentUser?.id,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -333,7 +334,7 @@ export class ShowcaseApiProvider implements ApiProvider {
         }
         this.data.carePlans[index] = {
           ...this.data.carePlans[index],
-          ...data,
+          ...(data as object),
           updatedAt: new Date().toISOString(),
         };
         this.saveData();
@@ -361,7 +362,7 @@ export class ShowcaseApiProvider implements ApiProvider {
     if (method === 'POST') {
       const newTask = {
         id: `task-${Date.now()}`,
-        ...data,
+        ...(data as object),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -380,7 +381,7 @@ export class ShowcaseApiProvider implements ApiProvider {
         }
         this.data.tasks[index] = {
           ...this.data.tasks[index],
-          ...data,
+          ...(data as object),
           updatedAt: new Date().toISOString(),
         };
         this.saveData();
@@ -408,8 +409,8 @@ export class ShowcaseApiProvider implements ApiProvider {
     if (method === 'POST') {
       const newShift = {
         id: `shift-${Date.now()}`,
-        ...data,
-        organizationId: this.currentUser?.organizationId,
+        ...(data as object),
+        organizationId: DEMO_ORG_ID,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -428,7 +429,7 @@ export class ShowcaseApiProvider implements ApiProvider {
         }
         this.data.shifts[index] = {
           ...this.data.shifts[index],
-          ...data,
+          ...(data as object),
           updatedAt: new Date().toISOString(),
         };
         this.saveData();
@@ -456,8 +457,8 @@ export class ShowcaseApiProvider implements ApiProvider {
     if (method === 'POST') {
       const newRecord = {
         id: `evv-${Date.now()}`,
-        ...data,
-        organizationId: this.currentUser?.organizationId,
+        ...(data as object),
+        organizationId: DEMO_ORG_ID,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -487,8 +488,8 @@ export class ShowcaseApiProvider implements ApiProvider {
       const newInvoice = {
         id: `invoice-${Date.now()}`,
         invoiceNumber: `INV-${Date.now()}`,
-        ...data,
-        organizationId: this.currentUser?.organizationId,
+        ...(data as object),
+        organizationId: DEMO_ORG_ID,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -517,8 +518,8 @@ export class ShowcaseApiProvider implements ApiProvider {
     if (method === 'POST') {
       const newPayrun = {
         id: `payrun-${Date.now()}`,
-        ...data,
-        organizationId: this.currentUser?.organizationId,
+        ...(data as object),
+        organizationId: DEMO_ORG_ID,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

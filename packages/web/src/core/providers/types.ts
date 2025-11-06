@@ -14,15 +14,15 @@
 
 import type { PaginatedResult, SearchParams } from '../types/api';
 
-// Re-export types from verticals
-export type {
+// Import types from verticals
+import type {
   Client,
   CreateClientInput,
   UpdateClientInput,
   ClientSearchFilters,
-} from '@/verticals/client-demographics/types';
+} from '../../verticals/client-demographics/types/client.js';
 
-export type {
+import type {
   CarePlan,
   TaskInstance,
   CreateCarePlanInput,
@@ -30,36 +30,68 @@ export type {
   CompleteTaskInput,
   CarePlanSearchFilters,
   TaskInstanceSearchFilters,
-} from '@/verticals/care-plans/types';
+} from '../../verticals/care-plans/types/care-plan.js';
 
-export type {
+import type {
   Caregiver,
   CreateCaregiverInput,
   UpdateCaregiverInput,
   CaregiverSearchFilters,
-} from '@/verticals/caregivers/types';
+} from '../../verticals/caregivers/types/caregiver.js';
 
-export type {
+import type {
   Invoice,
   CreateInvoiceInput,
   UpdateInvoiceInput,
   InvoiceSearchFilters,
-} from '@/verticals/billing-invoicing/types';
+} from '../../verticals/billing-invoicing/types/index.js';
 
-export type {
+import type {
   PayrollPeriod,
   CreatePayrollPeriodInput,
   ProcessPayrollInput,
   PayrollSearchFilters,
-} from '@/verticals/payroll-processing/types';
+} from '../../verticals/payroll-processing/types/index.js';
 
-export type {
+import type {
   ShiftListing,
   ShiftApplication,
   CreateShiftListingInput,
   UpdateShiftListingInput,
   ShiftSearchFilters,
-} from '@/verticals/shift-matching/types';
+} from '../../verticals/shift-matching/types/index.js';
+
+// Re-export types for external consumers
+export type {
+  Client,
+  CreateClientInput,
+  UpdateClientInput,
+  ClientSearchFilters,
+  CarePlan,
+  TaskInstance,
+  CreateCarePlanInput,
+  UpdateCarePlanInput,
+  CompleteTaskInput,
+  CarePlanSearchFilters,
+  TaskInstanceSearchFilters,
+  Caregiver,
+  CreateCaregiverInput,
+  UpdateCaregiverInput,
+  CaregiverSearchFilters,
+  Invoice,
+  CreateInvoiceInput,
+  UpdateInvoiceInput,
+  InvoiceSearchFilters,
+  PayrollPeriod,
+  CreatePayrollPeriodInput,
+  ProcessPayrollInput,
+  PayrollSearchFilters,
+  ShiftListing,
+  ShiftApplication,
+  CreateShiftListingInput,
+  UpdateShiftListingInput,
+  ShiftSearchFilters,
+};
 
 /**
  * Client Data Provider

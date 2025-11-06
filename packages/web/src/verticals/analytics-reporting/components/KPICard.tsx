@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Card, CardContent, CardHeader } from '../../../core/components/Card';
+import { Card, CardContent } from '../../../core/components/Card';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 
 interface KPICardProps {
@@ -45,7 +45,7 @@ export function KPICard({
 
   return (
     <Card className={`border ${statusColors[status]}`}>
-      <CardHeader>
+      <div className="p-6">
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-sm font-medium text-gray-600">{title}</h3>
@@ -55,8 +55,8 @@ export function KPICard({
             </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <CardContent className="pt-0">
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             {subtitle && <span className="text-sm text-gray-500">{subtitle}</span>}

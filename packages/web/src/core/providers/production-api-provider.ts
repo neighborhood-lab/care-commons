@@ -12,12 +12,8 @@ import { createApiClient } from '../services/api-client';
 
 export class ProductionApiProvider implements ApiProvider {
   private apiClient: ApiClient;
-  private baseUrl: string;
-  private getAuthToken: () => string | null;
 
   constructor(baseUrl: string, getAuthToken: () => string | null) {
-    this.baseUrl = baseUrl;
-    this.getAuthToken = getAuthToken;
     this.apiClient = createApiClient(baseUrl, getAuthToken);
   }
 

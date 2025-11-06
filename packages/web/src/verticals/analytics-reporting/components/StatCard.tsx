@@ -3,7 +3,6 @@
  * Simple stat display for coordinator dashboard
  */
 
-import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
 interface StatCardProps {

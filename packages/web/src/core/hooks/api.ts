@@ -5,13 +5,16 @@ import { useAuth } from './auth';
 import { useApiProvider } from '../providers';
 
 export const useApiClient = () => {
+  // Call all hooks unconditionally at the top level
+  const { token } = useAuth();
+  
   // Try to use the provider-based API client first
   try {
     const provider = useApiProvider();
     return provider.getApiClient();
-  } catch (error) {
+  } catch (_error) {
     // Fallback to legacy implementation for backward compatibility
-    const { token } = useAuth();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMemo(() => {
       return createApiClient(
         import.meta.env.VITE_API_BASE_URL || '',

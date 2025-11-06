@@ -2,6 +2,13 @@
  * Caregiver frontend types
  */
 
+// Type aliases for caregiver enums
+export type PhoneType = 'MOBILE' | 'HOME' | 'WORK';
+export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'PER_DIEM' | 'CONTRACT' | 'TEMPORARY' | 'SEASONAL';
+export type EmploymentStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RETIRED';
+export type CaregiverStatus = 'APPLICATION' | 'INTERVIEWING' | 'PENDING_ONBOARDING' | 'ONBOARDING' | 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RETIRED';
+export type ComplianceStatus = 'COMPLIANT' | 'PENDING_VERIFICATION' | 'EXPIRING_SOON' | 'EXPIRED' | 'NON_COMPLIANT';
+
 export interface Caregiver {
   id: string;
   organizationId: string;
@@ -16,15 +23,15 @@ export interface Caregiver {
   email: string;
   primaryPhone: {
     number: string;
-    type: 'MOBILE' | 'HOME' | 'WORK';
+    type: PhoneType;
     canReceiveSMS: boolean;
   };
-  employmentType: 'FULL_TIME' | 'PART_TIME' | 'PER_DIEM' | 'CONTRACT' | 'TEMPORARY' | 'SEASONAL';
-  employmentStatus: 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RETIRED';
+  employmentType: EmploymentType;
+  employmentStatus: EmploymentStatus;
   hireDate: Date;
   role: string;
-  status: 'APPLICATION' | 'INTERVIEWING' | 'PENDING_ONBOARDING' | 'ONBOARDING' | 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RETIRED';
-  complianceStatus: 'COMPLIANT' | 'PENDING_VERIFICATION' | 'EXPIRING_SOON' | 'EXPIRED' | 'NON_COMPLIANT';
+  status: CaregiverStatus;
+  complianceStatus: ComplianceStatus;
   credentials: Credential[];
   training: TrainingRecord[];
   createdAt: Date;
@@ -78,4 +85,44 @@ export interface PaginatedCaregivers {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface CreateCaregiverInput {
+  organizationId: string;
+  branchIds: string[];
+  primaryBranchId: string;
+  employeeNumber?: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  preferredName?: string;
+  dateOfBirth: string;
+  email: string;
+  primaryPhone: {
+    number: string;
+    type: 'MOBILE' | 'HOME' | 'WORK';
+    canReceiveSMS: boolean;
+  };
+  employmentType: 'FULL_TIME' | 'PART_TIME' | 'PER_DIEM' | 'CONTRACT' | 'TEMPORARY' | 'SEASONAL';
+  employmentStatus: 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RETIRED';
+  hireDate: string;
+  role: string;
+}
+
+export interface UpdateCaregiverInput {
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  preferredName?: string;
+  email?: string;
+  primaryPhone?: {
+    number: string;
+    type: 'MOBILE' | 'HOME' | 'WORK';
+    canReceiveSMS: boolean;
+  };
+  employmentType?: 'FULL_TIME' | 'PART_TIME' | 'PER_DIEM' | 'CONTRACT' | 'TEMPORARY' | 'SEASONAL';
+  employmentStatus?: 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED' | 'RETIRED';
+  role?: string;
+  branchIds?: string[];
+  primaryBranchId?: string;
 }

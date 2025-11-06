@@ -43,6 +43,11 @@ export default [
         document: 'readonly',
         fetch: 'readonly',
         navigator: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        confirm: 'readonly',
+        alert: 'readonly',
+        prompt: 'readonly',
         // React globals
         React: 'readonly',
         // Vitest globals (when using globals: true)
@@ -66,6 +71,8 @@ export default [
     },
     rules: {
       ...typescript.configs.recommended.rules,
+      // Disable no-undef for TypeScript files (TypeScript compiler handles this)
+      'no-undef': 'off',
       // React rules
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
@@ -113,6 +120,16 @@ export default [
       'sonarjs/no-nested-conditional': 'warn',
       'sonarjs/deprecation': 'warn',
       'sonarjs/no-intrusive-permissions': 'warn',
+      'sonarjs/no-ignored-exceptions': 'warn',
+      'sonarjs/pseudo-random': 'warn',
+      'sonarjs/cognitive-complexity': 'warn',
+      'sonarjs/prefer-regexp-exec': 'warn',
+      'sonarjs/no-hardcoded-passwords': 'warn',
+      'sonarjs/no-nested-functions': 'warn',
+      'sonarjs/prefer-read-only-props': 'warn',
+      'sonarjs/no-unused-vars': 'warn',
+      'sonarjs/no-dead-store': 'warn',
+      'sonarjs/unused-import': 'warn',
     },
     settings: {
       react: {

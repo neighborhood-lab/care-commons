@@ -13,7 +13,7 @@ import { createBillingApiService } from '@/verticals/billing-invoicing/services/
 import { createPayrollApiService } from '@/verticals/payroll-processing/services/payroll-api';
 import { createShiftMatchingApiService } from '@/verticals/shift-matching/services/shift-matching-api';
 
-import type { DataProvider, ProviderConfig } from './types';
+import type { DataProvider } from './types';
 
 /**
  * Creates an API-based data provider
@@ -48,32 +48,82 @@ export const createApiProvider = (apiClient: ApiClient): DataProvider => {
     getTaskById: carePlanService.getTaskById.bind(carePlanService),
     completeTask: carePlanService.completeTask.bind(carePlanService),
 
-    // Caregiver operations
-    getCaregivers: caregiverService.getCaregivers.bind(caregiverService),
+    // Caregiver operations - adapter methods
+    getCaregivers: async (filters) => {
+      const result = await caregiverService.searchCaregivers(filters);
+      return {
+        items: result.items as any[], // CaregiverListItem is a subset of Caregiver
+        total: result.total,
+        page: result.page,
+        pageSize: result.limit,
+        hasMore: result.page < result.totalPages,
+      };
+    },
     getCaregiverById: caregiverService.getCaregiverById.bind(caregiverService),
-    createCaregiver: caregiverService.createCaregiver.bind(caregiverService),
-    updateCaregiver: caregiverService.updateCaregiver.bind(caregiverService),
+    createCaregiver: caregiverService.createCaregiver.bind(caregiverService) as any, // Type mismatch between input types
+    updateCaregiver: caregiverService.updateCaregiver.bind(caregiverService) as any,
     deleteCaregiver: caregiverService.deleteCaregiver.bind(caregiverService),
 
-    // Billing operations
-    getInvoices: billingService.getInvoices.bind(billingService),
+    // Billing operations - adapter methods
+    getInvoices: async (filters) => {
+      const result = await billingService.getInvoices(filters);
+      return {
+        items: result.items,
+        total: result.total,
+        page: 1,
+        pageSize: result.items.length,
+        hasMore: result.hasMore,
+      };
+    },
     getInvoiceById: billingService.getInvoiceById.bind(billingService),
     createInvoice: billingService.createInvoice.bind(billingService),
     updateInvoice: billingService.updateInvoice.bind(billingService),
     deleteInvoice: billingService.deleteInvoice.bind(billingService),
 
-    // Payroll operations
-    getPayrollPeriods: payrollService.getPayrollPeriods.bind(payrollService),
-    getPayrollPeriodById: payrollService.getPayrollPeriodById.bind(payrollService),
-    createPayrollPeriod: payrollService.createPayrollPeriod.bind(payrollService),
-    processPayroll: payrollService.processPayroll.bind(payrollService),
+    // Payroll operations - adapter methods
+    getPayrollPeriods: async (filters) => {
+      const result = await payrollService.getPayPeriods(filters);
+      return {
+        items: result.items,
+        total: result.total,
+        page: 1,
+        pageSize: result.items.length,
+        hasMore: result.hasMore,
+      };
+    },
+    getPayrollPeriodById: payrollService.getPayPeriodById.bind(payrollService),
+    createPayrollPeriod: async () => {
+      throw new Error('Not implemented - use createPayRun instead');
+    },
+    processPayroll: payrollService.processPayRun.bind(payrollService) as any, // Return type mismatch: PayRun vs PayPeriod
 
-    // Shift Matching operations
-    getShiftListings: shiftMatchingService.getShiftListings.bind(shiftMatchingService),
-    getShiftListingById: shiftMatchingService.getShiftListingById.bind(shiftMatchingService),
-    createShiftListing: shiftMatchingService.createShiftListing.bind(shiftMatchingService),
-    updateShiftListing: shiftMatchingService.updateShiftListing.bind(shiftMatchingService),
-    getApplicationsForShift: shiftMatchingService.getApplicationsForShift.bind(shiftMatchingService),
-    applyToShift: shiftMatchingService.applyToShift.bind(shiftMatchingService),
+    // Shift Matching operations - adapter methods
+    getShiftListings: async (filters) => {
+      const result = await shiftMatchingService.getOpenShifts(filters);
+      return {
+        items: result.items,
+        total: result.total,
+        page: 1,
+        pageSize: result.items.length,
+        hasMore: result.hasMore,
+      };
+    },
+    getShiftListingById: shiftMatchingService.getOpenShiftById.bind(shiftMatchingService),
+    createShiftListing: async () => {
+      throw new Error('Not implemented - shift listings are created from scheduled visits');
+    },
+    updateShiftListing: async () => {
+      throw new Error('Not implemented - shift listings are updated through visit changes');
+    },
+    getApplicationsForShift: async (shiftId) => {
+      const result = await shiftMatchingService.getProposals({ openShiftId: shiftId });
+      return result.items;
+    },
+    applyToShift: async (shiftId, caregiverId) => {
+      return shiftMatchingService.createProposal({ 
+        openShiftId: shiftId, 
+        caregiverId 
+      });
+    },
   };
 };

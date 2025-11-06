@@ -3,7 +3,7 @@
  * Comprehensive operational metrics and compliance monitoring for administrators
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { KPICard } from '../components/KPICard';
 import { AlertCard } from '../components/AlertCard';
 import { Card, CardHeader, CardContent } from '../../../core/components/Card';
@@ -12,10 +12,10 @@ import { useOperationalKPIs, useComplianceAlerts, useRevenueTrends } from '../ho
 import { Activity, TrendingUp, Users, DollarSign, Calendar, RefreshCw } from 'lucide-react';
 
 export function AdminDashboard() {
-  const [dateRange, setDateRange] = useState({
+  const [dateRange] = useState(() => ({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     endDate: new Date().toISOString(),
-  });
+  }));
 
   const { data: kpis, isLoading: kpisLoading, refetch: refetchKPIs } = useOperationalKPIs({
     startDate: dateRange.startDate,
@@ -141,14 +141,14 @@ export function AdminDashboard() {
 
         {/* Compliance Alerts */}
         <Card className="mb-6">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Compliance Alerts</h2>
+          <CardHeader 
+            title="Compliance Alerts" 
+            action={
               <Button variant="secondary" size="sm">
                 View All
               </Button>
-            </div>
-          </CardHeader>
+            } 
+          />
           <CardContent>
             {alerts && alerts.length > 0 ? (
               alerts.map((alert, index) => (
@@ -175,9 +175,7 @@ export function AdminDashboard() {
 
         {/* Revenue Trends */}
         <Card className="mb-6">
-          <CardHeader>
-            <h2 className="text-xl font-bold">Revenue Trend (Last 12 Months)</h2>
-          </CardHeader>
+          <CardHeader title="Revenue Trend (Last 12 Months)" />
           <CardContent>
             {trends && trends.length > 0 ? (
               <div className="overflow-x-auto">
