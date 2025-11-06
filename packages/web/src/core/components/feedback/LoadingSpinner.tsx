@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '../../utils/classnames';
+import { cn } from '@care-commons/shared-components/utils/classnames';
 
 export interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';

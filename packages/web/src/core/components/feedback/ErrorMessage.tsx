@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
-import { cn } from '../../utils/classnames';
+import { cn } from '@care-commons/shared-components/utils/classnames';
 
 export interface ErrorMessageProps {
   title?: string;
