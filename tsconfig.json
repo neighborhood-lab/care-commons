@@ -8,6 +8,7 @@
     { "path": "./verticals/care-plans-tasks" },
     { "path": "./verticals/caregiver-staff" },
     { "path": "./verticals/client-demographics" },
+    { "path": "./verticals/inventory-supplies-tracking" },
     { "path": "./verticals/payroll-processing" },
     { "path": "./verticals/scheduling-visits" },
     { "path": "./verticals/shift-matching" },

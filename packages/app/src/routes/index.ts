@@ -9,6 +9,7 @@ import { Database, PermissionService, UserRepository } from '@care-commons/core'
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
+import { createInventoryRouter, InventoryService, InventoryRepository, StockLevelRepository, InventoryTransactionRepository } from '@care-commons/inventory-supplies-tracking';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
@@ -59,6 +60,15 @@ export function setupRoutes(app: Express, db: Database): void {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
+
+  // Inventory & Supplies Tracking routes
+  const inventoryRepository = new InventoryRepository(db);
+  const stockLevelRepository = new StockLevelRepository(db);
+  const transactionRepository = new InventoryTransactionRepository(db);
+  const inventoryService = new InventoryService(inventoryRepository, stockLevelRepository, transactionRepository);
+  const inventoryRouter = createInventoryRouter(inventoryService);
+  app.use('/api', inventoryRouter);
+  console.log('  ✓ Inventory & Supplies Tracking routes registered');
 
   // Demo routes (interactive demo system)
   const demoRouter = createDemoRouter(db);
