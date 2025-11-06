@@ -4,7 +4,6 @@
  * Type definitions for the API provider interfaces
  */
 
-// @ts-nocheck - Silencing pre-existing type errors (not part of showcase PR)
 
 import type { PaginatedResult, SearchParams } from '../types/api';
 
