@@ -148,6 +148,57 @@ export interface Exception {
   resolution?: string;
 }
 
+// ============================================================================
+// PRE-CANNED DEMO CHOICES
+// ============================================================================
+
+/**
+ * Pre-defined visit note choices for demo mode
+ * Replaces free-form text input to make demos more interactive and consistent
+ */
+export const DEMO_VISIT_NOTE_CHOICES = [
+  'Patient was in good spirits, all vitals normal',
+  'Administered medications as prescribed, no issues reported',
+  'Assisted with bathing and personal care, patient comfortable',
+  'Provided meal preparation and light housekeeping',
+  'Patient reported mild discomfort, monitoring situation',
+  'Completed physical therapy exercises, patient showing improvement',
+  'Family member present during visit, no concerns raised',
+  'Patient refused some ADL assistance, documented refusal',
+] as const;
+
+export type DemoVisitNoteChoice = typeof DEMO_VISIT_NOTE_CHOICES[number];
+
+/**
+ * Pre-defined exception resolution choices for demo mode
+ * Replaces free-form text input to make demos more interactive and consistent
+ */
+export const DEMO_EXCEPTION_RESOLUTION_CHOICES = [
+  'Reassigned to available caregiver, visit completed on time',
+  'Contacted family, rescheduled visit for tomorrow',
+  'Caregiver called in sick, backup coverage arranged',
+  'Traffic delay reported, visit extended by 30 minutes',
+  'Client requested schedule change, updated in system',
+  'Resolved with supervisor approval, no further action needed',
+  'Emergency coverage provided, regular schedule resumed',
+  'Addressed with client, agreed on alternative arrangement',
+] as const;
+
+export type DemoExceptionResolutionChoice = typeof DEMO_EXCEPTION_RESOLUTION_CHOICES[number];
+
+/**
+ * All available demo input choices
+ */
+export interface DemoInputChoices {
+  visitNotes: readonly string[];
+  exceptionResolutions: readonly string[];
+}
+
+export const DEMO_INPUT_CHOICES: DemoInputChoices = {
+  visitNotes: DEMO_VISIT_NOTE_CHOICES,
+  exceptionResolutions: DEMO_EXCEPTION_RESOLUTION_CHOICES,
+};
+
 // Demo snapshot for base state
 export interface DemoSnapshot {
   organizationId: string;

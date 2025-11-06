@@ -116,3 +116,8 @@ export interface DemoStatsResponse {
   avgEventsPerSession: number;
   oldestSessionAge: string;
 }
+
+export interface DemoInputChoices {
+  visitNotes: readonly string[];
+  exceptionResolutions: readonly string[];
+}

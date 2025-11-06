@@ -20,6 +20,7 @@ import type {
   DemoResolveExceptionRequest,
   DemoResolveExceptionResponse,
   DemoStatsResponse,
+  DemoInputChoices,
 } from './types.js';
 
 const API_BASE = '/api/demo';
@@ -202,6 +203,20 @@ class DemoAPIClient {
     }
 
     const result = await response.json() as DemoAPIResponse<DemoResolveExceptionResponse>;
+    return result.data;
+  }
+
+  /**
+   * Get available input choices for demo interactions
+   */
+  async getInputChoices(): Promise<DemoInputChoices> {
+    const response = await fetch(`${API_BASE}/choices`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to get input choices: ${response.statusText}`);
+    }
+
+    const result = await response.json() as DemoAPIResponse<DemoInputChoices>;
     return result.data;
   }
 

@@ -6,26 +6,28 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { demoAPI } from './demo-api.js';
-import type { DemoSession, DemoPersonaType, DemoSessionCreateRequest } from './types.js';
+import type { DemoSession, DemoPersonaType, DemoSessionCreateRequest, DemoInputChoices } from './types.js';
 
 interface UseDemoSessionResult {
   session: DemoSession | null;
   isLoading: boolean;
   error: string | null;
   isActive: boolean;
-  
+  inputChoices: DemoInputChoices | null;
+
   // Actions
   createSession: (request?: DemoSessionCreateRequest) => Promise<void>;
   switchPersona: (personaType: DemoPersonaType) => Promise<void>;
   resetSession: () => Promise<void>;
   endSession: () => Promise<void>;
-  
+  loadInputChoices: () => Promise<void>;
+
   // Caregiver actions
   clockIn: (visitId: string, latitude: number, longitude: number, accuracy: number) => Promise<void>;
   clockOut: (visitId: string) => Promise<void>;
   completeTask: (taskId: string) => Promise<void>;
   addNote: (visitId: string, content: string) => Promise<void>;
-  
+
   // Coordinator actions
   assignVisit: (visitId: string, caregiverId: string) => Promise<void>;
   resolveException: (exceptionId: string, resolution: string) => Promise<void>;
@@ -35,6 +37,7 @@ export function useDemoSession(): UseDemoSessionResult {
   const [session, setSession] = useState<DemoSession | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inputChoices, setInputChoices] = useState<DemoInputChoices | null>(null);
 
   // Load session from localStorage on mount
   useEffect(() => {
@@ -146,6 +149,21 @@ export function useDemoSession(): UseDemoSessionResult {
     };
   }, [session]);
 
+  const loadInputChoices = useCallback(async () => {
+    try {
+      const choices = await demoAPI.getInputChoices();
+      setInputChoices(choices);
+    } catch (err) {
+      console.error('Failed to load input choices:', err);
+      // Don't throw - this is not critical for session functionality
+    }
+  }, []);
+
+  // Load input choices on mount
+  useEffect(() => {
+    void loadInputChoices();
+  }, [loadInputChoices]);
+
   const createSession = useCallback(async (request: DemoSessionCreateRequest = {}) => {
     setIsLoading(true);
     setError(null);
@@ -153,6 +171,11 @@ export function useDemoSession(): UseDemoSessionResult {
       const response = await demoAPI.createSession(request);
       const fullSession = await demoAPI.getSession(response.sessionId);
       setSession(fullSession);
+
+      // Load input choices if not already loaded
+      if (!inputChoices) {
+        await loadInputChoices();
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create session';
       setError(message);
@@ -160,7 +183,7 @@ export function useDemoSession(): UseDemoSessionResult {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [inputChoices, loadInputChoices]);
 
   const switchPersona = useCallback(async (personaType: DemoPersonaType) => {
     if (!session) {
@@ -266,17 +289,19 @@ export function useDemoSession(): UseDemoSessionResult {
     isLoading,
     error,
     isActive: session !== null,
-    
+    inputChoices,
+
     createSession,
     switchPersona,
     resetSession,
     endSession,
-    
+    loadInputChoices,
+
     clockIn,
     clockOut,
     completeTask,
     addNote,
-    
+
     assignVisit,
     resolveException,
   };

@@ -6,7 +6,15 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, getDemoSessionManager, DemoSnapshot, DemoPersonaType } from '@care-commons/core';
+import {
+  Database,
+  getDemoSessionManager,
+  DemoSnapshot,
+  DemoPersonaType,
+  DEMO_VISIT_NOTE_CHOICES,
+  DEMO_EXCEPTION_RESOLUTION_CHOICES,
+  DEMO_INPUT_CHOICES,
+} from '@care-commons/core';
 
 interface TypedRequest<T = Record<string, never>> extends Request {
   body: T;
@@ -237,6 +245,16 @@ export function createDemoRouter(db: Database): Router {
       const visitId = String(req.params.visitId);
       const { content } = req.body;
 
+      // Validate that content is one of the allowed choices
+      if (!DEMO_VISIT_NOTE_CHOICES.includes(content as never)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid note content. Must be one of the pre-defined choices.',
+          availableChoices: DEMO_VISIT_NOTE_CHOICES
+        });
+        return;
+      }
+
       const session = sessionManager.addEvent(sessionId, 'NOTE_ADDED', { visitId, content });
 
       res.json({
@@ -284,6 +302,16 @@ export function createDemoRouter(db: Database): Router {
       const exceptionId = String(req.params.exceptionId);
       const { resolution } = req.body;
 
+      // Validate that resolution is one of the allowed choices
+      if (!DEMO_EXCEPTION_RESOLUTION_CHOICES.includes(resolution as never)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid resolution. Must be one of the pre-defined choices.',
+          availableChoices: DEMO_EXCEPTION_RESOLUTION_CHOICES
+        });
+        return;
+      }
+
       const session = sessionManager.addEvent(sessionId, 'EXCEPTION_RESOLVED', { exceptionId, resolution });
 
       res.json({
@@ -302,6 +330,21 @@ export function createDemoRouter(db: Database): Router {
   // ============================================================================
   // UTILITIES
   // ============================================================================
+
+  /**
+   * GET /api/demo/choices
+   * Get available pre-canned input choices for demo interactions
+   */
+  router.get('/choices', (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.json({
+        success: true,
+        data: DEMO_INPUT_CHOICES
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   /**
    * GET /api/demo/stats
