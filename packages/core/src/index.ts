@@ -17,5 +17,6 @@ export * from './service/auth-service.js';
 export * from './middleware/auth-middleware.js';
 export * from './utils/password-utils.js';
 export * from './utils/jwt-utils.js';
+export * from './utils/validation-utils.js';
 export * from './sync/index.js';
 export * from './demo/index.js';
