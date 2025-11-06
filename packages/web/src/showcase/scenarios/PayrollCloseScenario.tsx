@@ -4,6 +4,8 @@
  * Walk through the end-of-month payroll closing process
  */
 
+/* eslint-disable react-refresh/only-export-components */
+
 import React from 'react';
 import { DollarSign, Clock, AlertTriangle, CheckCircle, FileText, Download } from 'lucide-react';
 import { Scenario } from '../types';

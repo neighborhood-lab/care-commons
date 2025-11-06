@@ -4,6 +4,8 @@
  * Prepare documentation for a Texas HHSC compliance audit
  */
 
+/* eslint-disable react-refresh/only-export-components */
+
 import React from 'react';
 import { Shield, FileText, CheckCircle, AlertTriangle, Download, Search } from 'lucide-react';
 import { Scenario } from '../types';
