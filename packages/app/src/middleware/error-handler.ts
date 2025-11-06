@@ -44,12 +44,14 @@ export function errorHandler(
   
   if (statusCode >= 400 && statusCode < 500) {
     // Client errors (4xx) - safe to send specific message
-    clientMessage = err.message || 'Invalid request';
+    clientMessage = err.message.length > 0 ? err.message : 'Invalid request';
   } else {
     // Server errors (5xx) - use generic message to avoid information disclosure
-    clientMessage = isProduction 
-      ? 'An unexpected error occurred. Please try again later.'
-      : err.message || 'Internal server error';
+    if (isProduction) {
+      clientMessage = 'An unexpected error occurred. Please try again later.';
+    } else {
+      clientMessage = err.message.length > 0 ? err.message : 'Internal server error';
+    }
   }
 
   res.status(statusCode).json({
