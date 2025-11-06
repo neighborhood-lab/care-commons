@@ -36,20 +36,20 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden"
+          className="bg-warm-bgLight rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-warm-brown/30"
         >
           {/* Header */}
-          <div className="bg-gray-900 text-white p-6">
+          <div className="bg-warm-bg text-warm-text p-6 border-b border-warm-brown/30">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Welcome</h2>
+              <h2 className="text-2xl font-bold">Welcome to Care Commons</h2>
               <button
                 onClick={handleComplete}
-                className="text-white hover:text-gray-300 transition-colors"
+                className="text-warm-textMuted hover:text-warm-text transition-colors"
                 aria-label="Close"
               >
                 <X className="h-6 w-6" />
@@ -59,13 +59,13 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
 
           {/* Content */}
           <div className="p-8">
-            <p className="text-lg text-gray-700 mb-8">
-              This is an interactive demo of Care Commons care coordination software.
+            <p className="text-lg text-warm-textMuted mb-8 leading-relaxed">
+              This is an interactive demo of Care Commons, community-owned care coordination software built transparently for home healthcare providers.
             </p>
 
             <button
               onClick={handleComplete}
-              className="w-full px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium transition-colors"
+              className="w-full px-6 py-3 bg-warm-accent text-white rounded-lg hover:bg-warm-accentHover font-semibold transition-all shadow-md hover:shadow-lg"
             >
               Start Exploring
             </button>

@@ -17,7 +17,7 @@ export const ScenarioLibraryPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-warm-bg">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Header */}
         <motion.div
@@ -25,11 +25,11 @@ export const ScenarioLibraryPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-5xl font-bold text-warm-text mb-4">
             Scenarios
           </h1>
-          <p className="text-xl text-gray-600">
-            Explore workflows
+          <p className="text-xl text-warm-textMuted">
+            Explore real-world care coordination workflows
           </p>
         </motion.div>
 
@@ -70,17 +70,17 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, onStart, delay })
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5 }}
-      className="bg-white rounded-lg border-2 border-gray-200 hover:border-gray-900 transition-all p-6"
+      className="bg-warm-bgLight rounded-lg border border-warm-brown/20 hover:border-warm-accent/40 transition-all p-6 hover:shadow-lg"
     >
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{scenario.title}</h3>
-      <p className="text-gray-600 mb-4">{roleLabels[scenario.role]}</p>
+      <h3 className="text-xl font-bold text-warm-text mb-2">{scenario.title}</h3>
+      <p className="text-warm-textMuted mb-4">{roleLabels[scenario.role]}</p>
 
       {/* Start Button */}
       <button
         onClick={onStart}
-        className="w-full px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+        className="w-full px-6 py-3 bg-warm-accent text-white rounded-lg font-semibold hover:bg-warm-accentHover transition-all shadow-md hover:shadow-lg"
       >
-        Start
+        Start Scenario
       </button>
     </motion.div>
   );
