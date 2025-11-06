@@ -7,8 +7,39 @@
 
 import { UUID, NotFoundError } from '@care-commons/core';
 import { IClientAddressProvider } from '../service/schedule-service';
-import type { ClientService } from '../../../client-demographics/src/service/client-service';
 import type { UserContext } from '@care-commons/core';
+
+/**
+ * Address structure from client demographics
+ */
+interface ClientAddress {
+  type: 'HOME' | 'BILLING' | 'TEMPORARY';
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+/**
+ * Minimal client structure needed for address fetching
+ */
+interface ClientWithAddress {
+  id: UUID;
+  primaryAddress: ClientAddress;
+  secondaryAddresses?: ClientAddress[];
+}
+
+/**
+ * Interface for client service operations needed by the address provider
+ * This allows decoupling from the concrete client-demographics implementation
+ */
+export interface IClientService {
+  getClientById(id: string, context: UserContext): Promise<ClientWithAddress | null>;
+}
 
 /**
  * Cache entry for client addresses
@@ -63,7 +94,7 @@ export class ClientAddressProvider implements IClientAddressProvider {
   private systemContext: UserContext;
 
   constructor(
-    private clientService: ClientService,
+    private clientService: IClientService,
     systemContext: UserContext,
     cacheTTL: number = DEFAULT_CACHE_TTL_MS
   ) {
