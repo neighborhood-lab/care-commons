@@ -13,7 +13,8 @@ const PERSONA_LABELS: Record<DemoPersonaType, string> = {
   COORDINATOR_FIELD: 'Field Coordinator',
   COORDINATOR_SCHEDULING: 'Scheduling Coordinator',
   COORDINATOR_CARE: 'Care Coordinator',
-  ADMIN: 'Administrator',
+  ADMINISTRATOR: 'Administrator',
+  FAMILY_MEMBER: 'Family Member',
 };
 
 export function DemoModeBar() {
@@ -86,7 +87,7 @@ export function DemoModeBar() {
             <div>
               <h4 className="font-semibold text-sm mb-2">Switch Persona</h4>
               <div className="grid grid-cols-2 gap-2">
-                {session.availablePersonas?.map((persona) => (
+                {session.availablePersonas.map((persona) => (
                   <button
                     key={persona.id}
                     onClick={() => void switchPersona(persona.type)}

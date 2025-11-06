@@ -6,7 +6,7 @@
  * tracked as events that can be replayed or reset.
  */
 
-export type DemoPersonaType = 
+export type DemoPersonaType =
   | 'CAREGIVER'
   | 'COORDINATOR_FIELD'
   | 'COORDINATOR_SCHEDULING'
