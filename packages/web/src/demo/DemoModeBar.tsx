@@ -24,14 +24,14 @@ export function DemoModeBar() {
     return (
       <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-3">
-          <span className="font-bold text-sm">DEMO MODE AVAILABLE</span>
-          <span className="text-xs opacity-90">Experience the platform with interactive demo data</span>
+          <span className="font-bold text-sm">DEMO MODE</span>
+          <span className="text-xs opacity-90">Try the platform with sample data • No real PHI</span>
         </div>
         <button
           onClick={() => void createSession()}
           className="bg-white text-blue-600 px-4 py-1 rounded text-sm font-medium hover:bg-blue-50 transition-colors"
         >
-          Start Demo
+          Start Demo Session
         </button>
       </div>
     );
@@ -86,7 +86,7 @@ export function DemoModeBar() {
             <div>
               <h4 className="font-semibold text-sm mb-2">Switch Persona</h4>
               <div className="grid grid-cols-2 gap-2">
-                {session.availablePersonas.map((persona) => (
+                {session.availablePersonas?.map((persona) => (
                   <button
                     key={persona.id}
                     onClick={() => void switchPersona(persona.type)}
