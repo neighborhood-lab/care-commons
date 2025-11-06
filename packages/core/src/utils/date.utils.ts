@@ -98,7 +98,12 @@ export class DateUtils {
       return null;
     }
     try {
-      return parseISO(dateString);
+      const parsed = parseISO(dateString);
+      // Check if the parsed date is valid
+      if (Number.isNaN(parsed.getTime())) {
+        return null;
+      }
+      return parsed;
     } catch {
       return null;
     }
