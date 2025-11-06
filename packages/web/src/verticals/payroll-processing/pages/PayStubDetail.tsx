@@ -1,8 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Send } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { Button, LoadingSpinner, ErrorMessage, Card } from '@/core/components';
-import { usePermissions } from '@/core/hooks';
 import { usePayStub, useDownloadPayStubPdf } from '../hooks';
 import { formatCurrency, formatDate } from '../utils';
 import { TaxSummary, DeductionsList } from '../components';
@@ -10,7 +9,6 @@ import { TaxSummary, DeductionsList } from '../components';
 export const PayStubDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { can } = usePermissions();
 
   const { data: payStub, isLoading, error } = usePayStub(id);
   const downloadPdf = useDownloadPayStubPdf();

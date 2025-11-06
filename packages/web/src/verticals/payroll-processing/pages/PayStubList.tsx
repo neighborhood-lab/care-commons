@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Download, Grid, List, Filter } from 'lucide-react';
+import { Grid, List, Filter } from 'lucide-react';
 import { Button, LoadingSpinner, EmptyState, ErrorMessage } from '@/core/components';
-import { usePermissions } from '@/core/hooks';
 import { usePayStubs } from '../hooks';
 import { PayStubCard } from '../components';
 import type { PayStubSearchFilters } from '../types';
 
 export const PayStubList: React.FC = () => {
-  const { can } = usePermissions();
   const [filters, setFilters] = useState<PayStubSearchFilters>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
@@ -86,7 +83,7 @@ export const PayStubList: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={filters.status || ''}
                 onChange={(e) =>
-                  setFilters({ ...filters, status: e.target.value || undefined })
+                  setFilters({ ...filters, status: (e.target.value || undefined) as PayStubSearchFilters['status'] })
                 }
               >
                 <option value="">All Statuses</option>
@@ -104,7 +101,7 @@ export const PayStubList: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={filters.paymentMethod || ''}
                 onChange={(e) =>
-                  setFilters({ ...filters, paymentMethod: e.target.value || undefined })
+                  setFilters({ ...filters, paymentMethod: (e.target.value || undefined) as PayStubSearchFilters['paymentMethod'] })
                 }
               >
                 <option value="">All Methods</option>
