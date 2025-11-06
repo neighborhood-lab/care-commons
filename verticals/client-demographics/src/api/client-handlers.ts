@@ -39,7 +39,7 @@ export class ClientHandlers {
    */
   listClients = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
-    const filters = this.buildClientSearchFilters(req);
+    const filters = this.buildClientSearchFilters(req, context);
     const pagination = this.buildPagination(req);
 
     const result = await this.clientService.searchClients(filters, pagination, context);
@@ -53,7 +53,7 @@ export class ClientHandlers {
   /**
    * Build client search filters from request query parameters
    */
-  private buildClientSearchFilters(req: Request): ClientSearchFilters {
+  private buildClientSearchFilters(req: Request, context: UserContext): ClientSearchFilters {
     const {
       q,
       organizationId: organizationIdParam,
@@ -70,7 +70,7 @@ export class ClientHandlers {
 
     const filters: ClientSearchFilters = {
       query: q as string,
-      organizationId: organizationIdParam as string,
+      organizationId: (organizationIdParam as string) || context.organizationId,
     };
 
     if (typeof branchIdParam === 'string') {
