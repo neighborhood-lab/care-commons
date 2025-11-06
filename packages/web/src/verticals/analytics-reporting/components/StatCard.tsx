@@ -1,4 +1,3 @@
-// @ts-nocheck - Silencing pre-existing type errors (not part of showcase PR)
 /**
  * Stat Card Component
  * Simple stat display for coordinator dashboard

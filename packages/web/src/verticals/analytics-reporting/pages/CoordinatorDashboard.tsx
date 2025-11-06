@@ -1,4 +1,3 @@
-// @ts-nocheck - Silencing pre-existing type errors (not part of showcase PR)
 /**
  * Coordinator Dashboard
  * Operational view for day-to-day visit management and EVV exceptions
