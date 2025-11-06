@@ -50,6 +50,7 @@
     "db:env": "./scripts/db-env.sh",
     "db:env:preview": "./scripts/db-env.sh migrate --env=preview",
     "db:env:production": "./scripts/db-env.sh migrate --env=production",
+    "analyze:performance": "tsx scripts/analyze-query-performance.ts",
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
