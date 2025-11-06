@@ -282,7 +282,7 @@ describe('OfflineQueueService', () => {
   });
 
   describe('startAutoSync', () => {
-    it('should start automatic sync interval', () => {
+    it('should start automatic sync interval', async () => {
       vi.useFakeTimers();
       const processQueueSpy = vi.spyOn(service, 'processQueue').mockResolvedValue({
         processed: 0,
@@ -292,10 +292,10 @@ describe('OfflineQueueService', () => {
 
       service.startAutoSync(1000); // 1 second interval
 
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(processQueueSpy).toHaveBeenCalledOnce();
 
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(processQueueSpy).toHaveBeenCalledTimes(2);
 
       service.stopAutoSync();
@@ -313,7 +313,7 @@ describe('OfflineQueueService', () => {
   });
 
   describe('stopAutoSync', () => {
-    it('should stop automatic sync', () => {
+    it('should stop automatic sync', async () => {
       vi.useFakeTimers();
       const processQueueSpy = vi.spyOn(service, 'processQueue').mockResolvedValue({
         processed: 0,
@@ -322,11 +322,11 @@ describe('OfflineQueueService', () => {
       });
 
       service.startAutoSync(1000);
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(processQueueSpy).toHaveBeenCalledOnce();
 
       service.stopAutoSync();
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       // Should not be called again after stopping
       expect(processQueueSpy).toHaveBeenCalledOnce();
 

@@ -11,6 +11,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node', // Use 'jsdom' for React Native testing with proper setup
+    mockReset: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -40,6 +41,7 @@ export default defineConfig({
       'ios',
       'android',
     ],
+    setupFiles: ['./vitest.setup.ts'],
   },
   resolve: {
     alias: {
