@@ -4,7 +4,7 @@
  */
 
 import { Award, TrendingUp } from 'lucide-react';
-import type { CaregiverPerformance } from '@care-commons/analytics-reporting/types/analytics';
+import type { CaregiverPerformance } from '@/types/analytics-types';
 
 interface TopPerformersTableProps {
   caregivers: CaregiverPerformance[];
@@ -57,7 +57,7 @@ export function TopPerformersTable({
                 onCaregiverClick ? 'cursor-pointer' : ''
               }`}
               onClick={() =>
-                onCaregiverClick && onCaregiverClick(caregiver.caregiverId)
+                onCaregiverClick?.(caregiver.caregiverId)
               }
             >
               <td className="px-4 py-3 whitespace-nowrap">

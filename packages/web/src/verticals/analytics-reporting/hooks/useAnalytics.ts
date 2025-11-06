@@ -13,7 +13,7 @@ import type {
   Report,
   ReportType,
   ExportFormat,
-} from '@care-commons/analytics-reporting/types/analytics';
+} from '@/types/analytics-types';
 import { AnalyticsApiService, type AnalyticsFilters } from '../services/analytics-api';
 
 // Initialize API service

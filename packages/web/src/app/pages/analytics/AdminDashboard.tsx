@@ -28,13 +28,15 @@ import {
   useAllCaregiverPerformance,
 } from '@/verticals/analytics-reporting/hooks/useAnalytics';
 
+const getDefaultFilters = (): FilterValues => ({
+  dateRange: {
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+    endDate: new Date(),
+  },
+});
+
 export function AdminDashboard() {
-  const [filters, setFilters] = useState<FilterValues>({
-    dateRange: {
-      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-      endDate: new Date(),
-    },
-  });
+  const [filters, setFilters] = useState<FilterValues>(getDefaultFilters);
 
   // Fetch data using React Query hooks
   const {
@@ -110,15 +112,15 @@ export function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <KPICard
               title="Total Revenue"
-              value={formatCurrency(kpis?.revenueMetrics.billedAmount || 0)}
-              subtitle={`${formatCurrency(kpis?.revenueMetrics.paidAmount || 0)} paid`}
+              value={formatCurrency(kpis?.revenueMetrics.billedAmount ?? 0)}
+              subtitle={`${formatCurrency(kpis?.revenueMetrics.paidAmount ?? 0)} paid`}
               icon={<DollarSign className="h-8 w-8 text-green-600" />}
               trend="up"
               trendValue="+12.5%"
             />
             <KPICard
               title="Outstanding A/R"
-              value={formatCurrency(kpis?.revenueMetrics.outstandingAR || 0)}
+              value={formatCurrency(kpis?.revenueMetrics.outstandingAR ?? 0)}
               subtitle="Accounts receivable"
               icon={<FileText className="h-8 w-8 text-orange-600" />}
               trend="down"
@@ -126,16 +128,16 @@ export function AdminDashboard() {
             />
             <KPICard
               title="Active Clients"
-              value={kpis?.clientMetrics.activeClients || 0}
-              subtitle={`${kpis?.clientMetrics.newClients || 0} new this period`}
+              value={kpis?.clientMetrics.activeClients ?? 0}
+              subtitle={`${kpis?.clientMetrics.newClients ?? 0} new this period`}
               icon={<Users className="h-8 w-8 text-blue-600" />}
               trend="up"
               trendValue="+8"
             />
             <KPICard
               title="Completed Visits"
-              value={kpis?.visits.completed || 0}
-              subtitle={`${kpis?.visits.completionRate.toFixed(1) || 0}% completion rate`}
+              value={kpis?.visits.completed ?? 0}
+              subtitle={`${(kpis?.visits.completionRate ?? 0).toFixed(1)}% completion rate`}
               icon={<Calendar className="h-8 w-8 text-purple-600" />}
               trend="up"
               trendValue="+3.8%"
@@ -144,15 +146,11 @@ export function AdminDashboard() {
 
           {/* Revenue Overview Section */}
           <Card padding="md" className="mb-6">
-            <Card.Header>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Revenue Overview</h2>
-                  <p className="text-sm text-gray-600">Payment trends over time</p>
-                </div>
-                <TrendingUp className="h-6 w-6 text-green-600" />
-              </div>
-            </Card.Header>
+            <Card.Header
+              title="Revenue Overview"
+              subtitle="Payment trends over time"
+              action={<TrendingUp className="h-6 w-6 text-green-600" />}
+            />
             <Card.Content>
               {revenueTrends && revenueTrends.length > 0 ? (
                 <RevenueChart data={revenueTrends} />
@@ -167,10 +165,10 @@ export function AdminDashboard() {
           {/* Visit Metrics and EVV Compliance */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Card padding="md">
-              <Card.Header>
-                <h2 className="text-lg font-semibold text-gray-900">Visit Metrics</h2>
-                <p className="text-sm text-gray-600">Visit breakdown by status</p>
-              </Card.Header>
+              <Card.Header
+                title="Visit Metrics"
+                subtitle="Visit breakdown by status"
+              />
               <Card.Content>
                 {kpis?.visits ? (
                   <VisitMetricsChart data={kpis.visits} />
@@ -183,10 +181,10 @@ export function AdminDashboard() {
             </Card>
 
             <Card padding="md">
-              <Card.Header>
-                <h2 className="text-lg font-semibold text-gray-900">EVV Compliance</h2>
-                <p className="text-sm text-gray-600">Electronic Visit Verification</p>
-              </Card.Header>
+              <Card.Header
+                title="EVV Compliance"
+                subtitle="Electronic Visit Verification"
+              />
               <Card.Content>
                 {kpis?.evvCompliance ? (
                   <ComplianceGauge
@@ -204,10 +202,10 @@ export function AdminDashboard() {
 
           {/* Caregiver Performance */}
           <Card padding="md" className="mb-6">
-            <Card.Header>
-              <h2 className="text-lg font-semibold text-gray-900">Top Performers</h2>
-              <p className="text-sm text-gray-600">Highest performing caregivers</p>
-            </Card.Header>
+            <Card.Header
+              title="Top Performers"
+              subtitle="Highest performing caregivers"
+            />
             <Card.Content>
               {caregiverPerformance && caregiverPerformance.length > 0 ? (
                 <TopPerformersTable
@@ -225,15 +223,11 @@ export function AdminDashboard() {
 
           {/* Compliance Alerts */}
           <Card padding="md">
-            <Card.Header>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Compliance Alerts</h2>
-                  <p className="text-sm text-gray-600">Issues requiring attention</p>
-                </div>
-                <AlertTriangle className="h-6 w-6 text-yellow-600" />
-              </div>
-            </Card.Header>
+            <Card.Header
+              title="Compliance Alerts"
+              subtitle="Issues requiring attention"
+              action={<AlertTriangle className="h-6 w-6 text-yellow-600" />}
+            />
             <Card.Content>
               {alerts && alerts.length > 0 ? (
                 <AlertsList
@@ -252,19 +246,19 @@ export function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             <KPICard
               title="Active Caregivers"
-              value={kpis?.staffing.activeCaregivers || 0}
+              value={kpis?.staffing.activeCaregivers ?? 0}
               subtitle="Currently employed"
               icon={<Users className="h-6 w-6 text-primary-600" />}
             />
             <KPICard
               title="Utilization Rate"
-              value={`${kpis?.staffing.utilizationRate.toFixed(1) || 0}%`}
+              value={`${(kpis?.staffing.utilizationRate ?? 0).toFixed(1)}%`}
               subtitle="Caregiver capacity used"
               icon={<TrendingUp className="h-6 w-6 text-green-600" />}
             />
             <KPICard
               title="Credential Expirations"
-              value={kpis?.staffing.credentialExpirations || 0}
+              value={kpis?.staffing.credentialExpirations ?? 0}
               subtitle="Expiring soon"
               icon={<AlertTriangle className="h-6 w-6 text-yellow-600" />}
             />

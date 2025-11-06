@@ -9,7 +9,7 @@ import {
   Info,
   ChevronRight,
 } from 'lucide-react';
-import type { ComplianceAlert } from '@care-commons/analytics-reporting/types/analytics';
+import type { ComplianceAlert } from '@/types/analytics-types';
 import { Badge } from '@/core/components';
 
 interface AlertsListProps {
@@ -79,7 +79,7 @@ export function AlertsList({
           className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow ${
             onAlertClick ? 'cursor-pointer' : ''
           }`}
-          onClick={() => onAlertClick && onAlertClick(alert)}
+          onClick={() => onAlertClick?.(alert)}
         >
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1">

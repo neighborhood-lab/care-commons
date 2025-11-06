@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import type { VisitMetrics } from '@care-commons/analytics-reporting/types/analytics';
+import type { VisitMetrics } from '@/types/analytics-types';
 
 interface VisitMetricsChartProps {
   data: VisitMetrics;

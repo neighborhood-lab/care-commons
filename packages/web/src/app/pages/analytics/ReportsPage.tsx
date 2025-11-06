@@ -18,7 +18,7 @@ import {
   useGenerateReport,
   useExportReport,
 } from '@/verticals/analytics-reporting/hooks/useAnalytics';
-import type { Report, ReportType, ExportFormat } from '@care-commons/analytics-reporting/types/analytics';
+import type { ReportType, ExportFormat } from '@/types/analytics-types';
 
 const REPORT_TYPES: { value: ReportType; label: string; description: string }[] = [
   {
@@ -58,15 +58,17 @@ const REPORT_TYPES: { value: ReportType; label: string; description: string }[] 
   },
 ];
 
+const getDefaultFilters = (): FilterValues => ({
+  dateRange: {
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    endDate: new Date(),
+  },
+});
+
 export function ReportsPage() {
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [selectedReportType, setSelectedReportType] = useState<ReportType>('EVV_COMPLIANCE');
-  const [filters, setFilters] = useState<FilterValues>({
-    dateRange: {
-      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      endDate: new Date(),
-    },
-  });
+  const [filters, setFilters] = useState<FilterValues>(getDefaultFilters);
 
   const { data: reports, isLoading, error } = useReports();
   const generateReport = useGenerateReport();
@@ -120,7 +122,7 @@ export function ReportsPage() {
           </div>
           <Button
             onClick={() => setShowGenerateModal(true)}
-            icon={<PlusCircle className="h-5 w-5" />}
+            leftIcon={<PlusCircle className="h-5 w-5" />}
           >
             Generate Report
           </Button>
@@ -252,7 +254,7 @@ export function ReportsPage() {
                         size="sm"
                         onClick={() => handleExportReport(report.id, 'PDF')}
                         disabled={exportReport.isPending}
-                        icon={<Download className="h-4 w-4" />}
+                        leftIcon={<Download className="h-4 w-4" />}
                       >
                         PDF
                       </Button>
@@ -263,7 +265,7 @@ export function ReportsPage() {
                         size="sm"
                         onClick={() => handleExportReport(report.id, 'EXCEL')}
                         disabled={exportReport.isPending}
-                        icon={<Download className="h-4 w-4" />}
+                        leftIcon={<Download className="h-4 w-4" />}
                       >
                         Excel
                       </Button>
@@ -274,7 +276,7 @@ export function ReportsPage() {
                         size="sm"
                         onClick={() => handleExportReport(report.id, 'CSV')}
                         disabled={exportReport.isPending}
-                        icon={<Download className="h-4 w-4" />}
+                        leftIcon={<Download className="h-4 w-4" />}
                       >
                         CSV
                       </Button>
@@ -295,7 +297,7 @@ export function ReportsPage() {
                 </p>
                 <Button
                   onClick={() => setShowGenerateModal(true)}
-                  icon={<PlusCircle className="h-5 w-5" />}
+                  leftIcon={<PlusCircle className="h-5 w-5" />}
                 >
                   Generate Report
                 </Button>

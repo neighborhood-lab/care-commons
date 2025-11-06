@@ -3,7 +3,7 @@
  * Real-time operational dashboard for care coordinators
  */
 
-import { useState, useEffect } from 'react';
+
 import {
   Calendar,
   Users,
@@ -25,8 +25,6 @@ import {
 const REAL_TIME_REFRESH_INTERVAL = 60000; // 60 seconds
 
 export function CoordinatorDashboard() {
-  const [lastUpdated, setLastUpdated] = useState(new Date());
-
   // Fetch data with real-time polling
   const {
     data: dashboardStats,
@@ -62,15 +60,8 @@ export function CoordinatorDashboard() {
     { refetchInterval: REAL_TIME_REFRESH_INTERVAL }
   );
 
-  // Update last updated timestamp when data refreshes
-  useEffect(() => {
-    if (dashboardStats) {
-      setLastUpdated(new Date());
-    }
-  }, [dashboardStats]);
-
-  const isLoading = statsLoading || alertsLoading || exceptionsLoading;
-  const error = statsError || alertsError || exceptionsError;
+  const isLoading = statsLoading ?? alertsLoading ?? exceptionsLoading;
+  const error = statsError ?? alertsError ?? exceptionsError;
 
   if (error) {
     return (
@@ -79,14 +70,6 @@ export function CoordinatorDashboard() {
       </div>
     );
   }
-
-  const formatTime = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(date);
-  };
 
   return (
     <div className="p-6">
@@ -100,7 +83,7 @@ export function CoordinatorDashboard() {
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Activity className="h-4 w-4 animate-pulse text-green-600" />
-            <span>Last updated: {formatTime(lastUpdated)}</span>
+            <span>Auto-refreshing (60s)</span>
           </div>
         </div>
       </div>
@@ -115,25 +98,25 @@ export function CoordinatorDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <KPICard
               title="In Progress"
-              value={dashboardStats?.inProgress || 0}
+              value={dashboardStats?.inProgress ?? 0}
               subtitle="Visits happening now"
               icon={<Clock className="h-8 w-8 text-blue-600" />}
             />
             <KPICard
               title="Completed Today"
-              value={dashboardStats?.completedToday || 0}
+              value={dashboardStats?.completedToday ?? 0}
               subtitle="Successfully finished"
               icon={<CheckCircle className="h-8 w-8 text-green-600" />}
             />
             <KPICard
               title="Upcoming"
-              value={dashboardStats?.upcoming || 0}
+              value={dashboardStats?.upcoming ?? 0}
               subtitle="Next 24 hours"
               icon={<Calendar className="h-8 w-8 text-purple-600" />}
             />
             <KPICard
               title="Needs Review"
-              value={dashboardStats?.needsReview || 0}
+              value={dashboardStats?.needsReview ?? 0}
               subtitle="Requires attention"
               icon={<AlertCircle className="h-8 w-8 text-red-600" />}
             />
@@ -141,19 +124,15 @@ export function CoordinatorDashboard() {
 
           {/* EVV Issues */}
           <Card padding="md" className="mb-6">
-            <Card.Header>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">EVV Issues</h2>
-                  <p className="text-sm text-gray-600">
-                    Electronic Visit Verification exceptions
-                  </p>
-                </div>
+            <Card.Header
+              title="EVV Issues"
+              subtitle="Electronic Visit Verification exceptions"
+              action={
                 <Badge variant={evvExceptions && evvExceptions.length > 0 ? 'warning' : 'success'}>
-                  {evvExceptions?.length || 0} Issues
+                  {evvExceptions?.length ?? 0} Issues
                 </Badge>
-              </div>
-            </Card.Header>
+              }
+            />
             <Card.Content>
               {evvExceptions && evvExceptions.length > 0 ? (
                 <div className="space-y-3">
@@ -204,10 +183,10 @@ export function CoordinatorDashboard() {
 
           {/* Caregiver Status (Mock Data) */}
           <Card padding="md" className="mb-6">
-            <Card.Header>
-              <h2 className="text-lg font-semibold text-gray-900">Caregiver Status</h2>
-              <p className="text-sm text-gray-600">Current availability</p>
-            </Card.Header>
+            <Card.Header
+              title="Caregiver Status"
+              subtitle="Current availability"
+            />
             <Card.Content>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-green-50 rounded-lg">
@@ -236,19 +215,15 @@ export function CoordinatorDashboard() {
 
           {/* Client Alerts */}
           <Card padding="md">
-            <Card.Header>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Client Alerts</h2>
-                  <p className="text-sm text-gray-600">
-                    High-priority client issues
-                  </p>
-                </div>
+            <Card.Header
+              title="Client Alerts"
+              subtitle="High-priority client issues"
+              action={
                 <Badge variant={alerts && alerts.length > 0 ? 'error' : 'success'}>
-                  {alerts?.length || 0} Alerts
+                  {alerts?.length ?? 0} Alerts
                 </Badge>
-              </div>
-            </Card.Header>
+              }
+            />
             <Card.Content>
               {alerts && alerts.length > 0 ? (
                 <AlertsList
