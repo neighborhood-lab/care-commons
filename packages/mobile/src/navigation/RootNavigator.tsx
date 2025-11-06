@@ -17,6 +17,9 @@ import { LoginScreen } from '../screens/auth/LoginScreen.js';
 import { TodayVisitsScreen } from '../screens/visits/TodayVisitsScreen.js';
 import { ScheduleScreen } from '../screens/schedule/ScheduleScreen.js';
 import { ProfileScreen } from '../screens/profile/ProfileScreen.js';
+import { VerticalsScreen } from '../screens/verticals/VerticalsScreen.js';
+import { ComingSoonScreen } from '../screens/verticals/ComingSoonScreen.js';
+import { ClientListScreen } from '../screens/verticals/ClientListScreen.js';
 import { VisitDetailScreen as VisitDetailScreenBase } from '../features/visits/screens/VisitDetailScreen.js';
 import { ClockInScreen } from '../screens/visits/ClockInScreen.js';
 import { CameraScreen } from '../screens/visits/CameraScreen.js';
@@ -37,11 +40,14 @@ export type RootStackParamList = {
   Camera: { onCapture: (uri: string) => void };
   Tasks: { visitId: string };
   Signature: { visitId: string; clientName: string };
+  ComingSoon: { verticalName: string; verticalDescription: string };
+  ClientList: undefined;
 };
 
 export type MainTabParamList = {
   TodayVisits: undefined;
   Schedule: undefined;
+  Verticals: undefined;
   Profile: undefined;
 };
 
@@ -74,6 +80,14 @@ function MainNavigator() {
         options={{
           title: 'Schedule',
           tabBarLabel: 'Schedule',
+        }}
+      />
+      <MainTab.Screen
+        name="Verticals"
+        component={VerticalsScreen}
+        options={{
+          title: 'Verticals',
+          tabBarLabel: 'Verticals',
         }}
       />
       <MainTab.Screen
@@ -143,6 +157,20 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               options={{
                 title: 'Client Signature',
                 presentation: 'modal',
+              }}
+            />
+            <RootStack.Screen
+              name="ComingSoon"
+              component={ComingSoonScreen}
+              options={{
+                title: 'Coming Soon',
+              }}
+            />
+            <RootStack.Screen
+              name="ClientList"
+              component={ClientListScreen}
+              options={{
+                title: 'Client Demographics',
               }}
             />
           </>
