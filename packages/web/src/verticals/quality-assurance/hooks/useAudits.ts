@@ -80,7 +80,7 @@ export const useCreateAudit = () => {
   return useMutation({
     mutationFn: (input: CreateAuditInput) => auditApi.createAudit(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
       toast.success('Audit created successfully');
     },
     onError: (error: Error) => {
@@ -97,8 +97,8 @@ export const useUpdateAudit = () => {
     mutationFn: ({ id, input }: { id: string; input: UpdateAuditInput }) =>
       auditApi.updateAudit(id, input),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.id] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.id] });
       toast.success('Audit updated successfully');
     },
     onError: (error: Error) => {
@@ -114,8 +114,8 @@ export const useStartAudit = () => {
   return useMutation({
     mutationFn: (id: string) => auditApi.startAudit(id),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.id] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.id] });
       toast.success('Audit started');
     },
     onError: (error: Error) => {
@@ -132,8 +132,8 @@ export const useCompleteAudit = () => {
     mutationFn: ({ id, executiveSummary, recommendations }: { id: string; executiveSummary: string; recommendations: string }) =>
       auditApi.completeAudit(id, executiveSummary, recommendations),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.id] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.id] });
       toast.success('Audit completed');
     },
     onError: (error: Error) => {
@@ -149,7 +149,7 @@ export const useDeleteAudit = () => {
   return useMutation({
     mutationFn: (id: string) => auditApi.deleteAudit(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
       toast.success('Audit deleted successfully');
     },
     onError: (error: Error) => {
@@ -207,9 +207,9 @@ export const useCreateFinding = () => {
   return useMutation({
     mutationFn: (input: CreateAuditFindingInput) => auditApi.createFinding(input),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
-      queryClient.invalidateQueries({ queryKey: ['audits', 'findings'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', 'findings'] });
       toast.success('Finding created successfully');
     },
     onError: (error: Error) => {
@@ -226,9 +226,9 @@ export const useUpdateFindingStatus = () => {
     mutationFn: ({ id, status, resolutionDescription }: { id: string; status: string; resolutionDescription?: string }) =>
       auditApi.updateFindingStatus(id, status, resolutionDescription),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
-      queryClient.invalidateQueries({ queryKey: ['audits', 'findings'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', 'findings'] });
       toast.success('Finding status updated');
     },
     onError: (error: Error) => {
@@ -245,9 +245,9 @@ export const useVerifyFinding = () => {
     mutationFn: ({ id, verificationNotes }: { id: string; verificationNotes: string }) =>
       auditApi.verifyFinding(id, verificationNotes),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
-      queryClient.invalidateQueries({ queryKey: ['audits', 'findings'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', 'findings'] });
       toast.success('Finding verified');
     },
     onError: (error: Error) => {
@@ -305,9 +305,9 @@ export const useCreateCorrectiveAction = () => {
   return useMutation({
     mutationFn: (input: CreateCorrectiveActionInput) => auditApi.createCorrectiveAction(input),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
-      queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
       toast.success('Corrective action created successfully');
     },
     onError: (error: Error) => {
@@ -324,9 +324,9 @@ export const useUpdateCorrectiveActionProgress = () => {
     mutationFn: ({ id, progress }: { id: string; progress: UpdateCorrectiveActionProgressInput }) =>
       auditApi.updateCorrectiveActionProgress(id, progress),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
-      queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
       toast.success('Progress updated');
     },
     onError: (error: Error) => {
@@ -342,9 +342,9 @@ export const useCompleteCorrectiveAction = () => {
   return useMutation({
     mutationFn: (id: string) => auditApi.completeCorrectiveAction(id),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
-      queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
       toast.success('Corrective action completed');
     },
     onError: (error: Error) => {
@@ -361,9 +361,9 @@ export const useVerifyCorrectiveAction = () => {
     mutationFn: ({ id, effectivenessRating, verificationNotes }: { id: string; effectivenessRating: string; verificationNotes: string }) =>
       auditApi.verifyCorrectiveAction(id, effectivenessRating, verificationNotes),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['audits'] });
-      queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
-      queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits'] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', data.auditId] });
+      void queryClient.invalidateQueries({ queryKey: ['audits', 'corrective-actions'] });
       toast.success('Corrective action verified');
     },
     onError: (error: Error) => {
