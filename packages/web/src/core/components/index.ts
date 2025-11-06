@@ -3,3 +3,8 @@ export * from './Card';
 export * from './Badge';
 export * from './forms';
 export * from './feedback';
+export * from './Modal';
+export * from './Tooltip';
+export * from './Dropdown';
+export * from './Tabs';
+export * from './PageTransition';

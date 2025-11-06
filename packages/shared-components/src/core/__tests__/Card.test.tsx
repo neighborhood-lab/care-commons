@@ -25,7 +25,9 @@ describe('Card', () => {
 
   it('should apply hover effect when enabled', () => {
     const { container } = render(<Card hover>Content</Card>);
-    expect(container.firstChild).toHaveClass('hover:shadow-md');
+    expect(container.firstChild).toHaveClass('hover:shadow-lg');
+    expect(container.firstChild).toHaveClass('hover:border-primary-200');
+    expect(container.firstChild).toHaveClass('hover:-translate-y-1');
   });
 
   it('should have sub-components', () => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { PageTransition } from '@/core/components';
 
 export interface AppShellProps {
   children: React.ReactNode;
@@ -18,9 +19,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       
       <div className="lg:pl-64">
         <Header onMenuClick={() => setIsSidebarOpen(true)} />
-        
+
         <main className="p-4 md:p-6 lg:p-8">
-          {children}
+          <PageTransition variant="fade">
+            {children}
+          </PageTransition>
         </main>
       </div>
     </div>
