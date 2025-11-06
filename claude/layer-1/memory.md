@@ -280,39 +280,39 @@ care-commons/
 ### Session: 2025-11-06
 
 **Tasks Created**:
-- **0000** (CRITICAL): Fix EVV Service Mocked Data - Replace placeholder client/caregiver data with real provider lookups
-- **0001** (CRITICAL): Fix Scheduling Service Placeholder Addresses - Wire real client addresses for route optimization
-- **0002** (HIGH): Implement Care Plans Frontend UI - Complete coordinator and caregiver UI for care plans and tasks
-- **0021** (CRITICAL): Wire Provider Interfaces Across All Verticals - Comprehensive provider interface implementation
-- **0022** (HIGH): Mobile App Authentication and Onboarding - Biometric auth, secure token storage, first-time UX
-- **0023** (CRITICAL): Timezone Handling Standardization - Multi-timezone support for scheduling, EVV, and display
-- **0024** (MEDIUM): Form Validation Standardization - Shared Zod schemas, consistent error handling across web/mobile
-- **0025** (CRITICAL): Automated Client Address Geocoding - Auto-geocode addresses for GPS verification and routing
-- **0026** (MEDIUM): Care Plan Templates Library - Pre-built templates for common care scenarios
+- **0021** (CRITICAL): Fix EVV Service Mocked Data - Replace placeholder client/caregiver data with real provider lookups
+- **0022** (CRITICAL): Fix Scheduling Service Placeholder Addresses - Wire real client addresses for route optimization
+- **0023** (HIGH): Implement Care Plans Frontend UI - Complete coordinator and caregiver UI for care plans and tasks
+- **0024** (CRITICAL): Wire Provider Interfaces Across All Verticals - Comprehensive provider interface implementation
+- **0025** (HIGH): Mobile App Authentication and Onboarding - Biometric auth, secure token storage, first-time UX
+- **0026** (CRITICAL): Timezone Handling Standardization - Multi-timezone support for scheduling, EVV, and display
+- **0027** (MEDIUM): Form Validation Standardization - Shared Zod schemas, consistent error handling across web/mobile
+- **0028** (CRITICAL): Automated Client Address Geocoding - Auto-geocode addresses for GPS verification and routing
+- **0029** (MEDIUM): Care Plan Templates Library - Pre-built templates for common care scenarios
 
 **Previously Existing Tasks**: 0003-0020 (18 tasks)
 
-**Total Task Queue**: 27 implementation tasks
+**Total Task Queue**: 27 implementation tasks (0003-0029)
 
 **Critical Path** (Must complete before production):
-1. **0000, 0001** - Fix mocked data in EVV and Scheduling (HIGHEST PRIORITY)
-2. **0021** - Wire provider interfaces across verticals
-3. **0023** - Timezone handling (multi-state operations)
-4. **0025** - Geocoding automation (required for EVV/routing)
+1. **0021, 0022** - Fix mocked data in EVV and Scheduling (HIGHEST PRIORITY)
+2. **0024** - Wire provider interfaces across verticals
+3. **0026** - Timezone handling (multi-state operations)
+4. **0028** - Geocoding automation (required for EVV/routing)
 5. **0014** - Security enhancements and RBAC audit
 6. **0017, 0018** - Monitoring and backups
 7. **0020** - Production launch checklist
 
 **High-Value Quick Wins**:
-- **0022** - Mobile app auth/onboarding (better caregiver UX)
-- **0002** - Care plans UI (core feature completion)
+- **0025** - Mobile app auth/onboarding (better caregiver UX)
+- **0023** - Care plans UI (core feature completion)
 - **0003** - Family engagement portal (core feature completion)
 
 **Architecture Improvements**:
-- Provider interfaces now consistently wired (0021)
-- Timezone handling standardized (0023)
-- Form validation unified (0024)
-- Geocoding automated (0025)
+- Provider interfaces now consistently wired (0024)
+- Timezone handling standardized (0026)
+- Form validation unified (0027)
+- Geocoding automated (0028)
 
 **Next Planner Session Focus**:
 1. Monitor layer-2 implementation progress
@@ -338,12 +338,12 @@ care-commons/
 5. Follow architectural patterns consistently
 
 **Current Phase**: Phase 1 - Production Readiness
-**Top Priority**: Replace mocked service integrations (Tasks 0000, 0001) - PRODUCTION BLOCKERS
+**Top Priority**: Replace mocked service integrations (Tasks 0021, 0022) - PRODUCTION BLOCKERS
 **Task Queue Status**: 27 tasks (6 critical, 8 high, 13 medium)
 **Estimated Effort**: ~200-270 hours total implementation work
 
 **Immediate Action Items for Layer-2 Workers**:
-1. Start with Task 0000 (Fix EVV mocked data)
-2. Follow with Task 0001 (Fix scheduling addresses)
-3. Then Task 0021 (Provider interface wiring)
-4. Tasks 0000-0002 and 0021-0026 are new and ready for implementation
+1. Start with Task 0021 (Fix EVV mocked data)
+2. Follow with Task 0022 (Fix scheduling addresses)
+3. Then Task 0024 (Provider interface wiring)
+4. Tasks 0021-0029 are new and ready for implementation
