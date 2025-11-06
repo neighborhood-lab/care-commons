@@ -8,10 +8,15 @@
 import dotenv from "dotenv";
 dotenv.config({ path: '../../.env', quiet: true });
 
+// Initialize error tracking EARLY (before other imports that might throw)
+import { initializeErrorTracking } from '@care-commons/core';
+initializeErrorTracking();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { createRequestLogger } from './middleware/request-logger.js';
+import { expressErrorHandler as sentryErrorHandler } from '@sentry/node';
+import { requestLogger, metricsMiddleware } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
@@ -84,6 +89,8 @@ function initDb(): ReturnType<typeof initializeDatabase> {
  * Configure Express middleware
  */
 function setupMiddleware(): void {
+  // Note: Sentry request tracking is handled via expressIntegration in initializeErrorTracking
+
   // Security headers - use default secure configuration
   app.use(helmet({
     contentSecurityPolicy: {
@@ -101,7 +108,7 @@ function setupMiddleware(): void {
 
   // CORS - restrict to allowed origins in production
   const allowedOrigins = process.env['CORS_ORIGIN']?.split(',').map(o => o.trim()).filter(Boolean) ?? [];
-  
+
   app.use(cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, curl, etc.)
@@ -139,8 +146,11 @@ function setupMiddleware(): void {
     credentials: true,
   }));
 
-  // Request logging
-  app.use(createRequestLogger());
+  // Request logging with structured logging (Pino)
+  app.use(requestLogger);
+
+  // Metrics collection
+  app.use(metricsMiddleware);
 
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
@@ -187,6 +197,9 @@ function setupApiRoutes(): void {
   // 404 handler
   app.use(notFoundHandler);
 
+  // Sentry error handler (must be before custom error handler)
+  app.use(sentryErrorHandler());
+
   // Error handler (must be last)
   app.use(errorHandler);
 }
@@ -196,43 +209,6 @@ function setupApiRoutes(): void {
  */
 export async function createApp(): Promise<express.Express> {
   console.log(`Initializing Care Commons API (${NODE_ENV})`);
-
-  // Health check endpoint FIRST - before any middleware or auth
-  // This ensures it's always accessible for monitoring
-  app.get('/health', async (_req, res) => {
-    try {
-      const startTime = Date.now();
-      const db = getDatabase();
-      const dbHealthy = await db.healthCheck();
-      const responseTime = Date.now() - startTime;
-      
-      const status = dbHealthy === true ? 'healthy' : 'unhealthy';
-      const httpStatus = dbHealthy === true ? 200 : 503;
-      
-      res.status(httpStatus).json({
-        status,
-        timestamp: new Date().toISOString(),
-        environment: NODE_ENV,
-        uptime: process.uptime(),
-        responseTime,
-        database: {
-          status: dbHealthy === true ? 'connected' : 'disconnected',
-          responseTime,
-        },
-        memory: {
-          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-        },
-      });
-    } catch (error) {
-      // Health check should never fail catastrophically
-      res.status(503).json({
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
-  });
 
   // Initialize database
   const db = initDb();
