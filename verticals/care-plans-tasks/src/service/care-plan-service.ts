@@ -26,7 +26,7 @@ import {
 } from '../types/care-plan';
 import { CarePlanRepository } from '../repository/care-plan-repository';
 import { CarePlanValidator } from '../validation/care-plan-validator';
-import { IUserRepository } from '@care-commons/core/src/repository/user-repository';
+import { IUserRepository } from '@care-commons/core';
 import { StateComplianceValidator } from '../validation/state-compliance-validator';
 import { StateSpecificCarePlanData } from '../types/state-specific';
 

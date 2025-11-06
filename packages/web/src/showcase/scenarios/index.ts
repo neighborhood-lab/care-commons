@@ -11,10 +11,14 @@ export { ActionButtons } from './components/ActionButtons';
 
 export { crisisResponseScenario } from './CrisisResponseScenario';
 export { clientOnboardingScenario } from './ClientOnboardingScenario';
+export { payrollCloseScenario } from './PayrollCloseScenario';
+export { stateAuditPrepScenario } from './StateAuditPrepScenario';
 
 import { Scenario, PersonaRole } from '../types';
 import { crisisResponseScenario } from './CrisisResponseScenario';
 import { clientOnboardingScenario } from './ClientOnboardingScenario';
+import { payrollCloseScenario } from './PayrollCloseScenario';
+import { stateAuditPrepScenario } from './StateAuditPrepScenario';
 
 /**
  * All available scenarios
@@ -22,6 +26,8 @@ import { clientOnboardingScenario } from './ClientOnboardingScenario';
 export const allScenarios: Scenario[] = [
   crisisResponseScenario,
   clientOnboardingScenario,
+  payrollCloseScenario,
+  stateAuditPrepScenario,
 ];
 
 /**
