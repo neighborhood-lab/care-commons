@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -228,6 +229,36 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/analytics/admin"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <AnalyticsAdminDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics/coordinator"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CoordinatorDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics/reports"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <ReportsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/settings/*"
         element={
           <ProtectedRoute>
@@ -240,6 +271,15 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* Family Portal Routes - temporarily disabled due to missing @care-commons/family-engagement and @care-commons/core packages */}
+      {/* <Route path="/family-portal/login" element={<FamilyLoginPage />} /> */}
+      {/* <Route path="/family-portal" element={<FamilyPortalLayout />}> */}
+      {/*   <Route index element={<FamilyDashboard />} /> */}
+      {/*   <Route path="activity" element={<ActivityPage />} /> */}
+      {/*   <Route path="messages" element={<MessagesPage />} /> */}
+      {/*   <Route path="messages/:threadId" element={<MessagesPage />} /> */}
+      {/*   <Route path="notifications" element={<NotificationsPage />} /> */}
+      {/* </Route> */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
