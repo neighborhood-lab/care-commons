@@ -12,7 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
-import { QADashboard, AuditsPage, AuditDetailPage, CorrectiveActionsPage } from './verticals/quality-assurance';
+import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -229,41 +229,31 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/quality-assurance"
+        path="/analytics/admin"
         element={
           <ProtectedRoute>
             <AppShell>
-              <QADashboard />
+              <AnalyticsAdminDashboard />
             </AppShell>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/audits"
+        path="/analytics/coordinator"
         element={
           <ProtectedRoute>
             <AppShell>
-              <AuditsPage />
+              <CoordinatorDashboard />
             </AppShell>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/audits/:id"
+        path="/analytics/reports"
         element={
           <ProtectedRoute>
             <AppShell>
-              <AuditDetailPage />
-            </AppShell>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/audits/corrective-actions"
-        element={
-          <ProtectedRoute>
-            <AppShell>
-              <CorrectiveActionsPage />
+              <ReportsPage />
             </AppShell>
           </ProtectedRoute>
         }
@@ -281,6 +271,15 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* Family Portal Routes - temporarily disabled due to missing @care-commons/family-engagement and @care-commons/core packages */}
+      {/* <Route path="/family-portal/login" element={<FamilyLoginPage />} /> */}
+      {/* <Route path="/family-portal" element={<FamilyPortalLayout />}> */}
+      {/*   <Route index element={<FamilyDashboard />} /> */}
+      {/*   <Route path="activity" element={<ActivityPage />} /> */}
+      {/*   <Route path="messages" element={<MessagesPage />} /> */}
+      {/*   <Route path="messages/:threadId" element={<MessagesPage />} /> */}
+      {/*   <Route path="notifications" element={<NotificationsPage />} /> */}
+      {/* </Route> */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

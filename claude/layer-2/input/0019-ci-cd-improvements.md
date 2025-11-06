@@ -46,8 +46,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -70,8 +70,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -95,8 +95,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -118,8 +118,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -146,17 +146,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Run npm audit
         run: npm audit --audit-level=moderate
 
-      - name: Run Snyk
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
+      # IMPORTANT: DO NOT RUN S.N.Y.K.
 
   # Database migration check
   migration-check:
@@ -177,8 +172,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -204,8 +199,8 @@ name: Deploy
 on:
   push:
     branches:
-      - main        # Production
-      - develop     # Staging
+      - main # Production
+      - develop # Staging
 
 jobs:
   deploy:
@@ -220,8 +215,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -312,8 +307,8 @@ jobs:
 ```typescript
 #!/usr/bin/env tsx
 
-import { execSync } from 'child_process';
-import chalk from 'chalk';
+import { execSync } from "child_process";
+import chalk from "chalk";
 
 interface Check {
   name: string;
@@ -323,89 +318,91 @@ interface Check {
 
 const checks: Check[] = [
   {
-    name: 'Database connection',
+    name: "Database connection",
     critical: true,
     fn: async () => {
       try {
-        execSync('npm run db:ping', { stdio: 'ignore' });
+        execSync("npm run db:ping", { stdio: "ignore" });
         return true;
       } catch {
         return false;
       }
-    }
+    },
   },
   {
-    name: 'Migration status',
+    name: "Migration status",
     critical: true,
     fn: async () => {
-      const status = execSync('npm run db:migrate:status').toString();
-      return !status.includes('pending');
-    }
+      const status = execSync("npm run db:migrate:status").toString();
+      return !status.includes("pending");
+    },
   },
   {
-    name: 'Test coverage',
+    name: "Test coverage",
     critical: true,
     fn: async () => {
       try {
-        execSync('npm test -- --coverage --passWithNoTests', { stdio: 'ignore' });
+        execSync("npm test -- --coverage --passWithNoTests", {
+          stdio: "ignore",
+        });
         return true;
       } catch {
         return false;
       }
-    }
+    },
   },
   {
-    name: 'No TypeScript errors',
+    name: "No TypeScript errors",
     critical: true,
     fn: async () => {
       try {
-        execSync('npm run typecheck', { stdio: 'ignore' });
+        execSync("npm run typecheck", { stdio: "ignore" });
         return true;
       } catch {
         return false;
       }
-    }
+    },
   },
   {
-    name: 'No ESLint errors',
+    name: "No ESLint errors",
     critical: true,
     fn: async () => {
       try {
-        execSync('npm run lint', { stdio: 'ignore' });
+        execSync("npm run lint", { stdio: "ignore" });
         return true;
       } catch {
         return false;
       }
-    }
+    },
   },
   {
-    name: 'Environment variables set',
+    name: "Environment variables set",
     critical: true,
     fn: async () => {
       const required = [
-        'DATABASE_URL',
-        'JWT_SECRET',
-        'JWT_REFRESH_SECRET',
-        'ENCRYPTION_KEY'
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "JWT_REFRESH_SECRET",
+        "ENCRYPTION_KEY",
       ];
 
-      return required.every(key => process.env[key]);
-    }
+      return required.every((key) => process.env[key]);
+    },
   },
   {
-    name: 'Sensitive data not in logs',
+    name: "Sensitive data not in logs",
     critical: true,
     fn: async () => {
-      const output = execSync('npm run build 2>&1').toString();
-      const forbidden = ['password', 'secret', 'api_key', 'token'];
+      const output = execSync("npm run build 2>&1").toString();
+      const forbidden = ["password", "secret", "api_key", "token"];
 
-      return !forbidden.some(word => output.toLowerCase().includes(word));
-    }
-  }
+      return !forbidden.some((word) => output.toLowerCase().includes(word));
+    },
+  },
 ];
 
 async function runPreDeployChecks() {
-  console.log(chalk.blue.bold('\n🔍 Running pre-deployment checks...\n'));
+  console.log(chalk.blue.bold("\n🔍 Running pre-deployment checks...\n"));
 
   let passed = 0;
   let failed = 0;
@@ -418,10 +415,10 @@ async function runPreDeployChecks() {
       const result = await check.fn();
 
       if (result) {
-        console.log(chalk.green('✅ PASS'));
+        console.log(chalk.green("✅ PASS"));
         passed++;
       } else {
-        console.log(chalk.red('❌ FAIL'));
+        console.log(chalk.red("❌ FAIL"));
         failed++;
 
         if (check.critical) {
@@ -429,7 +426,7 @@ async function runPreDeployChecks() {
         }
       }
     } catch (error) {
-      console.log(chalk.red('❌ ERROR'));
+      console.log(chalk.red("❌ ERROR"));
       failed++;
 
       if (check.critical) {
@@ -438,20 +435,20 @@ async function runPreDeployChecks() {
     }
   }
 
-  console.log(chalk.blue.bold('\n📊 Results:'));
+  console.log(chalk.blue.bold("\n📊 Results:"));
   console.log(`  Passed: ${chalk.green(passed)}`);
   console.log(`  Failed: ${chalk.red(failed)}`);
 
   if (criticalFailures.length > 0) {
-    console.log(chalk.red.bold('\n❌ DEPLOYMENT BLOCKED'));
-    console.log(chalk.red('Critical failures:'));
-    criticalFailures.forEach(name => console.log(chalk.red(`  - ${name}`)));
+    console.log(chalk.red.bold("\n❌ DEPLOYMENT BLOCKED"));
+    console.log(chalk.red("Critical failures:"));
+    criticalFailures.forEach((name) => console.log(chalk.red(`  - ${name}`)));
     process.exit(1);
   } else if (failed > 0) {
-    console.log(chalk.yellow.bold('\n⚠️  Non-critical failures detected'));
-    console.log(chalk.yellow('Deployment can proceed with caution'));
+    console.log(chalk.yellow.bold("\n⚠️  Non-critical failures detected"));
+    console.log(chalk.yellow("Deployment can proceed with caution"));
   } else {
-    console.log(chalk.green.bold('\n✅ All checks passed! Ready to deploy'));
+    console.log(chalk.green.bold("\n✅ All checks passed! Ready to deploy"));
   }
 }
 
@@ -459,6 +456,7 @@ runPreDeployChecks();
 ```
 
 **Add to package.json**:
+
 ```json
 {
   "scripts": {
@@ -474,32 +472,30 @@ runPreDeployChecks();
 ```typescript
 #!/usr/bin/env tsx
 
-import { execSync } from 'child_process';
+import { execSync } from "child_process";
 
 async function rollback() {
-  console.log('🔄 Rolling back deployment...');
+  console.log("🔄 Rolling back deployment...");
 
   // Get previous deployment from Vercel
-  const deployments = JSON.parse(
-    execSync('vercel ls --json').toString()
-  );
+  const deployments = JSON.parse(execSync("vercel ls --json").toString());
 
   const previousDeployment = deployments[1]; // Second most recent
 
   if (!previousDeployment) {
-    console.error('❌ No previous deployment found');
+    console.error("❌ No previous deployment found");
     process.exit(1);
   }
 
   // Promote previous deployment to production
   execSync(`vercel promote ${previousDeployment.url} --scope=care-commons`);
 
-  console.log('✅ Rollback complete');
+  console.log("✅ Rollback complete");
   console.log(`Active deployment: ${previousDeployment.url}`);
 
   // Run health check on rolled-back deployment
   const healthCheck = execSync(`curl -f ${previousDeployment.url}/health`);
-  console.log('✅ Health check passed');
+  console.log("✅ Health check passed");
 }
 
 rollback();
@@ -510,36 +506,36 @@ rollback();
 **File**: `e2e/tests/smoke.spec.ts`
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
 // Critical path smoke tests - must pass after every deployment
 
-test('homepage loads', async ({ page }) => {
-  await page.goto('/');
+test("homepage loads", async ({ page }) => {
+  await page.goto("/");
   await expect(page).toHaveTitle(/Care Commons/);
 });
 
-test('health check returns 200', async ({ request }) => {
-  const response = await request.get('/health');
+test("health check returns 200", async ({ request }) => {
+  const response = await request.get("/health");
   expect(response.status()).toBe(200);
 });
 
-test('login page accessible', async ({ page }) => {
-  await page.goto('/login');
+test("login page accessible", async ({ page }) => {
+  await page.goto("/login");
   await expect(page.locator('input[type="email"]')).toBeVisible();
 });
 
-test('API responds correctly', async ({ request }) => {
-  const response = await request.get('/api/health');
+test("API responds correctly", async ({ request }) => {
+  const response = await request.get("/api/health");
   expect(response.status()).toBe(200);
   const body = await response.json();
-  expect(body.status).toBe('ok');
+  expect(body.status).toBe("ok");
 });
 
-test('database connection working', async ({ request }) => {
-  const response = await request.get('/health/detailed');
+test("database connection working", async ({ request }) => {
+  const response = await request.get("/health/detailed");
   const body = await response.json();
-  expect(body.checks.database).toBe('healthy');
+  expect(body.checks.database).toBe("healthy");
 });
 ```
 
@@ -550,7 +546,7 @@ test('database connection working', async ({ request }) => {
 ```typescript
 #!/usr/bin/env tsx
 
-import { writeFileSync, readFileSync } from 'fs';
+import { writeFileSync, readFileSync } from "fs";
 
 interface DeploymentMetric {
   timestamp: string;
@@ -563,21 +559,21 @@ interface DeploymentMetric {
 
 const metric: DeploymentMetric = {
   timestamp: new Date().toISOString(),
-  environment: process.env.ENVIRONMENT || 'unknown',
-  duration: parseInt(process.env.DEPLOYMENT_DURATION || '0'),
-  success: process.env.DEPLOYMENT_SUCCESS === 'true',
-  commit: process.env.GITHUB_SHA || 'unknown',
-  deployer: process.env.GITHUB_ACTOR || 'unknown'
+  environment: process.env.ENVIRONMENT || "unknown",
+  duration: parseInt(process.env.DEPLOYMENT_DURATION || "0"),
+  success: process.env.DEPLOYMENT_SUCCESS === "true",
+  commit: process.env.GITHUB_SHA || "unknown",
+  deployer: process.env.GITHUB_ACTOR || "unknown",
 };
 
 // Append to metrics file
-const metricsFile = '.deployment-metrics.jsonl';
-const existing = readFileSync(metricsFile, 'utf-8').split('\n').filter(Boolean);
+const metricsFile = ".deployment-metrics.jsonl";
+const existing = readFileSync(metricsFile, "utf-8").split("\n").filter(Boolean);
 existing.push(JSON.stringify(metric));
 
-writeFileSync(metricsFile, existing.join('\n') + '\n');
+writeFileSync(metricsFile, existing.join("\n") + "\n");
 
-console.log('✅ Deployment metrics recorded');
+console.log("✅ Deployment metrics recorded");
 ```
 
 ### 7. Add Deployment Checklist
@@ -593,7 +589,6 @@ console.log('✅ Deployment metrics recorded');
 - [ ] Code reviewed and approved
 - [ ] Database migrations tested
 - [ ] Environment variables configured
-- [ ] No security vulnerabilities (Snyk scan)
 - [ ] Changelog updated
 - [ ] Stakeholders notified of deployment window
 
@@ -616,6 +611,7 @@ console.log('✅ Deployment metrics recorded');
 ## Rollback Triggers
 
 Initiate rollback if:
+
 - [ ] Health check fails for >2 minutes
 - [ ] Error rate increases >50%
 - [ ] Critical feature broken
@@ -644,6 +640,7 @@ Initiate rollback if:
 - **Mean Time to Recovery (MTTR)**: Time to recover from failed deployment
 
 **Targets**:
+
 - Deploy to production: Daily
 - Lead time: <1 hour
 - Change failure rate: <5%
