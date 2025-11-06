@@ -9,6 +9,7 @@
     { "path": "./verticals/caregiver-staff" },
     { "path": "./verticals/client-demographics" },
     { "path": "./verticals/payroll-processing" },
+    { "path": "./verticals/referral-intake" },
     { "path": "./verticals/scheduling-visits" },
     { "path": "./verticals/shift-matching" },
     { "path": "./verticals/time-tracking-evv" }
