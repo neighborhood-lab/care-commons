@@ -61,6 +61,16 @@ export function createDemoRouter(db: Database): Router {
   router.get('/sessions/:sessionId', (req: Request, res: Response, next: NextFunction) => {
     try {
       const sessionId = String(req.params.sessionId);
+      
+      // Validate sessionId (frontend sometimes sends 'undefined' string)
+      if (sessionId.length === 0 || sessionId === 'undefined') {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid session ID'
+        });
+        return;
+      }
+      
       const session = sessionManager.getSession(sessionId);
 
       res.json({
@@ -123,6 +133,16 @@ export function createDemoRouter(db: Database): Router {
   router.delete('/sessions/:sessionId', (req: Request, res: Response, next: NextFunction) => {
     try {
       const sessionId = String(req.params.sessionId);
+      
+      // Gracefully handle invalid session IDs (frontend sometimes sends 'undefined')
+      if (sessionId.length === 0 || sessionId === 'undefined') {
+        res.json({
+          success: true,
+          data: { message: 'No session to delete' }
+        });
+        return;
+      }
+      
       sessionManager.deleteSession(sessionId);
 
       res.json({
