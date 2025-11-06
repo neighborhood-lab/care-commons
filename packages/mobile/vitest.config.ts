@@ -39,6 +39,7 @@ export default defineConfig({
       '.expo',
       'ios',
       'android',
+      'src/services/__tests__/offline-queue.test.ts', // Requires React Native environment
     ],
   },
   resolve: {
