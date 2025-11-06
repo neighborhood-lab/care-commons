@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { QADashboard, AuditsPage, AuditDetailPage, CorrectiveActionsPage } from './verticals/quality-assurance';
 import { DemoModeBar } from './demo';
 
 const queryClient = new QueryClient({
@@ -223,6 +224,46 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <AdminDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quality-assurance"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <QADashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/audits"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <AuditsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/audits/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <AuditDetailPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/audits/corrective-actions"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CorrectiveActionsPage />
             </AppShell>
           </ProtectedRoute>
         }
