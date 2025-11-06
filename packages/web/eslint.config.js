@@ -84,6 +84,7 @@ export default [
       // Disable no-undef for TypeScript files (TypeScript handles this)
       'no-undef': 'off',
       // TypeScript strict rules (relaxed for now)
+      '@typescript-eslint/ban-ts-comment': 'off', // Allow @ts-nocheck for gradual migration      '@typescript-eslint/ban-ts-comment': 'off', // Allow @ts-nocheck for gradual migration
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'warn',
