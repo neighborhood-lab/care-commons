@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
-import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
+import { Dashboard, Login, NotFound, AdminDashboard, Reports } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage } from './verticals/care-plans';
@@ -213,6 +213,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <PayRunDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <Reports />
             </AppShell>
           </ProtectedRoute>
         }

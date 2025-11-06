@@ -12,6 +12,7 @@ import {
   LogOut,
   X,
   Plus,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/core/utils';
 import { useAuth, usePermissions } from '@/core/hooks';
@@ -78,6 +79,11 @@ const navItems: NavItem[] = [
     path: '/billing',
     icon: <DollarSign className="h-5 w-5" />,
     permission: 'billing:read',
+  },
+  {
+    label: 'Reports',
+    path: '/reports',
+    icon: <BarChart3 className="h-5 w-5" />,
   },
   {
     label: 'Admin',
