@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { Calendar, Filter, X } from 'lucide-react';
 import { Button } from '@/core/components';
-import type { DateRange } from '@care-commons/analytics-reporting/types/analytics';
+import type { DateRange } from '@/types/analytics-types';
 
 interface AnalyticsFiltersProps {
   onFiltersChange: (filters: FilterValues) => void;
@@ -253,7 +253,7 @@ export function AnalyticsFilters({
               variant="ghost"
               size="sm"
               onClick={handleClearFilters}
-              icon={<X className="h-4 w-4" />}
+              leftIcon={<X className="h-4 w-4" />}
             >
               Clear All
             </Button>

@@ -14,7 +14,7 @@ import type {
   ReportType,
   ExportFormat,
   DateRange,
-} from '@care-commons/analytics-reporting/types/analytics';
+} from '@/types/analytics-types';
 
 export interface AnalyticsFilters {
   dateRange: DateRange;

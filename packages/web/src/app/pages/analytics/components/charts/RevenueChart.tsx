@@ -13,7 +13,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import type { RevenueTrendDataPoint } from '@care-commons/analytics-reporting/types/analytics';
+import type { RevenueTrendDataPoint } from '@/types/analytics-types';
 
 interface RevenueChartProps {
   data: RevenueTrendDataPoint[];
