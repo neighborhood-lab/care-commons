@@ -262,11 +262,11 @@ export const ShowcaseRouter: React.FC = () => {
         {/* Scenario Container */}
         <ScenarioContainer />
 
-        {/* Tour FAB Button */}
-        <TourButton currentRole={currentRole} />
+        {/* Tour FAB Button - Only show after role selected */}
+        {currentRole && <TourButton currentRole={currentRole} />}
 
-        {/* Scenario FAB Button */}
-        <ScenarioButton />
+        {/* Scenario FAB Button - Only show after role selected */}
+        {currentRole && <ScenarioButton />}
       </ScenarioProvider>
     </TourProvider>
   );

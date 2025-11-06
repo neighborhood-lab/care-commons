@@ -7,7 +7,8 @@
 
 **Care Commons** is a modular, self-hostable software platform designed to support the administration and daily operations of home-based care services. Built by the people at **Neighborhood Lab**.
 
-[Care Commons](https://care-commons.vercel.app/) (web application demo)
+**[🎮 Interactive Showcase](https://neighborhood-lab.github.io/care-commons/)** - Experience the platform through realistic scenarios  
+[Care Commons Web App](https://care-commons.vercel.app/) (full application demo)
 
 [Discord](https://discord.gg/EkeXQZFq)
 [Substack](https://neighborhoodlab.substack.com/) (updates, news and commentary)  
