@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Grid, List } from 'lucide-react';
-import { Button, LoadingSpinner, EmptyState, ErrorMessage } from '@/core/components';
+import { Button, LoadingSpinner, EmptyState, ErrorMessage, Tooltip, SkeletonCard } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { useClients } from '../hooks';
 import { ClientCard, ClientSearch } from '../components';
@@ -15,8 +15,21 @@ export const ClientList: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <LoadingSpinner size="lg" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
+            <p className="text-gray-600 mt-1">Loading...</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
       </div>
     );
   }
@@ -42,23 +55,31 @@ export const ClientList: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <div className="flex border border-gray-300 rounded-md">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 ${
-                viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
-            >
-              <Grid className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 ${
-                viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
-              }`}
-            >
-              <List className="h-5 w-5" />
-            </button>
+          <div className="flex border border-gray-300 rounded-md" role="group" aria-label="View mode">
+            <Tooltip content="Grid view">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 transition-colors ${
+                  viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-50'
+                }`}
+                aria-label="Switch to grid view"
+                aria-pressed={viewMode === 'grid'}
+              >
+                <Grid className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </Tooltip>
+            <Tooltip content="List view">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 transition-colors ${
+                  viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'
+                }`}
+                aria-label="Switch to list view"
+                aria-pressed={viewMode === 'list'}
+              >
+                <List className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </Tooltip>
           </div>
           {can('clients:write') && (
             <Link to="/clients/new">

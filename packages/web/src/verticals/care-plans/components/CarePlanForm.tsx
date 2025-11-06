@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { 
-  Button, 
-  Card, 
-  CardHeader, 
-  CardContent, 
-  Input, 
-  Select, 
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardContent,
+  Input,
+  Select,
+  SearchableSelect,
   FormField,
   LoadingSpinner
 } from '@/core/components';
 import { formatDate } from '@/core/utils';
+import { useClients } from '@/verticals/client-demographics/hooks';
 import type { CreateCarePlanInput } from '../types';
 
 const carePlanSchema = z.object({
@@ -46,17 +48,21 @@ const planTypeOptions = [
   { value: 'CUSTOM', label: 'Custom' },
 ];
 
-export const CarePlanForm: React.FC<CarePlanFormProps> = ({ 
-  initialData, 
-  onSubmit, 
-  isLoading = false 
+export const CarePlanForm: React.FC<CarePlanFormProps> = ({
+  initialData,
+  onSubmit,
+  isLoading = false
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
+
+  // Fetch clients for searchable select
+  const { data: clientsData, isLoading: isLoadingClients } = useClients();
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     getValues,
     formState: { errors },
   } = useForm<CarePlanFormData>({
@@ -73,6 +79,34 @@ export const CarePlanForm: React.FC<CarePlanFormProps> = ({
       notes: initialData?.notes || '',
     },
   });
+
+  // Transform clients data for SearchableSelect
+  const clientOptions = useMemo(() => {
+    if (!clientsData?.data) return [];
+    return clientsData.data.map((client) => ({
+      value: client.id,
+      label: `${client.firstName} ${client.lastName}`,
+      description: `${client.clientNumber} - ${client.status}`,
+    }));
+  }, [clientsData]);
+
+  // Placeholder options for organization and coordinator (to be replaced with real API calls)
+  const organizationOptions = [
+    { value: 'org-1', label: 'Main Organization', description: 'Primary care organization' },
+    { value: 'org-2', label: 'Branch Office', description: 'Regional branch' },
+  ];
+
+  const coordinatorOptions = [
+    { value: 'coord-1', label: 'John Smith', description: 'Senior Care Coordinator' },
+    { value: 'coord-2', label: 'Jane Doe', description: 'Care Coordinator' },
+    { value: 'coord-3', label: 'Bob Wilson', description: 'Lead Coordinator' },
+  ];
+
+  const branchOptions = [
+    { value: 'branch-1', label: 'North Branch', description: 'Northern region' },
+    { value: 'branch-2', label: 'South Branch', description: 'Southern region' },
+    { value: 'branch-3', label: 'East Branch', description: 'Eastern region' },
+  ];
 
   const steps = [
     { title: 'Basic Information', description: 'Care plan details' },
@@ -104,47 +138,47 @@ export const CarePlanForm: React.FC<CarePlanFormProps> = ({
   const renderBasicInfo = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          label="Client ID"
+        <SearchableSelect
+          label="Client"
+          value={watch('clientId')}
+          onChange={(value) => setValue('clientId', value, { shouldValidate: true })}
+          options={clientOptions}
+          placeholder="Search and select a client..."
           error={errors.clientId?.message}
           required
-        >
-          <Input
-            {...register('clientId')}
-            placeholder="Enter client ID"
-          />
-        </FormField>
+          isLoading={isLoadingClients}
+          emptyMessage="No clients found. Create a client first."
+        />
 
-        <FormField
-          label="Organization ID"
+        <SearchableSelect
+          label="Organization"
+          value={watch('organizationId')}
+          onChange={(value) => setValue('organizationId', value, { shouldValidate: true })}
+          options={organizationOptions}
+          placeholder="Search and select an organization..."
           error={errors.organizationId?.message}
           required
-        >
-          <Input
-            {...register('organizationId')}
-            placeholder="Enter organization ID"
-          />
-        </FormField>
+        />
 
-        <FormField
-          label="Branch ID (Optional)"
+        <SearchableSelect
+          label="Branch (Optional)"
+          value={watch('branchId') || ''}
+          onChange={(value) => setValue('branchId', value)}
+          options={branchOptions}
+          placeholder="Search and select a branch..."
           error={errors.branchId?.message}
-        >
-          <Input
-            {...register('branchId')}
-            placeholder="Enter branch ID"
-          />
-        </FormField>
+          clearable
+        />
 
-        <FormField
-          label="Coordinator ID (Optional)"
+        <SearchableSelect
+          label="Coordinator (Optional)"
+          value={watch('coordinatorId') || ''}
+          onChange={(value) => setValue('coordinatorId', value)}
+          options={coordinatorOptions}
+          placeholder="Search and select a coordinator..."
           error={errors.coordinatorId?.message}
-        >
-          <Input
-            {...register('coordinatorId')}
-            placeholder="Enter coordinator ID"
-          />
-        </FormField>
+          clearable
+        />
       </div>
 
       <FormField

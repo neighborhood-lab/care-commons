@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, User } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage, StatusBadge } from '@/core/components';
+import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage, StatusBadge, ConfirmDialog, useConfirmDialog } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { formatDate, formatPhone } from '@/core/utils';
 import { useClient, useDeleteClient } from '../hooks';
@@ -12,11 +12,20 @@ export const ClientDetail: React.FC = () => {
   const { can } = usePermissions();
   const { data: client, isLoading, error, refetch } = useClient(id);
   const deleteClient = useDeleteClient();
+  const confirmDialog = useConfirmDialog();
 
   const handleDelete = async () => {
-    if (!client || !window.confirm('Are you sure you want to delete this client?')) {
-      return;
-    }
+    if (!client) return;
+
+    const confirmed = await confirmDialog.confirm({
+      title: 'Delete Client',
+      message: `Are you sure you want to delete ${client.firstName} ${client.lastName}? This action cannot be undone and will permanently remove all client data, including care plans, visit history, and notes.`,
+      confirmLabel: 'Delete Client',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    });
+
+    if (!confirmed) return;
 
     try {
       await deleteClient.mutateAsync(client.id);
@@ -248,6 +257,15 @@ export const ClientDetail: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={confirmDialog.handleClose}
+        onConfirm={confirmDialog.handleConfirm}
+        isLoading={deleteClient.isPending}
+        {...confirmDialog.config}
+      />
     </div>
   );
 };
