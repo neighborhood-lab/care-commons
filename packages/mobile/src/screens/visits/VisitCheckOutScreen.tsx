@@ -11,7 +11,7 @@
  * - Offline support with sync queue
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -24,7 +24,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Card, CardContent, Badge, Button } from '../../components/index.js';
-import { format, differenceInMinutes } from 'date-fns';
+import { differenceInMinutes } from 'date-fns';
 import type { RootStackParamList } from '../../navigation/RootNavigator.js';
 import type { MobileVisit, LocationVerification } from '../../shared/index.js';
 
@@ -69,12 +69,7 @@ export function VisitCheckOutScreen() {
   const [actualStartTime] = useState(new Date('2025-11-06T14:05:00')); // Mock - should come from EVV record
   const [allowMinimumDurationOverride, setAllowMinimumDurationOverride] = useState(false);
 
-  useEffect(() => {
-    loadVisitData();
-    checkLocation();
-  }, [visitId]);
-
-  const loadVisitData = async () => {
+  const loadVisitData = useCallback(async () => {
     setIsLoading(true);
     try {
       // TODO: Load from WatermelonDB
@@ -127,14 +122,14 @@ export function VisitCheckOutScreen() {
       setVisit(mockVisit);
       setTasks(mockTasks);
       setDocumentation(mockDocumentation);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to load visit data');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [visitId]);
 
-  const checkLocation = async () => {
+  const checkLocation = useCallback(async () => {
     setLocationChecking(true);
     try {
       // TODO: Integrate with actual location service
@@ -145,17 +140,29 @@ export function VisitCheckOutScreen() {
         longitude: -97.7431,
         accuracy: 12,
         timestamp: new Date(),
-        source: 'GPS',
-        isMocked: false,
+        timestampSource: 'GPS',
+        locationSource: 'GPS_SATELLITE',
+        method: 'GPS',
+        mockLocationDetected: false,
+        isWithinGeofence: true,
+        distanceFromAddress: 45,
+        geofencePassed: true,
+        deviceId: 'mock-device',
+        verificationPassed: true,
       };
 
       setLocation(mockLocation);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to get location. Please enable GPS.');
     } finally {
       setLocationChecking(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadVisitData();
+    checkLocation();
+  }, [loadVisitData, checkLocation]);
 
   const handleBiometricVerification = async () => {
     setBiometricChecking(true);
@@ -164,7 +171,7 @@ export function VisitCheckOutScreen() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setBiometricVerified(true);
       Alert.alert('Success', 'Biometric verification successful');
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Biometric verification failed. Please try again.');
     } finally {
       setBiometricChecking(false);
@@ -191,7 +198,7 @@ export function VisitCheckOutScreen() {
       validationErrors.push('Location verification required');
     }
 
-    if (location?.isMocked) {
+    if (location?.mockLocationDetected) {
       validationErrors.push('Mock location detected - please disable');
     }
 
@@ -266,7 +273,7 @@ export function VisitCheckOutScreen() {
           },
         ]
       );
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to check out. Please try again.');
     } finally {
       setCheckingOut(false);

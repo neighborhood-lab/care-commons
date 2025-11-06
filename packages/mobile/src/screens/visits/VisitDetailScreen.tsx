@@ -5,7 +5,7 @@
  * Includes client info, address with directions, assigned tasks, and status timeline.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -34,11 +34,7 @@ export function VisitDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [tasks, setTasks] = useState<Array<{ id: string; title: string; completed: boolean }>>([]);
 
-  useEffect(() => {
-    loadVisit();
-  }, [visitId]);
-
-  const loadVisit = async () => {
+  const loadVisit = useCallback(async () => {
     setIsLoading(true);
     try {
       // TODO: Load from WatermelonDB
@@ -86,12 +82,16 @@ export function VisitDetailScreen() {
 
       setVisit(mockVisit);
       setTasks(mockTasks);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to load visit details');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [visitId]);
+
+  useEffect(() => {
+    loadVisit();
+  }, [loadVisit]);
 
   const handleGetDirections = () => {
     if (!visit) return;

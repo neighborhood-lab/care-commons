@@ -176,7 +176,7 @@ export async function getVisitById(
       .get<Visit>('visits')
       .find(visitId);
     return visit;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
