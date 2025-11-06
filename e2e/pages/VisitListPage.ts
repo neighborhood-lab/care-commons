@@ -171,4 +171,40 @@ export class VisitListPage extends BasePage {
       // Neither appeared - that's okay, list might be empty
     });
   }
+
+  /**
+   * Check if a visit exists for a specific client
+   */
+  async hasVisit(clientName: string): Promise<boolean> {
+    return await this.visitExists(clientName);
+  }
+
+  /**
+   * Filter visits by a specific date
+   */
+  async filterByDate(date: string): Promise<void> {
+    const dateFilter = this.page.getByLabel(/date|filter.*date/i);
+    await dateFilter.fill(date);
+    await this.waitForPageLoad();
+  }
+
+  /**
+   * Filter visits by date range
+   */
+  async filterByDateRange(startDate: string, endDate: string): Promise<void> {
+    const startDateFilter = this.page.getByLabel(/start.*date|from.*date/i);
+    const endDateFilter = this.page.getByLabel(/end.*date|to.*date/i);
+    await startDateFilter.fill(startDate);
+    await endDateFilter.fill(endDate);
+    await this.waitForPageLoad();
+  }
+
+  /**
+   * Filter visits by client name
+   */
+  async filterByClient(clientName: string): Promise<void> {
+    const clientFilter = this.page.getByLabel(/client|filter.*client/i);
+    await clientFilter.fill(clientName);
+    await this.waitForPageLoad();
+  }
 }
