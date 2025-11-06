@@ -10,15 +10,15 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-950">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-      
+
       <div className="lg:pl-64">
         <Header onMenuClick={() => setIsSidebarOpen(true)} />
-        
+
         <main className="p-4 md:p-6 lg:p-8">
           {children}
         </main>

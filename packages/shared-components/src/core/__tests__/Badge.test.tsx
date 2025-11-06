@@ -10,27 +10,27 @@ describe('Badge', () => {
 
   it('should apply default variant', () => {
     const { container } = render(<Badge>Text</Badge>);
-    expect(container.firstChild).toHaveClass('bg-gray-100', 'text-gray-800');
+    expect(container.firstChild).toHaveClass('bg-neutral-800', 'text-neutral-200');
   });
 
   it('should apply success variant', () => {
     const { container } = render(<Badge variant="success">Text</Badge>);
-    expect(container.firstChild).toHaveClass('bg-green-100', 'text-green-800');
+    expect(container.firstChild).toHaveClass('bg-green-900/50', 'text-green-300');
   });
 
   it('should apply error variant', () => {
     const { container } = render(<Badge variant="error">Text</Badge>);
-    expect(container.firstChild).toHaveClass('bg-red-100', 'text-red-800');
+    expect(container.firstChild).toHaveClass('bg-red-900/50', 'text-red-300');
   });
 
   it('should apply warning variant', () => {
     const { container } = render(<Badge variant="warning">Text</Badge>);
-    expect(container.firstChild).toHaveClass('bg-yellow-100', 'text-yellow-800');
+    expect(container.firstChild).toHaveClass('bg-yellow-900/50', 'text-yellow-300');
   });
 
   it('should apply info variant', () => {
     const { container } = render(<Badge variant="info">Text</Badge>);
-    expect(container.firstChild).toHaveClass('bg-blue-100', 'text-blue-800');
+    expect(container.firstChild).toHaveClass('bg-blue-900/50', 'text-blue-300');
   });
 
   it('should apply small size', () => {

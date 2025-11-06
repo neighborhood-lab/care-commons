@@ -15,17 +15,17 @@ describe('Button', () => {
 
   it('should apply secondary variant', () => {
     const { container } = render(<Button variant="secondary">Text</Button>);
-    expect(container.firstChild).toHaveClass('bg-gray-200');
+    expect(container.firstChild).toHaveClass('bg-neutral-800');
   });
 
   it('should apply outline variant', () => {
     const { container } = render(<Button variant="outline">Text</Button>);
-    expect(container.firstChild).toHaveClass('border', 'border-gray-300');
+    expect(container.firstChild).toHaveClass('border', 'border-neutral-700');
   });
 
   it('should apply ghost variant', () => {
     const { container } = render(<Button variant="ghost">Text</Button>);
-    expect(container.firstChild).toHaveClass('text-gray-700', 'hover:bg-gray-100');
+    expect(container.firstChild).toHaveClass('text-neutral-300', 'hover:bg-neutral-800');
   });
 
   it('should apply danger variant', () => {

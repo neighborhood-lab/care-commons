@@ -100,7 +100,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {/* Mobile backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-75 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -108,15 +108,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200',
+          'fixed inset-y-0 left-0 z-50 w-64 bg-black border-r border-neutral-800',
           'transform transition-transform duration-200 ease-in-out lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Close button (mobile only) */}
-          <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 lg:hidden">
-            <h2 className="text-lg font-semibold">Menu</h2>
+          <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-800 lg:hidden">
+            <h2 className="text-lg font-semibold text-neutral-100">Menu</h2>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>
@@ -133,8 +133,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   cn(
                     'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-neutral-800 text-primary-500'
+                      : 'text-neutral-300 hover:bg-neutral-900'
                   )
                 }
               >
@@ -145,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 p-3 space-y-1">
+          <div className="border-t border-neutral-800 p-3 space-y-1">
             <NavLink
               to="/settings"
               onClick={onClose}
@@ -153,8 +153,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 cn(
                   'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-neutral-800 text-primary-500'
+                    : 'text-neutral-300 hover:bg-neutral-900'
                 )
               }
             >
@@ -166,7 +166,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 logout();
                 onClose();
               }}
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 w-full transition-colors"
+              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-neutral-300 hover:bg-neutral-900 w-full transition-colors"
             >
               <LogOut className="h-5 w-5" />
               Logout

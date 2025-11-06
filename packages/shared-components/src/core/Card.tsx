@@ -25,7 +25,7 @@ export const Card: CardComponent = Object.assign(
     return (
       <div
         className={cn(
-          'bg-white rounded-lg shadow-sm border border-gray-200',
+          'bg-neutral-900 rounded-lg shadow-sm border border-neutral-800',
           paddingClasses[padding],
           hover && 'transition-shadow hover:shadow-md',
           className
@@ -57,8 +57,8 @@ export function CardHeader({
   return (
     <div className={cn('flex items-start justify-between', className)}>
       <div>
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        {subtitle && <p className="mt-1 text-sm text-gray-600">{subtitle}</p>}
+        <h3 className="text-lg font-semibold text-neutral-100">{title}</h3>
+        {subtitle && <p className="mt-1 text-sm text-neutral-400">{subtitle}</p>}
       </div>
       {action && <div>{action}</div>}
     </div>
@@ -71,7 +71,7 @@ export function CardContent({ children, className }: BaseComponentProps): React.
 
 export function CardFooter({ children, className }: BaseComponentProps): React.ReactElement {
   return (
-    <div className={cn('mt-6 pt-4 border-t border-gray-200', className)}>
+    <div className={cn('mt-6 pt-4 border-t border-neutral-800', className)}>
       {children}
     </div>
   );
