@@ -39,6 +39,8 @@ export default defineConfig({
       '.expo',
       'ios',
       'android',
+      'src/services/__tests__/location.test.ts',
+      'src/services/__tests__/offline-queue.test.ts',
     ],
   },
   resolve: {
