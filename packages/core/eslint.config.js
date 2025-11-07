@@ -32,6 +32,7 @@ export default [
         clearTimeout: 'readonly',
         clearInterval: 'readonly',
         global: 'readonly',
+        fetch: 'readonly', // Node.js 18+ native fetch
         // Vitest globals (when using globals: true)
         describe: 'readonly',
         it: 'readonly',

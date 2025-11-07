@@ -16,6 +16,7 @@ export default defineConfig({
         inline: ['@react-native-community/netinfo', '@nozbe/watermelondb'],
       },
     },
+    mockReset: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -47,6 +48,7 @@ export default defineConfig({
       'src/services/__tests__/location.test.ts',
       'src/services/__tests__/offline-queue.test.ts',
     ],
+    setupFiles: ['./vitest.setup.ts'],
   },
   resolve: {
     alias: {
