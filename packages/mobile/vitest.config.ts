@@ -11,6 +11,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node', // Use 'jsdom' for React Native testing with proper setup
+    server: {
+      deps: {
+        inline: ['@react-native-community/netinfo', '@nozbe/watermelondb'],
+      },
+    },
     mockReset: true,
     coverage: {
       provider: 'v8',
