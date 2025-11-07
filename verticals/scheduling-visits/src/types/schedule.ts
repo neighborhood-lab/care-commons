@@ -553,6 +553,7 @@ export interface CreateVisitInput {
   scheduledDate: Date;
   scheduledStartTime: string;
   scheduledEndTime: string;
+  timezone?: string; // IANA timezone for the visit (defaults to client timezone)
   address: VisitAddress;
   taskIds?: UUID[];
   requiredSkills?: string[];

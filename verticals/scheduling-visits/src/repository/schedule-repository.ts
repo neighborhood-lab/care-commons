@@ -205,9 +205,9 @@ export class ScheduleRepository {
         created_at, created_by, updated_at, updated_by, version
       ) VALUES (
         gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-        'America/New_York', $13, $14, $15, $16, 'UNASSIGNED', '[]'::jsonb,
-        $17, $18, $19, $20, 'MANUAL', true, $21, $22, $23,
-        NOW(), $24, NOW(), $24, 1
+        $13, $14, $15, $16, $17, 'UNASSIGNED', '[]'::jsonb,
+        $18, $19, $20, $21, 'MANUAL', true, $22, $23, $24,
+        NOW(), $25, NOW(), $25, 1
       )
       RETURNING *
     `;
@@ -225,6 +225,7 @@ export class ScheduleRepository {
       input.scheduledStartTime,
       input.scheduledEndTime,
       scheduledDuration,
+      input.timezone ?? 'America/Chicago', // Default to Central Time if not provided
       JSON.stringify(input.address),
       input.taskIds ? JSON.stringify(input.taskIds) : null,
       input.requiredSkills ? JSON.stringify(input.requiredSkills) : null,

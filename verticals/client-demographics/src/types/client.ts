@@ -246,6 +246,7 @@ export interface Client extends Entity, SoftDeletable {
   secondaryAddresses?: Address[];
   livingArrangement?: LivingArrangement;
   mobilityInfo?: MobilityInfo;
+  timezone?: string; // IANA timezone (e.g., 'America/New_York')
 
   // Emergency contacts
   emergencyContacts: EmergencyContact[];
