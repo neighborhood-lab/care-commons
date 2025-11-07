@@ -65,7 +65,7 @@ export class OfflineQueueService {
   private database: Database;
   private config: OfflineQueueConfig;
   private syncInProgress = false;
-  private syncInterval: ReturnType<typeof setInterval> | null = null;
+  private syncInterval: number | null = null;
 
   constructor(database: Database, config: Partial<OfflineQueueConfig> = {}) {
     this.database = database;
@@ -373,9 +373,10 @@ export class OfflineQueueService {
       clearInterval(this.syncInterval);
     }
 
-    this.syncInterval = setInterval(() => {
+    const interval = setInterval(() => {
       void this.trySync();
     }, intervalMs);
+    this.syncInterval = interval as unknown as number;
   }
 
   /**
