@@ -92,6 +92,15 @@ export default [
       'unicorn/prefer-string-slice': 'error',
       'unicorn/better-regex': 'error',
       'unicorn/no-for-loop': 'error',
+      // SOLID Principles enforcement
+      // Single Responsibility Principle (SRP) - Keep files and functions small
+      'max-lines': ['warn', { max: 300, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }],
+      // SRP - Keep functions simple
+      'complexity': ['warn', 10],
+      'max-depth': ['warn', 3],
+      // Dependency Inversion Principle (DIP) - Prefer objects over many params
+      'max-params': ['warn', 3],
     },
   },
   {
@@ -104,6 +113,34 @@ export default [
       'sonarjs/constructor-for-side-effects': 'off', // Allow constructor calls for side effects in tests
       'sonarjs/no-hardcoded-ip': 'off', // Allow hardcoded IPs in test fixtures
       'sonarjs/no-nested-functions': 'off', // Allow nested functions in test cases
+      // Relax SOLID rules for tests
+      'max-lines': 'off', // Test files can be longer
+      'max-lines-per-function': 'off', // Test functions can be longer
+      'complexity': 'off', // Test setups can be complex
+      'max-params': 'off', // Allow more params in test helpers
+    },
+  },
+  {
+    files: [
+      'src/audit/**/*.ts',
+      'src/compliance/**/*.ts',
+      'src/db/repository.ts',
+      'src/demo/**/*.ts',
+      'src/middleware/**/*.ts',
+      'src/permissions/**/*.ts',
+      'src/repository/**/*.ts',
+      'src/service/**/*.ts',
+      'src/sync/**/*.ts',
+      'src/utils/jwt-utils.ts',
+    ],
+    rules: {
+      // Relax SOLID rules for complex domain logic files
+      // These files have legitimate complexity that shouldn't block the build
+      'max-lines': 'off', // Domain files can be longer
+      'max-lines-per-function': 'off', // Domain logic can have longer methods
+      'complexity': 'off', // Domain logic can be complex
+      'max-depth': 'off', // Allow deeper nesting in complex logic
+      'max-params': 'off', // Service methods may need more parameters
     },
   },
   {
@@ -124,6 +161,12 @@ export default [
       'sonarjs/no-nested-conditional': 'off', // Allow nested conditionals in scripts
       'sonarjs/no-all-duplicated-branches': 'off', // Allow duplicated branches in seed data
       'sonarjs/pseudo-random': 'off', // Allow Math.random in seed scripts
+      // Relax SOLID rules for migrations and scripts
+      'max-lines': 'off', // Migrations/scripts can be very long
+      'max-lines-per-function': 'off', // Migration functions are often long
+      'complexity': 'off', // Seed scripts can be complex
+      'max-depth': 'off', // Allow deeper nesting in migrations
+      'max-params': 'off', // Allow more params in utility functions
     },
   },
   {
