@@ -10,6 +10,7 @@ import { createClientRouter, ClientService, ClientRepository } from '@care-commo
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createHealthRouter } from './health.js';
+import { createMetricsRouter } from './metrics.js';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
@@ -32,8 +33,14 @@ export function setupRoutes(app: Express, db: Database): void {
 
   // Health check route (no authentication required)
   const healthRouter = createHealthRouter(db);
-  app.use('/', healthRouter);
+  app.use('/health', healthRouter);
   console.log('  ✓ Health check route registered');
+
+  // Metrics route (no authentication required)
+  const metricsRouter = createMetricsRouter();
+  app.use('/metrics', metricsRouter);
+  console.log('  ✓ Metrics route registered');
+
   // API Documentation routes
   app.use('/', docsRoutes);
   console.log('  ✓ API Documentation routes registered');

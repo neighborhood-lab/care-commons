@@ -19,7 +19,7 @@ describe('Critical Regression Tests - ESM Module Resolution', () => {
       // This allows us to test ESM imports without triggering database connection
       const originalVercel = process.env['VERCEL'];
       process.env['VERCEL'] = '1';
-      
+
       try {
         // This verifies ESM import resolution works in Node.js
         const serverModule = await import('../server.js');
@@ -34,7 +34,7 @@ describe('Critical Regression Tests - ESM Module Resolution', () => {
           process.env['VERCEL'] = originalVercel;
         }
       }
-    }, 10000); // Increase timeout for module import
+    }, 15000); // Increased timeout for module import with monitoring libraries
 
     it('should export expected functions', async () => {
       // Set VERCEL env var to prevent auto-start

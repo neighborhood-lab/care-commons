@@ -621,17 +621,44 @@ This vertical integrates with:
 
 The scheduling service requires a `ClientAddressProvider` implementation to fetch client addresses for visit generation and geolocation-based features (EVV validation, route optimization, caregiver-to-client matching).
 
-**Architecture:**
+> 📚 **See [WIRING_GUIDE.md](./WIRING_GUIDE.md) for detailed setup instructions, examples, and production deployment guidance.**
 
-The service uses dependency injection to decouple from the client-demographics vertical:
+**Quick Setup (Recommended):**
+
+Use the factory function to automatically wire up all dependencies:
 
 ```typescript
-import { ScheduleService, ClientAddressProvider } from '@care-commons/scheduling-visits';
+import { createScheduleService } from '@care-commons/scheduling-visits';
+import { ClientService, ClientRepository } from '@care-commons/client-demographics';
+
+// Create schedule service with real client address lookups
+const scheduleService = createScheduleService({
+  pool: dbPool,
+  clientService: new ClientService(new ClientRepository(dbPool)),
+  systemContext: {
+    userId: 'system',
+    organizationId: 'system',
+    branchIds: [],
+    roles: ['SUPER_ADMIN'],
+    permissions: ['clients:read'],
+  },
+});
+```
+
+**Manual Setup (Advanced):**
+
+For custom configurations, wire components manually:
+
+```typescript
+import { ScheduleService, ClientAddressProvider, ClientServiceAdapter } from '@care-commons/scheduling-visits';
 import { ClientService } from '@care-commons/client-demographics';
+
+// Wrap client service with adapter
+const adapter = new ClientServiceAdapter(clientService);
 
 // Create the address provider with caching
 const addressProvider = new ClientAddressProvider(
-  clientService,
+  adapter,
   systemContext,
   300000 // 5-minute cache TTL (optional, default is 5 minutes)
 );
