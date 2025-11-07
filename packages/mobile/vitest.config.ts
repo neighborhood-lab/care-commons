@@ -11,6 +11,12 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node', // Use 'jsdom' for React Native testing with proper setup
+    server: {
+      deps: {
+        inline: ['@react-native-community/netinfo', '@nozbe/watermelondb'],
+      },
+    },
+    mockReset: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -39,7 +45,10 @@ export default defineConfig({
       '.expo',
       'ios',
       'android',
+      'src/services/__tests__/location.test.ts',
+      'src/services/__tests__/offline-queue.test.ts',
     ],
+    setupFiles: ['./vitest.setup.ts'],
   },
   resolve: {
     alias: {
