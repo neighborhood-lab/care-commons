@@ -7,6 +7,11 @@ on:
     branches: [production, preview, develop]
   workflow_dispatch:
 
+# Cancel in-progress runs for same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # Ensure this workflow is required for PRs to merge
 # Configure branch protection rules to require this workflow to pass
 

@@ -29,7 +29,7 @@ export class CacheService {
       }
     });
 
-    this.client.on('error', (err) => {
+    this.client.on('error', (err: Error) => {
       console.error('Redis Client Error:', err);
       this.connected = false;
     });
@@ -57,7 +57,7 @@ export class CacheService {
    * Connect to Redis
    */
   async connect(): Promise<void> {
-    if (!this.client.isOpen) {
+    if (this.client.isOpen !== true) {
       await this.client.connect();
     }
   }
@@ -263,7 +263,7 @@ export class CacheService {
    */
   async disconnect(): Promise<void> {
     try {
-      if (this.client.isOpen) {
+      if (this.client.isOpen === true) {
         // Use quit() for graceful shutdown
         await this.client.quit();
       }
