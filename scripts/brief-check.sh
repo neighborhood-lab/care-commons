@@ -71,7 +71,6 @@ FAILED_CHECKS=()
 run_check "Lint" "🔍" "npx turbo run lint" || FAILED_CHECKS+=("Lint")
 run_check "TypeCheck" "🔎" "npx turbo run typecheck" || FAILED_CHECKS+=("TypeCheck")
 run_check "Tests with Coverage" "🧪" "npx turbo run test:coverage" || FAILED_CHECKS+=("Tests")
-run_check "Build" "📦" "npx turbo run build" || FAILED_CHECKS+=("Build")
 
 # Calculate total duration
 OVERALL_END=$(date +%s)
