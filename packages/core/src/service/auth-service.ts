@@ -181,16 +181,19 @@ export class AuthService {
     ipAddress?: string,
     userAgent?: string
   ): Promise<LoginResult> {
+    // Normalize email for consistency
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Rate limiting check
-    await this.checkRateLimit(email);
+    await this.checkRateLimit(normalizedEmail);
 
     // Find user
-    const user = await this.findUserByEmail(email);
+    const user = await this.findUserByEmail(normalizedEmail);
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-optional-chain
     if (!user || !user.password_hash) {
       // Record failed attempt (even if user doesn't exist - constant time)
-      await this.recordFailedLogin(email, ipAddress, userAgent, 'Invalid credentials');
+      await this.recordFailedLogin(normalizedEmail, ipAddress, userAgent, 'Invalid credentials');
       throw new AuthenticationError('Invalid credentials');
     }
 
@@ -198,9 +201,9 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (user.locked_until && new Date() < user.locked_until) {
       await this.recordFailedLogin(
-        email, 
-        ipAddress, 
-        userAgent, 
+        normalizedEmail,
+        ipAddress,
+        userAgent,
         `Account locked until ${user.locked_until.toISOString()}`
       );
       throw new AuthenticationError('Account temporarily locked', {
@@ -210,7 +213,7 @@ export class AuthService {
 
     // Check account status
     if (user.status !== 'ACTIVE') {
-      await this.recordFailedLogin(email, ipAddress, userAgent, 'Account not active');
+      await this.recordFailedLogin(normalizedEmail, ipAddress, userAgent, 'Account not active');
       throw new AuthenticationError('Account is not active', {
         status: user.status
       });
@@ -222,7 +225,7 @@ export class AuthService {
     if (!isValid) {
       // Increment failed attempts
       await this.incrementFailedAttempts(user.id);
-      await this.recordFailedLogin(email, ipAddress, userAgent, 'Invalid password');
+      await this.recordFailedLogin(normalizedEmail, ipAddress, userAgent, 'Invalid password');
       throw new AuthenticationError('Invalid credentials');
     }
 
@@ -607,7 +610,8 @@ export class AuthService {
        FROM auth_events
        WHERE email = $1
          AND timestamp > NOW() - INTERVAL '${AuthService.RATE_LIMIT_WINDOW_MINUTES} minutes'
-         AND result = 'FAILED'`,
+         AND result = 'FAILED'
+         AND (failure_reason = 'Invalid credentials' OR failure_reason = 'Invalid password')`,
       [email]
     );
 
