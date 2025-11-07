@@ -73,9 +73,7 @@ export function useDemoSession(): UseDemoSessionResult {
       if (e.key === 'auth-storage' && e.newValue === null) {
         // Auth was cleared (user logged out), cleanup demo session
         void demoAPI.deleteSession(session.id)
-          .then(() => {
-            setSession(null);
-          })
+          .then(() => setSession(null))
           .catch((err: Error) => {
             console.error('Failed to cleanup demo session on logout:', err);
             // Still clear local session state even if API call fails
