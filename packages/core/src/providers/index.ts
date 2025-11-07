@@ -5,8 +5,6 @@
  * This provides a convenient way to initialize all providers at once.
  */
 
-/* globals jest */
-
 import { Database } from '../db/connection.js';
 import {
   IClientProvider,
