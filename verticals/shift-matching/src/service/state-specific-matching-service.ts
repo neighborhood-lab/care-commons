@@ -1,5 +1,5 @@
 import { UUID, UserContext, PermissionService } from '@care-commons/core';
-import { ShiftRepository, CaregiverMatch } from '../repository/shift-repository';
+import { ShiftRepository, CaregiverMatch, ShiftRequirement } from '../repository/shift-repository';
 import { Database } from '@care-commons/core';
 
 /**
@@ -62,7 +62,7 @@ export class StateSpecificMatchingService {
 
   private async scoreMatch(
     match: CaregiverMatch,
-    shift: any
+    shift: ShiftRequirement
   ): Promise<CaregiverMatch> {
     let score = match.score;
     const reasons: string[] = [];
@@ -98,8 +98,10 @@ export class StateSpecificMatchingService {
 
     // State-specific compliance (TX/FL)
     if (shift.state === 'TX') {
-      const txData = (caregiver['state_specific'] as any)?.texas;
-      if (txData?.employee_misconduct_check?.status === 'CLEAR') {
+      const stateSpecific = caregiver['state_specific'] as Record<string, unknown> | undefined;
+      const txData = stateSpecific?.texas as Record<string, unknown> | undefined;
+      const misconductCheck = txData?.employee_misconduct_check as Record<string, unknown> | undefined;
+      if (misconductCheck?.status === 'CLEAR') {
         score += 10;
         reasons.push('TX Employee Misconduct Registry: CLEAR');
       }
@@ -110,7 +112,8 @@ export class StateSpecificMatchingService {
     }
 
     if (shift.state === 'FL') {
-      const flData = (caregiver['state_specific'] as any)?.florida;
+      const stateSpecific = caregiver['state_specific'] as Record<string, unknown> | undefined;
+      const flData = stateSpecific?.florida as Record<string, unknown> | undefined;
       if (flData?.level2_screening?.status === 'CLEARED') {
         score += 10;
         reasons.push('FL Level 2 screening: CLEARED');
@@ -129,7 +132,7 @@ export class StateSpecificMatchingService {
     };
   }
 
-  private async validateStateCompliance(shift: any, caregiverId: UUID): Promise<void> {
+  private async validateStateCompliance(shift: ShiftRequirement, caregiverId: UUID): Promise<void> {
     const caregiver = await this.database.query(`
       SELECT state_specific FROM caregivers WHERE id = $1
     `, [caregiverId]);
@@ -139,15 +142,19 @@ export class StateSpecificMatchingService {
     }
 
     if (shift.state === 'TX') {
-      const txData = (caregiver.rows[0]['state_specific'] as any)?.texas;
-      if (txData === undefined || txData.employee_misconduct_check === undefined || txData.employee_misconduct_check.status !== 'CLEAR') {
+      const stateSpecific = caregiver.rows[0]['state_specific'] as Record<string, unknown> | undefined;
+      const txData = stateSpecific?.texas as Record<string, unknown> | undefined;
+      const misconductCheck = txData?.employee_misconduct_check as Record<string, unknown> | undefined;
+      if (txData === undefined || misconductCheck === undefined || misconductCheck.status !== 'CLEAR') {
         throw new Error('TX: Caregiver must have clear Employee Misconduct Registry check');
       }
     }
 
     if (shift.state === 'FL') {
-      const flData = (caregiver.rows[0]['state_specific'] as any)?.florida;
-      if (flData === undefined || flData.level2_screening === undefined || flData.level2_screening.status !== 'CLEARED') {
+      const stateSpecific = caregiver.rows[0]['state_specific'] as Record<string, unknown> | undefined;
+      const flData = stateSpecific?.florida as Record<string, unknown> | undefined;
+      const level2Screening = flData?.level2_screening as Record<string, unknown> | undefined;
+      if (flData === undefined || level2Screening === undefined || level2Screening.status !== 'CLEARED') {
         throw new Error('FL: Caregiver must have cleared Level 2 background screening');
       }
     }

@@ -541,21 +541,15 @@ export class CarePlanValidator {
     if (parsed.goalProgress !== undefined) {
       // Filter out undefined progressPercentage from goalProgress items
       result.goalProgress = parsed.goalProgress.map(goal => {
-        const filteredGoal: Record<string, unknown> = {
+        const filteredGoal = {
           goalId: goal.goalId,
           goalName: goal.goalName,
           status: goal.status,
           progressDescription: goal.progressDescription,
+          ...(goal.progressPercentage !== undefined && { progressPercentage: goal.progressPercentage }),
+          ...(goal.barriers !== undefined && { barriers: goal.barriers }),
+          ...(goal.nextSteps !== undefined && { nextSteps: goal.nextSteps }),
         };
-        if (goal.progressPercentage !== undefined) {
-          filteredGoal.progressPercentage = goal.progressPercentage;
-        }
-        if (goal.barriers !== undefined) {
-          filteredGoal.barriers = goal.barriers;
-        }
-        if (goal.nextSteps !== undefined) {
-          filteredGoal.nextSteps = goal.nextSteps;
-        }
         return filteredGoal;
       });
     }
@@ -563,14 +557,12 @@ export class CarePlanValidator {
     if (parsed.observations !== undefined) {
       // Filter out undefined severity from observation items
       result.observations = parsed.observations.map(obs => {
-        const filteredObs: Record<string, unknown> = {
+        const filteredObs = {
           category: obs.category,
           observation: obs.observation,
           timestamp: obs.timestamp,
+          ...(obs.severity !== undefined && { severity: obs.severity }),
         };
-        if (obs.severity !== undefined) {
-          filteredObs.severity = obs.severity;
-        }
         return filteredObs;
       });
     }
@@ -580,19 +572,14 @@ export class CarePlanValidator {
     
     if (parsed.signature !== undefined) {
       // Filter out undefined properties from signature
-      const filteredSig: Record<string, unknown> = {
+      result.signature = {
         signatureData: parsed.signature.signatureData,
         signedBy: parsed.signature.signedBy,
         signedByName: parsed.signature.signedByName,
         signatureType: parsed.signature.signatureType,
+        ...(parsed.signature.ipAddress !== undefined && { ipAddress: parsed.signature.ipAddress }),
+        ...(parsed.signature.deviceInfo !== undefined && { deviceInfo: parsed.signature.deviceInfo }),
       };
-      if (parsed.signature.ipAddress !== undefined) {
-        filteredSig.ipAddress = parsed.signature.ipAddress;
-      }
-      if (parsed.signature.deviceInfo !== undefined) {
-        filteredSig.deviceInfo = parsed.signature.deviceInfo;
-      }
-      result.signature = filteredSig;
     }
     
     return result;
