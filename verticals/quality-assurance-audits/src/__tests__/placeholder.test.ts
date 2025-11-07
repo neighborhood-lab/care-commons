@@ -3,31 +3,31 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import * as types from '../types/audit.js';
+import { AuditRepository, AuditFindingRepository, CorrectiveActionRepository } from '../repositories/audit-repository.js';
+import { AuditService } from '../services/audit-service.js';
+import { createAuditRoutes } from '../routes/audit-handlers.js';
 
 describe('Quality Assurance & Audits', () => {
   it('should have basic test setup', () => {
     expect(true).toBe(true);
   });
 
-  it('should export audit types', async () => {
-    const types = await import('../types/audit.js');
+  it('should export audit types', () => {
     expect(types).toBeDefined();
   });
 
-  it('should export audit repositories', async () => {
-    const repos = await import('../repositories/audit-repository.js');
-    expect(repos.AuditRepository).toBeDefined();
-    expect(repos.AuditFindingRepository).toBeDefined();
-    expect(repos.CorrectiveActionRepository).toBeDefined();
+  it('should export audit repositories', () => {
+    expect(AuditRepository).toBeDefined();
+    expect(AuditFindingRepository).toBeDefined();
+    expect(CorrectiveActionRepository).toBeDefined();
   });
 
-  it('should export audit service', async () => {
-    const services = await import('../services/audit-service.js');
-    expect(services.AuditService).toBeDefined();
+  it('should export audit service', () => {
+    expect(AuditService).toBeDefined();
   });
 
-  it('should export route handlers', async () => {
-    const routes = await import('../routes/audit-handlers.js');
-    expect(routes.createAuditRoutes).toBeDefined();
+  it('should export route handlers', () => {
+    expect(createAuditRoutes).toBeDefined();
   });
 });
