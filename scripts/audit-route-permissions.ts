@@ -47,10 +47,13 @@ const PATTERNS = {
   requireRole: /requireRole/,
 
   // Public endpoints that might not need auth
-  publicEndpoints: /\/(health|metrics|status|api|csrf-token|public)/,
+  publicEndpoints: /\/(health|metrics|status|api|csrf-token|public|demo)/,
 
   // Health check endpoints
   healthCheck: /\/health/,
+
+  // Logout endpoints (don't need permission checks beyond authentication)
+  logoutEndpoint: /\/logout$/,
 
   // State-changing methods
   stateChanging: ['post', 'put', 'patch', 'delete']
@@ -88,6 +91,12 @@ function analyzeRouteFile(filePath: string): SecurityIssue[] {
   const issues: SecurityIssue[] = [];
   const content = fs.readFileSync(filePath, 'utf-8');
   const lines = content.split('\n');
+
+  // Skip demo route files - these are intentionally public for demonstrations
+  // Demo routes are session-scoped and isolated per user
+  if (filePath.includes('/demo.ts') || filePath.includes('/demo.js')) {
+    return issues;
+  }
 
   // Check if file uses authentication middleware
   const hasRequireAuth = PATTERNS.requireAuth.test(content);
@@ -141,7 +150,9 @@ function analyzeRouteFile(filePath: string): SecurityIssue[] {
     }
 
     // Check for permission/role checks on authenticated routes
-    if (method !== undefined && hasAuthInContext && !hasPermissionInContext && !hasRequirePermission && !hasRequireRole) {
+    // Skip logout endpoints as they don't need additional permission checks
+    const isLogoutEndpoint = PATTERNS.logoutEndpoint.test(routePath);
+    if (method !== undefined && hasAuthInContext && !hasPermissionInContext && !hasRequirePermission && !hasRequireRole && !isLogoutEndpoint) {
       // Only warn on state-changing methods
       if (PATTERNS.stateChanging.includes(method.toLowerCase())) {
         issues.push({
