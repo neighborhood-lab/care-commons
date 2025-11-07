@@ -8,3 +8,7 @@ export * from './TaskInstanceList';
 export * from './TaskCompletionModal';
 export * from './ProgressNoteForm';
 export * from './CarePlanStats';
+export * from './TaskStatusBadge';
+export * from './TaskCategoryIcon';
+export * from './TaskFrequency';
+export * from './TaskProgress';
