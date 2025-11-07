@@ -52,9 +52,6 @@ npm run db:migrate
 npm run db:seed
 npm run db:seed:demo
 
-echo "🏗️  Building project..."
-npx turbo run build
-
 echo "🔍 Running linting..."
 npx turbo run lint
 
@@ -63,5 +60,8 @@ npx turbo run typecheck
 
 echo "🧪 Running tests with coverage..."
 npx turbo run test:coverage
+
+echo "🏗️  Building project..."
+npx turbo run build
 
 echo "✅ All checks completed successfully!"
