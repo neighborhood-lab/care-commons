@@ -59,6 +59,9 @@
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
+    "deploy:rollback": "tsx scripts/rollback-deployment.ts",
+    "predeploy": "tsx scripts/pre-deploy-checks.ts",
+    "test:smoke": "playwright test e2e/tests/smoke.spec.ts",
     "vercel:build": "npm run build",
     "prepare": "husky"
   },
@@ -69,7 +72,7 @@
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
-    "@vitest/coverage-v8": "^4.0.7",
+    "@vitest/coverage-v8": "^4.0.8",
     "chalk": "^5.6.2",
     "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
@@ -78,12 +81,13 @@
     "eslint-plugin-unicorn": "^62.0.0",
     "happy-dom": "^20.0.10",
     "husky": "^9.1.7",
+    "jscpd": "^4.0.5",
     "openapi-to-postmanv2": "^5.3.4",
     "sql-lint": "^1.0.2",
     "supertest": "^7.1.4",
     "turbo": "^2.6.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.7"
+    "vitest": "^4.0.8"
   },
   "engines": {
     "node": "22.x",

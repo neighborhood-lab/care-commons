@@ -1,31 +1,40 @@
 /**
- * Vitest setup file for mobile package
- * Mocks React Native dependencies for testing
+ * Vitest Setup File
+ *
+ * Mocks React Native dependencies that don't work in Node test environment.
  */
 
 import { vi } from 'vitest';
 
 // Mock @react-native-community/netinfo
-vi.mock('@react-native-community/netinfo', () => ({
-  default: {
-    fetch: vi.fn().mockResolvedValue({
-      isConnected: true,
-      isInternetReachable: true,
-    }),
-    addEventListener: vi.fn(() => () => {}),
-  },
-}));
+vi.mock('@react-native-community/netinfo', () => {
+  const mockNetState = {
+    isConnected: true,
+    isInternetReachable: true,
+    type: 'wifi',
+    details: null,
+  };
 
-// Mock @nozbe/watermelondb/Query
-vi.mock('@nozbe/watermelondb', () => ({
-  Q: {
-    where: vi.fn((...args) => ({ type: 'where', args })),
-    sortBy: vi.fn((field, order) => ({ type: 'sortBy', field, order })),
-    desc: 'desc',
-    asc: 'asc',
-    lt: vi.fn((value) => ({ type: 'lt', value })),
-  },
-}));
+  return {
+    default: {
+      fetch: vi.fn(() => Promise.resolve(mockNetState)),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
+  };
+});
 
-// Mock global fetch
-global.fetch = vi.fn();
+// Mock @nozbe/watermelondb Query helper
+vi.mock('@nozbe/watermelondb', async () => {
+  const actual = await vi.importActual('@nozbe/watermelondb');
+  return {
+    ...actual as Record<string, unknown>,
+    Q: {
+      where: vi.fn((...args: unknown[]) => ({ type: 'where', args })),
+      sortBy: vi.fn((...args: unknown[]) => ({ type: 'sortBy', args })),
+      desc: 'desc',
+      asc: 'asc',
+      lt: vi.fn((value: unknown) => ({ type: 'lt', value })),
+    },
+  };
+});
