@@ -6,7 +6,6 @@ import {
   LoadingSpinner,
   ErrorMessage,
   Card,
-  CardHeader,
   CardContent,
   FormField,
 } from '@/core/components';
@@ -121,7 +120,9 @@ export const CustomizeTemplatePage: React.FC = () => {
       <div className="space-y-6">
         {/* Template Info */}
         <Card>
-          <CardHeader title={`Template: ${template.name}`} />
+          <div className="border-b px-6 py-4">
+            <h3 className="text-lg font-semibold text-gray-900">Template: {template.name}</h3>
+          </div>
           <CardContent>
             <p className="text-gray-600">{template.description}</p>
           </CardContent>
@@ -129,7 +130,9 @@ export const CustomizeTemplatePage: React.FC = () => {
 
         {/* Basic Information */}
         <Card>
-          <CardHeader title="Basic Information" />
+          <div className="border-b px-6 py-4">
+            <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+          </div>
           <CardContent>
             <div className="space-y-4">
               <FormField label="Client ID" required>
@@ -177,10 +180,10 @@ export const CustomizeTemplatePage: React.FC = () => {
 
         {/* Task Selection */}
         <Card>
-          <CardHeader
-            title="Select Tasks"
-            subtitle={`${enabledTasksCount} of ${customTasks.length} tasks selected`}
-          />
+          <div className="border-b px-6 py-4">
+            <h3 className="text-lg font-semibold text-gray-900">Select Tasks</h3>
+            <p className="text-sm text-gray-600 mt-1">{enabledTasksCount} of {customTasks.length} tasks selected</p>
+          </div>
           <CardContent>
             <div className="space-y-3">
               {customTasks.map((task, index) => (
