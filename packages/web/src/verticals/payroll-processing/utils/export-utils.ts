@@ -145,7 +145,7 @@ export function formatPayrollDataForQuickBooksIIF(_payRun: PayRun, payStubs: Pay
   // Timesheet entries
   lines.push('!TIMEACT\tDATE\tJOB\tEMP\tITEM\tPITEM\tDURATION\tPROJ\tNOTE');
 
-  payStubs.forEach(stub => {
+  for (const stub of payStubs) {
     // Regular hours
     if (stub.regularHours > 0) {
       lines.push([
@@ -175,7 +175,7 @@ export function formatPayrollDataForQuickBooksIIF(_payRun: PayRun, payStubs: Pay
         'Overtime',
       ].join('\t'));
     }
-  });
+  }
 
   return lines.join('\n');
 }

@@ -93,7 +93,7 @@ export class CarePlanService {
     const carePlan = await this.repository.createCarePlan({
       ...carePlanData,
       createdBy: context.userId,
-    } as any);
+    });
 
     return carePlan;
   }
@@ -150,7 +150,7 @@ export class CarePlanService {
 
     const updated = await this.repository.updateCarePlan(
       id,
-      validatedInput as any,
+      validatedInput,
       context.userId
     );
 
@@ -212,7 +212,7 @@ export class CarePlanService {
       id,
       { status: 'ACTIVE' as CarePlanStatus },
       context.userId,
-    ) as any;
+    );
   }
 
   /**
@@ -232,12 +232,12 @@ export class CarePlanService {
     const validatedFilters = CarePlanValidator.validateCarePlanSearchFilters(filters);
 
     // Enforce organization filter
-    const orgFilters = {
+    const orgFilters: CarePlanSearchFilters = {
       ...validatedFilters,
       organizationId: context.organizationId,
     };
 
-    return await this.repository.searchCarePlans(orgFilters as any, pagination);
+    return await this.repository.searchCarePlans(orgFilters, pagination);
   }
 
   /**
@@ -385,7 +385,7 @@ export class CarePlanService {
       ...validatedInput,
       createdBy: context.userId,
       status: 'SCHEDULED',
-    } as any);
+    });
 
     return task;
   }
@@ -437,7 +437,7 @@ export class CarePlanService {
     const validatedInput = CarePlanValidator.validateCompleteTask(input);
 
     // Check requirements
-    const validation = CarePlanValidator.validateTaskCompletion(task, validatedInput as any);
+    const validation = CarePlanValidator.validateTaskCompletion(task, validatedInput);
     if (!validation.valid) {
       throw new ValidationError('Task completion requirements not met', {
         errors: validation.errors,
@@ -458,7 +458,7 @@ export class CarePlanService {
     const now = new Date();
 
     // Update task
-    const updateData: any = {
+    const updateData: Partial<TaskInstance> = {
       status: 'COMPLETED',
       completedAt: now,
       completedBy: context.userId,
@@ -476,19 +476,20 @@ export class CarePlanService {
     }
     
     if (validatedInput.verificationData) {
+      const { gpsLocation, ...restVerificationData } = validatedInput.verificationData;
       updateData.verificationData = {
-        ...validatedInput.verificationData,
+        ...restVerificationData,
         verifiedAt: now,
         verifiedBy: context.userId,
+        ...(gpsLocation && {
+          gpsLocation: {
+            latitude: gpsLocation.latitude,
+            longitude: gpsLocation.longitude,
+            accuracy: gpsLocation.accuracy,
+            timestamp: now,
+          },
+        }),
       };
-      
-      if (validatedInput.verificationData.gpsLocation) {
-        updateData.verificationData.gpsLocation = {
-          ...validatedInput.verificationData.gpsLocation,
-          // Ensure the required field exists for the persisted type:
-          timestamp: now, // If Timestamp is not Date, convert appropriately (e.g., now.toISOString()).
-        };
-      }
     }
     
     if (validatedInput.qualityCheckResponses) {
@@ -503,7 +504,7 @@ export class CarePlanService {
       id,
       updateData,
       context.userId
-    ) as any;
+    );
 
     return completed;
   }
@@ -532,13 +533,13 @@ export class CarePlanService {
       throw new ValidationError('Cannot skip a cancelled task');
     }
 
-    const updateData: any = {
+    const updateData: Partial<TaskInstance> = {
       status: 'SKIPPED',
       skippedAt: new Date(),
       skippedBy: context.userId,
       skipReason: reason,
     };
-    
+
     if (note) {
       updateData.skipNote = note;
     }
@@ -547,7 +548,7 @@ export class CarePlanService {
       id,
       updateData,
       context.userId
-    ) as any;
+    );
 
     return skipped;
   }
@@ -577,7 +578,7 @@ export class CarePlanService {
         issueReportedBy: context.userId,
       },
       context.userId
-    ) as any;
+    );
 
     return updated;
   }
@@ -668,7 +669,7 @@ export class CarePlanService {
       authorName,
       authorRole: String(context.roles?.[0] || 'CAREGIVER'),
       noteDate: now,
-    } as any);
+    });
 
     return note;
   }
