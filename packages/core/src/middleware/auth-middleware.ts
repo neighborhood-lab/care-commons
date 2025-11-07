@@ -8,6 +8,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { JWTUtils, TokenPayload } from '../utils/jwt-utils.js';
 import { Database } from '../db/connection.js';
+import { AuditService } from '../audit/audit-service.js';
 
 /**
  * Extend Express Request type to include authenticated user
@@ -30,7 +31,11 @@ interface UserStatus {
 }
 
 export class AuthMiddleware {
-  constructor(private db: Database) {}
+  private auditService: AuditService;
+
+  constructor(private db: Database) {
+    this.auditService = new AuditService(db);
+  }
 
   /**
    * Require valid JWT token
@@ -151,6 +156,34 @@ export class AuthMiddleware {
       const hasRole = roles.some(role => req.user!.roles.includes(role));
 
       if (!hasRole) {
+        // Log unauthorized access attempt
+        void this.auditService.logEvent(
+          {
+            userId: req.user.userId,
+            organizationId: req.user.organizationId,
+            roles: req.user.roles,
+            permissions: req.user.permissions,
+            branchIds: []
+          },
+          {
+            eventType: 'AUTHORIZATION',
+            resource: req.path,
+            resourceId: req.user.userId,
+            action: 'UNAUTHORIZED_ROLE_ACCESS_ATTEMPT',
+            result: 'FAILURE',
+            metadata: {
+              requiredRoles: roles,
+              userRoles: req.user.roles,
+              method: req.method,
+              path: req.path
+            },
+            ipAddress: req.ip ?? req.socket.remoteAddress,
+            userAgent: req.headers['user-agent']
+          }
+        ).catch((error: unknown) => {
+          console.error('Failed to log unauthorized role access attempt:', error);
+        });
+
         res.status(403).json({
           success: false,
           error: 'Insufficient permissions',
@@ -190,11 +223,39 @@ export class AuthMiddleware {
         return;
       }
 
-      const hasPermission = permissions.some(permission => 
+      const hasPermission = permissions.some(permission =>
         req.user!.permissions.includes(permission)
       );
 
       if (!hasPermission) {
+        // Log unauthorized access attempt
+        void this.auditService.logEvent(
+          {
+            userId: req.user.userId,
+            organizationId: req.user.organizationId,
+            roles: req.user.roles,
+            permissions: req.user.permissions,
+            branchIds: []
+          },
+          {
+            eventType: 'AUTHORIZATION',
+            resource: req.path,
+            resourceId: req.user.userId,
+            action: 'UNAUTHORIZED_ACCESS_ATTEMPT',
+            result: 'FAILURE',
+            metadata: {
+              requiredPermissions: permissions,
+              userPermissions: req.user.permissions,
+              method: req.method,
+              path: req.path
+            },
+            ipAddress: req.ip ?? req.socket.remoteAddress,
+            userAgent: req.headers['user-agent']
+          }
+        ).catch((error: unknown) => {
+          console.error('Failed to log unauthorized access attempt:', error);
+        });
+
         res.status(403).json({
           success: false,
           error: 'Insufficient permissions',
