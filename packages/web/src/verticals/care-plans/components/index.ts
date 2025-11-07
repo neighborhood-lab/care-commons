@@ -10,3 +10,7 @@ export * from './ProgressNoteForm';
 export * from './CarePlanStats';
 export * from './TemplateCard';
 export * from './TemplatePreviewModal';
+export * from './TaskStatusBadge';
+export * from './TaskCategoryIcon';
+export * from './TaskFrequency';
+export * from './TaskProgress';

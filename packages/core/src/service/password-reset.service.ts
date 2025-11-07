@@ -37,6 +37,10 @@ export interface PasswordResetValidation {
 export class PasswordResetService {
   private database: Database;
 
+  // Rate limiting constants
+  private static readonly RATE_LIMIT_WINDOW_MINUTES = 15;
+  private static readonly MAX_TOKEN_VALIDATION_ATTEMPTS = 5;
+
   constructor(database: Database) {
     this.database = database;
   }
@@ -117,13 +121,70 @@ export class PasswordResetService {
   }
 
   /**
+   * Check rate limit for token validation attempts by IP address
+   * Prevents brute force attacks on reset tokens
+   *
+   * @param ipAddress - Client IP address
+   * @throws Error if rate limit exceeded
+   */
+  private async checkTokenValidationRateLimit(ipAddress?: string): Promise<void> {
+    if (ipAddress === undefined || ipAddress.length === 0) {
+      return; // No IP address provided, skip rate limiting
+    }
+
+    const result = await this.database.query<{ attempt_count: number }>(
+      `SELECT COUNT(*) as attempt_count
+       FROM auth_events
+       WHERE ip_address = $1
+         AND timestamp > NOW() - INTERVAL '${PasswordResetService.RATE_LIMIT_WINDOW_MINUTES} minutes'
+         AND event_type = 'PASSWORD_RESET_FAILED'
+         AND result = 'FAILED'`,
+      [ipAddress]
+    );
+
+    const attemptCount = Number(result.rows[0]?.attempt_count ?? 0);
+
+    if (attemptCount >= PasswordResetService.MAX_TOKEN_VALIDATION_ATTEMPTS) {
+      throw new Error(
+        `Too many password reset attempts. Please try again in ${PasswordResetService.RATE_LIMIT_WINDOW_MINUTES} minutes.`
+      );
+    }
+  }
+
+  /**
+   * Record failed token validation attempt
+   *
+   * @param ipAddress - Client IP address
+   * @param userAgent - Client user agent
+   */
+  private async recordFailedTokenValidation(
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<void> {
+    await this.database.query(
+      `INSERT INTO auth_events (
+        event_type, auth_method, ip_address, user_agent, result, failure_reason
+      ) VALUES ($1, 'PASSWORD', $2, $3, 'FAILED', 'Invalid or expired reset token')`,
+      ['PASSWORD_RESET_FAILED', ipAddress, userAgent]
+    );
+  }
+
+  /**
    * Validate a password reset token
    * Checks if token exists, is not expired, and has not been used
    *
    * @param token - Reset token from email link
+   * @param ipAddress - Client IP address (for rate limiting)
+   * @param userAgent - Client user agent (for logging)
    * @returns Validation result with user info if valid
    */
-  async validateToken(token: string): Promise<PasswordResetValidation> {
+  async validateToken(
+    token: string,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<PasswordResetValidation> {
+    // Check rate limit
+    await this.checkTokenValidationRateLimit(ipAddress);
     // Hash the token to compare with stored hash
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
@@ -144,11 +205,15 @@ export class PasswordResetService {
     const resetToken = result.rows[0] as Record<string, unknown> | undefined;
 
     if (resetToken === undefined) {
+      // Record failed attempt for rate limiting
+      await this.recordFailedTokenValidation(ipAddress, userAgent);
       return { valid: false };
     }
 
     // Check if user is still active
     if (resetToken['status'] !== 'ACTIVE') {
+      // Record failed attempt for rate limiting
+      await this.recordFailedTokenValidation(ipAddress, userAgent);
       return { valid: false };
     }
 
@@ -168,14 +233,22 @@ export class PasswordResetService {
    * - Uses secure password hashing
    * - Invalidates all existing sessions (security best practice)
    * - Deletes used token (one-time use)
+   * - Rate limited to prevent brute force attacks
    *
    * @param token - Reset token from email link
    * @param newPassword - New password (will be hashed)
+   * @param ipAddress - Client IP address (for rate limiting)
+   * @param userAgent - Client user agent (for logging)
    * @returns Success status
    */
-  async resetPassword(token: string, newPassword: string): Promise<boolean> {
-    // Validate token first
-    const validation = await this.validateToken(token);
+  async resetPassword(
+    token: string,
+    newPassword: string,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<boolean> {
+    // Validate token first (includes rate limiting)
+    const validation = await this.validateToken(token, ipAddress, userAgent);
 
     if (!validation.valid || validation.userId === undefined) {
       return false;

@@ -49,3 +49,4 @@ export * from './utils/memoize.js';
 export * from './utils/pagination.js';
 export * from './sync/index.js';
 export * from './demo/index.js';
+export * from './providers/index.js';

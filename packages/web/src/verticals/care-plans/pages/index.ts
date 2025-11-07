@@ -4,3 +4,5 @@ export * from './TaskList';
 export * from './CreateCarePlanPage';
 export * from './CreateFromTemplatePage';
 export * from './CustomizeTemplatePage';
+export * from './EditCarePlanPage';
+export * from './caregiver';

@@ -1,0 +1,325 @@
+/**
+ * Print-friendly styles for Care Plans
+ *
+ * These styles ensure care plans print cleanly for distribution
+ * to clients, families, and caregivers.
+ */
+
+@media print {
+  /* Hide navigation and non-essential UI elements */
+  header,
+  nav,
+  .sidebar,
+  .app-shell-sidebar,
+  .app-header,
+  button,
+  .demo-mode-bar,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset page layout for printing */
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  /* Expand main content to full width */
+  main,
+  .app-shell-content,
+  .care-plan-detail {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Page breaks */
+  .care-plan-section,
+  .card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Care Plan Header */
+  .care-plan-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+
+  .care-plan-title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .care-plan-meta {
+    font-size: 10pt;
+    color: #666;
+  }
+
+  /* Sections */
+  .care-plan-section {
+    margin-bottom: 24px;
+  }
+
+  .section-title {
+    font-size: 14pt;
+    font-weight: bold;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+  }
+
+  /* Cards and containers */
+  .card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Goals */
+  .goal-item {
+    margin-bottom: 16px;
+    padding: 8px;
+    border-left: 3px solid #000;
+  }
+
+  .goal-title {
+    font-weight: bold;
+    font-size: 11pt;
+  }
+
+  .goal-description {
+    margin-top: 4px;
+    font-size: 10pt;
+  }
+
+  /* Interventions */
+  .intervention-item {
+    margin-bottom: 16px;
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .intervention-title {
+    font-weight: bold;
+    font-size: 11pt;
+  }
+
+  .intervention-instructions {
+    margin-top: 4px;
+    font-size: 10pt;
+    white-space: pre-wrap;
+  }
+
+  /* Tasks */
+  .task-item {
+    margin-bottom: 12px;
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .task-title {
+    font-weight: bold;
+    font-size: 10pt;
+  }
+
+  .task-description {
+    font-size: 9pt;
+    margin-top: 2px;
+  }
+
+  .task-instructions {
+    font-size: 9pt;
+    margin-top: 4px;
+    padding: 4px;
+    background: #f9f9f9;
+    white-space: pre-wrap;
+  }
+
+  .task-steps {
+    margin-top: 8px;
+    padding-left: 16px;
+  }
+
+  .task-step {
+    margin-bottom: 4px;
+    font-size: 9pt;
+  }
+
+  /* Badges and status indicators */
+  .badge,
+  .status-badge {
+    border: 1px solid #000;
+    padding: 2px 6px;
+    font-size: 8pt;
+    font-weight: bold;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+
+  table th {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 6px;
+    font-size: 10pt;
+    text-align: left;
+  }
+
+  table td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    font-size: 9pt;
+  }
+
+  /* Signature lines */
+  .signature-section {
+    margin-top: 40px;
+    page-break-before: avoid;
+  }
+
+  .signature-line {
+    border-top: 1px solid #000;
+    margin-top: 60px;
+    padding-top: 8px;
+  }
+
+  .signature-label {
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Precautions and alerts */
+  .precaution,
+  .alert {
+    border: 2px solid #000;
+    padding: 8px;
+    margin: 8px 0;
+    font-weight: bold;
+  }
+
+  /* Footer with page numbers */
+  @page {
+    margin: 0.5in;
+
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+    }
+  }
+
+  /* Client information box */
+  .client-info-box {
+    border: 2px solid #000;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .client-info-label {
+    font-weight: bold;
+    font-size: 9pt;
+    display: inline-block;
+    width: 120px;
+  }
+
+  .client-info-value {
+    font-size: 10pt;
+  }
+
+  /* Emergency contacts */
+  .emergency-contact {
+    border: 1px solid #000;
+    padding: 8px;
+    margin-bottom: 8px;
+    background: #fffacd;
+  }
+
+  /* Medication list */
+  .medication-item {
+    border-bottom: 1px solid #ddd;
+    padding: 6px 0;
+  }
+
+  .medication-name {
+    font-weight: bold;
+    font-size: 10pt;
+  }
+
+  .medication-details {
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Remove shadows and backgrounds for printing */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure links are visible */
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  /* Hide interactive elements */
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid #000;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  /* Show URLs for important links */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #666;
+  }
+
+  /* Don't show URLs for navigation or buttons */
+  nav a[href]:after,
+  button a[href]:after,
+  .no-print-url a[href]:after {
+    content: "";
+  }
+}
+
+/* Print button - only show on screen */
+@media screen {
+  .print-button {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+  }
+}
+
+@media print {
+  .print-button {
+    display: none !important;
+  }
+}
