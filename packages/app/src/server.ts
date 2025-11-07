@@ -9,13 +9,15 @@ import dotenv from "dotenv";
 dotenv.config({ path: '../../.env', quiet: true });
 
 // Initialize error tracking EARLY (before other imports that might throw)
+// Skip initialization during test imports (when VERCEL env is set) or in test mode
 import { initializeErrorTracking } from '@care-commons/core';
-initializeErrorTracking();
+if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test' && process.env.VITEST !== 'true') {
+  initializeErrorTracking();
+}
 
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { expressErrorHandler as sentryErrorHandler } from '@sentry/node';
 import { requestLogger, metricsMiddleware } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
@@ -197,11 +199,10 @@ function setupApiRoutes(): void {
   // 404 handler
   app.use(notFoundHandler);
 
-  // Sentry error handler (must be before custom error handler)
-  app.use(sentryErrorHandler());
-
   // Error handler (must be last)
   app.use(errorHandler);
+
+  // Note: Sentry error handler is initialized separately in production via initializeErrorTracking()
 }
 
 /**
