@@ -153,6 +153,22 @@ export class AuthService {
   }
 
   /**
+   * Store user data for offline access
+   */
+  async storeUserData(user: User): Promise<void> {
+    await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
+    this.currentUser = user;
+  }
+
+  /**
+   * Get stored user data (works offline)
+   */
+  async getUserData(): Promise<User | null> {
+    const userData = await SecureStore.getItemAsync(USER_KEY);
+    return userData ? JSON.parse(userData) : null;
+  }
+
+  /**
    * Check if biometric authentication is available
    */
   async isBiometricAvailable(): Promise<boolean> {
