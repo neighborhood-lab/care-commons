@@ -42,6 +42,8 @@ export class DateUtils {
    */
   static addBusinessDays(date: Date, days: number): Date {
     let result = new Date(date);
+    // Normalize to noon to avoid timezone boundary issues
+    result.setHours(12, 0, 0, 0);
     let addedDays = 0;
 
     while (addedDays < days) {
@@ -79,8 +81,13 @@ export class DateUtils {
   static getDateRange(start: Date, end: Date): Date[] {
     const dates: Date[] = [];
     let current = new Date(start);
+    // Normalize to noon to avoid timezone boundary issues
+    current.setHours(12, 0, 0, 0);
 
-    while (current <= end) {
+    const endNormalized = new Date(end);
+    endNormalized.setHours(12, 0, 0, 0);
+
+    while (current <= endNormalized) {
       dates.push(new Date(current));
       current = addDays(current, 1);
     }
