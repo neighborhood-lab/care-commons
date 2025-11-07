@@ -17,6 +17,7 @@
     "build:android": "eas build --platform android",
     "build:ios": "eas build --platform ios",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit"
