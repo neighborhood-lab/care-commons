@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 export interface FormValidationReturn<T> {
   errors: Record<string, string>;
@@ -54,28 +54,26 @@ export interface FormValidationReturn<T> {
  * };
  * ```
  */
-export const useFormValidation = <T extends z.ZodType>(
-  schema: T
-): FormValidationReturn<z.infer<T>> => {
+export const useFormValidation = <TSchema extends z.ZodType<any, any, any>>(
+  schema: TSchema
+): FormValidationReturn<z.output<TSchema>> => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   /**
    * Validate entire form data
    */
-  const validate = useCallback((data: z.infer<T>): boolean => {
-    try {
-      schema.parse(data);
+  const validate = useCallback((data: z.output<TSchema>): boolean => {
+    const result = schema.safeParse(data);
+    if (result.success) {
       setErrors({});
       return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        for (const err of error.errors) {
-          const path = err.path.join('.');
-          fieldErrors[path] = err.message;
-        }
-        setErrors(fieldErrors);
+    } else {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const path = issue.path.join('.');
+        fieldErrors[path] = issue.message;
       }
+      setErrors(fieldErrors);
       return false;
     }
   }, [schema]);
@@ -84,28 +82,32 @@ export const useFormValidation = <T extends z.ZodType>(
    * Validate a single field
    */
   const validateField = useCallback((name: string, value: unknown): string | undefined => {
-    try {
-      // For nested object schemas, we need to validate the entire form
-      // but only return the error for this specific field
-      const schemaShape = (schema as z.ZodObject<z.ZodRawShape>).shape;
+    // For single field validation, create a partial schema
+    // This is a simplified approach - for complex nested validation,
+    // you may need to validate the entire form
+    const result = schema.safeParse({ [name]: value });
 
-      if (schemaShape && schemaShape[name]) {
-        schemaShape[name].parse(value);
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[name];
-          return newErrors;
-        });
-        return undefined;
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const message = error.errors[0]?.message;
+    if (result.success) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+      return undefined;
+    } else {
+      // Find error for this specific field
+      const fieldError = result.error.issues.find((issue) =>
+        issue.path.join('.') === name
+      );
+
+      if (fieldError) {
+        const message = fieldError.message;
         setErrors((prev) => ({ ...prev, [name]: message }));
         return message;
       }
+
+      return undefined;
     }
-    return undefined;
   }, [schema]);
 
   /**
