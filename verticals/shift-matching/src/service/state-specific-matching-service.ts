@@ -145,7 +145,7 @@ export class StateSpecificMatchingService {
       const stateSpecific = caregiver.rows[0]['state_specific'] as Record<string, unknown> | undefined;
       const txData = stateSpecific?.texas as Record<string, unknown> | undefined;
       const misconductCheck = txData?.employee_misconduct_check as Record<string, unknown> | undefined;
-      if (txData === undefined || misconductCheck === undefined || misconductCheck.status !== 'CLEAR') {
+      if (!txData || !misconductCheck || misconductCheck.status !== 'CLEAR') {
         throw new Error('TX: Caregiver must have clear Employee Misconduct Registry check');
       }
     }
@@ -154,7 +154,7 @@ export class StateSpecificMatchingService {
       const stateSpecific = caregiver.rows[0]['state_specific'] as Record<string, unknown> | undefined;
       const flData = stateSpecific?.florida as Record<string, unknown> | undefined;
       const level2Screening = flData?.level2_screening as Record<string, unknown> | undefined;
-      if (flData === undefined || level2Screening === undefined || level2Screening.status !== 'CLEARED') {
+      if (!flData || !level2Screening || level2Screening.status !== 'CLEARED') {
         throw new Error('FL: Caregiver must have cleared Level 2 background screening');
       }
     }
