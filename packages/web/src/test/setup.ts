@@ -3,6 +3,10 @@ import { cleanup } from '@testing-library/react';
 import '@vitest/browser/matchers';
 import '@testing-library/jest-dom/vitest';
 
+// Mock Sentry modules to prevent loading native .node files during tests
+vi.mock('@sentry/profiling-node', () => ({}));
+vi.mock('@sentry-internal/node-cpu-profiler', () => ({}));
+
 // Cleanup after each test case
 afterEach(() => {
   cleanup();
