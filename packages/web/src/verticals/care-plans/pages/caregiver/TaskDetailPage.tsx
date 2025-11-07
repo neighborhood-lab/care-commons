@@ -12,19 +12,17 @@ import {
 } from 'lucide-react';
 import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage } from '@/core/components';
 import { formatDate, formatTime } from '@/core/utils';
-import { useTask, useCompleteTask } from '../../hooks';
+import { useTask } from '../../hooks';
 import {
   TaskCompletionModal,
   TaskStatusBadge,
   TaskCategoryIcon,
   getTaskCategoryLabel,
-  TaskFrequency,
 } from '../../components';
 
 export const TaskDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data: task, isLoading, error, refetch } = useTask(id);
-  const completeTask = useCompleteTask();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   const handleComplete = () => {
@@ -156,15 +154,6 @@ export const TaskDetailPage: React.FC = () => {
                   </div>
                 )}
 
-                {task.timeOfDay && (
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Time of Day</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {task.timeOfDay.replace(/_/g, ' ')}
-                    </dd>
-                  </div>
-                )}
-
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Category</dt>
                   <dd className="mt-1 text-sm text-gray-900">
@@ -182,36 +171,6 @@ export const TaskDetailPage: React.FC = () => {
               <div className="prose prose-sm max-w-none">
                 <p className="text-gray-700 whitespace-pre-wrap">{task.instructions}</p>
               </div>
-
-              {/* Task Steps (if available) */}
-              {task.steps && task.steps.length > 0 && (
-                <div className="mt-6">
-                  <h4 className="text-sm font-medium text-gray-900 mb-3">Steps:</h4>
-                  <ol className="space-y-3">
-                    {task.steps.map((step) => (
-                      <li key={step.stepNumber} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                          {step.stepNumber}
-                        </span>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900">{step.description}</p>
-                          {step.safetyNotes && (
-                            <p className="text-xs text-orange-600 mt-1 flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" />
-                              {step.safetyNotes}
-                            </p>
-                          )}
-                          {step.estimatedDuration && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              ~{step.estimatedDuration} min
-                            </p>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
             </CardContent>
           </Card>
 
@@ -274,12 +233,6 @@ export const TaskDetailPage: React.FC = () => {
                     {task.requiredNote ? 'Yes' : 'No'}
                   </span>
                 </div>
-                {task.requiresPhoto && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Photo Required</span>
-                    <span className="text-sm font-medium text-orange-600">Yes</span>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -312,23 +265,6 @@ export const TaskDetailPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Precautions */}
-          {task.precautions && task.precautions.length > 0 && (
-            <Card>
-              <CardHeader title="Precautions" />
-              <CardContent>
-                <div className="space-y-2">
-                  {task.precautions.map((precaution, index) => (
-                    <div key={index} className="flex items-start gap-2 p-2 bg-orange-50 rounded-md">
-                      <AlertTriangle className="h-4 w-4 text-orange-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-orange-800">{precaution}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
 

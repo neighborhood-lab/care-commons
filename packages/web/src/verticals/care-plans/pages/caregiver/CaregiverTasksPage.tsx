@@ -4,7 +4,7 @@ import { Calendar, Filter, CheckCircle, Clock, AlertTriangle } from 'lucide-reac
 import { Button, Card, LoadingSpinner, EmptyState, ErrorMessage, Input, Select } from '@/core/components';
 import { useAuth } from '@/core/hooks';
 import { useTasks } from '../../hooks';
-import { TaskCard, TaskCompletionModal, TaskStatusBadge, TaskCategoryIcon } from '../../components';
+import { TaskCard, TaskCompletionModal } from '../../components';
 import type { TaskInstance, TaskStatus } from '../../types';
 
 export const CaregiverTasksPage: React.FC = () => {

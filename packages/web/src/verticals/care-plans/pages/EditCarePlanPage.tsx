@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button, LoadingSpinner, ErrorMessage } from '@/core/components';
 import { useCarePlan, useUpdateCarePlan } from '../hooks';
 import { CarePlanForm } from '../components';
-import type { UpdateCarePlanInput } from '../types';
+import type { UpdateCarePlanInput, CreateCarePlanInput } from '../types';
 
 export const EditCarePlanPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,11 +12,19 @@ export const EditCarePlanPage: React.FC = () => {
   const { data: carePlan, isLoading, error, refetch } = useCarePlan(id);
   const updateCarePlan = useUpdateCarePlan();
 
-  const handleSubmit = async (data: UpdateCarePlanInput) => {
+  const handleSubmit = async (data: CreateCarePlanInput | UpdateCarePlanInput) => {
     if (!id) return;
 
     try {
-      await updateCarePlan.mutateAsync({ id, input: data });
+      // Convert CreateCarePlanInput to UpdateCarePlanInput if needed
+      const updateData: UpdateCarePlanInput = {
+        name: 'name' in data ? data.name : undefined,
+        goals: 'goals' in data ? data.goals as any : undefined,
+        interventions: 'interventions' in data ? data.interventions as any : undefined,
+        taskTemplates: 'taskTemplates' in data ? data.taskTemplates as any : undefined,
+        notes: 'notes' in data ? data.notes : undefined,
+      };
+      await updateCarePlan.mutateAsync({ id, input: updateData });
       navigate(`/care-plans/${id}`);
     } catch {
       // Error is handled by the mutation
@@ -74,7 +82,6 @@ export const EditCarePlanPage: React.FC = () => {
           initialData={carePlan}
           onSubmit={handleSubmit}
           isLoading={updateCarePlan.isPending}
-          isEdit
         />
       </div>
 
