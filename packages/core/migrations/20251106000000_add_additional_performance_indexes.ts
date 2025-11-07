@@ -4,16 +4,19 @@ import type { Knex } from 'knex';
  * Additional Performance Indexes Migration
  *
  * This migration adds composite indexes for:
- * - Care plans (client + status queries, date range queries)
- * - Task instances (caregiver assignment, visit tasks, scheduling)
- * - Invoices (client billing, status queries)
- * - Audit events (enhanced event type and user activity queries)
+ * - Care plans (client + status queries, date range queries) - HAS deleted_at
+ * - Task instances (caregiver assignment, visit tasks, scheduling) - NO deleted_at
+ * - Invoices (client billing, status queries) - HAS deleted_at
+ * - Audit events (enhanced event type and user activity queries) - NO deleted_at
+ * - Audit revisions (entity change tracking) - NO deleted_at
+ * - EVV records (compliance queries) - NO deleted_at
  */
 
 export async function up(knex: Knex): Promise<void> {
   // ============================================================================
   // CARE PLANS - Optimize Client and Date Range Queries
   // ============================================================================
+  // Note: care_plans table HAS deleted_at column
 
   // Optimize care plan queries filtered by client and status
   await knex.raw(`
@@ -39,45 +42,42 @@ export async function up(knex: Knex): Promise<void> {
   // ============================================================================
   // TASK INSTANCES - Optimize Assignment and Status Queries
   // ============================================================================
+  // Note: task_instances table does NOT have deleted_at column
 
   // Optimize queries for caregiver's assigned tasks with status
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_task_instances_caregiver_status
     ON task_instances(assigned_caregiver_id, status)
-    WHERE deleted_at IS NULL
   `);
 
   // Optimize queries for tasks within a visit
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_task_instances_visit_status
     ON task_instances(visit_id, status)
-    WHERE deleted_at IS NULL
   `);
 
   // Optimize scheduling queries (tasks due on specific dates)
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_task_instances_scheduled_status
     ON task_instances(scheduled_date, status)
-    WHERE deleted_at IS NULL
   `);
 
   // Optimize client task queries
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_task_instances_client_date
     ON task_instances(client_id, scheduled_date DESC)
-    WHERE deleted_at IS NULL
   `);
 
   // Optimize care plan task lookups
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_task_instances_care_plan
     ON task_instances(care_plan_id, scheduled_date DESC)
-    WHERE deleted_at IS NULL
   `);
 
   // ============================================================================
   // INVOICES - Optimize Billing and Status Queries
   // ============================================================================
+  // Note: invoices table HAS deleted_at column
 
   // Optimize client invoice queries by date
   await knex.raw(`
@@ -117,6 +117,7 @@ export async function up(knex: Knex): Promise<void> {
   // ============================================================================
   // AUDIT EVENTS - Enhance Event Type and User Activity Queries
   // ============================================================================
+  // Note: audit_events table does NOT have deleted_at column
 
   // Optimize event type queries with resource filtering
   await knex.raw(`
@@ -139,6 +140,7 @@ export async function up(knex: Knex): Promise<void> {
   // ============================================================================
   // AUDIT REVISIONS - Enhance Entity Change Tracking
   // ============================================================================
+  // Note: audit_revisions table does NOT have deleted_at column
 
   // Optimize entity revision history with timestamp
   await knex.raw(`
@@ -149,6 +151,7 @@ export async function up(knex: Knex): Promise<void> {
   // ============================================================================
   // EVV RECORDS - Additional Indexes for Compliance Queries
   // ============================================================================
+  // Note: evv_records table does NOT have deleted_at column
 
   // Optimize EVV record queries by timestamp for recent activity
   await knex.raw(`
