@@ -50,7 +50,7 @@ export class ShiftMatchingService {
     this.repository = new ShiftMatchingRepository(pool);
     // CaregiverService requires a Database, but we're passing Pool
     // This is a type issue - in production, wrap Pool in Database class
-    this.caregiverService = caregiverService ?? (new CaregiverService(pool as any));
+    this.caregiverService = caregiverService ?? (new CaregiverService(pool as unknown as Parameters<typeof CaregiverService>[0]));
   }
 
   /**
@@ -547,16 +547,23 @@ export class ShiftMatchingService {
     let expiredCount = 0;
 
     for (const row of staleProposals.rows) {
-      await this.repository.updateProposalStatus((row as any).id, 'EXPIRED', context);
-      
+      const proposalRow = row as unknown as {
+        id: UUID;
+        open_shift_id: UUID;
+        visit_id: UUID;
+        caregiver_id: UUID;
+      };
+
+      await this.repository.updateProposalStatus(proposalRow.id, 'EXPIRED', context);
+
       await this.repository.createMatchHistory(
         {
-          openShiftId: (row as any).open_shift_id,
-          visitId: (row as any).visit_id,
-          caregiverId: (row as any).caregiver_id,
+          openShiftId: proposalRow.open_shift_id,
+          visitId: proposalRow.visit_id,
+          caregiverId: proposalRow.caregiver_id,
           attemptNumber: 1,
           outcome: 'EXPIRED',
-          assignmentProposalId: (row as any).id,
+          assignmentProposalId: proposalRow.id,
           assignedSuccessfully: false,
         },
         context

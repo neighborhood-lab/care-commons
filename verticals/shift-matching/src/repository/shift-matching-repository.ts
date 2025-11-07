@@ -902,7 +902,7 @@ export class ShiftMatchingRepository {
    * ==========================================================================
    */
 
-  private mapRowToOpenShift(row: any): OpenShift {
+  private mapRowToOpenShift(row: Record<string, unknown>): OpenShift {
     const base = {
       id: row.id,
       organizationId: row.organization_id,
@@ -946,7 +946,7 @@ export class ShiftMatchingRepository {
     return base;
   }
 
-  private mapRowToMatchingConfiguration(row: any): MatchingConfiguration {
+  private mapRowToMatchingConfiguration(row: Record<string, unknown>): MatchingConfiguration {
     return {
       id: row.id,
       organizationId: row.organization_id,
@@ -982,7 +982,7 @@ export class ShiftMatchingRepository {
     };
   }
 
-  private mapRowToProposal(row: any): AssignmentProposal {
+  private mapRowToProposal(row: Record<string, unknown>): AssignmentProposal {
     return {
       id: row.id,
       organizationId: row.organization_id,
@@ -1025,7 +1025,7 @@ export class ShiftMatchingRepository {
     };
   }
 
-  private mapRowToPreferences(row: any): CaregiverPreferenceProfile {
+  private mapRowToPreferences(row: Record<string, unknown>): CaregiverPreferenceProfile {
     return {
       id: row.id,
       caregiverId: row.caregiver_id,
@@ -1058,7 +1058,7 @@ export class ShiftMatchingRepository {
     };
   }
 
-  private mapRowToBulkMatchRequest(row: any): BulkMatchRequest {
+  private mapRowToBulkMatchRequest(row: Record<string, unknown>): BulkMatchRequest {
     return {
       id: row.id,
       organizationId: row.organization_id,
@@ -1087,7 +1087,7 @@ export class ShiftMatchingRepository {
     };
   }
 
-  private mapRowToMatchHistory(row: any): MatchHistory {
+  private mapRowToMatchHistory(row: Record<string, unknown>): MatchHistory {
     return {
       id: row.id,
       openShiftId: row.open_shift_id,

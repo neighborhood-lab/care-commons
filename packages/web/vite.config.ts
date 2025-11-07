@@ -33,6 +33,11 @@ export default defineConfig({
     sourcemap: true,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
+      external: [
+        // Exclude Node.js-specific Sentry modules that have native bindings
+        '@sentry/profiling-node',
+        '@sentry-internal/node-cpu-profiler',
+      ],
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
