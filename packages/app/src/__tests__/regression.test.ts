@@ -34,7 +34,7 @@ describe('Critical Regression Tests - ESM Module Resolution', () => {
           process.env['VERCEL'] = originalVercel;
         }
       }
-    }, 15000); // Increased timeout for module import with monitoring libraries
+    }, 30000); // Increased timeout for module import with monitoring libraries and coverage instrumentation
 
     it('should export expected functions', async () => {
       // Set VERCEL env var to prevent auto-start
