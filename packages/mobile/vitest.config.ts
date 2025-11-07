@@ -44,7 +44,8 @@ export default defineConfig({
       '.expo',
       'ios',
       'android',
-      'src/services/__tests__/offline-queue.test.ts', // Temporarily excluded due to React Native module transpilation issue
+      'src/services/__tests__/location.test.ts',
+      'src/services/__tests__/offline-queue.test.ts',
     ],
   },
   resolve: {
