@@ -311,7 +311,7 @@ Each garnishment has a maximum percentage of disposable income (usually 25% for 
 
 ## Status & Roadmap
 
-### Implemented (v0.1)
+### Implemented (v0.2)
 - [x] Domain model and types
 - [x] Database repository layer
 - [x] Pay period management
@@ -320,24 +320,32 @@ Each garnishment has a maximum percentage of disposable income (usually 25% for 
 - [x] Pay stub generation
 - [x] Deduction and garnishment handling
 - [x] Tax configuration
+- [x] Payroll service implementation
+- [x] Tax calculation engine (federal, state, local, FICA)
+- [x] Overtime calculation utilities
+- [x] Export utilities (CSV, ADP, Paychex, QuickBooks)
+- [x] Frontend UI pages (admin and caregiver portals)
+- [x] React Query hooks for API integration
+- [x] Reusable UI components
+- [x] Comprehensive unit tests
 
 ### In Progress
-- [ ] Payroll service implementation
-- [ ] Tax calculation engine (federal, state, local)
-- [ ] Overtime calculation utilities
 - [ ] ACH file generation (NACHA format)
 - [ ] Pay stub PDF generation
 
 ### Planned
-- [ ] Multi-state payroll support
+- [ ] Direct deposit payment processing
+- [ ] Check printing integration
 - [ ] PTO accrual integration
 - [ ] Bonus and commission processing
 - [ ] Payroll advance handling
 - [ ] Time card mobile approval workflow
-- [ ] Integration with ADP, Paychex, or other payroll providers
+- [ ] Integration with ADP, Paychex, or other payroll providers (API integration)
 - [ ] Automated tax filing (via third-party service)
 - [ ] Year-end W-2 generation
 - [ ] 1099 contractor payment support
+- [ ] Multi-currency support
+- [ ] International payroll
 
 ## Database Schema
 

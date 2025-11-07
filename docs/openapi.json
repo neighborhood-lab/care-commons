@@ -1,0 +1,1635 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Care Commons API",
+    "version": "1.0.0",
+    "description": "Home healthcare platform API documentation",
+    "contact": {
+      "name": "Care Commons Team",
+      "url": "https://github.com/neighborhood-lab/care-commons"
+    },
+    "license": {
+      "name": "AGPL-3.0",
+      "url": "https://www.gnu.org/licenses/agpl-3.0.en.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://care-commons.vercel.app",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "User unique identifier"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email address"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "coordinator",
+              "caregiver",
+              "family"
+            ],
+            "description": "User role in the system"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "User creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "User last update timestamp"
+          }
+        }
+      },
+      "Client": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Client unique identifier"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Client first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Client last name"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "description": "Client date of birth"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "discharged"
+            ],
+            "description": "Client status"
+          },
+          "primaryAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Client phone number"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Client email address"
+          },
+          "emergencyContact": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "relationship": {
+                "type": "string"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Caregiver": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Caregiver unique identifier"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated user ID"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "on_leave"
+            ]
+          },
+          "certifications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "number": {
+                  "type": "string"
+                },
+                "expiryDate": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Visit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Visit unique identifier"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated client ID"
+          },
+          "caregiverId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated caregiver ID"
+          },
+          "scheduledStart": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled start time"
+          },
+          "scheduledEnd": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled end time"
+          },
+          "actualStart": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Actual start time (EVV)"
+          },
+          "actualEnd": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Actual end time (EVV)"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "in_progress",
+              "completed",
+              "cancelled",
+              "missed"
+            ],
+            "description": "Visit status"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Visit notes"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CarePlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Care plan unique identifier"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated client ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Care plan title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Care plan description"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Care plan start date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Care plan end date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "cancelled"
+            ],
+            "description": "Care plan status"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Task"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Task unique identifier"
+          },
+          "carePlanId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated care plan ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Task title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Task description"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly",
+              "as_needed"
+            ],
+            "description": "Task frequency"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed"
+            ],
+            "description": "Task status"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Task due date"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "description": "Street address"
+          },
+          "street2": {
+            "type": "string",
+            "description": "Apartment, suite, etc."
+          },
+          "city": {
+            "type": "string",
+            "description": "City name"
+          },
+          "state": {
+            "type": "string",
+            "description": "State code (e.g., TX, CA)"
+          },
+          "zip": {
+            "type": "string",
+            "description": "ZIP code"
+          },
+          "country": {
+            "type": "string",
+            "default": "US",
+            "description": "Country code"
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double",
+            "description": "GPS latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double",
+            "description": "GPS longitude"
+          },
+          "accuracy": {
+            "type": "number",
+            "description": "Location accuracy in meters"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Location capture timestamp"
+          }
+        }
+      },
+      "PaginationParams": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "Page number"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20,
+            "description": "Items per page"
+          }
+        }
+      },
+      "PaginatedResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              },
+              "totalPages": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error type"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP status code"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/login/google": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Authenticate with Google OAuth",
+        "description": "Authenticate user using Google ID token and receive JWT tokens",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "idToken"
+                ],
+                "properties": {
+                  "idToken": {
+                    "type": "string",
+                    "description": "Google ID token from client",
+                    "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6..."
+                  },
+                  "organizationId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Organization ID for new user registration (optional)",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "tokens": {
+                          "type": "object",
+                          "properties": {
+                            "accessToken": {
+                              "type": "string"
+                            },
+                            "refreshToken": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login with email and password",
+        "description": "Authenticate user with credentials and receive JWT tokens",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User email address",
+                    "example": "admin@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "User password",
+                    "example": "SecurePassword123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "tokens": {
+                          "type": "object",
+                          "properties": {
+                            "accessToken": {
+                              "type": "string",
+                              "description": "JWT access token"
+                            },
+                            "refreshToken": {
+                              "type": "string",
+                              "description": "JWT refresh token"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Refresh access token",
+        "description": "Obtain a new access token using a valid refresh token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refreshToken"
+                ],
+                "properties": {
+                  "refreshToken": {
+                    "type": "string",
+                    "description": "JWT refresh token",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "accessToken": {
+                          "type": "string",
+                          "description": "New JWT access token"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Invalid or expired refresh token"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Logout user",
+        "description": "Logout user and invalidate all tokens",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logged out successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get current authenticated user",
+        "description": "Retrieve profile information for the currently authenticated user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "organizationId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/organizations/register": {
+      "post": {
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Register new organization",
+        "description": "Register a new organization with initial admin user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "adminEmail",
+                  "adminPassword"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Organization name",
+                    "example": "Acme Home Care"
+                  },
+                  "adminEmail": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Admin user email",
+                    "example": "admin@acmehomecare.com"
+                  },
+                  "adminPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Admin user password"
+                  },
+                  "adminFirstName": {
+                    "type": "string",
+                    "description": "Admin first name"
+                  },
+                  "adminLastName": {
+                    "type": "string",
+                    "description": "Admin last name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Organization registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "organization": {
+                          "type": "object"
+                        },
+                        "adminUserId": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "409": {
+            "description": "Organization or email already exists"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/organizations/{id}": {
+      "get": {
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Get organization by ID",
+        "description": "Retrieve organization details by unique identifier",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Organization UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Organization not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/care-plans": {
+      "post": {
+        "tags": [
+          "Care Plans"
+        ],
+        "summary": "Create new care plan",
+        "description": "Create a new care plan for a client",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "clientId",
+                  "title",
+                  "planType"
+                ],
+                "properties": {
+                  "clientId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "title": {
+                    "type": "string",
+                    "example": "Personal Care Plan"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "planType": {
+                    "type": "string",
+                    "enum": [
+                      "PERSONAL_CARE",
+                      "COMPANION",
+                      "SKILLED_NURSING",
+                      "THERAPY",
+                      "HOSPICE",
+                      "RESPITE",
+                      "LIVE_IN",
+                      "CUSTOM"
+                    ]
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Care plan created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Care Plans"
+        ],
+        "summary": "Search care plans",
+        "description": "Search and filter care plans with pagination",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search query text"
+          },
+          {
+            "in": "query",
+            "name": "clientId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filter by client ID"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "PENDING_APPROVAL",
+                "ACTIVE",
+                "ON_HOLD",
+                "EXPIRED",
+                "DISCONTINUED",
+                "COMPLETED"
+              ]
+            },
+            "description": "Filter by status (comma-separated for multiple)"
+          },
+          {
+            "in": "query",
+            "name": "planType",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PERSONAL_CARE",
+                "COMPANION",
+                "SKILLED_NURSING",
+                "THERAPY",
+                "HOSPICE",
+                "RESPITE",
+                "LIVE_IN",
+                "CUSTOM"
+              ]
+            },
+            "description": "Filter by plan type (comma-separated for multiple)"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Care plans retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/care-plans/{id}": {
+      "get": {
+        "tags": [
+          "Care Plans"
+        ],
+        "summary": "Get care plan by ID",
+        "description": "Retrieve a single care plan by its unique identifier",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Care plan UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Care plan found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Care plan not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/clients": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "List and search clients",
+        "description": "Search/list clients with pagination and filters",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search query (name, client number, etc.)"
+          },
+          {
+            "in": "query",
+            "name": "organizationId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filter by organization ID"
+          },
+          {
+            "in": "query",
+            "name": "branchId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filter by branch ID"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INQUIRY",
+                "PENDING_INTAKE",
+                "ACTIVE",
+                "INACTIVE",
+                "ON_HOLD",
+                "DISCHARGED",
+                "DECEASED"
+              ]
+            },
+            "description": "Filter by client status (comma-separated for multiple)"
+          },
+          {
+            "in": "query",
+            "name": "minAge",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Minimum age filter"
+          },
+          {
+            "in": "query",
+            "name": "maxAge",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Maximum age filter"
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by city"
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by state code"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Clients retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PaginatedResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Create new client",
+        "description": "Create a new client record with demographics and intake information",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "dateOfBirth",
+                  "organizationId"
+                ],
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "1950-01-15"
+                  },
+                  "organizationId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "primaryAddress": {
+                    "$ref": "#/components/schemas/Address"
+                  },
+                  "primaryPhone": {
+                    "type": "object",
+                    "properties": {
+                      "number": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "MOBILE",
+                          "HOME",
+                          "WORK"
+                        ]
+                      }
+                    }
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Client created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Client"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/clients/{id}": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Get client by ID",
+        "description": "Retrieve a single client by their unique identifier",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Client UUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Client found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Client"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid client ID"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Client not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Update client",
+        "description": "Update existing client information (partial update)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Client UUID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "primaryAddress": {
+                    "$ref": "#/components/schemas/Address"
+                  },
+                  "primaryPhone": {
+                    "type": "object"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Client updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Client"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Client not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
