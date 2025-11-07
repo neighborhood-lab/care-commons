@@ -37,6 +37,9 @@ find . -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
 echo "📦 Updating dependencies..."
 ncu -u --packageFile '**/package.json' --timeout 60000 --reject 'npm,@care-commons/*'
 
+echo "🔧 Regenerating lockfile..."
+npm install --package-lock-only --ignore-scripts
+
 echo "📥 Installing dependencies..."
 npm install --prefer-offline --no-audit
 
@@ -49,9 +52,6 @@ npm run db:migrate
 npm run db:seed
 npm run db:seed:demo
 
-echo "🏗️  Building project..."
-npx turbo run build
-
 echo "🔍 Running linting..."
 npx turbo run lint
 
@@ -60,5 +60,8 @@ npx turbo run typecheck
 
 echo "🧪 Running tests with coverage..."
 npx turbo run test:coverage
+
+echo "🏗️  Building project..."
+npx turbo run build
 
 echo "✅ All checks completed successfully!"
