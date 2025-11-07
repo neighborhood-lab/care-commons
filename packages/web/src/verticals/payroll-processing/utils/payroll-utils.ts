@@ -11,6 +11,15 @@ export const formatHours = (hours: number): string => {
   return `${hours.toFixed(2)} hrs`;
 };
 
+export const formatDate = (date: Date | string): string => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(dateObj);
+};
+
 export const getPayPeriodStatusColor = (status: PayPeriodStatus): string => {
   const colors: Record<PayPeriodStatus, string> = {
     DRAFT: 'bg-gray-100 text-gray-800',

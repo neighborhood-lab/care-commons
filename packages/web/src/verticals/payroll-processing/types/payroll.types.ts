@@ -48,6 +48,8 @@ export type PayPeriodType =
 
 export interface PayPeriod {
   id: string;
+  organizationId: string;
+  branchId?: string;
   periodNumber: number;
   periodYear: number;
   periodType: PayPeriodType;
@@ -97,6 +99,24 @@ export interface PayRun {
   updatedAt: string;
 }
 
+export interface Deduction {
+  id: string;
+  deductionType: string;
+  description: string;
+  amount: number;
+  percentage?: number;
+  isPreTax: boolean;
+  isPostTax: boolean;
+  hasLimit: boolean;
+  yearlyLimit?: number;
+  yearToDateAmount?: number;
+  employerMatch?: number;
+  garnishmentOrder?: {
+    orderNumber: string;
+    remainingBalance?: number;
+  };
+}
+
 export interface PayStub {
   id: string;
   payRunId: string;
@@ -110,24 +130,37 @@ export interface PayStub {
   payDate: string;
   regularHours: number;
   overtimeHours: number;
+  doubleTimeHours: number;
   totalHours: number;
   regularPay: number;
   overtimePay: number;
+  doubleTimePay: number;
   bonuses: number;
   reimbursements: number;
   currentGrossPay: number;
   yearToDateGrossPay: number;
   federalIncomeTax: number;
   stateIncomeTax: number;
+  localIncomeTax: number;
   socialSecurityTax: number;
   medicareTax: number;
+  additionalMedicareTax: number;
   totalTaxWithheld: number;
+  deductions?: Deduction[];
   healthInsurance: number;
   retirement401k: number;
   otherDeductions: number;
   totalOtherDeductions: number;
   currentNetPay: number;
   yearToDateNetPay: number;
+  ytdHours: number;
+  ytdGrossPay: number;
+  ytdFederalTax: number;
+  ytdStateTax: number;
+  ytdSocialSecurity: number;
+  ytdMedicare: number;
+  ytdDeductions: number;
+  ytdNetPay: number;
   paymentMethod: PaymentMethod;
   checkNumber?: string;
   status: PayStubStatus;
@@ -186,6 +219,10 @@ export interface PayrollSummary {
   currentPeriod?: PayPeriod;
   upcomingPayDate?: string;
   totalEmployees: number;
+  totalCaregivers: number;
+  totalHours: number;
+  totalGrossPay: number;
+  totalTaxWithheld: number;
   pendingApprovals: number;
   recentPayRuns: {
     total: number;
@@ -200,7 +237,9 @@ export interface PayrollSummary {
 }
 
 export interface CreatePayRunInput {
+  organizationId: string;
   payPeriodId: string;
+  runType: string;
   caregiverIds?: string[];
   notes?: string;
 }
