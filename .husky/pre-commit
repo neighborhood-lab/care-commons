@@ -1,0 +1,20 @@
+echo "🪝 Running pre-commit checks..."
+echo "⚠️  These checks are MANDATORY and cannot be bypassed."
+echo "⚠️  Do NOT use --no-verify to skip these checks."
+echo ""
+
+# Run checks and capture exit code
+./scripts/brief-check.sh
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+  echo ""
+  echo "❌ Pre-commit checks FAILED!"
+  echo "❌ Please fix the errors above before committing."
+  echo "❌ Do NOT bypass these checks with --no-verify"
+  exit 1
+fi
+
+echo ""
+echo "✅ All pre-commit checks passed!"
+exit 0
