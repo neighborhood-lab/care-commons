@@ -17,10 +17,15 @@
     "showcase"
   ],
   "scripts": {
-    "dev": "turbo run dev --parallel --filter=@care-commons/app --filter=@care-commons/web",
+    "dev:setup": "tsx scripts/dev-setup.ts",
+    "dev": "tsx scripts/dev-server.ts",
     "dev:server": "cd packages/app && npm run dev",
     "dev:web": "cd packages/web && npm run dev",
     "dev:showcase": "cd showcase && npm run dev",
+    "dev:docker": "docker-compose -f docker-compose.dev.yml up -d",
+    "dev:docker:down": "docker-compose -f docker-compose.dev.yml down",
+    "dev:reset": "npm run db:nuke && npm run db:migrate && npm run db:seed:demo",
+    "dev:clean": "turbo run clean && rm -rf node_modules",
     "build": "turbo run build && npm run build:copy-web",
     "build:copy-web": "cp -r packages/web/dist/* public/",
     "build:ts": "tsc -b",
@@ -50,6 +55,7 @@
     "db:env": "./scripts/db-env.sh",
     "db:env:preview": "./scripts/db-env.sh migrate --env=preview",
     "db:env:production": "./scripts/db-env.sh migrate --env=production",
+    "docs:generate": "tsx scripts/export-postman-collection.ts",
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
@@ -57,10 +63,15 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.1",
     "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "@vitest/coverage-v8": "^4.0.7",
+    "chalk": "^5.6.2",
+    "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
@@ -68,6 +79,7 @@
     "happy-dom": "^20.0.10",
     "husky": "^9.1.7",
     "jscpd": "^4.0.5",
+    "openapi-to-postmanv2": "^5.3.4",
     "sql-lint": "^1.0.2",
     "supertest": "^7.1.4",
     "turbo": "^2.6.0",
@@ -79,6 +91,8 @@
     "npm": ">=10.9.0"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.7"
+    "@tanstack/react-query": "^5.90.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }
