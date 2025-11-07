@@ -373,9 +373,10 @@ export class OfflineQueueService {
       clearInterval(this.syncInterval);
     }
 
-    this.syncInterval = setInterval(() => {
+    const interval = setInterval(() => {
       void this.trySync();
-    }, intervalMs) as any;
+    }, intervalMs);
+    this.syncInterval = interval as unknown as number;
   }
 
   /**
