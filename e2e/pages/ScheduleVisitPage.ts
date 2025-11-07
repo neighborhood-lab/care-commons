@@ -230,4 +230,11 @@ export class ScheduleVisitPage extends BasePage {
     const submitButton = this.page.getByRole('button', { name: /schedule.*visit/i });
     await expect(submitButton).toBeDisabled();
   }
+
+  /**
+   * Alias for fillVisitDetails (for compatibility)
+   */
+  async fillVisitForm(details: Parameters<typeof this.fillVisitDetails>[0]): Promise<void> {
+    return this.fillVisitDetails(details);
+  }
 }
