@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Clock, CheckSquare, Target } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent } from '@/core/components';
+import { Button, Card, CardContent } from '@/core/components';
 import type { CarePlanTemplate } from '@care-commons/care-plans-tasks';
 import { useNavigate } from 'react-router-dom';
 

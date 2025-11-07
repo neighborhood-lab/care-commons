@@ -5,7 +5,6 @@ import type { CarePlan } from '../types';
 
 // Import template types and data
 import type {
-  CarePlanTemplate,
   CarePlanTemplateCategory,
   CarePlanTaskTemplate,
 } from '@care-commons/care-plans-tasks';
