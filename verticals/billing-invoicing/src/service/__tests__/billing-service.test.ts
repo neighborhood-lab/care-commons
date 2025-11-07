@@ -5,7 +5,7 @@
  * Focus on workflows, error handling, and transaction boundaries
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 import { BillingService } from '../billing-service';
 import {
