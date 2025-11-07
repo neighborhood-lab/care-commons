@@ -65,11 +65,12 @@ export const Input = React.forwardRef<TextInput, InputProps>(
               style,
             ]}
             placeholderTextColor="#9CA3AF"
+            accessibilityLabel={label}
             {...props}
           />
           {rightIcon && <View style={styles.icon}>{rightIcon}</View>}
         </View>
-        {error && <Text style={styles.error}>{error}</Text>}
+        {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
         {helperText && !error && <Text style={styles.helper}>{helperText}</Text>}
       </View>
     );
