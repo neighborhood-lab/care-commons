@@ -190,6 +190,45 @@ npm run typecheck
 npm run lint
 ```
 
+## API Documentation
+
+Interactive API documentation is available via Swagger UI:
+
+- **Local Development**: http://localhost:3000/api-docs
+- **Production**: https://care-commons.vercel.app/api-docs
+
+### OpenAPI Specification
+
+The OpenAPI 3.0 specification is available at:
+- **JSON Format**: http://localhost:3000/openapi.json
+
+### Postman Collection
+
+Generate a Postman collection for API testing:
+
+```bash
+npm run docs:generate
+```
+
+This creates:
+- `docs/openapi.json` - OpenAPI 3.0 specification
+- `docs/postman-collection.json` - Postman collection (if converter available)
+
+Import `docs/postman-collection.json` into Postman for easy API testing and development.
+
+### Documented API Endpoints
+
+The following API endpoints are documented with OpenAPI annotations:
+
+- **Authentication** - Login, logout, token refresh, user profile
+- **Organizations** - Registration, management
+- **Clients** - CRUD operations, search, demographics, risk flags
+- **Care Plans** - Create, update, search, activate
+- **Caregivers** - Staff management
+- **Visits** - Scheduling and tracking (see scheduling vertical)
+
+All endpoints require authentication via JWT Bearer token (except login/register endpoints).
+
 ### Code Coverage
 
 This project uses Codecov for tracking code coverage. Coverage reports are automatically generated and uploaded during CI runs. The project maintains a minimum coverage threshold of 70% across all packages.

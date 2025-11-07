@@ -9,6 +9,7 @@ import { Database, PermissionService, UserRepository } from '@care-commons/core'
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
+import { createHealthRouter } from './health.js';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
@@ -23,6 +24,7 @@ import { authLimiter } from '../middleware/rate-limit.js';
  * When re-enabling: import { createAnalyticsRouter } from './analytics.js';
  */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
+import docsRoutes from './docs.routes.js';
 
 /**
  * Setup all API routes for the application
@@ -30,15 +32,13 @@ import { createSyncRouter } from '../api/sync/sync-routes.js';
 export function setupRoutes(app: Express, db: Database): void {
   console.log('Setting up API routes...');
 
-  // Health check routes (no auth required)
+  // Health check route (no authentication required)
   const healthRouter = createHealthRouter(db);
-  app.use('/health', healthRouter);
-  console.log('  ✓ Health check routes registered');
-
-  // Metrics routes (no auth required - for monitoring systems)
-  const metricsRouter = createMetricsRouter();
-  app.use('/metrics', metricsRouter);
-  console.log('  ✓ Metrics routes registered');
+  app.use('/', healthRouter);
+  console.log('  ✓ Health check route registered');
+  // API Documentation routes
+  app.use('/', docsRoutes);
+  console.log('  ✓ API Documentation routes registered');
 
   // Authentication routes with rate limiting
   const authRouter = createAuthRouter(db);

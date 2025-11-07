@@ -17,6 +17,7 @@
     "build:android": "eas build --platform android",
     "build:ios": "eas build --platform ios",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit"
@@ -24,7 +25,7 @@
   "dependencies": {
     "@care-commons/core": "file:../core",
     "@care-commons/time-tracking-evv": "file:../../verticals/time-tracking-evv",
-    "@nozbe/watermelondb": "^0.25.5",
+    "@nozbe/watermelondb": "^0.28.0",
     "@react-native-async-storage/async-storage": "~2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/bottom-tabs": "^7.8.2",
@@ -60,12 +61,12 @@
     "@types/react": "~19.2.2",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
-    "@vitest/coverage-v8": "^4.0.7",
+    "@vitest/coverage-v8": "^4.0.8",
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.7"
+    "vitest": "^4.0.8"
   },
   "engines": {
     "node": "22.x"
