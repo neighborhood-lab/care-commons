@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { 
+import {
   OrganizationService,
   Database,
   CreateOrganizationRequest,
@@ -14,11 +14,13 @@ import {
   ValidationError,
   ConflictError,
   NotFoundError,
+  AuthMiddleware,
 } from '@care-commons/core';
 
 export function createOrganizationRouter(db: Database): Router {
   const router = Router();
   const organizationService = new OrganizationService(db);
+  const authMiddleware = new AuthMiddleware(db);
 
   /**
    * @openapi
@@ -161,7 +163,7 @@ export function createOrganizationRouter(db: Database): Router {
    *       500:
    *         description: Server error
    */
-  router.get('/organizations/:id', async (req: Request, res: Response): Promise<void> => {
+  router.get('/organizations/:id', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params['id'];
       if (id === undefined || id.length === 0) {
@@ -200,7 +202,7 @@ export function createOrganizationRouter(db: Database): Router {
    * POST /api/organizations/:id/invitations
    * Create a new team member invitation
    */
-  router.post('/organizations/:id/invitations', async (req: Request, res: Response): Promise<void> => {
+  router.post('/organizations/:id/invitations', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const organizationId = req.params['id'];
       if (organizationId === undefined || organizationId.length === 0) {
@@ -268,7 +270,7 @@ export function createOrganizationRouter(db: Database): Router {
    * GET /api/organizations/:id/invitations
    * List all invitations for an organization
    */
-  router.get('/organizations/:id/invitations', async (req: Request, res: Response): Promise<void> => {
+  router.get('/organizations/:id/invitations', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const organizationId = req.params['id'];
       if (organizationId === undefined || organizationId.length === 0) {
@@ -401,7 +403,7 @@ export function createOrganizationRouter(db: Database): Router {
    * DELETE /api/invitations/:token
    * Revoke an invitation
    */
-  router.delete('/invitations/:token', async (req: Request, res: Response): Promise<void> => {
+  router.delete('/invitations/:token', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const token = req.params['token'];
       if (token === undefined || token.length === 0) {
