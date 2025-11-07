@@ -11,6 +11,15 @@ export default defineProject({
     setupFiles: './src/test/setup.ts',
     maxConcurrency: 1,
     pool: 'vmThreads',
+    server: {
+      deps: {
+        external: [
+          // Exclude Node.js-specific Sentry modules that have native bindings
+          '@sentry/profiling-node',
+          '@sentry-internal/node-cpu-profiler',
+        ],
+      },
+    },
   },
   resolve: {
     alias: {
