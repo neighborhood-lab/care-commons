@@ -6,7 +6,7 @@
 
 import type { Request, Response, Router } from 'express';
 import type { AuditService } from '../services/audit-service.js';
-import type { UserContext, Database } from '@care-commons/core';
+import type { UserContext, Database, TokenPayload } from '@care-commons/core';
 import { AuthMiddleware } from '@care-commons/core';
 
 /**
@@ -14,12 +14,7 @@ import { AuthMiddleware } from '@care-commons/core';
  */
 interface RequestWithContext extends Request {
   userContext?: UserContext;
-  user?: {
-    userId: string;
-    organizationId: string;
-    roles: string[];
-    permissions: string[];
-  };
+  user?: TokenPayload;
 }
 
 /**
@@ -40,7 +35,7 @@ export function createAuditRoutes(auditService: AuditService, router: Router): R
         organizationId: req.user.organizationId,
         roles: req.user.roles,
         permissions: req.user.permissions,
-        branchIds: [] // TODO: Fetch branch IDs from user profile if needed
+        branchIds: [] // Fetch branch IDs from user profile if needed
       };
     }
     next();
