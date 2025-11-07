@@ -1,33 +1,52 @@
 /**
  * Login Screen
- * 
+ *
  * Authentication with email/password and optional biometric
  */
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView, TextInput } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button } from '../../components/index.js';
 import { createAuthService } from '../../services/auth.js';
+import { BiometricService } from '../../services/biometric.service.js';
+import { useAuth } from '../../hooks/useAuth.js';
 
-export function LoginScreen() {
+interface LoginScreenProps {
+  navigation: {
+    replace: (screen: string) => void;
+  };
+}
+
+export function LoginScreen({ navigation }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const { login } = useAuth();
 
   React.useEffect(() => {
-    // Check if biometric is available
-    const checkBiometric = async () => {
-      try {
-        const authService = createAuthService();
-        const available = await authService.isBiometricAvailable();
-        setBiometricAvailable(available);
-      } catch {
-        setBiometricAvailable(false);
-      }
-    };
     checkBiometric();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const checkBiometric = async () => {
+    try {
+      const available = await BiometricService.isAvailable();
+      const enabled = await BiometricService.isBiometricEnabled();
+
+      if (available && enabled) {
+        setBiometricAvailable(true);
+        // Auto-trigger biometric login if enabled
+        handleBiometricLogin();
+      } else {
+        setBiometricAvailable(available);
+      }
+    } catch (error) {
+      console.error('Error checking biometric:', error);
+      setBiometricAvailable(false);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -37,9 +56,35 @@ export function LoginScreen() {
 
     setIsLoading(true);
     try {
-      const authService = createAuthService();
-      await authService.login({ email, password });
-      // Navigation will happen automatically via isAuthenticated state change
+      await login({ email, password });
+
+      // Check if this is first login
+      const isFirstLogin = await AsyncStorage.getItem('first_login');
+
+      if (!isFirstLogin) {
+        // First time user - ask about biometric
+        const available = await BiometricService.isAvailable();
+        if (available) {
+          const biometricName = await BiometricService.getBiometricTypeName();
+          Alert.alert(
+            'Enable Biometric Login',
+            `Would you like to use ${biometricName} for faster login?`,
+            [
+              { text: 'Not Now', style: 'cancel' },
+              {
+                text: 'Enable',
+                onPress: async () => {
+                  await BiometricService.enableBiometricLogin();
+                },
+              },
+            ]
+          );
+        }
+
+        // Navigate to onboarding
+        navigation.replace('Onboarding');
+      }
+      // If not first login, auth state change will handle navigation
     } catch (error) {
       Alert.alert('Login Failed', error instanceof Error ? error.message : 'Unknown error');
     } finally {
@@ -50,22 +95,23 @@ export function LoginScreen() {
   const handleBiometricLogin = async () => {
     setIsLoading(true);
     try {
-      const authService = createAuthService();
-      const success = await authService.authenticateWithBiometric();
-      
+      const success = await BiometricService.authenticate('Login to Care Commons');
+
       if (!success) {
-        Alert.alert('Authentication Failed', 'Biometric authentication was not successful');
         setIsLoading(false);
         return;
       }
 
       // Restore session after biometric auth
+      const authService = createAuthService();
       const user = await authService.restoreSession();
+
       if (!user) {
-        Alert.alert('Error', 'Could not restore session. Please login again.');
+        Alert.alert('Error', 'Could not restore session. Please login with your credentials.');
       }
-    } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'Unknown error');
+      // If successful, auth state change will handle navigation
+    } catch {
+      Alert.alert('Biometric Login Failed', 'Please login with your credentials');
     } finally {
       setIsLoading(false);
     }

@@ -14,6 +14,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Screens
 import { LoginScreen } from '../screens/auth/LoginScreen.js';
+import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen.js';
+import { PermissionsScreen } from '../screens/onboarding/PermissionsScreen.js';
 import { TodayVisitsScreen } from '../screens/visits/TodayVisitsScreen.js';
 import { ScheduleScreen } from '../screens/schedule/ScheduleScreen.js';
 import { ProfileScreen } from '../screens/profile/ProfileScreen.js';
@@ -29,6 +31,8 @@ import { SignatureScreen } from '../screens/visits/SignatureScreen.js';
 
 export type RootStackParamList = {
   Auth: undefined;
+  Onboarding: undefined;
+  Permissions: undefined;
   Main: undefined;
   VisitDetail: { visitId: string };
   VisitCheckIn: { visitId: string };
@@ -107,11 +111,23 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
     <NavigationContainer>
       <RootStack.Navigator>
         {!isAuthenticated ? (
-          <RootStack.Screen
-            name="Auth"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
+          <>
+            <RootStack.Screen
+              name="Auth"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <RootStack.Screen
+              name="Onboarding"
+              component={OnboardingScreen}
+              options={{ headerShown: false }}
+            />
+            <RootStack.Screen
+              name="Permissions"
+              component={PermissionsScreen}
+              options={{ headerShown: false }}
+            />
+          </>
         ) : (
           <>
             <RootStack.Screen

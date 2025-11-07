@@ -87,12 +87,13 @@ export const useActivateCarePlan = () => {
   });
 };
 
-export const useTasks = (filters?: TaskInstanceSearchFilters & SearchParams) => {
+export const useTasks = (filters?: TaskInstanceSearchFilters & SearchParams, enablePolling = false) => {
   const carePlanApi = useCarePlanApi();
-  
+
   return useQuery({
     queryKey: ['tasks', filters],
     queryFn: () => carePlanApi.getTasks(filters),
+    refetchInterval: enablePolling ? 30000 : false, // Poll every 30 seconds for real-time updates
   });
 };
 
