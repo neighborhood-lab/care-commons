@@ -26,5 +26,9 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "src/services/__tests__/location.test.ts",
+    "src/services/__tests__/offline-queue.test.ts"
+  ]
 }

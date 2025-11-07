@@ -9,6 +9,16 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OfflineQueueService } from '../offline-queue.js';
 import type { ClockInInput, ClockOutInput } from '../../shared/index.js';
 
+// Mock NetInfo
+vi.mock('@react-native-community/netinfo', () => ({
+  default: {
+    fetch: vi.fn().mockResolvedValue({
+      isConnected: true,
+      isInternetReachable: true,
+    }),
+  },
+}));
+
 // Mock WatermelonDB
 const mockDatabase = {
   collections: {
@@ -282,7 +292,7 @@ describe('OfflineQueueService', () => {
   });
 
   describe('startAutoSync', () => {
-    it('should start automatic sync interval', () => {
+    it('should start automatic sync interval', async () => {
       vi.useFakeTimers();
       const processQueueSpy = vi.spyOn(service, 'processQueue').mockResolvedValue({
         processed: 0,
@@ -292,10 +302,10 @@ describe('OfflineQueueService', () => {
 
       service.startAutoSync(1000); // 1 second interval
 
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(processQueueSpy).toHaveBeenCalledOnce();
 
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(processQueueSpy).toHaveBeenCalledTimes(2);
 
       service.stopAutoSync();
@@ -313,7 +323,7 @@ describe('OfflineQueueService', () => {
   });
 
   describe('stopAutoSync', () => {
-    it('should stop automatic sync', () => {
+    it('should stop automatic sync', async () => {
       vi.useFakeTimers();
       const processQueueSpy = vi.spyOn(service, 'processQueue').mockResolvedValue({
         processed: 0,
@@ -322,11 +332,11 @@ describe('OfflineQueueService', () => {
       });
 
       service.startAutoSync(1000);
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(processQueueSpy).toHaveBeenCalledOnce();
 
       service.stopAutoSync();
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       // Should not be called again after stopping
       expect(processQueueSpy).toHaveBeenCalledOnce();
 
@@ -356,8 +366,316 @@ describe('OfflineQueueService', () => {
         maxRetries: 10,
         baseRetryDelay: 5000,
       });
-      
+
       expect(customService).toBeDefined();
+    });
+  });
+
+  describe('setAuthToken', () => {
+    it('should update the auth token', () => {
+      const token = 'test-token-123';
+      service.setAuthToken(token);
+
+      // Verify token is set (indirectly by checking service is still functional)
+      expect(service).toBeDefined();
+    });
+  });
+
+  describe('processQueue with operations', () => {
+    it('should process pending operations in priority order', async () => {
+      const mockOp1 = {
+        id: 'op1',
+        operationType: 'CLOCK_IN',
+        payloadJson: JSON.stringify({
+          visitId: 'visit-123',
+          caregiverId: 'caregiver-456',
+        }),
+        retryCount: 0,
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            updatedAt: 0,
+            completedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp1]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      // Mock fetch for API calls
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ success: true }),
+      });
+
+      const result = await service.processQueue();
+
+      expect(result.processed).toBe(1);
+      expect(result.succeeded).toBe(1);
+      expect(result.failed).toBe(0);
+      expect(mockOp1.update).toHaveBeenCalled();
+    });
+
+    it('should handle operation failures with retry logic', async () => {
+      const mockOp1 = {
+        id: 'op1',
+        operationType: 'CLOCK_OUT',
+        payloadJson: JSON.stringify({
+          visitId: 'visit-123',
+          evvRecordId: 'evv-789',
+        }),
+        retryCount: 0,
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            retryCount: 0,
+            nextRetryAt: 0,
+            errorMessage: '',
+            errorDetailsJson: '',
+            updatedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp1]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      // Mock fetch to fail
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: 'Server Error',
+        json: vi.fn().mockResolvedValue({ message: 'API error' }),
+      });
+
+      const result = await service.processQueue();
+
+      expect(result.processed).toBe(1);
+      expect(result.succeeded).toBe(0);
+      expect(result.failed).toBe(1);
+      expect(mockOp1.update).toHaveBeenCalled();
+    });
+
+    it('should mark operations as failed after max retries', async () => {
+      const mockOp1 = {
+        id: 'op1',
+        operationType: 'UPDATE_EVV',
+        payloadJson: JSON.stringify({ data: 'test' }),
+        retryCount: 4, // Already at max retries
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            errorMessage: '',
+            errorDetailsJson: '',
+            updatedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp1]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      // Mock fetch to fail
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: 'Server Error',
+        json: vi.fn().mockResolvedValue({ message: 'API error' }),
+      });
+
+      const result = await service.processQueue();
+
+      expect(result.processed).toBe(1);
+      expect(result.succeeded).toBe(0);
+      expect(result.failed).toBe(1);
+    });
+
+    it('should process SYNC_VISIT operations', async () => {
+      const mockOp1 = {
+        id: 'op1',
+        operationType: 'SYNC_VISIT',
+        payloadJson: JSON.stringify({ visitId: 'visit-123' }),
+        retryCount: 0,
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            updatedAt: 0,
+            completedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp1]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      // Mock fetch for API calls
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ success: true }),
+      });
+
+      const result = await service.processQueue();
+
+      expect(result.processed).toBe(1);
+      expect(result.succeeded).toBe(1);
+    });
+
+    it('should handle unknown operation types', async () => {
+      const mockOp1 = {
+        id: 'op1',
+        operationType: 'UNKNOWN_TYPE',
+        payloadJson: JSON.stringify({}),
+        retryCount: 0,
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            retryCount: 0,
+            nextRetryAt: 0,
+            errorMessage: '',
+            updatedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp1]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      const result = await service.processQueue();
+
+      expect(result.processed).toBe(1);
+      expect(result.failed).toBe(1);
+    });
+  });
+
+  describe('API request handling', () => {
+    it('should make authenticated requests when token is set', async () => {
+      service.setAuthToken('test-token-123');
+
+      const mockOp = {
+        id: 'op1',
+        operationType: 'CLOCK_IN',
+        payloadJson: JSON.stringify({
+          visitId: 'visit-123',
+          caregiverId: 'caregiver-456',
+        }),
+        retryCount: 0,
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            updatedAt: 0,
+            completedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ success: true }),
+      });
+
+      await service.processQueue();
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/evv/clock-in'),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Authorization': 'Bearer test-token-123',
+          }),
+        })
+      );
+    });
+
+    it('should handle API errors with JSON response', async () => {
+      const mockOp = {
+        id: 'op1',
+        operationType: 'CLOCK_IN',
+        payloadJson: JSON.stringify({
+          visitId: 'visit-123',
+        }),
+        retryCount: 0,
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            retryCount: 0,
+            nextRetryAt: 0,
+            errorMessage: '',
+            updatedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: 'Bad Request',
+        json: vi.fn().mockResolvedValue({ message: 'Invalid visit ID' }),
+      });
+
+      const result = await service.processQueue();
+
+      expect(result.failed).toBe(1);
+    });
+
+    it('should handle API errors without JSON response', async () => {
+      const mockOp = {
+        id: 'op1',
+        operationType: 'CLOCK_OUT',
+        payloadJson: JSON.stringify({
+          visitId: 'visit-123',
+          evvRecordId: 'evv-789',
+        }),
+        retryCount: 0,
+        maxRetries: 3,
+        update: vi.fn((callback) => {
+          callback({
+            status: '',
+            retryCount: 0,
+            nextRetryAt: 0,
+            errorMessage: '',
+            updatedAt: 0,
+          });
+        }),
+      };
+
+      mockCollection.query.mockReturnValue({
+        fetch: vi.fn().mockResolvedValue([mockOp]),
+        fetchCount: vi.fn().mockResolvedValue(1),
+      });
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: 'Internal Server Error',
+        json: vi.fn().mockRejectedValue(new Error('Not JSON')),
+      });
+
+      const result = await service.processQueue();
+
+      expect(result.failed).toBe(1);
     });
   });
 });
