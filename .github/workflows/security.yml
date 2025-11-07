@@ -79,7 +79,7 @@ jobs:
         run: npm ci
 
       - name: Run route permissions audit
-        run: tsx scripts/audit-route-permissions.ts
+        run: npx tsx scripts/audit-route-permissions.ts
 
   security-tests:
     name: Security Tests
