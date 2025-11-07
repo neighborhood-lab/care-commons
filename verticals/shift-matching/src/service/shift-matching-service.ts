@@ -15,6 +15,7 @@ import {
   ValidationError,
   NotFoundError,
   ConflictError,
+  Database,
 } from '@care-commons/core';
 import { ShiftMatchingRepository } from '../repository/shift-matching-repository';
 import { MatchingAlgorithm, CaregiverContext } from '../utils/matching-algorithm';
@@ -50,7 +51,7 @@ export class ShiftMatchingService {
     this.repository = new ShiftMatchingRepository(pool);
     // CaregiverService requires a Database, but we're passing Pool
     // This is a type issue - in production, wrap Pool in Database class
-    this.caregiverService = caregiverService ?? (new CaregiverService(pool as any));
+    this.caregiverService = caregiverService ?? (new CaregiverService(pool as unknown as Database));
   }
 
   /**
@@ -547,16 +548,17 @@ export class ShiftMatchingService {
     let expiredCount = 0;
 
     for (const row of staleProposals.rows) {
-      await this.repository.updateProposalStatus((row as any).id, 'EXPIRED', context);
-      
+      const rowData = row as Record<string, unknown>;
+      await this.repository.updateProposalStatus(rowData.id as string, 'EXPIRED', context);
+
       await this.repository.createMatchHistory(
         {
-          openShiftId: (row as any).open_shift_id,
-          visitId: (row as any).visit_id,
-          caregiverId: (row as any).caregiver_id,
+          openShiftId: rowData.open_shift_id as string,
+          visitId: rowData.visit_id as string,
+          caregiverId: rowData.caregiver_id as string,
           attemptNumber: 1,
           outcome: 'EXPIRED',
-          assignmentProposalId: (row as any).id,
+          assignmentProposalId: rowData.id as string,
           assignedSuccessfully: false,
         },
         context
@@ -633,9 +635,9 @@ export class ShiftMatchingService {
     );
 
     const weekHoursMap = new Map(
-      weekHoursResult.rows.map((row: any) => [
-        row.assigned_caregiver_id,
-        parseInt(row.total_minutes, 10) / 60
+      weekHoursResult.rows.map((row: Record<string, unknown>) => [
+        row.assigned_caregiver_id as string,
+        parseInt(row.total_minutes as string, 10) / 60
       ])
     );
 
@@ -659,17 +661,25 @@ export class ShiftMatchingService {
       [caregiverIds, shift.scheduledDate, shift.startTime, shift.endTime]
     );
 
-    const conflictsMap = new Map<UUID, any[]>();
+    interface ScheduleConflict {
+      visitId: string;
+      clientName: string;
+      startTime: string;
+      endTime: string;
+      includesTravel: boolean;
+    }
+    const conflictsMap = new Map<UUID, ScheduleConflict[]>();
     for (const row of conflictsResult.rows) {
-      const cid = (row as any).assigned_caregiver_id;
+      const rowData = row as Record<string, unknown>;
+      const cid = rowData.assigned_caregiver_id as UUID;
       if (!conflictsMap.has(cid)) {
         conflictsMap.set(cid, []);
       }
       conflictsMap.get(cid)?.push({
-        visitId: (row as any).visit_id,
-        clientName: (row as any).client_name,
-        startTime: (row as any).start_time,
-        endTime: (row as any).end_time,
+        visitId: rowData.visit_id as string,
+        clientName: rowData.client_name as string,
+        startTime: rowData.start_time as string,
+        endTime: rowData.end_time as string,
         includesTravel: false,
       });
     }
@@ -692,11 +702,11 @@ export class ShiftMatchingService {
     );
 
     const previousVisitsMap = new Map(
-      previousVisitsResult.rows.map((row: any) => [
-        row.assigned_caregiver_id,
+      previousVisitsResult.rows.map((row: Record<string, unknown>) => [
+        row.assigned_caregiver_id as string,
         {
-          count: parseInt(row.count, 10),
-          avgRating: row.avg_rating ? parseFloat(row.avg_rating) : undefined,
+          count: parseInt(row.count as string, 10),
+          avgRating: row.avg_rating ? parseFloat(row.avg_rating as string) : undefined,
         }
       ])
     );
@@ -720,11 +730,11 @@ export class ShiftMatchingService {
     );
 
     const reliabilityMap = new Map(
-      reliabilityResult.rows.map((row: any) => {
-        const completed = parseInt(row.completed ?? '0', 10);
-        const noShows = parseInt(row.no_shows ?? '0', 10);
-        const cancellations = parseInt(row.cancellations ?? '0', 10);
-        const total = parseInt(row.total ?? '0', 10);
+      reliabilityResult.rows.map((row: Record<string, unknown>) => {
+        const completed = parseInt((row.completed ?? '0') as string, 10);
+        const noShows = parseInt((row.no_shows ?? '0') as string, 10);
+        const cancellations = parseInt((row.cancellations ?? '0') as string, 10);
+        const total = parseInt((row.total ?? '0') as string, 10);
 
         let score = 75; // Default
         if (total > 0) {
@@ -756,9 +766,9 @@ export class ShiftMatchingService {
     );
 
     const rejectionsMap = new Map(
-      rejectionsResult.rows.map((row: any) => [
-        row.caregiver_id,
-        parseInt(row.count ?? '0', 10)
+      rejectionsResult.rows.map((row: Record<string, unknown>) => [
+        row.caregiver_id as string,
+        parseInt((row.count ?? '0') as string, 10)
       ])
     );
 
@@ -801,7 +811,8 @@ export class ShiftMatchingService {
         );
 
         for (const row of distanceResult.rows) {
-          distancesMap.set((row as any).id, parseFloat((row as any).distance ?? '0'));
+          const rowData = row as Record<string, unknown>;
+          distancesMap.set(rowData.id as string, parseFloat((rowData.distance ?? '0') as string));
         }
       }
     }
@@ -896,11 +907,11 @@ export class ShiftMatchingService {
       [caregiverId, shift.scheduledDate, shift.startTime, shift.endTime]
     );
 
-    const conflictingVisits = conflictsResult.rows.map((row: any) => ({
-      visitId: row.visit_id,
-      clientName: row.client_name,
-      startTime: row.start_time,
-      endTime: row.end_time,
+    const conflictingVisits = conflictsResult.rows.map((row: Record<string, unknown>) => ({
+      visitId: row.visit_id as string,
+      clientName: row.client_name as string,
+      startTime: row.start_time as string,
+      endTime: row.end_time as string,
       includesTravel: false,
     }));
 
@@ -949,11 +960,11 @@ export class ShiftMatchingService {
       [caregiverId]
     );
 
-    const stats = reliabilityResult.rows[0] as any;
-    const completed = parseInt(stats?.completed ?? '0', 10);
-    const noShows = parseInt(stats?.no_shows ?? '0', 10);
-    const cancellations = parseInt(stats?.cancellations ?? '0', 10);
-    const total = parseInt(stats?.total ?? '0', 10);
+    const stats = reliabilityResult.rows[0] as Record<string, unknown> | undefined;
+    const completed = parseInt((stats?.completed ?? '0') as string, 10);
+    const noShows = parseInt((stats?.no_shows ?? '0') as string, 10);
+    const cancellations = parseInt((stats?.cancellations ?? '0') as string, 10);
+    const total = parseInt((stats?.total ?? '0') as string, 10);
 
     let reliabilityScore = 75; // Default
     if (total > 0) {
