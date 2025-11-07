@@ -43,13 +43,13 @@ describe('DateUtils', () => {
 
   describe('addBusinessDays', () => {
     it('should add business days skipping weekends', () => {
-      const friday = new Date('2024-01-12'); // Friday
+      const friday = new Date(2024, 0, 12); // Friday, January 12, 2024
       const result = DateUtils.addBusinessDays(friday, 1);
       expect(result.getDay()).toBe(1); // Monday
     });
 
     it('should handle multiple business days', () => {
-      const monday = new Date('2024-01-15'); // Monday
+      const monday = new Date(2024, 0, 15); // Monday, January 15, 2024
       const result = DateUtils.addBusinessDays(monday, 5);
       expect(result.getDay()).toBe(1); // Next Monday
     });
@@ -71,8 +71,8 @@ describe('DateUtils', () => {
 
   describe('getDateRange', () => {
     it('should generate array of dates', () => {
-      const start = new Date('2024-01-15');
-      const end = new Date('2024-01-17');
+      const start = new Date(2024, 0, 15); // January 15, 2024
+      const end = new Date(2024, 0, 17); // January 17, 2024
       const range = DateUtils.getDateRange(start, end);
       expect(range).toHaveLength(3);
       expect(range[0]?.getDate()).toBe(15);
