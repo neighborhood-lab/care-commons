@@ -1,4 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
+import { randomBytes } from 'crypto';
+
+/**
+ * Generate a cryptographically secure random secret for testing
+ * @param length - Length of the secret in bytes (default: 32)
+ * @returns Base64-encoded random string
+ */
+function generateTestSecret(length = 32): string {
+  return randomBytes(length).toString('base64');
+}
 
 /**
  * Playwright Configuration for Care Commons E2E Testing
@@ -122,9 +132,10 @@ export default defineConfig({
       NODE_ENV: 'test',
       DATABASE_URL: process.env['E2E_DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/care_commons_e2e_test',
       PORT: '3000',
-      // JWT secrets for authentication (must be set in CI/local environment)
-      JWT_SECRET: process.env['JWT_SECRET'] || 'test-jwt-secret-minimum-32-characters-required-for-security',
-      JWT_REFRESH_SECRET: process.env['JWT_REFRESH_SECRET'] || 'test-jwt-refresh-secret-minimum-32-characters-required',
+      // JWT secrets for authentication
+      // Generate cryptographically secure random secrets if not provided
+      JWT_SECRET: process.env['JWT_SECRET'] || generateTestSecret(),
+      JWT_REFRESH_SECRET: process.env['JWT_REFRESH_SECRET'] || generateTestSecret(),
     },
   },
 });
