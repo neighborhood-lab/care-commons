@@ -29,6 +29,10 @@ export default defineConfig({
         if (id === 'node:util' || id === 'util') {
           return '\0util-stub';
         }
+        if (id === 'node:worker_threads' || id === 'worker_threads') {
+          return '\0worker-threads-stub';
+        }
+        return null;
       },
       load(id) {
         if (id === '\0sentry-profiler-stub') {
@@ -55,14 +59,18 @@ export default defineConfig({
         if (id === '\0util-stub') {
           return 'export const format = (...args) => args.join(" "); export default { format };';
         }
+        if (id === '\0worker-threads-stub') {
+          return 'export const isMainThread = true; export const threadId = 0; export default { isMainThread, threadId };';
+        }
         // Also handle direct file loads from the profiler package
         if (id.includes('@sentry-internal/node-cpu-profiler')) {
           return 'export default {}';
         }
         // Also handle Sentry node-core imports
-        if (id.includes('@sentry/node-core') || id.includes('@sentry/node')) {
+        if (id.includes('@sentry/node-core') || id.includes('@sentry/node') || id.includes('@sentry/profiling-node')) {
           return 'export default {}; export const init = () => {}; export const captureException = () => {};';
         }
+        return null;
       },
     },
   ],
