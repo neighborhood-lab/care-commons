@@ -29,7 +29,7 @@ export class CacheService {
       }
     });
 
-    this.client.on('error', (err) => {
+    this.client.on('error', (err: Error) => {
       console.error('Redis Client Error:', err);
       this.connected = false;
     });
