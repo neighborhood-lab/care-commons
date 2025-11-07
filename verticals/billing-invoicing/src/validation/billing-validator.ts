@@ -794,7 +794,8 @@ function isValidEmail(email: string): boolean {
   // Prevent ReDoS by limiting email length
   if (email.length > 320) return false; // RFC 5321 max email length
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Safer regex with atomic grouping pattern to prevent backtracking
+  const emailRegex = /^[a-zA-Z0-9._%+-]{1,64}@[a-zA-Z0-9.-]{1,255}\.[a-zA-Z]{2,}$/;
   return emailRegex.test(email);
 }
 

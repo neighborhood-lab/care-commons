@@ -541,7 +541,7 @@ export class CarePlanValidator {
     if (parsed.goalProgress !== undefined) {
       // Filter out undefined progressPercentage from goalProgress items
       result.goalProgress = parsed.goalProgress.map(goal => {
-        const filteredGoal: any = {
+        const filteredGoal: Record<string, unknown> = {
           goalId: goal.goalId,
           goalName: goal.goalName,
           status: goal.status,
@@ -563,7 +563,7 @@ export class CarePlanValidator {
     if (parsed.observations !== undefined) {
       // Filter out undefined severity from observation items
       result.observations = parsed.observations.map(obs => {
-        const filteredObs: any = {
+        const filteredObs: Record<string, unknown> = {
           category: obs.category,
           observation: obs.observation,
           timestamp: obs.timestamp,
@@ -580,7 +580,7 @@ export class CarePlanValidator {
     
     if (parsed.signature !== undefined) {
       // Filter out undefined properties from signature
-      const filteredSig: any = {
+      const filteredSig: Record<string, unknown> = {
         signatureData: parsed.signature.signatureData,
         signedBy: parsed.signature.signedBy,
         signedByName: parsed.signature.signedByName,
