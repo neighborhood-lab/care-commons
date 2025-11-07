@@ -26,6 +26,7 @@ export * from './middleware/csrf.js';
 export * from './utils/password-utils.js';
 export * from './utils/jwt-utils.js';
 export * from './utils/date.utils.js';
+export * from './utils/timezone.utils.js';
 export * from './utils/logger.js';
 export * from './utils/metrics.js';
 export * from './utils/error-tracker.js';

@@ -208,6 +208,7 @@ export const createVisitInputSchema = z.object({
   scheduledDate: dateSchema,
   scheduledStartTime: timeSchema,
   scheduledEndTime: timeSchema,
+  timezone: z.string().max(100).optional(), // IANA timezone
   address: visitAddressSchema,
   taskIds: z.array(uuidSchema).optional(),
   requiredSkills: z.array(z.string()).optional(),
