@@ -6,8 +6,15 @@ import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
 import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
-import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
-import { CreateCarePlanPage } from './verticals/care-plans';
+import {
+  CarePlanList,
+  CarePlanDetail,
+  TaskList,
+  CreateCarePlanPage,
+  EditCarePlanPage,
+  CaregiverTasksPage,
+  TaskDetailPage
+} from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
@@ -139,6 +146,16 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/care-plans/:id/edit"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <EditCarePlanPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/care-plans/:id"
         element={
           <ProtectedRoute>
@@ -154,6 +171,26 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <TaskList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tasks/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <TaskDetailPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/caregiver/tasks"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CaregiverTasksPage />
             </AppShell>
           </ProtectedRoute>
         }
