@@ -59,6 +59,9 @@
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",
+    "deploy:rollback": "tsx scripts/rollback-deployment.ts",
+    "predeploy": "tsx scripts/pre-deploy-checks.ts",
+    "test:smoke": "playwright test e2e/tests/smoke.spec.ts",
     "vercel:build": "npm run build",
     "prepare": "husky"
   },
