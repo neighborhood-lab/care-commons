@@ -375,7 +375,7 @@ export class OfflineQueueService {
 
     this.syncInterval = Number(setInterval(() => {
       void this.trySync();
-    }, intervalMs));
+    }, intervalMs) as any;
   }
 
   /**

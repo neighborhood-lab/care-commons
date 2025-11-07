@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home,
   Users,
@@ -11,6 +11,8 @@ import {
   Info,
   ExternalLink,
   LayoutDashboard,
+  HelpCircle,
+  Video,
 } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
 
@@ -29,6 +31,8 @@ const navigation = [
   { name: 'Caregivers', href: '/caregivers', icon: UserCheck },
   { name: 'Shift Matching', href: '/shifts', icon: Calendar },
   { name: 'Billing', href: '/billing', icon: FileText },
+  { name: 'Tours', href: '/tours', icon: HelpCircle },
+  { name: 'Videos', href: '/videos', icon: Video },
 ];
 
 export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
@@ -37,6 +41,7 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
   description
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,7 +78,16 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
               </h1>
               <p className="text-sm text-gray-500">Showcase Edition</p>
             </div>
-            <RoleSwitcher />
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/tours')}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                title="Interactive Tours"
+              >
+                <HelpCircle className="w-6 h-6 text-gray-600" />
+              </button>
+              <RoleSwitcher />
+            </div>
           </div>
         </div>
       </header>
