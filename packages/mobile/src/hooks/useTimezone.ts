@@ -5,7 +5,7 @@
  * Mobile apps typically use the device's timezone for display, with server communication in UTC.
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import { TimezoneUtils } from '@care-commons/core';
 import * as Localization from 'expo-localization';
 
@@ -50,8 +50,8 @@ export interface UseTimezoneResult {
 /**
  * Hook to access timezone utilities for mobile devices
  *
- * Uses the device's timezone from expo-localization. Automatically updates
- * if the user travels to a different timezone.
+ * Uses the device's timezone from expo-localization. The timezone is determined
+ * at app start and remains consistent during the session.
  *
  * @example
  * ```tsx
@@ -68,27 +68,13 @@ export interface UseTimezoneResult {
  * ```
  */
 export const useTimezone = (): UseTimezoneResult => {
-  // Get device timezone, with fallback
-  const [timezone, setTimezone] = useState<string>(() => {
+  // Get device timezone with fallback
+  const timezone = useMemo(() => {
     const deviceTimezone = Localization.timezone;
     if (deviceTimezone && TimezoneUtils.isValidTimezone(deviceTimezone)) {
       return deviceTimezone;
     }
     return 'America/Chicago'; // Default fallback
-  });
-
-  // Listen for timezone changes (e.g., user travels to different timezone)
-  useEffect(() => {
-    const subscription = Localization.addLocalizationChangeListener(() => {
-      const newTimezone = Localization.timezone;
-      if (newTimezone && TimezoneUtils.isValidTimezone(newTimezone)) {
-        setTimezone(newTimezone);
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
   }, []);
 
   const formatDateTime = useCallback(
