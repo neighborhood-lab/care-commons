@@ -63,6 +63,8 @@ function sanitizeObject(obj: unknown): unknown {
  *     email: z.string().email().optional()
  *   });
  *
+ *   router.post('/clients', validate(createClientSchema), handler);
+ *   // or
  *   router.post('/clients', validateBody(createClientSchema), handler);
  *
  * @param schema - Zod schema to validate against
@@ -178,6 +180,18 @@ export function validateParams<T extends ZodType>(schema: T) {
     }
   };
 }
+
+/**
+ * Alias for validateBody for consistent naming
+ *
+ * Usage:
+ *   router.post('/clients', validate(clientSchema), async (req, res) => {
+ *     // req.body is guaranteed to be valid
+ *     const client = await clientService.create(req.body);
+ *     res.json(client);
+ *   });
+ */
+export const validate = validateBody;
 
 /**
  * Common validation schemas for reuse
