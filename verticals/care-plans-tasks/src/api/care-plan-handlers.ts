@@ -7,7 +7,7 @@
 import { Request, Response } from 'express';
 import { CarePlanService } from '../service/care-plan-service';
 import { UserContext, Role, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
-import { CarePlanStatus, CarePlanType, TaskStatus, TaskCategory } from '../types/care-plan';
+import { CarePlanStatus, CarePlanType, TaskStatus, TaskCategory, CarePlanSearchFilters, TaskInstanceSearchFilters } from '../types/care-plan';
 
 /**
  * Type guard to check if error is a known domain error
@@ -282,7 +282,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
           }
         }
 
-        const filters: any = {
+        const filters: CarePlanSearchFilters = {
           needsReview: req.query['needsReview'] === 'true',
         };
         if (query) filters.query = query;
@@ -465,7 +465,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async searchTaskInstances(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const filters: any = {
+        const filters: TaskInstanceSearchFilters = {
           carePlanId: req.query['carePlanId'] as string,
           clientId: req.query['clientId'] as string,
           overdue: req.query['overdue'] === 'true',
