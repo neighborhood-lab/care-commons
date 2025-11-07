@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "@ls-lint/ls-lint": "^2.3.1",
+    "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/luxon": "^3.4.2",
     "@types/node": "^24.10.0",

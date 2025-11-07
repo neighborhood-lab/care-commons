@@ -794,9 +794,25 @@ function isValidEmail(email: string): boolean {
   // Prevent ReDoS by limiting email length
   if (email.length > 320) return false; // RFC 5321 max email length
 
-  // Safer regex with atomic grouping pattern to prevent backtracking
-  const emailRegex = /^[a-zA-Z0-9._%+-]{1,64}@[a-zA-Z0-9.-]{1,255}\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(email);
+  // Use a simpler regex that avoids catastrophic backtracking
+  // Split validation into parts to avoid ReDoS
+  const atIndex = email.indexOf('@');
+  if (atIndex === -1 || atIndex === 0 || atIndex === email.length - 1) return false;
+
+  const localPart = email.slice(0, atIndex);
+  const domainPart = email.slice(atIndex + 1);
+
+  // Local part: no whitespace, at least one character
+  if (/\s/.test(localPart) || localPart.length === 0) return false;
+
+  // Domain part: must have a dot, no whitespace
+  if (/\s/.test(domainPart) || !domainPart.includes('.')) return false;
+
+  // Domain must have content before and after the dot
+  const lastDotIndex = domainPart.lastIndexOf('.');
+  if (lastDotIndex === 0 || lastDotIndex === domainPart.length - 1) return false;
+
+  return true;
 }
 
 /**
