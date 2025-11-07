@@ -40,6 +40,7 @@ export const ShowcaseRouter: React.FC = () => {
         return stored;
       }
     }
+    return undefined;
   });
 
   const handleRoleSelect = (roleId: string) => {
@@ -50,7 +51,8 @@ export const ShowcaseRouter: React.FC = () => {
       }
     }
     setShowRoleSelector(false);
-    navigate('/dashboard');
+    // eslint-disable-next-line sonarjs/void-use -- Required to suppress floating promise warning
+    void navigate('/dashboard');
   };
 
   const handleStartTour = () => {
