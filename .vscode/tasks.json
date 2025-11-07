@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Development Servers",
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Start Docker Services",
+      "type": "shell",
+      "command": "docker-compose -f docker-compose.dev.yml up -d",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Database Migrations",
+      "type": "npm",
+      "script": "db:migrate",
+      "problemMatcher": []
+    }
+  ]
+}
