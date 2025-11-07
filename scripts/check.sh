@@ -40,6 +40,9 @@ ncu -u --packageFile '**/package.json' --timeout 60000 --reject 'npm,@care-commo
 echo "🔧 Regenerating lockfile..."
 npm install --package-lock-only --ignore-scripts
 
+echo "👨🏻‍🔧 Force install breaking dependency updates to fix vulnerabilities..."
+npm audit fix --force
+
 echo "📥 Installing dependencies..."
 npm install --prefer-offline --no-audit
 
