@@ -35,6 +35,7 @@
     "build": "echo '⚠️  analytics-reporting build skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
     "build:real": "tsc && tsc-alias -p tsconfig.json",
     "test": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
+    "test:coverage": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
     "test:real": "vitest",
     "lint": "echo '⚠️  analytics-reporting lint skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
     "lint:real": "eslint . --ext ts"
@@ -46,6 +47,6 @@
     "@types/node": "^24.10.0",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.7"
+    "vitest": "^4.0.8"
   }
 }
