@@ -16,7 +16,7 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint . --ext ts",
+    "lint": "eslint . --ext ts --max-warnings 10",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
