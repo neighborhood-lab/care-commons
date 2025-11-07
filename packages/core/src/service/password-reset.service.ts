@@ -128,7 +128,7 @@ export class PasswordResetService {
    * @throws Error if rate limit exceeded
    */
   private async checkTokenValidationRateLimit(ipAddress?: string): Promise<void> {
-    if (ipAddress === undefined || ipAddress === null || ipAddress === '') {
+    if (ipAddress === undefined || ipAddress.length === 0) {
       return; // No IP address provided, skip rate limiting
     }
 
