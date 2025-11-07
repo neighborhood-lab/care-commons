@@ -34,8 +34,87 @@ export class ClientHandlers {
   constructor(private clientService: ClientService) { }
 
   /**
-   * GET /api/clients
-   * Search/list clients with pagination and filters
+   * @openapi
+   * /api/clients:
+   *   get:
+   *     tags:
+   *       - Clients
+   *     summary: List and search clients
+   *     description: Search/list clients with pagination and filters
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: q
+   *         schema:
+   *           type: string
+   *         description: Search query (name, client number, etc.)
+   *       - in: query
+   *         name: organizationId
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Filter by organization ID
+   *       - in: query
+   *         name: branchId
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Filter by branch ID
+   *       - in: query
+   *         name: status
+   *         schema:
+   *           type: string
+   *           enum: [INQUIRY, PENDING_INTAKE, ACTIVE, INACTIVE, ON_HOLD, DISCHARGED, DECEASED]
+   *         description: Filter by client status (comma-separated for multiple)
+   *       - in: query
+   *         name: minAge
+   *         schema:
+   *           type: integer
+   *         description: Minimum age filter
+   *       - in: query
+   *         name: maxAge
+   *         schema:
+   *           type: integer
+   *         description: Maximum age filter
+   *       - in: query
+   *         name: city
+   *         schema:
+   *           type: string
+   *         description: Filter by city
+   *       - in: query
+   *         name: state
+   *         schema:
+   *           type: string
+   *         description: Filter by state code
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Items per page
+   *     responses:
+   *       200:
+   *         description: Clients retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   $ref: '#/components/schemas/PaginatedResponse'
+   *       401:
+   *         description: Not authenticated
+   *       500:
+   *         description: Server error
    */
   listClients = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
@@ -166,8 +245,43 @@ export class ClientHandlers {
   }
 
   /**
-   * GET /api/clients/:id
-   * Get single client by ID
+   * @openapi
+   * /api/clients/{id}:
+   *   get:
+   *     tags:
+   *       - Clients
+   *     summary: Get client by ID
+   *     description: Retrieve a single client by their unique identifier
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Client UUID
+   *     responses:
+   *       200:
+   *         description: Client found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   $ref: '#/components/schemas/Client'
+   *       400:
+   *         description: Invalid client ID
+   *       401:
+   *         description: Not authenticated
+   *       404:
+   *         description: Client not found
+   *       500:
+   *         description: Server error
    */
   getClient = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
@@ -218,8 +332,73 @@ export class ClientHandlers {
   });
 
   /**
-   * POST /api/clients
-   * Create new client
+   * @openapi
+   * /api/clients:
+   *   post:
+   *     tags:
+   *       - Clients
+   *     summary: Create new client
+   *     description: Create a new client record with demographics and intake information
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - firstName
+   *               - lastName
+   *               - dateOfBirth
+   *               - organizationId
+   *             properties:
+   *               firstName:
+   *                 type: string
+   *                 example: John
+   *               lastName:
+   *                 type: string
+   *                 example: Doe
+   *               dateOfBirth:
+   *                 type: string
+   *                 format: date
+   *                 example: 1950-01-15
+   *               organizationId:
+   *                 type: string
+   *                 format: uuid
+   *               primaryAddress:
+   *                 $ref: '#/components/schemas/Address'
+   *               primaryPhone:
+   *                 type: object
+   *                 properties:
+   *                   number:
+   *                     type: string
+   *                   type:
+   *                     type: string
+   *                     enum: [MOBILE, HOME, WORK]
+   *               email:
+   *                 type: string
+   *                 format: email
+   *     responses:
+   *       201:
+   *         description: Client created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   $ref: '#/components/schemas/Client'
+   *                 message:
+   *                   type: string
+   *       400:
+   *         description: Invalid input
+   *       401:
+   *         description: Not authenticated
+   *       500:
+   *         description: Server error
    */
   createClient = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
@@ -235,8 +414,63 @@ export class ClientHandlers {
   });
 
   /**
-   * PATCH /api/clients/:id
-   * Update existing client
+   * @openapi
+   * /api/clients/{id}:
+   *   patch:
+   *     tags:
+   *       - Clients
+   *     summary: Update client
+   *     description: Update existing client information (partial update)
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Client UUID
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               firstName:
+   *                 type: string
+   *               lastName:
+   *                 type: string
+   *               primaryAddress:
+   *                 $ref: '#/components/schemas/Address'
+   *               primaryPhone:
+   *                 type: object
+   *               email:
+   *                 type: string
+   *                 format: email
+   *     responses:
+   *       200:
+   *         description: Client updated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   $ref: '#/components/schemas/Client'
+   *                 message:
+   *                   type: string
+   *       400:
+   *         description: Invalid input
+   *       401:
+   *         description: Not authenticated
+   *       404:
+   *         description: Client not found
+   *       500:
+   *         description: Server error
    */
   updateClient = asyncHandler(async (req: Request, res: Response) => {
     const context = getUserContext(req);
