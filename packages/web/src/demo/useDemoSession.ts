@@ -81,7 +81,6 @@ export function useDemoSession(): UseDemoSessionResult {
             console.error('Failed to cleanup demo session on logout:', err);
             // Still clear local session state even if API call fails
             setSession(null);
-            return;
           });
       }
     };
