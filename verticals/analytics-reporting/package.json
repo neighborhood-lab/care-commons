@@ -32,12 +32,12 @@
     }
   },
   "scripts": {
-    "build": "echo '⚠️  analytics-reporting build skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
+    "build": "echo '⚠️  analytics-reporting build skipped - see ARCHITECTURAL_ISSUES.md' && true",
     "build:real": "tsc && tsc-alias -p tsconfig.json",
-    "test": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
-    "test:coverage": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
+    "test": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && true",
+    "test:coverage": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && true",
     "test:real": "vitest",
-    "lint": "echo '⚠️  analytics-reporting lint skipped - see ARCHITECTURAL_ISSUES.md' && exit 0",
+    "lint": "echo '⚠️  analytics-reporting lint skipped - see ARCHITECTURAL_ISSUES.md' && true",
     "lint:real": "eslint . --ext ts"
   },
   "dependencies": {
