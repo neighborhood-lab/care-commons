@@ -118,20 +118,22 @@ export class CaregiverProvider implements ICaregiverProvider {
     // Extract NPI from credentials or custom fields
     let nationalProviderId: string | undefined;
     if (Array.isArray(credentials)) {
-      const npiCred = credentials.find((c: any) => c.type === 'NPI' || c.credentialType === 'NPI');
-      nationalProviderId = npiCred?.number ?? npiCred?.value;
+      const npiCred = credentials.find((c: Record<string, unknown>) => c.type === 'NPI' || c.credentialType === 'NPI') as Record<string, unknown> | undefined;
+      nationalProviderId = (npiCred?.number ?? npiCred?.value) as string | undefined;
     }
     if (!nationalProviderId && customFields) {
-      nationalProviderId = (customFields as any)?.npi ?? (customFields as any)?.nationalProviderId;
+      const fields = customFields as Record<string, unknown>;
+      nationalProviderId = (fields?.npi ?? fields?.nationalProviderId) as string | undefined;
     }
     
     // Extract background screening status
     let backgroundScreeningStatus: 'CLEARED' | 'PENDING' | 'EXPIRED' | 'FAILED' = 'PENDING';
     let backgroundScreeningExpires: Date | undefined;
-    
+
     if (backgroundCheck) {
-      const status = (backgroundCheck as any)?.status;
-      const expirationDate = (backgroundCheck as any)?.expirationDate;
+      const bgCheck = backgroundCheck as Record<string, unknown>;
+      const status = bgCheck?.status as string | undefined;
+      const expirationDate = bgCheck?.expirationDate;
       
       if (status === 'CLEARED' || status === 'PASSED') {
         if (expirationDate) {
