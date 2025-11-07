@@ -9,11 +9,10 @@ export async function up(knex: Knex): Promise<void> {
     table.boolean('geocoding_failed').defaultTo(false);
   });
 
-  // Add index for spatial queries
-  // Note: We're using a GiST index on the JSONB coordinates field
+  // Add GIN index for JSONB queries on coordinates
   await knex.raw(`
     CREATE INDEX idx_clients_coordinates
-    ON clients USING gist ((coordinates));
+    ON clients USING gin (coordinates);
   `);
 
   // Add index for finding clients that need geocoding
