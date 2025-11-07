@@ -7,7 +7,7 @@ import { AppShell } from './app/components';
 import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
-import { CreateCarePlanPage } from './verticals/care-plans';
+import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
@@ -134,6 +134,26 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <CreateCarePlanPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/care-plans/from-template"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CreateFromTemplatePage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/care-plans/from-template/:templateId"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CustomizeTemplatePage />
             </AppShell>
           </ProtectedRoute>
         }

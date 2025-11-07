@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Grid, List } from 'lucide-react';
+import { Plus, Grid, List, FileText } from 'lucide-react';
 import { Button, LoadingSpinner, EmptyState, ErrorMessage } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { useCarePlans } from '../hooks';
@@ -61,11 +61,18 @@ export const CarePlanList: React.FC = () => {
             </button>
           </div>
           {can('care_plans:write') && (
-            <Link to="/care-plans/new">
-              <Button leftIcon={<Plus className="h-4 w-4" />}>
-                New Care Plan
-              </Button>
-            </Link>
+            <>
+              <Link to="/care-plans/from-template">
+                <Button variant="outline" leftIcon={<FileText className="h-4 w-4" />}>
+                  From Template
+                </Button>
+              </Link>
+              <Link to="/care-plans/new">
+                <Button leftIcon={<Plus className="h-4 w-4" />}>
+                  New Care Plan
+                </Button>
+              </Link>
+            </>
           )}
         </div>
       </div>
