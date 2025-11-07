@@ -13,6 +13,15 @@ import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { DemoModeBar } from './demo';
+import { FamilyPortalLayout } from './app/layouts';
+import {
+  FamilyDashboard,
+  ActivityPage,
+  MessagesPage,
+  NotificationsPage,
+  FamilyLoginPage,
+  PrivacyPage,
+} from './app/pages/family-portal';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -238,6 +247,56 @@ function AppRoutes() {
               </div>
             </AppShell>
           </ProtectedRoute>
+        }
+      />
+      {/* Family Portal Routes */}
+      <Route path="/family-portal/login" element={<FamilyLoginPage />} />
+      <Route
+        path="/family-portal"
+        element={
+          <FamilyPortalLayout>
+            <FamilyDashboard />
+          </FamilyPortalLayout>
+        }
+      />
+      <Route
+        path="/family-portal/activity"
+        element={
+          <FamilyPortalLayout>
+            <ActivityPage />
+          </FamilyPortalLayout>
+        }
+      />
+      <Route
+        path="/family-portal/messages"
+        element={
+          <FamilyPortalLayout>
+            <MessagesPage />
+          </FamilyPortalLayout>
+        }
+      />
+      <Route
+        path="/family-portal/messages/:threadId"
+        element={
+          <FamilyPortalLayout>
+            <MessagesPage />
+          </FamilyPortalLayout>
+        }
+      />
+      <Route
+        path="/family-portal/notifications"
+        element={
+          <FamilyPortalLayout>
+            <NotificationsPage />
+          </FamilyPortalLayout>
+        }
+      />
+      <Route
+        path="/family-portal/privacy"
+        element={
+          <FamilyPortalLayout>
+            <PrivacyPage />
+          </FamilyPortalLayout>
         }
       />
       <Route path="*" element={<NotFound />} />
