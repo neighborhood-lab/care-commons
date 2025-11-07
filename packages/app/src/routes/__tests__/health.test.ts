@@ -27,11 +27,11 @@ describe('Health Routes', () => {
 
     // Mock response
     jsonMock = vi.fn();
-    statusMock = vi.fn(() => ({ json: jsonMock }));
+    statusMock = vi.fn().mockReturnThis();
     mockResponse = {
       json: jsonMock,
       status: statusMock,
-    };
+    } as unknown as Response;
   });
 
   afterEach(() => {
@@ -43,7 +43,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const healthHandler = router.stack[0]?.route?.stack[0]?.handle;
 
-      if (!healthHandler) {
+      if (healthHandler === undefined) {
         throw new Error('Health handler not found');
       }
 
@@ -69,7 +69,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const healthHandler = router.stack[0]?.route?.stack[0]?.handle;
 
-      if (!healthHandler) {
+      if (healthHandler === undefined) {
         throw new Error('Health handler not found');
       }
 
@@ -92,7 +92,7 @@ describe('Health Routes', () => {
 
   describe('GET /health/geocoding', () => {
     let originalFetch: typeof global.fetch;
-    let originalEnv: NodeJS.ProcessEnv;
+    let originalEnv: typeof process.env;
 
     beforeEach(() => {
       originalFetch = global.fetch;
@@ -123,7 +123,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const geocodingHandler = router.stack[1]?.route?.stack[0]?.handle;
 
-      if (!geocodingHandler) {
+      if (geocodingHandler === undefined) {
         throw new Error('Geocoding health handler not found');
       }
 
@@ -170,7 +170,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const geocodingHandler = router.stack[1]?.route?.stack[0]?.handle;
 
-      if (!geocodingHandler) {
+      if (geocodingHandler === undefined) {
         throw new Error('Geocoding health handler not found');
       }
 
@@ -200,7 +200,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const geocodingHandler = router.stack[1]?.route?.stack[0]?.handle;
 
-      if (!geocodingHandler) {
+      if (geocodingHandler === undefined) {
         throw new Error('Geocoding health handler not found');
       }
 
@@ -226,7 +226,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const geocodingHandler = router.stack[1]?.route?.stack[0]?.handle;
 
-      if (!geocodingHandler) {
+      if (geocodingHandler === undefined) {
         throw new Error('Geocoding health handler not found');
       }
 
@@ -257,7 +257,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const geocodingHandler = router.stack[1]?.route?.stack[0]?.handle;
 
-      if (!geocodingHandler) {
+      if (geocodingHandler === undefined) {
         throw new Error('Geocoding health handler not found');
       }
 
@@ -296,7 +296,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const geocodingHandler = router.stack[1]?.route?.stack[0]?.handle;
 
-      if (!geocodingHandler) {
+      if (geocodingHandler === undefined) {
         throw new Error('Geocoding health handler not found');
       }
 
@@ -334,7 +334,7 @@ describe('Health Routes', () => {
       const router = createHealthRouter(mockDb);
       const geocodingHandler = router.stack[1]?.route?.stack[0]?.handle;
 
-      if (!geocodingHandler) {
+      if (geocodingHandler === undefined) {
         throw new Error('Geocoding health handler not found');
       }
 
