@@ -1,129 +1,205 @@
-import { Step } from 'react-joyride';
+import { DriveStep } from 'driver.js';
 
-export const coordinatorOverviewSteps: Step[] = [
+export const coordinatorOverviewSteps: DriveStep[] = [
   {
-    target: '.dashboard-overview',
-    content: 'Welcome to Care Commons! This is your coordinator dashboard where you manage clients, caregivers, and visits.',
-    disableBeacon: true
+    element: '.dashboard-overview',
+    popover: {
+      title: 'Welcome to Care Commons!',
+      description: 'This is your coordinator dashboard where you manage clients, caregivers, and visits.',
+    }
   },
   {
-    target: '.today-visits-widget',
-    content: "Here you can see today's scheduled visits and their real-time status."
+    element: '.today-visits-widget',
+    popover: {
+      title: "Today's Visits",
+      description: "Here you can see today's scheduled visits and their real-time status."
+    }
   },
   {
-    target: '.active-clients-widget',
-    content: 'View your active clients and quickly access their care plans.'
+    element: '.active-clients-widget',
+    popover: {
+      title: 'Active Clients',
+      description: 'View your active clients and quickly access their care plans.'
+    }
   },
   {
-    target: '.caregiver-status-widget',
-    content: 'Monitor caregiver availability and current location during visits.'
+    element: '.caregiver-status-widget',
+    popover: {
+      title: 'Caregiver Status',
+      description: 'Monitor caregiver availability and current location during visits.'
+    }
   },
   {
-    target: '.create-visit-button',
-    content: "Let's create a new visit. Click here to get started."
+    element: '.create-visit-button',
+    popover: {
+      title: 'Create New Visit',
+      description: "Let's create a new visit. Click here to get started."
+    }
   }
 ];
 
-export const createVisitSteps: Step[] = [
+export const createVisitSteps: DriveStep[] = [
   {
-    target: '.client-selector',
-    content: 'First, select the client for this visit.',
-    disableBeacon: true
+    element: '.client-selector',
+    popover: {
+      title: 'Select Client',
+      description: 'First, select the client for this visit.',
+    }
   },
   {
-    target: '.date-time-picker',
-    content: 'Choose the date and time for the visit.'
+    element: '.date-time-picker',
+    popover: {
+      title: 'Schedule Time',
+      description: 'Choose the date and time for the visit.'
+    }
   },
   {
-    target: '.service-selector',
-    content: 'Select the services to be provided during this visit.'
+    element: '.service-selector',
+    popover: {
+      title: 'Choose Services',
+      description: 'Select the services to be provided during this visit.'
+    }
   },
   {
-    target: '.caregiver-selector',
-    content: 'Choose a caregiver. The system shows availability and distance from client.'
+    element: '.caregiver-selector',
+    popover: {
+      title: 'Assign Caregiver',
+      description: 'Choose a caregiver. The system shows availability and distance from client.'
+    }
   },
   {
-    target: '.smart-match-button',
-    content: 'Or use Smart Match to automatically find the best caregiver based on skills, location, and availability.'
+    element: '.smart-match-button',
+    popover: {
+      title: 'Smart Match',
+      description: 'Or use Smart Match to automatically find the best caregiver based on skills, location, and availability.'
+    }
   },
   {
-    target: '.submit-visit-button',
-    content: 'Review and create the visit. The caregiver will be notified on their mobile app.'
+    element: '.submit-visit-button',
+    popover: {
+      title: 'Create Visit',
+      description: 'Review and create the visit. The caregiver will be notified on their mobile app.'
+    }
   }
 ];
 
-export const caregiverWorkflowSteps: Step[] = [
+export const caregiverWorkflowSteps: DriveStep[] = [
   {
-    target: '.today-visits-list',
-    content: 'Welcome, caregiver! Here are your visits for today.',
-    disableBeacon: true
+    element: '.today-visits-list',
+    popover: {
+      title: 'Your Visits',
+      description: 'Welcome, caregiver! Here are your visits for today.',
+    }
   },
   {
-    target: '.visit-card:first-child',
-    content: 'Tap a visit to see details, get directions, or check in.'
+    element: '.visit-card:first-child',
+    popover: {
+      title: 'Visit Details',
+      description: 'Tap a visit to see details, get directions, or check in.'
+    }
   },
   {
-    target: '.check-in-button',
-    content: 'When you arrive, check in using GPS and biometric verification.'
+    element: '.check-in-button',
+    popover: {
+      title: 'Check In',
+      description: 'When you arrive, check in using GPS and biometric verification.'
+    }
   },
   {
-    target: '.task-checklist',
-    content: 'During the visit, complete assigned tasks and document care.'
+    element: '.task-checklist',
+    popover: {
+      title: 'Complete Tasks',
+      description: 'During the visit, complete assigned tasks and document care.'
+    }
   },
   {
-    target: '.check-out-button',
-    content: 'When finished, check out. Your time is automatically recorded for payroll.'
+    element: '.check-out-button',
+    popover: {
+      title: 'Check Out',
+      description: 'When finished, check out. Your time is automatically recorded for payroll.'
+    }
   },
   {
-    target: '.offline-indicator',
-    content: 'All features work offline! Your data syncs when you have connection.'
+    element: '.offline-indicator',
+    popover: {
+      title: 'Offline Support',
+      description: 'All features work offline! Your data syncs when you have connection.'
+    }
   }
 ];
 
-export const familyPortalSteps: Step[] = [
+export const familyPortalSteps: DriveStep[] = [
   {
-    target: '.activity-feed',
-    content: 'Welcome to the family portal! See real-time updates about your loved one\'s care.',
-    disableBeacon: true
+    element: '.activity-feed',
+    popover: {
+      title: 'Activity Feed',
+      description: 'Welcome to the family portal! See real-time updates about your loved one\'s care.',
+    }
   },
   {
-    target: '.upcoming-visits',
-    content: 'View upcoming scheduled visits and who will be providing care.'
+    element: '.upcoming-visits',
+    popover: {
+      title: 'Upcoming Visits',
+      description: 'View upcoming scheduled visits and who will be providing care.'
+    }
   },
   {
-    target: '.care-team',
-    content: 'Meet the care team - see photos and background of assigned caregivers.'
+    element: '.care-team',
+    popover: {
+      title: 'Care Team',
+      description: 'Meet the care team - see photos and background of assigned caregivers.'
+    }
   },
   {
-    target: '.messaging',
-    content: 'Send messages to the coordinator if you have questions or concerns.'
+    element: '.messaging',
+    popover: {
+      title: 'Messaging',
+      description: 'Send messages to the coordinator if you have questions or concerns.'
+    }
   },
   {
-    target: '.notifications',
-    content: 'Get notifications for important events like visit start, completion, and any issues.'
+    element: '.notifications',
+    popover: {
+      title: 'Notifications',
+      description: 'Get notifications for important events like visit start, completion, and any issues.'
+    }
   }
 ];
 
-export const adminDashboardSteps: Step[] = [
+export const adminDashboardSteps: DriveStep[] = [
   {
-    target: '.kpi-cards',
-    content: 'Admin dashboard provides high-level metrics for your entire agency.',
-    disableBeacon: true
+    element: '.kpi-cards',
+    popover: {
+      title: 'Admin Dashboard',
+      description: 'Admin dashboard provides high-level metrics for your entire agency.',
+    }
   },
   {
-    target: '.revenue-chart',
-    content: 'Track revenue trends and financial performance.'
+    element: '.revenue-chart',
+    popover: {
+      title: 'Revenue Trends',
+      description: 'Track revenue trends and financial performance.'
+    }
   },
   {
-    target: '.compliance-alerts',
-    content: 'Monitor compliance issues requiring attention (EVV, credentials, training).'
+    element: '.compliance-alerts',
+    popover: {
+      title: 'Compliance Monitoring',
+      description: 'Monitor compliance issues requiring attention (EVV, credentials, training).'
+    }
   },
   {
-    target: '.performance-metrics',
-    content: 'View caregiver performance and reliability scores.'
+    element: '.performance-metrics',
+    popover: {
+      title: 'Performance Metrics',
+      description: 'View caregiver performance and reliability scores.'
+    }
   },
   {
-    target: '.reports-button',
-    content: 'Generate detailed reports for payroll, billing, and compliance.'
+    element: '.reports-button',
+    popover: {
+      title: 'Reports',
+      description: 'Generate detailed reports for payroll, billing, and compliance.'
+    }
   }
 ];
