@@ -57,7 +57,7 @@ export class CacheService {
    * Connect to Redis
    */
   async connect(): Promise<void> {
-    if (!this.client.isOpen) {
+    if (this.client.isOpen !== true) {
       await this.client.connect();
     }
   }
@@ -263,7 +263,7 @@ export class CacheService {
    */
   async disconnect(): Promise<void> {
     try {
-      if (this.client.isOpen) {
+      if (this.client.isOpen === true) {
         // Use quit() for graceful shutdown
         await this.client.quit();
       }
