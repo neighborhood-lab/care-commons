@@ -75,7 +75,6 @@ export function useDemoSession(): UseDemoSessionResult {
         void demoAPI.deleteSession(session.id)
           .then(() => {
             setSession(null);
-            return;
           })
           .catch((err: Error) => {
             console.error('Failed to cleanup demo session on logout:', err);

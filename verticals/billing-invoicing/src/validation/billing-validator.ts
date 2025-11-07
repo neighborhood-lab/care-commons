@@ -791,6 +791,9 @@ export function validateAuthorizationStatusTransition(
  * Helper: Validate email format
  */
 function isValidEmail(email: string): boolean {
+  // Prevent ReDoS by limiting email length
+  if (email.length > 320) return false; // RFC 5321 max email length
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
