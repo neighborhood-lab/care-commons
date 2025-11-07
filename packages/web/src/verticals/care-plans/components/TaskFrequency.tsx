@@ -1,6 +1,11 @@
 import React from 'react';
 import { Calendar, CalendarDays, Clock, Bell } from 'lucide-react';
-import type { FrequencyPattern } from '../types';
+
+/**
+ * Frequency pattern for recurring tasks
+ * Note: This is defined locally as it doesn't exist in the frontend types yet
+ */
+export type FrequencyPattern = 'DAILY' | 'WEEKLY' | 'BI_WEEKLY' | 'MONTHLY' | 'AS_NEEDED' | 'CUSTOM';
 
 export interface TaskFrequencyProps {
   pattern: FrequencyPattern;

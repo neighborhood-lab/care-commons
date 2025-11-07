@@ -4,8 +4,8 @@ import { z } from 'zod';
  * Care Plan Form Schema
  */
 export const carePlanSchema = z.object({
-  clientId: z.string().uuid('Valid client required'),
-  organizationId: z.string().uuid('Valid organization required'),
+  clientId: z.string().uuid({ message: 'Valid client required' }),
+  organizationId: z.string().uuid({ message: 'Valid organization required' }),
   branchId: z.string().uuid().optional(),
   name: z.string().min(3, 'Plan name must be at least 3 characters'),
   planType: z.enum([
@@ -18,7 +18,7 @@ export const carePlanSchema = z.object({
     'LIVE_IN',
     'CUSTOM',
   ]),
-  effectiveDate: z.string().datetime('Valid effective date required'),
+  effectiveDate: z.string().datetime({ message: 'Valid effective date required' }),
   expirationDate: z.string().datetime().optional(),
   reviewDate: z.string().datetime().optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
@@ -158,8 +158,8 @@ export type TaskTemplateFormData = z.infer<typeof taskTemplateSchema>;
  * Task Instance Schema
  */
 export const taskInstanceSchema = z.object({
-  carePlanId: z.string().uuid('Valid care plan required'),
-  clientId: z.string().uuid('Valid client required'),
+  carePlanId: z.string().uuid({ message: 'Valid care plan required' }),
+  clientId: z.string().uuid({ message: 'Valid client required' }),
   name: z.string().min(3, 'Task name must be at least 3 characters'),
   description: z.string().min(5, 'Task description must be at least 5 characters'),
   category: z.enum([
@@ -184,7 +184,7 @@ export const taskInstanceSchema = z.object({
     'OTHER',
   ]),
   instructions: z.string().min(10, 'Instructions must be at least 10 characters'),
-  scheduledDate: z.string().datetime('Valid scheduled date required'),
+  scheduledDate: z.string().datetime({ message: 'Valid scheduled date required' }),
   scheduledTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format').optional(),
   estimatedDuration: z.number().min(1).max(480).optional(),
   assignedCaregiverId: z.string().uuid().optional(),
@@ -204,7 +204,7 @@ export const taskCompletionSchema = z.object({
     signatureData: z.string().min(1, 'Signature required'),
     signedByName: z.string().min(1, 'Signer name required'),
   }).optional(),
-  customFieldValues: z.record(z.unknown()).optional(),
+  customFieldValues: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type TaskCompletionFormData = z.infer<typeof taskCompletionSchema>;
@@ -213,8 +213,8 @@ export type TaskCompletionFormData = z.infer<typeof taskCompletionSchema>;
  * Progress Note Schema
  */
 export const progressNoteSchema = z.object({
-  carePlanId: z.string().uuid('Valid care plan required'),
-  clientId: z.string().uuid('Valid client required'),
+  carePlanId: z.string().uuid({ message: 'Valid care plan required' }),
+  clientId: z.string().uuid({ message: 'Valid client required' }),
   noteType: z.enum([
     'VISIT_NOTE',
     'WEEKLY_SUMMARY',
@@ -255,9 +255,9 @@ export type ProgressNoteFormData = z.infer<typeof progressNoteSchema>;
  * Bulk Task Creation Schema
  */
 export const bulkTaskCreationSchema = z.object({
-  carePlanId: z.string().uuid('Valid care plan required'),
+  carePlanId: z.string().uuid({ message: 'Valid care plan required' }),
   visitId: z.string().uuid().optional(),
-  scheduledDate: z.string().datetime('Valid scheduled date required'),
+  scheduledDate: z.string().datetime({ message: 'Valid scheduled date required' }),
   assignedCaregiverId: z.string().uuid().optional(),
   templateIds: z.array(z.string().uuid()).min(1, 'Select at least one template'),
 });

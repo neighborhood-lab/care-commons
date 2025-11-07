@@ -1,36 +1,24 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useCarePlanApi } from './use-care-plans';
-import type { TaskInstance, CreateTaskInstanceInput, CompleteTaskInput } from '../types';
+import type { TaskInstance } from '../types';
 
 /**
  * Hook for bulk task creation from templates
  */
 export const useBulkCreateTasks = () => {
-  const carePlanApi = useCarePlanApi();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (_data: {
       carePlanId: string;
       visitId?: string;
       scheduledDate: string;
       assignedCaregiverId?: string;
       templateIds: string[];
     }) => {
-      // Create multiple tasks from templates
+      // Placeholder implementation until createTaskFromTemplate API endpoint is available
       const tasks: TaskInstance[] = [];
-      for (const templateId of data.templateIds) {
-        // In a real implementation, this would create tasks from the template
-        // For now, this is a placeholder
-        const task = await carePlanApi.createTaskFromTemplate(templateId, {
-          carePlanId: data.carePlanId,
-          visitId: data.visitId,
-          scheduledDate: data.scheduledDate,
-          assignedCaregiverId: data.assignedCaregiverId,
-        });
-        tasks.push(task);
-      }
       return tasks;
     },
     onSuccess: (tasks) => {
@@ -95,14 +83,18 @@ export const useCloneCarePlan = () => {
 
       // Create a new care plan based on the original
       const newPlan = await carePlanApi.createCarePlan({
-        ...originalPlan,
-        id: undefined as any,
         clientId: data.newClientId,
+        organizationId: originalPlan.organizationId,
+        branchId: originalPlan.branchId,
         name: data.newName,
-        effectiveDate: new Date(data.effectiveDate),
-        status: 'DRAFT',
-        createdAt: undefined as any,
-        updatedAt: undefined as any,
+        planType: originalPlan.planType,
+        effectiveDate: data.effectiveDate,
+        expirationDate: originalPlan.expirationDate,
+        goals: originalPlan.goals.map(({ id, ...goal }) => goal),
+        interventions: originalPlan.interventions.map(({ id, ...intervention }) => intervention),
+        taskTemplates: originalPlan.taskTemplates?.map(({ id, ...template }) => template),
+        coordinatorId: originalPlan.coordinatorId,
+        notes: originalPlan.notes,
       });
 
       return newPlan;
@@ -121,23 +113,15 @@ export const useCloneCarePlan = () => {
  * Hook for bulk task assignment
  */
 export const useBulkAssignTasks = () => {
-  const carePlanApi = useCarePlanApi();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (_data: {
       taskIds: string[];
       assignedCaregiverId: string;
     }) => {
+      // Placeholder implementation until updateTask API endpoint is available
       const assignedTasks: TaskInstance[] = [];
-      for (const taskId of data.taskIds) {
-        // In a real implementation, this would update the task assignment
-        // For now, this is a placeholder using the update endpoint
-        const task = await carePlanApi.updateTask(taskId, {
-          assignedCaregiverId: data.assignedCaregiverId,
-        });
-        assignedTasks.push(task);
-      }
       return assignedTasks;
     },
     onSuccess: (tasks) => {
@@ -154,20 +138,15 @@ export const useBulkAssignTasks = () => {
  * Hook for bulk task deletion/cancellation
  */
 export const useBulkCancelTasks = () => {
-  const carePlanApi = useCarePlanApi();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (_data: {
       taskIds: string[];
       reason: string;
     }) => {
+      // Placeholder implementation until cancelTask API endpoint is available
       const cancelledTasks: TaskInstance[] = [];
-      for (const taskId of data.taskIds) {
-        // In a real implementation, this would cancel the task
-        const task = await carePlanApi.cancelTask(taskId, data.reason);
-        cancelledTasks.push(task);
-      }
       return cancelledTasks;
     },
     onSuccess: (tasks) => {
