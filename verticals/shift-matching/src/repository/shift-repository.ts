@@ -31,7 +31,7 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
     super({ tableName: 'shift_requirements', database, enableAudit: true, enableSoftDelete: true });
   }
 
-  protected mapRowToEntity(row: any): ShiftRequirement {
+  protected mapRowToEntity(row: Record<string, unknown>): ShiftRequirement {
     return {
       id: row.id,
       clientId: row.client_id,
@@ -113,8 +113,8 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
     `;
 
     const result = await this.database.query(query, [shiftId]);
-    
-    return result.rows.map((row: any) => ({
+
+    return result.rows.map((row: Record<string, unknown>) => ({
       caregiverId: row['id'] as string,
       score: (Number(row['compliance_score']) > 0 ? Number(row['compliance_score']) : 0),
       matchReasons: [],

@@ -15,6 +15,7 @@ import {
   ValidationError,
   NotFoundError,
   ConflictError,
+  Database,
 } from '@care-commons/core';
 import { ShiftMatchingRepository } from '../repository/shift-matching-repository';
 import { MatchingAlgorithm, CaregiverContext } from '../utils/matching-algorithm';
@@ -50,7 +51,7 @@ export class ShiftMatchingService {
     this.repository = new ShiftMatchingRepository(pool);
     // CaregiverService requires a Database, but we're passing Pool
     // This is a type issue - in production, wrap Pool in Database class
-    this.caregiverService = caregiverService ?? (new CaregiverService(pool as any));
+    this.caregiverService = caregiverService ?? (new CaregiverService(pool as unknown as Database));
   }
 
   /**
