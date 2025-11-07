@@ -316,4 +316,165 @@ describe('Security Tests', () => {
       expect(true).toBe(true);
     });
   });
+
+  describe('Edge Cases and Error Handling', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: NextFunction;
+    let jsonSpy: ReturnType<typeof vi.fn>;
+    let statusSpy: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      jsonSpy = vi.fn();
+      statusSpy = vi.fn(() => ({ json: jsonSpy }));
+
+      mockReq = {
+        body: {},
+        query: {},
+        params: {}
+      };
+
+      mockRes = {
+        status: statusSpy as unknown as Response['status'],
+        json: jsonSpy as unknown as Response['json']
+      };
+
+      mockNext = vi.fn();
+    });
+
+    it('should sanitize null values', async () => {
+      const schema = z.object({
+        value: z.string().nullable()
+      });
+
+      mockReq.body = { value: null };
+
+      const middleware = validateBody(schema);
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should sanitize numeric values', async () => {
+      const schema = z.object({
+        count: z.number()
+      });
+
+      mockReq.body = { count: 42 };
+
+      const middleware = validateBody(schema);
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+      expect((mockReq.body as { count: number }).count).toBe(42);
+    });
+
+    it('should sanitize boolean values', async () => {
+      const schema = z.object({
+        active: z.boolean()
+      });
+
+      mockReq.body = { active: true };
+
+      const middleware = validateBody(schema);
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+      expect((mockReq.body as { active: boolean }).active).toBe(true);
+    });
+
+    it('should handle validation errors in validateQuery', async () => {
+      const schema = z.object({
+        page: z.coerce.number().int().min(1)
+      });
+
+      mockReq.query = { page: 'invalid' };
+
+      const middleware = validateQuery(schema);
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(statusSpy).toHaveBeenCalledWith(400);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: 'Invalid query parameters',
+          code: 'VALIDATION_ERROR'
+        })
+      );
+    });
+
+    it('should handle validation errors in validateParams', async () => {
+      const schema = z.object({
+        id: z.string().min(36).max(36)
+      });
+
+      mockReq.params = { id: 'short' };
+
+      const middleware = validateParams(schema);
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(statusSpy).toHaveBeenCalledWith(400);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: 'Invalid route parameters',
+          code: 'VALIDATION_ERROR'
+        })
+      );
+    });
+
+    it('should sanitize data: protocol URIs', async () => {
+      const schema = z.object({
+        content: z.string()
+      });
+
+      mockReq.body = {
+        content: 'data:text/html,<script>alert("XSS")</script>'
+      };
+
+      const middleware = validateBody(schema);
+      await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+      expect((mockReq.body as { content: string }).content).not.toContain('data:text/html');
+    });
+
+    it('should validate date range schema', () => {
+      const validRange = {
+        startDate: '2024-01-01',
+        endDate: '2024-12-31'
+      };
+
+      expect(() => CommonSchemas.dateRange.parse(validRange)).not.toThrow();
+    });
+
+    it('should validate search schema', () => {
+      const validSearch = {
+        query: 'test search',
+        page: '1',
+        limit: '20'
+      };
+
+      const result = CommonSchemas.search.parse(validSearch);
+      expect(result.query).toBe('test search');
+      expect(result.page).toBe(1);
+      expect(result.limit).toBe(20);
+    });
+
+    it('should validate name schema', () => {
+      const validName = '  John Doe  ';
+      const result = CommonSchemas.name.parse(validName);
+      expect(result).toBe('John Doe'); // Should be trimmed
+    });
+
+    it('should validate idParam schema', () => {
+      const validId = { id: '123e4567-e89b-12d3-a456-426614174000' };
+      expect(() => CommonSchemas.idParam.parse(validId)).not.toThrow();
+    });
+
+    it('should reject invalid idParam', () => {
+      const invalidId = { id: 'not-a-uuid' };
+      expect(() => CommonSchemas.idParam.parse(invalidId)).toThrow();
+    });
+  });
 });
