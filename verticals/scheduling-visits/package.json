@@ -17,7 +17,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext ts"
+    "lint": "eslint . --ext ts --max-warnings 10"
   },
   "dependencies": {
     "@care-commons/core": "^0.1.0",

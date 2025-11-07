@@ -18,7 +18,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext ts"
+    "lint": "eslint . --ext ts --max-warnings 10"
   },
   "keywords": [
     "care-commons",
