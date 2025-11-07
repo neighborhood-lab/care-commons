@@ -133,8 +133,8 @@ export class CaregiverProvider implements ICaregiverProvider {
     if (backgroundCheck) {
       const bgCheck = backgroundCheck as Record<string, unknown>;
       const status = bgCheck?.status as string | undefined;
-      const expirationDate = bgCheck?.expirationDate;
-      
+      const expirationDate = bgCheck?.expirationDate as string | number | Date | undefined;
+
       if (status === 'CLEARED' || status === 'PASSED') {
         if (expirationDate) {
           const expiresDate = new Date(expirationDate);
@@ -151,8 +151,9 @@ export class CaregiverProvider implements ICaregiverProvider {
     
     // Extract state registry status from custom fields
     const stateRegistryStatus: Record<string, 'CLEARED' | 'FLAGGED' | 'UNKNOWN'> = {};
-    if (customFields && (customFields as any).stateRegistries) {
-      const registries = (customFields as any).stateRegistries;
+    const fields = customFields as Record<string, unknown> | undefined;
+    if (fields?.stateRegistries) {
+      const registries = fields.stateRegistries as Record<string, Record<string, unknown>>;
       for (const state in registries) {
         const registryStatus = registries[state]?.status;
         if (registryStatus === 'CLEARED' || registryStatus === 'CLEAR') {
