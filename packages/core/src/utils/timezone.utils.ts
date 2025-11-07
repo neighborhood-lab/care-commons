@@ -61,7 +61,7 @@ export class TimezoneUtils {
    * Validate timezone string (IANA format)
    */
   static isValidTimezone(timezone: string): boolean {
-    if (!timezone) return false;
+    if (timezone === '') return false;
     try {
       const dt = DateTime.now().setZone(timezone);
       // Check if the DateTime is valid and the zone name matches
