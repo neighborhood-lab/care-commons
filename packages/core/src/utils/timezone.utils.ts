@@ -61,9 +61,12 @@ export class TimezoneUtils {
    * Validate timezone string (IANA format)
    */
   static isValidTimezone(timezone: string): boolean {
+    if (!timezone) return false;
     try {
-      DateTime.now().setZone(timezone);
-      return true;
+      const dt = DateTime.now().setZone(timezone);
+      // Check if the DateTime is valid and the zone name matches
+      // Luxon returns the system zone if the timezone is invalid
+      return dt.isValid && dt.zoneName === timezone;
     } catch {
       return false;
     }
