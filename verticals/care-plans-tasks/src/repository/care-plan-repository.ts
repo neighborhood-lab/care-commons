@@ -106,6 +106,9 @@ export class CarePlanRepository extends Repository<CarePlan> {
     input: CreateCarePlanInput & {
       planNumber: string;
       createdBy: UUID;
+      status?: string;
+      planReviewIntervalDays?: number;
+      nextReviewDue?: Date;
     }
   ): Promise<CarePlan> {
     const query = `

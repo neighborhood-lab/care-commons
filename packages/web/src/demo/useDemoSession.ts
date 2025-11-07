@@ -74,14 +74,12 @@ export function useDemoSession(): UseDemoSessionResult {
         // Auth was cleared (user logged out), cleanup demo session
         void demoAPI.deleteSession(session.id)
           .then(() => {
-            setSession(null);
-            return undefined;
+            return setSession(null);
           })
           .catch((err: Error) => {
             console.error('Failed to cleanup demo session on logout:', err);
             // Still clear local session state even if API call fails
             setSession(null);
-            return undefined;
           });
       }
     };
@@ -130,9 +128,9 @@ export function useDemoSession(): UseDemoSessionResult {
 
     // Track user activity
     const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
-    activityEvents.forEach(event => {
+    for (const event of activityEvents) {
       window.addEventListener(event, resetInactivityTimer);
-    });
+    }
 
     resetInactivityTimer();
 
@@ -140,9 +138,9 @@ export function useDemoSession(): UseDemoSessionResult {
       if (inactivityTimer) {
         clearTimeout(inactivityTimer);
       }
-      activityEvents.forEach(event => {
+      for (const event of activityEvents) {
         window.removeEventListener(event, resetInactivityTimer);
-      });
+      }
     };
   }, [session]);
 

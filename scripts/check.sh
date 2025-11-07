@@ -23,34 +23,8 @@ fi
 
 echo "✅ Using Node.js $(node --version)"
 
-# Check if ncu is installed
-if ! command -v ncu &> /dev/null; then
-  echo "❌ Error: ncu (npm-check-updates) not found"
-  echo "   Please run: npm install -g npm-check-updates"
-  exit 1
-fi
-
-echo "🧹 Cleaning up..."
-find . -type f -name "package-lock.json" -exec rm -f {} + 2>/dev/null || true
-find . -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
-
-echo "📦 Updating dependencies..."
-ncu -u --packageFile '**/package.json' --timeout 60000 --reject 'npm,@care-commons/*'
-
-echo "🔧 Regenerating lockfile..."
-npm install --package-lock-only --ignore-scripts
-
-echo "📥 Installing dependencies..."
-npm install --prefer-offline --no-audit
-
-echo "📊 Checking for outdated packages..."
-npm outdated || echo "ℹ️  Some packages may be outdated"
-
-echo "🗄️  Setting up database..."
-npm run db:nuke
-npm run db:migrate
-npm run db:seed
-npm run db:seed:demo
+echo "🧹 Clean install..."
+npm ci
 
 echo "🔍 Running linting..."
 npx turbo run lint
@@ -63,5 +37,11 @@ npx turbo run test:coverage
 
 echo "🏗️  Building project..."
 npx turbo run build
+
+echo "🗄️  Setting up database..."
+npm run db:nuke
+npm run db:migrate
+npm run db:seed
+npm run db:seed:demo
 
 echo "✅ All checks completed successfully!"
