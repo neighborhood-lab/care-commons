@@ -1,20 +1,50 @@
+/**
+ * Care Commons Mobile App
+ *
+ * Main entry point with:
+ * - Authentication state management
+ * - Navigation setup
+ * - Loading screen
+ */
+
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { RootNavigator } from './src/navigation/RootNavigator.js';
+import { useAuth } from './src/hooks/useAuth.js';
 
 export default function App() {
+  const { isAuthenticated, loading } = useAuth();
+
+  // Show loading screen while checking auth
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2563EB" />
+        <Text style={styles.loadingText}>Loading...</Text>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <>
+      <RootNavigator isAuthenticated={isAuthenticated} />
       <StatusBar style="auto" />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  loadingContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6B7280',
   },
 });
