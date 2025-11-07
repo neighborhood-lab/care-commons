@@ -70,7 +70,7 @@ export interface UseTimezoneResult {
 export const useTimezone = (): UseTimezoneResult => {
   // Get device timezone, with fallback
   const [timezone, setTimezone] = useState<string>(() => {
-    const deviceTimezone = Localization.getCalendars()[0]?.timeZone || Localization.timezone;
+    const deviceTimezone = Localization.timezone;
     if (deviceTimezone && TimezoneUtils.isValidTimezone(deviceTimezone)) {
       return deviceTimezone;
     }
@@ -79,8 +79,8 @@ export const useTimezone = (): UseTimezoneResult => {
 
   // Listen for timezone changes (e.g., user travels to different timezone)
   useEffect(() => {
-    const subscription = Localization.addCalendarsChangeListener(() => {
-      const newTimezone = Localization.getCalendars()[0]?.timeZone || Localization.timezone;
+    const subscription = Localization.addLocalizationChangeListener(() => {
+      const newTimezone = Localization.timezone;
       if (newTimezone && TimezoneUtils.isValidTimezone(newTimezone)) {
         setTimezone(newTimezone);
       }
