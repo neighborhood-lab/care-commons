@@ -25,6 +25,9 @@ export default defineProject({
       '@/core': path.resolve(__dirname, './src/core'),
       '@/verticals': path.resolve(__dirname, './src/verticals'),
       '@/app': path.resolve(__dirname, './src/app'),
+      // Map Sentry native modules to empty objects to prevent loading .node files
+      '@sentry/profiling-node': path.resolve(__dirname, './src/test/empty-module.ts'),
+      '@sentry-internal/node-cpu-profiler': path.resolve(__dirname, './src/test/empty-module.ts'),
     },
   },
 });
