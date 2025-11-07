@@ -31,27 +31,27 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
     super({ tableName: 'shift_requirements', database, enableAudit: true, enableSoftDelete: true });
   }
 
-  protected mapRowToEntity(row: any): ShiftRequirement {
+  protected mapRowToEntity(row: Record<string, unknown>): ShiftRequirement {
     return {
-      id: row.id,
-      clientId: row.client_id,
-      visitId: row.visit_id,
-      serviceType: row.service_type,
-      startTime: row.start_time,
-      endTime: row.end_time,
-      requiredSkills: row.required_skills ?? [],
-      requiredCertifications: row.required_certifications ?? [],
-      languagePreference: row.language_preference,
-      genderPreference: row.gender_preference,
-      maxDistanceMiles: row.max_distance_miles,
-      state: row.state,
-      status: row.status,
-      assignedCaregiverId: row.assigned_caregiver_id,
-      createdBy: row.created_by,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      updatedBy: row.updated_by,
-      version: row.version
+      id: row.id as string,
+      clientId: row.client_id as string,
+      visitId: row.visit_id as string,
+      serviceType: row.service_type as string,
+      startTime: row.start_time as Date,
+      endTime: row.end_time as Date,
+      requiredSkills: (row.required_skills ?? []) as string[],
+      requiredCertifications: (row.required_certifications ?? []) as string[],
+      languagePreference: row.language_preference as string | undefined,
+      genderPreference: row.gender_preference as string | undefined,
+      maxDistanceMiles: row.max_distance_miles as number | undefined,
+      state: row.state as string,
+      status: row.status as 'OPEN' | 'ASSIGNED' | 'FULFILLED' | 'CANCELLED',
+      assignedCaregiverId: row.assigned_caregiver_id as string | undefined,
+      createdBy: row.created_by as string,
+      createdAt: row.created_at as Date,
+      updatedAt: row.updated_at as Date,
+      updatedBy: row.updated_by as string,
+      version: row.version as number
     };
   }
 
@@ -113,8 +113,8 @@ export class ShiftRepository extends Repository<ShiftRequirement> {
     `;
 
     const result = await this.database.query(query, [shiftId]);
-    
-    return result.rows.map((row: any) => ({
+
+    return result.rows.map((row: Record<string, unknown>) => ({
       caregiverId: row['id'] as string,
       score: (Number(row['compliance_score']) > 0 ? Number(row['compliance_score']) : 0),
       matchReasons: [],
