@@ -46,14 +46,8 @@ npm install --prefer-offline --no-audit
 echo "📊 Checking for outdated packages..."
 npm outdated || echo "ℹ️  Some packages may be outdated"
 
-echo "🗄️  Setting up database..."
-npm run db:nuke
-npm run db:migrate
-npm run db:seed
-npm run db:seed:demo
-
 echo "🔍 Running linting..."
-npx turbo run lint
+npx turbo run lint -- --fix
 
 echo "🔎 Running type checks..."
 npx turbo run typecheck
@@ -63,5 +57,11 @@ npx turbo run test:coverage
 
 echo "🏗️  Building project..."
 npx turbo run build
+
+echo "🗄️  Setting up database..."
+npm run db:nuke
+npm run db:migrate
+npm run db:seed
+npm run db:seed:demo
 
 echo "✅ All checks completed successfully!"
