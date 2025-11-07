@@ -23,9 +23,20 @@ export class TimezoneUtils {
 
   /**
    * Convert to UTC for storage
+   * Takes local time components and interprets them in the specified timezone
    */
   static toUTC(dateTime: Date | string, timezone: string): Date {
-    return DateTime.fromJSDate(new Date(dateTime), { zone: timezone })
+    const date = new Date(dateTime);
+    // Extract local time components and interpret them in the specified timezone
+    return DateTime.fromObject({
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      second: date.getSeconds(),
+      millisecond: date.getMilliseconds()
+    }, { zone: timezone })
       .toUTC()
       .toJSDate();
   }
