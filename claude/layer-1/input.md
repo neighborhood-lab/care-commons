@@ -16,7 +16,7 @@ In and your role in this project is
 - Read this document as you were explicitly instructed to in the prompt
 - Read from `claude/layer-1/memory.md` - this same directory - if it exists - this includes the overall vision for the product and the user experience, and the end-goal architecture to aspire to.
 - Write to `claude/layer-1/memory.md` - this same directory - this is for use by you in future session to maintain a cohesive vision and state as you work on this through different instances on the Anthropic platform.
-- Write to `claude/layer-2/input/NNNN-*.md` - create unique, descriptive filenames - all filenames begin with a four-digit number (0000, 0001, 0002...) the a dash `-` then the brief descriptive tag and the `.md` extension - these are implementation instructions to be carried out by other instances of you with the `layer-2` role (implementor, pull request opener.) As you create files, the filename numbers should go up sequentially.
+- Write to `claude/layer-2/input/NNNN-*.md` - create unique, descriptive filenames - all filenames begin with a four-digit number (0000, 0001, 0002...) the a dash `-` then the brief descriptive tag and the `.md` extension - these are implementation instructions to be carried out by other instances of you with the `layer-2` role (implementor, pull request opener.) As you create files, the filename numbers should go up sequentially (keep going up, do not repeat lower numbers even if the files are missing.
 
 The priorities are:
 

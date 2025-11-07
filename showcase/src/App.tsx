@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { DataProviderContextProvider } from '@/core/providers/context';
 import { RoleProvider } from './contexts/RoleContext';
+import { TourProvider } from './components/tours/TourProvider';
 import { createMockProvider } from './providers/mock-provider';
 import { seedData } from './data/seed-data';
 
@@ -16,6 +17,8 @@ import { TaskManagementPage } from './pages/TaskManagementPage';
 import { CaregiverManagementPage } from './pages/CaregiverManagementPage';
 import { ShiftMatchingPage } from './pages/ShiftMatchingPage';
 import { BillingPage } from './pages/BillingPage';
+import { ToursPage } from './pages/ToursPage';
+import { VideosPage } from './pages/VideosPage';
 
 // Mobile Pages
 import { MobileHomePage } from './pages/mobile/MobileHomePage';
@@ -44,29 +47,33 @@ export const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <DataProviderContextProvider provider={mockProvider}>
         <RoleProvider defaultRole="coordinator">
-          <BrowserRouter basename="/care-commons">
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
+          <TourProvider>
+            <BrowserRouter basename="/care-commons">
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
 
-              {/* Desktop/Web Routes */}
-              <Route path="/clients" element={<ClientDemographicsPage />} />
-              <Route path="/care-plans" element={<CarePlansPage />} />
-              <Route path="/tasks" element={<TaskManagementPage />} />
-              <Route path="/caregivers" element={<CaregiverManagementPage />} />
-              <Route path="/shifts" element={<ShiftMatchingPage />} />
-              <Route path="/billing" element={<BillingPage />} />
+                {/* Desktop/Web Routes */}
+                <Route path="/clients" element={<ClientDemographicsPage />} />
+                <Route path="/care-plans" element={<CarePlansPage />} />
+                <Route path="/tasks" element={<TaskManagementPage />} />
+                <Route path="/caregivers" element={<CaregiverManagementPage />} />
+                <Route path="/shifts" element={<ShiftMatchingPage />} />
+                <Route path="/billing" element={<BillingPage />} />
+                <Route path="/tours" element={<ToursPage />} />
+                <Route path="/videos" element={<VideosPage />} />
 
-              {/* Mobile Routes */}
-              <Route path="/mobile" element={<MobileHomePage />} />
-              <Route path="/mobile/visits" element={<MobileVisitsPage />} />
-              <Route path="/mobile/tasks" element={<MobileTasksPage />} />
-              <Route path="/mobile/profile" element={<MobileProfilePage />} />
-              <Route path="/mobile/clients" element={<MobileClientsPage />} />
-              <Route path="/mobile/care-plans" element={<MobileCarePlansPage />} />
-            </Routes>
-          </BrowserRouter>
-          <Toaster position="top-right" />
+                {/* Mobile Routes */}
+                <Route path="/mobile" element={<MobileHomePage />} />
+                <Route path="/mobile/visits" element={<MobileVisitsPage />} />
+                <Route path="/mobile/tasks" element={<MobileTasksPage />} />
+                <Route path="/mobile/profile" element={<MobileProfilePage />} />
+                <Route path="/mobile/clients" element={<MobileClientsPage />} />
+                <Route path="/mobile/care-plans" element={<MobileCarePlansPage />} />
+              </Routes>
+            </BrowserRouter>
+            <Toaster position="top-right" />
+          </TourProvider>
         </RoleProvider>
       </DataProviderContextProvider>
     </QueryClientProvider>
