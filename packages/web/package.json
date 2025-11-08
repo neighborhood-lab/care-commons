@@ -9,10 +9,7 @@
   "engines": {
     "node": "22.x"
   },
-  "overrides": {
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1"
-  },
+
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config vite.config.showcase.ts",
@@ -37,8 +34,8 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.553.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-hook-form": "^7.66.0",
     "react-router-dom": "^6.28.0",
     "recharts": "^3.3.0",
@@ -50,8 +47,8 @@
     "@tailwindcss/postcss": "^4.1.17",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitejs/plugin-react": "^5.1.0",
