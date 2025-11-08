@@ -5,7 +5,7 @@
  */
 
 import { z } from 'zod';
-import { CreateProgressNoteInput } from '../types/care-plan';
+import { CreateProgressNoteInput, GoalProgress, Observation } from '../types/care-plan';
 
 // Base schemas
 const UUIDSchema = z.string().uuid();
@@ -541,7 +541,11 @@ export class CarePlanValidator {
     if (parsed.goalProgress !== undefined) {
       // Filter out undefined progressPercentage from goalProgress items
       result.goalProgress = parsed.goalProgress.map(goal => {
-        const filteredGoal = {
+        const filteredGoal: Omit<GoalProgress, 'progressPercentage' | 'barriers' | 'nextSteps'> & {
+          progressPercentage?: number;
+          barriers?: string[];
+          nextSteps?: string[];
+        } = {
           goalId: goal.goalId,
           goalName: goal.goalName,
           status: goal.status,
@@ -557,7 +561,9 @@ export class CarePlanValidator {
     if (parsed.observations !== undefined) {
       // Filter out undefined severity from observation items
       result.observations = parsed.observations.map(obs => {
-        const filteredObs = {
+        const filteredObs: Omit<Observation, 'severity'> & {
+          severity?: 'NORMAL' | 'ATTENTION' | 'URGENT';
+        } = {
           category: obs.category,
           observation: obs.observation,
           timestamp: obs.timestamp,
@@ -572,7 +578,14 @@ export class CarePlanValidator {
     
     if (parsed.signature !== undefined) {
       // Filter out undefined properties from signature
-      result.signature = {
+      const filteredSig: {
+        signatureData: string;
+        signedBy: string;
+        signedByName: string;
+        signatureType: 'ELECTRONIC' | 'STYLUS' | 'TOUCHSCREEN';
+        ipAddress?: string;
+        deviceInfo?: string;
+      } = {
         signatureData: parsed.signature.signatureData,
         signedBy: parsed.signature.signedBy,
         signedByName: parsed.signature.signedByName,
@@ -580,6 +593,45 @@ export class CarePlanValidator {
         ...(parsed.signature.ipAddress !== undefined && { ipAddress: parsed.signature.ipAddress }),
         ...(parsed.signature.deviceInfo !== undefined && { deviceInfo: parsed.signature.deviceInfo }),
       };
+      result.signature = filteredSig;
+    }
+    
+    if (parsed.observations !== undefined) {
+      // Filter out undefined severity from observation items
+      result.observations = parsed.observations.map(obs => {
+        const filteredObs: Omit<Observation, 'severity'> & {
+          severity?: 'NORMAL' | 'ATTENTION' | 'URGENT';
+        } = {
+          category: obs.category,
+          observation: obs.observation,
+          timestamp: obs.timestamp,
+          ...(obs.severity !== undefined && { severity: obs.severity }),
+        };
+        return filteredObs;
+      });
+    }
+    
+    if (parsed.concerns !== undefined) result.concerns = parsed.concerns;
+    if (parsed.recommendations !== undefined) result.recommendations = parsed.recommendations;
+    
+    if (parsed.signature !== undefined) {
+      // Filter out undefined properties from signature
+      const filteredSig: {
+        signatureData: string;
+        signedBy: string;
+        signedByName: string;
+        signatureType: 'ELECTRONIC' | 'STYLUS' | 'TOUCHSCREEN';
+        ipAddress?: string;
+        deviceInfo?: string;
+      } = {
+        signatureData: parsed.signature.signatureData,
+        signedBy: parsed.signature.signedBy,
+        signedByName: parsed.signature.signedByName,
+        signatureType: parsed.signature.signatureType,
+        ...(parsed.signature.ipAddress !== undefined && { ipAddress: parsed.signature.ipAddress }),
+        ...(parsed.signature.deviceInfo !== undefined && { deviceInfo: parsed.signature.deviceInfo }),
+      };
+      result.signature = filteredSig;
     }
     
     return result;

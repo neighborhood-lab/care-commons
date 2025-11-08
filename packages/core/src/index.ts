@@ -18,6 +18,7 @@ export * from './service/auth-service.js';
 export * from './service/security-logger.service.js';
 export * from './service/password-reset.service.js';
 export * from './service/cache-service.js';
+export * from './service/geocoding.service.js';
 export * from './middleware/auth-middleware.js';
 export * from './middleware/request-logger.js';
 export * from './middleware/metrics.js';
