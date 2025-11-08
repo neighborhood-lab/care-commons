@@ -18,7 +18,10 @@ import {
   FamilySettings,
   ActivityPage,
   MessagesPage,
-  NotificationsPage
+  NotificationsPage,
+  SchedulePage,
+  CarePlanPage,
+  HealthUpdatesPage
 } from './verticals/family-engagement/pages';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -327,6 +330,9 @@ function AppRoutes() {
         <Route path="messages" element={<MessagesPage />} />
         <Route path="messages/:threadId" element={<MessagesPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
+        <Route path="schedule" element={<SchedulePage />} />
+        <Route path="care-plan" element={<CarePlanPage />} />
+        <Route path="health-updates" element={<HealthUpdatesPage />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
