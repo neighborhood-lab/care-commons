@@ -9,6 +9,7 @@
   "engines": {
     "node": "22.x"
   },
+
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config vite.config.showcase.ts",
@@ -29,7 +30,6 @@
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@nozbe/watermelondb": "^0.25.5",
-    "@tanstack/react-query": "^5.90.7",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
@@ -37,8 +37,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.66.0",
-    "react-hot-toast": "^2.6.0",
-    "react-router-dom": "^7.9.5",
+    "react-router-dom": "^6.28.0",
     "recharts": "^3.3.0",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"

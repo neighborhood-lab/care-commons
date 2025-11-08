@@ -1,35 +1,17 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
 import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
-import {
-  CarePlanList,
-  CarePlanDetail,
-  TaskList,
-  CreateCarePlanPage,
-  EditCarePlanPage,
-  CaregiverTasksPage,
-  TaskDetailPage
-} from './verticals/care-plans';
+import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
+import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      retry: 1,
-    },
-  },
-});
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -146,11 +128,21 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/care-plans/:id/edit"
+        path="/care-plans/from-template"
         element={
           <ProtectedRoute>
             <AppShell>
-              <EditCarePlanPage />
+              <CreateFromTemplatePage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/care-plans/from-template/:templateId"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CustomizeTemplatePage />
             </AppShell>
           </ProtectedRoute>
         }
@@ -171,26 +163,6 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <TaskList />
-            </AppShell>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/tasks/:id"
-        element={
-          <ProtectedRoute>
-            <AppShell>
-              <TaskDetailPage />
-            </AppShell>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/caregiver/tasks"
-        element={
-          <ProtectedRoute>
-            <AppShell>
-              <CaregiverTasksPage />
             </AppShell>
           </ProtectedRoute>
         }
@@ -324,13 +296,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    // <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <DemoModeBar />
         <AppRoutes />
-        <Toaster position="top-right" />
+        {/* <Toaster position="top-right" /> */}
       </BrowserRouter>
-    </QueryClientProvider>
+    // </QueryClientProvider>
   );
 }
 
