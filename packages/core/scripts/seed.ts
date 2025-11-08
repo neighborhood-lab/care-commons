@@ -125,10 +125,12 @@ async function seedDatabase() {
         ]
       );
 
-      // Create admin user
+      // Create or update admin user
       // Password: Admin123!
       const adminPasswordHash = PasswordUtils.hashPassword('Admin123!');
       console.log('Creating admin user...');
+
+      // Try to insert, on conflict update
       await client.query(
         `
         INSERT INTO users (
@@ -136,6 +138,13 @@ async function seedDatabase() {
           first_name, last_name, roles, branch_ids, status,
           created_by, updated_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        ON CONFLICT (email) DO UPDATE SET
+          password_hash = EXCLUDED.password_hash,
+          first_name = EXCLUDED.first_name,
+          last_name = EXCLUDED.last_name,
+          roles = EXCLUDED.roles,
+          status = EXCLUDED.status,
+          updated_at = NOW()
       `,
         [
           systemUserId,
@@ -153,12 +162,54 @@ async function seedDatabase() {
         ]
       );
 
+      // Create or update family user
+      // Password: Family123!
+      const familyUserId = uuidv4();
+      const familyPasswordHash = PasswordUtils.hashPassword('Family123!');
+      console.log('Creating family user...');
+
+      // Try to insert, on conflict update
+      await client.query(
+        `
+        INSERT INTO users (
+          id, organization_id, username, email, password_hash,
+          first_name, last_name, roles, permissions, branch_ids, status,
+          created_by, updated_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        ON CONFLICT (email) DO UPDATE SET
+          password_hash = EXCLUDED.password_hash,
+          first_name = EXCLUDED.first_name,
+          last_name = EXCLUDED.last_name,
+          roles = EXCLUDED.roles,
+          permissions = EXCLUDED.permissions,
+          status = EXCLUDED.status,
+          updated_at = NOW()
+      `,
+        [
+          familyUserId,
+          orgId,
+          'family',
+          'family@carecommons.example',
+          familyPasswordHash,
+          'Stein',
+          'Family',
+          ['FAMILY'],
+          ['clients:read', 'visits:read', 'care-plans:read', 'schedules:read'],
+          [branchId],
+          'ACTIVE',
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
       console.log('\n✅ Minimal seed completed successfully!\n');
       console.log('📊 Operational data created:');
       console.log('  Organization: Care Commons Home Health');
       console.log('  Branch: Main Office');
       console.log('  Admin User: admin@carecommons.example');
-      console.log('  Password: Admin123!\n');
+      console.log('  Password: Admin123!');
+      console.log('  Family User: family@carecommons.example');
+      console.log('  Password: Family123!\n');
       console.log('💡 Run "npm run db:seed:demo" to add sample clients, caregivers, and demo data.');
     });
   } catch (error) {
