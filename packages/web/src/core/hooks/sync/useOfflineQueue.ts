@@ -11,7 +11,7 @@ import {
   createQueueItem,
   type SyncOperationType,
   type SyncEntityType,
-} from '@care-commons/core';
+} from '@care-commons/core/browser';
 
 export interface QueueOperationOptions {
   operationType: SyncOperationType;
