@@ -76,7 +76,7 @@ export class ArizonaEVVProvider implements IArizonaEVVProvider {
         gen_random_uuid(), 'AZ', $1, 'SANDATA', 'PRIMARY',
         $2::jsonb, 'JSON', $3, 'PENDING'
       ) RETURNING id
-    `, [(evvRecord as any).id, JSON.stringify(payload), evvRecord.recordedBy]);
+    `, [evvRecord.id, JSON.stringify(payload), evvRecord.recordedBy]);
 
     return {
       submissionId: submissionId.rows[0]!['id'] as UUID,

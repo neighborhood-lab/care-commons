@@ -161,8 +161,15 @@ export class ScheduleService {
     // Validate visit doesn't conflict with existing visits
     await this.validateVisitConflicts(validated);
 
+    // Ensure timezone is set (use provided timezone or default to America/Chicago)
+    // In a full implementation, this would fetch the client's timezone from the database
+    const visitWithTimezone = {
+      ...validated,
+      timezone: validated.timezone ?? 'America/Chicago'
+    };
+
     // Filter out undefined values to satisfy exactOptionalPropertyTypes
-    const visitInput = { ...validated };
+    const visitInput = { ...visitWithTimezone };
     for (const key of Object.keys(visitInput)) {
       if (visitInput[key as keyof typeof visitInput] === undefined) {
         delete visitInput[key as keyof typeof visitInput];
