@@ -17,31 +17,31 @@ export async function up(knex: Knex): Promise<void> {
   // Add timezone column to users table
   await knex.schema.alterTable('users', (table) => {
     table.string('timezone', 50).defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`);
+    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_users_timezone_valid');
   });
 
   // Add timezone column to organizations table
   await knex.schema.alterTable('organizations', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`);
+    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_organizations_timezone_valid');
   });
 
   // Add timezone column to branches table
   await knex.schema.alterTable('branches', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`);
+    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_branches_timezone_valid');
   });
 
   // Add timezone column to clients table
   await knex.schema.alterTable('clients', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`);
+    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_clients_timezone_valid');
   });
 
   // Add timezone column to caregivers table
   await knex.schema.alterTable('caregivers', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`);
+    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_caregivers_timezone_valid');
   });
 
   // Add indexes for timezone queries
