@@ -1,0 +1,3733 @@
+{
+  "item": [
+    {
+      "id": "1bfad648-be9f-4e7b-9f14-fad6ea7607cf",
+      "name": "api",
+      "item": [
+        {
+          "id": "a8aed439-e932-4301-aca5-6c11ade58412",
+          "name": "auth",
+          "item": [
+            {
+              "id": "d4c1947e-f86b-44d3-814a-2b83f4cc5ad3",
+              "name": "login",
+              "item": [
+                {
+                  "id": "675def7f-d977-4df5-943b-68206bc60cd1",
+                  "name": "Login with email and password",
+                  "request": {
+                    "name": "Login with email and password",
+                    "description": {
+                      "content": "Authenticate user with credentials and receive JWT tokens",
+                      "type": "text/plain"
+                    },
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "auth": null,
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"<email>\",\n  \"password\": \"<password>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "88d5e295-be40-44fb-a611-360eb1b2ea23",
+                      "name": "Login successful",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"SecurePassword123!\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"fd0add86-5dee-ee95-c79e-65afde930c4f\",\n      \"email\": \"SzKIeO@ksySidhUYSQHkPnf.dgte\",\n      \"firstName\": \"string\",\n      \"lastName\": \"string\",\n      \"role\": \"family\",\n      \"createdAt\": \"1954-06-08T01:50:06.611Z\",\n      \"updatedAt\": \"1978-12-16T18:19:02.358Z\"\n    },\n    \"tokens\": {\n      \"accessToken\": \"string\",\n      \"refreshToken\": \"string\"\n    }\n  }\n}",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    },
+                    {
+                      "id": "4e55b141-566f-4faa-890a-a66dee490116",
+                      "name": "Invalid request",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"SecurePassword123!\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "bfe11c61-9953-448d-ae05-d1230f4a89d7",
+                      "name": "Invalid credentials",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"SecurePassword123!\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "c48e9118-92a8-4067-b265-4a8757d5f25c",
+                      "name": "Server error",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"SecurePassword123!\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Internal Server Error",
+                      "code": 500,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
+                },
+                {
+                  "id": "cd6f8755-1e90-41cc-bd7a-c141a6b45c58",
+                  "name": "Authenticate with Google OAuth",
+                  "request": {
+                    "name": "Authenticate with Google OAuth",
+                    "description": {
+                      "content": "Authenticate user using Google ID token and receive JWT tokens",
+                      "type": "text/plain"
+                    },
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "login",
+                        "google"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "auth": null,
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"idToken\": \"<string>\",\n  \"organizationId\": \"<uuid>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "f035ba10-18c8-4280-9c30-61b8e33bce59",
+                      "name": "Authentication successful",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login",
+                            "google"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6...\",\n  \"organizationId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"a851f9eb-7553-f011-8df3-46fb53daff28\",\n      \"email\": \"p0e2V06q-JBe9@NWGNqAjeSdjRDGdgZ.hrye\",\n      \"firstName\": \"string\",\n      \"lastName\": \"string\",\n      \"role\": \"admin\",\n      \"createdAt\": \"1985-11-11T01:54:16.811Z\",\n      \"updatedAt\": \"2003-02-26T12:49:22.188Z\"\n    },\n    \"tokens\": {\n      \"accessToken\": \"string\",\n      \"refreshToken\": \"string\"\n    }\n  }\n}",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    },
+                    {
+                      "id": "519b829f-9705-410d-bbd6-ac3f70921d62",
+                      "name": "Invalid request",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login",
+                            "google"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6...\",\n  \"organizationId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "{\n  \"success\": false,\n  \"error\": \"string\",\n  \"code\": \"string\"\n}",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    },
+                    {
+                      "id": "6cc7d392-7600-4534-b703-596376fd48e9",
+                      "name": "Authentication failed",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login",
+                            "google"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6...\",\n  \"organizationId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "34baf36a-219c-476a-8aa6-14b08dd5d7a8",
+                      "name": "Server error",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "auth",
+                            "login",
+                            "google"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6...\",\n  \"organizationId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Internal Server Error",
+                      "code": 500,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
+                }
+              ],
+              "event": []
+            },
+            {
+              "id": "80748fa4-8415-4870-a26c-569e567c0dc0",
+              "name": "Refresh access token",
+              "request": {
+                "name": "Refresh access token",
+                "description": {
+                  "content": "Obtain a new access token using a valid refresh token",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "refresh"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": null,
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "65761a45-1779-4af7-8111-17882669dbdf",
+                  "name": "Token refreshed successfully",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "refresh"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"accessToken\": \"string\"\n  }\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "d360f33f-2d05-4312-bf53-233e84bc1f56",
+                  "name": "Invalid request",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "refresh"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "e170924f-207c-45c2-9599-d137b4b6a4c9",
+                  "name": "Invalid or expired refresh token",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "refresh"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "d5d155c5-baaa-488d-966a-52467fa5cf99",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "refresh"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "fa7d9b94-ceae-4dcb-a3dd-5b25f69dd202",
+              "name": "Logout user",
+              "request": {
+                "name": "Logout user",
+                "description": {
+                  "content": "Logout user and invalidate all tokens",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "logout"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "bfe2d7a4-c14e-4817-8ae0-567025d16407",
+                  "name": "Logout successful",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "logout"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"success\": true,\n  \"message\": \"Logged out successfully\"\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "8b221555-66f6-433c-9926-11e61d3c4ad8",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "logout"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {}
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "b7ecee11-0fac-45e3-a7db-7dd25d7f8337",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "logout"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {}
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "220b7a1d-0679-47bd-ba9a-d92c49cdaef3",
+              "name": "Get current authenticated user",
+              "request": {
+                "name": "Get current authenticated user",
+                "description": {
+                  "content": "Retrieve profile information for the currently authenticated user",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "b77b13da-5a68-49e9-8b2a-76120cadc038",
+                  "name": "User profile retrieved successfully",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "me"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"37495bdd-9ec9-7c64-f076-454769fe67ee\",\n    \"email\": \"w9A6uTtcfC@GnhjEIpIp.tmxh\",\n    \"organizationId\": \"24650adf-94c1-b37c-1b2c-fcb0ce9afbfa\",\n    \"roles\": [\n      \"string\",\n      \"string\"\n    ],\n    \"permissions\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "9298998a-42e9-41c9-8190-07c71b45a632",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "me"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "cac3b631-36c4-4729-a43c-3f758ec2cb02",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "auth",
+                        "me"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            }
+          ],
+          "event": []
+        },
+        {
+          "id": "26c506fc-08ca-42bb-be01-57bfffa42ec9",
+          "name": "organizations",
+          "item": [
+            {
+              "id": "e047aa31-ae00-422f-8199-a647560cb11f",
+              "name": "Register new organization",
+              "request": {
+                "name": "Register new organization",
+                "description": {
+                  "content": "Register a new organization with initial admin user",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "organizations",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": null,
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"adminEmail\": \"<email>\",\n  \"adminPassword\": \"<password>\",\n  \"adminFirstName\": \"<string>\",\n  \"adminLastName\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "fe11bfb1-8aa5-483a-aacb-d079149679cc",
+                  "name": "Organization registered successfully",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        "register"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Acme Home Care\",\n  \"adminEmail\": \"admin@acmehomecare.com\",\n  \"adminPassword\": \"<password>\",\n  \"adminFirstName\": \"<string>\",\n  \"adminLastName\": \"<string>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"organization\": {},\n    \"adminUserId\": \"1060b702-54d1-f523-3915-4819a8e1086e\"\n  }\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "e4425620-59ef-4841-9771-f20cb36c9769",
+                  "name": "Invalid input",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        "register"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Acme Home Care\",\n  \"adminEmail\": \"admin@acmehomecare.com\",\n  \"adminPassword\": \"<password>\",\n  \"adminFirstName\": \"<string>\",\n  \"adminLastName\": \"<string>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "4e2cebbe-8504-4f53-82d4-7b62a0cdc85c",
+                  "name": "Organization or email already exists",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        "register"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Acme Home Care\",\n  \"adminEmail\": \"admin@acmehomecare.com\",\n  \"adminPassword\": \"<password>\",\n  \"adminFirstName\": \"<string>\",\n  \"adminLastName\": \"<string>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Conflict",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "9682007c-9edb-4252-be38-8a074001276d",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        "register"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Acme Home Care\",\n  \"adminEmail\": \"admin@acmehomecare.com\",\n  \"adminPassword\": \"<password>\",\n  \"adminFirstName\": \"<string>\",\n  \"adminLastName\": \"<string>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "78e444f8-340a-4d90-abf8-0d6187d0d4a6",
+              "name": "Get organization by ID",
+              "request": {
+                "name": "Get organization by ID",
+                "description": {
+                  "content": "Retrieve organization details by unique identifier",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "organizations",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Organization UUID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "0a1cd9fd-d5f0-437e-a916-a2414e9b3d03",
+                  "name": "Organization found",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Organization UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"success\": false,\n  \"data\": {}\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "62c23ce5-160c-4eed-aed4-46af713cecae",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Organization UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "6e684b0d-5018-413e-82c8-38c748cd0322",
+                  "name": "Organization not found",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Organization UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "126a2f5f-b725-42bf-a196-e73e4077fbc3",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "organizations",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Organization UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            }
+          ],
+          "event": []
+        },
+        {
+          "id": "c318f377-0017-4aa5-82a4-d7d5f4b08fe9",
+          "name": "care-plans",
+          "item": [
+            {
+              "id": "ae1fd386-ffc4-4aad-b8eb-64d84a7d242b",
+              "name": "Create new care plan",
+              "request": {
+                "name": "Create new care plan",
+                "description": {
+                  "content": "Create a new care plan for a client",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "care-plans"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"clientId\": \"<uuid>\",\n  \"title\": \"<string>\",\n  \"planType\": \"<string>\",\n  \"description\": \"<string>\",\n  \"startDate\": \"<date>\",\n  \"endDate\": \"<date>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "283cee4f-0a12-43f0-80b0-a069f969f75e",
+                  "name": "Care plan created successfully",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"clientId\": \"<uuid>\",\n  \"title\": \"Personal Care Plan\",\n  \"planType\": \"<string>\",\n  \"description\": \"<string>\",\n  \"startDate\": \"<date>\",\n  \"endDate\": \"<date>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": \"59b352ba-7bd7-c19a-265c-9cda870a304b\",\n  \"clientId\": \"5ec6bd44-d8f4-014b-dc65-387e2ca7c8d6\",\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"startDate\": \"1979-09-19\",\n  \"endDate\": \"2025-02-28\",\n  \"status\": \"cancelled\",\n  \"tasks\": [\n    {\n      \"id\": \"68b5c802-6e68-f83c-a52c-1fe95a071427\",\n      \"carePlanId\": \"92bbfbed-b600-cafd-0be7-97711e4c0335\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"daily\",\n      \"status\": \"in_progress\",\n      \"dueDate\": \"1989-03-02T05:26:28.343Z\",\n      \"createdAt\": \"1976-05-07T04:04:36.852Z\",\n      \"updatedAt\": \"1973-04-04T13:13:58.339Z\"\n    },\n    {\n      \"id\": \"fbe6d72d-3e94-5b0b-31cd-f6acc68df023\",\n      \"carePlanId\": \"9e02653c-930f-f2ff-d303-babffc4d1ce2\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"monthly\",\n      \"status\": \"in_progress\",\n      \"dueDate\": \"1969-03-19T10:35:39.008Z\",\n      \"createdAt\": \"1970-02-23T06:16:49.455Z\",\n      \"updatedAt\": \"1994-12-07T13:11:13.617Z\"\n    }\n  ],\n  \"createdAt\": \"1945-11-15T05:19:20.867Z\",\n  \"updatedAt\": \"2020-08-10T00:30:53.903Z\"\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "c85ec662-1855-44ff-a06d-d877c374fb20",
+                  "name": "Invalid input",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"clientId\": \"<uuid>\",\n  \"title\": \"Personal Care Plan\",\n  \"planType\": \"<string>\",\n  \"description\": \"<string>\",\n  \"startDate\": \"<date>\",\n  \"endDate\": \"<date>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "23afeda4-d9b9-4490-9ae9-398ebaef2c98",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"clientId\": \"<uuid>\",\n  \"title\": \"Personal Care Plan\",\n  \"planType\": \"<string>\",\n  \"description\": \"<string>\",\n  \"startDate\": \"<date>\",\n  \"endDate\": \"<date>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "692c34c2-8aeb-41b7-a3c1-75d345cdb76f",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"clientId\": \"<uuid>\",\n  \"title\": \"Personal Care Plan\",\n  \"planType\": \"<string>\",\n  \"description\": \"<string>\",\n  \"startDate\": \"<date>\",\n  \"endDate\": \"<date>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "f7295560-402d-4670-ab9e-13134cd27961",
+              "name": "Search care plans",
+              "request": {
+                "name": "Search care plans",
+                "description": {
+                  "content": "Search and filter care plans with pagination",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "care-plans"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "disabled": false,
+                      "key": "query",
+                      "value": "<string>",
+                      "description": "Search query text"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "clientId",
+                      "value": "<uuid>",
+                      "description": "Filter by client ID"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "status",
+                      "value": "<string>",
+                      "description": "Filter by status (comma-separated for multiple)"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "planType",
+                      "value": "<string>",
+                      "description": "Filter by plan type (comma-separated for multiple)"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "page",
+                      "value": "1",
+                      "description": "Page number"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Items per page"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "83339a46-7828-4c23-a689-cc7241ebd731",
+                  "name": "Care plans retrieved successfully",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "query",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "clientId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "status",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "planType",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"pagination\": {\n    \"page\": 2369,\n    \"limit\": 6748,\n    \"total\": 191,\n    \"totalPages\": 6607\n  }\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "bd1a64f2-077a-4f06-832a-0fe104730542",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "query",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "clientId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "status",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "planType",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "fe5f9606-60a5-419e-a232-6c7fbb57d7c1",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "query",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "clientId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "status",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "planType",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "6a403b35-0469-4d64-952d-d94a1ed527e3",
+              "name": "Get care plan by ID",
+              "request": {
+                "name": "Get care plan by ID",
+                "description": {
+                  "content": "Retrieve a single care plan by its unique identifier",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "care-plans",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Care plan UUID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "7a97699c-d44d-481e-bbcb-7e82e00d8b56",
+                  "name": "Care plan found",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Care plan UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": \"6afb7978-dac0-7c36-1a0a-122c35339889\",\n  \"clientId\": \"f2328bb8-58d7-c375-276e-d9ad8c30168e\",\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"startDate\": \"1988-04-27\",\n  \"endDate\": \"2018-01-07\",\n  \"status\": \"completed\",\n  \"tasks\": [\n    {\n      \"id\": \"1368a7fe-b129-e77c-ba07-32187e6b7962\",\n      \"carePlanId\": \"e687583e-d285-b397-9ae4-deedfa69e896\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"daily\",\n      \"status\": \"pending\",\n      \"dueDate\": \"2012-12-01T10:29:51.617Z\",\n      \"createdAt\": \"2012-08-27T15:17:17.393Z\",\n      \"updatedAt\": \"2012-06-16T15:05:22.143Z\"\n    },\n    {\n      \"id\": \"541328d7-2ee0-f20c-2089-c554ba9d6024\",\n      \"carePlanId\": \"060ed991-69a1-1ad9-98a3-47bbb5ae386e\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"monthly\",\n      \"status\": \"in_progress\",\n      \"dueDate\": \"1965-09-08T13:23:46.830Z\",\n      \"createdAt\": \"2001-08-08T11:04:07.930Z\",\n      \"updatedAt\": \"2007-05-05T07:42:16.559Z\"\n    }\n  ],\n  \"createdAt\": \"2004-05-11T15:16:42.971Z\",\n  \"updatedAt\": \"1980-04-11T02:53:30.901Z\"\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "a7c63d8d-8132-4a15-892f-a67f610e5875",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Care plan UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "925cee09-e632-4373-bb8d-3f89aa69aee2",
+                  "name": "Care plan not found",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Care plan UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "e52a71ee-6bf7-4c69-b62b-884dee35c521",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "care-plans",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Care plan UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            }
+          ],
+          "event": []
+        },
+        {
+          "id": "c31771cb-adee-4e0d-a0d8-d468e3e09e85",
+          "name": "clients",
+          "item": [
+            {
+              "id": "36cb4c1e-0b89-4f07-9001-d67cd8e0c2c1",
+              "name": "List and search clients",
+              "request": {
+                "name": "List and search clients",
+                "description": {
+                  "content": "Search/list clients with pagination and filters",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "clients"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "disabled": false,
+                      "key": "q",
+                      "value": "<string>",
+                      "description": "Search query (name, client number, etc.)"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "organizationId",
+                      "value": "<uuid>",
+                      "description": "Filter by organization ID"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "branchId",
+                      "value": "<uuid>",
+                      "description": "Filter by branch ID"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "status",
+                      "value": "<string>",
+                      "description": "Filter by client status (comma-separated for multiple)"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "minAge",
+                      "value": "<integer>",
+                      "description": "Minimum age filter"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "maxAge",
+                      "value": "<integer>",
+                      "description": "Maximum age filter"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "city",
+                      "value": "<string>",
+                      "description": "Filter by city"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "state",
+                      "value": "<string>",
+                      "description": "Filter by state code"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "page",
+                      "value": "1",
+                      "description": "Page number"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Items per page"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "7fff2fe4-bb24-4ea1-8b5d-37825f6d5b2f",
+                  "name": "Clients retrieved successfully",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "q",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "organizationId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "branchId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "status",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "minAge",
+                          "value": "<integer>"
+                        },
+                        {
+                          "key": "maxAge",
+                          "value": "<integer>"
+                        },
+                        {
+                          "key": "city",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "state",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"pagination\": {\n      \"page\": 1019,\n      \"limit\": 3887,\n      \"total\": 8049,\n      \"totalPages\": 4862\n    }\n  }\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "f6b7088c-0936-4827-b872-a1a846133f27",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "q",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "organizationId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "branchId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "status",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "minAge",
+                          "value": "<integer>"
+                        },
+                        {
+                          "key": "maxAge",
+                          "value": "<integer>"
+                        },
+                        {
+                          "key": "city",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "state",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "76334415-82af-4b80-a54a-471bfc848cf7",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "q",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "organizationId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "branchId",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "key": "status",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "minAge",
+                          "value": "<integer>"
+                        },
+                        {
+                          "key": "maxAge",
+                          "value": "<integer>"
+                        },
+                        {
+                          "key": "city",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "state",
+                          "value": "<string>"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "42de0722-6af7-4469-9e68-b34eabe9f95c",
+              "name": "Create new client",
+              "request": {
+                "name": "Create new client",
+                "description": {
+                  "content": "Create a new client record with demographics and intake information",
+                  "type": "text/plain"
+                },
+                "url": {
+                  "path": [
+                    "api",
+                    "clients"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"dateOfBirth\": \"<date>\",\n  \"organizationId\": \"<uuid>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": {\n    \"number\": \"<string>\",\n    \"type\": \"<string>\"\n  },\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "435d1374-89cb-4a71-89ec-a3788f801754",
+                  "name": "Client created successfully",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1950-01-15\",\n  \"organizationId\": \"<uuid>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": {\n    \"number\": \"<string>\",\n    \"type\": \"<string>\"\n  },\n  \"email\": \"<email>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"516ecbdc-5b30-7b2e-6d56-0128ecee98a9\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"2005-11-22\",\n    \"status\": \"inactive\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"jrk5a0Aq57x5@dkMywHTxoebHQFwszaZgkEviiUZHx.ybw\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"1991-11-08T07:31:06.261Z\",\n    \"updatedAt\": \"1969-12-06T02:07:41.158Z\"\n  },\n  \"message\": \"string\"\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                },
+                {
+                  "id": "58fe503b-6732-4c39-98cd-896cea5acea8",
+                  "name": "Invalid input",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1950-01-15\",\n  \"organizationId\": \"<uuid>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": {\n    \"number\": \"<string>\",\n    \"type\": \"<string>\"\n  },\n  \"email\": \"<email>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "4ec9cddc-c7d3-4442-8b76-285c4dd8657a",
+                  "name": "Not authenticated",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1950-01-15\",\n  \"organizationId\": \"<uuid>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": {\n    \"number\": \"<string>\",\n    \"type\": \"<string>\"\n  },\n  \"email\": \"<email>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                },
+                {
+                  "id": "090ea4e5-3b40-4de7-ab8e-fc3cf1ab88cb",
+                  "name": "Server error",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1950-01-15\",\n  \"organizationId\": \"<uuid>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": {\n    \"number\": \"<string>\",\n    \"type\": \"<string>\"\n  },\n  \"email\": \"<email>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "f45556da-40da-45da-9bfe-54d445f29d71",
+              "name": "{id}",
+              "item": [
+                {
+                  "id": "36f21cc0-1336-4c6d-a21c-ad6b369cfee2",
+                  "name": "Get client by ID",
+                  "request": {
+                    "name": "Get client by ID",
+                    "description": {
+                      "content": "Retrieve a single client by their unique identifier",
+                      "type": "text/plain"
+                    },
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Client UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "be9af013-65a7-4643-9ead-34c8dd611b4e",
+                      "name": "Client found",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "{\n  \"success\": false,\n  \"data\": {\n    \"id\": \"a0c77cac-7544-c56c-a1b7-488f5f8bedb5\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"2018-04-27\",\n    \"status\": \"active\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"8NLA@WUucwNOpPPuysTeGaeCVaWibVPP.cwic\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"1950-10-12T20:26:09.631Z\",\n    \"updatedAt\": \"2002-09-30T00:06:33.721Z\"\n  }\n}",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    },
+                    {
+                      "id": "cc8f654c-5935-49ed-8145-7b5ae2e0f0d2",
+                      "name": "Invalid client ID",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "0fbb0296-7df9-4d35-8803-e71ef40410ac",
+                      "name": "Not authenticated",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "f010ca18-8f22-4ce4-b403-bea5c798195d",
+                      "name": "Client not found",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "37a78e2e-6417-40d4-870e-cbbde058b33d",
+                      "name": "Server error",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "Internal Server Error",
+                      "code": 500,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
+                },
+                {
+                  "id": "a0c6f214-772e-4073-ba8b-1db5ca81ba97",
+                  "name": "Update client",
+                  "request": {
+                    "name": "Update client",
+                    "description": {
+                      "content": "Update existing client information (partial update)",
+                      "type": "text/plain"
+                    },
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Client UUID"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "PATCH",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": \"<object>\",\n  \"email\": \"<email>\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "ab2687a8-1467-42cd-b2b3-2fd4fe578c38",
+                      "name": "Client updated successfully",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "PATCH",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": \"<object>\",\n  \"email\": \"<email>\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"516ecbdc-5b30-7b2e-6d56-0128ecee98a9\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"2005-11-22\",\n    \"status\": \"inactive\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"jrk5a0Aq57x5@dkMywHTxoebHQFwszaZgkEviiUZHx.ybw\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"1991-11-08T07:31:06.261Z\",\n    \"updatedAt\": \"1969-12-06T02:07:41.158Z\"\n  },\n  \"message\": \"string\"\n}",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    },
+                    {
+                      "id": "e2596e96-8088-4a80-a1d3-aa1c786efd43",
+                      "name": "Invalid input",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "PATCH",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": \"<object>\",\n  \"email\": \"<email>\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "7dec0350-9abf-4ed3-a354-48333a92b27e",
+                      "name": "Not authenticated",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "PATCH",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": \"<object>\",\n  \"email\": \"<email>\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "28376bfe-b1b9-4316-b198-c1d741419fc4",
+                      "name": "Client not found",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "PATCH",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": \"<object>\",\n  \"email\": \"<email>\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "f066cea7-ba51-4f35-a7bb-ab7d556a03f1",
+                      "name": "Server error",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client UUID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "PATCH",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"primaryAddress\": {\n    \"street\": \"<string>\",\n    \"street2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"state\": \"<string>\",\n    \"zip\": \"<string>\",\n    \"country\": \"US\"\n  },\n  \"primaryPhone\": \"<object>\",\n  \"email\": \"<email>\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      },
+                      "status": "Internal Server Error",
+                      "code": 500,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
+                }
+              ],
+              "event": []
+            }
+          ],
+          "event": []
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "http://localhost:3000",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "55560d32-67e6-41f7-a21f-20c5682f6bdc",
+    "name": "Care Commons API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Home healthcare platform API documentation\n\nContact Support:\n Name: Care Commons Team",
+      "type": "text/plain"
+    }
+  }
+}

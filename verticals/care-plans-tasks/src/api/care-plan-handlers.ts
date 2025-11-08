@@ -7,7 +7,7 @@
 import { Request, Response } from 'express';
 import { CarePlanService } from '../service/care-plan-service';
 import { UserContext, Role, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
-import { CarePlanStatus, CarePlanType, TaskStatus, TaskCategory } from '../types/care-plan';
+import { CarePlanStatus, CarePlanType, TaskStatus, TaskCategory, CarePlanSearchFilters, TaskInstanceSearchFilters } from '../types/care-plan';
 
 /**
  * Type guard to check if error is a known domain error
@@ -56,8 +56,56 @@ function getUserContext(req: Request): UserContext {
 export function createCarePlanHandlers(service: CarePlanService) {
   return {
     /**
-     * POST /care-plans
-     * Create a new care plan
+     * @openapi
+     * /api/care-plans:
+     *   post:
+     *     tags:
+     *       - Care Plans
+     *     summary: Create new care plan
+     *     description: Create a new care plan for a client
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required:
+     *               - clientId
+     *               - title
+     *               - planType
+     *             properties:
+     *               clientId:
+     *                 type: string
+     *                 format: uuid
+     *               title:
+     *                 type: string
+     *                 example: Personal Care Plan
+     *               description:
+     *                 type: string
+     *               planType:
+     *                 type: string
+     *                 enum: [PERSONAL_CARE, COMPANION, SKILLED_NURSING, THERAPY, HOSPICE, RESPITE, LIVE_IN, CUSTOM]
+     *               startDate:
+     *                 type: string
+     *                 format: date
+     *               endDate:
+     *                 type: string
+     *                 format: date
+     *     responses:
+     *       201:
+     *         description: Care plan created successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/CarePlan'
+     *       400:
+     *         description: Invalid input
+     *       401:
+     *         description: Not authenticated
+     *       500:
+     *         description: Server error
      */
     async createCarePlan(req: Request, res: Response) {
       try {
@@ -70,8 +118,36 @@ export function createCarePlanHandlers(service: CarePlanService) {
     },
 
     /**
-     * GET /care-plans/:id
-     * Get care plan by ID
+     * @openapi
+     * /api/care-plans/{id}:
+     *   get:
+     *     tags:
+     *       - Care Plans
+     *     summary: Get care plan by ID
+     *     description: Retrieve a single care plan by its unique identifier
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *         description: Care plan UUID
+     *     responses:
+     *       200:
+     *         description: Care plan found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/CarePlan'
+     *       401:
+     *         description: Not authenticated
+     *       404:
+     *         description: Care plan not found
+     *       500:
+     *         description: Server error
      */
     async getCarePlanById(req: Request, res: Response) {
       try {
@@ -112,8 +188,62 @@ export function createCarePlanHandlers(service: CarePlanService) {
     },
 
     /**
-     * GET /care-plans
-     * Search care plans
+     * @openapi
+     * /api/care-plans:
+     *   get:
+     *     tags:
+     *       - Care Plans
+     *     summary: Search care plans
+     *     description: Search and filter care plans with pagination
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: query
+     *         name: query
+     *         schema:
+     *           type: string
+     *         description: Search query text
+     *       - in: query
+     *         name: clientId
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *         description: Filter by client ID
+     *       - in: query
+     *         name: status
+     *         schema:
+     *           type: string
+     *           enum: [DRAFT, PENDING_APPROVAL, ACTIVE, ON_HOLD, EXPIRED, DISCONTINUED, COMPLETED]
+     *         description: Filter by status (comma-separated for multiple)
+     *       - in: query
+     *         name: planType
+     *         schema:
+     *           type: string
+     *           enum: [PERSONAL_CARE, COMPANION, SKILLED_NURSING, THERAPY, HOSPICE, RESPITE, LIVE_IN, CUSTOM]
+     *         description: Filter by plan type (comma-separated for multiple)
+     *       - in: query
+     *         name: page
+     *         schema:
+     *           type: integer
+     *           default: 1
+     *         description: Page number
+     *       - in: query
+     *         name: limit
+     *         schema:
+     *           type: integer
+     *           default: 20
+     *         description: Items per page
+     *     responses:
+     *       200:
+     *         description: Care plans retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/PaginatedResponse'
+     *       401:
+     *         description: Not authenticated
+     *       500:
+     *         description: Server error
      */
     async searchCarePlans(req: Request, res: Response) {
       try {
@@ -152,7 +282,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
           }
         }
 
-        const filters: any = {
+        const filters: CarePlanSearchFilters = {
           needsReview: req.query['needsReview'] === 'true',
         };
         if (query) filters.query = query;
@@ -335,7 +465,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async searchTaskInstances(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const filters: any = {
+        const filters: TaskInstanceSearchFilters = {
           carePlanId: req.query['carePlanId'] as string,
           clientId: req.query['clientId'] as string,
           overdue: req.query['overdue'] === 'true',

@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { 
+import {
   OrganizationService,
   Database,
   CreateOrganizationRequest,
@@ -14,15 +14,77 @@ import {
   ValidationError,
   ConflictError,
   NotFoundError,
+  AuthMiddleware,
 } from '@care-commons/core';
 
 export function createOrganizationRouter(db: Database): Router {
   const router = Router();
   const organizationService = new OrganizationService(db);
+  const authMiddleware = new AuthMiddleware(db);
 
   /**
-   * POST /api/organizations/register
-   * Register a new organization with initial admin user
+   * @openapi
+   * /api/organizations/register:
+   *   post:
+   *     tags:
+   *       - Organizations
+   *     summary: Register new organization
+   *     description: Register a new organization with initial admin user
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - name
+   *               - adminEmail
+   *               - adminPassword
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 description: Organization name
+   *                 example: Acme Home Care
+   *               adminEmail:
+   *                 type: string
+   *                 format: email
+   *                 description: Admin user email
+   *                 example: admin@acmehomecare.com
+   *               adminPassword:
+   *                 type: string
+   *                 format: password
+   *                 description: Admin user password
+   *               adminFirstName:
+   *                 type: string
+   *                 description: Admin first name
+   *               adminLastName:
+   *                 type: string
+   *                 description: Admin last name
+   *     responses:
+   *       201:
+   *         description: Organization registered successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     organization:
+   *                       type: object
+   *                     adminUserId:
+   *                       type: string
+   *                       format: uuid
+   *       400:
+   *         description: Invalid input
+   *       409:
+   *         description: Organization or email already exists
+   *       500:
+   *         description: Server error
    */
   router.post('/organizations/register', async (req: Request, res: Response): Promise<void> => {
     try {
@@ -65,10 +127,43 @@ export function createOrganizationRouter(db: Database): Router {
   });
 
   /**
-   * GET /api/organizations/:id
-   * Get organization details by ID
+   * @openapi
+   * /api/organizations/{id}:
+   *   get:
+   *     tags:
+   *       - Organizations
+   *     summary: Get organization by ID
+   *     description: Retrieve organization details by unique identifier
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Organization UUID
+   *     responses:
+   *       200:
+   *         description: Organization found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *       401:
+   *         description: Not authenticated
+   *       404:
+   *         description: Organization not found
+   *       500:
+   *         description: Server error
    */
-  router.get('/organizations/:id', async (req: Request, res: Response): Promise<void> => {
+  router.get('/organizations/:id', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params['id'];
       if (id === undefined || id.length === 0) {
@@ -107,7 +202,7 @@ export function createOrganizationRouter(db: Database): Router {
    * POST /api/organizations/:id/invitations
    * Create a new team member invitation
    */
-  router.post('/organizations/:id/invitations', async (req: Request, res: Response): Promise<void> => {
+  router.post('/organizations/:id/invitations', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const organizationId = req.params['id'];
       if (organizationId === undefined || organizationId.length === 0) {
@@ -175,7 +270,7 @@ export function createOrganizationRouter(db: Database): Router {
    * GET /api/organizations/:id/invitations
    * List all invitations for an organization
    */
-  router.get('/organizations/:id/invitations', async (req: Request, res: Response): Promise<void> => {
+  router.get('/organizations/:id/invitations', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const organizationId = req.params['id'];
       if (organizationId === undefined || organizationId.length === 0) {
@@ -308,7 +403,7 @@ export function createOrganizationRouter(db: Database): Router {
    * DELETE /api/invitations/:token
    * Revoke an invitation
    */
-  router.delete('/invitations/:token', async (req: Request, res: Response): Promise<void> => {
+  router.delete('/invitations/:token', authMiddleware.requireAuth, async (req: Request, res: Response): Promise<void> => {
     try {
       const token = req.params['token'];
       if (token === undefined || token.length === 0) {

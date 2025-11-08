@@ -150,7 +150,7 @@ export class EVVRecordPage extends BasePage {
   /**
    * Create VMUR amendment (for Texas)
    */
-  async createVMURAmen dment(reason: string, correctedData: {
+  async createVMURAmendment(reason: string, correctedData: {
     clockInTime?: string;
     clockOutTime?: string;
     location?: string;
@@ -229,5 +229,21 @@ export class EVVRecordPage extends BasePage {
     const regex = new RegExp(`${label}\\s*([^,\\n]+)`);
     const match = text.match(regex);
     return match ? match[1].trim() : undefined;
+  }
+
+  /**
+   * Get clock-in timestamp
+   */
+  async getClockInTime(): Promise<string> {
+    const clockInText = await this.clockInTime.textContent();
+    return clockInText?.trim() || '';
+  }
+
+  /**
+   * Get clock-out timestamp
+   */
+  async getClockOutTime(): Promise<string> {
+    const clockOutText = await this.clockOutTime.textContent();
+    return clockOutText?.trim() || '';
   }
 }

@@ -5,10 +5,12 @@
  */
 
 import { Express, Router } from 'express';
-import { Database, PermissionService, UserRepository } from '@care-commons/core';
+import { Database, PermissionService, UserRepository, AuthMiddleware } from '@care-commons/core';
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
+import { createHealthRouter } from './health.js';
+import { createMetricsRouter } from './metrics.js';
 import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
@@ -21,12 +23,27 @@ import { authLimiter } from '../middleware/rate-limit.js';
  * When re-enabling: import { createAnalyticsRouter } from './analytics.js';
  */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
+import docsRoutes from './docs.routes.js';
 
 /**
  * Setup all API routes for the application
  */
 export function setupRoutes(app: Express, db: Database): void {
   console.log('Setting up API routes...');
+
+  // Health check route (no authentication required)
+  const healthRouter = createHealthRouter(db);
+  app.use('/health', healthRouter);
+  console.log('  ✓ Health check route registered');
+
+  // Metrics route (no authentication required)
+  const metricsRouter = createMetricsRouter();
+  app.use('/metrics', metricsRouter);
+  console.log('  ✓ Metrics route registered');
+
+  // API Documentation routes
+  app.use('/', docsRoutes);
+  console.log('  ✓ API Documentation routes registered');
 
   // Authentication routes with rate limiting
   const authRouter = createAuthRouter(db);
@@ -51,7 +68,7 @@ export function setupRoutes(app: Express, db: Database): void {
   const userRepository = new UserRepository(db);
   const carePlanService = new CarePlanService(carePlanRepository, permissionService, userRepository);
   const carePlanHandlers = createCarePlanHandlers(carePlanService);
-  const carePlanRouter = createCarePlanRouter(carePlanHandlers);
+  const carePlanRouter = createCarePlanRouter(carePlanHandlers, db);
   app.use('/api', carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered');
 
@@ -89,8 +106,12 @@ export function setupRoutes(app: Express, db: Database): void {
 /**
  * Helper to create router from care plan handlers object
  */
-function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers>): Router {
+function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers>, db: Database): Router {
   const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All care plan routes require authentication
+  router.use(authMiddleware.requireAuth);
 
   // Care Plan endpoints
   router.post('/care-plans', handlers.createCarePlan);

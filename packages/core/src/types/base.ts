@@ -68,8 +68,8 @@ export type LifecycleStatus =
  */
 export interface UserContext {
   userId: UUID;
-  roles: Role[];
-  permissions: Permission[];
+  roles: string[];  // Accepting string[] instead of Role[] for flexibility
+  permissions: string[];  // Accepting string[] instead of Permission[] for flexibility
   organizationId: UUID;
   branchIds: UUID[];
 }
