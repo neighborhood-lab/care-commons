@@ -14,7 +14,6 @@ import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, Report
 import { DemoModeBar } from './demo';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
 import {
-  FamilyLoginPage,
   FamilyDashboard,
   FamilySettings,
   ActivityPage,
@@ -290,7 +289,6 @@ function AppRoutes() {
         }
       />
       {/* Family Portal Routes */}
-      <Route path="/family-portal/login" element={<FamilyLoginPage />} />
       <Route path="/family-portal" element={<FamilyPortalLayout />}>
         <Route index element={<FamilyDashboard />} />
         <Route path="settings" element={<FamilySettings />} />

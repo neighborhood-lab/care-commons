@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Home, Settings, LogOut, X, Menu } from 'lucide-react';
+import { useAuth } from '@/core/hooks';
 
 interface NavItem {
   label: string;
@@ -20,12 +21,14 @@ const navItems: NavItem[] = [
 
 export const FamilyPortalLayout: React.FC = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = () => {
+    logout();
     sessionStorage.removeItem('familyMemberId');
     sessionStorage.removeItem('clientId');
-    navigate('/family-portal/login');
+    navigate('/login');
   };
 
   return (
