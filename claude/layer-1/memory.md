@@ -620,59 +620,63 @@ No production blockers found. Focus areas:
 4. Maintain quality standards defined above
 5. Follow architectural patterns consistently
 6. **CRITICAL**: Verify documentation against actual code before assuming work is needed
+7. **NEW**: Production readiness includes UX/onboarding, not just technical completion
 
-**Current Phase**: Phase 1 - Production Readiness (Critical Blockers Identified)
-**Platform Status**: 85% production-ready ⚠️ **2 critical blockers found**
-**Task Queue Status**: 53 tasks (2 critical, 5 high, 7 medium, ~39 from previous sessions)
-**Estimated Remaining Effort**: ~220-280 hours (revised up after deep analysis)
-**Time to Launch**: 5-7 weeks with focused execution on blockers
+**Current Phase**: Phase 1 - Production Readiness (Expanded Scope - UX & Safety)
+**Platform Status**: 85% technically complete, 70% production-ready ⚠️ **12 new high-priority tasks identified**
+**Task Queue Status**: 65 tasks (3 critical blockers, 9 production-readiness, 5 critical features, ~48 other)
+**Estimated Remaining Effort**: ~300-380 hours (revised up after UX/onboarding gap analysis)
+**Time to Launch**: 6-8 weeks with focused execution on 5-tier priority system
 
-**MAJOR UPDATE (2025-11-08 - CRITICAL)**:
+**MAJOR UPDATES (2025-11-08)**:
+
+**Morning Session**:
 - ~~Tasks 0021, 0022 are ALREADY COMPLETE in code~~ (documentation was outdated)
 - ~~Task 0023 (Care Plans UI) is COMPLETE~~ (17 components + 7 pages implemented)
 - ~~Task 0036 (Family Engagement Portal) is COMPLETE~~ (Nov 2024 implementation)
-- **CRITICAL**: 2 production blockers identified in afternoon session:
+
+**Afternoon Session**:
+- **CRITICAL**: 2 production blockers identified:
   1. **EVV Aggregator HTTP Submission** (Task 0049) - P0 - records not submitted to state
   2. **Notification Delivery System** (Task 0067) - P1 - families receive zero notifications
 
-**Immediate Action Items for Layer-2 Workers**:
+**Evening Session (THIS SESSION)**:
+- **NEW INSIGHT**: Production readiness requires more than technical completion
+- **12 NEW TASKS CREATED** (0074-0080, 0081, 0086, 0087, 0089, 0095)
+- **2 NEW VERTICALS IDENTIFIED**: medication-management, emergency-alerts
+- **REVISED ESTIMATE**: 70% production-ready (was 85%) when including UX/onboarding
 
-**🚨 CRITICAL BLOCKERS (Must Fix Before Production)**:
-1. **Task 0049** - EVV Aggregator HTTP Integration (P0 - COMPLIANCE FAILURE without this)
-2. **Task 0067** - Notification Delivery System (P1 - ZERO notifications to families)
-3. **Task 0068** - Family Engagement Data Integration (P1 - completes family portal)
+**Immediate Action Items for Layer-2 Workers** (5-Tier Priority System):
 
-**HIGHEST PRIORITY (Production Readiness)**:
-4. **Task 0051** - Documentation Audit and Correction (QUICK WIN, 2-3 hours)
-5. **Task 0052** - E2E Test Suite for Critical Workflows (HIGH VALUE, 1 week)
-6. **Task 0053** - Load Testing and Performance Baselines (REQUIRED, 3-5 days)
-7. **Task 0054** - Production Monitoring Dashboard (REQUIRED, 3-5 days)
+**🔴 TIER 1 - PRODUCTION BLOCKERS (Week 1-2, ~40 hours)**:
+1. **Task 0049** - EVV Aggregator HTTP Integration (2-3 weeks, P0 COMPLIANCE BLOCKER)
+2. **Task 0067** - Notification Delivery System (1-2 weeks, P1 ZERO NOTIFICATIONS)
+3. **Task 0068** - Family Engagement Data Integration (1 week, P1 DATA INTEGRATION)
 
-**HIGH VALUE FEATURE COMPLETION**:
-8. **Task 0069** - Billing & Invoicing Service Layer Completion (2 weeks) - NEW
-9. **Task 0070** - Shift Matching UI Implementation (1-2 weeks) - NEW
-10. **Task 0055** - Mobile ClockInScreen Implementation (2-3 days)
-11. **Task 0056** - Mobile TasksScreen Implementation (2-3 days)
-12. **Task 0057** - Mobile ScheduleScreen Implementation (2-3 days)
-13. **Task 0058** - Mobile ProfileScreen Implementation (2-3 days)
-14. **Task 0059** - Payroll Processing Frontend UI (1 week)
-15. **Task 0060** - Analytics Dashboard Completion (1 week)
-16. **Task 0061** - Quality Assurance Module Implementation (2 weeks)
+**🟠 TIER 2 - PRODUCTION READINESS (Week 3-4, ~80 hours)**:
+4. **Task 0074** - End-to-End User Journey Validation (1 week, validates everything works)
+5. **Task 0075** - Production Deployment Runbook (1 week, agencies can self-deploy)
+6. **Task 0077** - HIPAA Compliance Verification (1 week, legal requirement)
+7. **Task 0078** - Database Migration Safety Testing (3-4 days, prevents data loss)
 
-**INFRASTRUCTURE & POLISH**:
-- Task 0030 - API Rate Limiting and Throttling
-- Task 0031 - Caching Layer Implementation
-- Task 0032 - Security Hardening and Penetration Testing
-- Task 0033 - Monitoring, Error Tracking, Observability
-- Task 0034 - Backup and Disaster Recovery
-- Task 0062 - Showcase Demo Enhancement
-- Task 0063 - Developer Experience Improvements
-- Task 0064 - API Performance Optimization
-- Task 0065 - Mobile App Testing Automation
-- Task 0066 - Compliance Reporting Automation
-- Task 0071 - Scheduling Holiday Filtering (2-3 days) - NEW
-- Task 0072 - Analytics SQL Performance Optimization (1 week) - NEW
-- Task 0073 - TODO Categorization and Cleanup (2-3 days) - NEW
+**🟡 TIER 3 - FIRST IMPRESSIONS (Week 5-6, ~50 hours)**:
+8. **Task 0076** - Demo Data Seeding and Showcase (3-5 days, compelling demo)
+9. **Task 0079** - Administrator Quick Start Guide (3-4 days, onboarding excellence)
+10. **Task 0080** - Coordinator Quick Start Guide (3-4 days, training materials)
+11. **Task 0081** - Caregiver Mobile Onboarding (2-3 days, first-time setup)
+
+**🟢 TIER 4 - CRITICAL FEATURES (Week 5-8, ~100 hours)**:
+12. **Task 0086** - Medication Tracking Module (2 weeks, NEW VERTICAL - healthcare core)
+13. **Task 0087** - Emergency Contact and Alert System (1 week, NEW VERTICAL - safety)
+14. **Task 0089** - Client Intake Workflow (1 week, operational efficiency)
+15. **Task 0095** - Global Search Functionality (1 week, user experience)
+
+**⚪ TIER 5 - FEATURE COMPLETION & POLISH (Week 7-12, ~130 hours)**:
+- Tasks 0051-0054: Testing, monitoring, performance (E2E tests, load testing, monitoring)
+- Tasks 0055-0061: Mobile screens, payroll UI, analytics dashboard, QA module
+- Tasks 0030-0035: Infrastructure (rate limiting, caching, security, backups)
+- Tasks 0062-0066: Polish (showcase, devex, performance, mobile testing, compliance)
+- Tasks 0069-0073: Vertical completion (billing, shift matching, analytics, holidays, TODOs)
 
 **Recent Updates (2025-11-08 - Morning Session)**:
 - Conducted comprehensive codebase audit
@@ -696,3 +700,219 @@ No production blockers found. Focus areas:
 
 **Total Task Queue**: 53 implementation tasks (0021-0073)
 **Critical Path Updated**: 2 true blockers identified (Tasks 0067, 0049)
+
+---
+
+### Session: 2025-11-08 (Evening) - Production Launch Preparation & Critical Feature Planning
+
+**Major Focus**: Production-readiness validation, user onboarding excellence, and critical missing features
+
+**Planning Methodology**: As the central planner, conducted strategic analysis of what's needed for successful production launch beyond just technical completion. Focused on real-world impact for personas, first-impression quality, and operational excellence.
+
+**CRITICAL TASKS CREATED (0074-0080) - Production Launch Essentials**:
+
+1. **Task 0074 - End-to-End User Journey Validation** (1 week)
+   - **Why Critical**: Individual features work, but cross-persona workflows haven't been validated
+   - **Scope**: Manual validation of all 5 persona journeys (Admin, Coordinator, Caregiver, Family, Client)
+   - **Deliverables**: Journey maps, pain point documentation, UX improvements list
+   - **Impact**: Ensures platform actually works for real users, prevents embarrassing launch issues
+
+2. **Task 0075 - Production Deployment Runbook and Automation** (1 week)
+   - **Why Critical**: Deployment docs exist but not battle-tested or user-friendly for agencies
+   - **Scope**: Step-by-step runbooks for Vercel and Docker deployment, health checks, rollback procedures
+   - **Deliverables**: Complete deployment documentation, automated scripts, validation tools
+   - **Impact**: Agencies can deploy in <2 hours instead of 4-8 hours of troubleshooting
+
+3. **Task 0076 - Demo Data Seeding and Showcase Enhancement** (3-5 days)
+   - **Why Critical**: First impressions determine adoption - empty demo is missed opportunity
+   - **Scope**: Realistic seed data (50 clients, 30 caregivers, 500 visits), interactive tours
+   - **Deliverables**: One-command seed script, showcase landing page, persona selection
+   - **Impact**: Evaluators see platform value immediately, conversion improves
+
+4. **Task 0077 - HIPAA Compliance Verification and Audit** (1 week)
+   - **Why Critical**: HIPAA violations = massive fines + reputational damage
+   - **Scope**: Complete technical, administrative, and physical safeguards audit
+   - **Deliverables**: Compliance checklist, BAA templates, employee training materials
+   - **Impact**: Legal protection, customer confidence, audit readiness
+
+5. **Task 0078 - Database Migration Safety and Rollback Testing** (3-4 days)
+   - **Why Critical**: Failed migration in production = data loss or downtime
+   - **Scope**: Test all 25 migrations forward/backward, benchmark performance, fix unsafe migrations
+   - **Deliverables**: Migration test suite, safety checks, production migration runbook
+   - **Impact**: Confidence in production migrations, safe rollback procedures
+
+6. **Task 0079 - Administrator Quick Start Guide and Onboarding** (3-4 days)
+   - **Why Critical**: First-time admin experience determines success or abandonment
+   - **Scope**: Step-by-step guide for 30-minute setup, in-app onboarding wizard, video walkthrough
+   - **Deliverables**: Documentation, interactive wizard UI, troubleshooting guide
+   - **Impact**: 90%+ of admins can configure agency without support
+
+7. **Task 0080 - Coordinator Quick Start Guide and Training Materials** (3-4 days)
+   - **Why Critical**: Coordinators are primary daily users - must feel confident immediately
+   - **Scope**: Quick start guide, video training series, interactive tours, daily workflow checklists
+   - **Deliverables**: Complete training materials, in-app help, troubleshooting guide
+   - **Impact**: Coordinators productive within first hour, reduced support burden
+
+**HIGH-PRIORITY FEATURES CREATED (0081, 0086, 0087, 0089, 0095) - Critical Gaps**:
+
+8. **Task 0081 - Caregiver Mobile App Onboarding Flow** (2-3 days)
+   - **Gap Identified**: No first-time setup wizard, caregivers confused about permissions
+   - **Impact**: 90%+ complete onboarding, proper biometric/GPS enrollment
+   - **Why High Priority**: Front-line user experience, EVV compliance depends on proper setup
+
+9. **Task 0086 - Medication Tracking and Management Module** (2 weeks) - **NEW VERTICAL**
+   - **Gap Identified**: Medication admin is CRITICAL healthcare task, currently ad-hoc only
+   - **Impact**: Complete medication management, eMAR compliance, error tracking
+   - **Why High Priority**: Medicare/Medicaid reimbursement requires documentation, patient safety
+   - **Scope**: Full medication database, scheduling, mobile tracking, eMAR reports
+
+10. **Task 0087 - Emergency Contact and Alert System** (1 week) - **NEW VERTICAL**
+    - **Gap Identified**: No emergency alert system = delayed response in medical emergencies
+    - **Impact**: One-tap emergency alerts, automatic multi-party notification, incident tracking
+    - **Why High Priority**: Patient safety, caregiver support, family peace of mind
+    - **Scope**: Mobile emergency button, notification system, emergency contact management
+
+11. **Task 0089 - Client Intake and Onboarding Workflow** (1 week)
+    - **Gap Identified**: Multi-step intake process takes 30-45 minutes, easy to forget steps
+    - **Impact**: Streamlined wizard reduces intake to <15 minutes
+    - **Why High Priority**: High-frequency coordinator task, operational efficiency
+    - **Scope**: Intake wizard, auto-complete features, welcome packet generation
+
+12. **Task 0095 - Global Search Across Platform** (1 week)
+    - **Gap Identified**: Users must navigate to specific sections to search, inefficient
+    - **Impact**: 80% reduction in "I can't find..." support tickets
+    - **Why High Priority**: Developer speed, user satisfaction, reduces cognitive load
+    - **Scope**: Global search UI (Cmd+K), full-text backend, keyboard shortcuts
+
+**Strategic Insights from This Session**:
+
+**Production Readiness is More Than Code:**
+- Platform may be 85% technically complete, but **user-facing readiness** requires:
+  - Onboarding excellence (Tasks 0079, 0080, 0081)
+  - Journey validation (Task 0074)
+  - Deployment simplicity (Task 0075)
+  - Compelling demo (Task 0076)
+  - Legal/compliance confidence (Task 0077)
+  - Operational safety (Task 0078)
+
+**Critical Healthcare Features Were Missing:**
+- **Medication Management** (Task 0086) - Core healthcare functionality
+- **Emergency Alerts** (Task 0087) - Patient safety requirement
+- These aren't "nice-to-haves" - they're expected in any healthcare platform
+
+**User Experience Gaps:**
+- No guided onboarding for any persona (Tasks 0079, 0080, 0081)
+- No streamlined workflows for high-frequency tasks (Task 0089)
+- No global search making navigation inefficient (Task 0095)
+
+**Revised Production Readiness Assessment**:
+
+**BEFORE this session**:
+- "85% production-ready, 2 critical blockers (EVV submission, notifications)"
+- Focus on technical completion
+
+**AFTER this session**:
+- "85% technically complete, but 70% production-ready when including UX/onboarding"
+- **Additional production dependencies identified**:
+  - User journey validation (Task 0074)
+  - Onboarding materials for all personas (Tasks 0079, 0080, 0081)
+  - Medication management (Task 0086) - expected feature
+  - Emergency alerts (Task 0087) - safety requirement
+
+**Tasks Created This Session**: 12 new tasks (0074-0080, 0081, 0086, 0087, 0089, 0095)
+
+**Updated Task Queue**: 65 implementation tasks (0021-0095)
+
+**Updated Priorities for Layer-2 Workers**:
+
+**TIER 1 - PRODUCTION BLOCKERS (Must Fix Before Launch)**:
+1. Task 0049 - EVV Aggregator HTTP Integration (P0)
+2. Task 0067 - Notification Delivery System (P1)
+3. Task 0068 - Family Engagement Data Integration (P1)
+
+**TIER 2 - PRODUCTION READINESS (Required for Successful Launch)**:
+4. Task 0074 - End-to-End User Journey Validation
+5. Task 0075 - Production Deployment Runbook
+6. Task 0077 - HIPAA Compliance Verification
+7. Task 0078 - Database Migration Safety Testing
+
+**TIER 3 - FIRST IMPRESSIONS (Critical for Adoption)**:
+8. Task 0076 - Demo Data Seeding and Showcase
+9. Task 0079 - Administrator Quick Start Guide
+10. Task 0080 - Coordinator Quick Start Guide
+11. Task 0081 - Caregiver Mobile Onboarding
+
+**TIER 4 - CRITICAL FEATURES (Expected in Healthcare Platform)**:
+12. Task 0086 - Medication Tracking Module
+13. Task 0087 - Emergency Contact and Alert System
+14. Task 0089 - Client Intake Workflow
+15. Task 0095 - Global Search Functionality
+
+**TIER 5 - FEATURE COMPLETION & POLISH**:
+16. Tasks 0055-0061 - Remaining mobile screens, payroll UI, analytics, QA
+17. Tasks 0030-0035 - Infrastructure (rate limiting, caching, security, monitoring, backups)
+18. Tasks 0062-0066 - Polish (showcase, devex, performance, testing, compliance)
+19. Tasks 0069-0073 - Vertical completion (billing, shift matching, analytics, holidays, TODOs)
+
+**Estimated Additional Effort**:
+- 12 new tasks: ~80-100 hours
+- **Total remaining**: ~300-380 hours (up from 220-280)
+- **Time to Production**: 6-8 weeks (revised from 5-7 weeks)
+
+**Why the increase?**
+- Previous estimates focused on technical completion
+- This session identified UX, onboarding, and safety gaps
+- Better to identify now than discover post-launch
+
+**Quality Philosophy - "Production Ready" Means**:
+1. ✅ Code works (85% there)
+2. ✅ Tests pass (70% coverage)
+3. 🚧 Users can successfully use it without help (Task 0074)
+4. 🚧 First-time setup doesn't require developer (Tasks 0079, 0080)
+5. 🚧 Critical workflows are validated (Task 0074)
+6. 🚧 Healthcare-specific features present (Tasks 0086, 0087)
+7. 🚧 Compliance requirements met (Task 0077)
+8. 🚧 Safe to operate in production (Tasks 0075, 0078)
+
+**Key Decisions Made**:
+
+1. **Onboarding is Critical**: Created guides for all 3 primary personas (admin, coordinator, caregiver)
+2. **Healthcare Features Can't Wait**: Medication management and emergency alerts are launch requirements
+3. **Demo Quality Matters**: First impressions drive adoption - showcase must be excellent
+4. **Safety First**: HIPAA compliance and migration safety are non-negotiable
+5. **User Validation Required**: Must validate journeys with real users before claiming "production ready"
+
+**Next Planner Session Should**:
+1. Monitor progress on Tier 1-2 tasks (critical blockers and production readiness)
+2. Consider whether to expand medication module (e.g., pharmacy integration, drug interaction checking)
+3. Evaluate if additional persona-specific features needed (e.g., client-facing app)
+4. Plan post-launch priorities (analytics, optimization, advanced features)
+5. Consider white-labeling and multi-agency features (Task 0048)
+
+**Action Items for Immediate Layer-2 Execution**:
+
+**Week 1-2 (Critical Blockers)**:
+- Task 0049 - EVV Aggregator HTTP Integration
+- Task 0067 - Notification Delivery System
+- Task 0068 - Family Engagement Data Integration
+
+**Week 3-4 (Production Readiness)**:
+- Task 0074 - User Journey Validation
+- Task 0075 - Deployment Runbook
+- Task 0077 - HIPAA Compliance Audit
+- Task 0078 - Migration Safety Testing
+
+**Week 5-6 (Onboarding & Critical Features)**:
+- Task 0079 - Administrator Quick Start
+- Task 0080 - Coordinator Quick Start
+- Task 0081 - Caregiver Mobile Onboarding
+- Task 0086 - Medication Tracking (start)
+- Task 0087 - Emergency Alerts
+
+**Week 7-8 (Feature Completion)**:
+- Task 0086 - Medication Tracking (complete)
+- Task 0089 - Client Intake Workflow
+- Task 0095 - Global Search
+- Tasks 0055-0058 - Remaining Mobile Screens
+
+---
