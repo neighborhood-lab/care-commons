@@ -3,7 +3,7 @@
 ---
 
 # Care Commons - Central Planner Vision & State
-*Last Updated: 2025-11-06*
+*Last Updated: 2025-11-08*
 
 ## EXECUTIVE SUMMARY
 
@@ -318,7 +318,131 @@ care-commons/
 
 ## PLANNING SESSION LOG
 
-### Session: 2025-11-08
+### Session: 2025-11-08 (Afternoon) - Deep Codebase Analysis
+
+**Major Focus**: Granular codebase analysis, TODO cataloging, and critical gap identification
+
+**Analysis Method**: Deployed Explore agent for comprehensive codebase audit producing 10-section report covering structure, technology stack, recent activity, incomplete features, test coverage, and documentation.
+
+**CRITICAL DISCOVERIES**:
+
+1. **EVV Aggregator HTTP Submission Missing** - **P0 BLOCKER** 🔴
+   - Location: `verticals/time-tracking-evv/src/service/evv-aggregator-service.ts:361`
+   - Impact: EVV records created locally but **never submitted to state aggregators**
+   - Compliance Risk: **SEVERE** - agencies would fail state EVV requirements
+   - Task Created: 0049 (already existed, now confirmed as critical)
+   - Estimated Fix: 2-3 weeks (HTTP client, retry logic, webhooks, state-by-state testing)
+
+2. **Notification Delivery System Not Implemented** - **P1 BLOCKER** 🟠
+   - Location: `verticals/family-engagement/src/services/family-engagement-service.ts:183`
+   - Impact: Family portal exists but families receive **zero notifications**
+   - UX Impact: **SEVERE** - families won't know to check portal without notifications
+   - Task Created: **0067 - Notification Delivery System**
+   - Estimated Fix: 1-2 weeks (email/SMS/push, templates, retry logic)
+
+3. **Family Engagement Data Integration Incomplete** - **P1** 🟠
+   - 6 FIXME comments for missing integrations (user names, visit data, care plans, etc.)
+   - Impact: Portal shows placeholder/mock data instead of real information
+   - Task Created: **0068 - Family Engagement Data Integration Fixes**
+   - Estimated Fix: 1 week
+
+**NEW GAPS IDENTIFIED**:
+
+4. **Billing & Invoicing Service Layer** - **HIGH PRIORITY** 🟠
+   - Status: Only 60% complete (schema done, service logic partial)
+   - Missing: EDI 837P generation, payment posting, rate schedules
+   - Task Created: **0069 - Billing Service Layer Completion**
+   - Estimated Fix: 2 weeks
+
+5. **Shift Matching UI** - **HIGH PRIORITY** 🟠
+   - Backend: 8-dimensional algorithm production-ready ✅
+   - Frontend: Minimal UI, coordinators can't use the system
+   - Task Created: **0070 - Shift Matching UI Implementation**
+   - Estimated Fix: 1-2 weeks
+
+6. **Scheduling Holiday Filtering** - **MEDIUM PRIORITY** 🟡
+   - TODO at line 564 of schedule-service.ts
+   - Impact: Visits scheduled on holidays, manual cleanup required
+   - Task Created: **0071 - Holiday Filtering Implementation**
+   - Estimated Fix: 2-3 days
+
+7. **Analytics SQL Performance** - **MEDIUM PRIORITY** 🟡
+   - TODOs at lines 208, 282, 600 of report-service.ts
+   - Impact: Queries take 10-20+ seconds with large datasets
+   - Task Created: **0072 - Analytics SQL Optimization**
+   - Estimated Fix: 1 week (materialized views, indexes, caching)
+
+8. **TODO Technical Debt** - **MEDIUM PRIORITY** 🟡
+   - Finding: 26 files with TODO/FIXME/HACK comments
+   - Problem: No categorization (can't distinguish P0 from nice-to-have)
+   - Task Created: **0073 - TODO Categorization and Cleanup**
+   - Estimated Fix: 2-3 days
+
+**Tasks Created (7 new tasks, 0067-0073)**:
+
+| Task | Title | Priority | Effort | Status |
+|------|-------|----------|--------|--------|
+| **0067** | Notification Delivery System Implementation | 🔴 CRITICAL | 1-2 weeks | New |
+| **0068** | Family Engagement Data Integration Fixes | 🔴 CRITICAL | 1 week | New |
+| **0069** | Billing & Invoicing Service Layer Completion | 🟠 HIGH | 2 weeks | New |
+| **0070** | Shift Matching UI Implementation | 🟠 HIGH | 1-2 weeks | New |
+| **0071** | Scheduling Holiday Filtering | 🟡 MEDIUM | 2-3 days | New |
+| **0072** | Analytics SQL Performance Optimization | 🟡 MEDIUM | 1 week | New |
+| **0073** | Codebase TODO Categorization and Cleanup | 🟡 MEDIUM | 2-3 days | New |
+
+**Key Metrics from Analysis**:
+- **Database Migrations**: 25 files, ~377KB of schema
+- **Test Files**: 83 files across packages and verticals
+- **GitHub Actions**: 8 workflows for CI/CD
+- **Verticals Status**:
+  - ✅ Production Ready (5/11): client-demographics, caregiver-staff, scheduling-visits, care-plans-tasks, family-engagement (backend)
+  - 🚧 70%+ Complete (4/11): time-tracking-evv, billing-invoicing, payroll-processing, shift-matching
+  - 🚧 40% Complete (2/11): quality-assurance-audits, analytics-reporting
+
+**Revised Production Readiness**:
+- **BEFORE**: "85-90% production-ready, no blockers"
+- **AFTER**: "85% production-ready, **2 critical blockers** (EVV submission, notifications)"
+
+**Estimated Additional Effort**:
+- 7 new tasks: ~40-60 hours additional work
+- **Total remaining**: ~220-280 hours (up from 180-220)
+- **Time to Production**: 5-7 weeks with focused execution (revised from 4-6 weeks)
+
+**Action Items for Next Layer-2 Workers**:
+
+**IMMEDIATE (Week 1-2):**
+1. **Task 0049** - EVV Aggregator HTTP Integration (P0, blocks compliance)
+2. **Task 0067** - Notification Delivery System (P1, blocks family engagement)
+3. **Task 0068** - Family Engagement Data Integration (P1, completes family portal)
+
+**HIGH VALUE (Week 3-5):**
+4. **Task 0069** - Billing Service Layer (backend-to-frontend blocker)
+5. **Task 0070** - Shift Matching UI (algorithm ready, needs UI)
+6. **Task 0059** - Payroll Processing UI (backend ready, needs UI)
+
+**POLISH & OPTIMIZATION (Week 6-7):**
+7. **Task 0072** - Analytics SQL Optimization (performance)
+8. **Task 0071** - Holiday Filtering (UX improvement)
+9. **Task 0073** - TODO Cleanup (technical debt)
+
+**Quality Observations**:
+- ✅ Architecture is excellent (clean separation, good patterns)
+- ✅ Code quality is high (TypeScript strict, good tests)
+- ✅ Documentation is comprehensive
+- ⚠️ Integration gaps between verticals (family engagement ↔ other services)
+- ⚠️ Service layer completeness varies (some at 100%, some at 60%)
+- ⚠️ TODO comments need categorization and tracking
+
+**Next Planner Session Should**:
+1. Monitor progress on critical blockers (0049, 0067, 0068)
+2. Create tasks for remaining mobile screens (if not started)
+3. Plan load testing and performance baselines
+4. Consider multi-agency/white-labeling expansion
+5. Review quality assurance module requirements
+
+---
+
+### Session: 2025-11-08 (Morning) - Documentation Correction
 
 **Major Focus**: Codebase reality check, documentation correction, and refined task prioritization
 
@@ -497,34 +621,43 @@ No production blockers found. Focus areas:
 5. Follow architectural patterns consistently
 6. **CRITICAL**: Verify documentation against actual code before assuming work is needed
 
-**Current Phase**: Phase 1 - Production Readiness (Nearing Completion)
-**Platform Status**: 85-90% production-ready ✅
-**Task Queue Status**: 46 tasks (4 high, 7 medium, 5 low priority, ~30 from previous sessions)
-**Estimated Remaining Effort**: ~180-220 hours (revised down from 270-350)
-**Time to Launch**: 4-6 weeks with focused execution
+**Current Phase**: Phase 1 - Production Readiness (Critical Blockers Identified)
+**Platform Status**: 85% production-ready ⚠️ **2 critical blockers found**
+**Task Queue Status**: 53 tasks (2 critical, 5 high, 7 medium, ~39 from previous sessions)
+**Estimated Remaining Effort**: ~220-280 hours (revised up after deep analysis)
+**Time to Launch**: 5-7 weeks with focused execution on blockers
 
-**MAJOR UPDATE (2025-11-08)**:
+**MAJOR UPDATE (2025-11-08 - CRITICAL)**:
 - ~~Tasks 0021, 0022 are ALREADY COMPLETE in code~~ (documentation was outdated)
 - ~~Task 0023 (Care Plans UI) is COMPLETE~~ (17 components + 7 pages implemented)
 - ~~Task 0036 (Family Engagement Portal) is COMPLETE~~ (Nov 2024 implementation)
-- No production blockers found in actual codebase
+- **CRITICAL**: 2 production blockers identified in afternoon session:
+  1. **EVV Aggregator HTTP Submission** (Task 0049) - P0 - records not submitted to state
+  2. **Notification Delivery System** (Task 0067) - P1 - families receive zero notifications
 
 **Immediate Action Items for Layer-2 Workers**:
 
-**HIGHEST PRIORITY (Start Here - Production Readiness)**:
-1. **Task 0051** - Documentation Audit and Correction (QUICK WIN, 2-3 hours)
-2. **Task 0052** - E2E Test Suite for Critical Workflows (HIGH VALUE, 1 week)
-3. **Task 0053** - Load Testing and Performance Baselines (REQUIRED, 3-5 days)
-4. **Task 0054** - Production Monitoring Dashboard (REQUIRED, 3-5 days)
+**🚨 CRITICAL BLOCKERS (Must Fix Before Production)**:
+1. **Task 0049** - EVV Aggregator HTTP Integration (P0 - COMPLIANCE FAILURE without this)
+2. **Task 0067** - Notification Delivery System (P1 - ZERO notifications to families)
+3. **Task 0068** - Family Engagement Data Integration (P1 - completes family portal)
+
+**HIGHEST PRIORITY (Production Readiness)**:
+4. **Task 0051** - Documentation Audit and Correction (QUICK WIN, 2-3 hours)
+5. **Task 0052** - E2E Test Suite for Critical Workflows (HIGH VALUE, 1 week)
+6. **Task 0053** - Load Testing and Performance Baselines (REQUIRED, 3-5 days)
+7. **Task 0054** - Production Monitoring Dashboard (REQUIRED, 3-5 days)
 
 **HIGH VALUE FEATURE COMPLETION**:
-5. **Task 0055** - Mobile ClockInScreen Implementation (2-3 days)
-6. **Task 0056** - Mobile TasksScreen Implementation (2-3 days)
-7. **Task 0057** - Mobile ScheduleScreen Implementation (2-3 days)
-8. **Task 0058** - Mobile ProfileScreen Implementation (2-3 days)
-9. **Task 0059** - Payroll Processing Frontend UI (1 week)
-10. **Task 0060** - Analytics Dashboard Completion (1 week)
-11. **Task 0061** - Quality Assurance Module Implementation (2 weeks)
+8. **Task 0069** - Billing & Invoicing Service Layer Completion (2 weeks) - NEW
+9. **Task 0070** - Shift Matching UI Implementation (1-2 weeks) - NEW
+10. **Task 0055** - Mobile ClockInScreen Implementation (2-3 days)
+11. **Task 0056** - Mobile TasksScreen Implementation (2-3 days)
+12. **Task 0057** - Mobile ScheduleScreen Implementation (2-3 days)
+13. **Task 0058** - Mobile ProfileScreen Implementation (2-3 days)
+14. **Task 0059** - Payroll Processing Frontend UI (1 week)
+15. **Task 0060** - Analytics Dashboard Completion (1 week)
+16. **Task 0061** - Quality Assurance Module Implementation (2 weeks)
 
 **INFRASTRUCTURE & POLISH**:
 - Task 0030 - API Rate Limiting and Throttling
@@ -537,11 +670,29 @@ No production blockers found. Focus areas:
 - Task 0064 - API Performance Optimization
 - Task 0065 - Mobile App Testing Automation
 - Task 0066 - Compliance Reporting Automation
+- Task 0071 - Scheduling Holiday Filtering (2-3 days) - NEW
+- Task 0072 - Analytics SQL Performance Optimization (1 week) - NEW
+- Task 0073 - TODO Categorization and Cleanup (2-3 days) - NEW
 
-**Recent Updates (2025-11-08)**:
+**Recent Updates (2025-11-08 - Morning Session)**:
 - Conducted comprehensive codebase audit
 - Discovered platform is 85-90% production-ready (vs 60-70% assumed)
 - Corrected documentation drift (EVV, Care Plans, Family Engagement all complete)
 - Created 16 new focused tasks (0051-0066)
 - Revised critical path - no blockers, focus on testing and polish
 - Estimated time to production reduced from 12+ weeks to 4-6 weeks
+
+**Recent Updates (2025-11-08 - Afternoon Session)**:
+- Deep-dive codebase analysis via Explore agent (comprehensive 10-section report)
+- Identified **2 critical production blockers** previously missed:
+  1. EVV aggregator HTTP submission not implemented (P0 - compliance failure)
+  2. Notification delivery system not implemented (P1 - zero family notifications)
+- Cataloged 26 files with TODO/FIXME comments (categorized by priority)
+- Created 7 new high-impact tasks (0067-0073)
+- Discovered 3 additional gaps requiring attention:
+  - Billing service layer only 60% complete
+  - Shift matching has no UI (algorithm ready)
+  - Analytics queries have performance issues (10-20s response times)
+
+**Total Task Queue**: 53 implementation tasks (0021-0073)
+**Critical Path Updated**: 2 true blockers identified (Tasks 0067, 0049)
