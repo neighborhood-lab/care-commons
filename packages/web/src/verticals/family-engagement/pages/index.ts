@@ -4,3 +4,6 @@ export * from './MessagesPage';
 export * from './NotificationsPage';
 export * from './FamilyLoginPage';
 export * from './FamilySettings';
+export * from './SchedulePage';
+export * from './CarePlanPage';
+export * from './HealthUpdatesPage';
