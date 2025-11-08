@@ -37,6 +37,8 @@ export default defineConfig({
         // Exclude Node.js-specific Sentry modules that have native bindings
         '@sentry/profiling-node',
         '@sentry-internal/node-cpu-profiler',
+        // Exclude Node.js built-in modules that shouldn't be in browser bundle
+        /^node:/,
       ],
       output: {
         manualChunks: {
