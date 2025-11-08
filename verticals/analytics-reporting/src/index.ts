@@ -32,11 +32,18 @@ export type {
   RevenueCycleReport,
   AnalyticsQueryOptions,
   PerformanceBenchmark,
+  CaregiverPerformanceReportRow,
+  ClientServiceSummary,
+  ClientServiceSummaryRow,
+  RevenueReportRow,
+  EVVComplianceDailyRow,
+  EVVComplianceReportData,
 } from './types/analytics';
 
 // Service exports
 export { AnalyticsService } from './service/analytics-service';
 export { ReportService } from './service/report-service';
+export { OptimizedReportService } from './service/optimized-report-service';
 export { ExportService } from './service/export-service';
 
 // Repository exports

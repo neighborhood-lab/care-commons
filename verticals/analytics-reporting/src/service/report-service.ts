@@ -190,6 +190,7 @@ export class ReportService {
 
   /**
    * Get detailed information about flagged visits
+   * OPTIMIZED: Rewritten using raw SQL for better performance
    */
   private async getFlaggedVisitDetails(
     orgId: string,
@@ -205,41 +206,44 @@ export class ReportService {
       resolutionStatus: string;
     }>
   > {
-    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
-    // This method uses Knex query builder which doesn't exist on Database class
-    throw new Error('Not implemented - requires refactor to raw SQL');
-    /* 
-    const query = this.database
-      .getConnection()
-      .from('evv_records as evv')
-      .join('caregivers as cg', 'evv.caregiver_id', 'cg.id')
-      .join('clients as cl', 'evv.client_id', 'cl.id')
-      .where('evv.organization_id', orgId)
-      .whereRaw("jsonb_array_length(evv.compliance_flags) > 0")
-      .whereBetween('evv.service_date', [
-        dateRange.startDate,
-        dateRange.endDate,
-      ]);
+    const branchFilter = branchId ? 'AND evv.branch_id = $4' : '';
+    const params = branchId
+      ? [orgId, dateRange.startDate.toISOString(), dateRange.endDate.toISOString(), branchId]
+      : [orgId, dateRange.startDate.toISOString(), dateRange.endDate.toISOString()];
 
-    if (branchId) {
-      query.andWhere('evv.branch_id', branchId);
-    }
+    const query = `
+      SELECT
+        evv.visit_id,
+        cl.first_name as client_first,
+        cl.last_name as client_last,
+        cg.first_name as caregiver_first,
+        cg.last_name as caregiver_last,
+        evv.service_date,
+        evv.compliance_flags,
+        evv.record_status
+      FROM evv_records evv
+      JOIN caregivers cg ON evv.caregiver_id = cg.id
+      JOIN clients cl ON evv.client_id = cl.id
+      WHERE evv.organization_id = $1
+        AND jsonb_array_length(evv.compliance_flags) > 0
+        AND evv.service_date BETWEEN $2::timestamp AND $3::timestamp
+        ${branchFilter}
+      ORDER BY evv.service_date DESC
+      LIMIT 100
+    `;
 
-    const results = await query
-      .select(
-        'evv.visit_id',
-        'cl.first_name as client_first',
-        'cl.last_name as client_last',
-        'cg.first_name as caregiver_first',
-        'cg.last_name as caregiver_last',
-        'evv.service_date',
-        'evv.compliance_flags',
-        'evv.record_status'
-      )
-      .orderBy('evv.service_date', 'desc')
-      .limit(100);
+    const result = await this.database.query<{
+      visit_id: string;
+      client_first: string;
+      client_last: string;
+      caregiver_first: string;
+      caregiver_last: string;
+      service_date: Date;
+      compliance_flags: string[];
+      record_status: string;
+    }>(query, params);
 
-    return results.map((row) => ({
+    return result.rows.map((row) => ({
       visitId: row.visit_id,
       clientName: `${row.client_first} ${row.client_last}`,
       caregiverName: `${row.caregiver_first} ${row.caregiver_last}`,
@@ -247,7 +251,6 @@ export class ReportService {
       complianceFlags: row.compliance_flags,
       resolutionStatus: row.record_status,
     }));
-    */
   }
 
   /**
@@ -268,6 +271,7 @@ export class ReportService {
 
   /**
    * Schedule automated report generation
+   * OPTIMIZED: Rewritten using raw SQL
    * This would be called by a cron job or scheduler
    */
   async scheduleReport(
@@ -279,20 +283,28 @@ export class ReportService {
   ): Promise<void> {
     this.validateAccess(context, orgId);
 
-    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
-    throw new Error('Not implemented - requires refactor to raw SQL');
-    /*
-    // Store scheduled report configuration
-    await this.database.getConnection().insert({
-      organization_id: orgId,
-      report_type: reportType,
+    const query = `
+      INSERT INTO scheduled_reports (
+        organization_id,
+        report_type,
+        frequency,
+        recipients,
+        created_by,
+        created_at,
+        is_active
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id
+    `;
+
+    await this.database.query(query, [
+      orgId,
+      reportType,
       frequency,
-      recipients: JSON.stringify(recipients),
-      created_by: context.userId,
-      created_at: new Date(),
-      is_active: true,
-    }).into('scheduled_reports');
-    */
+      JSON.stringify(recipients),
+      context.userId,
+      new Date().toISOString(),
+      true,
+    ]);
 
     // In a real implementation, this would:
     // 1. Create a job in a queue (e.g., Bull, BullMQ)

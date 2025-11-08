@@ -303,3 +303,83 @@ export interface PerformanceBenchmark {
   industryAverage?: number;
   status: 'ABOVE_TARGET' | 'AT_TARGET' | 'BELOW_TARGET' | 'CRITICAL';
 }
+
+/**
+ * Optimized Caregiver Performance Report (using materialized views)
+ */
+export interface CaregiverPerformanceReportRow {
+  caregiver_id: string;
+  caregiver_name: string;
+  total_visits: number;
+  completed_visits: number;
+  missed_visits: number;
+  completion_rate: number;
+  total_hours: number;
+  active_months: number;
+  avg_compliance_score: number;
+}
+
+/**
+ * Client Service Summary (using materialized views)
+ */
+export interface ClientServiceSummaryRow {
+  week: Date;
+  scheduled_visits: number;
+  completed_visits: number;
+  missed_visits: number;
+  total_service_hours: number;
+  unique_caregivers: number;
+  total_billed: number;
+}
+
+export interface ClientServiceSummary {
+  weeks: ClientServiceSummaryRow[];
+  totals: {
+    scheduled_visits: number;
+    completed_visits: number;
+    missed_visits: number;
+    total_service_hours: number;
+    unique_caregivers: number;
+    total_billed: number;
+  };
+}
+
+/**
+ * Revenue Report Row
+ */
+export interface RevenueReportRow {
+  period: Date;
+  invoiced: number;
+  collected: number;
+  outstanding: number;
+  payments_received: number;
+  invoice_count: number;
+  unique_clients: number;
+  payment_count: number;
+}
+
+/**
+ * EVV Compliance Report (Optimized)
+ */
+export interface EVVComplianceDailyRow {
+  day: Date;
+  total_visits: number;
+  evv_submitted: number;
+  compliant: number;
+  non_compliant: number;
+  pending: number;
+  compliance_rate: number;
+  rejection_reasons: string[];
+}
+
+export interface EVVComplianceReportData {
+  daily: EVVComplianceDailyRow[];
+  summary: {
+    total_visits: number;
+    evv_submitted: number;
+    compliant: number;
+    non_compliant: number;
+    pending: number;
+    overall_compliance_rate: number;
+  };
+}
