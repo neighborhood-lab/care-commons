@@ -69,6 +69,10 @@ export const Login: React.FC = () => {
             <div className="flex-1">
               <h3 className="text-sm font-medium text-blue-900">Demo Credentials</h3>
               <p className="mt-1 text-sm text-blue-700">
+                Email: <span className="font-mono">family@carecommons.example</span><br />
+                Password: <span className="font-mono">Family123!</span>
+              </p>
+              <p className="mt-2 text-sm text-blue-700">
                 Email: <span className="font-mono">admin@carecommons.example</span><br />
                 Password: <span className="font-mono">Admin123!</span>
               </p>
