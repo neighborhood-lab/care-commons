@@ -1,8 +1,10 @@
 /**
  * Database connection and transaction management
+ * Enhanced with performance optimization features
  */
 
 import { Pool, PoolClient, QueryResult } from 'pg';
+import { QueryPerformanceMonitor } from './query-cache.js';
 
 export interface DatabaseConfig {
   host: string;
@@ -13,12 +15,21 @@ export interface DatabaseConfig {
   ssl?: boolean;
   max?: number; // Connection pool size
   idleTimeoutMillis?: number;
+  connectionTimeoutMillis?: number;
+  statementTimeout?: number; // Query timeout in milliseconds
+  enableQueryLogging?: boolean;
+  enablePerformanceTracking?: boolean;
 }
 
 export class Database {
   private pool: Pool;
+  private enableQueryLogging: boolean;
+  private enablePerformanceTracking: boolean;
 
   constructor(config: DatabaseConfig) {
+    this.enableQueryLogging = config.enableQueryLogging ?? (process.env.NODE_ENV === 'development');
+    this.enablePerformanceTracking = config.enablePerformanceTracking ?? true;
+
     this.pool = new Pool({
       host: config.host,
       port: config.port,
@@ -26,26 +37,76 @@ export class Database {
       user: config.user,
       password: config.password,
       ssl: config.ssl === true ? { rejectUnauthorized: false } : false,
-      max: config.max ?? 20,
-      idleTimeoutMillis: config.idleTimeoutMillis ?? 30000,
+
+      // Connection pool optimization
+      max: config.max ?? 20, // Maximum pool size
+      min: 2, // Minimum idle connections
+      idleTimeoutMillis: config.idleTimeoutMillis ?? 30000, // Close idle connections after 30s
+      connectionTimeoutMillis: config.connectionTimeoutMillis ?? 10000, // Wait 10s for connection
+
+      // Statement timeout (prevent runaway queries)
+      statement_timeout: config.statementTimeout ?? 30000, // 30 second default
+
+      // Query timeout
+      query_timeout: config.statementTimeout ?? 30000,
+
+      // Application name for monitoring
+      application_name: 'care_commons_app',
+
+      // Keep-alive for long-lived connections
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000,
+    });
+
+    // Pool error handler
+    this.pool.on('error', (err: Error) => {
+      console.error('Unexpected database pool error:', err);
+    });
+
+    // Pool connection handler (useful for monitoring)
+    this.pool.on('connect', (client: PoolClient) => {
+      if (this.enableQueryLogging) {
+        console.log('New database connection established');
+      }
+
+      // Set session-level optimizations on each connection
+      client.query('SET search_path TO public').catch(err => {
+        console.error('Failed to set search_path:', err);
+      });
     });
   }
 
   /**
-   * Execute a query
+   * Execute a query with performance tracking
    */
   async query<T extends Record<string, unknown> = Record<string, unknown>>(
     text: string,
-    params?: unknown[]
+    params?: unknown[],
+    queryName?: string
   ): Promise<QueryResult<T>> {
     const start = Date.now();
     try {
       const result = await this.pool.query<T>(text, params);
       const duration = Date.now() - start;
-      console.log('Executed query', { text, duration, rows: result.rowCount });
+
+      // Log query execution
+      if (this.enableQueryLogging) {
+        console.log('Executed query', {
+          name: queryName,
+          duration,
+          rows: result.rowCount,
+          text: text.substring(0, 100), // Truncate for logging
+        });
+      }
+
+      // Track query performance
+      if (this.enablePerformanceTracking && queryName !== undefined) {
+        QueryPerformanceMonitor.recordQuery(queryName, duration);
+      }
+
       return result;
     } catch (error) {
-      console.error('Query error', { text, error });
+      console.error('Query error', { name: queryName, text: text.substring(0, 100), error });
       throw error;
     }
   }
@@ -94,6 +155,45 @@ export class Database {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Get connection pool statistics
+   */
+  getPoolStats(): {
+    totalCount: number;
+    idleCount: number;
+    waitingCount: number;
+  } {
+    return {
+      totalCount: this.pool.totalCount,
+      idleCount: this.pool.idleCount,
+      waitingCount: this.pool.waitingCount,
+    };
+  }
+
+  /**
+   * Get the underlying pool (for advanced use cases like pagination helpers)
+   */
+  getPool(): Pool {
+    return this.pool;
+  }
+
+  /**
+   * Get query performance statistics
+   */
+  getQueryStats(queryName?: string): unknown {
+    if (queryName !== undefined) {
+      return QueryPerformanceMonitor.getQueryStats(queryName);
+    }
+    return QueryPerformanceMonitor.getSlowQueries();
+  }
+
+  /**
+   * Reset query performance statistics
+   */
+  resetQueryStats(): void {
+    QueryPerformanceMonitor.reset();
   }
 }
 
