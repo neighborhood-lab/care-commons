@@ -5,10 +5,14 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { Database } from '@care-commons/core';
+import { Database, AuthMiddleware } from '@care-commons/core';
 
 export function createSyncRouter(db: Database): Router {
   const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All sync routes require authentication
+  router.use(authMiddleware.requireAuth);
 
   router.get('/sync/changes', async (req: Request, res: Response): Promise<void> => {
     try {

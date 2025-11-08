@@ -6,12 +6,41 @@
 
 import type { Request, Response, Router } from 'express';
 import type { AuditService } from '../services/audit-service.js';
-import type { UserContext } from '@care-commons/core';
+import type { UserContext, Database, TokenPayload } from '@care-commons/core';
+import { AuthMiddleware } from '@care-commons/core';
+
+/**
+ * Extend Express Request to include userContext
+ */
+interface RequestWithContext extends Request {
+  userContext?: UserContext;
+  user?: TokenPayload;
+}
 
 /**
  * Create audit routes
  */
 export function createAuditRoutes(auditService: AuditService, router: Router): Router {
+  // Initialize authentication middleware
+  const authMiddleware = new AuthMiddleware({} as Database);
+
+  // All audit routes require authentication
+  router.use(authMiddleware.requireAuth);
+
+  // Map req.user to req.userContext for compatibility
+  router.use((req: RequestWithContext, _res: Response, next) => {
+    if (req.user) {
+      req.userContext = {
+        userId: req.user.userId,
+        organizationId: req.user.organizationId,
+        roles: req.user.roles,
+        permissions: req.user.permissions,
+        branchIds: [] // Fetch branch IDs from user profile if needed
+      };
+    }
+    next();
+  });
+
   // ============================================================================
   // Audit Routes
   // ============================================================================
