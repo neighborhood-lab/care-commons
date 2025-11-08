@@ -5,7 +5,7 @@
  */
 
 import type { ApiClient } from '@/core/services';
-import type { UUID } from '@care-commons/core';
+import type { UUID } from '@care-commons/core/browser';
 import type {
   FamilyMember,
   FamilyDashboard,

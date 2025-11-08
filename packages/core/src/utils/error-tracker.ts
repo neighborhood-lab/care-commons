@@ -1,24 +1,47 @@
-import * as Sentry from '@sentry/node';
 import logger from './logger.js';
 
-// Dynamic import for profiling integration to avoid bundling issues in browser
+// Dynamic import for Sentry to avoid bundling in browser environments
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let Sentry: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let nodeProfilingIntegration: any = null;
 
-async function loadProfilingIntegration(): Promise<void> {
+// Check if we're in a Node.js environment (not browser)
+const isNodeEnvironment = typeof process !== 'undefined' &&
+  process.versions != null &&
+  process.versions.node != null;
+
+async function loadSentryModules(): Promise<void> {
+  // Only load Sentry in Node.js environment
+  if (!isNodeEnvironment) {
+    return;
+  }
+
   try {
-    const module = await import('@sentry/profiling-node');
-    nodeProfilingIntegration = module.nodeProfilingIntegration;
+    // Dynamically import @sentry/node
+    Sentry = await import('@sentry/node');
+
+    // Try to load profiling integration
+    try {
+      const profilingModule = await import('@sentry/profiling-node');
+      nodeProfilingIntegration = profilingModule.nodeProfilingIntegration;
+    } catch {
+      // Profiling integration not available
+      nodeProfilingIntegration = null;
+    }
   } catch {
-    // Profiling integration not available (browser environment)
-    nodeProfilingIntegration = null;
+    // Sentry not available
+    Sentry = null;
   }
 }
 
 export function initializeErrorTracking(): void {
-  if (process.env.NODE_ENV === 'production') {
-    // Load profiling integration asynchronously
-    loadProfilingIntegration().then(() => {
+  if (process.env.NODE_ENV === 'production' && isNodeEnvironment) {
+    // Load Sentry modules asynchronously
+    loadSentryModules().then(() => {
+      if (!Sentry) {
+        return;
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const integrations: any[] = [];
       
@@ -49,24 +72,8 @@ export function initializeErrorTracking(): void {
       });
       return true;
     }).catch(() => {
-      // Initialize Sentry without profiling if loading fails
-      Sentry.init({
-        dsn: process.env.SENTRY_DSN,
-        environment: process.env.NODE_ENV,
-        tracesSampleRate: 0.1,
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        beforeSend(event: any, _hint: any): any {
-          // Filter out sensitive data
-          if (event.request !== undefined) {
-            delete event.request.cookies;
-            if (event.request.headers !== undefined) {
-              delete event.request.headers['authorization'];
-            }
-          }
-          return event;
-        }
-      });
+      // Failed to load Sentry modules - silently skip initialization
+      logger.warn('Failed to initialize Sentry error tracking');
     });
   }
 }
@@ -75,7 +82,7 @@ export function initializeErrorTracking(): void {
 export function captureException(error: any, context?: any): void {
   logger.error({ error, ...context }, 'Exception captured');
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && Sentry) {
     Sentry.captureException(error, {
       extra: context
     });
@@ -83,7 +90,7 @@ export function captureException(error: any, context?: any): void {
 }
 
 export function setUserContext(user: { id: string; email?: string }): void {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && Sentry) {
     try {
       // Use getCurrentScope to access setUser
       const scope = Sentry.getCurrentScope();
