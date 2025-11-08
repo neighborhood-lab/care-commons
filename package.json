@@ -69,6 +69,7 @@
     "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.1",
+    "@types/ioredis": "^4.28.10",
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
@@ -97,6 +98,9 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.7",
+    "cache-manager": "^7.2.4",
+    "cache-manager-ioredis-yet": "^2.1.2",
+    "ioredis": "^5.8.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }
