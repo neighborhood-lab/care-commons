@@ -24,6 +24,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
 import { generalApiLimiter } from './middleware/rate-limit.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
+import { initCacheService } from '@care-commons/core/service/cache.service';
 import { setupRoutes } from './routes/index.js';
 
 const app = express();
@@ -224,6 +225,29 @@ export async function createApp(): Promise<express.Express> {
     throw new Error('Database health check failed');
   }
   console.log('Database connection established');
+
+  // Initialize cache service
+  const redisUrl = process.env['REDIS_URL'];
+  if (redisUrl !== undefined && redisUrl !== '') {
+    try {
+      const url = new globalThis.URL(redisUrl);
+      const cacheConfig = {
+        host: url.hostname,
+        port: Number(url.port) !== 0 ? Number(url.port) : 6379,
+        password: url.password !== '' ? url.password : undefined,
+        ttl: 300, // 5 minutes default
+      };
+      await initCacheService(cacheConfig);
+      console.log('Cache service initialized with Redis');
+    } catch (error) {
+      console.warn('Failed to initialize Redis cache, using in-memory cache:', error);
+      await initCacheService();
+    }
+  } else {
+    // No Redis configured, use in-memory cache
+    await initCacheService();
+    console.log('Cache service initialized with in-memory cache');
+  }
 
   // Setup middleware and routes
   setupMiddleware();
