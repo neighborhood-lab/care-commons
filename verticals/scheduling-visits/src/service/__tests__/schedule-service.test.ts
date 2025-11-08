@@ -340,4 +340,189 @@ describe('ScheduleService - Client Address Integration', () => {
       expect(mockRepository.createVisit).toHaveBeenCalled();
     });
   });
+
+  describe('Holiday Filtering', () => {
+    const mockHolidayService = {
+      getHolidays: vi.fn(),
+      isHoliday: vi.fn(),
+      getHolidaysForYear: vi.fn(),
+      getCalendars: vi.fn(),
+    };
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should skip holidays when generating recurring visits with skipHolidays=true', async () => {
+      const mockAddress = {
+        line1: '123 Main St',
+        city: 'Austin',
+        state: 'TX',
+        postalCode: '78701',
+        country: 'USA',
+      };
+
+      mockAddressProvider.getClientAddress = vi.fn().mockResolvedValue(mockAddress);
+
+      // Mock holidays - Christmas and New Year's Day
+      mockHolidayService.getHolidays.mockResolvedValue([
+        {
+          id: '10000000-0000-4000-8000-000000000040',
+          calendar_id: '10000000-0000-4000-8000-000000000050',
+          name: 'Christmas Day',
+          holiday_date: new Date('2025-12-25'),
+          is_recurring: true,
+        },
+        {
+          id: '10000000-0000-4000-8000-000000000041',
+          calendar_id: '10000000-0000-4000-8000-000000000050',
+          name: 'New Year\'s Day',
+          holiday_date: new Date('2026-01-01'),
+          is_recurring: true,
+        },
+      ]);
+
+      const serviceWithHolidays = new ScheduleService(
+        mockRepository,
+        mockAddressProvider,
+        mockHolidayService as any
+      );
+
+      mockRepository.getServicePatternById = vi.fn().mockResolvedValue({
+        id: TEST_IDS.pattern1,
+        organizationId: TEST_IDS.org,
+        branchId: TEST_IDS.branch,
+        clientId: TEST_IDS.client1,
+        status: 'ACTIVE',
+        serviceTypeId: TEST_IDS.serviceType,
+        serviceTypeName: 'Personal Care',
+        duration: 60,
+        recurrence: {
+          frequency: 'DAILY',
+          interval: 1,
+          startTime: '09:00',
+        },
+        taskTemplateIds: [],
+        requiredSkills: [],
+        requiredCertifications: [],
+      });
+
+      const createdVisits: any[] = [];
+      mockRepository.createVisit = vi.fn().mockImplementation((input) => {
+        const visit = {
+          ...input,
+          id: `10000000-0000-4000-8000-00000000${String(createdVisits.length).padStart(4, '0')}`,
+          status: 'SCHEDULED',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        createdVisits.push(visit);
+        return Promise.resolve(visit);
+      });
+
+      const options: ScheduleGenerationOptions = {
+        patternId: TEST_IDS.pattern1,
+        startDate: new Date('2025-12-23'),
+        endDate: new Date('2025-12-27'),
+        skipHolidays: true,
+      };
+
+      const visits = await serviceWithHolidays.generateScheduleFromPattern(
+        options,
+        testContext
+      );
+
+      // Should call holiday service to get holidays
+      expect(mockHolidayService.getHolidays).toHaveBeenCalledWith(
+        expect.any(Date),
+        expect.any(Date),
+        TEST_IDS.branch
+      );
+
+      // Should NOT create visit on Christmas (Dec 25)
+      const visitDates = createdVisits.map(v => v.scheduledDate.toISOString().split('T')[0]);
+      expect(visitDates).not.toContain('2025-12-25');
+
+      // Should create visits on other days
+      expect(visits.length).toBeGreaterThan(0);
+      expect(visits.length).toBeLessThan(5); // Less than total days in range
+    });
+
+    it('should include holidays when skipHolidays=false', async () => {
+      const mockAddress = {
+        line1: '123 Main St',
+        city: 'Austin',
+        state: 'TX',
+        postalCode: '78701',
+        country: 'USA',
+      };
+
+      mockAddressProvider.getClientAddress = vi.fn().mockResolvedValue(mockAddress);
+
+      // Even with holidays configured, they should not be filtered
+      mockHolidayService.getHolidays.mockResolvedValue([
+        {
+          id: '10000000-0000-4000-8000-000000000040',
+          calendar_id: '10000000-0000-4000-8000-000000000050',
+          name: 'Christmas Day',
+          holiday_date: new Date('2025-12-25'),
+          is_recurring: true,
+        },
+      ]);
+
+      const serviceWithHolidays = new ScheduleService(
+        mockRepository,
+        mockAddressProvider,
+        mockHolidayService as any
+      );
+
+      mockRepository.getServicePatternById = vi.fn().mockResolvedValue({
+        id: TEST_IDS.pattern1,
+        organizationId: TEST_IDS.org,
+        branchId: TEST_IDS.branch,
+        clientId: TEST_IDS.client1,
+        status: 'ACTIVE',
+        serviceTypeId: TEST_IDS.serviceType,
+        serviceTypeName: 'Personal Care',
+        duration: 60,
+        recurrence: {
+          frequency: 'DAILY',
+          interval: 1,
+          startTime: '09:00',
+        },
+        taskTemplateIds: [],
+        requiredSkills: [],
+        requiredCertifications: [],
+      });
+
+      const createdVisits: any[] = [];
+      mockRepository.createVisit = vi.fn().mockImplementation((input) => {
+        const visit = {
+          ...input,
+          id: `10000000-0000-4000-8000-00000000${String(createdVisits.length).padStart(4, '0')}`,
+          status: 'SCHEDULED',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        createdVisits.push(visit);
+        return Promise.resolve(visit);
+      });
+
+      const options: ScheduleGenerationOptions = {
+        patternId: TEST_IDS.pattern1,
+        startDate: new Date('2025-12-23'),
+        endDate: new Date('2025-12-27'),
+        skipHolidays: false,
+      };
+
+      await serviceWithHolidays.generateScheduleFromPattern(options, testContext);
+
+      // Should NOT call holiday service when skipHolidays is false
+      expect(mockHolidayService.getHolidays).not.toHaveBeenCalled();
+
+      // Should create visits on all days including Christmas
+      const visitDates = createdVisits.map(v => v.scheduledDate.toISOString().split('T')[0]);
+      expect(visitDates).toContain('2025-12-25');
+    });
+  });
 });

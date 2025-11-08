@@ -19,6 +19,7 @@ import {
   PermissionError,
   NotFoundError,
   ConflictError,
+  IHolidayService,
 } from '@care-commons/core';
 import { ScheduleRepository } from '../repository/schedule-repository';
 import { ScheduleValidator } from '../validation/schedule-validator';
@@ -68,7 +69,8 @@ export interface IClientAddressProvider {
 export class ScheduleService {
   constructor(
     private repository: ScheduleRepository,
-    private clientAddressProvider?: IClientAddressProvider
+    private clientAddressProvider?: IClientAddressProvider,
+    private holidayService?: IHolidayService
   ) { }
 
   /**
@@ -348,11 +350,11 @@ export class ScheduleService {
     }
 
     // Generate visit dates based on recurrence rule
-    const visitDates = this.calculateVisitDates(
+    const visitDates = await this.calculateVisitDates(
       pattern,
       options.startDate,
       options.endDate,
-    options.skipHolidays || false
+      options.skipHolidays || false
     );
 
     // Create visits
@@ -501,12 +503,12 @@ export class ScheduleService {
    * Helper Methods
    */
 
-  private calculateVisitDates(
+  private async calculateVisitDates(
     pattern: ServicePattern,
     startDate: Date,
     endDate: Date,
-    _skipHolidays: boolean
-  ): Date[] {
+    skipHolidays: boolean
+  ): Promise<Date[]> {
     const dates: Date[] = [];
     const { recurrence } = pattern;
 
@@ -561,8 +563,18 @@ export class ScheduleService {
       }
     }
 
-    // TODO: Filter holidays if skipHolidays is true
-    // Would need holiday calendar service
+    // Filter holidays if skipHolidays is true
+    if (skipHolidays && this.holidayService) {
+      const holidays = await this.holidayService.getHolidays(startDate, endDate, pattern.branchId);
+      const holidayDates = new Set(
+        holidays.map(h => h.holiday_date.toISOString().split('T')[0])
+      );
+
+      return dates.filter(date => {
+        const dateStr = date.toISOString().split('T')[0];
+        return !holidayDates.has(dateStr);
+      });
+    }
 
     return dates;
   }

@@ -15,6 +15,7 @@ import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
+import { createHolidayRouter } from './holidays.js';
 import { authLimiter } from '../middleware/rate-limit.js';
 /**
  * NOTE: Analytics routes temporarily disabled - requires architectural refactor
@@ -92,6 +93,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const syncRouter = createSyncRouter(db);
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
+
+  // Holiday Management routes
+  const holidayRouter = createHolidayRouter(db);
+  app.use('/api', holidayRouter);
+  console.log('  ✓ Holiday Management routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
