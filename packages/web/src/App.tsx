@@ -1,7 +1,5 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-// import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
 import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
@@ -14,15 +12,6 @@ import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
-
-// const queryClient = new QueryClient({
-//   defaultOptions: {
-//     queries: {
-//       staleTime: 5 * 60 * 1000,
-//       retry: 1,
-//     },
-//   },
-// });
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();

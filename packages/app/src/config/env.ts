@@ -5,11 +5,6 @@
  * All environment variables are validated at startup to fail fast.
  */
 
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-/* eslint-disable @typescript-eslint/prefer-for-of */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 import { z } from 'zod';
 
 /**
