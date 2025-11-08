@@ -11,7 +11,7 @@ import { GeocodingService } from '@care-commons/core';
 export function createHealthRouter(db: Database): Router {
   const router = Router();
 
-  router.get('/health', async (_req, res) => {
+  router.get('/', async (_req, res) => {
     try {
       // Check database connection
       await db.query('SELECT 1');
@@ -37,7 +37,7 @@ export function createHealthRouter(db: Database): Router {
    * Health check for geocoding service
    * Tests the geocoding service with a known address
    */
-  router.get('/health/geocoding', async (_req, res) => {
+  router.get('/geocoding', async (_req, res) => {
     const providerEnv = process.env.GEOCODING_PROVIDER;
     const provider = (providerEnv ?? 'mapbox') as 'google' | 'mapbox' | 'nominatim';
     const geocodingService = new GeocodingService(provider);
