@@ -60,7 +60,7 @@ export class ReferenceDataService {
           'SELECT * FROM state_compliance_rules WHERE state = $1',
           [state]
         );
-        return result.rows[0] || null;
+        return result.rows[0] ?? null;
       },
       CacheTTL.VERY_LONG
     );

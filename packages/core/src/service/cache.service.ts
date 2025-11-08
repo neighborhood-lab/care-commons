@@ -1,4 +1,4 @@
-import { Redis } from 'ioredis';
+import { createClient, type RedisClientType } from 'redis';
 
 export interface CacheConfig {
   host: string;
@@ -9,34 +9,30 @@ export interface CacheConfig {
 }
 
 export class CacheService {
-  private redis: Redis | null = null;
+  private redis: RedisClientType | null = null;
   private memoryCache: Map<string, { value: unknown; expires: number }> = new Map();
   private isRedisAvailable = false;
 
   constructor(private config?: CacheConfig) {}
 
   async initialize(): Promise<void> {
-    if (!this.config) {
+    if (this.config === undefined) {
       console.log('Cache service: Using in-memory cache (no Redis configured)');
       this.isRedisAvailable = false;
       return;
     }
 
     try {
-      this.redis = new Redis({
-        host: this.config.host,
-        port: this.config.port,
-        password: this.config.password,
-        db: this.config.db || 0,
-        retryStrategy: (times) => {
-          if (times > 3) {
-            console.error('Redis connection failed after 3 retries, falling back to memory cache');
-            this.isRedisAvailable = false;
-            return null; // Stop retrying
-          }
-          return Math.min(times * 100, 2000); // Exponential backoff
-        },
+      const passwordPart = this.config.password !== undefined ? `:${this.config.password}@` : '';
+      const url = `redis://${passwordPart}${this.config.host}:${this.config.port}/${this.config.db ?? 0}`;
+      this.redis = createClient({ url });
+
+      this.redis.on('error', (err) => {
+        console.error('Redis client error:', err);
+        this.isRedisAvailable = false;
       });
+
+      await this.redis.connect();
 
       // Test connection
       await this.redis.ping();
@@ -54,7 +50,7 @@ export class CacheService {
    */
   async get<T>(key: string): Promise<T | null> {
     try {
-      if (this.isRedisAvailable && this.redis) {
+      if (this.isRedisAvailable && this.redis !== null) {
         const value = await this.redis.get(key);
         if (value === null) {
           return null;
@@ -63,10 +59,10 @@ export class CacheService {
       } else {
         // Memory cache fallback
         const cached = this.memoryCache.get(key);
-        if (cached && cached.expires > Date.now()) {
+        if (cached !== undefined && cached.expires > Date.now()) {
           return cached.value as T;
         }
-        if (cached) {
+        if (cached !== undefined) {
           this.memoryCache.delete(key); // Clean up expired
         }
         return null;
@@ -82,10 +78,10 @@ export class CacheService {
    */
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     try {
-      const ttlSeconds = ttl || this.config?.ttl || 300;
+      const ttlSeconds = ttl ?? this.config?.ttl ?? 300;
 
-      if (this.isRedisAvailable && this.redis) {
-        await this.redis.set(key, JSON.stringify(value), 'EX', ttlSeconds);
+      if (this.isRedisAvailable && this.redis !== null) {
+        await this.redis.set(key, JSON.stringify(value), { EX: ttlSeconds });
       } else {
         // Memory cache fallback
         const expiresAt = Date.now() + ttlSeconds * 1000;
@@ -111,7 +107,7 @@ export class CacheService {
    */
   async del(key: string): Promise<void> {
     try {
-      if (this.isRedisAvailable && this.redis) {
+      if (this.isRedisAvailable && this.redis !== null) {
         await this.redis.del(key);
       } else {
         this.memoryCache.delete(key);
@@ -126,10 +122,10 @@ export class CacheService {
    */
   async delPattern(pattern: string): Promise<void> {
     try {
-      if (this.isRedisAvailable && this.redis) {
+      if (this.isRedisAvailable && this.redis !== null) {
         const keys = await this.redis.keys(pattern);
         if (keys.length > 0) {
-          await this.redis.del(...keys);
+          await this.redis.del(keys);
         }
       } else {
         // Memory cache: simple prefix matching
@@ -168,10 +164,46 @@ export class CacheService {
   }
 
   /**
+   * Get cache statistics
+   */
+  async getStats(): Promise<
+    | { type: 'redis'; info: Record<string, string> }
+    | { type: 'memory'; size: number }
+  > {
+    if (this.isRedisAvailable && this.redis !== null) {
+      const info = await this.redis.info();
+      const lines = info.split('\r\n');
+      const stats: Record<string, string> = {};
+      for (const line of lines) {
+        if (line.includes(':')) {
+          const [key, value] = line.split(':');
+          if (key !== undefined && key !== '' && value !== undefined && value !== '') {
+            stats[key] = value;
+          }
+        }
+      }
+      return { type: 'redis', info: stats };
+    } else {
+      return { type: 'memory', size: this.memoryCache.size };
+    }
+  }
+
+  /**
+   * Clear all cache
+   */
+  async clearAll(): Promise<void> {
+    if (this.isRedisAvailable && this.redis !== null) {
+      await this.redis.flushDb();
+    } else {
+      this.memoryCache.clear();
+    }
+  }
+
+  /**
    * Close connections
    */
   async close(): Promise<void> {
-    if (this.redis) {
+    if (this.redis !== null) {
       await this.redis.quit();
     }
   }
@@ -181,7 +213,7 @@ export class CacheService {
 let cacheService: CacheService | null = null;
 
 export const initCacheService = async (config?: CacheConfig): Promise<CacheService> => {
-  if (!cacheService) {
+  if (cacheService === null) {
     cacheService = new CacheService(config);
     await cacheService.initialize();
   }
@@ -189,7 +221,7 @@ export const initCacheService = async (config?: CacheConfig): Promise<CacheServi
 };
 
 export const getCacheService = (): CacheService => {
-  if (!cacheService) {
+  if (cacheService === null) {
     throw new Error('Cache service not initialized. Call initCacheService first.');
   }
   return cacheService;

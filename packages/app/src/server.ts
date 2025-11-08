@@ -229,8 +229,8 @@ export async function createApp(): Promise<express.Express> {
       const url = new globalThis.URL(redisUrl);
       const cacheConfig = {
         host: url.hostname,
-        port: Number(url.port) || 6379,
-        password: url.password || undefined,
+        port: Number(url.port) !== 0 ? Number(url.port) : 6379,
+        password: url.password !== '' ? url.password : undefined,
         ttl: 300, // 5 minutes default
       };
       await initCacheService(cacheConfig);
