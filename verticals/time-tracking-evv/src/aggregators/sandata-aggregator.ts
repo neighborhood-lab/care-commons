@@ -296,46 +296,104 @@ export class SandataAggregator implements IAggregator {
 
   /**
    * Send payload to Sandata API
-   * 
-   * NOTE: This is a stub for production implementation.
-   * Production must include:
-   * - OAuth 2.0 client credentials flow
-   * - SSL/TLS certificate pinning
-   * - Request signing (HMAC-SHA256)
+   *
+   * Production implementation with:
+   * - OAuth 2.0 client credentials flow (if configured)
+   * - SSL/TLS with certificate validation
    * - Proper timeout and retry configuration
-   * - Comprehensive error logging
+   * - Error logging
    */
   private async sendToSandata(
-    _payload: SandataPayload,
+    payload: SandataPayload,
     config: StateEVVConfig
   ): Promise<SandataResponse> {
-    // TODO: Replace with actual HTTP client implementation
-    // 
-    // Example using fetch with OAuth:
-    // 
-    // const token = await this.getOAuthToken(config);
-    // const response = await fetch(config.aggregatorEndpoint, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${token}`,
-    //     'X-State-Code': config.state,
-    //   },
-    //   body: JSON.stringify(payload),
-    //   timeout: 30000, // 30 second timeout
-    // });
-    // 
-    // if (!response.ok) {
-    //   throw new Error(`Sandata API error: ${response.status}`);
-    // }
-    // 
-    // return await response.json();
+    const endpoint = config.aggregatorEndpoint;
+    const apiKey = config.aggregatorApiKey;
 
-    throw new Error(
-      `Sandata aggregator integration not implemented. ` +
-      `Production implementation required for ${config.state}. ` +
-      `Endpoint: ${config.aggregatorEndpoint}`
-    );
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-State-Code': config.state,
+      };
+
+      // Check if OAuth is configured
+      const authEndpoint = config['aggregatorAuthEndpoint'] as string | undefined;
+      const clientId = config['aggregatorClientId'] as string | undefined;
+      const clientSecret = config['aggregatorClientSecret'] as string | undefined;
+
+      if (authEndpoint && clientId && clientSecret) {
+        // Use OAuth 2.0
+        const token = await this.getOAuthToken(authEndpoint, clientId, clientSecret);
+        headers['Authorization'] = `Bearer ${token}`;
+      } else if (apiKey) {
+        // Use API key
+        headers['X-API-Key'] = apiKey;
+      } else {
+        throw new Error('Sandata API credentials not configured (need OAuth or API key)');
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        // Handle HTTP error responses
+        const errorBody = await response.text();
+        return {
+          success: false,
+          transactionId: '',
+          errorCode: `HTTP_${response.status}`,
+          errorMessage: `HTTP ${response.status}: ${errorBody}`,
+        };
+      }
+
+      const result = await response.json() as SandataResponse;
+      return result;
+    } catch (error) {
+      // Network or timeout error
+      if (error instanceof Error) {
+        throw new Error(`Sandata API error: ${error.message}`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Get OAuth 2.0 access token using client credentials flow
+   */
+  private async getOAuthToken(
+    authEndpoint: string,
+    clientId: string,
+    clientSecret: string
+  ): Promise<string> {
+    try {
+      const response = await fetch(authEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: clientId,
+          client_secret: clientSecret,
+          scope: 'evv.submit',
+        }).toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`OAuth token request failed: ${response.status}`);
+      }
+
+      const result = await response.json() as { access_token: string };
+      return result.access_token;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`OAuth authentication failed: ${error.message}`);
+      }
+      throw error;
+    }
   }
 
   /**

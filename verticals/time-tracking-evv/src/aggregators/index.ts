@@ -30,4 +30,5 @@ export {
 
 export { SandataAggregator } from './sandata-aggregator.js';
 export { TellusAggregator } from './tellus-aggregator.js';
+export { HHAeXchangeAggregator } from './hhaeexchange-aggregator.js';
 export { AggregatorRouter, getAggregatorRouter } from './aggregator-router.js';

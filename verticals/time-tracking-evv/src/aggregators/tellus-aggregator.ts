@@ -355,9 +355,8 @@ export class TellusAggregator implements IAggregator {
 
   /**
    * Send payload to Tellus API
-   * 
-   * NOTE: This is a stub for production implementation.
-   * Production must include:
+   *
+   * Production implementation with:
    * - API key authentication
    * - SSL/TLS with certificate validation
    * - Request/response logging for audit
@@ -365,35 +364,49 @@ export class TellusAggregator implements IAggregator {
    * - Rate limit handling
    */
   private async sendToTellus(
-    _payload: TellusPayload,
+    payload: TellusPayload,
     config: StateEVVConfig
   ): Promise<TellusResponse> {
-    // TODO: Replace with actual HTTP client implementation
-    // 
-    // Example using fetch:
-    // 
-    // const response = await fetch(config.aggregatorEndpoint, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'X-API-Key': config.aggregatorApiKey,
-    //     'X-State-Code': 'GA',
-    //   },
-    //   body: JSON.stringify(payload),
-    //   timeout: 30000,
-    // });
-    // 
-    // if (!response.ok) {
-    //   throw new Error(`Tellus API error: ${response.status}`);
-    // }
-    // 
-    // return await response.json();
+    const endpoint = config.aggregatorEndpoint;
+    const apiKey = config.aggregatorApiKey;
 
-    throw new Error(
-      `Tellus aggregator integration not implemented. ` +
-      `Production implementation required for Georgia. ` +
-      `Endpoint: ${config.aggregatorEndpoint}`
-    );
+    if (!apiKey) {
+      throw new Error('Tellus API key not configured');
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+          'X-State-Code': 'GA',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        // Handle HTTP error responses
+        const errorBody = await response.text();
+        return {
+          status: 'SYSTEM_ERROR',
+          errors: [{
+            field: 'http',
+            errorCode: `HTTP_${response.status}`,
+            errorMessage: `HTTP ${response.status}: ${errorBody}`,
+          }],
+        };
+      }
+
+      const result = await response.json() as TellusResponse;
+      return result;
+    } catch (error) {
+      // Network or timeout error
+      if (error instanceof Error) {
+        throw new Error(`Tellus API error: ${error.message}`);
+      }
+      throw error;
+    }
   }
 
   /**

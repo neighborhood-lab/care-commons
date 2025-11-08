@@ -125,25 +125,25 @@ describe('AggregatorRouter', () => {
   });
 
   describe('State Routing - Texas (HHAeXchange)', () => {
-    it('should throw error for TX routing (handled by TexasEVVProvider)', async () => {
+    it('should route TX to HHAeXchange aggregator', async () => {
       const mockRecord = createMockEVVRecord('TX');
-      
-      await expect(router.submit(mockRecord, 'TX')).rejects.toThrow(
-        /Texas \(HHAeXchange\) should be handled by TexasEVVProvider/
-      );
+
+      // HHAeXchange aggregator will attempt submission
+      const result = await router.submit(mockRecord, 'TX');
+
+      // Expect either success or network error (since we don't have real endpoint)
+      expect(result).toBeDefined();
+      expect(result.success).toBeDefined();
     });
 
-    it('should throw error with helpful message for TX', async () => {
+    it('should use HHAeXchange for TX submissions', async () => {
       const mockRecord = createMockEVVRecord('TX');
-      
-      try {
-        await router.submit(mockRecord, 'TX');
-        expect.fail('Should have thrown error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toContain('TexasEVVProvider');
-        expect((error as Error).message).toContain('EVVService.submitToStateAggregator()');
-      }
+
+      const result = await router.submit(mockRecord, 'TX');
+
+      // Should return a result object, not throw
+      expect(result).toBeDefined();
+      expect(typeof result.success).toBe('boolean');
     });
 
     it('should identify TX does not use Sandata', () => {
@@ -152,25 +152,25 @@ describe('AggregatorRouter', () => {
   });
 
   describe('State Routing - Florida (Multi-aggregator)', () => {
-    it('should throw error for FL routing (handled by FloridaEVVProvider)', async () => {
+    it('should route FL to HHAeXchange aggregator', async () => {
       const mockRecord = createMockEVVRecord('FL');
-      
-      await expect(router.submit(mockRecord, 'FL')).rejects.toThrow(
-        /Florida \(multi-aggregator\) should be handled by FloridaEVVProvider/
-      );
+
+      // HHAeXchange aggregator will attempt submission
+      const result = await router.submit(mockRecord, 'FL');
+
+      // Expect either success or network error (since we don't have real endpoint)
+      expect(result).toBeDefined();
+      expect(result.success).toBeDefined();
     });
 
-    it('should throw error with helpful message for FL', async () => {
+    it('should use HHAeXchange for FL submissions', async () => {
       const mockRecord = createMockEVVRecord('FL');
-      
-      try {
-        await router.submit(mockRecord, 'FL');
-        expect.fail('Should have thrown error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toContain('FloridaEVVProvider');
-        expect((error as Error).message).toContain('EVVService.submitToStateAggregator()');
-      }
+
+      const result = await router.submit(mockRecord, 'FL');
+
+      // Should return a result object, not throw
+      expect(result).toBeDefined();
+      expect(typeof result.success).toBe('boolean');
     });
 
     it('should identify FL does not use Sandata', () => {
@@ -225,20 +225,22 @@ describe('AggregatorRouter', () => {
       expect(result.isValid).toBeDefined();
     });
 
-    it('should throw error when validating TX records', async () => {
+    it('should validate TX records with HHAeXchange aggregator', async () => {
       const mockRecord = createMockEVVRecord('TX');
-      
-      await expect(router.validate(mockRecord, 'TX')).rejects.toThrow(
-        /Texas \(HHAeXchange\) should be handled by TexasEVVProvider/
-      );
+
+      const result = await router.validate(mockRecord, 'TX');
+
+      expect(result).toBeDefined();
+      expect(result.isValid).toBeDefined();
     });
 
-    it('should throw error when validating FL records', async () => {
+    it('should validate FL records with HHAeXchange aggregator', async () => {
       const mockRecord = createMockEVVRecord('FL');
-      
-      await expect(router.validate(mockRecord, 'FL')).rejects.toThrow(
-        /Florida \(multi-aggregator\) should be handled by FloridaEVVProvider/
-      );
+
+      const result = await router.validate(mockRecord, 'FL');
+
+      expect(result).toBeDefined();
+      expect(result.isValid).toBeDefined();
     });
 
     it('should return default validation if aggregator does not implement validate', async () => {

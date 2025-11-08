@@ -23,6 +23,7 @@ import {
 } from './base-aggregator.js';
 import { SandataAggregator } from './sandata-aggregator.js';
 import { TellusAggregator } from './tellus-aggregator.js';
+import { HHAeXchangeAggregator } from './hhaeexchange-aggregator.js';
 import {
   getStateConfig,
   getAggregatorType,
@@ -31,18 +32,20 @@ import {
 
 /**
  * Aggregator Router
- * 
+ *
  * Single entry point for all state EVV submissions.
  * Automatically routes to the correct aggregator based on state code.
  */
 export class AggregatorRouter {
   private sandataAggregator: SandataAggregator;
   private tellusAggregator: TellusAggregator;
+  private hhaeXchangeAggregator: HHAeXchangeAggregator;
 
   constructor() {
     // Initialize aggregators once (reused across all states)
     this.sandataAggregator = new SandataAggregator();
     this.tellusAggregator = new TellusAggregator();
+    this.hhaeXchangeAggregator = new HHAeXchangeAggregator();
   }
 
   /**
@@ -99,20 +102,12 @@ export class AggregatorRouter {
         return this.tellusAggregator;
 
       case 'HHAEEXCHANGE':
-        // Texas uses HHAeXchange
-        // This is handled by the existing TexasEVVProvider
-        throw new Error(
-          'Texas (HHAeXchange) should be handled by TexasEVVProvider. ' +
-          'Use EVVService.submitToStateAggregator() for proper routing.'
-        );
+        // Texas and Florida use HHAeXchange
+        return this.hhaeXchangeAggregator;
 
       case 'MULTI':
-        // Florida multi-aggregator
-        // This is handled by the existing FloridaEVVProvider
-        throw new Error(
-          'Florida (multi-aggregator) should be handled by FloridaEVVProvider. ' +
-          'Use EVVService.submitToStateAggregator() for proper routing.'
-        );
+        // Florida multi-aggregator (can use HHAeXchange as default)
+        return this.hhaeXchangeAggregator;
 
       default:
         throw new Error(`No aggregator configured for state: ${state}`);
