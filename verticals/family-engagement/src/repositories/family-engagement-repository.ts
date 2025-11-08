@@ -540,6 +540,22 @@ export class MessageRepository {
   }
 
   /**
+   * Get thread by ID
+   */
+  async getThreadById(threadId: UUID): Promise<MessageThread | null> {
+    const query = `
+      SELECT * FROM message_threads
+      WHERE id = $1
+    `;
+
+    const result = await this.database.query(query, [threadId]);
+    if (result.rows.length === 0) {
+      return null;
+    }
+    return this.mapRowToThread(result.rows[0]);
+  }
+
+  /**
    * Get threads for family member
    */
   async getThreadsForFamilyMember(familyMemberId: UUID): Promise<MessageThread[]> {

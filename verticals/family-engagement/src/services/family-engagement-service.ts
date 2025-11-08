@@ -11,7 +11,11 @@ import type {
   UUID,
   ValidationError,
   PermissionError,
-  NotFoundError
+  NotFoundError,
+  IUserProvider,
+  IClientProvider,
+  IVisitProvider,
+  ICarePlanProvider
 } from '@care-commons/core';
 import { PermissionService } from '@care-commons/core';
 import type {
@@ -44,7 +48,11 @@ export class FamilyEngagementService {
     private notificationRepo: NotificationRepository,
     private activityFeedRepo: ActivityFeedRepository,
     private messageRepo: MessageRepository,
-    private permissions: PermissionService
+    private permissions: PermissionService,
+    private userProvider: IUserProvider,
+    private clientProvider: IClientProvider,
+    private visitProvider: IVisitProvider,
+    private carePlanProvider: ICarePlanProvider
   ) {}
 
   // ============================================================================
@@ -325,6 +333,8 @@ export class FamilyEngagementService {
 
     // Send initial message if provided
     if (input.initialMessage) {
+      const senderName = await this.userProvider.getUserName(context.userId);
+
       await this.messageRepo.sendMessage({
         threadId: thread.id,
         messageText: input.initialMessage,
@@ -332,7 +342,7 @@ export class FamilyEngagementService {
         clientId: input.clientId,
         sentBy: context.userId,
         senderType: 'STAFF',
-        senderName: context.userId, // FIXME: Get actual user name
+        senderName,
         organizationId: context.organizationId,
         createdBy: context.userId
       });
@@ -354,14 +364,29 @@ export class FamilyEngagementService {
       throw new Error('Insufficient permissions to send messages') as PermissionError;
     }
 
-    // FIXME: Get thread to validate access and get clientId, familyMemberId
+    // Get thread to validate access and get clientId, familyMemberId
+    const thread = await this.messageRepo.getThreadById(input.threadId);
+
+    if (!thread) {
+      throw new Error(`Thread ${input.threadId} not found`) as NotFoundError;
+    }
+
+    // Verify sender is a participant in the thread
+    const isParticipant = thread.participants.includes(context.userId);
+    if (!isParticipant) {
+      throw new Error(`User ${context.userId} is not a participant in thread ${input.threadId}`) as PermissionError;
+    }
+
+    // Get actual user name
+    const senderName = await this.userProvider.getUserName(context.userId);
+
     const message = await this.messageRepo.sendMessage({
       ...input,
-      familyMemberId: context.userId, // Placeholder
-      clientId: context.userId, // Placeholder
+      familyMemberId: thread.familyMemberId,
+      clientId: thread.clientId,
       sentBy: context.userId,
       senderType,
-      senderName: context.userId, // FIXME: Get actual user name
+      senderName,
       organizationId: context.organizationId,
       createdBy: context.userId
     });
@@ -439,11 +464,90 @@ export class FamilyEngagementService {
       throw new Error('Family member not found') as NotFoundError;
     }
 
+    // Fetch client data
+    const client = await this.clientProvider.getClientById(profile.clientId);
+    const clientName = client
+      ? `${client.firstName} ${client.lastName}`
+      : 'Unknown Client';
+
+    // Get upcoming visits for the client
+    const now = new Date();
+    const visits = await this.visitProvider.getVisitsByClientId(profile.clientId, {
+      startDate: now,
+      status: ['SCHEDULED', 'CONFIRMED'],
+      orderBy: 'scheduled_date',
+      order: 'asc',
+      limit: 10
+    });
+
+    // Map visits to VisitSummary format
+    const upcomingVisits: VisitSummary[] = await Promise.all(
+      visits.map(async (visit) => {
+        // Get caregiver name
+        let caregiverName = 'Unassigned';
+        if (visit.caregiverId) {
+          caregiverName = await this.userProvider.getUserName(visit.caregiverId);
+        }
+
+        // Combine scheduledDate and times to create full timestamps
+        const dateStr = visit.scheduledDate instanceof Date
+          ? visit.scheduledDate.toISOString().split('T')[0]
+          : String(visit.scheduledDate);
+
+        return {
+          id: visit.id,
+          visitId: visit.id,
+          clientId: visit.clientId,
+          familyMemberIds: [familyMemberId],
+          scheduledStartTime: new Date(`${dateStr}T${visit.scheduledStartTime}`),
+          scheduledEndTime: new Date(`${dateStr}T${visit.scheduledEndTime}`),
+          actualStartTime: visit.actualStartTime ?? undefined,
+          actualEndTime: visit.actualEndTime ?? undefined,
+          caregiverName,
+          caregiverPhotoUrl: undefined,
+          tasksCompleted: [],
+          visitNotes: undefined,
+          status: visit.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW',
+          cancellationReason: undefined,
+          visibleToFamily: true,
+          publishedAt: null,
+          viewedByFamily: false,
+          viewedAt: null,
+          organizationId: visit.organizationId,
+          branchId: visit.branchId,
+          createdAt: visit.createdAt,
+          createdBy: context.userId,
+          updatedAt: visit.updatedAt,
+          updatedBy: context.userId,
+          version: 1
+        } as VisitSummary;
+      })
+    );
+
+    // Get active care plan
+    let activeCarePlan = undefined;
+    const carePlan = await this.carePlanProvider.getActiveCarePlanForClient(profile.clientId);
+    if (carePlan) {
+      // Count goals
+      const goals = carePlan.goals || [];
+      const goalsTotal = Array.isArray(goals) ? goals.length : 0;
+      const goalsAchieved = Array.isArray(goals)
+        ? goals.filter((g: unknown) => {
+            const goal = g as { status?: string };
+            return goal.status === 'ACHIEVED' || goal.status === 'COMPLETED';
+          }).length
+        : 0;
+
+      activeCarePlan = {
+        id: carePlan.id,
+        name: carePlan.name,
+        goalsTotal,
+        goalsAchieved
+      };
+    }
+
     // Get recent activity
     const recentActivity = await this.activityFeedRepo.getRecentActivity(familyMemberId, 10);
-
-    // FIXME: Get upcoming visits from visit summary table
-    const upcomingVisits: VisitSummary[] = [];
 
     // Get unread counts
     const unreadNotifications = profile.statistics.unreadNotifications;
@@ -452,14 +556,14 @@ export class FamilyEngagementService {
     return {
       client: {
         id: profile.clientId,
-        name: 'Client Name', // FIXME: Fetch from client service
+        name: clientName,
         photoUrl: undefined
       },
       upcomingVisits,
       recentActivity,
       unreadNotifications,
       unreadMessages,
-      activeCarePlan: undefined // FIXME: Fetch from care plan service
+      activeCarePlan
     };
   }
 

@@ -26,6 +26,10 @@ import {
   IFamilyMemberProvider,
   createFamilyMemberProvider,
 } from './family-member.provider.js';
+import {
+  IUserProvider,
+  createUserProvider,
+} from './user.provider.js';
 
 // Re-export provider interfaces and factory functions (not concrete classes or data types to avoid conflicts)
 export type {
@@ -69,6 +73,11 @@ export type {
 } from './family-member.provider.js';
 export { createFamilyMemberProvider } from './family-member.provider.js';
 
+export type {
+  IUserProvider,
+} from './user.provider.js';
+export { createUserProvider } from './user.provider.js';
+
 /**
  * Container for all provider instances
  */
@@ -78,6 +87,7 @@ export interface IProviders {
   visit: IVisitProvider;
   carePlan: ICarePlanProvider;
   familyMember: IFamilyMemberProvider;
+  user: IUserProvider;
 }
 
 /**
@@ -106,6 +116,7 @@ export function createProviders(database: Database): IProviders {
     visit: createVisitProvider(database),
     carePlan: createCarePlanProvider(database),
     familyMember: createFamilyMemberProvider(database),
+    user: createUserProvider(database),
   };
 }
 
