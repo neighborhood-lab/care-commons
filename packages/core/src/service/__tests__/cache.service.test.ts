@@ -1,74 +1,146 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { CacheService } from '../cache.service.js';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { CacheService, initCacheService, getCacheService } from '../cache.service.js';
 
 describe('CacheService', () => {
-  let cacheService: CacheService;
+  describe('In-Memory Cache', () => {
+    let cache: CacheService;
 
-  beforeEach(async () => {
-    cacheService = new CacheService();
-    await cacheService.initialize();
+    beforeEach(async () => {
+      cache = new CacheService();
+      await cache.initialize();
+    });
+
+    afterEach(async () => {
+      await cache.close();
+    });
+
+    describe('get/set operations', () => {
+      it('should set and get a value', async () => {
+        await cache.set('test-key', { data: 'test-value' });
+        const result = await cache.get('test-key');
+        expect(result).toEqual({ data: 'test-value' });
+      });
+
+      it('should return null for non-existent key', async () => {
+        const result = await cache.get('non-existent');
+        expect(result).toBeNull();
+      });
+
+      it('should handle different data types', async () => {
+        await cache.set('string', 'hello');
+        await cache.set('number', 42);
+        await cache.set('boolean', true);
+        await cache.set('object', { nested: { value: 'test' } });
+        await cache.set('array', [1, 2, 3]);
+
+        expect(await cache.get('string')).toBe('hello');
+        expect(await cache.get('number')).toBe(42);
+        expect(await cache.get('boolean')).toBe(true);
+        expect(await cache.get('object')).toEqual({ nested: { value: 'test' } });
+        expect(await cache.get('array')).toEqual([1, 2, 3]);
+      });
+
+      it('should respect TTL and expire values', async () => {
+        await cache.set('expiring-key', 'value', 0.1);
+        
+        const result1 = await cache.get('expiring-key');
+        expect(result1).toBe('value');
+
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        const result2 = await cache.get('expiring-key');
+        expect(result2).toBeNull();
+      });
+    });
+
+    describe('del operations', () => {
+      it('should delete a key', async () => {
+        await cache.set('delete-me', 'value');
+        expect(await cache.get('delete-me')).toBe('value');
+
+        await cache.del('delete-me');
+        expect(await cache.get('delete-me')).toBeNull();
+      });
+    });
+
+    describe('delPattern operations', () => {
+      beforeEach(async () => {
+        await cache.set('user:1:profile', { name: 'Alice' });
+        await cache.set('user:1:settings', { theme: 'dark' });
+        await cache.set('user:2:profile', { name: 'Bob' });
+        await cache.set('post:1', { title: 'Test' });
+      });
+
+      it('should delete keys matching pattern', async () => {
+        await cache.delPattern('user:1:*');
+
+        expect(await cache.get('user:1:profile')).toBeNull();
+        expect(await cache.get('user:1:settings')).toBeNull();
+        expect(await cache.get('user:2:profile')).toEqual({ name: 'Bob' });
+        expect(await cache.get('post:1')).toEqual({ title: 'Test' });
+      });
+    });
+
+    describe('getOrSet operations', () => {
+      it('should return cached value if exists', async () => {
+        await cache.set('cached', 'existing-value');
+
+        const factory = vi.fn().mockResolvedValue('new-value');
+        const result = await cache.getOrSet('cached', factory);
+
+        expect(result).toBe('existing-value');
+        expect(factory).not.toHaveBeenCalled();
+      });
+
+      it('should compute and cache value if not exists', async () => {
+        const factory = vi.fn().mockResolvedValue('computed-value');
+        const result = await cache.getOrSet('new-key', factory);
+
+        expect(result).toBe('computed-value');
+        expect(factory).toHaveBeenCalledTimes(1);
+
+        const cached = await cache.get('new-key');
+        expect(cached).toBe('computed-value');
+      });
+    });
+
+    describe('getStats', () => {
+      it('should return memory cache stats', async () => {
+        await cache.set('key1', 'value1');
+        await cache.set('key2', 'value2');
+
+        const stats = await cache.getStats();
+
+        expect(stats.type).toBe('memory');
+        expect(stats.size).toBe(2);
+      });
+    });
+
+    describe('clearAll', () => {
+      it('should clear all cache entries', async () => {
+        await cache.set('key1', 'value1');
+        await cache.set('key2', 'value2');
+
+        await cache.clearAll();
+
+        expect(await cache.get('key1')).toBeNull();
+        expect(await cache.get('key2')).toBeNull();
+      });
+    });
   });
 
-  afterEach(async () => {
-    await cacheService.close();
-  });
+  describe('Singleton Functions', () => {
+    it('should initialize cache service singleton', async () => {
+      const cache = await initCacheService();
+      expect(cache).toBeInstanceOf(CacheService);
+      await cache.close();
+    });
 
-  it('should get and set values', async () => {
-    await cacheService.set('test-key', { foo: 'bar' }, 60);
-    const value = await cacheService.get('test-key');
-
-    expect(value).toEqual({ foo: 'bar' });
-  });
-
-  it('should return null for non-existent keys', async () => {
-    const value = await cacheService.get('non-existent');
-    expect(value).toBeNull();
-  });
-
-  it('should delete values', async () => {
-    await cacheService.set('test-key', 'test-value', 60);
-    await cacheService.del('test-key');
-    const value = await cacheService.get('test-key');
-
-    expect(value).toBeNull();
-  });
-
-  it('should use getOrSet pattern', async () => {
-    const factory = vi.fn().mockResolvedValue('computed-value');
-
-    // First call should execute factory
-    const value1 = await cacheService.getOrSet('test-key', factory, 60);
-    expect(value1).toBe('computed-value');
-    expect(factory).toHaveBeenCalledTimes(1);
-
-    // Second call should use cache
-    const value2 = await cacheService.getOrSet('test-key', factory, 60);
-    expect(value2).toBe('computed-value');
-    expect(factory).toHaveBeenCalledTimes(1); // Not called again
-  });
-
-  it('should delete by pattern', async () => {
-    await cacheService.set('user:1', 'value1', 60);
-    await cacheService.set('user:2', 'value2', 60);
-    await cacheService.set('org:1', 'value3', 60);
-
-    await cacheService.delPattern('user:*');
-
-    expect(await cacheService.get('user:1')).toBeNull();
-    expect(await cacheService.get('user:2')).toBeNull();
-    expect(await cacheService.get('org:1')).toBe('value3');
-  });
-
-  it('should handle TTL expiration', async () => {
-    await cacheService.set('test-key', 'test-value', 1); // 1 second TTL
-
-    // Should exist immediately
-    expect(await cacheService.get('test-key')).toBe('test-value');
-
-    // Wait 1.5 seconds
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Should be expired
-    expect(await cacheService.get('test-key')).toBeNull();
+    it('should get initialized cache service', async () => {
+      await initCacheService();
+      const cache = getCacheService();
+      expect(cache).toBeInstanceOf(CacheService);
+      await cache.close();
+    });
   });
 });
