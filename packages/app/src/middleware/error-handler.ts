@@ -3,16 +3,19 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { formatError } from './error-formatter.js';
+import { randomUUID } from 'node:crypto';
 
 export interface AppError extends Error {
   statusCode?: number;
   details?: unknown;
+  code?: string;
 }
 
 /**
  * Global error handler middleware
  * Should be last in middleware chain
- * 
+ *
  * Security: Never exposes internal error details, stack traces, or file paths to clients
  * All detailed error information is logged server-side only for debugging
  */
@@ -23,47 +26,57 @@ export function errorHandler(
   _next: NextFunction
 ): void {
   const statusCode = err.statusCode ?? 500;
-  const isProduction = process.env['NODE_ENV'] === 'production';
-  
+  const requestId = randomUUID();
+
   // Log full error details server-side for debugging (never sent to client)
   console.error('Error occurred:', {
+    requestId,
     timestamp: new Date().toISOString(),
     method: req.method,
     path: req.path,
     statusCode,
+    errorCode: err.code,
     message: err.message,
     stack: err.stack,
     details: err.details,
     // Include request context for debugging
     userAgent: req.get('user-agent'),
     ip: req.ip,
+    query: req.query,
+    body: sanitizeBody(req.body),
   });
 
-  // Determine safe client-facing error message
-  let clientMessage: string;
-  
-  if (statusCode >= 400 && statusCode < 500) {
-    // Client errors (4xx) - safe to send specific message
-    clientMessage = err.message.length > 0 ? err.message : 'Invalid request';
-  } else {
-    // Server errors (5xx) - use generic message to avoid information disclosure
-    if (isProduction) {
-      clientMessage = 'An unexpected error occurred. Please try again later.';
-    } else {
-      clientMessage = err.message.length > 0 ? err.message : 'Internal server error';
-    }
-  }
+  // Use enhanced error formatter for better DX
+  const formattedError = formatError(err, req, requestId);
 
   res.status(statusCode).json({
     success: false,
-    error: clientMessage,
-    // Only include error details in development and only for client errors
-    ...((!isProduction && statusCode < 500) ? {
-      details: err.details,
-      // Note: Stack traces NEVER sent to client, even in development
-      // Use server logs for debugging
-    } : {}),
+    error: formattedError.message,
+    errorCode: formattedError.errorCode,
+    requestId: formattedError.requestId,
+    timestamp: formattedError.timestamp,
+    ...(formattedError.suggestion !== undefined ? { suggestion: formattedError.suggestion } : {}),
+    ...(formattedError.documentation !== undefined ? { documentation: formattedError.documentation } : {}),
+    ...(formattedError.details !== undefined ? { details: formattedError.details } : {}),
   });
+}
+
+/**
+ * Sanitize request body for logging (remove sensitive fields)
+ */
+function sanitizeBody(body: unknown): unknown {
+  if (body === null || body === undefined || typeof body !== 'object') return body;
+
+  const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'creditCard'];
+  const sanitized = { ...body } as Record<string, unknown>;
+
+  for (const field of sensitiveFields) {
+    if (field in sanitized) {
+      sanitized[field] = '[REDACTED]';
+    }
+  }
+
+  return sanitized;
 }
 
 /**

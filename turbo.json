@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDependencies": ["**/.env.*local", ".env"],
   "globalEnv": [
     "CORS_ORIGIN",
     "JWT_SECRET",
@@ -10,22 +10,29 @@
     "NODE_ENV",
     "ENVIRONMENT"
   ],
+  "ui": "stream",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "build/**"],
+      "outputs": ["dist/**", ".next/**", "build/**", ".turbo/**"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.js",
         "src/**/*.jsx",
         "package.json",
-        "tsconfig.json"
-      ]
+        "tsconfig.json",
+        "tsconfig.*.json",
+        "vite.config.ts",
+        "rollup.config.js"
+      ],
+      "cache": true,
+      "env": ["NODE_ENV"]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": ["^build"]
     },
     "dev:web": {
       "cache": false,
@@ -33,38 +40,55 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": [],
+      "outputs": ["coverage/**", ".turbo/**"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
         "test/**/*.ts",
         "test/**/*.tsx",
         "**/__tests__/**/*.ts",
-        "**/__tests__/**/*.tsx"
-      ]
+        "**/__tests__/**/*.tsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "vitest.config.ts",
+        "jest.config.js"
+      ],
+      "cache": true,
+      "env": ["NODE_ENV"]
     },
     "test:coverage": {
       "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
+      "outputs": ["coverage/**", ".nyc_output/**", ".turbo/**"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
         "test/**/*.ts",
         "test/**/*.tsx",
         "**/__tests__/**/*.ts",
-        "**/__tests__/**/*.tsx"
-      ]
+        "**/__tests__/**/*.tsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "vitest.config.ts"
+      ],
+      "cache": true,
+      "env": ["NODE_ENV"]
     },
     "lint": {
-      "outputs": [],
+      "outputs": [".eslintcache", ".turbo/**"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.js",
         "src/**/*.jsx",
         "eslint.config.js",
-        ".eslintrc*"
-      ]
+        ".eslintrc*",
+        "package.json"
+      ],
+      "cache": true
     },
     "lint:fix": {
       "cache": false,
@@ -72,18 +96,30 @@
     },
     "typecheck": {
       "dependsOn": ["^build"],
-      "outputs": [],
+      "outputs": ["*.tsbuildinfo", ".turbo/**"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
         "tsconfig.json",
+        "tsconfig.*.json",
         "package.json"
-      ]
+      ],
+      "cache": true
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
     },
     "db:migrate": {
       "cache": false
     },
+    "db:migrate:status": {
+      "cache": false
+    },
     "db:seed": {
+      "cache": false
+    },
+    "db:seed:demo": {
       "cache": false
     },
     "db:nuke": {
@@ -92,5 +128,8 @@
     "db:reset": {
       "cache": false
     }
+  },
+  "remoteCache": {
+    "signature": true
   }
 }

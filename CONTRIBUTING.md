@@ -2,6 +2,68 @@
 
 Thank you for your interest in contributing to Care Commons! This document provides guidelines and instructions for contributing.
 
+## Quick Start
+
+Get up and running in under 5 minutes with our one-command setup:
+
+```bash
+# Clone the repository
+git clone https://github.com/neighborhood-lab/care-commons.git
+cd care-commons
+
+# One-command setup (installs dependencies, creates database, runs migrations, seeds data, builds packages)
+npm run setup
+
+# Start development servers
+npm run dev
+```
+
+That's it! The setup script will:
+- ✅ Check prerequisites (Node.js 22.x, PostgreSQL)
+- ✅ Install all dependencies
+- ✅ Generate secure environment variables
+- ✅ Create and configure the database
+- ✅ Run all migrations
+- ✅ Seed demo data
+- ✅ Build all packages
+
+### Setup Options
+
+```bash
+npm run setup                # Full setup with demo data
+npm run setup -- --no-demo   # Minimal data only
+npm run setup -- --skip-build # Skip build step
+npm run setup -- --use-docker # Use Docker for PostgreSQL
+```
+
+### Default Login Credentials
+
+After setup, you can log in with:
+- Email: `admin@carecommons.example`
+- Password: `Admin123!`
+
+### Troubleshooting Setup
+
+If setup fails:
+
+1. **Node.js version**: Ensure you're using Node.js 22.x
+   ```bash
+   node --version  # Should be v22.x
+   ```
+
+2. **PostgreSQL**: Make sure PostgreSQL is running
+   ```bash
+   psql --version  # Check installation
+   # Or use Docker: npm run setup -- --use-docker
+   ```
+
+3. **Port conflicts**: Ensure ports 3000 (API) and 5173 (web) are available
+
+4. **Permission issues**: On Linux/macOS, you may need to give execute permissions
+   ```bash
+   chmod +x scripts/setup.sh
+   ```
+
 ## Code of Conduct
 
 We are committed to providing a welcoming and inclusive environment. Please be respectful and constructive in all interactions.

@@ -60,16 +60,36 @@ export default defineConfig({
         'process.versions.node': 'undefined',
       },
     },
-    force: true,
+    // Enable dependency pre-bundling for faster startup
+    entries: ['./src/main.tsx'],
   },
   server: {
     port: 5173,
+    // Improved HMR configuration for reliability
+    hmr: {
+      overlay: true,
+      // Reduce HMR connection timeout
+      timeout: 5000,
+    },
+    // Watch configuration for better file change detection
+    watch: {
+      // Use polling in Docker/WSL environments
+      usePolling: false,
+      // Ignore node_modules and dist to reduce watcher overhead
+      ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
+    },
+    // Faster server startup
+    warmup: {
+      clientFiles: ['./src/main.tsx', './src/App.tsx'],
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
+    // Enable CORS for better development experience
+    cors: true,
   },
   build: {
     outDir: 'dist',

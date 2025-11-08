@@ -17,6 +17,7 @@
     "showcase"
   ],
   "scripts": {
+    "setup": "./scripts/setup.sh",
     "dev:setup": "tsx scripts/dev-setup.ts",
     "dev": "tsx scripts/dev-server.ts",
     "dev:server": "cd packages/app && npm run dev",
