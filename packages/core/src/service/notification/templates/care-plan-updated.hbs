@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Care Plan Updated</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .header {
+      background: #7C3AED;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 30px 20px;
+    }
+    .content p {
+      margin: 0 0 15px 0;
+    }
+    .update-box {
+      background: #faf5ff;
+      border-left: 4px solid #7C3AED;
+      padding: 15px 20px;
+      margin: 20px 0;
+    }
+    .update-box p {
+      margin: 5px 0;
+    }
+    .button {
+      display: inline-block;
+      background: #7C3AED;
+      color: white;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      margin: 20px 0;
+    }
+    .button:hover {
+      background: #6D28D9;
+    }
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 Care Plan Updated</h1>
+    </div>
+    <div class="content">
+      <p>Hello {{familyMemberName}},</p>
+
+      <p>The care plan for <strong>{{clientName}}</strong> has been updated.</p>
+
+      <div class="update-box">
+        <p><strong>Update Summary:</strong></p>
+        <p>{{updateSummary}}</p>
+        <p style="margin-top: 15px;"><em>Updated by {{updatedBy}}</em></p>
+      </div>
+
+      <p>You can review the complete care plan in the family portal.</p>
+
+      <div class="button-container">
+        <a href="{{portalUrl}}/care-plans/{{carePlanId}}" class="button">View Care Plan</a>
+      </div>
+
+      <p>Best regards,<br><strong>{{agencyName}}</strong></p>
+    </div>
+    <div class="footer">
+      <p>This is an automated notification from {{agencyName}}.</p>
+      <p>You can manage your notification preferences in the <a href="{{portalUrl}}/settings">family portal settings</a>.</p>
+    </div>
+  </div>
+</body>
+</html>

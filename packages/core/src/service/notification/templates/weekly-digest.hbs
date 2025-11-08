@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Digest</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .header {
+      background: #F59E0B;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 30px 20px;
+    }
+    .content p {
+      margin: 0 0 15px 0;
+    }
+    .digest-section {
+      margin: 25px 0;
+      padding: 15px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .digest-section:last-child {
+      border-bottom: none;
+    }
+    .digest-section h2 {
+      color: #F59E0B;
+      font-size: 18px;
+      margin: 0 0 10px 0;
+    }
+    .button {
+      display: inline-block;
+      background: #F59E0B;
+      color: white;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      margin: 20px 0;
+    }
+    .button:hover {
+      background: #D97706;
+    }
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Weekly Care Summary</h1>
+    </div>
+    <div class="content">
+      <p>Hello {{familyMemberName}},</p>
+
+      <p>Here's a summary of care activities for <strong>{{clientName}}</strong> this week:</p>
+
+      {{#if visitsCompleted}}
+      <div class="digest-section">
+        <h2>✅ Visits Completed</h2>
+        <p><strong>{{visitsCompleted}}</strong> visits completed this week</p>
+      </div>
+      {{/if}}
+
+      {{#if upcomingVisits}}
+      <div class="digest-section">
+        <h2>📅 Upcoming Visits</h2>
+        <p><strong>{{upcomingVisits}}</strong> visits scheduled for next week</p>
+      </div>
+      {{/if}}
+
+      {{#if newMessages}}
+      <div class="digest-section">
+        <h2>💬 Messages</h2>
+        <p><strong>{{newMessages}}</strong> new messages from your care team</p>
+      </div>
+      {{/if}}
+
+      {{#if carePlanUpdates}}
+      <div class="digest-section">
+        <h2>📋 Care Plan Updates</h2>
+        <p>{{carePlanUpdates}}</p>
+      </div>
+      {{/if}}
+
+      <div class="button-container">
+        <a href="{{portalUrl}}/dashboard" class="button">View Full Dashboard</a>
+      </div>
+
+      <p>Best regards,<br><strong>{{agencyName}}</strong></p>
+    </div>
+    <div class="footer">
+      <p>This is your weekly digest from {{agencyName}}.</p>
+      <p>You can change digest frequency in the <a href="{{portalUrl}}/settings">family portal settings</a>.</p>
+    </div>
+  </div>
+</body>
+</html>

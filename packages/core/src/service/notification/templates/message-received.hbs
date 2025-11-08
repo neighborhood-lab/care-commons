@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Message</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .header {
+      background: #0891B2;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 30px 20px;
+    }
+    .content p {
+      margin: 0 0 15px 0;
+    }
+    .message-preview {
+      background: #ecfeff;
+      border-left: 4px solid #0891B2;
+      padding: 15px 20px;
+      margin: 20px 0;
+      font-style: italic;
+    }
+    .button {
+      display: inline-block;
+      background: #0891B2;
+      color: white;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      margin: 20px 0;
+    }
+    .button:hover {
+      background: #0E7490;
+    }
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>💬 New Message</h1>
+    </div>
+    <div class="content">
+      <p>Hello {{familyMemberName}},</p>
+
+      <p>You have received a new message from <strong>{{senderName}}</strong>:</p>
+
+      <div class="message-preview">
+        {{messagePreview}}
+      </div>
+
+      <div class="button-container">
+        <a href="{{portalUrl}}/messages/{{threadId}}" class="button">View & Reply</a>
+      </div>
+
+      <p>Best regards,<br><strong>{{agencyName}}</strong></p>
+    </div>
+    <div class="footer">
+      <p>This is an automated notification from {{agencyName}}.</p>
+      <p>You can manage your notification preferences in the <a href="{{portalUrl}}/settings">family portal settings</a>.</p>
+    </div>
+  </div>
+</body>
+</html>

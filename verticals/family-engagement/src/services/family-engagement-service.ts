@@ -11,7 +11,9 @@ import type {
   UUID,
   ValidationError,
   PermissionError,
-  NotFoundError
+  NotFoundError,
+  NotificationService,
+  NotificationTemplate
 } from '@care-commons/core';
 import { PermissionService } from '@care-commons/core';
 import type {
@@ -44,7 +46,8 @@ export class FamilyEngagementService {
     private notificationRepo: NotificationRepository,
     private activityFeedRepo: ActivityFeedRepository,
     private messageRepo: MessageRepository,
-    private permissions: PermissionService
+    private permissions: PermissionService,
+    private notificationService?: NotificationService
   ) {}
 
   // ============================================================================
@@ -180,8 +183,10 @@ export class FamilyEngagementService {
       organizationId: context.organizationId
     });
 
-    // FIXME: Trigger actual notification delivery (email, SMS, push)
-    // This would integrate with external notification services
+    // Trigger actual notification delivery (email, SMS, push)
+    if (this.notificationService) {
+      await this.deliverNotification(notification, familyMember);
+    }
 
     return notification;
   }
@@ -249,6 +254,96 @@ export class FamilyEngagementService {
     }
 
     return notifications;
+  }
+
+  /**
+   * Helper method to deliver notification via notification service
+   */
+  private async deliverNotification(
+    notification: Notification,
+    familyMember: FamilyMember
+  ): Promise<void> {
+    if (!this.notificationService) {
+      return;
+    }
+
+    try {
+      // Map notification category to template
+      const template = this.getNotificationTemplate(notification.category);
+
+      // Prepare notification data
+      const notificationData = {
+        familyMemberName: `${familyMember.firstName} ${familyMember.lastName}`,
+        clientName: notification.clientId, // FIXME: Fetch actual client name
+        agencyName: process.env.AGENCY_NAME || 'Care Commons',
+        portalUrl: process.env.FAMILY_PORTAL_URL || 'https://portal.carecommons.example.com',
+        ...this.extractNotificationData(notification),
+      };
+
+      // Determine priority
+      const priority = notification.priority === 'URGENT' || notification.priority === 'HIGH'
+        ? 'high'
+        : notification.priority === 'LOW'
+        ? 'low'
+        : 'normal';
+
+      // Deliver notification
+      await this.notificationService.deliver({
+        userId: Number(familyMember.id), // Assuming family member ID can be used as user ID
+        type: notification.category,
+        priority,
+        template,
+        data: notificationData,
+        subject: notification.title,
+      });
+    } catch (error) {
+      // Log error but don't fail the notification creation
+      console.error('Failed to deliver notification:', error);
+    }
+  }
+
+  /**
+   * Map notification category to template
+   */
+  private getNotificationTemplate(category: string): NotificationTemplate {
+    const NotificationTemplateEnum = {
+      VISIT_SCHEDULED: 'visit-scheduled' as NotificationTemplate,
+      VISIT_STARTED: 'visit-started' as NotificationTemplate,
+      VISIT_COMPLETED: 'visit-completed' as NotificationTemplate,
+      VISIT_MISSED: 'visit-missed' as NotificationTemplate,
+      MESSAGE_RECEIVED: 'message-received' as NotificationTemplate,
+      CARE_PLAN_UPDATED: 'care-plan-updated' as NotificationTemplate,
+      WEEKLY_DIGEST: 'weekly-digest' as NotificationTemplate,
+      EMERGENCY_ALERT: 'emergency-alert' as NotificationTemplate,
+    };
+
+    switch (category) {
+      case 'VISIT':
+        return NotificationTemplateEnum.VISIT_SCHEDULED;
+      case 'MESSAGE':
+        return NotificationTemplateEnum.MESSAGE_RECEIVED;
+      case 'CARE_PLAN':
+        return NotificationTemplateEnum.CARE_PLAN_UPDATED;
+      case 'INCIDENT':
+        return NotificationTemplateEnum.EMERGENCY_ALERT;
+      default:
+        return NotificationTemplateEnum.VISIT_SCHEDULED;
+    }
+  }
+
+  /**
+   * Extract notification-specific data
+   */
+  private extractNotificationData(notification: Notification): Record<string, unknown> {
+    return {
+      visitId: notification.relatedEntityId || '',
+      threadId: notification.relatedEntityId || '',
+      carePlanId: notification.relatedEntityId || '',
+      messagePreview: notification.message?.substring(0, 100) || '',
+      updateSummary: notification.message || '',
+      alertMessage: notification.message || '',
+      alertType: notification.category || '',
+    };
   }
 
   // ============================================================================
