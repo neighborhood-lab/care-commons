@@ -6,7 +6,7 @@
  */
 
 import { useMemo } from 'react';
-import { TimezoneUtils } from '@care-commons/core';
+import { TimezoneUtils } from '@care-commons/core/browser';
 import { useAuth } from './auth';
 
 export interface UseTimezoneResult {
