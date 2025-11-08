@@ -10,7 +10,8 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
-import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
+import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard } from './verticals/analytics-reporting';
+import { ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
 import {

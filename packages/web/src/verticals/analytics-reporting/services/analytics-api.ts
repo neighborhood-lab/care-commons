@@ -14,6 +14,9 @@ import type {
   ReportType,
   ExportFormat,
   DateRange,
+  RevenueMetrics,
+  EVVComplianceMetrics,
+  StaffingMetrics,
 } from '@/types/analytics-types';
 
 export interface AnalyticsFilters {
@@ -215,6 +218,86 @@ export class AnalyticsApiService {
 
     if (!response.ok) {
       throw new Error('Failed to export report');
+    }
+
+    return response.blob();
+  }
+
+  /**
+   * Get financial metrics
+   */
+  async getFinancialMetrics(filters: AnalyticsFilters): Promise<RevenueMetrics> {
+    const response = await fetch(`${this.baseUrl}/analytics/financial`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filters),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch financial metrics');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get operational metrics
+   */
+  async getOperationalMetrics(filters: AnalyticsFilters): Promise<OperationalKPIs> {
+    const response = await fetch(`${this.baseUrl}/analytics/operational`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filters),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch operational metrics');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get compliance metrics
+   */
+  async getComplianceMetrics(filters: AnalyticsFilters): Promise<{
+    evvCompliance: EVVComplianceMetrics;
+    staffing: StaffingMetrics;
+    alerts: ComplianceAlert[];
+  }> {
+    const response = await fetch(`${this.baseUrl}/analytics/compliance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filters),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch compliance metrics');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Generate and export analytics data
+   */
+  async generateExport(
+    reportType: ReportType,
+    format: ExportFormat,
+    filters: AnalyticsFilters
+  ): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/analytics/export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportType, format, ...filters }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate export');
     }
 
     return response.blob();
