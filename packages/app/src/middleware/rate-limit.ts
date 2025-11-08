@@ -1,209 +1,147 @@
-import type { Request, Response, NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
+import Redis from 'redis';
+import type { Request } from 'express';
 
-/**
- * Simple in-memory rate limiter
- * For production with multiple instances, consider using:
- * - express-rate-limit with Redis store (for distributed rate limiting)
- * - Upstash Rate Limit (serverless-friendly)
- *
- * @see https://www.npmjs.com/package/express-rate-limit
- * @see https://upstash.com/docs/redis/features/ratelimiting
- */
+// Redis client for distributed rate limiting (optional, fallback to memory)
+let redisClient: ReturnType<typeof Redis.createClient> | null = null;
 
-interface RateLimitStore {
-  [key: string]: {
-    count: number;
-    resetTime: number;
-  };
-}
-
-// In-memory store for rate limiting
-// NOTE: This will be reset when the serverless function cold-starts
-// For production, use Redis or similar distributed store
-const store: RateLimitStore = {};
-
-// Cleanup old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const key in store) {
-    const entry = store[key];
-    if (entry !== undefined && entry.resetTime < now) {
-      delete store[key];
-    }
+const initRedis = async (): Promise<void> => {
+  const redisUrl = process.env.REDIS_URL;
+  if (redisUrl === undefined || redisUrl === '') {
+    console.log('Redis not configured, using in-memory rate limiting');
+    return;
   }
-}, 5 * 60 * 1000);
 
-interface RateLimitOptions {
-  windowMs: number; // Time window in milliseconds
-  max: number; // Maximum number of requests per window
-  message?: string; // Error message when rate limit exceeded
-  standardHeaders?: boolean; // Add RateLimit-* headers
-  skipSuccessfulRequests?: boolean; // Don't count successful requests
-  skip?: (req: Request) => boolean; // Skip rate limiting for certain requests
-}
+  try {
+    redisClient = Redis.createClient({ url: redisUrl });
 
-/**
- * Create a rate limiting middleware
- *
- * @param options - Rate limit configuration
- * @returns Express middleware function
- *
- * @example
- * ```typescript
- * // Limit authentication endpoints to 5 requests per 15 minutes
- * app.use('/api/auth', createRateLimiter({
- *   windowMs: 15 * 60 * 1000,
- *   max: 5,
- *   message: 'Too many login attempts, please try again later'
- * }));
- * ```
- */
-export function createRateLimiter(options: RateLimitOptions) {
-  const {
-    windowMs,
-    max,
-    message = 'Too many requests, please try again later',
-    standardHeaders = true,
-    skipSuccessfulRequests = false,
-    skip,
-  } = options;
+    redisClient.on('error', (err) => {
+      console.error('Redis error:', err);
+    });
 
-  return (req: Request, res: Response, next: NextFunction): void => {
-    // Skip if skip function returns true
-    if (skip?.(req) === true) {
-      return next();
-    }
+    redisClient.on('connect', () => {
+      console.log('Redis connected successfully for rate limiting');
+    });
 
-    // Get client identifier (IP address or authenticated user ID)
-    const identifier =
-      req.ip ?? req.socket.remoteAddress ?? 'unknown';
+    await redisClient.connect();
+  } catch (error) {
+    console.error('Failed to connect to Redis for rate limiting:', error);
+    redisClient = null;
+  }
+};
 
-    // Create key for this endpoint and identifier
-    const key = `${req.path}:${identifier}`;
+// Initialize Redis on module load
+initRedis().catch(console.error);
 
-    const now = Date.now();
+// Helper function to get Redis store if available
+const getRedisStore = (prefix: string): RedisStore | undefined => {
+  if (redisClient !== null) {
+    return new RedisStore({
+      sendCommand: (...args: string[]) => redisClient!.sendCommand(args),
+      prefix,
+    });
+  }
+  return undefined;
+};
 
-    // Initialize or get existing rate limit data
-    const existingEntry = store[key];
-    if (existingEntry === undefined || existingEntry.resetTime < now) {
-      store[key] = {
-        count: 0,
-        resetTime: now + windowMs,
-      };
-    }
-
-    // TypeScript now knows store[key] exists
-    const entry = store[key]!;
-    const { count, resetTime } = entry;
-
-    // Increment request count
-    entry.count++;
-
-    // Calculate remaining requests
-    const remaining = Math.max(0, max - count - 1);
-
-    // Add standard rate limit headers if enabled
-    if (standardHeaders) {
-      res.setHeader('RateLimit-Limit', max.toString());
-      res.setHeader('RateLimit-Remaining', remaining.toString());
-      res.setHeader('RateLimit-Reset', new Date(resetTime).toISOString());
-    }
-
-    // Check if rate limit exceeded
-    if (count >= max) {
-      res.status(429).json({
-        error: 'Too Many Requests',
-        message,
-        retryAfter: Math.ceil((resetTime - now) / 1000),
-      });
-      return;
-    }
-
-    // If skipSuccessfulRequests is enabled, decrement count on successful response
-    if (skipSuccessfulRequests) {
-      const originalSend = res.send;
-      res.send = function (body: unknown) {
-        const entry = store[key];
-        if (res.statusCode < 400 && entry !== undefined) {
-          entry.count--;
-        }
-        return originalSend.call(this, body);
-      };
-    }
-
-    next();
-  };
-}
-
-/**
- * Preset rate limiters for common use cases
- */
-
-/**
- * Strict rate limiter for authentication endpoints
- * 5 requests per 15 minutes
- */
-export const authLimiter = createRateLimiter({
+// General API rate limit - 100 requests per 15 minutes per IP
+export const generalApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
-  message: 'Too many login attempts, please try again later',
-  standardHeaders: true,
-  skip: (req) => req.path === '/health', // Skip health checks
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false, // Disable `X-RateLimit-*` headers
+  store: getRedisStore('rl:general:'),
+  message: {
+    error: 'Too many requests from this IP, please try again after 15 minutes.',
+    retryAfter: 15 * 60, // seconds
+  },
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/health' || req.path === '/api/health';
+  },
 });
 
-/**
- * Moderate rate limiter for API endpoints
- * 100 requests per minute
- */
-export const apiLimiter = createRateLimiter({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100,
-  message: 'Too many API requests, please slow down',
+// Strict rate limit for authentication endpoints - 5 requests per 15 minutes per IP
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 login/signup requests per windowMs
+  skipSuccessfulRequests: true, // Don't count successful requests
   standardHeaders: true,
+  legacyHeaders: false,
+  store: getRedisStore('rl:auth:'),
+  message: {
+    error: 'Too many authentication attempts from this IP, please try again after 15 minutes.',
+    retryAfter: 15 * 60,
+  },
 });
 
-/**
- * Relaxed rate limiter for public endpoints
- * 300 requests per minute
- */
-export const publicLimiter = createRateLimiter({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 300,
-  standardHeaders: true,
-});
-
-/**
- * Very strict rate limiter for sensitive operations
- * 3 requests per hour
- */
-export const sensitiveLimiter = createRateLimiter({
+// Very strict rate limit for password reset - 3 requests per hour per IP
+export const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3,
-  message: 'Too many attempts for this sensitive operation',
   standardHeaders: true,
+  legacyHeaders: false,
+  store: getRedisStore('rl:reset:'),
+  message: {
+    error: 'Too many password reset attempts, please try again after an hour.',
+    retryAfter: 60 * 60,
+  },
 });
 
-/**
- * NOTE: For production deployments with multiple serverless instances,
- * consider using express-rate-limit with a Redis store:
- *
- * ```typescript
- * import rateLimit from 'express-rate-limit';
- * import RedisStore from 'rate-limit-redis';
- * import { Redis } from 'ioredis';
- *
- * const redis = new Redis(process.env.REDIS_URL);
- *
- * export const authLimiter = rateLimit({
- *   windowMs: 15 * 60 * 1000,
- *   max: 5,
- *   store: new RedisStore({
- *     client: redis,
- *     prefix: 'rl:auth:',
- *   }),
- * });
- * ```
- *
- * Or use Upstash Rate Limit for serverless environments:
- * @see https://upstash.com/docs/redis/features/ratelimiting
- */
+// EVV check-in/check-out rate limit - 60 requests per hour per user
+// (Caregivers typically have 4-8 visits per day, so 60/hour is generous)
+export const evvLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request): string => {
+    // Use user ID instead of IP for authenticated endpoints
+    // @ts-expect-error - req.user is added by auth middleware
+    return req.user?.id ?? req.ip ?? 'unknown';
+  },
+  store: getRedisStore('rl:evv:'),
+  message: {
+    error: 'Too many EVV requests, please contact support if you need assistance.',
+    retryAfter: 60 * 60,
+  },
+});
+
+// Mobile sync rate limit - 120 requests per 5 minutes per user
+// (Mobile apps may sync frequently when coming back online)
+export const syncLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request): string => {
+    // @ts-expect-error - req.user is added by auth middleware
+    return req.user?.id ?? req.ip ?? 'unknown';
+  },
+  store: getRedisStore('rl:sync:'),
+  message: {
+    error: 'Sync rate limit exceeded, please wait a few minutes.',
+    retryAfter: 5 * 60,
+  },
+});
+
+// Report generation rate limit - 10 per hour per user
+// (Reports can be expensive to generate)
+export const reportLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request): string => {
+    // @ts-expect-error - req.user is added by auth middleware
+    return req.user?.id ?? req.ip ?? 'unknown';
+  },
+  store: getRedisStore('rl:reports:'),
+  message: {
+    error: 'Too many report requests, please try again later.',
+    retryAfter: 60 * 60,
+  },
+});
+
+export const getRedisClient = (): ReturnType<typeof Redis.createClient> | null => redisClient;
