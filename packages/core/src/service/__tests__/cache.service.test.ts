@@ -112,7 +112,9 @@ describe('CacheService', () => {
         const stats = await cache.getStats();
 
         expect(stats.type).toBe('memory');
-        expect(stats.size).toBe(2);
+        if (stats.type === 'memory') {
+          expect(stats.size).toBe(2);
+        }
       });
     });
 
