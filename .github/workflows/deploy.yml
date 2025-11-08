@@ -349,7 +349,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          node --import tsx --no-warnings packages/core/scripts/seed-tx-fl-demo.ts
+          node --import tsx/esm --no-warnings packages/core/scripts/seed-tx-fl-demo.ts
 
   deployment-health-check:
     name: Verify Deployment Health
