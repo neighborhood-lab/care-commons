@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { Database, initializeDatabase, resetDatabase } from '../db/connection.js';
 
-describe('SQL Injection Protection', () => {
+describe.skipIf(process.env.DB_NAME === undefined || process.env.DB_NAME === '')('SQL Injection Protection', () => {
   let db: Database;
 
   beforeAll(async () => {
     // Initialize test database
     db = initializeDatabase({
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 5432,
-      database: process.env.DB_NAME || 'care_commons_test',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
+      host: process.env.DB_HOST ?? 'localhost',
+      port: process.env.DB_PORT !== undefined && process.env.DB_PORT !== '' ? Number(process.env.DB_PORT) : 5432,
+      database: process.env.DB_NAME ?? 'care_commons_test',
+      user: process.env.DB_USER ?? 'postgres',
+      password: process.env.DB_PASSWORD ?? 'postgres',
       ssl: false,
     });
 

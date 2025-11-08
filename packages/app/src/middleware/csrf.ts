@@ -36,10 +36,11 @@ export const configureCsrfProtection = (app: Express): void => {
   // Middleware to set CSRF cookie and attach token generator to request
   app.use((req: Request, res: Response, next: NextFunction) => {
     // Generate or retrieve CSRF token
+    // eslint-disable-next-line security/detect-object-injection
     const cookieToken = req.cookies[CSRF_COOKIE_NAME];
     const token = typeof cookieToken === 'string' ? cookieToken : null;
 
-    if (token === null) {
+    if (token === null || token === '') {
       const newToken = generateToken();
       const hash = createTokenHash(newToken);
 
@@ -73,8 +74,10 @@ export const configureCsrfProtection = (app: Express): void => {
     }
 
     // Verify CSRF token
+    // eslint-disable-next-line security/detect-object-injection
     const headerValue = req.headers[CSRF_HEADER_NAME];
     const tokenHeader = typeof headerValue === 'string' ? headerValue : null;
+    // eslint-disable-next-line security/detect-object-injection
     const cookieValue = req.cookies[CSRF_COOKIE_NAME];
     const cookieHash = typeof cookieValue === 'string' ? cookieValue : null;
 
@@ -92,10 +95,11 @@ export const configureCsrfProtection = (app: Express): void => {
           message: 'CSRF token verification failed',
         });
       }
-    } catch (_error) {
+    } catch (error) {
       // Verification can throw if buffers have different lengths
       // This is expected and indicates an invalid token
-      // eslint-disable-next-line sonarjs/no-ignored-exceptions
+      // Log the error for security monitoring but don't expose details
+      console.error('CSRF verification error:', error instanceof Error ? error.message : 'Unknown error');
       return res.status(403).json({
         error: 'CSRF token invalid',
         message: 'CSRF token verification failed',

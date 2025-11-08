@@ -15,6 +15,7 @@ export class SensitiveDataFilter {
     'biometric',
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static filter(data: any): any {
     if (typeof data === 'string') {
       return data;
@@ -24,12 +25,15 @@ export class SensitiveDataFilter {
       return data.map(item => this.filter(item));
     }
 
-    if (data && typeof data === 'object') {
+    if (data !== null && data !== undefined && typeof data === 'object') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const filtered: any = {};
       for (const key in data) {
         if (this.SENSITIVE_FIELDS.some(field => key.toLowerCase().includes(field.toLowerCase()))) {
+          // eslint-disable-next-line security/detect-object-injection
           filtered[key] = '[REDACTED]';
         } else {
+          // eslint-disable-next-line security/detect-object-injection
           filtered[key] = this.filter(data[key]);
         }
       }

@@ -27,10 +27,10 @@ export class PasswordValidator {
     if (!/[A-Z]/.test(password)) {
       feedback.push('Password must contain at least one uppercase letter');
     }
-    if (!/[0-9]/.test(password)) {
+    if (!/\d/.test(password)) {
       feedback.push('Password must contain at least one number');
     }
-    if (!/[^a-zA-Z0-9]/.test(password)) {
+    if (!/[^\dA-Za-z]/.test(password)) {
       feedback.push('Password must contain at least one special character');
     }
 
@@ -38,9 +38,12 @@ export class PasswordValidator {
     const result = zxcvbn(password, userInputs);
 
     if (result.score < this.MIN_SCORE) {
+      const warning = result.feedback.warning;
       feedback.push(
         `Password is too weak (strength: ${result.score}/4). ${
-          result.feedback.warning || result.feedback.suggestions.join('. ')
+          (warning != null && warning !== '') 
+            ? warning 
+            : result.feedback.suggestions.join('. ')
         }`
       );
     }

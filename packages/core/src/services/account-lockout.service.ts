@@ -8,7 +8,7 @@ export class AccountLockoutService {
     const cache = getCacheService();
     const key = `lockout:${email}`;
 
-    const attempts = (await cache.get<number>(key)) || 0;
+    const attempts = (await cache.get<number>(key)) ?? 0;
     const newAttempts = attempts + 1;
 
     await cache.set(key, newAttempts, this.LOCKOUT_DURATION);
