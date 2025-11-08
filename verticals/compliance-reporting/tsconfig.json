@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "paths": {
+      "@care-commons/core/*": ["../../packages/core/src/*"]
+    }
+  },
+  "include": ["src/**/*", "../../packages/core/src/types/compliance-reporting.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/__tests__/**"]
+}

@@ -24,6 +24,11 @@ import { authLimiter } from '../middleware/rate-limit.js';
  */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
 import docsRoutes from './docs.routes.js';
+import {
+  createComplianceReportRouter,
+  createScheduledReportsRouter,
+  createTemplatesRouter
+} from './compliance-reports.js';
 
 /**
  * Setup all API routes for the application
@@ -92,6 +97,21 @@ export function setupRoutes(app: Express, db: Database): void {
   const syncRouter = createSyncRouter(db);
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
+
+  // Compliance Reporting routes
+  const complianceReportRouter = createComplianceReportRouter(db);
+  app.use('/api/compliance-reports', complianceReportRouter);
+  console.log('  ✓ Compliance Reports routes registered');
+
+  // Scheduled Compliance Reports routes
+  const scheduledReportsRouter = createScheduledReportsRouter(db);
+  app.use('/api/compliance-reports/schedules', scheduledReportsRouter);
+  console.log('  ✓ Scheduled Compliance Reports routes registered');
+
+  // Compliance Report Templates routes
+  const templatesRouter = createTemplatesRouter(db);
+  app.use('/api/compliance-reports/templates', templatesRouter);
+  console.log('  ✓ Compliance Report Templates routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
