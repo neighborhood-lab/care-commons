@@ -24,6 +24,7 @@ import { authLimiter } from '../middleware/rate-limit.js';
  */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
 import docsRoutes from './docs.routes.js';
+import adminRoutes from './admin.js';
 
 /**
  * Setup all API routes for the application
@@ -92,6 +93,10 @@ export function setupRoutes(app: Express, db: Database): void {
   const syncRouter = createSyncRouter(db);
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
+
+  // Admin routes (cache monitoring, etc.)
+  app.use('/api/admin', adminRoutes);
+  console.log('  ✓ Admin routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits

@@ -12,6 +12,8 @@ import {
   GeocodingService,
 } from '@care-commons/core';
 import { getPermissionService } from '@care-commons/core';
+import { getCacheService } from '@care-commons/core/service/cache.service';
+import { CacheKeys, CacheTTL } from '@care-commons/core/constants/cache-keys';
 import { Client, CreateClientInput, UpdateClientInput, ClientSearchFilters } from '../types/client';
 import { ClientRepository } from '../repository/client-repository';
 import { ClientValidator } from '../validation/client-validator';
@@ -126,6 +128,12 @@ export class ClientService {
     // Create in database
     const created = await this.repository.create(client, context);
 
+    // Invalidate organization's client list cache
+    if (created.id) {
+      const cache = getCacheService();
+      await cache.del(CacheKeys.clientsByOrganization(created.organizationId));
+    }
+
     return created;
   }
 
@@ -135,10 +143,18 @@ export class ClientService {
   async getClientById(id: string, context: UserContext): Promise<Client> {
     this.permissionService.requirePermission(context, 'clients:read');
 
-    const client = await this.repository.findById(id);
-    if (!client) {
-      throw new NotFoundError(`Client not found: ${id}`);
-    }
+    const cache = getCacheService();
+    const client = await cache.getOrSet(
+      CacheKeys.client(id),
+      async () => {
+        const result = await this.repository.findById(id);
+        if (!result) {
+          throw new NotFoundError(`Client not found: ${id}`);
+        }
+        return result;
+      },
+      CacheTTL.MEDIUM
+    );
 
     // Check organizational scope
     this.checkOrganizationalAccess(client, context);
@@ -215,6 +231,10 @@ export class ClientService {
     // Apply updates
     const updated = await this.repository.update(id, updates, context);
 
+    // Invalidate cache
+    const cache = getCacheService();
+    await cache.delPattern(CacheKeys.patterns.client(id));
+
     return updated;
   }
 
@@ -225,8 +245,13 @@ export class ClientService {
     this.permissionService.requirePermission(context, 'clients:delete');
 
     // Verify client exists
-    await this.getClientById(id, context);
+    const client = await this.getClientById(id, context);
     await this.repository.delete(id, context);
+
+    // Invalidate cache
+    const cache = getCacheService();
+    await cache.delPattern(CacheKeys.patterns.client(id));
+    await cache.del(CacheKeys.clientsByOrganization(client.organizationId));
   }
 
   /**
