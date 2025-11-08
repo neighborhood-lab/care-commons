@@ -1,4 +1,4 @@
-import React, { type FC } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, User, CheckCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
