@@ -26,6 +26,7 @@ interface UserAccount {
   roles: string[];
   permissions: string[];
   description: string;
+  password?: string;
 }
 
 const USER_ACCOUNTS: UserAccount[] = [
@@ -48,6 +49,21 @@ const USER_ACCOUNTS: UserAccount[] = [
       'settings:*'
     ],
     description: 'Full system administrator with unrestricted access'
+  },
+  {
+    email: 'family@carecommons.example',
+    username: 'family',
+    firstName: 'Stein',
+    lastName: 'Family',
+    roles: ['FAMILY'],
+    permissions: [
+      'clients:read',
+      'visits:read',
+      'care-plans:read',
+      'schedules:read'
+    ],
+    description: 'Family member with read-only access to care information',
+    password: 'Family123!' // eslint-disable-line sonarjs/no-hardcoded-passwords -- Demo password for family user
   },
   {
     email: 'coordinator@carecommons.example',
@@ -171,15 +187,17 @@ async function seedUsers() {
 
       // Get or create default password
       const defaultPassword = process.env['ADMIN_PASSWORD'] ?? 'Admin123!';
-      console.log(`Using password: ${defaultPassword}\n`);
-      
-      const passwordHash = PasswordUtils.hashPassword(defaultPassword);
+      console.log(`Using default password: ${defaultPassword}\n`);
 
       // Create or update each user account
       for (const account of USER_ACCOUNTS) {
         console.log(`Processing: ${account.email} (${account.roles.join(', ')})...`);
 
         const userId = uuidv4();
+
+        // Use per-user password if specified, otherwise use default
+        const userPassword = account.password ?? defaultPassword;
+        const passwordHash = PasswordUtils.hashPassword(userPassword);
 
         try {
           // Try to update existing user first
@@ -278,11 +296,12 @@ async function seedUsers() {
 
     console.log('\n✅ User accounts seeded successfully!\n');
     console.log('📝 Login Credentials:\n');
-    
+
+    const defaultPassword = process.env['ADMIN_PASSWORD'] ?? 'Admin123!';
     USER_ACCOUNTS.forEach(account => {
       console.log(`   ${account.roles.join(', ')}:`);
       console.log(`   Email:    ${account.email}`);
-      console.log(`   Password: ${process.env['ADMIN_PASSWORD'] ?? 'Admin123!'}`);
+      console.log(`   Password: ${account.password ?? defaultPassword}`);
       console.log(`   Description: ${account.description}`);
       console.log('');
     });

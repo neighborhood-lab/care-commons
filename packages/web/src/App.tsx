@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
-import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
+import { DashboardSelector, Login, NotFound, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
@@ -49,7 +49,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppShell>
-              <Dashboard />
+              <DashboardSelector />
             </AppShell>
           </ProtectedRoute>
         }
