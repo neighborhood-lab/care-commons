@@ -11,6 +11,7 @@ import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
+import { FamilyDashboard, ClientDetails, MessagesPage, VisitDetailsPage } from './app/pages/family';
 import { DemoModeBar } from './demo';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -280,15 +281,47 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      {/* Family Portal Routes - temporarily disabled due to missing @care-commons/family-engagement and @care-commons/core packages */}
-      {/* <Route path="/family-portal/login" element={<FamilyLoginPage />} /> */}
-      {/* <Route path="/family-portal" element={<FamilyPortalLayout />}> */}
-      {/*   <Route index element={<FamilyDashboard />} /> */}
-      {/*   <Route path="activity" element={<ActivityPage />} /> */}
-      {/*   <Route path="messages" element={<MessagesPage />} /> */}
-      {/*   <Route path="messages/:threadId" element={<MessagesPage />} /> */}
-      {/*   <Route path="notifications" element={<NotificationsPage />} /> */}
-      {/* </Route> */}
+      {/* Family Portal Routes */}
+      <Route
+        path="/family"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <FamilyDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/family/clients/:clientId"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <ClientDetails />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/family/messages"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <MessagesPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/family/visits/:visitId"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <VisitDetailsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
