@@ -22,3 +22,31 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Mock Sentry modules to prevent .node file loading
+vi.mock('@sentry/node', () => ({
+  init: vi.fn(),
+  captureException: vi.fn(),
+  captureMessage: vi.fn(),
+  setUser: vi.fn(),
+  setTag: vi.fn(),
+  addBreadcrumb: vi.fn(),
+  configureScope: vi.fn(),
+  withScope: vi.fn(),
+  getCurrentHub: vi.fn(() => ({
+    getClient: vi.fn(),
+    getScope: vi.fn(),
+  })),
+}));
+
+vi.mock('@sentry/tracing', () => ({
+  Integrations: {
+    BrowserTracing: vi.fn(),
+  },
+}));
+
+vi.mock('@sentry-internal/node-cpu-profiler', () => ({}));
+vi.mock('@sentry/profiling-node', () => ({}));
+vi.mock('@sentry/node-core', () => ({}));
+vi.mock('@sentry-internal/tracing', () => ({}));
+vi.mock('sentry_cpu_profiler', () => ({}));
