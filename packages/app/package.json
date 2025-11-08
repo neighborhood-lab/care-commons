@@ -12,7 +12,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "node --watch --import tsx --no-warnings src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "dev:watch": "tsc --watch",
     "build": "tsc && tsc-alias -p tsconfig.json",
     "build:vercel": "tsc -p tsconfig.vercel.json",
