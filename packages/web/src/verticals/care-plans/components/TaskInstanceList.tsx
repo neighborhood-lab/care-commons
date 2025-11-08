@@ -295,7 +295,7 @@ export const TaskInstanceList: React.FC<TaskInstanceListProps> = ({
       )}
 
       {/* Load More */}
-      {data && data.hasMore && (
+      {data?.hasMore && (
         <div className="flex justify-center">
           <Button variant="outline">Load More</Button>
         </div>

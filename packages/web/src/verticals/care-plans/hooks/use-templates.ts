@@ -48,7 +48,7 @@ export const useCarePlanTemplate = (id: string | undefined) => {
   return useQuery({
     queryKey: ['care-plan-templates', id],
     queryFn: async () => {
-      if (!id) return undefined;
+      if (!id) return;
       return CARE_PLAN_TEMPLATES.find((t) => t.id === id);
     },
     enabled: !!id,

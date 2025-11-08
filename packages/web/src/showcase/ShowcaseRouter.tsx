@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { EnhancedLandingPage, ScenarioLibraryPage } from './pages';
+import { EnhancedLandingPage, ScenarioLibraryPage, VideoWalkthroughsPage } from './pages';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { EnhancedRoleSelector } from './components/onboarding/EnhancedRoleSelector';
 import { ComparisonTable } from './components/visual/ComparisonTable';
@@ -14,6 +14,7 @@ import { TourProvider, TourOverlay } from './tours';
 import { TourButton } from './components/tours/TourButton';
 import { ScenarioProvider, ScenarioContainer } from './scenarios';
 import { ScenarioButton } from './components/scenarios/ScenarioButton';
+import { AnalyticsProvider, CookieConsent, AnalyticsDashboard } from './analytics';
 import { PersonaRole } from './types';
 import { AppShell } from '../app/components';
 import { Dashboard, NotFound, AdminDashboard } from '../app/pages';
@@ -40,7 +41,7 @@ export const ShowcaseRouter: React.FC = () => {
         return stored;
       }
     }
-    return undefined;
+    return;
   });
 
   const handleRoleSelect = (roleId: string) => {
@@ -60,36 +61,49 @@ export const ShowcaseRouter: React.FC = () => {
   };
 
   return (
-    <TourProvider>
-      <ScenarioProvider>
-        <Routes>
-          {/* Landing Page */}
-          <Route
-            path="/"
-            element={
-              <EnhancedLandingPage
-                onStartTour={handleStartTour}
-              />
-            }
-          />
+    <AnalyticsProvider>
+      <TourProvider>
+        <ScenarioProvider>
+          <Routes>
+            {/* Landing Page */}
+            <Route
+              path="/"
+              element={
+                <EnhancedLandingPage
+                  onStartTour={handleStartTour}
+                />
+              }
+            />
 
-          {/* Scenario Library */}
-          <Route
-            path="/scenarios"
-            element={<ScenarioLibraryPage />}
-          />
+            {/* Scenario Library */}
+            <Route
+              path="/scenarios"
+              element={<ScenarioLibraryPage />}
+            />
 
-          {/* Comparison Page */}
-          <Route
-            path="/comparison"
-            element={
-              <div className="min-h-screen bg-gray-50 py-12">
-                <div className="max-w-6xl mx-auto px-4">
-                  <ComparisonTable />
+            {/* Video Walkthroughs */}
+            <Route
+              path="/videos"
+              element={<VideoWalkthroughsPage />}
+            />
+
+            {/* Analytics Dashboard */}
+            <Route
+              path="/analytics"
+              element={<AnalyticsDashboard />}
+            />
+
+            {/* Comparison Page */}
+            <Route
+              path="/comparison"
+              element={
+                <div className="min-h-screen bg-gray-50 py-12">
+                  <div className="max-w-6xl mx-auto px-4">
+                    <ComparisonTable />
+                  </div>
                 </div>
-              </div>
-            }
-          />
+              }
+            />
 
         {/* App Routes */}
         <Route
@@ -267,7 +281,11 @@ export const ShowcaseRouter: React.FC = () => {
 
         {/* Scenario FAB Button - Only show after role selected */}
         {currentRole && <ScenarioButton />}
+
+        {/* Cookie Consent Banner */}
+        <CookieConsent />
       </ScenarioProvider>
     </TourProvider>
+    </AnalyticsProvider>
   );
 };

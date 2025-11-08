@@ -104,7 +104,7 @@ export const ClientList: React.FC = () => {
         </div>
       )}
 
-      {data && data.hasMore && (
+      {data?.hasMore && (
         <div className="flex justify-center">
           <Button variant="outline">Load More</Button>
         </div>
