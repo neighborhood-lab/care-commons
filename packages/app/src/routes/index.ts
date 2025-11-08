@@ -23,6 +23,7 @@ import { authLimiter } from '../middleware/rate-limit.js';
  * When re-enabling: import { createAnalyticsRouter } from './analytics.js';
  */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
+import { createShiftMatchingRouter } from './shift-matching.js';
 import docsRoutes from './docs.routes.js';
 
 /**
@@ -93,10 +94,14 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
 
+  // Shift Matching routes
+  const shiftMatchingRouter = createShiftMatchingRouter(db);
+  app.use('/api/shift-matching', shiftMatchingRouter);
+  console.log('  ✓ Shift Matching routes registered');
+
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
   // - EVV & Time Tracking
-  // - Shift Matching
   // - Billing & Invoicing
   // - Payroll Processing
 
