@@ -82,17 +82,22 @@ export class ShowcaseApiProvider implements ApiProvider {
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    console.log('[ShowcaseAPI] Login attempt for:', credentials.email);
+    console.log('[ShowcaseAPI] Available users:', this.data.users.map(u => ({ email: u.email, roles: u.roles })));
+
     const user = this.data.users.find(
       u => u.email === credentials.email && u.password === credentials.password
     );
 
     if (!user) {
+      console.log('[ShowcaseAPI] Login failed - user not found');
       throw {
         message: 'Invalid credentials',
         code: 'INVALID_CREDENTIALS',
       };
     }
 
+    console.log('[ShowcaseAPI] Login successful for:', user.email, 'with roles:', user.roles);
     this.currentUser = user;
     this.saveAuthState();
 

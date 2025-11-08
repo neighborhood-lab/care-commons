@@ -12,6 +12,9 @@ export const DashboardSelector: React.FC = () => {
   // Check if user has FAMILY role
   const isFamilyUser = user?.roles?.includes('FAMILY');
 
+  // Debug logging to verify user roles
+  console.log('[DashboardSelector] User:', user?.email, 'Roles:', user?.roles, 'isFamilyUser:', isFamilyUser);
+
   if (isFamilyUser) {
     return <FamilyDashboard />;
   }
