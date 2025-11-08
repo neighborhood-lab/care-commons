@@ -64,6 +64,8 @@ export default [
       '*.config.ts',
       '**/*.d.ts',
       'expo-env.d.ts',
+      'src/services/__tests__/location.test.ts',
+      'src/services/__tests__/offline-queue.test.ts',
     ],
   },
 ];

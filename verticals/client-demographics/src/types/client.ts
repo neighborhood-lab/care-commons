@@ -247,6 +247,12 @@ export interface Client extends Entity, SoftDeletable {
   livingArrangement?: LivingArrangement;
   mobilityInfo?: MobilityInfo;
 
+  // Geocoding
+  coordinates?: { lat: number; lng: number };
+  geocodingConfidence?: 'high' | 'medium' | 'low';
+  geocodedAt?: Date;
+  geocodingFailed?: boolean;
+
   // Emergency contacts
   emergencyContacts: EmergencyContact[];
   authorizedContacts: AuthorizedContact[];

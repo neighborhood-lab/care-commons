@@ -5,7 +5,7 @@
  */
 
 import { z } from 'zod';
-import { CreateProgressNoteInput } from '../types/care-plan';
+import { CreateProgressNoteInput, GoalProgress, Observation } from '../types/care-plan';
 
 // Base schemas
 const UUIDSchema = z.string().uuid();
@@ -541,7 +541,11 @@ export class CarePlanValidator {
     if (parsed.goalProgress !== undefined) {
       // Filter out undefined progressPercentage from goalProgress items
       result.goalProgress = parsed.goalProgress.map(goal => {
-        const filteredGoal: any = {
+        const filteredGoal: Omit<GoalProgress, 'progressPercentage' | 'barriers' | 'nextSteps'> & {
+          progressPercentage?: number;
+          barriers?: string[];
+          nextSteps?: string[];
+        } = {
           goalId: goal.goalId,
           goalName: goal.goalName,
           status: goal.status,
@@ -563,7 +567,9 @@ export class CarePlanValidator {
     if (parsed.observations !== undefined) {
       // Filter out undefined severity from observation items
       result.observations = parsed.observations.map(obs => {
-        const filteredObs: any = {
+        const filteredObs: Omit<Observation, 'severity'> & {
+          severity?: 'NORMAL' | 'ATTENTION' | 'URGENT';
+        } = {
           category: obs.category,
           observation: obs.observation,
           timestamp: obs.timestamp,
@@ -580,7 +586,14 @@ export class CarePlanValidator {
     
     if (parsed.signature !== undefined) {
       // Filter out undefined properties from signature
-      const filteredSig: any = {
+      const filteredSig: {
+        signatureData: string;
+        signedBy: string;
+        signedByName: string;
+        signatureType: 'ELECTRONIC' | 'STYLUS' | 'TOUCHSCREEN';
+        ipAddress?: string;
+        deviceInfo?: string;
+      } = {
         signatureData: parsed.signature.signatureData,
         signedBy: parsed.signature.signedBy,
         signedByName: parsed.signature.signedByName,

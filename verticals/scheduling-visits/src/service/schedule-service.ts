@@ -592,29 +592,18 @@ export class ScheduleService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async getClientAddress(clientId: UUID): Promise<any> {
-    // Use injected client address provider if available
-    if (this.clientAddressProvider) {
-      return await this.clientAddressProvider.getClientAddress(clientId);
+    // Client address provider is required for production use
+    if (!this.clientAddressProvider) {
+      throw new ValidationError(
+        'ClientAddressProvider not configured. Cannot fetch client address.',
+        {
+          clientId,
+          hint: 'Inject a ClientAddressProvider implementation when instantiating ScheduleService',
+        }
+      );
     }
 
-    // Fallback: Return a placeholder address with a warning
-    // In production, this should always use a real ClientAddressProvider
-    console.warn(
-      `ScheduleService: No ClientAddressProvider configured. Using placeholder address for client ${clientId}. ` +
-      'This should only happen in development/testing. ' +
-      'Production deployments must inject a ClientAddressProvider.'
-    );
-
-    return {
-      line1: 'Address not configured',
-      city: 'Unknown',
-      state: 'XX',
-      postalCode: '00000',
-      country: 'USA',
-      latitude: 0,
-      longitude: 0,
-      geofenceRadius: 100,
-    };
+    return await this.clientAddressProvider.getClientAddress(clientId);
   }
 
   private async validatePatternBusinessRules(input: CreateServicePatternInput): Promise<void> {
@@ -704,7 +693,9 @@ export class ScheduleService {
   }
 
   private checkPermission(context: UserContext, permission: string): void {
-    if (!(context.permissions?.includes(permission) && context.roles?.includes('SUPER_ADMIN'))) {
+    // CRITICAL FIX: Changed && to || - previous logic would require BOTH permission AND SUPER_ADMIN role
+    // Correct logic: User needs EITHER the specific permission OR SUPER_ADMIN role
+    if (!(context.permissions?.includes(permission) || context.roles?.includes('SUPER_ADMIN'))) {
       throw new PermissionError(`Missing required permission: ${permission}`, {
         userId: context.userId,
         permission,

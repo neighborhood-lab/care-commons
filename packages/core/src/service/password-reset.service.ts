@@ -1,0 +1,336 @@
+/**
+ * Secure Password Reset Service
+ *
+ * Implements secure password reset flow with:
+ * - Cryptographically secure tokens
+ * - Token hashing for storage
+ * - Time-limited tokens (1 hour expiration)
+ * - One-time use tokens
+ * - Session invalidation after password change
+ * - No user enumeration (consistent responses)
+ */
+
+import crypto from 'node:crypto';
+import { Database } from '../db/connection.js';
+import { PasswordUtils } from '../utils/password-utils.js';
+
+/**
+ * Password reset request result
+ */
+export interface PasswordResetRequest {
+  success: boolean;
+  token?: string; // Only for internal use, send via email
+}
+
+/**
+ * Password reset validation result
+ */
+export interface PasswordResetValidation {
+  valid: boolean;
+  userId?: string;
+  email?: string;
+}
+
+/**
+ * Password Reset Service
+ */
+export class PasswordResetService {
+  private database: Database;
+
+  // Rate limiting constants
+  private static readonly RATE_LIMIT_WINDOW_MINUTES = 15;
+  private static readonly MAX_TOKEN_VALIDATION_ATTEMPTS = 5;
+
+  constructor(database: Database) {
+    this.database = database;
+  }
+
+  /**
+   * Request a password reset
+   * Generates a secure token and stores hashed version in database
+   *
+   * Security features:
+   * - Returns success even if email doesn't exist (prevents user enumeration)
+   * - Tokens are cryptographically secure (32 random bytes)
+   * - Only hashed tokens are stored in database
+   * - Tokens expire after 1 hour
+   * - Rate limited (handled by rate-limit middleware)
+   *
+   * @param email - User's email address
+   * @returns Password reset request result with token (for email sending)
+   */
+  async requestReset(email: string): Promise<PasswordResetRequest> {
+    // Look up user by email
+    const userQuery = `
+      SELECT id, email, status
+      FROM users
+      WHERE email = $1 AND deleted_at IS NULL
+    `;
+
+    const userResult = await this.database.query(userQuery, [email.toLowerCase()]);
+    const user = userResult.rows[0] as Record<string, unknown> | undefined;
+
+    // If user doesn't exist, return success anyway (prevent enumeration)
+    // Still generate token to maintain consistent timing
+    if (user === undefined) {
+      // Generate token but don't store it (timing attack prevention)
+      crypto.randomBytes(32).toString('hex');
+
+      // Return success to prevent user enumeration
+      return { success: true };
+    }
+
+    // Check if user account is active
+    if (user['status'] !== 'ACTIVE') {
+      // Don't reveal account status
+      return { success: true };
+    }
+
+    // Generate secure token
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Hash token for storage (protect against database compromise)
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Calculate expiration (1 hour from now)
+    const expiresAt = new Date(Date.now() + 3600000);
+
+    // Delete any existing reset tokens for this user
+    await this.database.query(
+      'DELETE FROM password_reset_tokens WHERE user_id = $1',
+      [user['id']]
+    );
+
+    // Store hashed token with expiration
+    const insertQuery = `
+      INSERT INTO password_reset_tokens (user_id, token, expires_at, created_at)
+      VALUES ($1, $2, $3, NOW())
+    `;
+
+    await this.database.query(insertQuery, [
+      user['id'],
+      hashedToken,
+      expiresAt
+    ]);
+
+    // Return token for email sending (only returned internally, never to client)
+    return {
+      success: true,
+      token
+    };
+  }
+
+  /**
+   * Check rate limit for token validation attempts by IP address
+   * Prevents brute force attacks on reset tokens
+   *
+   * @param ipAddress - Client IP address
+   * @throws Error if rate limit exceeded
+   */
+  private async checkTokenValidationRateLimit(ipAddress?: string): Promise<void> {
+    if (ipAddress === undefined || ipAddress.length === 0) {
+      return; // No IP address provided, skip rate limiting
+    }
+
+    const result = await this.database.query<{ attempt_count: number }>(
+      `SELECT COUNT(*) as attempt_count
+       FROM auth_events
+       WHERE ip_address = $1
+         AND timestamp > NOW() - INTERVAL '${PasswordResetService.RATE_LIMIT_WINDOW_MINUTES} minutes'
+         AND event_type = 'PASSWORD_RESET_FAILED'
+         AND result = 'FAILED'`,
+      [ipAddress]
+    );
+
+    const attemptCount = Number(result.rows[0]?.attempt_count ?? 0);
+
+    if (attemptCount >= PasswordResetService.MAX_TOKEN_VALIDATION_ATTEMPTS) {
+      throw new Error(
+        `Too many password reset attempts. Please try again in ${PasswordResetService.RATE_LIMIT_WINDOW_MINUTES} minutes.`
+      );
+    }
+  }
+
+  /**
+   * Record failed token validation attempt
+   *
+   * @param ipAddress - Client IP address
+   * @param userAgent - Client user agent
+   */
+  private async recordFailedTokenValidation(
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<void> {
+    await this.database.query(
+      `INSERT INTO auth_events (
+        event_type, auth_method, ip_address, user_agent, result, failure_reason
+      ) VALUES ($1, 'PASSWORD', $2, $3, 'FAILED', 'Invalid or expired reset token')`,
+      ['PASSWORD_RESET_FAILED', ipAddress, userAgent]
+    );
+  }
+
+  /**
+   * Validate a password reset token
+   * Checks if token exists, is not expired, and has not been used
+   *
+   * @param token - Reset token from email link
+   * @param ipAddress - Client IP address (for rate limiting)
+   * @param userAgent - Client user agent (for logging)
+   * @returns Validation result with user info if valid
+   */
+  async validateToken(
+    token: string,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<PasswordResetValidation> {
+    // Check rate limit
+    await this.checkTokenValidationRateLimit(ipAddress);
+    // Hash the token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const query = `
+      SELECT
+        prt.user_id,
+        prt.expires_at,
+        u.email,
+        u.status
+      FROM password_reset_tokens prt
+      JOIN users u ON u.id = prt.user_id
+      WHERE prt.token = $1
+        AND prt.expires_at > NOW()
+        AND u.deleted_at IS NULL
+    `;
+
+    const result = await this.database.query(query, [hashedToken]);
+    const resetToken = result.rows[0] as Record<string, unknown> | undefined;
+
+    if (resetToken === undefined) {
+      // Record failed attempt for rate limiting
+      await this.recordFailedTokenValidation(ipAddress, userAgent);
+      return { valid: false };
+    }
+
+    // Check if user is still active
+    if (resetToken['status'] !== 'ACTIVE') {
+      // Record failed attempt for rate limiting
+      await this.recordFailedTokenValidation(ipAddress, userAgent);
+      return { valid: false };
+    }
+
+    return {
+      valid: true,
+      userId: resetToken['user_id'] as string,
+      email: resetToken['email'] as string
+    };
+  }
+
+  /**
+   * Reset password using valid token
+   * Updates password, invalidates token, and revokes all user sessions
+   *
+   * Security features:
+   * - Validates token before reset
+   * - Uses secure password hashing
+   * - Invalidates all existing sessions (security best practice)
+   * - Deletes used token (one-time use)
+   * - Rate limited to prevent brute force attacks
+   *
+   * @param token - Reset token from email link
+   * @param newPassword - New password (will be hashed)
+   * @param ipAddress - Client IP address (for rate limiting)
+   * @param userAgent - Client user agent (for logging)
+   * @returns Success status
+   */
+  async resetPassword(
+    token: string,
+    newPassword: string,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<boolean> {
+    // Validate token first (includes rate limiting)
+    const validation = await this.validateToken(token, ipAddress, userAgent);
+
+    if (!validation.valid || validation.userId === undefined) {
+      return false;
+    }
+
+    // Start transaction
+    await this.database.query('BEGIN');
+
+    try {
+      // Hash the new password
+      const hashedPassword = PasswordUtils.hashPassword(newPassword);
+
+      // Update user's password
+      await this.database.query(
+        'UPDATE users SET password = $1 WHERE id = $2',
+        [hashedPassword, validation.userId]
+      );
+
+      // Invalidate all existing sessions by incrementing token_version
+      await this.database.query(
+        'UPDATE users SET token_version = token_version + 1 WHERE id = $1',
+        [validation.userId]
+      );
+
+      // Delete the used reset token (one-time use)
+      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+      await this.database.query(
+        'DELETE FROM password_reset_tokens WHERE token = $1',
+        [hashedToken]
+      );
+
+      // Delete all refresh tokens for this user (additional security)
+      await this.database.query(
+        'DELETE FROM refresh_tokens WHERE user_id = $1',
+        [validation.userId]
+      );
+
+      await this.database.query('COMMIT');
+
+      return true;
+    } catch (error) {
+      await this.database.query('ROLLBACK');
+      console.error('Password reset failed:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Clean up expired password reset tokens
+   * Should be run periodically (e.g., daily cron job)
+   */
+  async cleanupExpiredTokens(): Promise<number> {
+    const result = await this.database.query(
+      'DELETE FROM password_reset_tokens WHERE expires_at < NOW()'
+    );
+
+    return result.rowCount ?? 0;
+  }
+
+  /**
+   * Cancel all pending password reset requests for a user
+   * Useful when user successfully logs in or requests account lock
+   *
+   * @param userId - User ID
+   * @returns Number of tokens deleted
+   */
+  async cancelResetRequests(userId: string): Promise<number> {
+    const result = await this.database.query(
+      'DELETE FROM password_reset_tokens WHERE user_id = $1',
+      [userId]
+    );
+
+    return result.rowCount ?? 0;
+  }
+}
+
+/**
+ * Singleton instance
+ */
+let passwordResetServiceInstance: PasswordResetService | null = null;
+
+export function getPasswordResetService(database: Database): PasswordResetService {
+  passwordResetServiceInstance ??= new PasswordResetService(database);
+  return passwordResetServiceInstance;
+}

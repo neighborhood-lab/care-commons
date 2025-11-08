@@ -5,10 +5,14 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { Database } from '@care-commons/core';
+import { Database, AuthMiddleware } from '@care-commons/core';
 
 export function createMobileRouter(db: Database): Router {
   const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All mobile routes require authentication
+  router.use(authMiddleware.requireAuth);
 
   router.get('/mobile/caregiver/today', async (req: Request, res: Response): Promise<void> => {
     try {
