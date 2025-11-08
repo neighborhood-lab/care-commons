@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { Button, Badge } from '../../components/index.js';
 import { locationService } from '../../services/location.js';
 import { deviceInfoService } from '../../services/device-info.js';
@@ -71,6 +72,7 @@ export function ClockInScreen({ route, navigation }: Props) {
   const [isClocking, setIsClocking] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [locationSubscription, setLocationSubscription] = useState<any>(null);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   // Mock visit data (in production, load from database)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,6 +96,19 @@ export function ClockInScreen({ route, navigation }: Props) {
   };
 
   const stateRules = getStateEVVRules(visit.clientAddress.state);
+
+  /**
+   * Check biometric availability
+   */
+  useEffect(() => {
+    const checkBiometric = async () => {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      setBiometricAvailable(compatible && enrolled);
+    };
+
+    void checkBiometric();
+  }, []);
 
   /**
    * Initialize location tracking
@@ -244,6 +259,31 @@ export function ClockInScreen({ route, navigation }: Props) {
   };
 
   /**
+   * Authenticate with biometrics
+   */
+  const authenticateWithBiometrics = async (): Promise<boolean> => {
+    if (!biometricAvailable) {
+      // If biometric is not available, proceed without it
+      return true;
+    }
+
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Authenticate to clock in',
+        fallbackLabel: 'Use passcode',
+        cancelLabel: 'Cancel',
+        disableDeviceFallback: false,
+      });
+
+      return result.success;
+    } catch (error) {
+      console.error('Biometric authentication error:', error);
+      Alert.alert('Error', 'Failed to authenticate with biometrics');
+      return false;
+    }
+  };
+
+  /**
    * Handle clock in
    */
   const handleClockIn = async () => {
@@ -258,6 +298,13 @@ export function ClockInScreen({ route, navigation }: Props) {
         'Please resolve all issues before clocking in.',
         [{ text: 'OK' }]
       );
+      return;
+    }
+
+    // Authenticate with biometrics first
+    const authenticated = await authenticateWithBiometrics();
+    if (!authenticated) {
+      Alert.alert('Authentication Failed', 'You must authenticate to clock in.');
       return;
     }
 
@@ -453,6 +500,13 @@ export function ClockInScreen({ route, navigation }: Props) {
             value={isWithinGeofence ? 'Inside' : 'Outside'}
             status={preFlightChecks.withinGeofence ? 'good' : 'error'}
             detail={`Radius: ${visit.clientAddress.geofenceRadius + stateRules.geoFenceTolerance}m`}
+          />
+
+          <StatusItem
+            label="Biometric Auth"
+            value={biometricAvailable ? 'Available' : 'Not Available'}
+            status={biometricAvailable ? 'good' : 'warning'}
+            detail={biometricAvailable ? 'Touch ID/Face ID ready' : 'Will use passcode'}
           />
 
           <StatusItem
