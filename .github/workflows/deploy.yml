@@ -5,6 +5,7 @@ on:
     branches:
       - production  # Production deployments
       - preview     # Preview deployments (preview branch uses Vercel preview environment)
+      - develop     # Staging deployments (auto-deploy to staging environment)
   workflow_dispatch:
     inputs:
       environment:
@@ -12,6 +13,7 @@ on:
         required: true
         type: choice
         options:
+          - staging
           - preview
           - production
       deploy_type:
@@ -115,6 +117,135 @@ jobs:
           name: build-artifacts
           path: packages/*/dist
           retention-days: 1
+
+  deploy-staging:
+    name: Deploy Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.6.2
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify Database URL
+        run: |
+          if [ -z "${{ secrets.STAGING_DATABASE_URL }}" ]; then
+            echo "❌ ERROR: STAGING_DATABASE_URL secret is not set"
+            echo "Please add STAGING_DATABASE_URL to GitHub Secrets"
+            exit 1
+          fi
+          echo "✅ Database URL is configured"
+
+      - name: Save current deployment ID for rollback
+        id: current-deployment
+        run: |
+          CURRENT_DEPLOYMENT=$(vercel ls --token=${{ secrets.VERCEL_TOKEN }} | grep 'staging' | head -1 | awk '{print $1}' || echo "none")
+          echo "deployment_id=$CURRENT_DEPLOYMENT" >> $GITHUB_OUTPUT
+          echo "Previous deployment ID: $CURRENT_DEPLOYMENT"
+
+      - name: Validate Migration Safety
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          echo "::group::Validating migration safety"
+          ./scripts/validate-migrations-safety.sh staging || true
+          echo "::endgroup::"
+
+      - name: Run Database Migrations
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          echo "::group::Running database migrations"
+          npm run db:migrate
+          echo "✅ Migrations completed"
+          echo "::endgroup::"
+
+      - name: Build for Staging
+        env:
+          NODE_ENV: production
+        run: npx turbo run build
+
+      - name: Deploy to Vercel Staging
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.STAGING_DATABASE_URL }}" --env ENVIRONMENT="staging")
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "deployment_id=$(echo $DEPLOYMENT_URL | cut -d'/' -f3 | cut -d'.' -f1)" >> $GITHUB_OUTPUT
+          echo "✅ Staging deployment complete: $DEPLOYMENT_URL"
+        env:
+          ENVIRONMENT: staging
+
+      - name: Post-Deployment Validation
+        id: validation
+        if: success()
+        continue-on-error: true
+        run: |
+          echo "::group::Validating staging deployment"
+          sleep 10  # Wait for deployment to stabilize
+
+          # Health check
+          if curl -f -s "${{ steps.deploy.outputs.url }}/health" > /tmp/health.json; then
+            echo "✅ Health check passed"
+            cat /tmp/health.json
+            echo "validation_success=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Health check failed"
+            echo "validation_success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Rollback on failure
+        if: failure() && steps.current-deployment.outputs.deployment_id != 'none'
+        run: |
+          echo "::warning::Deployment failed, initiating automatic rollback..."
+          vercel promote ${{ steps.current-deployment.outputs.deployment_id }} \
+            --token ${{ secrets.VERCEL_TOKEN }} \
+            --yes || echo "Rollback failed, manual intervention required"
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Staging deployment complete"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "URL: ${{ steps.deploy.outputs.url }}"
+          echo "Validation: ${{ steps.validation.outputs.validation_success }}"
 
   deploy-preview:
     name: Deploy Preview
@@ -288,6 +419,13 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
+      - name: Save current deployment ID for rollback
+        id: current-deployment
+        run: |
+          CURRENT_DEPLOYMENT=$(vercel ls --prod --token=${{ secrets.VERCEL_TOKEN }} | grep 'production' | head -1 | awk '{print $1}' || echo "none")
+          echo "deployment_id=$CURRENT_DEPLOYMENT" >> $GITHUB_OUTPUT
+          echo "Previous production deployment ID: $CURRENT_DEPLOYMENT"
+
       - name: Validate Migration Safety (Production)
         if: ${{ github.event.inputs.run_migrations != 'false' }}
         env:
@@ -329,16 +467,43 @@ jobs:
         run: |
           DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.DATABASE_URL }}" --env ENVIRONMENT="production")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "deployment_id=$(echo $DEPLOYMENT_URL | cut -d'/' -f3 | cut -d'.' -f1)" >> $GITHUB_OUTPUT
           echo "✅ Production deployment complete: $DEPLOYMENT_URL"
         env:
           ENVIRONMENT: production
 
       - name: Post-Deployment Validation (Production)
+        id: validation
         if: success()
+        continue-on-error: true
         run: |
           echo "::group::Validating production deployment"
-          ./scripts/validate-deployment.sh "https://care-commons.vercel.app" production
+          sleep 10  # Wait for deployment to stabilize
+
+          # Health check
+          if curl -f -s "https://care-commons.vercel.app/health" > /tmp/health.json; then
+            echo "✅ Health check passed"
+            cat /tmp/health.json
+            echo "validation_success=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Health check failed"
+            echo "validation_success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
           echo "::endgroup::"
+
+      - name: Rollback on failure
+        if: failure() && steps.current-deployment.outputs.deployment_id != 'none'
+        run: |
+          echo "::error::Production deployment failed, initiating automatic rollback..."
+          vercel promote ${{ steps.current-deployment.outputs.deployment_id }} \
+            --token ${{ secrets.VERCEL_TOKEN }} \
+            --yes || {
+              echo "::error::Automatic rollback failed"
+              echo "::error::Manual intervention required: https://vercel.com/dashboard"
+              exit 1
+            }
+          echo "::warning::Rollback completed. Previous deployment restored."
 
       - name: Deployment Summary
         if: always()
@@ -349,8 +514,7 @@ jobs:
           echo ""
           echo "URL: https://care-commons.vercel.app"
           echo "Health Check: https://care-commons.vercel.app/health"
-          echo ""
-          echo "Validation Status: See post-deployment checks above"
+          echo "Validation: ${{ steps.validation.outputs.validation_success || 'pending' }}"
           echo ""
 
       - name: Seed Demo Data (Production)
@@ -365,8 +529,8 @@ jobs:
   deployment-health-check:
     name: Verify Deployment Health
     runs-on: ubuntu-latest
-    needs: [deploy-preview, deploy-production]
-    if: always() && (needs.deploy-preview.result == 'success' || needs.deploy-production.result == 'success')
+    needs: [deploy-staging, deploy-preview, deploy-production]
+    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-preview.result == 'success' || needs.deploy-production.result == 'success')
 
     steps:
       - name: Wait for deployment to stabilize
@@ -407,6 +571,7 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "Deployment Status Summary"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Staging: ${{ needs.deploy-staging.result }}"
           echo "Preview: ${{ needs.deploy-preview.result }}"
           echo "Production: ${{ needs.deploy-production.result }}"
           echo "Completed at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"

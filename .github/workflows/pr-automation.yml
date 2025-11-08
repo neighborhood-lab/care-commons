@@ -1,0 +1,281 @@
+name: PR Automation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-label:
+    name: Auto-label PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate PR size
+        id: pr-size
+        run: |
+          # Get the number of changed lines
+          ADDITIONS=$(gh pr view ${{ github.event.pull_request.number }} --json additions --jq '.additions')
+          DELETIONS=$(gh pr view ${{ github.event.pull_request.number }} --json deletions --jq '.deletions')
+          TOTAL=$((ADDITIONS + DELETIONS))
+
+          echo "additions=$ADDITIONS" >> $GITHUB_OUTPUT
+          echo "deletions=$DELETIONS" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+
+          # Determine size label
+          if [ $TOTAL -lt 10 ]; then
+            echo "size=size/XS" >> $GITHUB_OUTPUT
+          elif [ $TOTAL -lt 50 ]; then
+            echo "size=size/S" >> $GITHUB_OUTPUT
+          elif [ $TOTAL -lt 200 ]; then
+            echo "size=size/M" >> $GITHUB_OUTPUT
+          elif [ $TOTAL -lt 500 ]; then
+            echo "size=size/L" >> $GITHUB_OUTPUT
+          else
+            echo "size=size/XL" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add size label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sizeLabel = '${{ steps.pr-size.outputs.size }}';
+
+            // Remove old size labels
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const sizeLabels = labels.filter(label => label.name.startsWith('size/'));
+            for (const label of sizeLabels) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: label.name
+              });
+            }
+
+            // Add new size label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [sizeLabel]
+            });
+
+      - name: Label by files changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const labels = new Set();
+
+            for (const file of files) {
+              if (file.filename.includes('/.github/workflows/')) {
+                labels.add('ci/cd');
+              } else if (file.filename.includes('/migrations/')) {
+                labels.add('database');
+              } else if (file.filename.includes('.test.') || file.filename.includes('.spec.')) {
+                labels.add('tests');
+              } else if (file.filename.includes('/docs/') || file.filename.endsWith('.md')) {
+                labels.add('documentation');
+              } else if (file.filename.includes('package.json') || file.filename.includes('package-lock.json')) {
+                labels.add('dependencies');
+              } else if (file.filename.includes('/scripts/')) {
+                labels.add('tooling');
+              }
+            }
+
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: Array.from(labels)
+              });
+            }
+
+  auto-assign:
+    name: Auto-assign reviewers
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Assign reviewers
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.pull_request.user.login;
+
+            // Define team members (customize this list)
+            const reviewers = ['team-member-1', 'team-member-2', 'team-member-3'];
+
+            // Filter out the PR author
+            const availableReviewers = reviewers.filter(r => r !== author);
+
+            if (availableReviewers.length > 0) {
+              // Assign up to 2 random reviewers
+              const numReviewers = Math.min(2, availableReviewers.length);
+              const selectedReviewers = availableReviewers
+                .sort(() => Math.random() - 0.5)
+                .slice(0, numReviewers);
+
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.issue.number,
+                  reviewers: selectedReviewers
+                });
+
+                console.log(`Assigned reviewers: ${selectedReviewers.join(', ')}`);
+              } catch (error) {
+                console.log('Could not auto-assign reviewers. This might be expected if reviewers are not repository collaborators.');
+                console.log(error.message);
+              }
+            }
+
+  dependabot-auto-merge:
+    name: Auto-merge Dependabot PRs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for minor/patch updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: |
+          gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on major updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `⚠️ This is a **major version update**. Please review the changelog and test thoroughly before merging.
+
+              Dependency: ${context.payload.pull_request.title}
+
+              Auto-merge is disabled for major updates.`
+            });
+
+  pr-comment-build-results:
+    name: Comment Build Results
+    runs-on: ubuntu-latest
+    needs: []
+    if: github.event_name == 'pull_request' && always()
+    steps:
+      - name: Get workflow run status
+        id: workflow-status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event: 'pull_request',
+              head_sha: context.payload.pull_request.head.sha
+            });
+
+            const ciRun = runs.workflow_runs.find(run => run.name === 'CI');
+
+            if (ciRun) {
+              return {
+                status: ciRun.status,
+                conclusion: ciRun.conclusion,
+                url: ciRun.html_url
+              };
+            }
+
+            return { status: 'unknown', conclusion: 'unknown', url: '' };
+
+      - name: Comment build status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = ${{ toJSON(steps.workflow-status.outputs.result) }};
+
+            if (!status || status.status === 'unknown') {
+              console.log('No CI run found yet');
+              return;
+            }
+
+            const statusEmoji = {
+              'success': '✅',
+              'failure': '❌',
+              'cancelled': '⚠️',
+              'skipped': '⏭️'
+            }[status.conclusion] || '⏳';
+
+            const comment = `## ${statusEmoji} Build Status
+
+            **Status**: ${status.conclusion || status.status}
+            **Details**: [View workflow run](${status.url})
+
+            ${status.conclusion === 'success' ? '✅ All checks passed! Ready for review.' : ''}
+            ${status.conclusion === 'failure' ? '❌ Some checks failed. Please review the logs.' : ''}
+            `;
+
+            // Check if we already commented
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('Build Status')
+            );
+
+            if (botComment && status.conclusion) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else if (status.conclusion) {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }

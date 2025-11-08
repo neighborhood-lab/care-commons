@@ -1,0 +1,167 @@
+name: Bundle Size Tracking
+
+on:
+  pull_request:
+    branches: [production, preview, develop]
+  push:
+    branches: [production, preview, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  bundle-size:
+    name: Track Bundle Size
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for comparison
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npx turbo run build
+
+      - name: Analyze bundle sizes
+        run: |
+          echo "# Bundle Size Report" > bundle-report.md
+          echo "" >> bundle-report.md
+          echo "Generated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> bundle-report.md
+          echo "" >> bundle-report.md
+          echo "## Package Sizes" >> bundle-report.md
+          echo "" >> bundle-report.md
+
+          # Analyze all built packages
+          for package_dir in packages/*/dist verticals/*/dist; do
+            if [ -d "$package_dir" ]; then
+              package_name=$(echo $package_dir | cut -d'/' -f1-2)
+              size=$(du -sh $package_dir | cut -f1)
+              file_count=$(find $package_dir -type f | wc -l)
+              echo "- **$package_name**: $size ($file_count files)" >> bundle-report.md
+
+              # List largest files
+              echo "  - Largest files:" >> bundle-report.md
+              find $package_dir -type f -exec ls -lh {} \; | sort -k5 -hr | head -5 | awk '{print "    - " $9 " (" $5 ")"}' >> bundle-report.md
+            fi
+          done
+
+          echo "" >> bundle-report.md
+          echo "## Total Build Size" >> bundle-report.md
+          total_size=$(du -sh packages/*/dist verticals/*/dist 2>/dev/null | awk '{sum+=$1} END {print sum}' || echo "0")
+          echo "**Total**: $(du -csh packages/*/dist verticals/*/dist 2>/dev/null | tail -1 | cut -f1)" >> bundle-report.md
+
+      - name: Check size thresholds
+        run: |
+          echo "Checking bundle size thresholds..."
+
+          # Define size limits (in KB)
+          MAX_PACKAGE_SIZE=5000  # 5MB per package
+
+          for package_dir in packages/*/dist verticals/*/dist; do
+            if [ -d "$package_dir" ]; then
+              package_name=$(echo $package_dir | cut -d'/' -f1-2)
+              size_kb=$(du -sk $package_dir | cut -f1)
+
+              if [ $size_kb -gt $MAX_PACKAGE_SIZE ]; then
+                echo "::warning::Package $package_name exceeds size limit: ${size_kb}KB > ${MAX_PACKAGE_SIZE}KB"
+              else
+                echo "✅ $package_name size OK: ${size_kb}KB"
+              fi
+            fi
+          done
+
+      - name: Compare with base branch
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "" >> bundle-report.md
+          echo "## Size Comparison with Base Branch" >> bundle-report.md
+          echo "" >> bundle-report.md
+
+          # Checkout base branch
+          git fetch origin ${{ github.base_ref }}
+          git checkout origin/${{ github.base_ref }}
+
+          # Build base branch
+          npm ci
+          npx turbo run build
+
+          # Save base sizes
+          for package_dir in packages/*/dist verticals/*/dist; do
+            if [ -d "$package_dir" ]; then
+              package_name=$(echo $package_dir | cut -d'/' -f1-2)
+              size_kb=$(du -sk $package_dir | cut -f1)
+              echo "$package_name $size_kb" >> base-sizes.txt
+            fi
+          done
+
+          # Checkout PR branch again
+          git checkout -
+          npm ci
+          npx turbo run build
+
+          # Compare sizes
+          echo "| Package | Current | Base | Change |" >> bundle-report.md
+          echo "|---------|---------|------|--------|" >> bundle-report.md
+
+          for package_dir in packages/*/dist verticals/*/dist; do
+            if [ -d "$package_dir" ]; then
+              package_name=$(echo $package_dir | cut -d'/' -f1-2)
+              current_kb=$(du -sk $package_dir | cut -f1)
+              base_kb=$(grep "^$package_name " base-sizes.txt | cut -d' ' -f2 || echo "0")
+
+              if [ -z "$base_kb" ] || [ "$base_kb" = "0" ]; then
+                echo "| $package_name | ${current_kb}KB | N/A | NEW |" >> bundle-report.md
+              else
+                diff_kb=$((current_kb - base_kb))
+                if [ $diff_kb -gt 0 ]; then
+                  echo "| $package_name | ${current_kb}KB | ${base_kb}KB | +${diff_kb}KB ⚠️ |" >> bundle-report.md
+                elif [ $diff_kb -lt 0 ]; then
+                  echo "| $package_name | ${current_kb}KB | ${base_kb}KB | ${diff_kb}KB ✅ |" >> bundle-report.md
+                else
+                  echo "| $package_name | ${current_kb}KB | ${base_kb}KB | No change |" >> bundle-report.md
+                fi
+              fi
+            fi
+          done
+
+      - name: Upload bundle report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-size-report
+          path: bundle-report.md
+          retention-days: 90
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report = '';
+
+            try {
+              report = fs.readFileSync('bundle-report.md', 'utf8');
+            } catch (e) {
+              console.log('No bundle report found');
+              return;
+            }
+
+            let comment = '## 📦 Bundle Size Report\n\n';
+            comment += report;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

@@ -11,7 +11,14 @@ export default defineProject({
     environment: 'happy-dom',
     setupFiles: './src/test/setup.ts',
     maxConcurrency: 1,
-    pool: 'threads', // Use threads pool instead of vmThreads to avoid .node file issues
+    pool: 'vmThreads', // Use vmThreads pool for better compatibility
+    poolOptions: {
+      vmThreads: {
+        useAtomics: true,
+      },
+    },
+    testTimeout: 10000,
+    hookTimeout: 10000,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

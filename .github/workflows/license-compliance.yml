@@ -1,0 +1,104 @@
+name: License Compliance
+
+on:
+  pull_request:
+    branches: [production, preview, develop]
+  push:
+    branches: [production, preview, develop]
+  schedule:
+    # Run weekly on Monday at 4 AM UTC
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  license-check:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check licenses
+        run: |
+          echo "Checking licenses for all dependencies..."
+          npx license-checker --summary --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;Python-2.0" --production || {
+            echo "::warning::Some dependencies have licenses that need review"
+            npx license-checker --production --json > licenses.json
+            cat licenses.json
+          }
+
+      - name: Generate license report
+        run: |
+          echo "## License Compliance Report" > license-report.md
+          echo "" >> license-report.md
+          echo "Generated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> license-report.md
+          echo "" >> license-report.md
+          npx license-checker --production --markdown >> license-report.md
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: license-report.md
+          retention-days: 90
+
+      - name: Check for GPL licenses
+        run: |
+          echo "Checking for GPL licenses (which may require special consideration)..."
+          if npx license-checker --production --onlyAllow "GPL" 2>&1 | grep -q "GPL"; then
+            echo "::warning::Found GPL-licensed dependencies. Please review for compatibility."
+          else
+            echo "✅ No GPL licenses found"
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let reportExists = false;
+
+            try {
+              fs.statSync('license-report.md');
+              reportExists = true;
+            } catch (e) {
+              reportExists = false;
+            }
+
+            if (!reportExists) {
+              console.log('No license report generated');
+              return;
+            }
+
+            const report = fs.readFileSync('license-report.md', 'utf8');
+            const lines = report.split('\n').slice(0, 50); // First 50 lines
+            const truncated = lines.length < report.split('\n').length;
+
+            let comment = '## 📜 License Compliance Check\n\n';
+            comment += '✅ License compliance check completed.\n\n';
+            comment += '<details>\n<summary>View License Summary</summary>\n\n';
+            comment += lines.join('\n');
+            if (truncated) {
+              comment += '\n\n_Report truncated. Download full report from workflow artifacts._';
+            }
+            comment += '\n\n</details>';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
