@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button, LoadingSpinner, EmptyState, ErrorMessage } from '@/core/components';
 import { useCarePlanTemplates } from '../hooks';
 import { TemplateCard, TemplatePreviewModal } from '../components';
-import type { CarePlanTemplate } from '@care-commons/care-plans-tasks';
+import type { CarePlanTemplate } from '@care-commons/care-plans-tasks/browser';
 
 export const CreateFromTemplatePage: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<CarePlanTemplate | null>(null);

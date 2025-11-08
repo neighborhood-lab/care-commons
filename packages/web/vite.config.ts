@@ -25,6 +25,23 @@ export default defineConfig({
         __dirname,
         '../shared-components/src'
       ),
+      // Force packages to use browser exports
+      '@care-commons/core/browser': path.resolve(
+        __dirname,
+        '../core/dist/browser.js'
+      ),
+      '@care-commons/core': path.resolve(
+        __dirname,
+        '../core/dist/browser.js'
+      ),
+      '@care-commons/care-plans-tasks/browser': path.resolve(
+        __dirname,
+        '../../verticals/care-plans-tasks/dist/browser.js'
+      ),
+      '@care-commons/care-plans-tasks': path.resolve(
+        __dirname,
+        '../../verticals/care-plans-tasks/dist/browser.js'
+      ),
     },
   },
   optimizeDeps: {

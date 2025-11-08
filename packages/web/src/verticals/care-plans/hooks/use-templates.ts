@@ -7,11 +7,11 @@ import type { CarePlan } from '../types';
 import type {
   CarePlanTemplateCategory,
   CarePlanTaskTemplate,
-} from '@care-commons/care-plans-tasks';
+} from '@care-commons/care-plans-tasks/browser';
 
 // For now, we'll import templates directly
 // In a real implementation, these might come from an API
-import { CARE_PLAN_TEMPLATES } from '@care-commons/care-plans-tasks';
+import { CARE_PLAN_TEMPLATES } from '@care-commons/care-plans-tasks/browser';
 
 export interface CreateFromTemplateInput {
   templateId: string;
