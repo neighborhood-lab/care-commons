@@ -1,0 +1,30 @@
+{
+  "name": "@care-commons/load-tests",
+  "version": "1.0.0",
+  "description": "Load testing suite for Care Commons using k6",
+  "private": true,
+  "scripts": {
+    "test:smoke": "k6 run --vus 1 --duration 30s scenarios/mixed-workload.ts",
+    "test:load": "k6 run --vus 20 --duration 5m scenarios/mixed-workload.ts",
+    "test:stress": "k6 run --vus 50 --duration 10m scenarios/mixed-workload.ts",
+    "test:spike": "k6 run scenarios/spike-test.ts",
+    "test:soak": "k6 run --vus 20 --duration 1h scenarios/mixed-workload.ts",
+    "test:auth": "k6 run scenarios/auth.ts",
+    "test:scheduling": "k6 run scenarios/scheduling.ts",
+    "test:evv": "k6 run scenarios/evv.ts",
+    "test:all": "npm run test:smoke && npm run test:load && npm run test:stress",
+    "report": "open reports/latest.html"
+  },
+  "devDependencies": {
+    "@types/k6": "^0.52.0",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "load-testing",
+    "performance",
+    "k6",
+    "care-commons"
+  ],
+  "author": "Care Commons Team",
+  "license": "UNLICENSED"
+}

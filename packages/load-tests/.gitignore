@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Reports (except .gitkeep)
+reports/*
+!reports/.gitkeep
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

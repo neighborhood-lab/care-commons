@@ -1,0 +1,143 @@
+name: Load Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Every Monday at 2am UTC
+  workflow_dispatch: # Manual trigger
+    inputs:
+      test_type:
+        description: 'Type of load test to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - load
+          - stress
+          - spike
+          - soak
+      base_url:
+        description: 'Base URL to test against'
+        required: false
+        default: ''
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Verify k6 installation
+        run: k6 version
+
+      - name: Set BASE_URL
+        id: set-url
+        run: |
+          if [ -n "${{ github.event.inputs.base_url }}" ]; then
+            echo "BASE_URL=${{ github.event.inputs.base_url }}" >> $GITHUB_ENV
+          elif [ -n "${{ secrets.STAGING_URL }}" ]; then
+            echo "BASE_URL=${{ secrets.STAGING_URL }}" >> $GITHUB_ENV
+          else
+            echo "BASE_URL=http://localhost:3000" >> $GITHUB_ENV
+          fi
+
+      - name: Run smoke test (scheduled)
+        if: github.event_name == 'schedule'
+        run: cd packages/load-tests && npm run test:smoke
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+
+      - name: Run load test (scheduled)
+        if: github.event_name == 'schedule'
+        run: cd packages/load-tests && npm run test:load
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+
+      - name: Run manual test
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cd packages/load-tests
+          case "${{ github.event.inputs.test_type }}" in
+            smoke)
+              npm run test:smoke
+              ;;
+            load)
+              npm run test:load
+              ;;
+            stress)
+              npm run test:stress
+              ;;
+            spike)
+              npm run test:spike
+              ;;
+            soak)
+              npm run test:soak
+              ;;
+            *)
+              echo "Unknown test type: ${{ github.event.inputs.test_type }}"
+              exit 1
+              ;;
+          esac
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-${{ github.run_number }}
+          path: packages/load-tests/reports/
+          retention-days: 30
+
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summaryPath = 'packages/load-tests/reports/latest-summary.json';
+
+            if (fs.existsSync(summaryPath)) {
+              const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+
+              const comment = `## Load Test Results
+
+              **Metrics:**
+              - Total Requests: ${summary.metrics.http_reqs?.count || 'N/A'}
+              - Failed Requests: ${summary.metrics.http_req_failed?.count || 'N/A'}
+              - Request Duration (p95): ${summary.metrics.http_req_duration?.['p(95)'] || 'N/A'}ms
+              - Request Duration (p99): ${summary.metrics.http_req_duration?.['p(99)'] || 'N/A'}ms
+
+              **Thresholds:**
+              ${Object.entries(summary.metrics).map(([key, value]) =>
+                value.thresholds ? `- ${key}: ${Object.values(value.thresholds).every(t => t.ok) ? '✅ PASSED' : '❌ FAILED'}` : ''
+              ).filter(Boolean).join('\n')}
+
+              See full results in the workflow artifacts.
+              `;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+      - name: Fail if thresholds not met
+        if: github.event_name == 'schedule'
+        run: |
+          # Check if k6 exited with non-zero status (thresholds failed)
+          # k6 will already have failed the step if thresholds weren't met
+          echo "Load test completed. Check results above."

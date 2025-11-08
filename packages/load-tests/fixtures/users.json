@@ -1,0 +1,25 @@
+{
+  "testUsers": [
+    {
+      "email": "admin@test.care-commons.local",
+      "password": "TestPassword123!",
+      "role": "admin"
+    },
+    {
+      "email": "coordinator@test.care-commons.local",
+      "password": "TestPassword123!",
+      "role": "coordinator"
+    },
+    {
+      "email": "caregiver@test.care-commons.local",
+      "password": "TestPassword123!",
+      "role": "caregiver"
+    },
+    {
+      "email": "family@test.care-commons.local",
+      "password": "TestPassword123!",
+      "role": "family"
+    }
+  ],
+  "note": "These test users must exist in your test environment for load tests to work correctly. Create them via seed scripts or admin panel before running load tests."
+}
