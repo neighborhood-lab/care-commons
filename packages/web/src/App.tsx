@@ -22,22 +22,46 @@ import {
 } from './verticals/family-engagement/pages';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
+  const { isAuthenticated, user } = useAuth();
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
+  // Redirect family users to family portal
+  if (user?.roles.includes('FAMILY')) {
+    return <Navigate to="/family-portal" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const FamilyProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Redirect non-family users to admin dashboard
+  if (!user?.roles.includes('FAMILY')) {
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
+  const { isAuthenticated, user } = useAuth();
+
   if (isAuthenticated) {
+    // Route to appropriate dashboard based on role
+    if (user?.roles.includes('FAMILY')) {
+      return <Navigate to="/family-portal" replace />;
+    }
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
@@ -289,7 +313,14 @@ function AppRoutes() {
         }
       />
       {/* Family Portal Routes */}
-      <Route path="/family-portal" element={<FamilyPortalLayout />}>
+      <Route
+        path="/family-portal"
+        element={
+          <FamilyProtectedRoute>
+            <FamilyPortalLayout />
+          </FamilyProtectedRoute>
+        }
+      >
         <Route index element={<FamilyDashboard />} />
         <Route path="settings" element={<FamilySettings />} />
         <Route path="activity" element={<ActivityPage />} />
