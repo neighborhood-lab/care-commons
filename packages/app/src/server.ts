@@ -18,12 +18,14 @@ if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test' && process.env
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
 import { requestLogger, metricsMiddleware } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index.js';
+import { swaggerSpec } from './config/swagger.js';
 
 const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
@@ -180,7 +182,7 @@ function setupApiRoutes(): void {
         clients: '/api/clients',
         carePlans: '/api/care-plans',
       },
-      documentation: 'http://localhost:3000/api',
+      documentation: 'http://localhost:3000/api-docs',
     });
   });
 
@@ -191,6 +193,15 @@ function setupApiRoutes(): void {
       version: '0.1.0',
       environment: NODE_ENV,
     });
+  });
+
+  // Swagger documentation
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+  // Swagger JSON endpoint
+  app.get('/api-docs.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
   });
 
   // Setup vertical routes
@@ -244,7 +255,7 @@ async function start(): Promise<void> {
       console.log(`\n✅ Server running on port ${PORT}`);
       console.log(`   Environment: ${NODE_ENV}`);
       console.log(`   Health check: http://localhost:${PORT}/health`);
-      console.log(`   API docs: http://localhost:${PORT}/api\n`);
+      console.log(`   API docs: http://localhost:${PORT}/api-docs\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
