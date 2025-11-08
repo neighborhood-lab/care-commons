@@ -1,15 +1,39 @@
 import type { Request, Response, NextFunction } from 'express';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 /**
- * Simple in-memory rate limiter
- * For production with multiple instances, consider using:
- * - express-rate-limit with Redis store (for distributed rate limiting)
- * - Upstash Rate Limit (serverless-friendly)
+ * Rate limiter with Redis support for distributed environments
+ * Falls back to in-memory if Redis is not configured
  *
- * @see https://www.npmjs.com/package/express-rate-limit
+ * Production: Uses Upstash Redis for distributed rate limiting across serverless instances
+ * Development: Uses in-memory store for simplicity
+ *
  * @see https://upstash.com/docs/redis/features/ratelimiting
  */
 
+// Initialize Redis client for distributed rate limiting (production)
+let redis: Redis | null = null;
+
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+if (redisUrl !== undefined && redisUrl !== '' && redisToken !== undefined && redisToken !== '') {
+  try {
+    redis = new Redis({
+      url: redisUrl,
+      token: redisToken,
+    });
+    console.log('✅ Upstash Redis connected for distributed rate limiting');
+  } catch (error) {
+    console.warn('⚠️ Failed to initialize Upstash Redis, falling back to in-memory rate limiting:', error);
+    redis = null;
+  }
+} else {
+  console.log('ℹ️ Using in-memory rate limiting (Redis not configured)');
+}
+
+// In-memory fallback store for rate limiting
 interface RateLimitStore {
   [key: string]: {
     count: number;
@@ -17,21 +41,20 @@ interface RateLimitStore {
   };
 }
 
-// In-memory store for rate limiting
-// NOTE: This will be reset when the serverless function cold-starts
-// For production, use Redis or similar distributed store
-const store: RateLimitStore = {};
+const inMemoryStore: RateLimitStore = {};
 
-// Cleanup old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const key in store) {
-    const entry = store[key];
-    if (entry !== undefined && entry.resetTime < now) {
-      delete store[key];
+// Cleanup old entries every 5 minutes (only for in-memory store)
+if (redis === null) {
+  setInterval(() => {
+    const now = Date.now();
+    for (const key in inMemoryStore) {
+      const entry = inMemoryStore[key];
+      if (entry !== undefined && entry.resetTime < now) {
+        delete inMemoryStore[key];
+      }
     }
-  }
-}, 5 * 60 * 1000);
+  }, 5 * 60 * 1000);
+}
 
 interface RateLimitOptions {
   windowMs: number; // Time window in milliseconds
@@ -58,6 +81,102 @@ interface RateLimitOptions {
  * }));
  * ```
  */
+/**
+ * Handle Redis-based rate limiting
+ */
+async function handleRedisRateLimit(
+  upstashLimiter: Ratelimit,
+  key: string,
+  message: string,
+  standardHeaders: boolean,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  const { success, limit, remaining, reset } = await upstashLimiter.limit(key);
+
+  if (standardHeaders) {
+    res.setHeader('RateLimit-Limit', limit.toString());
+    res.setHeader('RateLimit-Remaining', remaining.toString());
+    res.setHeader('RateLimit-Reset', new Date(reset).toISOString());
+  }
+
+  if (!success) {
+    res.status(429).json({
+      error: 'Too Many Requests',
+      message,
+      retryAfter: Math.ceil((reset - Date.now()) / 1000),
+    });
+    return;
+  }
+
+  next();
+}
+
+/**
+ * Handle in-memory rate limiting
+ */
+function handleInMemoryRateLimit(
+  key: string,
+  windowMs: number,
+  max: number,
+  message: string,
+  standardHeaders: boolean,
+  skipSuccessfulRequests: boolean,
+  res: Response,
+  next: NextFunction,
+): void {
+  const now = Date.now();
+
+  // Initialize or get existing rate limit data
+  const existingEntry = inMemoryStore[key];
+  if (existingEntry === undefined || existingEntry.resetTime < now) {
+    inMemoryStore[key] = {
+      count: 0,
+      resetTime: now + windowMs,
+    };
+  }
+
+  const entry = inMemoryStore[key]!;
+  const { count, resetTime } = entry;
+
+  // Increment request count
+  entry.count++;
+
+  // Calculate remaining requests
+  const remaining = Math.max(0, max - count - 1);
+
+  // Add standard rate limit headers if enabled
+  if (standardHeaders) {
+    res.setHeader('RateLimit-Limit', max.toString());
+    res.setHeader('RateLimit-Remaining', remaining.toString());
+    res.setHeader('RateLimit-Reset', new Date(resetTime).toISOString());
+  }
+
+  // Check if rate limit exceeded
+  if (count >= max) {
+    res.status(429).json({
+      error: 'Too Many Requests',
+      message,
+      retryAfter: Math.ceil((resetTime - now) / 1000),
+    });
+    return;
+  }
+
+  // If skipSuccessfulRequests is enabled, decrement count on successful response
+  if (skipSuccessfulRequests) {
+    const originalSend = res.send;
+    res.send = function (body: unknown) {
+      const entry = inMemoryStore[key];
+      if (res.statusCode < 400 && entry !== undefined) {
+        entry.count--;
+      }
+      return originalSend.call(this, body);
+    };
+  }
+
+  next();
+}
+
 export function createRateLimiter(options: RateLimitOptions) {
   const {
     windowMs,
@@ -68,70 +187,39 @@ export function createRateLimiter(options: RateLimitOptions) {
     skip,
   } = options;
 
-  return (req: Request, res: Response, next: NextFunction): void => {
+  // Create Upstash Ratelimit instance if Redis is available
+  const upstashLimiter = redis !== null
+    ? new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+        analytics: true,
+        prefix: 'rl',
+      })
+    : null;
+
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // Skip if skip function returns true
     if (skip?.(req) === true) {
       return next();
     }
 
     // Get client identifier (IP address or authenticated user ID)
-    const identifier =
-      req.ip ?? req.socket.remoteAddress ?? 'unknown';
+    const identifier = req.ip ?? req.socket.remoteAddress ?? 'unknown';
 
     // Create key for this endpoint and identifier
     const key = `${req.path}:${identifier}`;
 
-    const now = Date.now();
-
-    // Initialize or get existing rate limit data
-    const existingEntry = store[key];
-    if (existingEntry === undefined || existingEntry.resetTime < now) {
-      store[key] = {
-        count: 0,
-        resetTime: now + windowMs,
-      };
+    try {
+      if (upstashLimiter !== null) {
+        await handleRedisRateLimit(upstashLimiter, key, message, standardHeaders, res, next);
+      } else {
+        handleInMemoryRateLimit(key, windowMs, max, message, standardHeaders, skipSuccessfulRequests, res, next);
+      }
+    } catch (error) {
+      // On Redis errors, fall back to allowing the request
+      console.error('Rate limiter error:', error);
+      next();
     }
-
-    // TypeScript now knows store[key] exists
-    const entry = store[key]!;
-    const { count, resetTime } = entry;
-
-    // Increment request count
-    entry.count++;
-
-    // Calculate remaining requests
-    const remaining = Math.max(0, max - count - 1);
-
-    // Add standard rate limit headers if enabled
-    if (standardHeaders) {
-      res.setHeader('RateLimit-Limit', max.toString());
-      res.setHeader('RateLimit-Remaining', remaining.toString());
-      res.setHeader('RateLimit-Reset', new Date(resetTime).toISOString());
-    }
-
-    // Check if rate limit exceeded
-    if (count >= max) {
-      res.status(429).json({
-        error: 'Too Many Requests',
-        message,
-        retryAfter: Math.ceil((resetTime - now) / 1000),
-      });
-      return;
-    }
-
-    // If skipSuccessfulRequests is enabled, decrement count on successful response
-    if (skipSuccessfulRequests) {
-      const originalSend = res.send;
-      res.send = function (body: unknown) {
-        const entry = store[key];
-        if (res.statusCode < 400 && entry !== undefined) {
-          entry.count--;
-        }
-        return originalSend.call(this, body);
-      };
-    }
-
-    next();
   };
 }
 
@@ -184,26 +272,15 @@ export const sensitiveLimiter = createRateLimiter({
 });
 
 /**
- * NOTE: For production deployments with multiple serverless instances,
- * consider using express-rate-limit with a Redis store:
+ * Production Configuration:
  *
- * ```typescript
- * import rateLimit from 'express-rate-limit';
- * import RedisStore from 'rate-limit-redis';
- * import { Redis } from 'ioredis';
+ * To enable distributed rate limiting in production, set these environment variables:
+ * - UPSTASH_REDIS_REST_URL: Your Upstash Redis REST URL
+ * - UPSTASH_REDIS_REST_TOKEN: Your Upstash Redis REST token
  *
- * const redis = new Redis(process.env.REDIS_URL);
+ * Get these from: https://console.upstash.com
  *
- * export const authLimiter = rateLimit({
- *   windowMs: 15 * 60 * 1000,
- *   max: 5,
- *   store: new RedisStore({
- *     client: redis,
- *     prefix: 'rl:auth:',
- *   }),
- * });
- * ```
- *
- * Or use Upstash Rate Limit for serverless environments:
- * @see https://upstash.com/docs/redis/features/ratelimiting
+ * Without Redis configuration, the rate limiter falls back to in-memory storage,
+ * which works for single-instance deployments but not for serverless environments
+ * with multiple concurrent instances.
  */
