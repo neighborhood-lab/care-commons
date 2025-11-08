@@ -15,6 +15,8 @@ import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
+import { createWhiteLabelRouter } from './white-label.js';
+import { createSuperAdminRouter } from './super-admin.js';
 import { authLimiter } from '../middleware/rate-limit.js';
 /**
  * NOTE: Analytics routes temporarily disabled - requires architectural refactor
@@ -92,6 +94,16 @@ export function setupRoutes(app: Express, db: Database): void {
   const syncRouter = createSyncRouter(db);
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
+
+  // White-Label Management routes
+  const whiteLabelRouter = createWhiteLabelRouter(db);
+  app.use('/api', whiteLabelRouter);
+  console.log('  ✓ White-Label Management routes registered');
+
+  // Super Admin routes
+  const superAdminRouter = createSuperAdminRouter(db);
+  app.use('/api/super-admin', superAdminRouter);
+  console.log('  ✓ Super Admin routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits

@@ -326,15 +326,16 @@ export class AuthMiddleware {
   /**
    * Require same organization
    * Ensures user can only access resources from their organization
+   * SUPER_ADMIN users are allowed to access any organization
    * Must be used after requireAuth middleware
-   * 
+   *
    * Usage:
    *   router.get('/organizations/:orgId/clients',
    *     authMiddleware.requireAuth,
    *     authMiddleware.requireSameOrganization('orgId'),
    *     handler
    *   )
-   * 
+   *
    * @param paramName - Name of route parameter containing organization ID
    */
   requireSameOrganization = (paramName: string = 'organizationId') => {
@@ -346,6 +347,12 @@ export class AuthMiddleware {
           error: 'Authentication required',
           code: 'NOT_AUTHENTICATED'
         });
+        return;
+      }
+
+      // SUPER_ADMIN can access any organization
+      if (req.user.roles.includes('SUPER_ADMIN')) {
+        next();
         return;
       }
 
@@ -371,5 +378,68 @@ export class AuthMiddleware {
 
       next();
     };
+  };
+
+  /**
+   * Require SUPER_ADMIN role
+   * Convenience middleware for super-admin only endpoints
+   * Must be used after requireAuth middleware
+   *
+   * Usage:
+   *   router.get('/super-admin/organizations',
+   *     authMiddleware.requireAuth,
+   *     authMiddleware.requireSuperAdmin,
+   *     handler
+   *   )
+   */
+  requireSuperAdmin = (req: Request, res: Response, next: NextFunction): void => {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+        code: 'NOT_AUTHENTICATED'
+      });
+      return;
+    }
+
+    if (!req.user.roles.includes('SUPER_ADMIN')) {
+      // Log unauthorized access attempt
+      void this.auditService.logEvent(
+        {
+          userId: req.user.userId,
+          organizationId: req.user.organizationId,
+          roles: req.user.roles,
+          permissions: req.user.permissions,
+          branchIds: []
+        },
+        {
+          eventType: 'AUTHORIZATION',
+          resource: req.path,
+          resourceId: req.user.userId,
+          action: 'UNAUTHORIZED_SUPER_ADMIN_ACCESS',
+          result: 'FAILURE',
+          metadata: {
+            requiredRole: 'SUPER_ADMIN',
+            userRoles: req.user.roles,
+            method: req.method,
+            path: req.path
+          },
+          ipAddress: req.ip ?? req.socket.remoteAddress,
+          userAgent: req.headers['user-agent']
+        }
+      ).catch((error: unknown) => {
+        console.error('Failed to log unauthorized super admin access attempt:', error);
+      });
+
+      res.status(403).json({
+        success: false,
+        error: 'Super admin access required',
+        code: 'SUPER_ADMIN_REQUIRED'
+      });
+      return;
+    }
+
+    next();
   };
 }
