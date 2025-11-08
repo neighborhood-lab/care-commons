@@ -900,6 +900,572 @@ export class BillingRepository {
   }
 
   /**
+   * CLAIM OPERATIONS
+   */
+
+  async createClaim(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    claim: any,
+    client?: PoolClient
+  ): Promise<any> {
+    const db = client || this.pool;
+    const id = uuid();
+    const now = new Date();
+
+    const result = await db.query(
+      `
+      INSERT INTO claims (
+        id, organization_id, branch_id,
+        claim_number, claim_type, claim_format,
+        payer_id, payer_type, payer_name,
+        client_id, client_name,
+        invoice_id, invoice_number,
+        billable_item_ids, line_items,
+        total_charges, total_approved, total_paid, total_adjustments, patient_responsibility,
+        submitted_date, submitted_by, submission_method,
+        status, status_history,
+        is_appealable, era_received,
+        notes, internal_notes,
+        created_at, created_by, updated_at, updated_by, version
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+        $21, $22, $23, $24, $25, $26, $27, $28, $29, $30,
+        $31, $32, $33, $34
+      )
+      RETURNING *
+      `,
+      [
+        id,
+        claim.organization_id,
+        claim.branch_id,
+        claim.claim_number,
+        claim.claim_type || 'PROFESSIONAL',
+        claim.claim_format || 'EDI_837P',
+        claim.payer_id,
+        claim.payer_type,
+        claim.payer_name,
+        claim.client_id,
+        claim.client_name || null,
+        claim.invoice_id || null,
+        claim.invoice_number || null,
+        claim.billable_item_ids ? JSON.stringify(claim.billable_item_ids) : null,
+        claim.line_items ? JSON.stringify(claim.line_items) : null,
+        claim.total_charges || claim.total_billed || 0,
+        claim.total_approved || null,
+        claim.total_paid || null,
+        claim.total_adjustments || null,
+        claim.patient_responsibility || null,
+        claim.submission_date || now,
+        claim.submitted_by || claim.created_by,
+        claim.submission_method || 'EDI',
+        claim.status || 'PENDING',
+        JSON.stringify(claim.status_history || []),
+        claim.is_appealable || false,
+        claim.era_received || false,
+        claim.notes || null,
+        claim.internal_notes || null,
+        now,
+        claim.created_by,
+        now,
+        claim.updated_by,
+        1,
+      ]
+    );
+
+    return result.rows[0];
+  }
+
+  async getClaim(id: UUID): Promise<any | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM claims WHERE id = $1',
+      [id]
+    );
+    return result.rows[0] || null;
+  }
+
+  async getClaimByNumber(claimNumber: string): Promise<any | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM claims WHERE claim_number = $1',
+      [claimNumber]
+    );
+    return result.rows[0] || null;
+  }
+
+  async updateClaim(
+    id: UUID,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    updates: any,
+    client?: PoolClient
+  ): Promise<void> {
+    const db = client || this.pool;
+
+    const updateFields: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const values: any[] = [];
+    let paramCount = 2;
+
+    if (updates.status) {
+      updateFields.push(`status = $${paramCount++}`);
+      values.push(updates.status);
+    }
+
+    if (updates.paid_amount !== undefined) {
+      updateFields.push(`total_paid = $${paramCount++}`);
+      values.push(updates.paid_amount);
+    }
+
+    if (updates.adjusted_amount !== undefined) {
+      updateFields.push(`total_adjustments = $${paramCount++}`);
+      values.push(updates.adjusted_amount);
+    }
+
+    if (updateFields.length === 0) {
+      return;
+    }
+
+    const query = `
+      UPDATE claims
+      SET ${updateFields.join(', ')},
+          updated_at = NOW(),
+          version = version + 1
+      WHERE id = $1
+    `;
+
+    await db.query(query, [id, ...values]);
+  }
+
+  async getClaimLineItems(claimId: UUID): Promise<any[]> {
+    const result = await this.pool.query(
+      'SELECT * FROM claim_line_items WHERE claim_id = $1 ORDER BY line_number',
+      [claimId]
+    );
+    return result.rows;
+  }
+
+  async createClaimLineItem(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    lineItem: any,
+    client?: PoolClient
+  ): Promise<any> {
+    const db = client || this.pool;
+    const id = uuid();
+
+    const result = await db.query(
+      `
+      INSERT INTO claim_line_items (
+        id, claim_id, billable_item_id, line_number,
+        service_date, service_code, service_description,
+        place_of_service, provider_npi, provider_name,
+        unit_type, units, charge_amount,
+        approved_amount, paid_amount, adjustment_amount,
+        modifiers, authorization_number, diagnosis_codes,
+        line_status, denial_code, denial_reason
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
+      )
+      RETURNING *
+      `,
+      [
+        id,
+        lineItem.claim_id,
+        lineItem.billable_item_id || lineItem.visit_id,
+        lineItem.line_number || 1,
+        lineItem.service_date,
+        lineItem.service_code || lineItem.billing_code,
+        lineItem.service_description || lineItem.description,
+        lineItem.place_of_service || '12',
+        lineItem.provider_npi || null,
+        lineItem.provider_name || null,
+        lineItem.unit_type || 'UNIT',
+        lineItem.units,
+        lineItem.charge_amount || lineItem.amount,
+        lineItem.approved_amount || null,
+        lineItem.paid_amount || null,
+        lineItem.adjustment_amount || null,
+        lineItem.modifiers ? JSON.stringify(lineItem.modifiers) : null,
+        lineItem.authorization_number || null,
+        lineItem.diagnosis_codes ? JSON.stringify(lineItem.diagnosis_codes) : null,
+        lineItem.line_status || 'PENDING',
+        lineItem.denial_code || null,
+        lineItem.denial_reason || null,
+      ]
+    );
+
+    return result.rows[0];
+  }
+
+  async createClaimAdjustment(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    adjustment: any,
+    client?: PoolClient
+  ): Promise<any> {
+    const db = client || this.pool;
+    const id = uuid();
+    const now = new Date();
+
+    const result = await db.query(
+      `
+      INSERT INTO claim_adjustments (
+        id, claim_id, reason_code, amount, description, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+      `,
+      [
+        id,
+        adjustment.claim_id,
+        adjustment.reason_code,
+        adjustment.amount,
+        adjustment.description,
+        now,
+      ]
+    );
+
+    return result.rows[0];
+  }
+
+  async getClaimCountForMonth(
+    yearMonth: string,
+    client?: PoolClient
+  ): Promise<number> {
+    const db = client || this.pool;
+    const result = await db.query(
+      `SELECT COUNT(*) as count FROM claims
+       WHERE TO_CHAR(submitted_date, 'YYYYMM') = $1`,
+      [yearMonth]
+    );
+    return parseInt(result.rows[0].count);
+  }
+
+  /**
+   * INVOICE LINE ITEM AND ADJUSTMENT OPERATIONS
+   */
+
+  async createInvoiceLineItem(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    lineItem: any,
+    client?: PoolClient
+  ): Promise<any> {
+    const db = client || this.pool;
+    const id = uuid();
+
+    const result = await db.query(
+      `
+      INSERT INTO invoice_line_items (
+        id, invoice_id, billable_item_id,
+        service_date, service_code, service_description,
+        provider_name, provider_npi,
+        unit_type, units, unit_rate, subtotal, adjustments, total,
+        client_id, client_name,
+        modifiers, authorization_number
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16, $17, $18
+      )
+      RETURNING *
+      `,
+      [
+        id,
+        lineItem.invoice_id,
+        lineItem.billable_item_id || lineItem.visit_id,
+        lineItem.service_date,
+        lineItem.service_code || lineItem.billing_code,
+        lineItem.service_description || lineItem.description,
+        lineItem.provider_name || null,
+        lineItem.provider_npi || null,
+        lineItem.unit_type || 'UNIT',
+        lineItem.units,
+        lineItem.unit_rate,
+        lineItem.subtotal || lineItem.amount,
+        lineItem.adjustments || 0,
+        lineItem.total || lineItem.amount,
+        lineItem.client_id || null,
+        lineItem.client_name || null,
+        lineItem.modifiers ? JSON.stringify(lineItem.modifiers) : null,
+        lineItem.authorization_number || null,
+      ]
+    );
+
+    return result.rows[0];
+  }
+
+  async createInvoiceAdjustment(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    adjustment: any,
+    client?: PoolClient
+  ): Promise<any> {
+    const db = client || this.pool;
+    const id = uuid();
+    const now = new Date();
+
+    const result = await db.query(
+      `
+      INSERT INTO invoice_adjustments (
+        id, invoice_id, type, amount, reason, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+      `,
+      [
+        id,
+        adjustment.invoice_id,
+        adjustment.type,
+        adjustment.amount,
+        adjustment.reason,
+        now,
+      ]
+    );
+
+    return result.rows[0];
+  }
+
+  async getInvoice(id: UUID): Promise<any | null> {
+    return this.findInvoiceById(id);
+  }
+
+  async updateInvoice(
+    id: UUID,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    updates: any,
+    client?: PoolClient
+  ): Promise<void> {
+    const db = client || this.pool;
+
+    const updateFields: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const values: any[] = [];
+    let paramCount = 2;
+
+    if (updates.balance !== undefined) {
+      updateFields.push(`balance_due = $${paramCount++}`);
+      values.push(updates.balance);
+    }
+
+    if (updates.status) {
+      updateFields.push(`status = $${paramCount++}`);
+      values.push(updates.status);
+    }
+
+    if (updateFields.length === 0) {
+      return;
+    }
+
+    const query = `
+      UPDATE invoices
+      SET ${updateFields.join(', ')},
+          updated_at = NOW(),
+          version = version + 1
+      WHERE id = $1
+    `;
+
+    await db.query(query, [id, ...values]);
+  }
+
+  async getInvoiceCountForMonth(
+    yearMonth: string,
+    client?: PoolClient
+  ): Promise<number> {
+    const db = client || this.pool;
+    const result = await db.query(
+      `SELECT COUNT(*) as count FROM invoices
+       WHERE TO_CHAR(invoice_date, 'YYYYMM') = $1`,
+      [yearMonth]
+    );
+    return parseInt(result.rows[0].count);
+  }
+
+  async createCredit(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    credit: any,
+    client?: PoolClient
+  ): Promise<any> {
+    const db = client || this.pool;
+    const id = uuid();
+    const now = new Date();
+
+    const result = await db.query(
+      `
+      INSERT INTO credits (
+        id, client_id, amount, source, reference_invoice_id, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+      `,
+      [
+        id,
+        credit.client_id,
+        credit.amount,
+        credit.source,
+        credit.reference_invoice_id,
+        now,
+      ]
+    );
+
+    return result.rows[0];
+  }
+
+  /**
+   * RATE SCHEDULE OPERATIONS (Extended)
+   */
+
+  async getClientRate(
+    clientId: UUID,
+    serviceId: UUID,
+    date: Date
+  ): Promise<any | null> {
+    const result = await this.pool.query(
+      `SELECT * FROM rate_schedules
+       WHERE schedule_type = 'CLIENT_SPECIFIC'
+       AND status = 'ACTIVE'
+       AND effective_from <= $3
+       AND (effective_to IS NULL OR effective_to >= $3)
+       AND rates @> $4::jsonb
+       LIMIT 1`,
+      [clientId, serviceId, date, JSON.stringify([{ serviceTypeId: serviceId }])]
+    );
+    return result.rows[0] ? this.mapRateSchedule(result.rows[0]) : null;
+  }
+
+  async getPayerContractRate(
+    payerId: UUID,
+    serviceId: UUID,
+    date: Date
+  ): Promise<any | null> {
+    const result = await this.pool.query(
+      `SELECT * FROM rate_schedules
+       WHERE payer_id = $1
+       AND schedule_type = 'PAYER_SPECIFIC'
+       AND status = 'ACTIVE'
+       AND effective_from <= $3
+       AND (effective_to IS NULL OR effective_to >= $3)
+       LIMIT 1`,
+      [payerId, serviceId, date]
+    );
+    return result.rows[0] ? this.mapRateSchedule(result.rows[0]) : null;
+  }
+
+  async getDefaultRate(
+    serviceId: UUID,
+    date: Date
+  ): Promise<any | null> {
+    const result = await this.pool.query(
+      `SELECT * FROM rate_schedules
+       WHERE schedule_type = 'STANDARD'
+       AND status = 'ACTIVE'
+       AND effective_from <= $2
+       AND (effective_to IS NULL OR effective_to >= $2)
+       AND payer_id IS NULL
+       LIMIT 1`,
+      [serviceId, date]
+    );
+    return result.rows[0] ? this.mapRateSchedule(result.rows[0]) : null;
+  }
+
+  async findOverlappingSchedules(
+    serviceId: UUID,
+    effectiveDate: Date,
+    expirationDate: Date | undefined,
+    contextId: UUID | undefined
+  ): Promise<any[]> {
+    const query = expirationDate
+      ? `SELECT * FROM rate_schedules
+         WHERE status = 'ACTIVE'
+         AND (
+           (effective_from <= $2 AND (effective_to IS NULL OR effective_to >= $1))
+           OR (effective_from >= $1 AND effective_from <= $2)
+         )`
+      : `SELECT * FROM rate_schedules
+         WHERE status = 'ACTIVE'
+         AND (effective_to IS NULL OR effective_to >= $1)`;
+
+    const params = expirationDate
+      ? [effectiveDate, expirationDate]
+      : [effectiveDate];
+
+    const result = await this.pool.query(query, params);
+    return result.rows;
+  }
+
+  async getRateScheduleById(id: UUID): Promise<RateSchedule | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM rate_schedules WHERE id = $1',
+      [id]
+    );
+    return result.rows[0] ? this.mapRateSchedule(result.rows[0]) : null;
+  }
+
+  async updateRateSchedule(
+    id: UUID,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    updates: any,
+    client?: PoolClient
+  ): Promise<void> {
+    const db = client || this.pool;
+
+    const updateFields: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const values: any[] = [];
+    let paramCount = 2;
+
+    if (updates.status) {
+      updateFields.push(`status = $${paramCount++}`);
+      values.push(updates.status);
+    }
+
+    if (updates.effectiveTo) {
+      updateFields.push(`effective_to = $${paramCount++}`);
+      values.push(updates.effectiveTo);
+    }
+
+    if (updateFields.length === 0) {
+      return;
+    }
+
+    const query = `
+      UPDATE rate_schedules
+      SET ${updateFields.join(', ')},
+          updated_at = NOW(),
+          version = version + 1
+      WHERE id = $1
+    `;
+
+    await db.query(query, [id, ...values]);
+  }
+
+  async getActiveRateSchedules(
+    organizationId: UUID,
+    date: Date
+  ): Promise<RateSchedule[]> {
+    const result = await this.pool.query(
+      `SELECT * FROM rate_schedules
+       WHERE organization_id = $1
+       AND status = 'ACTIVE'
+       AND effective_from <= $2
+       AND (effective_to IS NULL OR effective_to >= $2)
+       ORDER BY schedule_type, effective_from DESC`,
+      [organizationId, date]
+    );
+    return result.rows.map(this.mapRateSchedule);
+  }
+
+  async getRateScheduleHistory(
+    serviceId: UUID,
+    startDate: Date,
+    endDate: Date
+  ): Promise<RateSchedule[]> {
+    const result = await this.pool.query(
+      `SELECT * FROM rate_schedules
+       WHERE (
+         (effective_from >= $2 AND effective_from <= $3)
+         OR (effective_to >= $2 AND effective_to <= $3)
+         OR (effective_from <= $2 AND (effective_to IS NULL OR effective_to >= $3))
+       )
+       ORDER BY effective_from DESC`,
+      [serviceId, startDate, endDate]
+    );
+    return result.rows.map(this.mapRateSchedule);
+  }
+
+  /**
    * MAPPING FUNCTIONS
    */
 
