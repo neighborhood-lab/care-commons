@@ -9,6 +9,33 @@ import { UUID, NotFoundError, Database } from '@care-commons/core';
 import type { IClientProvider } from '../interfaces/visit-provider.js';
 
 /**
+ * Type definitions for JSONB fields
+ */
+interface PrimaryAddress {
+  street1: string;
+  street2?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface ServiceEligibility {
+  medicaid?: {
+    memberId?: string;
+    programName?: string;
+    programType?: string;
+  };
+  medicaidId?: string;
+}
+
+interface PrimaryPhone {
+  number: string;
+  type?: string;
+}
+
+/**
  * Client Provider for EVV Integration
  * 
  * Fetches client demographic data needed for EVV record creation and compliance validation.
@@ -63,20 +90,20 @@ export class ClientProvider implements IClientProvider {
     
     // Parse primary address to get state
     const primaryAddressRaw = row['primary_address'];
-    const primaryAddress = typeof primaryAddressRaw === 'string' 
+    const primaryAddress = (typeof primaryAddressRaw === 'string' 
       ? JSON.parse(primaryAddressRaw) 
-      : primaryAddressRaw;
+      : primaryAddressRaw) as PrimaryAddress | null;
     
     // Parse service eligibility to get Medicaid ID
     const serviceEligibilityRaw = row['service_eligibility'];
-    const serviceEligibility = typeof serviceEligibilityRaw === 'string'
+    const serviceEligibility = (typeof serviceEligibilityRaw === 'string'
       ? JSON.parse(serviceEligibilityRaw)
-      : serviceEligibilityRaw;
+      : serviceEligibilityRaw) as ServiceEligibility | null;
     
     // Parse phone
     const primaryPhoneRaw = row['primary_phone'];
     const primaryPhone = primaryPhoneRaw
-      ? (typeof primaryPhoneRaw === 'string' ? JSON.parse(primaryPhoneRaw) : primaryPhoneRaw)
+      ? ((typeof primaryPhoneRaw === 'string' ? JSON.parse(primaryPhoneRaw) : primaryPhoneRaw) as PrimaryPhone)
       : null;
     
     // Build full name
@@ -84,23 +111,23 @@ export class ClientProvider implements IClientProvider {
     const fullName = `${row['first_name']}${middleName} ${row['last_name']}`;
     
     // Extract Medicaid ID from service eligibility - handle various structures
-    const medicaidId = (serviceEligibility as any)?.medicaid?.memberId 
-      ?? (serviceEligibility as any)?.medicaidId 
+    const medicaidId = serviceEligibility?.medicaid?.memberId 
+      ?? serviceEligibility?.medicaidId 
       ?? undefined;
     
     // Extract state Medicaid program information
-    const stateMedicaidProgram = (serviceEligibility as any)?.medicaid?.programName 
-      ?? (serviceEligibility as any)?.medicaid?.programType
+    const stateMedicaidProgram = serviceEligibility?.medicaid?.programName 
+      ?? serviceEligibility?.medicaid?.programType
       ?? undefined;
 
     return {
       id: row['id'] as UUID,
       name: fullName,
-      medicaidId: medicaidId as string | undefined,
+      medicaidId,
       dateOfBirth: new Date(row['date_of_birth'] as string),
-      stateCode: (primaryAddress as any)?.state ?? 'UNKNOWN',
-      stateMedicaidProgram: stateMedicaidProgram as string | undefined,
-      primaryPhone: (primaryPhone as any)?.number as string | undefined,
+      stateCode: primaryAddress?.state ?? 'UNKNOWN',
+      stateMedicaidProgram,
+      primaryPhone: primaryPhone?.number,
       email: (row['email'] as string | null) ?? undefined,
     };
   }

@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useDemoSession } from './useDemoSession.js';
 import type { DemoPersonaType } from './types.js';
 
@@ -18,22 +19,25 @@ const PERSONA_LABELS: Record<DemoPersonaType, string> = {
 };
 
 export function DemoModeBar() {
-  const { session, isActive, switchPersona, resetSession, endSession, createSession } = useDemoSession();
+  const { session, isActive, switchPersona, resetSession, endSession } = useDemoSession();
   const [isExpanded, setIsExpanded] = useState(false);
+  const location = useLocation();
+  
+  // Check if we're on the login page (no sidebar)
+  const isLoginPage = location.pathname === '/login';
+  
+  // Apply left padding on desktop for pages with sidebar
+  const containerClass = isLoginPage ? '' : 'lg:pl-64';
 
   if (!isActive || !session) {
     return (
-      <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-3">
-          <span className="font-bold text-sm">DEMO MODE</span>
-          <span className="text-xs opacity-90">Try the platform with sample data • No real PHI</span>
+      <div className="bg-blue-600 text-white shadow-md">
+        <div className={`px-4 py-2 ${containerClass}`}>
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-sm">DEMO MODE</span>
+            <span className="text-xs opacity-90">Try the platform with sample data • No real PHI</span>
+          </div>
         </div>
-        <button
-          onClick={() => void createSession()}
-          className="bg-white text-blue-600 px-4 py-1 rounded text-sm font-medium hover:bg-blue-50 transition-colors"
-        >
-          Start Demo Session
-        </button>
       </div>
     );
   }
@@ -46,7 +50,7 @@ export function DemoModeBar() {
 
   return (
     <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
-      <div className="px-4 py-2 flex items-center justify-between">
+      <div className={`px-4 py-2 flex items-center justify-between ${containerClass}`}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
@@ -82,7 +86,7 @@ export function DemoModeBar() {
       </div>
 
       {isExpanded && (
-        <div className="bg-white/10 px-4 py-3 border-t border-white/20">
+        <div className={`bg-white/10 px-4 py-3 border-t border-white/20 ${containerClass}`}>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h4 className="font-semibold text-sm mb-2">Switch Persona</h4>
