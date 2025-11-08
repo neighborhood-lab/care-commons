@@ -40,6 +40,17 @@ export class ShowcaseApiProvider implements ApiProvider {
       if (stored) {
         try {
           this.data = JSON.parse(stored);
+
+          // Merge in any new users from code that don't exist in cached data
+          // This ensures new demo users (like family user) are available even with cached data
+          const freshData = getInitialShowcaseData();
+          const existingUserEmails = new Set(this.data.users.map(u => u.email));
+          const newUsers = freshData.users.filter(u => !existingUserEmails.has(u.email));
+
+          if (newUsers.length > 0) {
+            this.data.users = [...this.data.users, ...newUsers];
+            this.saveData(); // Save merged data back to localStorage
+          }
         } catch (error) {
           console.warn('Failed to load showcase data from localStorage', error);
           this.data = getInitialShowcaseData();
