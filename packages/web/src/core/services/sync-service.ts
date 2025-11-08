@@ -14,7 +14,7 @@
 
 import { database } from '../../db/index.js';
 import { pullChanges, pushChanges, getSyncStatus } from './sync-api.js';
-import type { SyncEntityType, SyncOperationType } from '@care-commons/core';
+import type { SyncEntityType, SyncOperationType } from '@care-commons/core/browser';
 
 export interface SyncServiceConfig {
   organizationId: string;

@@ -25,6 +25,23 @@ export default defineConfig({
         __dirname,
         '../shared-components/src'
       ),
+      // Force packages to use browser exports
+      '@care-commons/core/browser': path.resolve(
+        __dirname,
+        '../core/dist/browser.js'
+      ),
+      '@care-commons/core': path.resolve(
+        __dirname,
+        '../core/dist/browser.js'
+      ),
+      '@care-commons/care-plans-tasks/browser': path.resolve(
+        __dirname,
+        '../../verticals/care-plans-tasks/dist/browser.js'
+      ),
+      '@care-commons/care-plans-tasks': path.resolve(
+        __dirname,
+        '../../verticals/care-plans-tasks/dist/browser.js'
+      ),
     },
   },
   optimizeDeps: {
@@ -37,6 +54,12 @@ export default defineConfig({
       '@sentry/tracing',
       '@sentry-internal/tracing',
     ],
+    esbuildOptions: {
+      // Define process as an object for compatibility
+      define: {
+        'process.versions.node': 'undefined',
+      },
+    },
     force: true,
   },
   server: {
@@ -58,44 +81,13 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        // Sentry Node.js modules with native bindings
-        '@sentry-internal/node-cpu-profiler',
-        '@sentry/profiling-node',
+        // Sentry Node.js modules - these are server-only and should never be bundled for browser
         '@sentry/node',
         '@sentry/node-core',
-        '@sentry/tracing',
+        '@sentry/profiling-node',
+        '@sentry-internal/node-cpu-profiler',
         '@sentry-internal/tracing',
-        // Native Node.js modules (pattern matching)
         /sentry_cpu_profiler.*\.node$/,
-        // Node.js built-in modules that shouldn't be in browser bundle
-        /^node:/,
-        'crypto',
-        'stream',
-        'util',
-        'net',
-        'url',
-        'fs',
-        'os',
-        'path',
-        'buffer',
-        'events',
-        'process',
-        'worker_threads',
-        'child_process',
-        'cluster',
-        'querystring',
-        'tls',
-        'zlib',
-        'perf_hooks',
-        'v8',
-        'dns',
-        'string_decoder',
-        'http',
-        'https',
-        'diagnostics_channel',
-        'readline',
-        'timers',
-        'module',
       ],
       output: {
         manualChunks: {

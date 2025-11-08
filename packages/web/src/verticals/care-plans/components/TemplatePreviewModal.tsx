@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Clock, CheckSquare, Target } from 'lucide-react';
 import { Button, Card, CardContent } from '@/core/components';
-import type { CarePlanTemplate } from '@care-commons/care-plans-tasks';
+import type { CarePlanTemplate } from '@care-commons/care-plans-tasks/browser';
 import { useNavigate } from 'react-router-dom';
 
 export interface TemplatePreviewModalProps {

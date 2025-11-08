@@ -10,7 +10,7 @@ import {
   FormField,
 } from '@/core/components';
 import { useCarePlanTemplate, useCreateFromTemplate } from '../hooks';
-import type { CarePlanTaskTemplate } from '@care-commons/care-plans-tasks';
+import type { CarePlanTaskTemplate } from '@care-commons/care-plans-tasks/browser';
 
 interface CustomTask extends CarePlanTaskTemplate {
   enabled: boolean;

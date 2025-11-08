@@ -10,7 +10,7 @@ import type {
   PullChangesResponse,
   PushChangesRequest,
   PushChangesResponse,
-} from '@care-commons/core';
+} from '@care-commons/core/browser';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
