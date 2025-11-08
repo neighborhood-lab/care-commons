@@ -1,0 +1,145 @@
+# Prometheus Alert Rules for Care Commons
+# Defines alerting rules for production monitoring
+
+groups:
+  - name: care_commons_alerts
+    interval: 30s
+    rules:
+      # Service availability alerts
+      - alert: ServiceDown
+        expr: up{job="care-commons-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Care Commons API is down"
+          description: "The Care Commons API service has been down for 1 minute. Immediate action required."
+          runbook: "Check API server logs, verify database connectivity, and restart if necessary."
+
+      # Error rate alerts
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%). This indicates a potential system issue."
+          runbook: "Check error logs in Sentry, review recent deployments, and investigate database connectivity."
+
+      - alert: ElevatedErrorRate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "Elevated error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 1%). Monitor for further increases."
+
+      # Response time alerts
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "Slow response times detected"
+          description: "P95 response time is {{ $value | humanizeDuration }} (threshold: 2s). Performance degradation detected."
+          runbook: "Check database query performance, review recent code changes, and monitor system resources."
+
+      - alert: VerySlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 5
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Very slow response times detected"
+          description: "P95 response time is {{ $value | humanizeDuration }} (threshold: 5s). Critical performance issue."
+
+      # Request rate alerts
+      - alert: HighRequestRate
+        expr: rate(http_requests_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High request rate detected"
+          description: "Request rate is {{ $value }} req/s (threshold: 100 req/s). Monitor for potential DDoS or unexpected traffic."
+
+      - alert: LowRequestRate
+        expr: rate(http_requests_total[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "Unusually low request rate"
+          description: "Request rate is {{ $value }} req/s (threshold: 0.1 req/s). This may indicate a service issue or blocked traffic."
+
+      # Mobile sync alerts
+      - alert: HighSyncFailureRate
+        expr: rate(mobile_sync_failure_total[5m]) / (rate(mobile_sync_success_total[5m]) + rate(mobile_sync_failure_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: mobile-sync
+        annotations:
+          summary: "High mobile sync failure rate"
+          description: "Mobile sync failure rate is {{ $value | humanizePercentage }} (threshold: 10%). Users may experience sync issues."
+          runbook: "Check sync endpoint logs, verify database connectivity, and review recent mobile app updates."
+
+      # SLA tracking - 99.5% uptime target
+      - alert: SLABreach
+        expr: (1 - (rate(http_requests_total{status_code=~"5.."}[1h]) / rate(http_requests_total[1h]))) < 0.995
+        for: 5m
+        labels:
+          severity: critical
+          component: sla
+        annotations:
+          summary: "SLA breach: Availability below 99.5%"
+          description: "Current availability is {{ $value | humanizePercentage }} over the last hour. SLA target is 99.5%."
+          runbook: "Escalate to on-call team. Review incident timeline and prepare incident report."
+
+      # Database query performance
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "P95 database query time is {{ $value | humanizeDuration }} (threshold: 1s)."
+          runbook: "Review slow query logs, check for missing indexes, and consider query optimization."
+
+  - name: business_metrics_alerts
+    interval: 1m
+    rules:
+      # Visit creation monitoring
+      - alert: NoVisitsCreated
+        expr: increase(visits_created_total[1h]) == 0
+        for: 2h
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "No visits created in the last 2 hours"
+          description: "This may indicate a problem with visit creation functionality or unusually low activity."
+          runbook: "Verify visit creation endpoints, check for frontend errors, and confirm business hours."
+
+      # Active users monitoring
+      - alert: NoActiveUsers
+        expr: active_users == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "No active users detected"
+          description: "No active users for 30 minutes. This may indicate authentication issues or service unavailability."

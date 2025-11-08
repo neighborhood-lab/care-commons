@@ -27,6 +27,25 @@ export const dbQueryDuration = new Histogram({
   registers: [register]
 });
 
+// Database connection pool metrics
+export const dbPoolSize = new Gauge({
+  name: 'db_pool_size',
+  help: 'Total size of the database connection pool',
+  registers: [register]
+});
+
+export const dbPoolAvailable = new Gauge({
+  name: 'db_pool_available',
+  help: 'Number of available connections in the pool',
+  registers: [register]
+});
+
+export const dbPoolWaiting = new Gauge({
+  name: 'db_pool_waiting',
+  help: 'Number of clients waiting for a connection',
+  registers: [register]
+});
+
 // Business metrics
 export const visitsCreated = new Counter({
   name: 'visits_created_total',
@@ -35,9 +54,23 @@ export const visitsCreated = new Counter({
   registers: [register]
 });
 
+export const visitOperations = new Counter({
+  name: 'visit_operations_total',
+  help: 'Total visit operations',
+  labelNames: ['operation', 'status'],
+  registers: [register]
+});
+
 export const activeUsers = new Gauge({
   name: 'active_users',
   help: 'Number of currently active users',
+  registers: [register]
+});
+
+export const activeUsersByRole = new Gauge({
+  name: 'active_users_by_role',
+  help: 'Number of currently active users by role',
+  labelNames: ['role'],
   registers: [register]
 });
 

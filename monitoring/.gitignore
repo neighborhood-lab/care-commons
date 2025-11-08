@@ -1,0 +1,15 @@
+# Environment variables
+.env
+.env.local
+
+# Docker volumes and data
+*-data/
+prometheus-data/
+grafana-data/
+alertmanager-data/
+loki-data/
+
+# Temporary files
+*.log
+*.tmp
+positions.yaml

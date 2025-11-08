@@ -1,0 +1,55 @@
+# Prometheus Configuration for Care Commons
+# Scrapes metrics from the Care Commons API and monitors its health
+
+global:
+  scrape_interval: 15s  # Scrape targets every 15 seconds
+  evaluation_interval: 15s  # Evaluate rules every 15 seconds
+  external_labels:
+    cluster: 'care-commons'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load alert rules
+rule_files:
+  - '/etc/prometheus/alerts.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Care Commons API
+  - job_name: 'care-commons-api'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['host.docker.internal:3000']
+        labels:
+          service: 'api'
+          app: 'care-commons'
+    # Health check - mark as down if /health fails
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'up'
+        target_label: job
+        replacement: 'care-commons-api'
+
+  # Node Exporter (if running) - for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    # Optional - comment out if not using node-exporter
+
+  # PostgreSQL Exporter (if running) - for database metrics
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    # Optional - comment out if not using postgres-exporter

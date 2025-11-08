@@ -1,0 +1,137 @@
+# Alertmanager Configuration for Care Commons
+# Routes alerts to appropriate notification channels
+
+global:
+  # Default notification settings
+  resolve_timeout: 5m
+  # Slack webhook URL (set via environment variable or replace with actual URL)
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+# Alert routing tree
+route:
+  # Default receiver for all alerts
+  receiver: 'default'
+
+  # Group alerts by these labels
+  group_by: ['alertname', 'cluster', 'service']
+
+  # How long to wait before sending a notification about new alerts
+  group_wait: 10s
+
+  # How long to wait before sending notification about new alerts added to a group
+  group_interval: 10s
+
+  # How long to wait before re-sending a given alert
+  repeat_interval: 12h
+
+  # Child routes
+  routes:
+    # Critical alerts - immediate notification
+    - receiver: 'critical'
+      match:
+        severity: critical
+      group_wait: 0s
+      group_interval: 5m
+      repeat_interval: 4h
+      continue: false
+
+    # Warning alerts - less urgent
+    - receiver: 'warning'
+      match:
+        severity: warning
+      group_wait: 5m
+      group_interval: 10m
+      repeat_interval: 12h
+
+    # Business metrics alerts
+    - receiver: 'business'
+      match:
+        component: business
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 24h
+
+# Alert receivers (notification channels)
+receivers:
+  # Default receiver - logs only
+  - name: 'default'
+    # webhook_configs:
+    #   - url: 'http://localhost:9090/api/v1/alerts'
+
+  # Critical alerts - multiple channels
+  - name: 'critical'
+    # Slack notifications
+    slack_configs:
+      - channel: '#care-commons-alerts-critical'
+        title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |-
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Component:* {{ .Labels.component }}
+          {{ if .Annotations.runbook }}*Runbook:* {{ .Annotations.runbook }}{{ end }}
+          {{ end }}
+        send_resolved: true
+        color: 'danger'
+
+    # Email notifications (configure SMTP in global section if needed)
+    # email_configs:
+    #   - to: 'oncall@carecommons.example.com'
+    #     from: 'alerts@carecommons.example.com'
+    #     smarthost: 'smtp.example.com:587'
+    #     auth_username: 'alerts@carecommons.example.com'
+    #     auth_password: '${SMTP_PASSWORD}'
+    #     headers:
+    #       Subject: 'CRITICAL: {{ .GroupLabels.alertname }}'
+
+    # PagerDuty integration (if configured)
+    # pagerduty_configs:
+    #   - service_key: '${PAGERDUTY_SERVICE_KEY}'
+    #     description: '{{ .GroupLabels.alertname }}'
+
+  # Warning alerts - Slack only
+  - name: 'warning'
+    slack_configs:
+      - channel: '#care-commons-alerts'
+        title: '⚠️  WARNING: {{ .GroupLabels.alertname }}'
+        text: |-
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Component:* {{ .Labels.component }}
+          {{ if .Annotations.runbook }}*Runbook:* {{ .Annotations.runbook }}{{ end }}
+          {{ end }}
+        send_resolved: true
+        color: 'warning'
+
+  # Business metrics alerts
+  - name: 'business'
+    slack_configs:
+      - channel: '#care-commons-metrics'
+        title: '📊 Business Metric Alert: {{ .GroupLabels.alertname }}'
+        text: |-
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ if .Annotations.runbook }}*Action:* {{ .Annotations.runbook }}{{ end }}
+          {{ end }}
+        send_resolved: true
+        color: 'good'
+
+# Inhibit rules - prevent notification spam
+inhibit_rules:
+  # If service is down, don't alert on high error rate or slow response time
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '(HighErrorRate|SlowResponseTime|VerySlowResponseTime)'
+    equal: ['job']
+
+  # If there's a critical alert, suppress the warning version
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'component']
