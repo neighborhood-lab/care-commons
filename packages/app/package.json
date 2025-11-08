@@ -32,6 +32,8 @@
     "@care-commons/scheduling-visits": "*",
     "@care-commons/shift-matching": "*",
     "@care-commons/time-tracking-evv": "*",
+    "@types/compression": "^1.8.1",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

@@ -81,6 +81,8 @@ describe('Database Connection', () => {
         ssl: false,
         max: config.max,
         idleTimeoutMillis: config.idleTimeoutMillis,
+        connectionTimeoutMillis: 10000,
+        allowExitOnIdle: false,
       });
     });
 
@@ -114,6 +116,8 @@ describe('Database Connection', () => {
         expect.objectContaining({
           max: 20,
           idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 10000,
+          allowExitOnIdle: false,
         })
       );
     });

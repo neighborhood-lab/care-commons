@@ -9,6 +9,8 @@ export * from './types/organization.js';
 export * from './db/connection.js';
 export * from './db/repository.js';
 export * from './db/query-logger.js';
+export * from './db/query-cache.js';
+export * from './db/query-batcher.js';
 export * from './permissions/permission-service.js';
 export * from './audit/audit-service.js';
 export * from './repository/user-repository.js';

@@ -13,6 +13,8 @@ export interface DatabaseConfig {
   ssl?: boolean;
   max?: number; // Connection pool size
   idleTimeoutMillis?: number;
+  connectionTimeoutMillis?: number; // Timeout for acquiring a connection
+  allowExitOnIdle?: boolean; // Allow process to exit when pool is idle
 }
 
 export class Database {
@@ -28,6 +30,8 @@ export class Database {
       ssl: config.ssl === true ? { rejectUnauthorized: false } : false,
       max: config.max ?? 20,
       idleTimeoutMillis: config.idleTimeoutMillis ?? 30000,
+      connectionTimeoutMillis: config.connectionTimeoutMillis ?? 10000,
+      allowExitOnIdle: config.allowExitOnIdle ?? false,
     });
   }
 

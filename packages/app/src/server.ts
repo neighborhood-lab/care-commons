@@ -18,6 +18,7 @@ if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test' && process.env
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import { requestLogger, metricsMiddleware } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
@@ -52,8 +53,11 @@ function initDb(): ReturnType<typeof initializeDatabase> {
       user: url.username,
       password: url.password,
       ssl: url.searchParams.get('sslmode') === 'require',
-      max: 20,
-      idleTimeoutMillis: 30000,
+      // Optimized connection pool settings for production
+      max: NODE_ENV === 'production' ? 50 : 20, // More connections in production
+      idleTimeoutMillis: 30000, // Close idle connections after 30s
+      connectionTimeoutMillis: 10000, // Fail fast if can't get connection in 10s
+      allowExitOnIdle: false, // Keep pool alive even when idle
     };
     
     console.log('Database config:', { 
@@ -80,8 +84,11 @@ function initDb(): ReturnType<typeof initializeDatabase> {
     user: process.env['DB_USER'] ?? 'postgres',
     password: dbPassword,
     ssl: process.env['DB_SSL'] === 'true' ? true : false,
-    max: 20,
-    idleTimeoutMillis: 30000,
+    // Optimized connection pool settings for production
+    max: NODE_ENV === 'production' ? 50 : 20, // More connections in production
+    idleTimeoutMillis: 30000, // Close idle connections after 30s
+    connectionTimeoutMillis: 10000, // Fail fast if can't get connection in 10s
+    allowExitOnIdle: false, // Keep pool alive even when idle
   };
 
   console.log(`Initializing database: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
@@ -108,6 +115,20 @@ function setupMiddleware(): void {
 
   // Additional security headers (complements helmet)
   app.use(securityHeaders);
+
+  // Response compression (gzip)
+  app.use(compression({
+    filter: (req, res) => {
+      // Don't compress if client doesn't support it
+      if (req.headers['x-no-compression'] !== undefined) {
+        return false;
+      }
+      // Use compression for all responses
+      return compression.filter(req, res);
+    },
+    level: 6, // Balanced compression level (1-9, higher = better compression but slower)
+    threshold: 1024, // Only compress responses larger than 1KB
+  }));
 
   // CORS - restrict to allowed origins in production
   const allowedOrigins = process.env['CORS_ORIGIN']?.split(',').map(o => o.trim()).filter(Boolean) ?? [];
