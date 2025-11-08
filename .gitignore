@@ -1,6 +1,6 @@
 .turbo/
 .idea/
-
+attic/
 .vscode/
 care-commons.code-workspace
 
