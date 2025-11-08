@@ -17,11 +17,12 @@ if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test' && process.env
 
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import { requestLogger, metricsMiddleware } from '@care-commons/core';
+import cookieParser from 'cookie-parser';
+import { requestLogger, metricsMiddleware, sanitizeInput } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
-import { securityHeaders } from './middleware/security-headers.js';
+import { configureSecurityHeaders } from './middleware/security-headers.js';
+import { configureCsrfProtection } from './middleware/csrf.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index.js';
 
@@ -93,20 +94,11 @@ function initDb(): ReturnType<typeof initializeDatabase> {
 function setupMiddleware(): void {
   // Note: Sentry request tracking is handled via expressIntegration in initializeErrorTracking
 
-  // Security headers - use default secure configuration
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
-      },
-    },
-  }));
+  // Security headers - comprehensive protection using Helmet
+  configureSecurityHeaders(app);
 
-  // Additional security headers (complements helmet)
-  app.use(securityHeaders);
+  // Cookie parser (required for CSRF protection)
+  app.use(cookieParser());
 
   // CORS - restrict to allowed origins in production
   const allowedOrigins = process.env['CORS_ORIGIN']?.split(',').map(o => o.trim()).filter(Boolean) ?? [];
@@ -157,6 +149,12 @@ function setupMiddleware(): void {
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // Input sanitization (XSS and SQL injection protection)
+  app.use(sanitizeInput);
+
+  // CSRF protection for state-changing operations
+  configureCsrfProtection(app);
 
   // User context extraction
   app.use(authContextMiddleware);

@@ -24,6 +24,7 @@ export * from './middleware/request-logger.js';
 export * from './middleware/metrics.js';
 export * from './middleware/validation.js';
 export * from './middleware/csrf.js';
+export * from './middleware/sanitize-input.js';
 export * from './utils/password-utils.js';
 export * from './utils/jwt-utils.js';
 export * from './utils/date.utils.js';

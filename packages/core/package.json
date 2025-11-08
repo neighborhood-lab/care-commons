@@ -80,6 +80,7 @@
     "@types/luxon": "^3.4.2",
     "@types/node": "^24.10.0",
     "@types/pg": "^8.15.6",
+    "@types/zxcvbn": "^4.4.5",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitest/coverage-v8": "^4.0.8",
