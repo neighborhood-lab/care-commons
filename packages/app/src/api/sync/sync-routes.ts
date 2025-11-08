@@ -8,6 +8,7 @@ import { Router } from 'express';
 import type { Database } from '@care-commons/core';
 import { AuthMiddleware } from '@care-commons/core';
 import { createSyncHandlers } from './sync-handlers.js';
+import { syncLimiter } from '../../middleware/rate-limit.js';
 
 export function createSyncRouter(db: Database): Router {
   const router = Router();
@@ -21,14 +22,14 @@ export function createSyncRouter(db: Database): Router {
    * Pull changes from server
    * GET /api/sync/pull?lastPulledAt=<timestamp>&entities=VISIT,TASK&organizationId=<uuid>
    */
-  router.get('/pull', syncHandlers.handlePullChanges);
+  router.get('/pull', syncLimiter, syncHandlers.handlePullChanges);
 
   /**
    * Push local changes to server
    * POST /api/sync/push
    * Body: { changes: [...], deviceId: "...", timestamp: 123, organizationId: "..." }
    */
-  router.post('/push', syncHandlers.handlePushChanges);
+  router.post('/push', syncLimiter, syncHandlers.handlePushChanges);
 
   /**
    * Get sync status
