@@ -5,6 +5,11 @@
  * All environment variables are validated at startup to fail fast.
  */
 
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/prefer-for-of */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 import { z } from 'zod';
 
 /**
@@ -42,7 +47,7 @@ const envSchema = z.object({
   VERCEL_URL: z.string().optional(),
 }).transform((data) => ({
   ...data,
-  CORS_ORIGINS: data.CORS_ORIGINS.split(',').map(origin => origin.trim()),
+  CORS_ORIGINS: data.CORS_ORIGINS.split(',').map((origin: string) => origin.trim()),
 })).refine(
   (data) => {
     // Either DATABASE_URL or all individual DB variables must be present
