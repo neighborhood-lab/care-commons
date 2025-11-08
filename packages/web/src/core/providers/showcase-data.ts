@@ -44,6 +44,14 @@ export const DEMO_USERS: DemoUser[] = [
     roles: ['BILLING'],
     permissions: ['billing:read', 'billing:write', 'payroll:read', 'payroll:write'],
   },
+  {
+    id: 'user-family-1',
+    email: 'family@carecommons.example',
+    password: 'Family123!',
+    name: 'Stein Family',
+    roles: ['FAMILY'],
+    permissions: ['clients:read', 'visits:read', 'care-plans:read', 'schedules:read'],
+  },
 ];
 
 export const DEMO_CLIENTS = [
