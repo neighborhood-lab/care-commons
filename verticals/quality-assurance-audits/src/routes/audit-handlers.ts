@@ -87,7 +87,7 @@ export function createAuditRoutes(auditService: AuditService, router: Router): R
         return res.status(400).json({ error: 'Audit ID is required' });
       }
 
-      const audit = await auditService.getAuditDetail(id, context);
+      const audit = await auditService.getAudit(id, context);
       if (!audit) {
         return res.status(404).json({ error: 'Audit not found' });
       }
@@ -96,6 +96,33 @@ export function createAuditRoutes(auditService: AuditService, router: Router): R
     } catch (error) {
       console.error('Error fetching audit:', error);
       return res.status(500).json({ error: 'Failed to fetch audit' });
+    }
+  });
+
+  /**
+   * GET /api/audits/:id/detail - Get audit with findings and corrective actions
+   */
+  router.get('/audits/:id/detail', async (req: Request, res: Response) => {
+    try {
+      const context = (req as Request & { userContext?: UserContext }).userContext;
+      if (!context) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Audit ID is required' });
+      }
+
+      const audit = await auditService.getAuditDetail(id, context);
+      if (!audit) {
+        return res.status(404).json({ error: 'Audit not found' });
+      }
+
+      return res.json(audit);
+    } catch (error) {
+      console.error('Error fetching audit details:', error);
+      return res.status(500).json({ error: 'Failed to fetch audit details' });
     }
   });
 
@@ -481,6 +508,51 @@ export function createAuditRoutes(auditService: AuditService, router: Router): R
     } catch (error) {
       console.error('Error fetching overdue actions:', error);
       return res.status(500).json({ error: 'Failed to fetch overdue actions' });
+    }
+  });
+
+  // ============================================================================
+  // Template Routes
+  // ============================================================================
+
+  /**
+   * GET /api/audits/templates - Get all audit templates
+   */
+  router.get('/audits/templates', async (req: Request, res: Response) => {
+    try {
+      const context = (req as Request & { userContext?: UserContext }).userContext;
+      if (!context) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      // TODO: Implement template service integration
+      return res.json([]);
+    } catch (error) {
+      console.error('Error fetching audit templates:', error);
+      return res.status(500).json({ error: 'Failed to fetch audit templates' });
+    }
+  });
+
+  /**
+   * GET /api/audits/templates/:id - Get audit template by ID
+   */
+  router.get('/audits/templates/:id', async (req: Request, res: Response) => {
+    try {
+      const context = (req as Request & { userContext?: UserContext }).userContext;
+      if (!context) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Template ID is required' });
+      }
+
+      // TODO: Implement template service integration
+      return res.status(404).json({ error: 'Template not found' });
+    } catch (error) {
+      console.error('Error fetching audit template:', error);
+      return res.status(500).json({ error: 'Failed to fetch audit template' });
     }
   });
 
