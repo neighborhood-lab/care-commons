@@ -20,7 +20,7 @@ import type {
   ClockOutInput,
 } from '../shared/index.js';
 
-export type QueueOperationType = 'CLOCK_IN' | 'CLOCK_OUT' | 'UPDATE_EVV' | 'SYNC_VISIT';
+export type QueueOperationType = 'CLOCK_IN' | 'CLOCK_OUT' | 'UPDATE_EVV' | 'SYNC_VISIT' | 'UPLOAD_MEDIA' | 'UPLOAD_SIGNATURE';
 export type QueueStatus = 'PENDING' | 'IN_PROGRESS' | 'FAILED' | 'COMPLETED';
 
 export interface QueuedOperation {
@@ -55,7 +55,9 @@ const DEFAULT_CONFIG: OfflineQueueConfig = {
   priorityLevels: {
     CLOCK_IN: 100, // Highest priority
     CLOCK_OUT: 90,
+    UPLOAD_SIGNATURE: 80, // High priority - needed for EVV compliance
     UPDATE_EVV: 50,
+    UPLOAD_MEDIA: 40, // Photos can wait a bit
     SYNC_VISIT: 30,
   },
   apiBaseUrl: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api',
@@ -113,7 +115,7 @@ export class OfflineQueueService {
    */
   async queueClockOut(input: ClockOutInput): Promise<string> {
     const operationId = this.generateOperationId();
-    
+
     await this.database.write(async () => {
       const syncQueue = this.database.collections.get('sync_queue');
       await syncQueue.create((record: any) => {
@@ -123,6 +125,64 @@ export class OfflineQueueService {
         record.entityId = input.visitId;
         record.payloadJson = JSON.stringify(input);
         record.priority = this.config.priorityLevels.CLOCK_OUT;
+        record.retryCount = 0;
+        record.maxRetries = this.config.maxRetries;
+        record.status = 'PENDING';
+        record.createdAt = Date.now();
+        record.updatedAt = Date.now();
+      });
+    });
+
+    // Trigger sync if online
+    void this.trySync();
+
+    return operationId;
+  }
+
+  /**
+   * Queue a media upload (photo) for offline processing
+   */
+  async queueMediaUpload(mediaId: string, visitId: string, payload: Record<string, any>): Promise<string> {
+    const operationId = this.generateOperationId();
+
+    await this.database.write(async () => {
+      const syncQueue = this.database.collections.get('sync_queue');
+      await syncQueue.create((record: any) => {
+        record.id = operationId;
+        record.operationType = 'UPLOAD_MEDIA';
+        record.entityType = 'MEDIA';
+        record.entityId = mediaId;
+        record.payloadJson = JSON.stringify({ ...payload, visitId, mediaId });
+        record.priority = this.config.priorityLevels.UPLOAD_MEDIA;
+        record.retryCount = 0;
+        record.maxRetries = this.config.maxRetries;
+        record.status = 'PENDING';
+        record.createdAt = Date.now();
+        record.updatedAt = Date.now();
+      });
+    });
+
+    // Trigger sync if online
+    void this.trySync();
+
+    return operationId;
+  }
+
+  /**
+   * Queue a signature upload for offline processing
+   */
+  async queueSignatureUpload(signatureId: string, evvRecordId: string, payload: Record<string, any>): Promise<string> {
+    const operationId = this.generateOperationId();
+
+    await this.database.write(async () => {
+      const syncQueue = this.database.collections.get('sync_queue');
+      await syncQueue.create((record: any) => {
+        record.id = operationId;
+        record.operationType = 'UPLOAD_SIGNATURE';
+        record.entityType = 'MEDIA';
+        record.entityId = signatureId;
+        record.payloadJson = JSON.stringify({ ...payload, evvRecordId, signatureId });
+        record.priority = this.config.priorityLevels.UPLOAD_SIGNATURE;
         record.retryCount = 0;
         record.maxRetries = this.config.maxRetries;
         record.status = 'PENDING';
@@ -210,6 +270,12 @@ export class OfflineQueueService {
         break;
       case 'SYNC_VISIT':
         await this.processSyncVisit(payload);
+        break;
+      case 'UPLOAD_MEDIA':
+        await this.processMediaUpload(payload);
+        break;
+      case 'UPLOAD_SIGNATURE':
+        await this.processSignatureUpload(payload);
         break;
       default:
         throw new Error(`Unknown operation type: ${operation.operationType}`);
@@ -324,6 +390,69 @@ export class OfflineQueueService {
 
     const result = await response.json();
     console.log('Visit sync successful:', result);
+  }
+
+  /**
+   * Process media upload (photo) operation
+   */
+  private async processMediaUpload(payload: any): Promise<void> {
+    const response = await this.apiRequest('POST', '/media/upload', payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`Media upload failed: ${error.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Media upload successful:', result);
+
+    // Update media record in database with server URL
+    if (result.serverUrl) {
+      await this.updateMediaRecord(payload.mediaId, result.serverUrl);
+    }
+  }
+
+  /**
+   * Process signature upload operation
+   */
+  private async processSignatureUpload(payload: any): Promise<void> {
+    const response = await this.apiRequest('POST', '/media/signature', payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`Signature upload failed: ${error.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Signature upload successful:', result);
+
+    // Update media record and EVV record with signature URL
+    if (result.serverUrl) {
+      await this.updateMediaRecord(payload.signatureId, result.serverUrl);
+    }
+  }
+
+  /**
+   * Update media record with server URL after successful upload
+   */
+  private async updateMediaRecord(mediaId: string, serverUrl: string): Promise<void> {
+    try {
+      const mediaCollection = this.database.collections.get('media');
+      const mediaRecord = await mediaCollection.find(mediaId);
+
+      await this.database.write(async () => {
+        await mediaRecord.update((record: any) => {
+          record.serverUrl = serverUrl;
+          record.uploadStatus = 'UPLOADED';
+          record.uploadProgress = 100;
+          record.uploadedAt = Date.now();
+          record.updatedAt = Date.now();
+        });
+      });
+    } catch (error) {
+      console.error('Failed to update media record:', error);
+      // Don't throw - the upload was successful even if we can't update the record
+    }
   }
 
   /**
