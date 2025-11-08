@@ -9,6 +9,10 @@
   "engines": {
     "node": "22.x"
   },
+  "overrides": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1"
+  },
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config vite.config.showcase.ts",
@@ -46,8 +50,8 @@
     "@tailwindcss/postcss": "^4.1.17",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitejs/plugin-react": "^5.1.0",

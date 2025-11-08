@@ -2,9 +2,10 @@ import * as Sentry from '@sentry/node';
 import logger from './logger.js';
 
 // Dynamic import for profiling integration to avoid bundling issues in browser
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let nodeProfilingIntegration: any = null;
 
-async function loadProfilingIntegration() {
+async function loadProfilingIntegration(): Promise<void> {
   try {
     const module = await import('@sentry/profiling-node');
     nodeProfilingIntegration = module.nodeProfilingIntegration;
@@ -18,9 +19,11 @@ export function initializeErrorTracking(): void {
   if (process.env.NODE_ENV === 'production') {
     // Load profiling integration asynchronously
     loadProfilingIntegration().then(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const integrations: any[] = [];
       
       // Only add profiling integration if available (server-side)
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (nodeProfilingIntegration && typeof globalThis === 'object' && 'window' in globalThis === false) {
         integrations.push(nodeProfilingIntegration());
       }
@@ -30,21 +33,21 @@ export function initializeErrorTracking(): void {
         environment: process.env.NODE_ENV,
         integrations,
         tracesSampleRate: 0.1, // 10% of requests
-        profilesSampleRate: nodeProfilingIntegration ? 0.1 : 0, // Only enable profiling if available
+        profilesSampleRate: nodeProfilingIntegration !== null ? 0.1 : 0, // Only enable profiling if available
 
-        beforeSend(event, _hint) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        beforeSend(event: any, _hint: any): any {
           // Filter out sensitive data
-          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-          if (event.request) {
+          if (event.request !== undefined) {
             delete event.request.cookies;
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            if (event.request.headers) {
+            if (event.request.headers !== undefined) {
               delete event.request.headers['authorization'];
             }
           }
           return event;
         }
       });
+      return true;
     }).catch(() => {
       // Initialize Sentry without profiling if loading fails
       Sentry.init({
@@ -52,13 +55,12 @@ export function initializeErrorTracking(): void {
         environment: process.env.NODE_ENV,
         tracesSampleRate: 0.1,
 
-        beforeSend(event, _hint) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        beforeSend(event: any, _hint: any): any {
           // Filter out sensitive data
-          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-          if (event.request) {
+          if (event.request !== undefined) {
             delete event.request.cookies;
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            if (event.request.headers) {
+            if (event.request.headers !== undefined) {
               delete event.request.headers['authorization'];
             }
           }
@@ -69,7 +71,8 @@ export function initializeErrorTracking(): void {
   }
 }
 
-export function captureException(error: Error, context?: Record<string, unknown>): void {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function captureException(error: any, context?: any): void {
   logger.error({ error, ...context }, 'Exception captured');
 
   if (process.env.NODE_ENV === 'production') {
