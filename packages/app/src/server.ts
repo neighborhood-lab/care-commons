@@ -22,6 +22,7 @@ import { requestLogger, metricsMiddleware } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
+import { generalApiLimiter } from './middleware/rate-limit.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index.js';
 
@@ -160,6 +161,9 @@ function setupMiddleware(): void {
 
   // User context extraction
   app.use(authContextMiddleware);
+
+  // Apply general rate limiter to all API routes
+  app.use('/api', generalApiLimiter);
 }
 
 /**
