@@ -25,15 +25,15 @@ export function createAnalyticsRouter(db: Database): Router {
       const context = req.userContext!;
       const service = new AnalyticsService(db);
 
-      const startDate = req.query['startDate']
+      const startDate = req.query['startDate'] !== undefined
         ? new Date(req.query['startDate'] as string)
         : new Date(new Date().setDate(new Date().getDate() - 30));
-      const endDate = req.query['endDate']
+      const endDate = req.query['endDate'] !== undefined
         ? new Date(req.query['endDate'] as string)
         : new Date();
 
       const options: AnalyticsQueryOptions = {
-        organizationId: (req.query['organizationId'] as string) ?? context.organizationId!,
+        organizationId: (req.query['organizationId'] as string) || context.organizationId!,
         branchId: req.query['branchId'] as string | undefined,
         dateRange: { startDate, endDate },
         includeSubBranches: req.query['includeSubBranches'] === 'true',
@@ -57,7 +57,7 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) ?? context.organizationId!;
+        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
 
         const alerts = await service.getComplianceAlerts(orgId, branchId, context);
@@ -79,9 +79,9 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) ?? context.organizationId!;
+        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
-        const months = parseInt((req.query['months'] as string) ?? '12', 10);
+        const months = parseInt((req.query['months'] as string) || '12', 10);
 
         const trends = await service.getRevenueTrends(orgId, months, branchId, context);
         res.json(trends);
@@ -102,10 +102,10 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const startDate = req.query['startDate']
+        const startDate = req.query['startDate'] !== undefined
           ? new Date(req.query['startDate'] as string)
           : new Date(new Date().setDate(new Date().getDate() - 30));
-        const endDate = req.query['endDate']
+        const endDate = req.query['endDate'] !== undefined
           ? new Date(req.query['endDate'] as string)
           : new Date();
 
@@ -133,7 +133,7 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) ?? context.organizationId!;
+        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
 
         const exceptions = await service.getEVVExceptions(orgId, branchId, context);
@@ -155,7 +155,7 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) ?? context.organizationId!;
+        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
 
         const stats = await service.getDashboardStats(orgId, branchId, context);
@@ -293,12 +293,7 @@ export function createAnalyticsRouter(db: Database): Router {
 
         res.setHeader('Content-Type', mimeType);
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
-        if (typeof exportData === 'string') {
-          res.send(exportData);
-        } else {
-          res.send(exportData);
-        }
+        res.send(exportData);
       } catch (error) {
         next(error);
       }
