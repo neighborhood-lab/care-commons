@@ -6,7 +6,15 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Use the new JSX runtime
+      jsxImportSource: 'react',
+      babel: {
+        plugins: [],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -18,6 +26,18 @@ export default defineConfig({
         '../shared-components/src'
       ),
     },
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
+    exclude: [
+      '@sentry-internal/node-cpu-profiler',
+      '@sentry/profiling-node',
+      '@sentry/node',
+      '@sentry/node-core',
+      '@sentry/tracing',
+      '@sentry-internal/tracing',
+    ],
+    force: true,
   },
   server: {
     port: 5173,
@@ -32,21 +52,50 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     chunkSizeWarningLimit: 1000,
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       external: [
-        // Exclude Node.js-specific Sentry modules that have native bindings
-        '@sentry/profiling-node',
+        // Sentry Node.js modules with native bindings
         '@sentry-internal/node-cpu-profiler',
+        '@sentry/profiling-node',
+        '@sentry/node',
         '@sentry/node-core',
-        // Exclude Node.js built-in modules that shouldn't be in browser bundle
+        '@sentry/tracing',
+        '@sentry-internal/tracing',
+        // Native Node.js modules (pattern matching)
+        /sentry_cpu_profiler.*\.node$/,
+        // Node.js built-in modules that shouldn't be in browser bundle
         /^node:/,
-        'worker_threads',
-        'diagnostics_channel',
-        'module',
         'crypto',
+        'stream',
+        'util',
+        'net',
+        'url',
         'fs',
-        'path',
         'os',
+        'path',
+        'buffer',
+        'events',
+        'process',
+        'worker_threads',
+        'child_process',
+        'cluster',
+        'querystring',
+        'tls',
+        'zlib',
+        'perf_hooks',
+        'v8',
+        'dns',
+        'string_decoder',
+        'http',
+        'https',
+        'diagnostics_channel',
+        'readline',
+        'timers',
+        'module',
       ],
       output: {
         manualChunks: {

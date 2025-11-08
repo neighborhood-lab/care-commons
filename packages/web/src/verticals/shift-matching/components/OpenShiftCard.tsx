@@ -47,6 +47,7 @@ export const OpenShiftCard: React.FC<OpenShiftCardProps> = ({ shift, compact = f
 
       <div className="space-y-2 text-sm text-gray-600">
         <div className="flex items-center gap-2">
+          {/* @ts-ignore */}
           <Clock className="h-4 w-4" />
           <span>
             {shift.startTime} - {shift.endTime} ({formatDuration(shift.duration)})

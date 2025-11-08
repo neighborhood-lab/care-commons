@@ -1,14 +1,29 @@
-import { performance } from 'node:perf_hooks';
 import logger from './logger.js';
 
+// Use browser performance API if available, otherwise minimal fallback
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const getPerformance = () => {
+  if (typeof globalThis.performance !== 'undefined') {
+    return globalThis.performance;
+  }
+  // Minimal fallback that works everywhere
+  return {
+    now: () => new Date().getTime()
+  };
+};
+
+const performance = getPerformance();
+
 export class PerformanceMonitor {
-  private static timers = new Map<string, number>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static timers = new Map<string, any>();
 
   static start(label: string): void {
     this.timers.set(label, performance.now());
   }
 
-  static end(label: string, context?: Record<string, unknown>): number | undefined {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static end(label: string, context?: any): number | undefined {
     const start = this.timers.get(label);
     if (start === undefined) {
       logger.warn({ label }, 'Performance timer not found');
@@ -36,11 +51,8 @@ export class PerformanceMonitor {
     return duration;
   }
 
-  static async measure<T>(
-    label: string,
-    fn: () => Promise<T>,
-    context?: Record<string, unknown>
-  ): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static async measure<T>(label: string, fn: () => Promise<T>, context?: any): Promise<T> {
     this.start(label);
     try {
       return await fn();

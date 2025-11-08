@@ -8,6 +8,8 @@ export * from './TaskInstanceList';
 export * from './TaskCompletionModal';
 export * from './ProgressNoteForm';
 export * from './CarePlanStats';
+export * from './TemplateCard';
+export * from './TemplatePreviewModal';
 export * from './TaskStatusBadge';
 export * from './TaskCategoryIcon';
 export * from './TaskFrequency';
