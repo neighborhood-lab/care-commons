@@ -161,3 +161,76 @@ export type VisitFormData = z.infer<typeof visitSchema>;
 export type CarePlanFormData = z.infer<typeof carePlanSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+/**
+ * Boolean validation helpers (for non-Zod contexts)
+ * These provide simple true/false validation for common patterns
+ */
+export const validationHelpers = {
+  /**
+   * Validate email format
+   * Uses a simple, safe regex that avoids backtracking vulnerabilities
+   */
+  isEmail: (email: string): boolean => {
+    // Simple email validation without vulnerable backtracking patterns
+    const emailRegex = /^[\w%+.-]+@[\d.A-Za-z-]+\.[A-Za-z]{2,}$/;
+    return emailRegex.test(email);
+  },
+
+  /**
+   * Validate US phone number format
+   */
+  isPhone: (phone: string): boolean => {
+    const phoneRegex = /^\(?(\d{3})\)?[ .-]?(\d{3})[ .-]?(\d{4})$/;
+    return phoneRegex.test(phone);
+  },
+
+  /**
+   * Validate US ZIP code format
+   */
+  isZipCode: (zip: string): boolean => {
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    return zipRegex.test(zip);
+  },
+
+  /**
+   * Validate SSN format (with or without dashes)
+   */
+  isSSN: (ssn: string): boolean => {
+    const ssnRegex = /^\d{3}-?\d{2}-?\d{4}$/;
+    return ssnRegex.test(ssn);
+  },
+
+  /**
+   * Check if value is empty (null, undefined, empty string/array/object)
+   */
+  isEmpty: (value: unknown): boolean => {
+    if (value == null) return true;
+    if (typeof value === 'string') return value.trim() === '';
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === 'object') return Object.keys(value).length === 0;
+    return false;
+  },
+
+  /**
+   * Validate date is a valid Date object or parseable string
+   */
+  isValidDate: (date: string | Date): boolean => {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return d instanceof Date && !isNaN(d.getTime());
+  },
+
+  /**
+   * Check minimum length
+   */
+  minLength: (value: string, min: number): boolean => {
+    return value.length >= min;
+  },
+
+  /**
+   * Check maximum length
+   */
+  maxLength: (value: string, max: number): boolean => {
+    return value.length <= max;
+  },
+};

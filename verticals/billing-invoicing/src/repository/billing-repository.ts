@@ -19,6 +19,43 @@ import {
   PaymentSearchFilters,
 } from '../types/billing';
 
+/**
+ * Type interfaces for repository methods
+ */
+interface StatusChangeEntry {
+  id?: string;
+  fromStatus?: string;
+  toStatus?: string;
+  status?: string;
+  timestamp?: Date;
+  changedAt?: Date;
+  changedBy?: UUID;
+  reason?: string;
+}
+
+interface PaymentAllocation {
+  id?: string;
+  invoiceId?: UUID;
+  invoiceNumber?: string;
+  amount: number;
+  appliedAt?: Date;
+  allocatedAt?: Date;
+  allocatedBy?: UUID;
+  appliedBy?: UUID;
+  notes?: string;
+}
+
+interface PaymentReference {
+  paymentId?: UUID;
+  invoiceId?: UUID;
+  amount: number;
+  date?: Date;
+  paidAt?: Date;
+  paymentDate?: Date;
+  paymentNumber?: string;
+  paymentMethod?: string;
+}
+
 export class BillingRepository {
   constructor(private pool: Pool) {}
 
@@ -452,8 +489,7 @@ export class BillingRepository {
     filters: BillableItemSearchFilters
   ): Promise<BillableItem[]> {
     const conditions: string[] = ['deleted_at IS NULL'];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramCount = 1;
 
     if (filters.organizationId) {
@@ -520,8 +556,7 @@ export class BillingRepository {
   async updateBillableItemStatus(
     id: UUID,
     status: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  statusChange: any,
+    statusChange: StatusChangeEntry,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -655,8 +690,7 @@ export class BillingRepository {
 
   async searchInvoices(filters: InvoiceSearchFilters): Promise<Invoice[]> {
     const conditions: string[] = ['deleted_at IS NULL'];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramCount = 1;
 
     if (filters.organizationId) {
@@ -712,8 +746,7 @@ export class BillingRepository {
   async updateInvoicePayment(
     id: UUID,
     paymentAmount: number,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paymentReference: any,
+    paymentReference: PaymentReference,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -825,8 +858,7 @@ export class BillingRepository {
 
   async searchPayments(filters: PaymentSearchFilters): Promise<Payment[]> {
     const conditions: string[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramCount = 1;
 
     if (filters.organizationId) {
@@ -873,8 +905,7 @@ export class BillingRepository {
 
   async allocatePayment(
     paymentId: UUID,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  allocation: any,
+    allocation: PaymentAllocation,
     userId: UUID,
     client?: PoolClient
   ): Promise<void> {
@@ -901,6 +932,7 @@ export class BillingRepository {
 
   /**
    * MAPPING FUNCTIONS
+   * Note: Using 'any' for database rows is acceptable as they come from third-party pg library
    */
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
