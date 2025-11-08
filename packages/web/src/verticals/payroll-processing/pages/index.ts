@@ -5,3 +5,8 @@ export * from './PayStubDetail';
 export * from './PayPeriodManagement';
 export * from './PayrollReports';
 export * from './CaregiverPayStubs';
+export * from './PayrollRunPage';
+export * from './PayStubsPage';
+export * from './TaxReportsPage';
+export * from './DeductionsManagementPage';
+export * from './DirectDepositPage';

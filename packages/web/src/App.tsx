@@ -8,7 +8,15 @@ import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
-import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
+import {
+  PayRunList,
+  PayRunDetail,
+  PayrollRunPage,
+  PayStubsPage,
+  TaxReportsPage,
+  DeductionsManagementPage,
+  DirectDepositPage
+} from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
@@ -253,11 +261,61 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/payroll/run/new"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayrollRunPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/payroll/runs/:id"
         element={
           <ProtectedRoute>
             <AppShell>
               <PayRunDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/stubs"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayStubsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/reports/tax"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <TaxReportsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/deductions"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <DeductionsManagementPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/caregiver/direct-deposit"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <DirectDepositPage />
             </AppShell>
           </ProtectedRoute>
         }
