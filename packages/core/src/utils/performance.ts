@@ -1,5 +1,17 @@
-import { performance } from 'node:perf_hooks';
 import logger from './logger.js';
+
+// Use browser performance API if available, otherwise minimal fallback
+const getPerformance = () => {
+  if (typeof globalThis.performance !== 'undefined') {
+    return globalThis.performance;
+  }
+  // Minimal fallback that works everywhere
+  return {
+    now: () => Date.now()
+  };
+};
+
+const performance = getPerformance();
 
 export class PerformanceMonitor {
   private static timers = new Map<string, number>();
