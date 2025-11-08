@@ -65,7 +65,8 @@ export function VisitHistoryScreen() {
   const loadVisits = async () => {
     setIsLoading(true);
     try {
-      // TODO: Load from WatermelonDB
+      // TODO(future/integration): Load from WatermelonDB
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058
       // const db = await getDatabase();
       // const visits = await db.collections.get('visits')
       //   .query(Q.where('status', 'COMPLETED'))
@@ -257,7 +258,8 @@ export function VisitHistoryScreen() {
   };
 
   const handleExport = () => {
-    // TODO: Implement export functionality
+    // TODO(future/feature): Implement export functionality
+    //   Deferred: Nice-to-have feature
     Alert.alert(
       'Export Visits',
       `Export ${filteredVisits.length} visit${filteredVisits.length !== 1 ? 's' : ''} to CSV?`,

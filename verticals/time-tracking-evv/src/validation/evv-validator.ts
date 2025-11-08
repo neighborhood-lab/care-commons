@@ -694,7 +694,9 @@ export class EVVValidator {
 
         // Check client signature requirement
         if (mco.requiresClientSignature) {
-          // TODO: Implement client signature validation once EVVRecord type is extended
+          // TODO(p2/feature): Implement client signature validation once EVVRecord type is extended
+          //   Status: Not yet tracked
+          //   Impact: Client signature validation not enforced
           // In production, check if signature exists on record
           // if (!record.clientSignature) {
           //   issues.push({
@@ -711,7 +713,9 @@ export class EVVValidator {
 
         // Check photo verification requirement
         if (mco.requiresPhotoVerification) {
-          // TODO: Implement photo verification validation once EVVRecord type is extended
+          // TODO(p2/feature): Implement photo verification validation once EVVRecord type is extended
+          //   Status: Not yet tracked
+          //   Impact: Photo verification validation not enforced
           // In production, check if photo exists on record
           // if (!record.photoVerification) {
           //   issues.push({

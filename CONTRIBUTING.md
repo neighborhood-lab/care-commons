@@ -128,6 +128,83 @@ This project enforces strict quality standards at two levels:
 - Include usage examples
 - Keep documentation up to date with code changes
 
+### TODO Comment Policy
+
+#### When to Add a TODO
+
+✅ **Do add TODOs for:**
+- Incomplete features that need finishing
+- Known performance issues
+- Missing error handling
+- Planned refactorings
+- Integration points not yet wired
+
+❌ **Don't add TODOs for:**
+- Things you could fix right now (fix it instead)
+- Vague ideas without clear action items
+- Features not yet approved
+- Nice-to-have enhancements (use backlog instead)
+
+#### TODO Format
+
+Use this format for all TODOs:
+
+```typescript
+// TODO(priority/type): Clear description of what needs to be done
+//   Status: Tracked in Task XXXX | Not yet tracked
+//   Impact: What happens if this isn't fixed
+//   Estimate: Time estimate if known
+```
+
+**Priorities:**
+- `p0` - Production blocker, must fix before launch
+- `p1` - Important, should fix soon (within 2 weeks)
+- `p2` - Medium priority, fix when time permits
+- `future` - Planned enhancement, defer to backlog
+
+**Types:**
+- `integration` - Missing service/data integration
+- `optimization` - Performance improvement
+- `feature` - Incomplete feature
+- `bug` - Known issue
+- `security` - Security concern
+- `refactor` - Code quality
+- `test` - Missing tests
+- `a11y` - Accessibility
+
+#### Examples
+
+Good:
+```typescript
+// TODO(p0/integration): Implement actual HTTP POST to EVV aggregator
+//   Status: Tracked in Task 0049
+//   Impact: EVV records not submitted - compliance failure
+//   Estimate: 1 week
+```
+
+Bad:
+```typescript
+// TODO: fix this later
+```
+
+#### TODO Lifecycle
+
+1. **Add TODO** with proper format
+2. **Create tracking task** in `claude/layer-2/input/` if P0 or P1
+3. **Update TODO** with task number
+4. **Remove TODO** when work is complete
+5. **Archive completed TODOs** in `docs/TODO_CHANGELOG.md`
+
+#### Monthly TODO Review
+
+On the 1st of each month:
+- Review all P0/P1 TODOs for progress
+- Downgrade stale P1 TODOs to P2
+- Remove obsolete TODOs
+- Update task references
+
+Use `npm run todo:stats` to see current TODO statistics.
+
 ## Project Structure
 
 ```

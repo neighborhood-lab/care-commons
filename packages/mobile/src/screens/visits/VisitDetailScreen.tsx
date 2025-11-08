@@ -37,7 +37,8 @@ export function VisitDetailScreen() {
   const loadVisit = useCallback(async () => {
     setIsLoading(true);
     try {
-      // TODO: Load from WatermelonDB
+      // TODO(future/integration): Load from WatermelonDB
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058
       // const db = await getDatabase();
       // const visit = await db.collections.get('visits').find(visitId);
 
@@ -117,7 +118,8 @@ export function VisitDetailScreen() {
   };
 
   const handleCallClient = () => {
-    // TODO: Add phone number to visit data
+    // TODO(future/feature): Add phone number to visit data
+    //   Deferred: Nice-to-have feature
     Alert.alert('Call Client', 'Phone number not available');
   };
 

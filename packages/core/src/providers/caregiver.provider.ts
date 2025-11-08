@@ -257,7 +257,8 @@ export class CaregiverProvider implements ICaregiverProvider {
   async getAvailableCaregivers(_startTime: Date, _endTime: Date, branchId?: UUID): Promise<Caregiver[]> {
     // Simplified implementation: returns active caregivers not currently assigned
     // Full implementation would check against visit schedules, availability records, etc.
-    // TODO: Implement actual availability checking using startTime and endTime
+    // TODO(future/feature): Implement actual availability checking using startTime and endTime
+    //   Deferred: Caregiver availability validation
     const whereClauses: string[] = ["status = 'ACTIVE'", 'deleted_at IS NULL'];
     const params: unknown[] = [];
     let paramIndex = 1;
@@ -270,7 +271,8 @@ export class CaregiverProvider implements ICaregiverProvider {
 
     const whereClause = whereClauses.join(' AND ');
 
-    // TODO: In a full implementation, this would join with visits table
+    // TODO(future/optimization): In a full implementation, this would join with visits table
+    //   Deferred: Query optimization opportunity
     // to exclude caregivers with overlapping assignments
     const query = `
       SELECT

@@ -306,7 +306,9 @@ export class EVVAggregatorService {
         continue;
       }
 
-      // TODO: Retry the submission
+      // TODO(p2/feature): Retry the submission
+      //   Status: Not yet tracked
+      //   Impact: No automatic retry on submission failures
       // This would fetch the config and resend
     }
   }
@@ -358,7 +360,9 @@ export class EVVAggregatorService {
     _payload: HHAeXchangePayload,
     _apiKey?: string
   ): Promise<AggregatorResponse> {
-    // TODO: Implement actual HTTP POST to aggregator
+    // TODO(p0/integration): Implement actual HTTP POST to EVV aggregator
+    //   Status: Tracked in Task 0049 - EVV Aggregator Integration
+    //   Blocking: Production launch - EVV compliance failure without this
     // Example using fetch or axios:
     //
     // const response = await fetch(endpoint, {

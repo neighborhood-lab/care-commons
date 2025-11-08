@@ -205,7 +205,9 @@ export class ReportService {
       resolutionStatus: string;
     }>
   > {
-    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
+    // TODO(p2/optimization): Rewrite using raw SQL for performance
+    //   Status: Tracked in Task 0072 - Analytics SQL Optimization
+    //   Impact: Slow queries (>10s) with large datasets
     // This method uses Knex query builder which doesn't exist on Database class
     throw new Error('Not implemented - requires refactor to raw SQL');
     /* 
@@ -279,7 +281,9 @@ export class ReportService {
   ): Promise<void> {
     this.validateAccess(context, orgId);
 
-    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
+    // TODO(p2/optimization): Rewrite using raw SQL for performance
+    //   Status: Tracked in Task 0072 - Analytics SQL Optimization
+    //   Impact: Slow queries (>10s) with large datasets
     throw new Error('Not implemented - requires refactor to raw SQL');
     /*
     // Store scheduled report configuration

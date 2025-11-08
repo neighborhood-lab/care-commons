@@ -241,7 +241,8 @@ export class ApiClient {
     } catch (error) {
       if (error instanceof ApiClientError && error.status === 0) {
         // Network error - would queue for later with OfflineQueueService
-        // TODO: Integrate with offlineQueueService.enqueue()
+        // TODO(future/integration): Integrate with offlineQueueService.enqueue()
+        //   Deferred: Mobile offline sync infrastructure
         console.warn('Offline - request not queued yet:', queueData);
         return null; // Will sync when online
       }

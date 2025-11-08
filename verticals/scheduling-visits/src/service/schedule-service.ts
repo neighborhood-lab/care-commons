@@ -561,7 +561,9 @@ export class ScheduleService {
       }
     }
 
-    // TODO: Filter holidays if skipHolidays is true
+    // TODO(p2/feature): Filter holidays if skipHolidays is true
+    //   Status: Tracked in Task 0071 - Holiday Filtering
+    //   Impact: Coordinators manually delete holiday visits
     // Would need holiday calendar service
 
     return dates;

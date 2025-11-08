@@ -180,7 +180,9 @@ export class FamilyEngagementService {
       organizationId: context.organizationId
     });
 
-    // FIXME: Trigger actual notification delivery (email, SMS, push)
+    // TODO(p1/integration): Trigger actual notification delivery (email, SMS, push)
+    //   Status: Tracked in Task 0067 - Notification Delivery System
+    //   Impact: Families receive zero proactive notifications
     // This would integrate with external notification services
 
     return notification;
@@ -332,7 +334,9 @@ export class FamilyEngagementService {
         clientId: input.clientId,
         sentBy: context.userId,
         senderType: 'STAFF',
-        senderName: context.userId, // FIXME: Get actual user name
+        senderName: context.userId, // TODO(p1/integration): Get actual user name from user provider
+        //   Status: Tracked in Task 0068 - Family Engagement Data Integration
+        //   Impact: UX shows "User 123" instead of names
         organizationId: context.organizationId,
         createdBy: context.userId
       });
@@ -354,14 +358,18 @@ export class FamilyEngagementService {
       throw new Error('Insufficient permissions to send messages') as PermissionError;
     }
 
-    // FIXME: Get thread to validate access and get clientId, familyMemberId
+    // TODO(p1/security): Get thread to validate access and get clientId, familyMemberId
+    //   Status: Tracked in Task 0068 - Family Engagement Data Integration
+    //   Impact: Missing access control validation
     const message = await this.messageRepo.sendMessage({
       ...input,
       familyMemberId: context.userId, // Placeholder
       clientId: context.userId, // Placeholder
       sentBy: context.userId,
       senderType,
-      senderName: context.userId, // FIXME: Get actual user name
+      senderName: context.userId, // TODO(p1/integration): Get actual user name from user provider
+        //   Status: Tracked in Task 0068 - Family Engagement Data Integration
+        //   Impact: UX shows "User 123" instead of names
       organizationId: context.organizationId,
       createdBy: context.userId
     });
@@ -442,7 +450,9 @@ export class FamilyEngagementService {
     // Get recent activity
     const recentActivity = await this.activityFeedRepo.getRecentActivity(familyMemberId, 10);
 
-    // FIXME: Get upcoming visits from visit summary table
+    // TODO(p1/integration): Get upcoming visits from visit summary table
+    //   Status: Tracked in Task 0068 - Family Engagement Data Integration
+    //   Impact: Notifications missing visit information
     const upcomingVisits: VisitSummary[] = [];
 
     // Get unread counts
@@ -452,14 +462,18 @@ export class FamilyEngagementService {
     return {
       client: {
         id: profile.clientId,
-        name: 'Client Name', // FIXME: Fetch from client service
+        name: 'Client Name', // TODO(p1/integration): Fetch from client service
+          //   Status: Tracked in Task 0068 - Family Engagement Data Integration
+          //   Impact: Missing client name in notifications
         photoUrl: undefined
       },
       upcomingVisits,
       recentActivity,
       unreadNotifications,
       unreadMessages,
-      activeCarePlan: undefined // FIXME: Fetch from care plan service
+      activeCarePlan: undefined // TODO(p1/integration): Fetch from care plan service
+      //   Status: Tracked in Task 0068 - Family Engagement Data Integration
+      //   Impact: Missing care plan data in notifications
     };
   }
 

@@ -309,7 +309,9 @@ export class SandataAggregator implements IAggregator {
     _payload: SandataPayload,
     config: StateEVVConfig
   ): Promise<SandataResponse> {
-    // TODO: Replace with actual HTTP client implementation
+    // TODO(p0/integration): Replace with actual HTTP client implementation
+    //   Status: Tracked in Task 0049 - EVV Aggregator Integration
+    //   Blocking: Production launch - state compliance requirement
     // 
     // Example using fetch with OAuth:
     // 

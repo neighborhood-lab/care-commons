@@ -44,7 +44,8 @@ export class TexasEVVProvider implements ITexasEVVProvider {
       programType: config['medicaid_program']
     };
 
-    // TODO: Replace with actual HHAeXchange API call
+    // TODO(future/integration): Replace with actual HHAeXchange API call
+    //   Deferred: Texas EVV provider implementation
     // const response = await fetch('https://api.hhaeexchange.com/v2/visits', {
     //   method: 'POST',
     //   headers: {

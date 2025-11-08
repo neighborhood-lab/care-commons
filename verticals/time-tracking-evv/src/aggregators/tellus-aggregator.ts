@@ -368,7 +368,9 @@ export class TellusAggregator implements IAggregator {
     _payload: TellusPayload,
     config: StateEVVConfig
   ): Promise<TellusResponse> {
-    // TODO: Replace with actual HTTP client implementation
+    // TODO(p0/integration): Replace with actual HTTP client implementation
+    //   Status: Tracked in Task 0049 - EVV Aggregator Integration
+    //   Blocking: Production launch - state compliance requirement
     // 
     // Example using fetch:
     // 

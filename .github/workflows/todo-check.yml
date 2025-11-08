@@ -1,0 +1,107 @@
+name: TODO Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  check-todos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for git diff
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for uncategorized TODOs
+        id: check-uncategorized
+        run: |
+          # Get the base branch (main or develop)
+          BASE_BRANCH="${{ github.base_ref }}"
+
+          # Find new TODO comments added in this PR
+          NEW_TODOS=$(git diff origin/$BASE_BRANCH...HEAD | grep "^+.*TODO" | grep -v "TODO(p0\|TODO(p1\|TODO(p2\|TODO(future" || true)
+
+          if [ -n "$NEW_TODOS" ]; then
+            echo "❌ Uncategorized TODOs found in PR:"
+            echo "$NEW_TODOS"
+            echo ""
+            echo "Please use the standardized format: TODO(priority/type): Description"
+            echo ""
+            echo "Priorities: p0 (critical), p1 (high), p2 (medium), future"
+            echo "Types: integration, optimization, feature, bug, security, refactor, test, a11y"
+            echo ""
+            echo "Example:"
+            echo "// TODO(p1/integration): Implement actual notification delivery"
+            echo "//   Status: Tracked in Task 0067"
+            echo "//   Impact: Families receive zero notifications"
+            echo ""
+            echo "See CONTRIBUTING.md for full TODO policy"
+            exit 1
+          else
+            echo "✅ All new TODOs are properly categorized"
+          fi
+
+      - name: Report TODO statistics
+        run: |
+          echo "📊 Current TODO Statistics:"
+          npx tsx scripts/todo-stats.ts
+
+      - name: Check for critical TODOs
+        id: check-critical
+        run: |
+          # Count P0 TODOs
+          P0_COUNT=$(grep -r "TODO(p0" --include="*.ts" --include="*.tsx" . 2>/dev/null | wc -l || echo "0")
+
+          echo "P0 TODOs found: $P0_COUNT"
+
+          if [ "$P0_COUNT" -gt 0 ]; then
+            echo "⚠️  Warning: $P0_COUNT critical (P0) TODOs exist"
+            echo "These TODOs block production deployment"
+            echo ""
+            echo "P0 TODOs:"
+            grep -r "TODO(p0" --include="*.ts" --include="*.tsx" . 2>/dev/null || true
+            echo ""
+            echo "Note: This is informational only - PR can still merge"
+            echo "However, production deployment should be blocked until P0 TODOs are resolved"
+          fi
+
+      - name: Comment on PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+
+            try {
+              const stats = execSync('npx tsx scripts/todo-stats.ts', { encoding: 'utf-8' });
+
+              const comment = `## 📋 TODO Statistics
+
+${stats}
+
+See \`docs/TODO_AUDIT.md\` for detailed breakdown.
+See \`CONTRIBUTING.md\` for TODO policy.
+              `;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.error('Failed to post TODO stats:', error);
+            }

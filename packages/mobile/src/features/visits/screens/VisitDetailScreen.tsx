@@ -75,7 +75,8 @@ export function VisitDetailScreen({ visitId }: VisitDetailScreenProps) {
         caregiverId: visit.caregiverId,
         location,
         deviceInfo,
-        clientPresent: true, // TODO: Ask caregiver
+        clientPresent: true, // TODO(future/feature): Ask caregiver
+        //   Deferred: UI enhancement
         notes: undefined,
       };
 
@@ -112,10 +113,13 @@ export function VisitDetailScreen({ visitId }: VisitDetailScreenProps) {
         caregiverId: visit.caregiverId,
         location,
         deviceInfo,
-        completionNotes: undefined, // TODO: Prompt caregiver for notes
-        tasksCompleted: undefined, // TODO: Get from task list
+        completionNotes: undefined, // TODO(future/feature): Prompt caregiver for notes
+        //   Deferred: UI enhancement
+        tasksCompleted: undefined, // TODO(future/integration): Get from task list
+        //   Deferred: Task integration
         tasksTotal: undefined,
-        clientSignature: undefined, // TODO: Capture signature if required
+        clientSignature: undefined, // TODO(future/feature): Capture signature if required
+        //   Deferred: Signature feature
       };
 
       // Queue for offline sync
@@ -193,7 +197,8 @@ export function VisitDetailScreen({ visitId }: VisitDetailScreenProps) {
             </Text>
           </View>
           
-          {/* TODO: Show map with geofence circle */}
+          {/* TODO(future/feature): Show map with geofence circle
+              Deferred: Nice-to-have feature */}
         </Card.Content>
       </Card>
 

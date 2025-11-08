@@ -101,7 +101,8 @@ export function SignatureScreen({ route, navigation }: Props) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const offlineQueue = new OfflineQueueService(database);
 
-      // TODO: Add queueSignature method to OfflineQueueService
+      // TODO(future/integration): Add queueSignature method to OfflineQueueService
+      //   Deferred: Mobile offline sync infrastructure
       // await offlineQueue.queueSignature(attestation);
 
       Alert.alert(

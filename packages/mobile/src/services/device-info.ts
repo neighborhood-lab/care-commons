@@ -179,11 +179,13 @@ export class DeviceInfoService {
       hasGPS: true, // Most modern devices have GPS
       hasCellular: Device.isDevice, // Physical device likely has cellular
       hasWiFi: true,
-      hasBiometric: false, // TODO: Check if biometric hardware available (requires expo-local-authentication)
+      hasBiometric: false, // TODO(future/integration): Check if biometric hardware available (requires expo-local-authentication)
+      //   Deferred: Mobile device capabilities
       hasCamera: Device.isDevice,
       batteryLevel: await this.getBatteryLevel(),
       isOnline: networkState.isConnected && networkState.isInternetReachable,
-      canBackgroundLocation: true, // TODO: Check permissions (requires expo-location permissions check)
+      canBackgroundLocation: true, // TODO(future/integration): Check permissions (requires expo-location permissions check)
+      //   Deferred: Mobile device capabilities
     };
   }
 }

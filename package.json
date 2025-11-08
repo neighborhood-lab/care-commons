@@ -56,6 +56,8 @@
     "db:env:preview": "./scripts/db-env.sh migrate --env=preview",
     "db:env:production": "./scripts/db-env.sh migrate --env=production",
     "docs:generate": "tsx scripts/export-postman-collection.ts",
+    "todo:stats": "tsx scripts/todo-stats.ts",
+    "todo:update": "tsx scripts/update-todos.ts",
     "deploy:staging": "vercel --env NODE_ENV=staging --env DATABASE_URL=$STAGING_DATABASE_URL",
     "deploy:production": "vercel --prod --env NODE_ENV=production --env DATABASE_URL=$DATABASE_URL",
     "deploy:preview": "vercel",

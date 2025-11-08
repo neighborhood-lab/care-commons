@@ -60,7 +60,8 @@ export function VisitCheckInScreen() {
   const loadVisit = useCallback(async () => {
     setIsLoading(true);
     try {
-      // TODO: Load from WatermelonDB
+      // TODO(future/integration): Load from WatermelonDB
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058
       // Mock data for now
       const mockVisit: MobileVisit = {
         id: visitId,
@@ -103,7 +104,8 @@ export function VisitCheckInScreen() {
     setLocationStatus(prev => ({ ...prev, checking: true, error: null }));
 
     try {
-      // TODO: Integrate with actual location service
+      // TODO(future/integration): Integrate with actual location service
+      //   Deferred: Mobile location service integration
       // Mock location check
       await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -157,7 +159,8 @@ export function VisitCheckInScreen() {
     setBiometricChecking(true);
 
     try {
-      // TODO: Integrate with actual biometric service
+      // TODO(future/integration): Integrate with actual biometric service
+      //   Deferred: Mobile biometric service integration
       // Mock biometric check
       await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -218,7 +221,8 @@ export function VisitCheckInScreen() {
     setCheckingIn(true);
 
     try {
-      // TODO: Queue check-in for sync
+      // TODO(future/integration): Queue check-in for sync
+      //   Deferred: Mobile offline sync infrastructure
       // const offlineQueue = new OfflineQueueService(database);
       // await offlineQueue.queueClockIn({ visitId, location, ... });
 

@@ -597,7 +597,9 @@ export class AuditService {
     // Get overdue corrective actions
     const overdueCorrectiveActions = await this.correctiveActionRepo.getOverdueActions(context.organizationId, 10);
 
-    // TODO: Calculate statistics
+    // TODO(p2/feature): Calculate statistics
+    //   Status: Not yet tracked
+    //   Impact: Audit statistics not available
     const statistics: AuditStatistics = {
       totalAudits: upcomingAudits.length + inProgressAudits.length + recentlyCompleted.length,
       auditsByStatus: {} as Record<string, number>,

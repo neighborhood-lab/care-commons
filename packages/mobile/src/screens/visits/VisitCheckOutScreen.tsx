@@ -72,7 +72,8 @@ export function VisitCheckOutScreen() {
   const loadVisitData = useCallback(async () => {
     setIsLoading(true);
     try {
-      // TODO: Load from WatermelonDB
+      // TODO(future/integration): Load from WatermelonDB
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058
       // Mock data
       const mockVisit: MobileVisit = {
         id: visitId,
@@ -132,7 +133,8 @@ export function VisitCheckOutScreen() {
   const checkLocation = useCallback(async () => {
     setLocationChecking(true);
     try {
-      // TODO: Integrate with actual location service
+      // TODO(future/integration): Integrate with actual location service
+      //   Deferred: Mobile location service integration
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       const mockLocation: LocationVerification = {
@@ -167,7 +169,8 @@ export function VisitCheckOutScreen() {
   const handleBiometricVerification = async () => {
     setBiometricChecking(true);
     try {
-      // TODO: Integrate with actual biometric service
+      // TODO(future/integration): Integrate with actual biometric service
+      //   Deferred: Mobile biometric service integration
       await new Promise(resolve => setTimeout(resolve, 1000));
       setBiometricVerified(true);
       Alert.alert('Success', 'Biometric verification successful');
@@ -257,7 +260,8 @@ export function VisitCheckOutScreen() {
   const performCheckOut = async () => {
     setCheckingOut(true);
     try {
-      // TODO: Queue check-out for sync
+      // TODO(future/integration): Queue check-out for sync
+      //   Deferred: Mobile offline sync infrastructure
       // const offlineQueue = new OfflineQueueService(database);
       // await offlineQueue.queueClockOut({ ... });
 

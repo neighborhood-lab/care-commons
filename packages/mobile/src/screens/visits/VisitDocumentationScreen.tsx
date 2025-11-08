@@ -97,7 +97,8 @@ export function VisitDocumentationScreen() {
   const loadDocumentation = async () => {
     setIsLoading(true);
     try {
-      // TODO: Load from WatermelonDB
+      // TODO(future/integration): Load from WatermelonDB
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058
       // Mock data
       const mockTasks: Task[] = [
         { id: '1', title: 'Assist with bathing', required: true, completed: false },
@@ -116,7 +117,8 @@ export function VisitDocumentationScreen() {
 
   const autoSave = async () => {
     try {
-      // TODO: Save to WatermelonDB
+      // TODO(future/integration): Save to WatermelonDB
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058
       setLastSaved(new Date());
     } catch {
       // Silent fail for auto-save
@@ -140,9 +142,11 @@ export function VisitDocumentationScreen() {
   const handleCaptureSignature = (_type: 'caregiver' | 'client') => {
     navigation.navigate('Signature', {
       visitId,
-      clientName: 'Client Name', // TODO: Get from visit
+      clientName: 'Client Name', // TODO(future/integration): Get from visit
+      //   Deferred: Data integration
     });
-    // TODO: Handle signature capture callback
+    // TODO(future/integration): Handle signature capture callback
+    //   Deferred: Signature integration
   };
 
   const handleSave = async () => {
@@ -170,7 +174,8 @@ export function VisitDocumentationScreen() {
 
     setIsSaving(true);
     try {
-      // TODO: Save to WatermelonDB and queue for sync
+      // TODO(future/integration): Save to WatermelonDB
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058 and queue for sync
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       Alert.alert(

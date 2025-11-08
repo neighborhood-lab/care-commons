@@ -38,7 +38,8 @@ export function TodayVisitsScreen() {
   const loadVisits = async () => {
     setIsLoading(true);
     try {
-      // TODO: Load from WatermelonDB and sync with API
+      // TODO(future/integration): Load from WatermelonDB and sync with API
+      //   Deferred: Mobile offline-first infrastructure - Tasks 0055-0058
       // const db = await getDatabase();
       // const visits = await db.collections.get('visits').query().fetch();
       
