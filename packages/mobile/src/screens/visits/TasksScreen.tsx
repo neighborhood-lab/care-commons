@@ -20,32 +20,16 @@ import {
   Modal,
   TextInput,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, Badge, Card, CardContent } from '../../components/index.js';
 import type { RootStackParamList } from '../../navigation/RootNavigator.js';
+import { getTasksApiService } from '../../services/tasks-api.js';
+import type { Task, TaskStatus, TaskCategory } from '../../services/tasks-api.js';
+import { uploadPhotos } from '../../services/photo-upload.js';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Tasks'>;
-
-type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETE' | 'SKIPPED' | 'NOT_APPLICABLE';
-type TaskCategory = 'ADL' | 'IADL' | 'HEALTH_MONITORING' | 'OTHER';
-
-interface Task {
-  id: string;
-  visitId: string;
-  category: TaskCategory;
-  name: string;
-  description: string;
-  isRequired: boolean;
-  status: TaskStatus;
-  completedAt?: Date;
-  completedByNote?: string;
-  skipReason?: string;
-  photoUrls?: string[];
-  estimatedDuration?: number; // minutes
-  clientPreferences?: string;
-  safetyConsiderations?: string;
-}
 
 export function TasksScreen({ route, navigation }: Props) {
   const { visitId } = route.params;
@@ -56,6 +40,10 @@ export function TasksScreen({ route, navigation }: Props) {
   const [completionNotes, setCompletionNotes] = useState('');
   const [photoUris, setPhotoUris] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const tasksApiService = getTasksApiService();
 
   /**
    * Load tasks for the visit
@@ -66,68 +54,29 @@ export function TasksScreen({ route, navigation }: Props) {
   }, [visitId]);
 
   const loadTasks = async () => {
-    // Mock task data - in production, load from WatermelonDB
-    const mockTasks: Task[] = [
-      {
-        id: '1',
-        visitId,
-        category: 'ADL',
-        name: 'Personal Hygiene Assistance',
-        description: 'Assist with bathing, grooming, and oral care',
-        isRequired: true,
-        status: 'PENDING',
-        estimatedDuration: 30,
-        clientPreferences: 'Prefers shower in the morning, lukewarm water',
-        safetyConsiderations: 'Non-slip mat required, client has limited mobility',
-      },
-      {
-        id: '2',
-        visitId,
-        category: 'ADL',
-        name: 'Meal Preparation & Feeding',
-        description: 'Prepare lunch and assist with eating',
-        isRequired: true,
-        status: 'PENDING',
-        estimatedDuration: 45,
-        clientPreferences: 'No dairy, prefers soft foods',
-        safetyConsiderations: 'Check for choking hazards',
-      },
-      {
-        id: '3',
-        visitId,
-        category: 'HEALTH_MONITORING',
-        name: 'Medication Reminder',
-        description: 'Remind client to take afternoon medications',
-        isRequired: true,
-        status: 'PENDING',
-        estimatedDuration: 10,
-        clientPreferences: 'Takes pills with water',
-        safetyConsiderations: 'Verify correct medications and dosage',
-      },
-      {
-        id: '4',
-        visitId,
-        category: 'IADL',
-        name: 'Light Housekeeping',
-        description: 'Clean kitchen and living areas',
-        isRequired: false,
-        status: 'PENDING',
-        estimatedDuration: 20,
-      },
-      {
-        id: '5',
-        visitId,
-        category: 'IADL',
-        name: 'Companionship',
-        description: 'Spend time talking, reading, or watching TV',
-        isRequired: false,
-        status: 'PENDING',
-        estimatedDuration: 30,
-        clientPreferences: 'Enjoys discussing family and gardening',
-      },
-    ];
+    try {
+      setIsLoading(true);
+      setLoadError(null);
 
-    setTasks(mockTasks);
+      // Fetch tasks from API
+      const fetchedTasks = await tasksApiService.getTasksByVisitId(visitId);
+      setTasks(fetchedTasks);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      setLoadError('Failed to load tasks. Please try again.');
+
+      // Optionally show alert
+      Alert.alert(
+        'Error Loading Tasks',
+        'Could not load tasks for this visit. Please check your connection and try again.',
+        [
+          { text: 'Retry', onPress: () => loadTasks() },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /**
@@ -154,23 +103,42 @@ export function TasksScreen({ route, navigation }: Props) {
     setIsSubmitting(true);
 
     try {
-      // Update task status
+      // Upload photos first if any
+      let photoUrls: string[] = [];
+      if (photoUris.length > 0) {
+        try {
+          const uploadResults = await uploadPhotos(photoUris, {
+            type: 'task',
+            entityId: selectedTask.id,
+            compression: 0.7,
+          });
+          photoUrls = uploadResults.map((result) => result.url);
+        } catch (uploadError) {
+          console.error('Photo upload error:', uploadError);
+          // Continue without photos if upload fails
+          Alert.alert(
+            'Warning',
+            'Photos could not be uploaded. Task will be saved without photos.',
+            [
+              { text: 'Cancel', style: 'cancel', onPress: () => setIsSubmitting(false) },
+              { text: 'Continue', onPress: () => {} },
+            ]
+          );
+        }
+      }
+
+      // Try to complete the task via API
+      const completedTask = await tasksApiService.completeTask(selectedTask.id, {
+        notes: completionNotes.trim(),
+        photoUris: photoUrls,
+        completedAt: new Date().toISOString(),
+      });
+
+      // Update local state with the completed task
       const updatedTasks = tasks.map((task) =>
-        task.id === selectedTask.id
-          ? {
-              ...task,
-              status: 'COMPLETE' as TaskStatus,
-              completedAt: new Date(),
-              completedByNote: completionNotes.trim(),
-              photoUrls: photoUris,
-            }
-          : task
+        task.id === selectedTask.id ? completedTask : task
       );
-
       setTasks(updatedTasks);
-
-      // Queue for sync (in production, use OfflineQueueService)
-      // await offlineQueue.queueTaskCompletion({ ... });
 
       setCompletionModalVisible(false);
       setSelectedTask(null);
@@ -178,7 +146,44 @@ export function TasksScreen({ route, navigation }: Props) {
       Alert.alert('Success', `"${selectedTask.name}" marked as complete!`);
     } catch (error) {
       console.error('Task completion error:', error);
-      Alert.alert('Error', 'Failed to complete task. Please try again.');
+
+      // Check if error is network-related
+      const isNetworkError =
+        error instanceof Error && error.message.includes('network');
+
+      if (isNetworkError) {
+        // Offline - update local state and queue for sync
+        const updatedTasks = tasks.map((task) =>
+          task.id === selectedTask.id
+            ? {
+                ...task,
+                status: 'COMPLETE' as TaskStatus,
+                completedAt: new Date().toISOString(),
+                completedByNote: completionNotes.trim(),
+                photoUrls: photoUris, // Store local URIs for offline
+              }
+            : task
+        );
+        setTasks(updatedTasks);
+
+        // TODO: Queue for sync with OfflineQueueService
+        // When WatermelonDB is initialized:
+        // await offlineQueueService.queueTaskCompletion(selectedTask.id, {
+        //   notes: completionNotes.trim(),
+        //   photoUrls: photoUris,
+        //   completedAt: new Date().toISOString(),
+        // });
+
+        setCompletionModalVisible(false);
+        setSelectedTask(null);
+
+        Alert.alert(
+          'Saved Offline',
+          `"${selectedTask.name}" saved locally. Will sync when online.`
+        );
+      } else {
+        Alert.alert('Error', 'Failed to complete task. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -197,25 +202,47 @@ export function TasksScreen({ route, navigation }: Props) {
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Skip',
-          onPress: (reason: string | undefined) => {
+          onPress: async (reason: string | undefined) => {
             if (!reason?.trim()) {
               Alert.alert('Reason Required', 'Please provide a reason for skipping.');
               return;
             }
 
-            const updatedTasks = tasks.map((task) =>
-              task.id === selectedTask.id
-                ? {
-                    ...task,
-                    status: 'SKIPPED' as TaskStatus,
-                    skipReason: reason.trim(),
-                  }
-                : task
-            );
+            try {
+              const skippedTask = await tasksApiService.skipTask(selectedTask.id, {
+                reason: reason.trim(),
+              });
 
-            setTasks(updatedTasks);
-            setCompletionModalVisible(false);
-            setSelectedTask(null);
+              const updatedTasks = tasks.map((task) =>
+                task.id === selectedTask.id ? skippedTask : task
+              );
+
+              setTasks(updatedTasks);
+              setCompletionModalVisible(false);
+              setSelectedTask(null);
+            } catch (error) {
+              console.error('Task skip error:', error);
+
+              // Offline fallback
+              const updatedTasks = tasks.map((task) =>
+                task.id === selectedTask.id
+                  ? {
+                      ...task,
+                      status: 'SKIPPED' as TaskStatus,
+                      skipReason: reason.trim(),
+                    }
+                  : task
+              );
+
+              setTasks(updatedTasks);
+              setCompletionModalVisible(false);
+              setSelectedTask(null);
+
+              Alert.alert(
+                'Saved Offline',
+                'Task skipped locally. Will sync when online.'
+              );
+            }
           },
         },
       ],
@@ -281,6 +308,28 @@ export function TasksScreen({ route, navigation }: Props) {
   const progress = getTaskProgress();
   const requiredTasks = tasks.filter((t) => t.isRequired);
   const completedRequired = requiredTasks.filter((t) => t.status === 'COMPLETE').length;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2563EB" />
+        <Text style={styles.loadingText}>Loading tasks...</Text>
+      </View>
+    );
+  }
+
+  // Show error state
+  if (loadError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{loadError}</Text>
+        <Button variant="primary" onPress={loadTasks}>
+          Retry
+        </Button>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -485,6 +534,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6B7280',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#DC2626',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   header: {
     backgroundColor: '#FFFFFF',

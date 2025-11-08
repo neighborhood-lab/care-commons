@@ -20,7 +20,13 @@ import type {
   ClockOutInput,
 } from '../shared/index.js';
 
-export type QueueOperationType = 'CLOCK_IN' | 'CLOCK_OUT' | 'UPDATE_EVV' | 'SYNC_VISIT';
+export type QueueOperationType =
+  | 'CLOCK_IN'
+  | 'CLOCK_OUT'
+  | 'UPDATE_EVV'
+  | 'SYNC_VISIT'
+  | 'COMPLETE_TASK'
+  | 'SKIP_TASK';
 export type QueueStatus = 'PENDING' | 'IN_PROGRESS' | 'FAILED' | 'COMPLETED';
 
 export interface QueuedOperation {
@@ -55,6 +61,8 @@ const DEFAULT_CONFIG: OfflineQueueConfig = {
   priorityLevels: {
     CLOCK_IN: 100, // Highest priority
     CLOCK_OUT: 90,
+    COMPLETE_TASK: 70,
+    SKIP_TASK: 65,
     UPDATE_EVV: 50,
     SYNC_VISIT: 30,
   },
@@ -113,7 +121,7 @@ export class OfflineQueueService {
    */
   async queueClockOut(input: ClockOutInput): Promise<string> {
     const operationId = this.generateOperationId();
-    
+
     await this.database.write(async () => {
       const syncQueue = this.database.collections.get('sync_queue');
       await syncQueue.create((record: any) => {
@@ -123,6 +131,71 @@ export class OfflineQueueService {
         record.entityId = input.visitId;
         record.payloadJson = JSON.stringify(input);
         record.priority = this.config.priorityLevels.CLOCK_OUT;
+        record.retryCount = 0;
+        record.maxRetries = this.config.maxRetries;
+        record.status = 'PENDING';
+        record.createdAt = Date.now();
+        record.updatedAt = Date.now();
+      });
+    });
+
+    // Trigger sync if online
+    void this.trySync();
+
+    return operationId;
+  }
+
+  /**
+   * Queue a task completion for offline processing
+   */
+  async queueTaskCompletion(taskId: string, input: {
+    notes: string;
+    photoUrls?: string[];
+    completedAt?: string;
+  }): Promise<string> {
+    const operationId = this.generateOperationId();
+
+    await this.database.write(async () => {
+      const syncQueue = this.database.collections.get('sync_queue');
+      await syncQueue.create((record: any) => {
+        record.id = operationId;
+        record.operationType = 'COMPLETE_TASK';
+        record.entityType = 'VISIT';
+        record.entityId = taskId;
+        record.payloadJson = JSON.stringify(input);
+        record.priority = this.config.priorityLevels.COMPLETE_TASK;
+        record.retryCount = 0;
+        record.maxRetries = this.config.maxRetries;
+        record.status = 'PENDING';
+        record.createdAt = Date.now();
+        record.updatedAt = Date.now();
+      });
+    });
+
+    // Trigger sync if online
+    void this.trySync();
+
+    return operationId;
+  }
+
+  /**
+   * Queue a task skip for offline processing
+   */
+  async queueTaskSkip(taskId: string, input: {
+    reason: string;
+    note?: string;
+  }): Promise<string> {
+    const operationId = this.generateOperationId();
+
+    await this.database.write(async () => {
+      const syncQueue = this.database.collections.get('sync_queue');
+      await syncQueue.create((record: any) => {
+        record.id = operationId;
+        record.operationType = 'SKIP_TASK';
+        record.entityType = 'VISIT';
+        record.entityId = taskId;
+        record.payloadJson = JSON.stringify(input);
+        record.priority = this.config.priorityLevels.SKIP_TASK;
         record.retryCount = 0;
         record.maxRetries = this.config.maxRetries;
         record.status = 'PENDING';
@@ -204,6 +277,12 @@ export class OfflineQueueService {
         break;
       case 'CLOCK_OUT':
         await this.processClockOut(payload);
+        break;
+      case 'COMPLETE_TASK':
+        await this.processTaskCompletion(operation.entityId, payload);
+        break;
+      case 'SKIP_TASK':
+        await this.processTaskSkip(operation.entityId, payload);
         break;
       case 'UPDATE_EVV':
         await this.processEVVUpdate(payload);
@@ -324,6 +403,36 @@ export class OfflineQueueService {
 
     const result = await response.json();
     console.log('Visit sync successful:', result);
+  }
+
+  /**
+   * Process task completion operation
+   */
+  private async processTaskCompletion(taskId: string, payload: unknown): Promise<void> {
+    const response = await this.apiRequest('POST', `/tasks/${taskId}/complete`, payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`Task completion failed: ${error.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Task completion successful:', result);
+  }
+
+  /**
+   * Process task skip operation
+   */
+  private async processTaskSkip(taskId: string, payload: unknown): Promise<void> {
+    const response = await this.apiRequest('POST', `/tasks/${taskId}/skip`, payload);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(`Task skip failed: ${error.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Task skip successful:', result);
   }
 
   /**
