@@ -17,32 +17,67 @@ export async function up(knex: Knex): Promise<void> {
   // Add timezone column to users table
   await knex.schema.alterTable('users', (table) => {
     table.string('timezone', 50).defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_users_timezone_valid');
   });
+  
+  // Add check constraint separately to avoid naming conflicts
+  await knex.raw(`
+    ALTER TABLE users 
+    ADD CONSTRAINT chk_users_timezone_valid 
+    CHECK (timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') 
+    OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$')
+  `);
 
   // Add timezone column to organizations table
   await knex.schema.alterTable('organizations', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_organizations_timezone_valid');
   });
+  
+  // Add check constraint separately to avoid naming conflicts
+  await knex.raw(`
+    ALTER TABLE organizations 
+    ADD CONSTRAINT chk_organizations_timezone_valid 
+    CHECK (timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') 
+    OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$')
+  `);
 
   // Add timezone column to branches table
   await knex.schema.alterTable('branches', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_branches_timezone_valid');
   });
+  
+  // Add check constraint separately to avoid naming conflicts
+  await knex.raw(`
+    ALTER TABLE branches 
+    ADD CONSTRAINT chk_branches_timezone_valid 
+    CHECK (timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') 
+    OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$')
+  `);
 
   // Add timezone column to clients table
   await knex.schema.alterTable('clients', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_clients_timezone_valid');
   });
+  
+  // Add check constraint separately to avoid naming conflicts
+  await knex.raw(`
+    ALTER TABLE clients 
+    ADD CONSTRAINT chk_clients_timezone_valid 
+    CHECK (timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') 
+    OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$')
+  `);
 
   // Add timezone column to caregivers table
   await knex.schema.alterTable('caregivers', (table) => {
     table.string('timezone', 50).notNullable().defaultTo('America/Chicago');
-    table.check(`timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$'`, {}, 'chk_caregivers_timezone_valid');
   });
+  
+  // Add check constraint separately to avoid naming conflicts
+  await knex.raw(`
+    ALTER TABLE caregivers 
+    ADD CONSTRAINT chk_caregivers_timezone_valid 
+    CHECK (timezone IN ('America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'UTC', 'America/Anchorage', 'America/Honolulu', 'US/Eastern', 'US/Central', 'US/Mountain', 'US/Pacific') 
+    OR timezone ~ '^[A-Za-z_]+/[A-Za-z_]+$')
+  `);
 
   // Add indexes for timezone queries
   await knex.raw('CREATE INDEX IF NOT EXISTS idx_users_timezone ON users(timezone)');
@@ -70,6 +105,13 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
+  // Drop constraints first
+  await knex.raw('ALTER TABLE users DROP CONSTRAINT IF EXISTS chk_users_timezone_valid');
+  await knex.raw('ALTER TABLE organizations DROP CONSTRAINT IF EXISTS chk_organizations_timezone_valid');
+  await knex.raw('ALTER TABLE branches DROP CONSTRAINT IF EXISTS chk_branches_timezone_valid');
+  await knex.raw('ALTER TABLE clients DROP CONSTRAINT IF EXISTS chk_clients_timezone_valid');
+  await knex.raw('ALTER TABLE caregivers DROP CONSTRAINT IF EXISTS chk_caregivers_timezone_valid');
+
   // Drop indexes
   await knex.raw('DROP INDEX IF EXISTS idx_users_timezone');
   await knex.raw('DROP INDEX IF EXISTS idx_organizations_timezone');
