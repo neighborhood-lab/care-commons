@@ -5,7 +5,7 @@
  */
 
 import { Express, Router } from 'express';
-import { Database, PermissionService, UserRepository } from '@care-commons/core';
+import { Database, PermissionService, UserRepository, AuthMiddleware } from '@care-commons/core';
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
@@ -68,7 +68,7 @@ export function setupRoutes(app: Express, db: Database): void {
   const userRepository = new UserRepository(db);
   const carePlanService = new CarePlanService(carePlanRepository, permissionService, userRepository);
   const carePlanHandlers = createCarePlanHandlers(carePlanService);
-  const carePlanRouter = createCarePlanRouter(carePlanHandlers);
+  const carePlanRouter = createCarePlanRouter(carePlanHandlers, db);
   app.use('/api', carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered');
 
@@ -106,8 +106,12 @@ export function setupRoutes(app: Express, db: Database): void {
 /**
  * Helper to create router from care plan handlers object
  */
-function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers>): Router {
+function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers>, db: Database): Router {
   const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All care plan routes require authentication
+  router.use(authMiddleware.requireAuth);
 
   // Care Plan endpoints
   router.post('/care-plans', handlers.createCarePlan);

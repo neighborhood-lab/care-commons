@@ -9,6 +9,7 @@ import {
   PermissionError,
   NotFoundError,
   PaginatedResult,
+  GeocodingService,
 } from '@care-commons/core';
 import { getPermissionService } from '@care-commons/core';
 import { Client, CreateClientInput, UpdateClientInput, ClientSearchFilters } from '../types/client';
@@ -21,11 +22,15 @@ export class ClientService {
   private validator: ClientValidator;
   private permissionService = getPermissionService();
   private auditService?: ClientAuditService;
+  private geocodingService: GeocodingService;
 
   constructor(repository: ClientRepository, auditService?: ClientAuditService) {
     this.repository = repository;
     this.validator = new ClientValidator();
     this.auditService = auditService;
+    // Use environment variable to determine provider, default to mapbox
+    const provider = (process.env.GEOCODING_PROVIDER || 'mapbox') as 'google' | 'mapbox' | 'nominatim';
+    this.geocodingService = new GeocodingService(provider);
   }
 
   /**
@@ -56,6 +61,35 @@ export class ClientService {
       throw new ValidationError('Client number already exists');
     }
 
+    // Geocode address automatically
+    let geocodingData: Partial<Client> = {};
+    if (input.primaryAddress) {
+      try {
+        const geocoded = await this.geocodingService.geocodeAddress(input.primaryAddress);
+        if (geocoded) {
+          geocodingData = {
+            coordinates: {
+              lat: geocoded.latitude,
+              lng: geocoded.longitude
+            },
+            geocodingConfidence: geocoded.confidence,
+            geocodedAt: new Date(),
+            geocodingFailed: false
+          };
+        } else {
+          console.warn(`Failed to geocode address for new client: ${input.primaryAddress.line1}`);
+          geocodingData = {
+            geocodingFailed: true
+          };
+        }
+      } catch (error) {
+        console.error('Geocoding error during client creation:', error);
+        geocodingData = {
+          geocodingFailed: true
+        };
+      }
+    }
+
     // Build client entity
     const client: Partial<Client> = {
       organizationId: input.organizationId,
@@ -78,8 +112,9 @@ export class ClientService {
       riskFlags: [],
       status: input.status || 'PENDING_INTAKE',
       intakeDate: input.intakeDate || new Date(),
+      ...geocodingData,
     };
-    
+
     // Only add optional properties if they have values
     if (input.middleName !== undefined) client.middleName = input.middleName;
     if (input.preferredName !== undefined) client.preferredName = input.preferredName;
@@ -153,6 +188,28 @@ export class ClientService {
       throw new ValidationError('Invalid update data', {
         errors: validation.errors,
       });
+    }
+
+    // If address changed, re-geocode
+    if (updates.primaryAddress) {
+      try {
+        const geocoded = await this.geocodingService.geocodeAddress(updates.primaryAddress);
+        if (geocoded) {
+          (updates as Partial<Client>).coordinates = {
+            lat: geocoded.latitude,
+            lng: geocoded.longitude
+          };
+          (updates as Partial<Client>).geocodingConfidence = geocoded.confidence;
+          (updates as Partial<Client>).geocodedAt = new Date();
+          (updates as Partial<Client>).geocodingFailed = false;
+        } else {
+          console.warn(`Failed to geocode updated address for client ${id}: ${updates.primaryAddress.line1}`);
+          (updates as Partial<Client>).geocodingFailed = true;
+        }
+      } catch (error) {
+        console.error('Geocoding error during client update:', error);
+        (updates as Partial<Client>).geocodingFailed = true;
+      }
     }
 
     // Apply updates
@@ -391,6 +448,53 @@ export class ClientService {
     });
 
     return auditReport;
+  }
+
+  /**
+   * Manually geocode a client's address
+   * Useful for re-geocoding failed addresses or updating old coordinates
+   */
+  async geocodeClientAddress(
+    clientId: string,
+    context: UserContext
+  ): Promise<Client> {
+    this.permissionService.requirePermission(context, 'clients:update');
+
+    const client = await this.getClientById(clientId, context);
+
+    if (!client.primaryAddress) {
+      throw new ValidationError('Client has no address to geocode');
+    }
+
+    try {
+      const geocoded = await this.geocodingService.geocodeAddress(client.primaryAddress);
+
+      const updates: Partial<Client> = {};
+      if (geocoded) {
+        updates.coordinates = {
+          lat: geocoded.latitude,
+          lng: geocoded.longitude
+        };
+        updates.geocodingConfidence = geocoded.confidence;
+        updates.geocodedAt = new Date();
+        updates.geocodingFailed = false;
+      } else {
+        updates.geocodingFailed = true;
+        throw new ValidationError('Failed to geocode address');
+      }
+
+      const updated = await this.repository.update(clientId, updates as UpdateClientInput, context);
+      return updated;
+    } catch (error) {
+      console.error('Manual geocoding error:', error);
+      // Mark as failed and re-throw
+      await this.repository.update(
+        clientId,
+        { geocodingFailed: true } as UpdateClientInput,
+        context
+      );
+      throw error;
+    }
   }
 
   /**

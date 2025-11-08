@@ -910,6 +910,60 @@ export class ClientHandlers {
       data: stats,
     });
   });
+
+  /**
+   * @openapi
+   * /api/clients/{id}/geocode:
+   *   post:
+   *     tags:
+   *       - Clients
+   *     summary: Manually geocode client address
+   *     description: Geocode a client's primary address and update coordinates
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Client ID
+   *     responses:
+   *       200:
+   *         description: Address geocoded successfully
+   *       400:
+   *         description: Invalid request or geocoding failed
+   *       401:
+   *         description: Unauthorized
+   *       403:
+   *         description: Forbidden - insufficient permissions
+   *       404:
+   *         description: Client not found
+   */
+  geocodeClientAddress = asyncHandler(async (req: Request, res: Response): Promise<Response> => {
+    const context = getUserContext(req);
+    const clientId = req.params.id;
+
+    if (!clientId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Client ID is required',
+      });
+    }
+
+    const client = await this.clientService.geocodeClientAddress(clientId, context);
+
+    return res.json({
+      success: true,
+      data: {
+        id: client.id,
+        coordinates: client.coordinates,
+        geocodingConfidence: client.geocodingConfidence,
+        geocodedAt: client.geocodedAt,
+      },
+    });
+  });
 }
 
 /**
@@ -931,6 +985,7 @@ export function createClientRouter(clientService: ClientService): Router {
   router.get('/clients/:id/summary', handlers.getClientSummary);
   router.patch('/clients/:id/status', handlers.updateClientStatus);
   router.get('/clients/:id/audit-trail', handlers.getClientAuditTrail);
+  router.post('/clients/:id/geocode', handlers.geocodeClientAddress);
 
   // Emergency contacts
   router.post('/clients/:id/emergency-contacts', handlers.addEmergencyContact);
