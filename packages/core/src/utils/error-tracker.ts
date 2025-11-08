@@ -8,8 +8,7 @@ let nodeProfilingIntegration: any = null;
 
 // Check if we're in a Node.js environment (not browser)
 const isNodeEnvironment = typeof process !== 'undefined' &&
-  process.versions != null &&
-  process.versions.node != null;
+  process.versions?.node != null;
 
 async function loadSentryModules(): Promise<void> {
   // Only load Sentry in Node.js environment
@@ -39,7 +38,7 @@ export function initializeErrorTracking(): void {
   if (process.env.NODE_ENV === 'production' && isNodeEnvironment) {
     // Load Sentry modules asynchronously
     loadSentryModules().then(() => {
-      if (!Sentry) {
+      if (Sentry === null) {
         return;
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,7 +81,7 @@ export function initializeErrorTracking(): void {
 export function captureException(error: any, context?: any): void {
   logger.error({ error, ...context }, 'Exception captured');
 
-  if (process.env.NODE_ENV === 'production' && Sentry) {
+  if (process.env.NODE_ENV === 'production' && Sentry !== null) {
     Sentry.captureException(error, {
       extra: context
     });
@@ -90,7 +89,7 @@ export function captureException(error: any, context?: any): void {
 }
 
 export function setUserContext(user: { id: string; email?: string }): void {
-  if (process.env.NODE_ENV === 'production' && Sentry) {
+  if (process.env.NODE_ENV === 'production' && Sentry !== null) {
     try {
       // Use getCurrentScope to access setUser
       const scope = Sentry.getCurrentScope();
