@@ -49,6 +49,10 @@ export {
 } from './errors/app-errors.js';
 export * from './utils/memoize.js';
 export * from './utils/pagination.js';
+export * from './utils/password-validator.js';
+export * from './utils/sensitive-data-filter.js';
+export * from './middleware/sanitize-input.js';
+export * from './services/account-lockout.service.js';
 export * from './sync/index.js';
 export * from './demo/index.js';
 export * from './providers/index.js';

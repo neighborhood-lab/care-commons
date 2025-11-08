@@ -18,10 +18,11 @@ if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test' && process.env
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { requestLogger, metricsMiddleware } from '@care-commons/core';
+import { requestLogger, metricsMiddleware, sanitizeInput } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
+import { configureCsrfProtection } from './middleware/csrf.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
 import { setupRoutes } from './routes/index.js';
 
@@ -157,6 +158,12 @@ function setupMiddleware(): void {
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // Input sanitization (prevent XSS)
+  app.use(sanitizeInput);
+
+  // CSRF protection
+  configureCsrfProtection(app);
 
   // User context extraction
   app.use(authContextMiddleware);
