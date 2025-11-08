@@ -42,18 +42,20 @@ const envSchema = z.object({
   VERCEL_URL: z.string().optional(),
 }).transform((data) => ({
   ...data,
-  CORS_ORIGINS: data.CORS_ORIGINS.split(',').map(origin => origin.trim()),
+  CORS_ORIGINS: data.CORS_ORIGINS.split(',').map((origin: string) => origin.trim()),
 })).refine(
-  (data) => {
+  /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/strict-boolean-expressions */
+  (data: any) => {
     // Either DATABASE_URL or all individual DB variables must be present
-    if (data.DATABASE_URL !== null && data.DATABASE_URL !== undefined && data.DATABASE_URL.length > 0) {
+    if (data.DATABASE_URL && data.DATABASE_URL.length > 0) {
       return true;
     }
-    return data.DB_HOST !== null && data.DB_HOST !== undefined && data.DB_HOST.length > 0 &&
-           data.DB_NAME !== null && data.DB_NAME !== undefined && data.DB_NAME.length > 0 &&
-           data.DB_USER !== null && data.DB_USER !== undefined && data.DB_USER.length > 0 &&
-           data.DB_PASSWORD !== null && data.DB_PASSWORD !== undefined && data.DB_PASSWORD.length > 0;
+    return !!(data.DB_HOST && data.DB_HOST.length > 0 &&
+           data.DB_NAME && data.DB_NAME.length > 0 &&
+           data.DB_USER && data.DB_USER.length > 0 &&
+           data.DB_PASSWORD && data.DB_PASSWORD.length > 0);
   },
+  /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/strict-boolean-expressions */
   {
     message: 'Either DATABASE_URL or all individual database variables (DB_HOST, DB_NAME, DB_USER, DB_PASSWORD) must be provided',
   }
@@ -74,7 +76,7 @@ let validatedEnv: Env | null = null;
  * @throws {z.ZodError} If environment validation fails
  */
 export function loadEnv(): Env {
-  if (validatedEnv !== null && validatedEnv !== undefined) {
+  if (validatedEnv != null) {
     return validatedEnv;
   }
 
@@ -107,7 +109,7 @@ export function loadEnv(): Env {
  * @throws {Error} If loadEnv() has not been called
  */
 export function getEnv(): Env {
-  if (validatedEnv === null || validatedEnv === undefined) {
+  if (validatedEnv == null) {
     throw new Error('Environment not loaded. Call loadEnv() at application startup.');
   }
   return validatedEnv;
