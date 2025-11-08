@@ -423,6 +423,7 @@ export function TasksScreen({ route, navigation }: Props) {
                   Completion Notes {selectedTask.isRequired && '*'}
                 </Text>
                 <TextInput
+                  testID="task-completion-notes-input"
                   style={styles.textInput}
                   placeholder="Add notes about task completion..."
                   value={completionNotes}
@@ -458,6 +459,7 @@ export function TasksScreen({ route, navigation }: Props) {
 
           <View style={styles.modalFooter}>
             <Button
+              testID="skip-task-button"
               variant="secondary"
               onPress={handleSkipTask}
               style={styles.footerButton}
@@ -466,6 +468,7 @@ export function TasksScreen({ route, navigation }: Props) {
               Skip Task
             </Button>
             <Button
+              testID="mark-complete-button"
               variant="primary"
               onPress={handleCompleteTask}
               style={styles.footerButton}

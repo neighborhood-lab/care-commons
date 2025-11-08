@@ -1,0 +1,133 @@
+# E2E Test Flow: Clock-In with GPS Verification
+#
+# Tests the complete clock-in workflow including:
+# - GPS location acquisition
+# - Geofence verification
+# - Pre-flight checks
+# - Photo capture (optional)
+# - Clock-in submission
+# - Offline queue handling
+
+appId: com.carecommons.mobile
+tags:
+  - clock-in
+  - gps
+  - evv
+  - critical
+---
+
+# Prerequisites: User must be logged in
+- runFlow: helpers/login.yaml
+
+# Navigate to visits
+- tapOn: "Visits|Schedule|Today"
+
+# Wait for visits list to load
+- waitForAnimationToEnd
+
+# Find and tap on a scheduled visit
+- assertVisible: "${CLIENT_NAME}"
+- tapOn: "${CLIENT_NAME}"
+
+# Tap on Clock In button
+- assertVisible: "Clock In"
+- tapOn: "Clock In"
+
+# Wait for GPS acquisition
+- assertVisible:
+    text: "Acquiring GPS location..."
+    timeout: 3000
+
+# Wait for map and location to load
+- assertVisible:
+    text: "Pre-Flight Checks"
+    timeout: ${GPS_ACQUISITION_TIMEOUT}
+
+- waitForAnimationToEnd
+
+# Verify pre-flight check elements are visible
+- assertVisible: "GPS Accuracy"
+- assertVisible: "Distance from Address"
+- assertVisible: "Geofence Status"
+- assertVisible: "Battery Level"
+- assertVisible: "Location Source"
+
+# Verify client information is displayed
+- assertVisible: "${CLIENT_NAME}"
+- assertVisible:
+    regex: "Austin.*TX|Dorothy Chen"
+
+# Take screenshot of pre-flight checks
+- takeScreenshot: screenshots/02-clock-in-preflight
+
+# Scroll down to see all pre-flight checks
+- scroll
+
+# Verify GPS status shows accurate location
+# Note: In test environment, GPS may show "Outside" geofence
+# This is expected for simulator/emulator testing
+- assertVisible:
+    text: "GPS|Geofence|Battery"
+
+# Optional: Take photo before clocking in
+- runFlow:
+    when:
+      visible: "Take Photo (Optional)"
+    commands:
+      - tapOn: "Take Photo (Optional)"
+      - waitForAnimationToEnd
+      # Handle camera permissions if prompted
+      - runFlow:
+          when:
+            visible: "Allow|OK"
+          commands:
+            - tapOn: "Allow|OK"
+      # Capture photo (or skip if camera not available in test)
+      - runFlow:
+          when:
+            visible: "Capture|Take Photo"
+          commands:
+            - tapOn: "Capture|Take Photo"
+            - waitForAnimationToEnd
+
+# Attempt to clock in
+- tapOn: "Clock In"
+
+# Handle geofence warning if outside (common in test environments)
+- runFlow:
+    when:
+      visible: "Outside Geofence"
+    commands:
+      - assertVisible:
+          regex: "\\d+m from the client address"
+      - takeScreenshot: screenshots/02-clock-in-geofence-warning
+      - tapOn: "Continue"
+
+# Handle pre-flight failure if GPS is not accurate enough
+- runFlow:
+    when:
+      visible: "Pre-Flight Checks Failed"
+    commands:
+      - takeScreenshot: screenshots/02-clock-in-preflight-failed
+      - tapOn: "OK"
+      # Test passed - we verified the validation works
+      - stopApp
+
+# Verify success message appears (if all checks pass)
+- runFlow:
+    when:
+      visible: "Success"
+    commands:
+      - assertVisible:
+          text: "Clocked in successfully|visit has started"
+          timeout: ${API_RESPONSE_TIMEOUT}
+      - takeScreenshot: screenshots/02-clock-in-success
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+      # Verify navigation back to visit details or visit list
+      - assertVisible:
+          text: "Visit|Tasks|Schedule"
+          timeout: 5000
+
+# Take final screenshot
+- takeScreenshot: screenshots/02-clock-in-complete

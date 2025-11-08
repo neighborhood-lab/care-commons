@@ -1,0 +1,107 @@
+# E2E Test Flow: User Login
+#
+# Tests the complete login workflow including:
+# - Email/password authentication
+# - Biometric prompt handling
+# - Navigation to home screen
+# - Error handling for invalid credentials
+
+appId: com.carecommons.mobile
+tags:
+  - login
+  - auth
+  - critical
+---
+
+# Test 1: Successful Login with Email & Password
+- launchApp:
+    clearState: true
+    stopApp: true
+
+- assertVisible: "Care Commons"
+- assertVisible: "Caregiver Mobile App"
+
+# Verify login form elements are visible
+- assertVisible: "Email"
+- assertVisible: "Password"
+- assertVisible: "Login"
+
+# Enter valid credentials
+- tapOn: "Enter your email"
+- inputText: "${TEST_EMAIL}"
+- tapOn: "Enter your password"
+- inputText: "${TEST_PASSWORD}"
+
+# Submit login form
+- tapOn: "Login"
+
+# Handle biometric prompt if it appears (first-time login)
+# Note: This is optional and may not appear
+- runFlow:
+    when:
+      visible: "Enable Biometric Login"
+    commands:
+      - tapOn: "Not Now"
+
+# Handle onboarding flow if it appears (first-time login)
+- runFlow:
+    when:
+      visible: "Welcome to Care Commons"
+    commands:
+      - tapOn: "Get Started"
+      - waitForAnimationToEnd
+
+# Verify successful login - should see schedule or home screen
+- assertVisible:
+    text: "Schedule|Today's Visits|Visits"
+    timeout: ${DEFAULT_TIMEOUT}
+
+# Take screenshot for visual regression
+- takeScreenshot: screenshots/01-login-success
+
+---
+
+# Test 2: Login with Invalid Credentials
+- launchApp:
+    clearState: true
+    stopApp: true
+
+- tapOn: "Enter your email"
+- inputText: "invalid@test.com"
+- tapOn: "Enter your password"
+- inputText: "WrongPassword123"
+
+- tapOn: "Login"
+
+# Verify error message appears
+- assertVisible:
+    text: "Login Failed"
+    timeout: 5000
+
+# Dismiss error dialog
+- tapOn: "OK"
+
+# Verify still on login screen
+- assertVisible: "Care Commons"
+- assertVisible: "Login"
+
+- takeScreenshot: screenshots/01-login-error
+
+---
+
+# Test 3: Login with Empty Fields
+- launchApp:
+    clearState: true
+    stopApp: true
+
+# Try to login without entering credentials
+- tapOn: "Login"
+
+# Verify validation error
+- assertVisible:
+    text: "Please enter email and password"
+    timeout: 3000
+
+- tapOn: "OK"
+
+- takeScreenshot: screenshots/01-login-validation

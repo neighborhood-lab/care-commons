@@ -1,0 +1,173 @@
+# E2E Test Flow: Visual Regression Testing
+#
+# Captures screenshots of all major screens for visual regression testing
+# Compare these screenshots across builds to detect UI changes
+#
+# Usage:
+#   maestro test flows/06-visual-regression.yaml
+#   maestro test flows/06-visual-regression.yaml --format junit --output report.xml
+
+appId: com.carecommons.mobile
+tags:
+  - visual
+  - regression
+  - ui
+---
+
+# Test 1: Login Screen
+- launchApp:
+    clearState: true
+    stopApp: true
+
+- assertVisible: "Care Commons"
+- waitForAnimationToEnd
+
+- takeScreenshot: visual-regression/01-login-screen
+
+---
+
+# Test 2: Home/Schedule Screen
+- runFlow: helpers/login.yaml
+
+- assertVisible: "Schedule|Visits|Today"
+- waitForAnimationToEnd
+
+- takeScreenshot: visual-regression/02-home-schedule
+
+---
+
+# Test 3: Visits List
+- tapOn: "Visits|Today's Visits"
+- waitForAnimationToEnd
+
+- takeScreenshot: visual-regression/03-visits-list
+
+---
+
+# Test 4: Visit Details
+- assertVisible: "${CLIENT_NAME}"
+- tapOn: "${CLIENT_NAME}"
+- waitForAnimationToEnd
+
+- takeScreenshot: visual-regression/04-visit-details
+
+---
+
+# Test 5: Clock-In Screen
+- tapOn: "Clock In"
+- waitForAnimationToEnd:
+    timeout: ${GPS_ACQUISITION_TIMEOUT}
+
+- assertVisible: "Pre-Flight Checks"
+- waitForAnimationToEnd
+
+- takeScreenshot: visual-regression/05-clock-in-preflight
+
+- scroll
+
+- takeScreenshot: visual-regression/05-clock-in-actions
+
+# Go back
+- tapOn: "Back|Cancel|Close"
+- waitForAnimationToEnd
+
+---
+
+# Test 6: Tasks Screen
+- tapOn: "Tasks|View Tasks"
+- waitForAnimationToEnd
+
+- assertVisible: "Visit Tasks"
+
+- takeScreenshot: visual-regression/06-tasks-list
+
+# Open task details
+- tapOn: "Personal Hygiene Assistance"
+- waitForAnimationToEnd
+
+- takeScreenshot: visual-regression/06-task-details
+
+- scroll
+
+- takeScreenshot: visual-regression/06-task-actions
+
+# Close modal
+- tapOn: "✕|Close|Cancel"
+- waitForAnimationToEnd
+
+---
+
+# Test 7: Profile Screen
+- tapOn: "Profile|Settings|Menu"
+- waitForAnimationToEnd
+
+- takeScreenshot: visual-regression/07-profile
+
+- scroll
+
+- takeScreenshot: visual-regression/07-profile-scrolled
+
+---
+
+# Test 8: Visit History
+- tapOn: "Visits|Schedule"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "History|Past Visits|Completed"
+    commands:
+      - tapOn: "History|Past Visits|Completed"
+      - waitForAnimationToEnd
+      - takeScreenshot: visual-regression/08-visit-history
+
+---
+
+# Test 9: Dark Mode (if supported)
+- runFlow:
+    when:
+      visible: "Settings|Profile"
+    commands:
+      - tapOn: "Settings|Profile"
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "Dark Mode|Theme|Appearance"
+          commands:
+            - tapOn: "Dark Mode|Theme|Appearance"
+            - waitForAnimationToEnd
+            - tapOn: "Dark|Enable"
+            - waitForAnimationToEnd
+            - takeScreenshot: visual-regression/09-dark-mode-home
+            # Capture a few more screens in dark mode
+            - tapOn: "Visits"
+            - waitForAnimationToEnd
+            - takeScreenshot: visual-regression/09-dark-mode-visits
+            # Restore light mode
+            - tapOn: "Settings|Profile"
+            - waitForAnimationToEnd
+            - tapOn: "Light|Disable"
+            - waitForAnimationToEnd
+
+---
+
+# Test 10: Landscape Orientation
+# Note: Requires device rotation capability
+- runFlow:
+    when:
+      true
+    commands:
+      - evalScript: |
+          output.note = 'Rotate device to landscape for landscape screenshots';
+      # In a real test environment, you would rotate the device here
+      # For now, we document that this would be done
+
+# Final screenshot
+- takeScreenshot: visual-regression/complete
+
+# Instructions for visual regression testing:
+# 1. Run this flow to generate baseline screenshots
+# 2. Store screenshots in version control or artifact storage
+# 3. On subsequent builds, run the same flow
+# 4. Compare new screenshots against baseline using image diff tools
+# 5. Tools: Percy, Applitools, BackstopJS, or custom image comparison

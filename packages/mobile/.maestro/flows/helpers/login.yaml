@@ -1,0 +1,67 @@
+# Helper Flow: Login
+#
+# Reusable login flow for test prerequisites
+# This flow logs in a test user and handles the onboarding/biometric prompts
+
+appId: com.carecommons.mobile
+---
+
+# Launch app and clear state
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+# Check if already logged in
+- runFlow:
+    when:
+      visible: "Schedule|Visits|Today's Visits"
+    commands:
+      # Already logged in, skip login
+      - stopApp
+
+# Perform login
+- assertVisible: "Care Commons"
+
+- tapOn: "Enter your email"
+- inputText: "${TEST_EMAIL}"
+
+- tapOn: "Enter your password"
+- inputText: "${TEST_PASSWORD}"
+
+- tapOn: "Login"
+
+# Handle biometric prompt (may appear on first login)
+- runFlow:
+    when:
+      visible: "Enable Biometric Login"
+    commands:
+      - tapOn: "Not Now"
+
+# Handle onboarding (may appear on first login)
+- runFlow:
+    when:
+      visible: "Welcome to Care Commons|Get Started"
+    commands:
+      - tapOn: "Get Started|Continue|Next"
+      - waitForAnimationToEnd
+      # Handle permissions screen if shown
+      - runFlow:
+          when:
+            visible: "Allow|Grant Permissions"
+          commands:
+            - tapOn: "Allow|Continue"
+            - waitForAnimationToEnd
+      # Complete onboarding
+      - runFlow:
+          when:
+            visible: "Done|Finish|Get Started"
+          commands:
+            - tapOn: "Done|Finish|Get Started"
+            - waitForAnimationToEnd
+
+# Verify successful login
+- assertVisible:
+    text: "Schedule|Visits|Today"
+    timeout: 10000
+
+- waitForAnimationToEnd

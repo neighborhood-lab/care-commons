@@ -127,6 +127,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
           <View>
             <Text style={styles.label}>Email</Text>
             <TextInput
+              testID="email-input"
               style={styles.input}
               value={email}
               onChangeText={setEmail}
@@ -142,6 +143,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
           <View>
             <Text style={styles.label}>Password</Text>
             <TextInput
+              testID="password-input"
               style={styles.input}
               value={password}
               onChangeText={setPassword}
@@ -155,6 +157,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
           </View>
 
           <Button
+            testID="login-button"
             variant="primary"
             onPress={handleLogin}
             disabled={isLoading}
@@ -166,6 +169,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
 
           {biometricAvailable && (
             <Button
+              testID="biometric-login-button"
               variant="secondary"
               onPress={handleBiometricLogin}
               disabled={isLoading}

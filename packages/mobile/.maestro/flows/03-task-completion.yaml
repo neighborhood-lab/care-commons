@@ -1,0 +1,174 @@
+# E2E Test Flow: Task Completion
+#
+# Tests the complete task completion workflow including:
+# - Viewing task list
+# - Selecting a task
+# - Adding completion notes
+# - Adding photos (optional)
+# - Marking task as complete
+# - Skipping tasks
+# - Progress tracking
+
+appId: com.carecommons.mobile
+tags:
+  - tasks
+  - adl
+  - critical
+---
+
+# Prerequisites: User must be logged in and have an active visit
+- runFlow: helpers/login.yaml
+
+# Navigate to an active visit with tasks
+- tapOn: "Visits|Schedule|Today"
+- waitForAnimationToEnd
+
+# Select a visit (assuming user has clocked in)
+- assertVisible: "${CLIENT_NAME}"
+- tapOn: "${CLIENT_NAME}"
+- waitForAnimationToEnd
+
+# Navigate to tasks
+- runFlow:
+    when:
+      visible: "Tasks|View Tasks"
+    commands:
+      - tapOn: "Tasks|View Tasks"
+      - waitForAnimationToEnd
+
+# Verify tasks screen is loaded
+- assertVisible: "Visit Tasks"
+- assertVisible:
+    regex: "\\d+ of \\d+ completed"
+
+# Take screenshot of task list
+- takeScreenshot: screenshots/03-tasks-list
+
+# Verify task categories and status badges
+- assertVisible: "ADL|IADL|Health"
+- assertVisible: "Pending|Required"
+
+---
+
+# Test 1: Complete a Required Task with Notes
+
+# Select first task (Personal Hygiene Assistance)
+- tapOn: "Personal Hygiene Assistance"
+- waitForAnimationToEnd
+
+# Verify task completion modal opened
+- assertVisible: "Complete Task"
+- assertVisible: "Personal Hygiene Assistance"
+- assertVisible: "Assist with bathing, grooming, and oral care"
+
+# Verify client preferences and safety info are shown
+- assertVisible:
+    text: "Client Preferences|Prefers shower|lukewarm water"
+    timeout: 3000
+
+- scroll
+
+- assertVisible:
+    text: "Safety|Non-slip mat"
+    timeout: 3000
+
+# Take screenshot of task details
+- takeScreenshot: screenshots/03-task-details
+
+# Add completion notes
+- tapOn: "Add notes about task completion..."
+- inputText: "Assisted client with morning shower. Client was in good spirits. Used non-slip mat as required. Water temperature adjusted to client preference."
+
+# Scroll to see action buttons
+- scroll
+
+# Optional: Add photo
+- runFlow:
+    when:
+      visible: "Add Photo"
+    commands:
+      - tapOn: "Add Photo"
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "Allow|OK"
+          commands:
+            - tapOn: "Allow|OK"
+      # Skip actual photo capture in automated tests
+      - runFlow:
+          when:
+            visible: "Cancel"
+          commands:
+            - tapOn: "Cancel"
+
+# Mark task as complete
+- tapOn: "Mark Complete"
+
+# Verify success message
+- assertVisible:
+    text: "Success|marked as complete"
+    timeout: ${API_RESPONSE_TIMEOUT}
+
+- takeScreenshot: screenshots/03-task-completed-success
+
+- tapOn: "OK"
+- waitForAnimationToEnd
+
+# Verify task list shows updated progress
+- assertVisible:
+    regex: "[1-9]+ of \\d+ completed"
+
+# Verify completed task shows completion badge
+- assertVisible: "Complete"
+
+- takeScreenshot: screenshots/03-tasks-progress-updated
+
+---
+
+# Test 2: Skip a Non-Required Task
+
+# Select a non-required task (Light Housekeeping)
+- tapOn: "Light Housekeeping"
+- waitForAnimationToEnd
+
+- assertVisible: "Complete Task"
+- assertVisible: "Light Housekeeping"
+
+# Scroll to see Skip button
+- scroll
+
+# Tap Skip Task button
+- tapOn: "Skip Task"
+
+# Handle skip reason prompt
+# Note: Alert.prompt may not work in all test environments
+# This is a known limitation of React Native testing
+- runFlow:
+    when:
+      visible: "Skip Task"
+    commands:
+      - assertVisible: "Please provide a reason"
+      # In real iOS/Android, would enter text here
+      # For now, we'll cancel
+      - tapOn: "Cancel"
+      - waitForAnimationToEnd
+      # Close the modal
+      - tapOn: "✕"
+
+- takeScreenshot: screenshots/03-task-skip-flow
+
+---
+
+# Test 3: Verify Task Progress
+
+# Verify progress bar updates
+- assertVisible: "Visit Tasks"
+- assertVisible:
+    regex: "\\d+ of \\d+ completed \\(\\d+%\\)"
+
+# Verify required tasks counter
+- assertVisible:
+    regex: "Required: \\d+ of \\d+"
+
+# Take final screenshot
+- takeScreenshot: screenshots/03-tasks-final-progress

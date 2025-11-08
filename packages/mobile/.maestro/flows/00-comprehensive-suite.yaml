@@ -1,0 +1,59 @@
+# Comprehensive Test Suite
+#
+# Runs all critical E2E test flows in sequence
+# Use this for full regression testing before releases
+#
+# Usage:
+#   maestro test flows/00-comprehensive-suite.yaml
+#   maestro test flows/00-comprehensive-suite.yaml --format junit --output test-results.xml
+
+appId: com.carecommons.mobile
+tags:
+  - suite
+  - regression
+  - comprehensive
+---
+
+# Test Suite: Run all critical flows
+
+# 1. Login Tests
+- runFlow: 01-login.yaml
+
+# Wait between tests
+- wait: 2000
+
+# 2. Clock-In Tests
+- runFlow: 02-clock-in.yaml
+
+- wait: 2000
+
+# 3. Task Completion Tests
+- runFlow: 03-task-completion.yaml
+
+- wait: 2000
+
+# 4. Visit Documentation Tests
+- runFlow: 04-visit-documentation.yaml
+
+- wait: 2000
+
+# 5. Offline Mode Tests
+# Note: This may require manual network configuration
+# - runFlow: 05-offline-mode.yaml
+# Commented out by default as it requires network manipulation
+
+# 6. Visual Regression Tests
+- runFlow: 06-visual-regression.yaml
+
+- wait: 2000
+
+# 7. Performance Tests
+- runFlow: 07-performance.yaml
+
+# Test suite complete
+- evalScript: |
+    output.testSuiteComplete = true;
+    output.timestamp = new Date().toISOString();
+    output.message = 'Comprehensive test suite completed successfully';
+
+- takeScreenshot: test-suite-complete

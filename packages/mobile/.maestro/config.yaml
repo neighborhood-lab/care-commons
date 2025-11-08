@@ -1,0 +1,32 @@
+# Maestro Configuration for Care Commons Mobile App
+#
+# This configuration file defines settings for Maestro E2E tests
+# including app launch parameters, environment variables, and timeouts.
+
+appId: com.carecommons.mobile
+---
+
+# Global environment variables for all flows
+env:
+  # Test user credentials
+  TEST_EMAIL: "caregiver@test.carecommons.org"
+  TEST_PASSWORD: "TestPassword123!"
+
+  # Mock client data
+  CLIENT_NAME: "Dorothy Chen"
+  CLIENT_ADDRESS: "123 Main St"
+
+  # Test configuration
+  GPS_MOCK_ENABLED: "false"
+  OFFLINE_MODE: "false"
+
+  # Timeouts
+  DEFAULT_TIMEOUT: 30000
+  GPS_ACQUISITION_TIMEOUT: 15000
+  API_RESPONSE_TIMEOUT: 10000
+
+# Default tags for organizing tests
+tags:
+  - mobile
+  - e2e
+  - carecommons

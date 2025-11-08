@@ -1,0 +1,216 @@
+# E2E Test Flow: Offline Mode & Sync
+#
+# Tests the offline functionality including:
+# - Enabling airplane mode
+# - Performing actions while offline (clock-in, task completion)
+# - Verifying offline queue
+# - Re-enabling connectivity
+# - Verifying automatic sync
+
+appId: com.carecommons.mobile
+tags:
+  - offline
+  - sync
+  - resilience
+  - critical
+---
+
+# Prerequisites: User must be logged in
+- runFlow: helpers/login.yaml
+
+# Take screenshot of online state
+- takeScreenshot: screenshots/05-offline-initial
+
+---
+
+# Test 1: Enable Airplane Mode and Verify Offline Indicator
+
+# Enable airplane mode (device-level command)
+# Note: This requires Maestro to have device control permissions
+- runFlow:
+    when:
+      true
+    commands:
+      # iOS command to enable airplane mode
+      - evalScript: |
+          output.track = 'iOS';
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            # Note: Airplane mode toggling may require manual setup in test environment
+            - openLink: "prefs:root=AIRPLANE_MODE"
+            - waitForAnimationToEnd
+
+# For Android, use ADB command via Maestro
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      # Use Maestro's built-in airplane mode support if available
+      - evalScript: |
+          output.message = 'Airplane mode should be enabled manually for this test';
+
+# Alternative: Use app's developer menu to simulate offline mode
+# This is more reliable for automated testing
+- runFlow:
+    when:
+      visible: "Profile|Settings|Menu"
+    commands:
+      - tapOn: "Profile|Settings|Menu"
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "Developer|Debug|Test Mode"
+          commands:
+            - tapOn: "Developer|Debug|Test Mode"
+            - waitForAnimationToEnd
+            - tapOn: "Simulate Offline Mode"
+            - waitForAnimationToEnd
+
+# Verify offline indicator appears
+- runFlow:
+    when:
+      visible: "Offline|No connection|No internet"
+    commands:
+      - assertVisible: "Offline|No connection|No internet"
+      - takeScreenshot: screenshots/05-offline-indicator
+
+---
+
+# Test 2: Perform Actions While Offline
+
+# Navigate to visits
+- tapOn: "Visits|Schedule|Today"
+- waitForAnimationToEnd
+
+# Select a visit
+- assertVisible: "${CLIENT_NAME}"
+- tapOn: "${CLIENT_NAME}"
+- waitForAnimationToEnd
+
+# Attempt to clock in while offline
+- tapOn: "Clock In"
+- waitForAnimationToEnd:
+    timeout: ${GPS_ACQUISITION_TIMEOUT}
+
+# Wait for pre-flight checks
+- runFlow:
+    when:
+      visible: "Pre-Flight Checks"
+    commands:
+      - scroll
+      - tapOn: "Clock In"
+      - waitForAnimationToEnd
+      # Handle geofence warning
+      - runFlow:
+          when:
+            visible: "Outside Geofence|Continue"
+          commands:
+            - tapOn: "Continue"
+            - waitForAnimationToEnd
+
+# Verify offline queue message
+- assertVisible:
+    text: "queued|will be sent when connection|offline"
+    timeout: 10000
+
+- takeScreenshot: screenshots/05-offline-queued
+
+- tapOn: "OK"
+- waitForAnimationToEnd
+
+---
+
+# Test 3: Complete Task While Offline
+
+# Navigate to tasks
+- tapOn: "Tasks|View Tasks"
+- waitForAnimationToEnd
+
+# Select a task
+- tapOn: "Personal Hygiene Assistance|Meal Preparation"
+- waitForAnimationToEnd
+
+# Add completion notes
+- tapOn: "Add notes about task completion..."
+- inputText: "Task completed while offline. Testing offline queue functionality."
+
+- scroll
+
+# Mark as complete
+- tapOn: "Mark Complete"
+
+# Verify offline queue message
+- assertVisible:
+    text: "queued|offline|will be sent"
+    timeout: 10000
+
+- takeScreenshot: screenshots/05-offline-task-queued
+
+- tapOn: "OK"
+- waitForAnimationToEnd
+
+---
+
+# Test 4: View Offline Queue
+
+# Navigate to profile or settings to view queue
+- tapOn: "Profile|Settings|Menu"
+- waitForAnimationToEnd
+
+# Look for offline queue or sync status
+- runFlow:
+    when:
+      visible: "Offline Queue|Sync Status|Pending Actions"
+    commands:
+      - tapOn: "Offline Queue|Sync Status|Pending Actions"
+      - waitForAnimationToEnd
+      - assertVisible:
+          regex: "\\d+ items?|pending|queued"
+      - takeScreenshot: screenshots/05-offline-queue-status
+
+---
+
+# Test 5: Re-enable Connectivity and Verify Sync
+
+# Disable airplane mode / re-enable connectivity
+# This would typically be done manually or via device commands
+- evalScript: |
+    output.instruction = 'Re-enable network connectivity for sync test';
+
+# Alternative: Use app developer menu to disable offline mode
+- runFlow:
+    when:
+      visible: "Developer|Debug|Test Mode"
+    commands:
+      - tapOn: "Developer|Debug|Test Mode"
+      - waitForAnimationToEnd
+      - tapOn: "Disable Offline Mode|Enable Sync"
+      - waitForAnimationToEnd
+
+# Wait for automatic sync to complete
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Verify sync success indicator
+- runFlow:
+    when:
+      visible: "Synced|Online|Connected"
+    commands:
+      - assertVisible: "Synced|Online|Connected"
+      - takeScreenshot: screenshots/05-online-synced
+
+# Verify offline queue is now empty
+- runFlow:
+    when:
+      visible: "Offline Queue|Sync Status"
+    commands:
+      - tapOn: "Offline Queue|Sync Status"
+      - waitForAnimationToEnd
+      - assertVisible:
+          text: "0 items|empty|all synced"
+          timeout: 5000
+      - takeScreenshot: screenshots/05-offline-queue-empty
+
+- takeScreenshot: screenshots/05-offline-test-complete

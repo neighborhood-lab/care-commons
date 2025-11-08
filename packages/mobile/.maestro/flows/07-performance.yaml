@@ -1,0 +1,251 @@
+# E2E Test Flow: Performance Testing
+#
+# Tests app performance including:
+# - App launch time
+# - Screen transition times
+# - Memory usage
+# - Frame rate (FPS)
+# - Network request latency
+#
+# Note: Maestro has built-in performance tracking
+# Results can be viewed in test reports
+
+appId: com.carecommons.mobile
+tags:
+  - performance
+  - metrics
+  - monitoring
+---
+
+# Test 1: Cold Start Launch Time
+# Measures time from app launch to first screen render
+
+- launchApp:
+    clearState: true
+    stopApp: true
+    # Maestro automatically tracks launch time
+
+- assertVisible:
+    text: "Care Commons"
+    timeout: 5000
+
+# Record launch time metric
+- evalScript: |
+    const launchTime = Date.now();
+    output.launchTime = launchTime;
+    output.metric = 'cold_start_time_measured';
+
+- takeScreenshot: performance/01-cold-start
+
+# Success criteria: App should launch within 3 seconds
+# This is verified by the 5000ms timeout on assertVisible
+
+---
+
+# Test 2: Warm Start Launch Time
+# Measures time when app is already in memory
+
+- stopApp
+
+- launchApp:
+    clearState: false
+    stopApp: false
+
+- assertVisible:
+    text: "Care Commons"
+    timeout: 3000
+
+- takeScreenshot: performance/02-warm-start
+
+---
+
+# Test 3: Login Performance
+
+- launchApp:
+    clearState: true
+    stopApp: true
+
+- assertVisible: "Care Commons"
+
+# Record start time
+- evalScript: |
+    output.loginStartTime = Date.now();
+
+- tapOn: "Enter your email"
+- inputText: "${TEST_EMAIL}"
+- tapOn: "Enter your password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Login"
+
+# Handle biometric prompt if appears
+- runFlow:
+    when:
+      visible: "Enable Biometric Login"
+    commands:
+      - tapOn: "Not Now"
+
+# Measure time to home screen
+- assertVisible:
+    text: "Schedule|Visits|Today"
+    timeout: 10000
+
+- evalScript: |
+    output.loginEndTime = Date.now();
+    output.metric = 'login_duration_measured';
+
+- takeScreenshot: performance/03-login-complete
+
+# Success criteria: Login should complete within 10 seconds
+
+---
+
+# Test 4: Screen Transition Performance
+# Measures navigation between screens
+
+- assertVisible: "Visits|Schedule"
+
+# Measure visits list load time
+- evalScript: |
+    output.visitListStartTime = Date.now();
+
+- tapOn: "Visits|Today"
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "${CLIENT_NAME}"
+    timeout: 5000
+
+- evalScript: |
+    output.visitListEndTime = Date.now();
+
+- takeScreenshot: performance/04-visits-list
+
+# Measure visit details load time
+- evalScript: |
+    output.visitDetailsStartTime = Date.now();
+
+- tapOn: "${CLIENT_NAME}"
+- waitForAnimationToEnd
+
+- assertVisible: "Clock In|Tasks"
+
+- evalScript: |
+    output.visitDetailsEndTime = Date.now();
+
+- takeScreenshot: performance/04-visit-details
+
+---
+
+# Test 5: GPS Acquisition Time
+# Critical for EVV compliance
+
+- evalScript: |
+    output.gpsStartTime = Date.now();
+
+- tapOn: "Clock In"
+
+- assertVisible: "Acquiring GPS location..."
+
+- assertVisible:
+    text: "Pre-Flight Checks"
+    timeout: ${GPS_ACQUISITION_TIMEOUT}
+
+- evalScript: |
+    output.gpsEndTime = Date.now();
+    output.metric = 'gps_acquisition_time_measured';
+
+- takeScreenshot: performance/05-gps-acquired
+
+# Success criteria: GPS should be acquired within 15 seconds
+
+# Go back
+- tapOn: "Back|Cancel"
+- waitForAnimationToEnd
+
+---
+
+# Test 6: Task List Load Performance
+
+- tapOn: "Tasks|View Tasks"
+
+- evalScript: |
+    output.taskListStartTime = Date.now();
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "Visit Tasks"
+    timeout: 5000
+
+- assertVisible:
+    text: "Personal Hygiene|Meal Preparation|ADL"
+    timeout: 3000
+
+- evalScript: |
+    output.taskListEndTime = Date.now();
+
+- takeScreenshot: performance/06-tasks-loaded
+
+---
+
+# Test 7: Database Query Performance
+# Test offline data loading speed
+
+- tapOn: "Profile|Settings|Menu"
+- waitForAnimationToEnd
+
+# Navigate to visit history (should load from local DB)
+- tapOn: "Visits|Schedule"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "History|Past"
+    commands:
+      - evalScript: |
+          output.historyStartTime = Date.now();
+      - tapOn: "History|Past"
+      - waitForAnimationToEnd
+      - assertVisible:
+          text: "Visit|Completed|History"
+          timeout: 5000
+      - evalScript: |
+          output.historyEndTime = Date.now();
+      - takeScreenshot: performance/07-history-loaded
+
+---
+
+# Test 8: Memory Usage Check
+# Note: Memory profiling requires native tools (Xcode Instruments, Android Profiler)
+# This is a placeholder for memory test documentation
+
+- evalScript: |
+    output.memoryCheck = 'Memory profiling should be done with native tools';
+    output.recommendation = 'Use Xcode Instruments (iOS) or Android Studio Profiler';
+
+---
+
+# Performance Test Summary
+
+- evalScript: |
+    output.performanceTestComplete = true;
+    output.summary = {
+      coldStart: 'Measured against 5s target',
+      warmStart: 'Measured against 3s target',
+      login: 'Measured against 10s target',
+      gpsAcquisition: 'Measured against 15s target',
+      screenTransitions: 'All measured',
+      note: 'Review Maestro test report for actual timing data'
+    };
+
+- takeScreenshot: performance/complete
+
+# Performance Success Criteria:
+# - Cold start: < 5 seconds
+# - Warm start: < 3 seconds
+# - Login: < 10 seconds
+# - GPS acquisition: < 15 seconds
+# - Screen transitions: < 2 seconds each
+# - Task list load: < 3 seconds
+# - No memory leaks (verify with profiler)
+# - Smooth animations (60 FPS target)

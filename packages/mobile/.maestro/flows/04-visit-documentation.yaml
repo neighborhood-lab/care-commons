@@ -1,0 +1,128 @@
+# E2E Test Flow: Visit Documentation
+#
+# Tests the visit documentation workflow including:
+# - Viewing visit details
+# - Adding visit notes
+# - Signature capture
+# - Photo documentation
+# - Visit check-out
+
+appId: com.carecommons.mobile
+tags:
+  - visits
+  - documentation
+  - evv
+  - critical
+---
+
+# Prerequisites: User must be logged in and have an active visit
+- runFlow: helpers/login.yaml
+
+# Navigate to active visits
+- tapOn: "Visits|Schedule|Today"
+- waitForAnimationToEnd
+
+# Select an active visit
+- assertVisible: "${CLIENT_NAME}"
+- tapOn: "${CLIENT_NAME}"
+- waitForAnimationToEnd
+
+# Verify visit details screen
+- assertVisible: "${CLIENT_NAME}"
+- assertVisible:
+    text: "Austin|TX|123 Main St"
+
+# Take screenshot of visit details
+- takeScreenshot: screenshots/04-visit-details
+
+---
+
+# Test 1: Add Visit Notes
+
+# Look for documentation or notes option
+- runFlow:
+    when:
+      visible: "Documentation|Add Notes|Notes"
+    commands:
+      - tapOn: "Documentation|Add Notes|Notes"
+      - waitForAnimationToEnd
+      - assertVisible: "Visit Notes|Documentation"
+      # Add notes
+      - tapOn:
+          text: "Add notes|Enter notes"
+          timeout: 3000
+      - inputText: "Client was in good health. Completed all ADL tasks. No concerns noted. Client expressed satisfaction with care."
+      # Save notes
+      - tapOn: "Save|Submit"
+      - waitForAnimationToEnd
+      - takeScreenshot: screenshots/04-visit-notes-added
+
+---
+
+# Test 2: Signature Capture
+
+# Navigate to signature screen if available
+- runFlow:
+    when:
+      visible: "Signature|Sign"
+    commands:
+      - tapOn: "Signature|Sign"
+      - waitForAnimationToEnd
+      - assertVisible: "Signature|Sign here"
+      - takeScreenshot: screenshots/04-signature-screen
+      # Note: Actual signature drawing not supported in automated tests
+      # Would need to use custom Maestro commands or skip this step
+      # For now, we verify the screen loads correctly
+      - runFlow:
+          when:
+            visible: "Cancel|Back"
+          commands:
+            - tapOn: "Cancel|Back"
+            - waitForAnimationToEnd
+
+---
+
+# Test 3: Visit Check-Out
+
+# Look for check-out button
+- scroll
+
+- runFlow:
+    when:
+      visible: "Check Out|Clock Out|End Visit"
+    commands:
+      - tapOn: "Check Out|Clock Out|End Visit"
+      - waitForAnimationToEnd
+      # Handle confirmation dialog if shown
+      - runFlow:
+          when:
+            visible: "Confirm|Are you sure"
+          commands:
+            - assertVisible:
+                text: "end|complete|check out"
+            - takeScreenshot: screenshots/04-checkout-confirmation
+            - tapOn: "Confirm|Yes|Check Out"
+            - waitForAnimationToEnd
+      # Wait for GPS verification (similar to clock-in)
+      - runFlow:
+          when:
+            visible: "GPS|Location"
+          commands:
+            - waitForAnimationToEnd:
+                timeout: ${GPS_ACQUISITION_TIMEOUT}
+            - takeScreenshot: screenshots/04-checkout-gps
+            - tapOn: "Confirm|Submit|Check Out"
+      # Verify success
+      - assertVisible:
+          text: "Success|completed|checked out"
+          timeout: ${API_RESPONSE_TIMEOUT}
+      - takeScreenshot: screenshots/04-checkout-success
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+# Verify navigation back to visit list
+- assertVisible:
+    text: "Visits|Schedule|Today"
+    timeout: 5000
+
+- takeScreenshot: screenshots/04-visit-documentation-complete

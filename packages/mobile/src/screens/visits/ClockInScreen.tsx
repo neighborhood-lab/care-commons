@@ -480,6 +480,7 @@ export function ClockInScreen({ route, navigation }: Props) {
         )}
 
         <Button
+          testID="take-photo-button"
           variant="secondary"
           onPress={handleTakePhoto}
           style={styles.photoButton}
@@ -488,6 +489,7 @@ export function ClockInScreen({ route, navigation }: Props) {
         </Button>
 
         <Button
+          testID="clock-in-button"
           variant="primary"
           onPress={handleClockIn}
           disabled={!preFlightPassed || isClocking}

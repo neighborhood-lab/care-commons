@@ -29,6 +29,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
   children: React.ReactNode;
 }
 
@@ -39,6 +40,7 @@ export function Button({
   disabled,
   loading,
   style,
+  testID,
   children,
 }: ButtonProps) {
   const variantStyles = {
@@ -67,6 +69,7 @@ export function Button({
 
   return (
     <Pressable
+      testID={testID}
       onPress={onPress}
       disabled={disabled || loading}
       style={[
