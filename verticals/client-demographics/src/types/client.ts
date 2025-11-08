@@ -246,6 +246,13 @@ export interface Client extends Entity, SoftDeletable {
   secondaryAddresses?: Address[];
   livingArrangement?: LivingArrangement;
   mobilityInfo?: MobilityInfo;
+  timezone?: string; // IANA timezone (e.g., 'America/New_York')
+
+  // Geocoding
+  coordinates?: { lat: number; lng: number };
+  geocodingConfidence?: 'high' | 'medium' | 'low';
+  geocodedAt?: Date;
+  geocodingFailed?: boolean;
 
   // Emergency contacts
   emergencyContacts: EmergencyContact[];

@@ -18,12 +18,22 @@ export default defineProject({
       '**/*.node',
     ],
   },
+  ssr: {
+    external: [
+      // Exclude Node.js-specific Sentry modules that have native bindings
+      '@sentry/profiling-node',
+      '@sentry-internal/node-cpu-profiler',
+    ],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@/core': path.resolve(__dirname, './src/core'),
       '@/verticals': path.resolve(__dirname, './src/verticals'),
       '@/app': path.resolve(__dirname, './src/app'),
+      // Map Sentry native modules to empty objects to prevent loading .node files
+      '@sentry/profiling-node': path.resolve(__dirname, './src/test/empty-module.ts'),
+      '@sentry-internal/node-cpu-profiler': path.resolve(__dirname, './src/test/empty-module.ts'),
     },
   },
   define: {

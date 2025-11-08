@@ -58,16 +58,16 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        // Sentry Node.js modules
+        // Sentry Node.js modules with native bindings
         '@sentry-internal/node-cpu-profiler',
         '@sentry/profiling-node',
         '@sentry/node',
         '@sentry/node-core',
         '@sentry/tracing',
         '@sentry-internal/tracing',
-        // Native Node.js modules
+        // Native Node.js modules (pattern matching)
         /sentry_cpu_profiler.*\.node$/,
-        // Node.js built-in modules
+        // Node.js built-in modules that shouldn't be in browser bundle
         /^node:/,
         'crypto',
         'stream',
@@ -95,24 +95,7 @@ export default defineConfig({
         'diagnostics_channel',
         'readline',
         'timers',
-        'node:fs',
-        'node:crypto',
-        'node:stream',
-        'node:util',
-        'node:net',
-        'node:url',
-        'node:os',
-        'node:path',
-        'node:buffer',
-        'node:events',
-        'node:process',
-        'node:worker_threads',
-        'node:diagnostics_channel',
-        'node:timers/promises',
-        'node:events',
-        'node:net',
-        'node:tls',
-        'node:readline'
+        'module',
       ],
       output: {
         manualChunks: {
