@@ -9,6 +9,7 @@ import { Database, PermissionService, UserRepository, AuthMiddleware } from '@ca
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
+import { createAuditRoutes, AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository } from '@care-commons/quality-assurance-audits';
 import { createHealthRouter } from './health.js';
 import { createMetricsRouter } from './metrics.js';
 import { createAuthRouter } from './auth.js';
@@ -88,6 +89,21 @@ export function setupRoutes(app: Express, db: Database): void {
   const syncRouter = createSyncRouter(db);
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
+
+  // Quality Assurance & Audits routes
+  const auditRepository = new AuditRepository(db);
+  const auditFindingRepository = new AuditFindingRepository(db);
+  const correctiveActionRepository = new CorrectiveActionRepository(db);
+  const auditService = new AuditService(
+    auditRepository,
+    auditFindingRepository,
+    correctiveActionRepository,
+    permissionService
+  );
+  const auditRouter = Router();
+  createAuditRoutes(auditService, auditRouter);
+  app.use('/api', auditRouter);
+  console.log('  ✓ Quality Assurance & Audits routes registered');
 
   // Payroll Processing routes
   const payrollRouter = createPayrollRouter(db);
