@@ -23,6 +23,7 @@
     "lint": "eslint . --ext ts --max-warnings 100 --ignore-pattern 'dist-vercel/**'"
   },
   "dependencies": {
+    "@care-commons/analytics-reporting": "*",
     "@care-commons/billing-invoicing": "*",
     "@care-commons/care-plans-tasks": "*",
     "@care-commons/caregiver-staff": "*",
