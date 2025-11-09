@@ -161,7 +161,7 @@ jobs:
       - name: Run Database Migrations (Staging)
         if: ${{ github.event.inputs.run_migrations != 'false' }}
         env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL || secrets.PREVIEW_DATABASE_URL }}
         run: |
           echo "::group::Running database migrations"
           START_TIME=$(date +%s)
@@ -179,7 +179,7 @@ jobs:
       - name: Deploy to Vercel Staging
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.STAGING_DATABASE_URL }}" --env ENVIRONMENT="staging")
+          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.STAGING_DATABASE_URL || secrets.PREVIEW_DATABASE_URL }}" --env ENVIRONMENT="staging")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "✅ Staging deployment complete: $DEPLOYMENT_URL"
         env:
