@@ -1,4 +1,3 @@
-import DOMPurify from 'isomorphic-dompurify';
 import type { Request, Response, NextFunction } from 'express';
 
 export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
@@ -8,8 +7,15 @@ export const sanitizeInput = (req: Request, _res: Response, next: NextFunction):
   }
 
   // Sanitize query parameters
+  // Note: req.query has a getter but no setter, so we need to define our own property
   if (req.query != null && typeof req.query === 'object') {
-    req.query = sanitizeObject(req.query) as typeof req.query;
+    const sanitizedQuery = sanitizeObject(req.query);
+    Object.defineProperty(req, 'query', {
+      value: sanitizedQuery,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    });
   }
 
   next();
@@ -18,8 +24,7 @@ export const sanitizeInput = (req: Request, _res: Response, next: NextFunction):
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function sanitizeObject(obj: any): any {
   if (typeof obj === 'string') {
-    // Remove HTML tags and scripts
-    return DOMPurify.sanitize(obj, { ALLOWED_TAGS: [] });
+    return sanitizeString(obj);
   }
 
   if (Array.isArray(obj)) {
@@ -37,6 +42,30 @@ function sanitizeObject(obj: any): any {
   }
 
   return obj;
+}
+
+/**
+ * Sanitize a string by removing:
+ * - HTML tags and attributes
+ * - Script tags and their contents
+ * - JavaScript event handlers
+ * - JavaScript protocol URLs
+ */
+function sanitizeString(str: string): string {
+  let sanitized = str;
+  
+  // Remove script tags and their contents
+  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  
+  // Remove HTML tags (opening/closing tags starting with a letter)
+  // This preserves standalone < and > characters
+  sanitized = sanitized.replace(/<\/?[a-z][^>]*>/gi, '');
+  
+  // Remove javascript: protocol
+  // eslint-disable-next-line sonarjs/code-eval
+  sanitized = sanitized.replace(/javascript:/gi, '');
+  
+  return sanitized;
 }
 
 // SQL injection protection (additional layer beyond parameterized queries)
