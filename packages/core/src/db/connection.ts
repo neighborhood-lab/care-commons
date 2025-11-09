@@ -43,8 +43,6 @@ export class Database {
       query_timeout: config.queryTimeout ?? 30000, // 30s query timeout
       // Application name for monitoring
       application_name: config.application_name ?? 'care-commons',
-      // Connection options for better performance
-      options: `-c plan_cache_mode=force_custom_plan`, // Force custom plans for better performance with varying parameters
     });
 
     // Log pool errors (only if pool has event emitter methods)
