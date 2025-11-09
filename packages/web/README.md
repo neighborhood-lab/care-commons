@@ -78,6 +78,24 @@ cd packages/web
 npm run preview
 ```
 
+## Implemented Verticals with Web UI
+
+The web application includes complete UI implementations for the following verticals:
+
+### ✅ Production Ready
+- **Client Demographics** - Client directory, profiles, demographics, risk flags, service eligibility
+- **Caregiver Staff** - Staff directory, credentials, certifications, background screening
+- **Scheduling & Visits** - Service patterns, automated scheduling, visit tracking, calendar views
+- **Time Tracking & EVV** - Clock in/out, geofence verification, state compliance (TX/FL)
+- **Care Plans & Tasks** - Care plan builder with 17 components + 7 pages for goals, interventions, tasks
+- **Family Engagement** - Family portal, notifications, messaging, transparency features
+- **Billing & Invoicing** - Claims generation, invoice management, payment tracking
+- **Shift Matching** - Caregiver matching, schedule optimization, conflict resolution
+
+### 🚧 Partial UI
+- **Payroll Processing** - Backend complete, UI 70% done
+- **Analytics & Reporting** - Backend complete, UI 70% done
+
 ## Project Structure
 
 ```
@@ -107,7 +125,15 @@ packages/web/
 │   │   │   ├── hooks/         # Client data hooks
 │   │   │   ├── services/      # Client API service
 │   │   │   └── types/         # Client TypeScript types
-│   │   └── [other verticals]
+│   │   ├── caregiver-staff/
+│   │   ├── scheduling-visits/
+│   │   ├── time-tracking-evv/
+│   │   ├── care-plans-tasks/
+│   │   ├── family-engagement/
+│   │   ├── billing-invoicing/
+│   │   ├── shift-matching/
+│   │   ├── payroll-processing/   # Partial
+│   │   └── analytics-reporting/  # Partial
 │   ├── app/                   # Application shell
 │   │   ├── components/
 │   │   │   ├── AppShell.tsx   # Main layout wrapper
