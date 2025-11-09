@@ -257,11 +257,11 @@ jobs:
       - name: Check licenses
         run: |
           echo "Checking licenses for compliance..."
-          # Exclude the root monorepo package (private) from license checking
-          license-checker --summary --production --excludePackages "@care-commons/platform" --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;CC-BY-3.0;CC-BY-4.0;WTFPL;AGPL-3.0" || {
+          # Exclude private packages (like the monorepo root) from license checking
+          license-checker --summary --production --excludePrivatePackages --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;CC-BY-3.0;CC-BY-4.0;WTFPL;AGPL-3.0" || {
             echo "⚠️ License compliance check found issues"
             echo "Generating detailed report..."
-            license-checker --production --excludePackages "@care-commons/platform" --csv --out license-report.csv
+            license-checker --production --excludePrivatePackages --csv --out license-report.csv
             exit 1
           }
 
