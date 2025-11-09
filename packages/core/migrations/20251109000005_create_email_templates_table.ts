@@ -1,4 +1,4 @@
-import type { Knex } from 'knex';
+import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
   // Create email_templates table for customizable email templates
@@ -54,11 +54,11 @@ export async function up(knex: Knex): Promise<void> {
     table.integer('sent_count').notNullable().defaultTo(0); // How many times this template was used
     table.timestamp('last_sent_at'); // When it was last used
 
-    // Audit fields
+    // Audit fields (nullable for default templates)
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
-    table.uuid('created_by').notNullable().references('id').inTable('users');
+    table.uuid('created_by').references('id').inTable('users');
     table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
-    table.uuid('updated_by').notNullable().references('id').inTable('users');
+    table.uuid('updated_by').references('id').inTable('users');
     table.integer('version').notNullable().defaultTo(1);
 
     // Constraints
@@ -79,30 +79,22 @@ export async function up(knex: Knex): Promise<void> {
     CREATE TRIGGER update_email_templates_updated_at
       BEFORE UPDATE ON email_templates
       FOR EACH ROW
-      EXECUTE FUNCTION update_updated_at_column()
+      EXECUTE FUNCTION update_updated_at_timestamp();
   `);
 
-  // Trigger to increment sent_count
+  // Function to increment sent_count
   await knex.raw(`
     CREATE OR REPLACE FUNCTION increment_email_sent_count()
     RETURNS TRIGGER AS $$
     BEGIN
-      UPDATE email_templates
-      SET sent_count = sent_count + 1,
-          last_sent_at = NOW()
-      WHERE id = NEW.template_id;
+      NEW.sent_count = NEW.sent_count + 1;
+      NEW.last_sent_at = NOW();
       RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;
   `);
 
-  // Comments for documentation
-  await knex.raw("COMMENT ON TABLE email_templates IS 'Customizable email templates for organization white-labeling'");
-  await knex.raw("COMMENT ON COLUMN email_templates.template_key IS 'Unique identifier for template type (e.g., welcome, password_reset)'");
-  await knex.raw("COMMENT ON COLUMN email_templates.available_variables IS 'JSON array of available template variables and their descriptions'");
-  await knex.raw("COMMENT ON COLUMN email_templates.use_org_branding IS 'Whether to include organization logo and brand colors'");
-
-  // Insert default templates for common scenarios
+  // Seed default email templates (for all organizations)
   await knex.raw(`
     INSERT INTO email_templates (
       organization_id, template_key, template_name, description, subject, body_text, body_html,
@@ -115,13 +107,24 @@ export async function up(knex: Knex): Promise<void> {
       'Welcome Email',
       'Sent when a new user joins the organization',
       'Welcome to {{organizationName}}!',
-      'Hi {{firstName}},\n\nWelcome to {{organizationName}}! We''re excited to have you on board.\n\nYour username is: {{username}}\n\nGet started by logging in at: {{loginUrl}}\n\nIf you have any questions, feel free to reach out to our support team.\n\nBest regards,\nThe {{organizationName}} Team',
+      'Hi {{firstName}},
+
+Welcome to {{organizationName}}! We''re excited to have you on board.
+
+Your username is: {{username}}
+
+Get started by logging in at: {{loginUrl}}
+
+If you have any questions, feel free to reach out to our support team.
+
+Best regards,
+The {{organizationName}} Team',
       '<h1>Welcome to {{organizationName}}!</h1><p>Hi {{firstName}},</p><p>We''re excited to have you on board.</p><p><strong>Username:</strong> {{username}}</p><p><a href="{{loginUrl}}">Login to your account</a></p>',
       '["organizationName", "firstName", "lastName", "username", "email", "loginUrl"]'::jsonb,
       'ACTIVE',
       true,
-      '00000000-0000-0000-0000-000000000000',
-      '00000000-0000-0000-0000-000000000000'
+      NULL,
+      NULL
     ),
     -- Password reset
     (
@@ -130,13 +133,25 @@ export async function up(knex: Knex): Promise<void> {
       'Password Reset',
       'Sent when a user requests a password reset',
       'Reset your password for {{organizationName}}',
-      'Hi {{firstName}},\n\nYou recently requested to reset your password for {{organizationName}}.\n\nClick the link below to reset it:\n{{resetUrl}}\n\nThis link will expire in {{expirationHours}} hours.\n\nIf you didn''t request this, please ignore this email.\n\nBest regards,\nThe {{organizationName}} Team',
+      'Hi {{firstName}},
+
+You recently requested to reset your password for {{organizationName}}.
+
+Click the link below to reset it:
+{{resetUrl}}
+
+This link will expire in {{expirationHours}} hours.
+
+If you didn''t request this, please ignore this email.
+
+Best regards,
+The {{organizationName}} Team',
       '<h1>Reset Your Password</h1><p>Hi {{firstName}},</p><p>Click the button below to reset your password:</p><p><a href="{{resetUrl}}" style="background-color: #0ea5e9; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a></p><p>This link will expire in {{expirationHours}} hours.</p>',
       '["organizationName", "firstName", "lastName", "email", "resetUrl", "expirationHours"]'::jsonb,
       'ACTIVE',
       true,
-      '00000000-0000-0000-0000-000000000000',
-      '00000000-0000-0000-0000-000000000000'
+      NULL,
+      NULL
     ),
     -- Visit reminder
     (
@@ -145,13 +160,25 @@ export async function up(knex: Knex): Promise<void> {
       'Visit Reminder',
       'Sent to remind caregivers about upcoming visits',
       'Upcoming Visit Reminder: {{clientName}}',
-      'Hi {{caregiverName}},\n\nThis is a reminder about your upcoming visit:\n\nClient: {{clientName}}\nDate: {{visitDate}}\nTime: {{visitTime}}\nAddress: {{visitAddress}}\n\nPlease arrive on time and remember to clock in using the mobile app.\n\nBest regards,\n{{organizationName}}',
+      'Hi {{caregiverName}},
+
+This is a reminder about your upcoming visit:
+
+Client: {{clientName}}
+Date: {{visitDate}}
+Time: {{visitTime}}
+Address: {{visitAddress}}
+
+Please arrive on time and remember to clock in using the mobile app.
+
+Best regards,
+{{organizationName}}',
       '<h1>Upcoming Visit Reminder</h1><p>Hi {{caregiverName}},</p><p><strong>Client:</strong> {{clientName}}<br><strong>Date:</strong> {{visitDate}}<br><strong>Time:</strong> {{visitTime}}<br><strong>Address:</strong> {{visitAddress}}</p><p>Please arrive on time and clock in using the mobile app.</p>',
       '["organizationName", "caregiverName", "clientName", "visitDate", "visitTime", "visitAddress"]'::jsonb,
       'ACTIVE',
       true,
-      '00000000-0000-0000-0000-000000000000',
-      '00000000-0000-0000-0000-000000000000'
+      NULL,
+      NULL
     ),
     -- Invite token
     (
@@ -160,13 +187,26 @@ export async function up(knex: Knex): Promise<void> {
       'Team Member Invitation',
       'Sent when inviting new team members',
       'You''ve been invited to join {{organizationName}}',
-      'Hi {{firstName}},\n\nYou''ve been invited to join {{organizationName}} as a team member.\n\nClick the link below to accept the invitation and set up your account:\n{{inviteUrl}}\n\nThis invitation will expire in {{expirationDays}} days.\n\nWe look forward to working with you!\n\nBest regards,\n{{inviterName}}\n{{organizationName}}',
+      'Hi {{firstName}},
+
+You''ve been invited to join {{organizationName}} as a team member.
+
+Click the link below to accept the invitation and set up your account:
+{{inviteUrl}}
+
+This invitation will expire in {{expirationDays}} days.
+
+We look forward to working with you!
+
+Best regards,
+{{inviterName}}
+{{organizationName}}',
       '<h1>Join {{organizationName}}</h1><p>Hi {{firstName}},</p><p>You''ve been invited to join our team!</p><p><a href="{{inviteUrl}}" style="background-color: #0ea5e9; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Accept Invitation</a></p><p>This invitation expires in {{expirationDays}} days.</p>',
       '["organizationName", "firstName", "lastName", "email", "inviteUrl", "inviterName", "expirationDays", "roles"]'::jsonb,
       'ACTIVE',
       true,
-      '00000000-0000-0000-0000-000000000000',
-      '00000000-0000-0000-0000-000000000000'
+      NULL,
+      NULL
     )
   `);
 }
