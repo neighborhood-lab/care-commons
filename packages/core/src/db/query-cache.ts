@@ -168,7 +168,6 @@ export function withQueryCache<TArgs extends unknown[], TResult>(
  * Pre-populate cache with frequently accessed data
  */
 export class CacheWarmer {
-  }
 
   /**
    * Warm cache for a specific organization
