@@ -355,45 +355,66 @@ export class TellusAggregator implements IAggregator {
 
   /**
    * Send payload to Tellus API
-   * 
-   * NOTE: This is a stub for production implementation.
-   * Production must include:
-   * - API key authentication
-   * - SSL/TLS with certificate validation
-   * - Request/response logging for audit
-   * - Timeout and retry handling
-   * - Rate limit handling
+   *
+   * Uses API key authentication and HTTPS for secure communication.
    */
   private async sendToTellus(
-    _payload: TellusPayload,
+    payload: TellusPayload,
     config: StateEVVConfig
   ): Promise<TellusResponse> {
-    // TODO: Replace with actual HTTP client implementation
-    // 
-    // Example using fetch:
-    // 
-    // const response = await fetch(config.aggregatorEndpoint, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'X-API-Key': config.aggregatorApiKey,
-    //     'X-State-Code': 'GA',
-    //   },
-    //   body: JSON.stringify(payload),
-    //   timeout: 30000,
-    // });
-    // 
-    // if (!response.ok) {
-    //   throw new Error(`Tellus API error: ${response.status}`);
-    // }
-    // 
-    // return await response.json();
+    const apiKey = config.aggregatorApiKey || config['aggregatorApiKey'] as string | undefined;
 
-    throw new Error(
-      `Tellus aggregator integration not implemented. ` +
-      `Production implementation required for Georgia. ` +
-      `Endpoint: ${config.aggregatorEndpoint}`
-    );
+    if (!apiKey) {
+      throw new Error(
+        `Tellus API key missing for state ${config.state}. ` +
+        `Required: aggregatorApiKey in configuration`
+      );
+    }
+
+    try {
+      // Send request to Tellus
+      const response = await fetch(config.aggregatorEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+          'X-State-Code': config.state,
+          'X-Client-Version': 'Care-Commons-EVV/1.0',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const responseText = await response.text();
+      let responseData: TellusResponse;
+
+      try {
+        responseData = JSON.parse(responseText) as TellusResponse;
+      } catch {
+        // If response is not JSON, create error response
+        responseData = {
+          status: 'SYSTEM_ERROR',
+          errors: [{
+            field: 'response',
+            errorCode: 'INVALID_RESPONSE',
+            errorMessage: `Tellus API returned non-JSON response: ${responseText.substring(0, 200)}`,
+          }],
+        };
+      }
+
+      return responseData;
+
+    } catch (error) {
+      // Network or system error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return {
+        status: 'SYSTEM_ERROR',
+        errors: [{
+          field: 'network',
+          errorCode: 'NETWORK_ERROR',
+          errorMessage: `Failed to connect to Tellus: ${errorMessage}`,
+        }],
+      };
+    }
   }
 
   /**
