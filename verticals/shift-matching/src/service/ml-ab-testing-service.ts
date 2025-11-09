@@ -2,6 +2,27 @@ import { Knex } from 'knex';
 import { ABTestAssignment, ABTestConfig, ABTestVariant } from '../types/ml-matching';
 import * as crypto from 'crypto';
 
+// Database record types
+interface ABTestAssignmentRecord {
+  id: string;
+  organization_id: string;
+  open_shift_id: string;
+  test_name: string;
+  test_variant: string;
+  test_version: number;
+  assigned_at: Date;
+  assignment_method: string;
+  match_score: number | null;
+  was_matched: boolean;
+  was_accepted: boolean | null;
+  was_completed: boolean | null;
+  response_time_minutes: number | null;
+  client_satisfaction_rating: number | null;
+  metadata: string; // JSON string
+  created_at: Date;
+  updated_at: Date;
+}
+
 /**
  * A/B Testing Service for ML-based shift matching
  *
@@ -175,27 +196,27 @@ export class MLABTestingService {
 
     for (const [variantName, variantAssignments] of Object.entries(variantGroups)) {
       const count = variantAssignments.length;
-      const matched = variantAssignments.filter((a: any) => a.was_matched).length;
-      const accepted = variantAssignments.filter((a: any) => a.was_accepted).length;
-      const completed = variantAssignments.filter((a: any) => a.was_completed).length;
+      const matched = variantAssignments.filter((a: ABTestAssignmentRecord) => a.was_matched).length;
+      const accepted = variantAssignments.filter((a: ABTestAssignmentRecord) => a.was_accepted).length;
+      const completed = variantAssignments.filter((a: ABTestAssignmentRecord) => a.was_completed).length;
 
       const scores = variantAssignments
-        .filter((a: any) => a.match_score !== null)
-        .map((a: any) => a.match_score);
+        .filter((a: ABTestAssignmentRecord) => a.match_score !== null)
+        .map((a: ABTestAssignmentRecord) => a.match_score as number);
       const avgMatchScore = scores.length > 0
         ? scores.reduce((sum: number, s: number) => sum + s, 0) / scores.length
         : 0;
 
       const responseTimes = variantAssignments
-        .filter((a: any) => a.response_time_minutes !== null)
-        .map((a: any) => a.response_time_minutes);
+        .filter((a: ABTestAssignmentRecord) => a.response_time_minutes !== null)
+        .map((a: ABTestAssignmentRecord) => a.response_time_minutes as number);
       const avgResponseTime = responseTimes.length > 0
         ? responseTimes.reduce((sum: number, t: number) => sum + t, 0) / responseTimes.length
         : 0;
 
       const ratings = variantAssignments
-        .filter((a: any) => a.client_satisfaction_rating !== null)
-        .map((a: any) => a.client_satisfaction_rating);
+        .filter((a: ABTestAssignmentRecord) => a.client_satisfaction_rating !== null)
+        .map((a: ABTestAssignmentRecord) => a.client_satisfaction_rating as number);
       const avgRating = ratings.length > 0
         ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length
         : 0;
@@ -400,9 +421,9 @@ export class MLABTestingService {
 
   // ========== Helper Methods ==========
 
-  private groupBy<T>(array: T[], key: string): Record<string, T[]> {
-    return array.reduce((result: Record<string, T[]>, item: any) => {
-      const groupKey = item[key];
+  private groupBy<T extends Record<string, unknown>>(array: T[], key: string): Record<string, T[]> {
+    return array.reduce((result: Record<string, T[]>, item: T) => {
+      const groupKey = String(item[key]);
       if (!result[groupKey]) {
         result[groupKey] = [];
       }
@@ -426,23 +447,23 @@ export class MLABTestingService {
     return x > 0 ? 1 - probability : probability;
   }
 
-  private parseAssignmentFromDB(row: any): ABTestAssignment {
+  private parseAssignmentFromDB(row: ABTestAssignmentRecord): ABTestAssignment {
     return {
       id: row.id,
       organization_id: row.organization_id,
       open_shift_id: row.open_shift_id,
       test_name: row.test_name,
-      test_variant: row.test_variant,
+      test_variant: row.test_variant as 'CONTROL' | 'TREATMENT_A' | 'TREATMENT_B',
       test_version: row.test_version,
       assigned_at: row.assigned_at,
-      assignment_method: row.assignment_method,
+      assignment_method: row.assignment_method as 'RANDOM' | 'HASH' | 'MANUAL',
       match_score: row.match_score,
       was_matched: row.was_matched,
       was_accepted: row.was_accepted,
       was_completed: row.was_completed,
       response_time_minutes: row.response_time_minutes,
       client_satisfaction_rating: row.client_satisfaction_rating,
-      metadata: typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata,
+      metadata: typeof row.metadata === 'string' ? JSON.parse(row.metadata) as Record<string, string | number | boolean> : row.metadata as Record<string, string | number | boolean>,
       created_at: row.created_at,
       updated_at: row.updated_at,
     };

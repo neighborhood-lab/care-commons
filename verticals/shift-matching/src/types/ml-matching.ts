@@ -83,7 +83,7 @@ export interface MLModelMetadata {
 
   model_artifact: string; // Base64 encoded or storage reference
   feature_importance: Record<string, number>;
-  hyperparameters: Record<string, any>;
+  hyperparameters: Record<string, string | number | boolean>;
 
   training_samples: number;
   training_started_at: Date;
@@ -163,7 +163,7 @@ export interface ABTestAssignment {
   response_time_minutes: number | null;
   client_satisfaction_rating: number | null;
 
-  metadata: Record<string, any>;
+  metadata: Record<string, string | number | boolean>;
   created_at: Date;
   updated_at: Date;
 }
@@ -312,7 +312,7 @@ export interface MLTrainingConfig {
     colsample_bytree?: number;
     min_child_weight?: number;
     gamma?: number;
-    [key: string]: any;
+    [key: string]: string | number | boolean | undefined;
   };
 
   training_options?: {

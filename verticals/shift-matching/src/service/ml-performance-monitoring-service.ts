@@ -1,6 +1,37 @@
 import { Knex } from 'knex';
 import { MLPerformanceReport, MLModelMetrics } from '../types/ml-matching';
 
+// Database record types
+interface PredictionRecord {
+  id: string;
+  model_id: string;
+  predicted_score: number;
+  actual_accepted: boolean | null;
+  actual_completed: boolean | null;
+  actual_no_show: boolean | null;
+  prediction_error: number | null;
+  inference_time_ms: number | null;
+  predicted_at: Date;
+}
+
+interface VisitRecord {
+  id: string;
+  status: string;
+  was_no_show: boolean;
+  was_late: boolean;
+  was_early_departure: boolean;
+  scheduled_date: Date;
+  client_satisfaction_rating: number | null;
+}
+
+interface ProposalRecord {
+  id: string;
+  proposal_status: string;
+  proposed_at: Date;
+  accepted_at: Date | null;
+  rejected_at: Date | null;
+}
+
 /**
  * ML Performance Monitoring Service
  *
@@ -37,7 +68,7 @@ export class MLPerformanceMonitoringService {
 
     const totalPredictions = predictions.length;
     const predictionsWithOutcomes = predictions.filter(
-      (p: any) => p.actual_accepted !== null && p.actual_completed !== null
+      (p: PredictionRecord) => p.actual_accepted !== null && p.actual_completed !== null
     );
 
     // Calculate online metrics
@@ -54,7 +85,7 @@ export class MLPerformanceMonitoringService {
 
     // Prediction distribution
     const predictionDistribution = this.calculateDistribution(
-      predictions.map((p: any) => p.predicted_score)
+      predictions.map((p: PredictionRecord) => p.predicted_score)
     );
 
     // Error analysis
@@ -104,7 +135,7 @@ export class MLPerformanceMonitoringService {
       .where('predicted_at', '>=', last24Hours);
 
     const predictionsWithOutcomes = predictions.filter(
-      (p: any) => p.actual_accepted !== null && p.actual_completed !== null
+      (p: PredictionRecord) => p.actual_accepted !== null && p.actual_completed !== null
     );
 
     const recentAccuracy = this.calculateAccuracy(predictionsWithOutcomes);
@@ -112,12 +143,12 @@ export class MLPerformanceMonitoringService {
 
     const avgInferenceTime =
       predictions
-        .filter((p: any) => p.inference_time_ms !== null)
-        .reduce((sum: number, p: any) => sum + p.inference_time_ms, 0) /
+        .filter((p: PredictionRecord) => p.inference_time_ms !== null)
+        .reduce((sum: number, p: PredictionRecord) => sum + (p.inference_time_ms ?? 0), 0) /
         predictions.length || 0;
 
     const errorRate = predictionsWithOutcomes.filter(
-      (p: any) => Math.abs(p.prediction_error) > 30
+      (p: PredictionRecord) => Math.abs(p.prediction_error ?? 0) > 30
     ).length / predictionsWithOutcomes.length;
 
     // Generate alerts
@@ -173,10 +204,10 @@ export class MLPerformanceMonitoringService {
       .whereBetween('scheduled_date', [periodStart, periodEnd]);
 
     const totalVisits = visits.length;
-    const completedVisits = visits.filter((v: any) => v.status === 'COMPLETED').length;
-    const noShowCount = visits.filter((v: any) => v.was_no_show).length;
-    const lateArrivals = visits.filter((v: any) => v.was_late).length;
-    const earlyDepartures = visits.filter((v: any) => v.was_early_departure).length;
+    const completedVisits = visits.filter((v: VisitRecord) => v.status === 'COMPLETED').length;
+    const noShowCount = visits.filter((v: VisitRecord) => v.was_no_show).length;
+    const lateArrivals = visits.filter((v: VisitRecord) => v.was_late).length;
+    const earlyDepartures = visits.filter((v: VisitRecord) => v.was_early_departure).length;
 
     const completionRate = totalVisits > 0 ? (completedVisits / totalVisits) * 100 : 0;
     const noShowRate = totalVisits > 0 ? (noShowCount / totalVisits) * 100 : 0;
@@ -187,8 +218,8 @@ export class MLPerformanceMonitoringService {
       .whereBetween('created_at', [periodStart, periodEnd]);
 
     const proposalsReceived = proposals.length;
-    const proposalsAccepted = proposals.filter((p: any) => p.proposal_status === 'ACCEPTED').length;
-    const proposalsRejected = proposals.filter((p: any) => p.proposal_status === 'REJECTED').length;
+    const proposalsAccepted = proposals.filter((p: ProposalRecord) => p.proposal_status === 'ACCEPTED').length;
+    const proposalsRejected = proposals.filter((p: ProposalRecord) => p.proposal_status === 'REJECTED').length;
 
     const acceptanceRate = proposalsReceived > 0
       ? (proposalsAccepted / proposalsReceived) * 100
@@ -196,10 +227,10 @@ export class MLPerformanceMonitoringService {
 
     // Calculate average response time
     const responseTimes = proposals
-      .filter((p: any) => p.accepted_at || p.rejected_at)
-      .map((p: any) => {
+      .filter((p: ProposalRecord) => p.accepted_at || p.rejected_at)
+      .map((p: ProposalRecord) => {
         const responseTime = p.accepted_at || p.rejected_at;
-        return (new Date(responseTime).getTime() - new Date(p.proposed_at).getTime()) / (1000 * 60);
+        return (new Date(responseTime as Date).getTime() - new Date(p.proposed_at).getTime()) / (1000 * 60);
       });
 
     const avgResponseTime = responseTimes.length > 0
@@ -208,8 +239,8 @@ export class MLPerformanceMonitoringService {
 
     // Calculate client satisfaction
     const ratings = visits
-      .filter((v: any) => v.client_satisfaction_rating !== null)
-      .map((v: any) => v.client_satisfaction_rating);
+      .filter((v: VisitRecord) => v.client_satisfaction_rating !== null)
+      .map((v: VisitRecord) => v.client_satisfaction_rating as number);
 
     const avgClientRating = ratings.length > 0
       ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length
@@ -271,16 +302,16 @@ export class MLPerformanceMonitoringService {
       .orderBy('scheduled_date', 'asc');
 
     const totalVisits = visits.length;
-    const completedVisits = visits.filter((v: any) => v.status === 'COMPLETED').length;
-    const noShowCount = visits.filter((v: any) => v.was_no_show).length;
+    const completedVisits = visits.filter((v: VisitRecord) => v.status === 'COMPLETED').length;
+    const noShowCount = visits.filter((v: VisitRecord) => v.was_no_show).length;
 
     const firstVisitDate = visits.length > 0 ? visits[0].scheduled_date : null;
     const lastVisitDate = visits.length > 0 ? visits[visits.length - 1].scheduled_date : null;
 
     // Calculate satisfaction
     const ratings = visits
-      .filter((v: any) => v.client_satisfaction_rating !== null)
-      .map((v: any) => v.client_satisfaction_rating);
+      .filter((v: VisitRecord) => v.client_satisfaction_rating !== null)
+      .map((v: VisitRecord) => v.client_satisfaction_rating as number);
 
     const avgClientRating = ratings.length > 0
       ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length
@@ -335,7 +366,7 @@ export class MLPerformanceMonitoringService {
   /**
    * Calculate online metrics from predictions with outcomes
    */
-  private calculateOnlineMetrics(predictions: any[]): MLModelMetrics {
+  private calculateOnlineMetrics(predictions: PredictionRecord[]): MLModelMetrics {
     if (predictions.length === 0) {
       return {
         accuracy: 0,
@@ -349,7 +380,7 @@ export class MLPerformanceMonitoringService {
     let tp = 0, fp = 0, tn = 0, fn = 0;
     const threshold = 50; // 50/100 score threshold
 
-    predictions.forEach((pred: any) => {
+    predictions.forEach((pred: PredictionRecord) => {
       const predicted = pred.predicted_score >= threshold ? 1 : 0;
       const actual = pred.actual_accepted && pred.actual_completed && !pred.actual_no_show ? 1 : 0;
 
@@ -480,7 +511,7 @@ export class MLPerformanceMonitoringService {
   /**
    * Analyze prediction errors
    */
-  private analyzeErrors(predictions: any[]): {
+  private analyzeErrors(predictions: PredictionRecord[]): {
     mean_absolute_error: number;
     mean_squared_error: number;
     error_by_score_range: Record<string, number>;
@@ -512,7 +543,7 @@ export class MLPerformanceMonitoringService {
       '75-100': [],
     };
 
-    predictions.forEach((p: any) => {
+    predictions.forEach((p: PredictionRecord) => {
       const score = p.predicted_score;
       const error = p.prediction_error || 0;
       if (score < 25) errorByRange['0-25']?.push(error);
@@ -530,14 +561,14 @@ export class MLPerformanceMonitoringService {
 
     // Worst predictions
     const sorted = [...predictions].sort(
-      (a, b) => Math.abs(b.prediction_error) - Math.abs(a.prediction_error)
+      (a, b) => Math.abs(b.prediction_error ?? 0) - Math.abs(a.prediction_error ?? 0)
     );
 
-    const worstPredictions = sorted.slice(0, 10).map((p: any) => ({
+    const worstPredictions = sorted.slice(0, 10).map((p: PredictionRecord) => ({
       prediction_id: p.id,
       predicted_score: p.predicted_score,
-      actual_outcome: p.actual_accepted && p.actual_completed && !p.actual_no_show,
-      error: p.prediction_error,
+      actual_outcome: Boolean(p.actual_accepted && p.actual_completed && !p.actual_no_show),
+      error: p.prediction_error ?? 0,
     }));
 
     return {
@@ -555,7 +586,7 @@ export class MLPerformanceMonitoringService {
     driftScore: number,
     featureDrift: Record<string, number>,
     metrics: MLModelMetrics,
-    errorAnalysis: any
+    errorAnalysis: { mean_absolute_error: number; mean_squared_error: number; error_by_score_range: Record<string, number>; worst_predictions: Array<{ prediction_id: string; predicted_score: number; actual_outcome: boolean; error: number }> }
   ): string[] {
     const recommendations: string[] = [];
 
@@ -596,10 +627,10 @@ export class MLPerformanceMonitoringService {
     return recommendations;
   }
 
-  private calculateAccuracy(predictions: any[]): number {
+  private calculateAccuracy(predictions: PredictionRecord[]): number {
     if (predictions.length === 0) return 0;
 
-    const correct = predictions.filter((p: any) => {
+    const correct = predictions.filter((p: PredictionRecord) => {
       const predicted = p.predicted_score >= 50 ? 1 : 0;
       const actual = p.actual_accepted && p.actual_completed && !p.actual_no_show ? 1 : 0;
       return predicted === actual;
@@ -608,18 +639,18 @@ export class MLPerformanceMonitoringService {
     return correct / predictions.length;
   }
 
-  private calculateAverageError(predictions: any[]): number {
+  private calculateAverageError(predictions: PredictionRecord[]): number {
     if (predictions.length === 0) return 0;
 
     const totalError = predictions.reduce(
-      (sum: number, p: any) => sum + Math.abs(p.prediction_error || 0),
+      (sum: number, p: PredictionRecord) => sum + Math.abs(p.prediction_error || 0),
       0
     );
 
     return totalError / predictions.length;
   }
 
-  private calculateAUC(_predictions: any[]): number {
+  private calculateAUC(_predictions: PredictionRecord[]): number {
     // Simplified AUC calculation
     // In production, use proper ROC curve
     // eslint-disable-next-line sonarjs/pseudo-random
