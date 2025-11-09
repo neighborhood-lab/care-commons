@@ -30,6 +30,7 @@
     "@care-commons/client-demographics": "*",
     "@care-commons/core": "*",
     "@care-commons/payroll-processing": "*",
+    "@care-commons/quality-assurance-audits": "*",
     "@care-commons/scheduling-visits": "*",
     "@care-commons/shift-matching": "*",
     "@care-commons/time-tracking-evv": "*",
