@@ -77,20 +77,23 @@ export class NotificationService {
    * Request notification permissions
    */
   async requestPermissions(): Promise<boolean> {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
+    const existingPermissions = await Notifications.getPermissionsAsync();
+    // Check if already granted (PermissionResponse.granted or iOS-specific status)
+    const alreadyGranted = (existingPermissions as any).granted === true || 
+      existingPermissions.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED;
 
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== 'granted') {
-      Alert.alert(
-        'Permission Required',
-        'Push notifications are required for visit reminders and schedule updates.'
-      );
-      return false;
+    if (!alreadyGranted) {
+      const newPermissions = await Notifications.requestPermissionsAsync();
+      const isGranted = (newPermissions as any).granted === true || 
+        newPermissions.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED;
+      
+      if (!isGranted) {
+        Alert.alert(
+          'Permission Required',
+          'Push notifications are required for visit reminders and schedule updates.'
+        );
+        return false;
+      }
     }
 
     return true;
