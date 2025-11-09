@@ -258,8 +258,8 @@ jobs:
         run: |
           echo "Checking licenses for compliance..."
           # Exclude private packages (like the monorepo root) from license checking
-          # Allow common permissive licenses including Python-2.0 (OSI-approved)
-          license-checker --summary --production --excludePrivatePackages --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;CC-BY-3.0;CC-BY-4.0;WTFPL;AGPL-3.0;Python-2.0" || {
+          # Allow common OSI-approved and permissive licenses
+          license-checker --summary --production --excludePrivatePackages --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;CC-BY-3.0;CC-BY-4.0;WTFPL;AGPL-3.0;Python-2.0;MPL-2.0" || {
             echo "⚠️ License compliance check found issues"
             echo "Generating detailed report..."
             license-checker --production --excludePrivatePackages --csv --out license-report.csv
