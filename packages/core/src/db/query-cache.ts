@@ -5,19 +5,9 @@
  * Automatically handles cache invalidation on data mutations.
  */
 
-import { CacheService } from '../service/cache-service.js';
+import { CacheService, getCacheService } from '../service/cache.service.js';
+import { CacheTTL } from '../constants/cache-keys.js';
 import crypto from 'node:crypto';
-
-/**
- * Cache TTL configurations (in seconds)
- */
-export const CacheTTL = {
-  SHORT: 60,        // 1 minute - for frequently changing data
-  MEDIUM: 300,      // 5 minutes - for moderately stable data
-  LONG: 1800,       // 30 minutes - for stable reference data
-  VERY_LONG: 3600,  // 1 hour - for rarely changing data
-  DAY: 86400,       // 24 hours - for static reference data
-} as const;
 
 /**
  * Cache key prefixes for different data types
@@ -73,7 +63,7 @@ export async function cachedQuery<T>(
   }
 ): Promise<T> {
   const { key, ttl = CacheTTL.MEDIUM, queryFn, shouldCache = () => true } = options;
-  const cache = CacheService.getInstance();
+  const cache = getCacheService();
 
   // Try to get from cache first
   try {
@@ -109,7 +99,7 @@ export async function invalidateEntityCache(
   prefix: string,
   entityId?: string
 ): Promise<void> {
-  const cache = CacheService.getInstance();
+  const cache = getCacheService();
 
   if (entityId !== undefined) {
     // Invalidate specific entity
@@ -130,7 +120,7 @@ export async function invalidateOrganizationCache(
   organizationId: string,
   prefix?: string
 ): Promise<void> {
-  const cache = CacheService.getInstance();
+  const cache = getCacheService();
 
   if (prefix !== undefined) {
     // Invalidate specific entity type for organization
@@ -181,7 +171,7 @@ export class CacheWarmer {
   private cache: CacheService;
 
   constructor() {
-    this.cache = CacheService.getInstance();
+    this.cache = getCacheService();
   }
 
   /**
@@ -215,11 +205,6 @@ export class CacheWarmer {
     hitRate?: number;
     keyCount?: number;
   }> {
-    const isConnected = this.cache.isConnected();
-
-    if (!isConnected) {
-      return { connected: false };
-    }
 
     // NOTE: Hit rate tracking not yet implemented
     // This would require adding instrumentation to cache reads

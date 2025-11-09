@@ -53,7 +53,8 @@ export {
   notFoundHandler,
 } from './errors/app-errors.js';
 export * from './utils/memoize.js';
-export * from './utils/pagination.js';
+// NOTE: Pagination utilities moved to './db/pagination.js' for PostgreSQL-native implementation
+// export * from './utils/pagination.js';
 export * from './utils/password-validator.js';
 export * from './utils/sensitive-data-filter.js';
 export * from './middleware/sanitize-input.js';
