@@ -4,9 +4,7 @@
  */
 
 import { Database, UserContext } from '@care-commons/core';
-import { AnalyticsRepository } from '../repository/analytics-repository';
 import {
-  DateRange,
   ReportType,
 } from '../types/analytics';
 
@@ -20,7 +18,9 @@ export class ReportService {
    *
    * NOTE: This method is not yet implemented - requires refactor to raw SQL
    * See ARCHITECTURAL_ISSUES.md for details
+   * Commented out to avoid unused method warning
    */
+  /*
   private async getFlaggedVisitDetails(
     _orgId: string,
     _dateRange: DateRange,
@@ -37,7 +37,7 @@ export class ReportService {
   > {
     // This method uses Knex query builder which doesn't exist on Database class
     throw new Error('Not implemented - requires refactor to raw SQL');
-    /* 
+    
     const query = this.database
       .getConnection()
       .from('evv_records as evv')
@@ -76,8 +76,8 @@ export class ReportService {
       complianceFlags: row.compliance_flags,
       resolutionStatus: row.record_status,
     }));
-    */
   }
+  */
 
   /**
    * Generate unique report ID
