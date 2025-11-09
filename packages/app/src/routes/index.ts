@@ -24,6 +24,7 @@ import { authLimiter } from '../middleware/rate-limit.js';
  */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
 import docsRoutes from './docs.routes.js';
+import { createPayrollRouter } from './payroll.js';
 import adminRoutes from './admin.js';
 
 /**
@@ -94,6 +95,11 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
 
+  // Payroll Processing routes
+  const payrollRouter = createPayrollRouter(db);
+  app.use('/api', payrollRouter);
+  console.log('  ✓ Payroll Processing routes registered');
+
   // Admin routes (cache monitoring, etc.)
   app.use('/api/admin', adminRoutes);
   console.log('  ✓ Admin routes registered');
@@ -103,7 +109,6 @@ export function setupRoutes(app: Express, db: Database): void {
   // - EVV & Time Tracking
   // - Shift Matching
   // - Billing & Invoicing
-  // - Payroll Processing
 
   console.log('API routes setup complete\n');
 }
