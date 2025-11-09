@@ -160,9 +160,12 @@ export const PayrollDashboard: React.FC = () => {
           <PayrollSummaryCard 
             summary={{
               totalEmployees: currentPeriod.totalCaregivers || 0,
+              totalCaregivers: currentPeriod.totalCaregivers || 0,
               totalHours: currentPeriod.totalHours || 0,
-              grossPay: currentPeriod.totalGrossPay || 0,
-              netPay: currentPeriod.totalNetPay || 0
+              totalGrossPay: currentPeriod.totalGrossPay || 0,
+              totalTaxWithheld: 0,
+              pendingApprovals: 0,
+              recentPayRuns: { total: 0, completed: 0 }
             }} 
           />
         </section>
