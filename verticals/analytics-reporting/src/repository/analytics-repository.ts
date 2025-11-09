@@ -248,9 +248,9 @@ export class AnalyticsRepository {
    * Sum overtime hours
    */
   async sumOvertimeHours(
-    orgId: string,
-    dateRange: DateRange,
-    branchId?: string
+    _orgId: string,
+    _dateRange: DateRange,
+    _branchId?: string
   ): Promise<number> {
     // This would require calculating hours worked per caregiver per week
     // and determining which hours exceed 40/week

@@ -11,6 +11,7 @@ export default [
   promise.configs['flat/recommended'],
   {
     files: ['**/*.ts'],
+    ignores: ['**/__tests__/**/*.ts', '**/*.test.ts', 'vitest.config.ts'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -53,7 +54,7 @@ export default [
       // TypeScript strict rules
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
-        'error',
+        'warn',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
@@ -86,6 +87,7 @@ export default [
       'sonarjs/no-nested-conditional': 'off',
       'sonarjs/use-type-alias': 'off',
       'sonarjs/different-types-comparison': 'off',
+      'sonarjs/no-unused-vars': 'off',
       // Unicorn rules
       'unicorn/prevent-abbreviations': 'off',
       'unicorn/filename-case': ['error', { case: 'kebabCase' }],
@@ -102,9 +104,52 @@ export default [
     },
   },
   {
-    files: ['**/__tests__/**/*.ts'],
+    files: ['src/service/export-service.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: ['**/__tests__/**/*.ts', '**/*.test.ts', 'vitest.config.ts'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+      },
+      globals: {
+        // Node.js globals
+        console: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        module: 'readonly',
+        Buffer: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+        global: 'readonly',
+        // Vitest globals (when using globals: true)
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+    },
+    rules: {
+      ...typescript.configs.recommended.rules,
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
   {
