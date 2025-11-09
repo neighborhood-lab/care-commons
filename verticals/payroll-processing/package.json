@@ -12,7 +12,7 @@
   },
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

@@ -81,7 +81,6 @@ export default [
       'sonarjs/pseudo-random': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       'sonarjs/no-nested-functions': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/await-thenable': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       'sonarjs/no-nested-conditional': 'off',
