@@ -32,17 +32,15 @@
     }
   },
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
-    "test": "echo '⚠️  analytics-reporting tests need update for raw SQL refactor' && true",
-    "test:real": "vitest",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
+    "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint . --ext ts --max-warnings 50"
+    "lint": "eslint . --ext ts --max-warnings 10"
   },
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
     "exceljs": "^4.4.0",
-    "jspdf": "^3.0.3",
-    "jspdf-autotable": "^5.0.2"
+    "jspdf": "^3.0.3"
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
