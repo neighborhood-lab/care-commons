@@ -9,7 +9,6 @@
   "engines": {
     "node": "22.x"
   },
-
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config vite.config.showcase.ts",
@@ -43,6 +42,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@codecov/vite-plugin": "^1.9.1",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.1.17",
     "@testing-library/react": "^16.3.0",

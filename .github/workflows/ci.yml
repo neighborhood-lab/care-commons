@@ -220,7 +220,11 @@ jobs:
       - name: Install dependencies
         run: npm ci || (npm cache clean --force && npm ci)
 
-      - name: Build packages (Turbo)
+      - name: Build packages (Turbo) with Codecov bundle analysis
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: npx turbo run build
 
       - name: Upload build artifacts
@@ -301,7 +305,11 @@ jobs:
       - name: Install dependencies
         run: npm ci || (npm cache clean --force && npm ci)
 
-      - name: Build packages (Turbo)
+      - name: Build packages (Turbo) with Codecov bundle analysis
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: npx turbo run build
 
       - name: Analyze bundle sizes
