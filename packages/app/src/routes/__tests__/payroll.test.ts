@@ -13,12 +13,12 @@ import { createPayrollRouter } from '../payroll.js';
 // Mock the payroll-processing module
 const mockPayrollService = {
   createPayPeriod: vi.fn().mockResolvedValue({ id: 'period-1', status: 'DRAFT' }),
-  openPayPeriod: vi.fn().mockResolvedValue(undefined),
-  lockPayPeriod: vi.fn().mockResolvedValue(undefined),
+  openPayPeriod: vi.fn().mockResolvedValue(),
+  lockPayPeriod: vi.fn().mockResolvedValue(),
   compileTimeSheet: vi.fn().mockResolvedValue({ id: 'timesheet-1' }),
-  approveTimeSheet: vi.fn().mockResolvedValue(undefined),
+  approveTimeSheet: vi.fn().mockResolvedValue(),
   createPayRun: vi.fn().mockResolvedValue({ id: 'payrun-1' }),
-  approvePayRun: vi.fn().mockResolvedValue(undefined),
+  approvePayRun: vi.fn().mockResolvedValue(),
 };
 
 const mockPayStubGenerator = {
