@@ -78,6 +78,11 @@ export const configureCsrfProtection = (app: Express): void => {
       return next();
     }
 
+    // Skip CSRF for auth routes (uses JWT)
+    if (req.path.startsWith('/auth/')) {
+      return next();
+    }
+
     // Verify CSRF token
     // eslint-disable-next-line security/detect-object-injection
     const headerValue = req.headers[CSRF_HEADER_NAME];
