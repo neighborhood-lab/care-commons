@@ -1,14 +1,13 @@
 /**
- * Analytics & Reporting API routes
+ * Analytics API routes
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database } from '@care-commons/core';
 import { requireAuth } from '../middleware/auth-context.js';
-import { AnalyticsService } from '@care-commons/analytics-reporting/service/analytics-service';
-import { ReportService } from '@care-commons/analytics-reporting/service/report-service';
-import { ExportService } from '@care-commons/analytics-reporting/service/export-service';
-import type { AnalyticsQueryOptions, ExportFormat } from '@care-commons/analytics-reporting/types/analytics';
+import { AnalyticsService } from '@care-commons/analytics-reporting';
+import { ExportService } from '@care-commons/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report } from '@care-commons/analytics-reporting';
 
 export function createAnalyticsRouter(db: Database): Router {
   const router = Router();
@@ -25,18 +24,13 @@ export function createAnalyticsRouter(db: Database): Router {
       const context = req.userContext!;
       const service = new AnalyticsService(db);
 
-      const startDate = req.query['startDate'] !== undefined
-        ? new Date(req.query['startDate'] as string)
-        : new Date(new Date().setDate(new Date().getDate() - 30));
-      const endDate = req.query['endDate'] !== undefined
-        ? new Date(req.query['endDate'] as string)
-        : new Date();
-
       const options: AnalyticsQueryOptions = {
-        organizationId: (req.query['organizationId'] as string | undefined) ?? context.organizationId!,
+        organizationId: context.organizationId,
         branchId: req.query['branchId'] as string | undefined,
-        dateRange: { startDate, endDate },
-        includeSubBranches: req.query['includeSubBranches'] === 'true',
+        dateRange: {
+          startDate: req.query['startDate'] !== undefined ? new Date(req.query['startDate'] as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          endDate: req.query['endDate'] !== undefined ? new Date(req.query['endDate'] as string) : new Date(),
+        },
       };
 
       const kpis = await service.getOperationalKPIs(options, context);
@@ -50,261 +44,160 @@ export function createAnalyticsRouter(db: Database): Router {
    * GET /api/analytics/compliance-alerts
    * Get compliance alerts
    */
-  router.get(
-    '/compliance-alerts',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const service = new AnalyticsService(db);
+  router.get('/compliance-alerts', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
-        const branchId = req.query['branchId'] as string | undefined;
-
-        const alerts = await service.getComplianceAlerts(orgId, branchId, context);
-        res.json(alerts);
-      } catch (error) {
-        next(error);
-      }
+      const branchId = req.query['branchId'] as string | undefined;
+      const alerts = await service.getComplianceAlerts(context.organizationId, branchId, context);
+      res.json(alerts);
+    } catch (error) {
+      next(error);
     }
-  );
+  });
 
   /**
    * GET /api/analytics/revenue-trends
-   * Get revenue trends over time
+   * Get revenue trends by month
    */
-  router.get(
-    '/revenue-trends',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const service = new AnalyticsService(db);
+  router.get('/revenue-trends', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
-        const branchId = req.query['branchId'] as string | undefined;
-        const months = parseInt((req.query['months'] as string | undefined) ?? '12', 10);
+      const months = parseInt((req.query['months'] as string | undefined) ?? '6', 10);
+      const branchId = req.query['branchId'] as string | undefined;
 
-        const trends = await service.getRevenueTrends(orgId, months, branchId, context);
-        res.json(trends);
-      } catch (error) {
-        next(error);
-      }
+      const trends = await service.getRevenueTrends(context.organizationId, months, branchId, context);
+      res.json(trends);
+    } catch (error) {
+      next(error);
     }
-  );
+  });
+
+  /**
+   * GET /api/analytics/evv-exceptions
+   * Get EVV exceptions needing review
+   */
+  router.get('/evv-exceptions', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new AnalyticsService(db);
+
+      const branchId = req.query['branchId'] as string | undefined;
+      const exceptions = await service.getEVVExceptions(context.organizationId, branchId, context);
+      res.json(exceptions);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * GET /api/analytics/dashboard-stats
+   * Get real-time dashboard stats for coordinators
+   */
+  router.get('/dashboard-stats', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new AnalyticsService(db);
+
+      const branchId = req.query['branchId'] as string | undefined;
+      const stats = await service.getDashboardStats(context.organizationId, branchId, context);
+      res.json(stats);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   /**
    * GET /api/analytics/caregiver-performance/:caregiverId
    * Get performance metrics for a specific caregiver
    */
-  router.get(
-    '/caregiver-performance/:caregiverId',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const service = new AnalyticsService(db);
+  router.get('/caregiver-performance/:caregiverId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new AnalyticsService(db);
 
-        const startDate = req.query['startDate'] !== undefined
-          ? new Date(req.query['startDate'] as string)
-          : new Date(new Date().setDate(new Date().getDate() - 30));
-        const endDate = req.query['endDate'] !== undefined
-          ? new Date(req.query['endDate'] as string)
-          : new Date();
+      const dateRange = {
+        startDate: req.query['startDate'] !== undefined ? new Date(req.query['startDate'] as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        endDate: req.query['endDate'] !== undefined ? new Date(req.query['endDate'] as string) : new Date(),
+      };
 
-        const performance = await service.getCaregiverPerformance(
-          req.params['caregiverId']!,
-          { startDate, endDate },
-          context
-        );
-
-        res.json(performance);
-      } catch (error) {
-        next(error);
-      }
+      const performance = await service.getCaregiverPerformance(
+        req.params['caregiverId']!,
+        dateRange,
+        context
+      );
+      res.json(performance);
+    } catch (error) {
+      next(error);
     }
-  );
+  });
 
   /**
-   * GET /api/analytics/evv-exceptions
-   * Get EVV exceptions requiring review
+   * GET /api/analytics/caregiver-performance
+   * Get performance metrics for all caregivers
    */
-  router.get(
-    '/evv-exceptions',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const service = new AnalyticsService(db);
+  router.get('/caregiver-performance', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
-        const branchId = req.query['branchId'] as string | undefined;
+      const options: AnalyticsQueryOptions = {
+        organizationId: context.organizationId,
+        branchId: req.query['branchId'] as string | undefined,
+        dateRange: {
+          startDate: req.query['startDate'] !== undefined ? new Date(req.query['startDate'] as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          endDate: req.query['endDate'] !== undefined ? new Date(req.query['endDate'] as string) : new Date(),
+        },
+      };
 
-        const exceptions = await service.getEVVExceptions(orgId, branchId, context);
-        res.json(exceptions);
-      } catch (error) {
-        next(error);
-      }
+      // Use the repository directly to get all caregiver performance
+      const repository = service['repository'];
+      const performance = await repository.getCaregiverPerformanceData(
+        options.organizationId,
+        options.dateRange,
+        options.branchId
+      );
+      res.json(performance);
+    } catch (error) {
+      next(error);
     }
-  );
+  });
 
   /**
-   * GET /api/analytics/dashboard-stats
-   * Get stats for coordinator dashboard
+   * POST /api/analytics/export
+   * Export analytics report to specified format
    */
-  router.get(
-    '/dashboard-stats',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const service = new AnalyticsService(db);
+  router.post('/export', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const exportService = new ExportService();
 
-        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
-        const branchId = req.query['branchId'] as string | undefined;
+      const format = (req.body['format'] as ExportFormat | undefined) ?? 'CSV';
+      const report = req.body['report'] as Report | undefined;
 
-        const stats = await service.getDashboardStats(orgId, branchId, context);
-        res.json(stats);
-      } catch (error) {
-        next(error);
+      if (report === undefined) {
+        res.status(400).json({ error: 'Report data is required' });
+        return;
       }
+
+      // Convert string dates to Date objects
+      report.period.startDate = new Date(report.period.startDate);
+      report.period.endDate = new Date(report.period.endDate);
+      report.generatedAt = new Date(report.generatedAt);
+
+      const exportData = await exportService.exportReport(report, format);
+      const filename = exportService.generateFilename(report, format);
+      const mimeType = exportService.getMimeType(format);
+
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', mimeType);
+      res.send(exportData);
+    } catch (error) {
+      next(error);
     }
-  );
-
-  /**
-   * POST /api/analytics/reports/evv-compliance
-   * Generate EVV compliance report
-   */
-  router.post(
-    '/reports/evv-compliance',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const reportService = new ReportService(db);
-
-        const { organizationId, branchId, state, startDate, endDate } = req.body;
-
-        const report = await reportService.generateEVVComplianceReport(
-          organizationId ?? context.organizationId!,
-          state,
-          {
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-          },
-          branchId,
-          context
-        );
-
-        res.json(report);
-      } catch (error) {
-        next(error);
-      }
-    }
-  );
-
-  /**
-   * POST /api/analytics/reports/productivity
-   * Generate productivity report
-   */
-  router.post(
-    '/reports/productivity',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const reportService = new ReportService(db);
-
-        const { organizationId, branchId, startDate, endDate } = req.body;
-
-        const report = await reportService.generateProductivityReport(
-          organizationId ?? context.organizationId!,
-          {
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-          },
-          branchId,
-          context
-        );
-
-        res.json(report);
-      } catch (error) {
-        next(error);
-      }
-    }
-  );
-
-  /**
-   * POST /api/analytics/reports/revenue-cycle
-   * Generate revenue cycle report
-   */
-  router.post(
-    '/reports/revenue-cycle',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const reportService = new ReportService(db);
-
-        const { organizationId, branchId, startDate, endDate } = req.body;
-
-        const report = await reportService.generateRevenueCycleReport(
-          organizationId ?? context.organizationId!,
-          {
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-          },
-          branchId,
-          context
-        );
-
-        res.json(report);
-      } catch (error) {
-        next(error);
-      }
-    }
-  );
-
-  /**
-   * GET /api/analytics/reports/:reportId/export
-   * Export report to specified format
-   */
-  router.get(
-    '/reports/:reportId/export',
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const context = req.userContext!;
-        const exportService = new ExportService();
-
-        const format = (req.query['format'] as ExportFormat | undefined) ?? 'PDF';
-
-        // In a real implementation, you would fetch the report from storage/cache
-        // For now, this is a placeholder
-        const reportId = req.params['reportId'];
-        if (reportId === undefined || reportId === '') {
-          res.status(400).json({ error: 'Report ID is required' });
-          return;
-        }
-
-        const report = {
-          id: reportId,
-          reportType: 'EVV_COMPLIANCE' as const,
-          title: 'Sample Report',
-          organizationId: context.organizationId!,
-          generatedAt: new Date(),
-          generatedBy: context.userId,
-          period: {
-            startDate: new Date(),
-            endDate: new Date(),
-          },
-          exportFormats: ['PDF', 'EXCEL', 'CSV'] as ExportFormat[],
-          data: {},
-        };
-
-        const exportData = await exportService.exportReport(report, format);
-        const filename = exportService.generateFilename(report, format);
-        const mimeType = exportService.getMimeType(format);
-
-        res.setHeader('Content-Type', mimeType);
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        res.send(exportData);
-      } catch (error) {
-        next(error);
-      }
-    }
-  );
+  });
 
   return router;
 }
