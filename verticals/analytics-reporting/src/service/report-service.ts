@@ -6,26 +6,21 @@
 import { Database, UserContext } from '@care-commons/core';
 import { AnalyticsRepository } from '../repository/analytics-repository';
 import {
-  EVVComplianceReport,
-  ProductivityReport,
-  RevenueCycleReport,
   DateRange,
   ReportType,
 } from '../types/analytics';
 
 export class ReportService {
-  private repository: AnalyticsRepository;
-
-  constructor(database: Database) {
-    this.repository = new AnalyticsRepository(database);
+  constructor(_database: Database) {
+    // Repository will be added when implementing actual methods
   }
 
   /**
    * Get flagged visit details for compliance issues
    *
-   * NOTE: This method requires refactor to raw SQL - see ARCHITECTURAL_ISSUES.md
+   * NOTE: This method is not yet implemented - requires refactor to raw SQL
+   * See ARCHITECTURAL_ISSUES.md for details
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getFlaggedVisitDetails(
     _orgId: string,
     _dateRange: DateRange,
@@ -86,10 +81,11 @@ export class ReportService {
 
   /**
    * Generate unique report ID
+   * NOTE: Will be used when implementing report generation
    */
-  private generateReportId(): string {
-    return `RPT-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
-  }
+  // private generateReportId(): string {
+  //   return `RPT-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+  // }
 
   /**
    * Validate user access

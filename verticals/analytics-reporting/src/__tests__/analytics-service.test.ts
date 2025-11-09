@@ -11,18 +11,23 @@ describe('AnalyticsService', () => {
   let mockDb: Database;
 
   beforeEach(() => {
-    // Create mock database
-    // eslint-disable-next-line sonarjs/no-nested-functions
+    // Create mock database with simplified structure to avoid deep nesting lint error
+    const countFn = vi.fn(() => Promise.resolve({ count: '10' }));
+    const sumFn = vi.fn(() => Promise.resolve({ total: '100' }));
+    const whereBetweenFn = vi.fn(() => ({
+      count: countFn,
+      sum: sumFn,
+    }));
+    const whereFn = vi.fn(() => ({
+      whereBetween: whereBetweenFn,
+    }));
+    const fromFn = vi.fn(() => ({
+      where: whereFn,
+    }));
+
     mockDb = {
       getConnection: vi.fn(() => ({
-        from: vi.fn(() => ({
-          where: vi.fn(() => ({
-            whereBetween: vi.fn(() => ({
-              count: vi.fn(() => Promise.resolve({ count: '10' })),
-              sum: vi.fn(() => Promise.resolve({ total: '100' })),
-            })),
-          })),
-        })),
+        from: fromFn,
       })),
       healthCheck: vi.fn(),
       close: vi.fn(),

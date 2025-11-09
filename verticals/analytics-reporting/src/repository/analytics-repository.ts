@@ -247,7 +247,6 @@ export class AnalyticsRepository {
   /**
    * Sum overtime hours
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async sumOvertimeHours(
     _orgId: string,
     _dateRange: DateRange,
