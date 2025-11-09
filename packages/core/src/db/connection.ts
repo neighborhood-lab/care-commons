@@ -11,8 +11,14 @@ export interface DatabaseConfig {
   user: string;
   password: string;
   ssl?: boolean;
-  max?: number; // Connection pool size
-  idleTimeoutMillis?: number;
+  max?: number; // Connection pool size (default: 20)
+  min?: number; // Minimum pool size (default: 2)
+  idleTimeoutMillis?: number; // Connection idle timeout (default: 30000)
+  connectionTimeoutMillis?: number; // Connection acquisition timeout (default: 10000)
+  statementTimeout?: number; // Query statement timeout in ms (default: 30000)
+  queryTimeout?: number; // Query timeout in ms (default: 30000)
+  allowExitOnIdle?: boolean; // Allow process to exit when all connections are idle (default: false)
+  application_name?: string; // Application name for pg_stat_activity (default: 'care-commons')
 }
 
 export class Database {
@@ -26,9 +32,38 @@ export class Database {
       user: config.user,
       password: config.password,
       ssl: config.ssl === true ? { rejectUnauthorized: false } : false,
-      max: config.max ?? 20,
-      idleTimeoutMillis: config.idleTimeoutMillis ?? 30000,
+      // Connection pool settings
+      max: config.max ?? 20, // Maximum number of clients in the pool
+      min: config.min ?? 2, // Minimum number of clients in the pool
+      idleTimeoutMillis: config.idleTimeoutMillis ?? 30000, // Close idle clients after 30s
+      connectionTimeoutMillis: config.connectionTimeoutMillis ?? 10000, // Wait 10s for connection
+      allowExitOnIdle: config.allowExitOnIdle ?? false,
+      // Query timeout settings
+      statement_timeout: config.statementTimeout ?? 30000, // 30s statement timeout
+      query_timeout: config.queryTimeout ?? 30000, // 30s query timeout
+      // Application name for monitoring
+      application_name: config.application_name ?? 'care-commons',
+      // Connection options for better performance
+      options: `-c plan_cache_mode=force_custom_plan`, // Force custom plans for better performance with varying parameters
     });
+
+    // Log pool errors (only if pool has event emitter methods)
+    if (typeof this.pool.on === 'function') {
+      this.pool.on('error', (err) => {
+        console.error('Unexpected pool error', err);
+      });
+
+      // Log pool connection events in development
+      if (process.env.NODE_ENV === 'development') {
+        this.pool.on('connect', () => {
+          console.log('New database connection established');
+        });
+
+        this.pool.on('remove', () => {
+          console.log('Database connection removed from pool');
+        });
+      }
+    }
   }
 
   /**
