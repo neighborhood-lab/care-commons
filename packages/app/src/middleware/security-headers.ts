@@ -68,6 +68,12 @@ export function securityHeaders(
 
   res.setHeader('Permissions-Policy', permissionsPolicy.join(', '));
 
+  // HIPAA compliance headers - prevent caching of PHI
+  res.setHeader('X-Healthcare-Data', 'PHI');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   next();
 }
 
