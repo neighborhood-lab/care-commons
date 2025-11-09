@@ -6,6 +6,10 @@
 
 export * from './types/base.js';
 export * from './types/organization.js';
+export * from './types/branding.js';
+export * from './types/feature-flags.js';
+export * from './types/domain-mappings.js';
+export * from './types/email-templates.js';
 export * from './db/connection.js';
 export * from './db/repository.js';
 export * from './db/query-logger.js';
@@ -13,8 +17,11 @@ export * from './permissions/permission-service.js';
 export * from './audit/audit-service.js';
 export * from './repository/user-repository.js';
 export * from './repository/organization-repository.js';
+export * from './repository/branding-repository.js';
+export * from './repository/feature-flag-repository.js';
 export * from './service/organization-service.js';
 export * from './service/auth-service.js';
+export * from './service/white-label.service.js';
 export * from './service/security-logger.service.js';
 export * from './service/password-reset.service.js';
 export * from './service/cache.service.js';

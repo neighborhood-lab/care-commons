@@ -21,6 +21,7 @@ import { createSyncRouter } from '../api/sync/sync-routes.js';
 import docsRoutes from './docs.routes.js';
 import { createPayrollRouter } from './payroll.js';
 import adminRoutes from './admin.js';
+import { createWhiteLabelRouter } from './white-label.js';
 import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
 
 /**
@@ -98,6 +99,11 @@ export function setupRoutes(app: Express, db: Database): void {
   // Admin routes (cache monitoring, etc.)
   app.use('/api/admin', adminRoutes);
   console.log('  ✓ Admin routes registered');
+
+  // White-label routes (branding, feature flags)
+  const whiteLabelRouter = createWhiteLabelRouter(db);
+  app.use('/api/white-label', whiteLabelRouter);
+  console.log('  ✓ White-label routes registered');
 
   // Quality Assurance & Audits routes
   const auditRepository = new AuditRepository(db);
