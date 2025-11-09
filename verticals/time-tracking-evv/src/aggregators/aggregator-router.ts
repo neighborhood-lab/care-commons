@@ -23,6 +23,7 @@ import {
 } from './base-aggregator.js';
 import { SandataAggregator } from './sandata-aggregator.js';
 import { TellusAggregator } from './tellus-aggregator.js';
+import { HHAeXchangeAggregator } from './hhaeexchange-aggregator.js';
 import {
   getStateConfig,
   getAggregatorType,
@@ -31,18 +32,20 @@ import {
 
 /**
  * Aggregator Router
- * 
+ *
  * Single entry point for all state EVV submissions.
  * Automatically routes to the correct aggregator based on state code.
  */
 export class AggregatorRouter {
   private sandataAggregator: SandataAggregator;
   private tellusAggregator: TellusAggregator;
+  private hhaeexchangeAggregator: HHAeXchangeAggregator;
 
   constructor() {
     // Initialize aggregators once (reused across all states)
     this.sandataAggregator = new SandataAggregator();
     this.tellusAggregator = new TellusAggregator();
+    this.hhaeexchangeAggregator = new HHAeXchangeAggregator();
   }
 
   /**
@@ -75,13 +78,12 @@ export class AggregatorRouter {
 
   /**
    * Get the appropriate aggregator for a state
-   * 
+   *
    * MASSIVE CODE REUSE:
    * - Sandata instance serves OH, PA, NC, AZ (4 states)
    * - Tellus instance serves GA (1 state)
-   * - HHAeXchange serves TX (handled elsewhere)
-   * - Multi-aggregator serves FL (handled elsewhere)
-   * 
+   * - HHAeXchange instance serves TX, FL (2+ states)
+   *
    * @param state - State code
    * @returns Aggregator instance
    * @throws Error if state not supported
@@ -99,20 +101,14 @@ export class AggregatorRouter {
         return this.tellusAggregator;
 
       case 'HHAEEXCHANGE':
-        // Texas uses HHAeXchange
-        // This is handled by the existing TexasEVVProvider
-        throw new Error(
-          'Texas (HHAeXchange) should be handled by TexasEVVProvider. ' +
-          'Use EVVService.submitToStateAggregator() for proper routing.'
-        );
+        // HHAeXchange serves TX, FL (and potentially other states)
+        return this.hhaeexchangeAggregator;
 
       case 'MULTI':
-        // Florida multi-aggregator
-        // This is handled by the existing FloridaEVVProvider
-        throw new Error(
-          'Florida (multi-aggregator) should be handled by FloridaEVVProvider. ' +
-          'Use EVVService.submitToStateAggregator() for proper routing.'
-        );
+        // Florida multi-aggregator routing
+        // For now, use HHAeXchange as primary aggregator for FL
+        // In the future, could route based on MCO
+        return this.hhaeexchangeAggregator;
 
       default:
         throw new Error(`No aggregator configured for state: ${state}`);

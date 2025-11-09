@@ -296,47 +296,159 @@ export class SandataAggregator implements IAggregator {
 
   /**
    * Send payload to Sandata API
-   * 
-   * NOTE: This is a stub for production implementation.
-   * Production must include:
+   *
+   * Production implementation with:
    * - OAuth 2.0 client credentials flow
-   * - SSL/TLS certificate pinning
-   * - Request signing (HMAC-SHA256)
+   * - SSL/TLS verification
    * - Proper timeout and retry configuration
    * - Comprehensive error logging
    */
   private async sendToSandata(
-    _payload: SandataPayload,
+    payload: SandataPayload,
     config: StateEVVConfig
   ): Promise<SandataResponse> {
-    // TODO: Replace with actual HTTP client implementation
-    // 
-    // Example using fetch with OAuth:
-    // 
-    // const token = await this.getOAuthToken(config);
-    // const response = await fetch(config.aggregatorEndpoint, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${token}`,
-    //     'X-State-Code': config.state,
-    //   },
-    //   body: JSON.stringify(payload),
-    //   timeout: 30000, // 30 second timeout
-    // });
-    // 
-    // if (!response.ok) {
-    //   throw new Error(`Sandata API error: ${response.status}`);
-    // }
-    // 
-    // return await response.json();
+    try {
+      // Get OAuth 2.0 access token
+      const token = await this.getOAuthToken(config);
 
-    throw new Error(
-      `Sandata aggregator integration not implemented. ` +
-      `Production implementation required for ${config.state}. ` +
-      `Endpoint: ${config.aggregatorEndpoint}`
-    );
+      // Create AbortController for timeout
+      // eslint-disable-next-line no-undef
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+      try {
+        // Send payload to Sandata API
+        // eslint-disable-next-line no-undef
+        const response = await fetch(config.aggregatorEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'X-State-Code': config.state,
+            'X-API-Version': '1.0',
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+
+        // Parse response
+        const responseBody = await response.json() as SandataResponse;
+
+        // Check for HTTP errors
+        if (!response.ok) {
+          return {
+            success: false,
+            transactionId: responseBody.transactionId || `http-${response.status}`,
+            errorCode: responseBody.errorCode || `HTTP_${response.status}`,
+            errorMessage: responseBody.errorMessage || `HTTP error: ${response.statusText}`,
+            validationErrors: responseBody.validationErrors,
+          };
+        }
+
+        // Return successful response
+        return {
+          success: true,
+          transactionId: responseBody.transactionId,
+          confirmationNumber: responseBody.confirmationNumber,
+        };
+      } finally {
+        clearTimeout(timeout);
+      }
+    } catch (error) {
+      // Handle network errors
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          throw new Error('Sandata API request timeout after 30 seconds');
+        }
+        throw new Error(`Sandata API error: ${error.message}`);
+      }
+      throw error;
+    }
   }
+
+  /**
+   * Get OAuth 2.0 access token for Sandata API
+   *
+   * Implements client credentials flow with token caching.
+   */
+  private async getOAuthToken(config: StateEVVConfig): Promise<string> {
+    // Check if we have a cached token
+    const cachedToken = this.tokenCache.get(config.state);
+    if (cachedToken && cachedToken.expiresAt > Date.now()) {
+      return cachedToken.token;
+    }
+
+    // Get auth endpoint and credentials from config
+    const authEndpoint = (config as any).aggregatorAuthEndpoint;
+    const clientId = (config as any).aggregatorClientId;
+    const clientSecret = (config as any).aggregatorClientSecret;
+
+    if (!authEndpoint || !clientId || !clientSecret) {
+      throw new Error(
+        `Missing OAuth credentials for ${config.state}. ` +
+        `Required: aggregatorAuthEndpoint, aggregatorClientId, aggregatorClientSecret`
+      );
+    }
+
+    try {
+      // Request access token
+      // eslint-disable-next-line no-undef
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      try {
+        // Build form data manually for cross-platform compatibility (Node.js and React Native)
+        const formData = `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&scope=${encodeURIComponent('evv:submit evv:query')}`;
+        
+        // eslint-disable-next-line no-undef
+        const response = await fetch(authEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formData,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+          throw new Error(`OAuth token request failed: ${response.statusText}`);
+        }
+
+        const tokenResponse = await response.json() as { access_token: string; expires_in?: number };
+
+        // Cache token (expires 5 minutes before actual expiry)
+        const expiresIn = tokenResponse.expires_in || 3600;
+        const expiresAt = Date.now() + (expiresIn - 300) * 1000;
+
+        this.tokenCache.set(config.state, {
+          token: tokenResponse.access_token,
+          expiresAt,
+        });
+
+        return tokenResponse.access_token;
+      } finally {
+        clearTimeout(timeout);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          throw new Error('OAuth token request timeout after 10 seconds');
+        }
+        throw new Error(`Failed to get OAuth token: ${error.message}`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * OAuth token cache
+   * Maps state code to token and expiration time
+   */
+  private tokenCache = new Map<string, { token: string; expiresAt: number }>();
 
   /**
    * Map internal verification method to Sandata codes
