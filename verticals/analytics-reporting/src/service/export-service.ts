@@ -4,6 +4,9 @@
  */
 
 import { Report, ExportFormat } from '../types/analytics';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as ExcelJS from 'exceljs';
 
 export class ExportService {
   /**
@@ -27,72 +30,518 @@ export class ExportService {
 
   /**
    * Export to PDF
-   * Uses jsPDF or similar library
+   * Uses jsPDF library
    */
   async exportToPDF(report: Report): Promise<Buffer> {
-    // This is a placeholder implementation
-    // In production, you would use a library like:
-    // - jsPDF
-    // - pdfkit
-    // - puppeteer for HTML to PDF conversion
+    const pdf = new jsPDF();
 
-    const pdfContent = this.generatePDFContent(report);
+    // Add title
+    pdf.setFontSize(18);
+    pdf.text(report.title, 14, 20);
 
-    // Simulated PDF generation
-    // In real implementation:
-    // const pdf = new jsPDF();
-    // pdf.text(report.title, 10, 10);
-    // ... add content
-    // return Buffer.from(pdf.output('arraybuffer'));
+    // Add metadata
+    pdf.setFontSize(10);
+    pdf.text(`Generated: ${report.generatedAt.toLocaleString()}`, 14, 30);
+    pdf.text(
+      `Period: ${report.period.startDate.toLocaleDateString()} - ${report.period.endDate.toLocaleDateString()}`,
+      14,
+      36
+    );
 
-    return Buffer.from(pdfContent, 'utf-8');
+    const yPosition = 46;
+
+    // Add report-specific data based on type
+    switch (report.reportType) {
+      case 'EVV_COMPLIANCE':
+        this.addEVVComplianceToPDF(pdf, report.data, yPosition);
+        break;
+      case 'PRODUCTIVITY':
+        this.addProductivityToPDF(pdf, report.data, yPosition);
+        break;
+      case 'REVENUE_CYCLE':
+        this.addRevenueCycleToPDF(pdf, report.data, yPosition);
+        break;
+      case 'CAREGIVER_PERFORMANCE':
+        this.addCaregiverPerformanceToPDF(pdf, report.data, yPosition);
+        break;
+      default:
+        this.addGenericDataToPDF(pdf, report.data, yPosition);
+    }
+
+    // Convert to buffer
+    const pdfOutput = pdf.output('arraybuffer');
+    return Buffer.from(pdfOutput);
   }
 
   /**
-   * Generate PDF content structure
+   * Add EVV Compliance data to PDF
    */
-  private generatePDFContent(report: Report): string {
-    return `
-      PDF Report: ${report.title}
-      Generated: ${report.generatedAt.toLocaleString()}
-      Period: ${report.period.startDate.toLocaleDateString()} - ${report.period.endDate.toLocaleDateString()}
+  private addEVVComplianceToPDF(
+    pdf: jsPDF,
+    data: Record<string, unknown>,
+    startY: number
+  ): number {
+    // Summary metrics
+    autoTable(pdf, {
+      startY,
+      head: [['Metric', 'Value']],
+      body: [
+        ['State', data.state as string],
+        ['Total Visits', (data.totalVisits as number).toString()],
+        ['Compliant Visits', (data.compliantVisits as number).toString()],
+        ['Compliance Rate', `${((data.complianceRate as number) * 100).toFixed(2)}%`],
+      ],
+      theme: 'grid',
+    });
 
-      ${JSON.stringify(report.data, null, 2)}
-    `;
+    let currentY = (pdf as any).lastAutoTable.finalY + 10;
+
+    // Flagged visits table
+    if (Array.isArray(data.flaggedVisits) && data.flaggedVisits.length > 0) {
+      autoTable(pdf, {
+        startY: currentY,
+        head: [['Visit ID', 'Client', 'Caregiver', 'Date', 'Flags', 'Status']],
+        body: data.flaggedVisits.map((visit: any) => [
+          visit.visitId,
+          visit.clientName,
+          visit.caregiverName,
+          new Date(visit.serviceDate).toLocaleDateString(),
+          visit.complianceFlags.join(', '),
+          visit.resolutionStatus,
+        ]),
+        theme: 'striped',
+      });
+      currentY = (pdf as any).lastAutoTable.finalY;
+    }
+
+    return currentY;
+  }
+
+  /**
+   * Add Productivity data to PDF
+   */
+  private addProductivityToPDF(
+    pdf: jsPDF,
+    data: Record<string, unknown>,
+    startY: number
+  ): number {
+    const caregivers = data.caregivers as any[];
+
+    autoTable(pdf, {
+      startY,
+      head: [['Caregiver', 'Visits', 'Avg Duration', 'On-Time %', 'EVV %', 'Score']],
+      body: caregivers.map((cg) => [
+        cg.caregiverName,
+        cg.visitsCompleted.toString(),
+        `${cg.averageVisitDuration.toFixed(0)} min`,
+        `${(cg.onTimePercentage * 100).toFixed(1)}%`,
+        `${(cg.evvComplianceRate * 100).toFixed(1)}%`,
+        cg.performanceScore.toFixed(1),
+      ]),
+      theme: 'striped',
+    });
+
+    let currentY = (pdf as any).lastAutoTable.finalY + 10;
+
+    // Summary
+    const summary = data.summary as any;
+    autoTable(pdf, {
+      startY: currentY,
+      head: [['Summary Metric', 'Value']],
+      body: [
+        ['Total Hours', summary.totalHours.toFixed(2)],
+        ['Average Utilization', `${(summary.averageUtilization * 100).toFixed(1)}%`],
+      ],
+      theme: 'grid',
+    });
+
+    return (pdf as any).lastAutoTable.finalY;
+  }
+
+  /**
+   * Add Revenue Cycle data to PDF
+   */
+  private addRevenueCycleToPDF(
+    pdf: jsPDF,
+    data: Record<string, unknown>,
+    startY: number
+  ): number {
+    // Summary metrics
+    autoTable(pdf, {
+      startY,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Billed', `$${(data.billed as number).toFixed(2)}`],
+        ['Total Paid', `$${(data.paid as number).toFixed(2)}`],
+        ['Outstanding A/R', `$${(data.outstanding as number).toFixed(2)}`],
+        ['Denial Rate', `${((data.denialRate as number) * 100).toFixed(2)}%`],
+      ],
+      theme: 'grid',
+    });
+
+    let currentY = (pdf as any).lastAutoTable.finalY + 10;
+
+    // Aging buckets
+    if (Array.isArray(data.aging) && data.aging.length > 0) {
+      autoTable(pdf, {
+        startY: currentY,
+        head: [['Aging Range', 'Count', 'Amount']],
+        body: data.aging.map((bucket: any) => [
+          bucket.range,
+          bucket.count.toString(),
+          `$${bucket.amount.toFixed(2)}`,
+        ]),
+        theme: 'striped',
+      });
+      currentY = (pdf as any).lastAutoTable.finalY + 10;
+    }
+
+    // By payer
+    if (Array.isArray(data.byPayer) && data.byPayer.length > 0) {
+      autoTable(pdf, {
+        startY: currentY,
+        head: [['Payer', 'Visits', 'Billed', 'Paid', 'Outstanding']],
+        body: data.byPayer.map((payer: any) => [
+          payer.payerName,
+          payer.visitCount.toString(),
+          `$${payer.billedAmount.toFixed(2)}`,
+          `$${payer.paidAmount.toFixed(2)}`,
+          `$${payer.outstandingAmount.toFixed(2)}`,
+        ]),
+        theme: 'striped',
+      });
+      currentY = (pdf as any).lastAutoTable.finalY;
+    }
+
+    return currentY;
+  }
+
+  /**
+   * Add Caregiver Performance data to PDF
+   */
+  private addCaregiverPerformanceToPDF(
+    pdf: jsPDF,
+    data: Record<string, unknown>,
+    startY: number
+  ): number {
+    autoTable(pdf, {
+      startY,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Caregiver Name', data.caregiverName as string],
+        ['Visits Completed', (data.visitsCompleted as number).toString()],
+        ['Avg Visit Duration', `${(data.averageVisitDuration as number).toFixed(0)} min`],
+        ['On-Time Percentage', `${((data.onTimePercentage as number) * 100).toFixed(1)}%`],
+        ['EVV Compliance Rate', `${((data.evvComplianceRate as number) * 100).toFixed(1)}%`],
+        ['No-Show Rate', `${((data.noShowRate as number) * 100).toFixed(1)}%`],
+        ['Geofence Violations', (data.geofenceViolations as number).toString()],
+        ['Overtime Hours', (data.overtimeHours as number).toFixed(2)],
+        ['Performance Score', (data.performanceScore as number).toFixed(1)],
+      ],
+      theme: 'grid',
+    });
+
+    return (pdf as any).lastAutoTable.finalY;
+  }
+
+  /**
+   * Add generic data to PDF
+   */
+  private addGenericDataToPDF(
+    pdf: jsPDF,
+    data: Record<string, unknown>,
+    startY: number
+  ): number {
+    const rows = Object.entries(data).map(([key, value]) => [
+      key,
+      typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value),
+    ]);
+
+    autoTable(pdf, {
+      startY,
+      head: [['Key', 'Value']],
+      body: rows,
+      theme: 'grid',
+    });
+
+    return (pdf as any).lastAutoTable.finalY;
   }
 
   /**
    * Export to Excel
-   * Uses exceljs or similar library
+   * Uses exceljs library
    */
   async exportToExcel(report: Report): Promise<Buffer> {
-    // This is a placeholder implementation
-    // In production, you would use exceljs:
-    // import ExcelJS from 'exceljs';
-    //
-    // const workbook = new ExcelJS.Workbook();
-    // const worksheet = workbook.addWorksheet(report.title);
-    //
-    // worksheet.addRow(['Report Title', report.title]);
-    // worksheet.addRow(['Generated', report.generatedAt]);
-    // worksheet.addRow(['Period', `${report.period.startDate} - ${report.period.endDate}`]);
-    //
-    // // Add report-specific data based on report type
-    // this.addReportDataToWorksheet(worksheet, report);
-    //
-    // return workbook.xlsx.writeBuffer();
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(report.title);
 
-    // Simulated Excel generation
-    const excelContent = this.generateExcelContent(report);
-    return Buffer.from(excelContent, 'utf-8');
+    // Set worksheet properties
+    worksheet.properties.defaultRowHeight = 20;
+
+    // Add header
+    worksheet.addRow(['Report Title', report.title]);
+    worksheet.addRow(['Generated', report.generatedAt.toLocaleString()]);
+    worksheet.addRow([
+      'Period',
+      `${report.period.startDate.toLocaleDateString()} - ${report.period.endDate.toLocaleDateString()}`,
+    ]);
+    worksheet.addRow([]); // Empty row
+
+    // Style header rows
+    worksheet.getRow(1).font = { bold: true, size: 14 };
+    worksheet.getRow(2).font = { bold: true };
+    worksheet.getRow(3).font = { bold: true };
+
+    // Add report-specific data
+    switch (report.reportType) {
+      case 'EVV_COMPLIANCE':
+        this.addEVVComplianceToExcel(worksheet, report.data);
+        break;
+      case 'PRODUCTIVITY':
+        this.addProductivityToExcel(worksheet, report.data);
+        break;
+      case 'REVENUE_CYCLE':
+        this.addRevenueCycleToExcel(worksheet, report.data);
+        break;
+      case 'CAREGIVER_PERFORMANCE':
+        this.addCaregiverPerformanceToExcel(worksheet, report.data);
+        break;
+      default:
+        this.addGenericDataToExcel(worksheet, report.data);
+    }
+
+    // Auto-fit columns
+    worksheet.columns.forEach((column) => {
+      if (column?.eachCell !== undefined) {
+        let maxLength = 10;
+        column.eachCell({ includeEmpty: true }, (cell) => {
+          const cellValue = cell.value !== null && cell.value !== undefined ? cell.value.toString() : '';
+          maxLength = Math.max(maxLength, cellValue.length);
+        });
+        column.width = Math.min(maxLength + 2, 50);
+      }
+    });
+
+    // Generate buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 
   /**
-   * Generate Excel content structure
+   * Add EVV Compliance data to Excel worksheet
    */
-  private generateExcelContent(report: Report): string {
-    // This would be actual Excel binary data in production
-    return `Excel Export: ${report.title}\n${JSON.stringify(report.data)}`;
+  private addEVVComplianceToExcel(
+    worksheet: ExcelJS.Worksheet,
+    data: Record<string, unknown>
+  ): void {
+    // Summary metrics
+    worksheet.addRow(['Metric', 'Value']).font = { bold: true };
+    worksheet.addRow(['State', data.state]);
+    worksheet.addRow(['Total Visits', data.totalVisits]);
+    worksheet.addRow(['Compliant Visits', data.compliantVisits]);
+    worksheet.addRow([
+      'Compliance Rate',
+      `${((data.complianceRate as number) * 100).toFixed(2)}%`,
+    ]);
+    worksheet.addRow([]); // Empty row
+
+    // Flagged visits
+    if (Array.isArray(data.flaggedVisits) && data.flaggedVisits.length > 0) {
+      const headerRow = worksheet.addRow([
+        'Visit ID',
+        'Client Name',
+        'Caregiver Name',
+        'Service Date',
+        'Compliance Flags',
+        'Resolution Status',
+      ]);
+      headerRow.font = { bold: true };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE0E0E0' },
+      };
+
+      data.flaggedVisits.forEach((visit: any) => {
+        worksheet.addRow([
+          visit.visitId,
+          visit.clientName,
+          visit.caregiverName,
+          new Date(visit.serviceDate).toLocaleDateString(),
+          visit.complianceFlags.join(', '),
+          visit.resolutionStatus,
+        ]);
+      });
+    }
+  }
+
+  /**
+   * Add Productivity data to Excel worksheet
+   */
+  private addProductivityToExcel(
+    worksheet: ExcelJS.Worksheet,
+    data: Record<string, unknown>
+  ): void {
+    const caregivers = data.caregivers as any[];
+
+    // Caregiver performance table
+    const headerRow = worksheet.addRow([
+      'Caregiver Name',
+      'Visits Completed',
+      'Avg Visit Duration (min)',
+      'On-Time %',
+      'EVV Compliance %',
+      'Performance Score',
+    ]);
+    headerRow.font = { bold: true };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE0E0E0' },
+    };
+
+    caregivers.forEach((cg) => {
+      worksheet.addRow([
+        cg.caregiverName,
+        cg.visitsCompleted,
+        cg.averageVisitDuration.toFixed(0),
+        `${(cg.onTimePercentage * 100).toFixed(1)}%`,
+        `${(cg.evvComplianceRate * 100).toFixed(1)}%`,
+        cg.performanceScore.toFixed(1),
+      ]);
+    });
+
+    worksheet.addRow([]); // Empty row
+
+    // Summary
+    const summary = data.summary as any;
+    const summaryHeaderRow = worksheet.addRow(['Summary Metric', 'Value']);
+    summaryHeaderRow.font = { bold: true };
+    worksheet.addRow(['Total Hours', summary.totalHours.toFixed(2)]);
+    worksheet.addRow([
+      'Average Utilization',
+      `${(summary.averageUtilization * 100).toFixed(1)}%`,
+    ]);
+  }
+
+  /**
+   * Add Revenue Cycle data to Excel worksheet
+   */
+  private addRevenueCycleToExcel(
+    worksheet: ExcelJS.Worksheet,
+    data: Record<string, unknown>
+  ): void {
+    // Summary metrics
+    worksheet.addRow(['Metric', 'Value']).font = { bold: true };
+    worksheet.addRow(['Total Billed', `$${(data.billed as number).toFixed(2)}`]);
+    worksheet.addRow(['Total Paid', `$${(data.paid as number).toFixed(2)}`]);
+    worksheet.addRow(['Outstanding A/R', `$${(data.outstanding as number).toFixed(2)}`]);
+    worksheet.addRow([
+      'Denial Rate',
+      `${((data.denialRate as number) * 100).toFixed(2)}%`,
+    ]);
+    worksheet.addRow([]); // Empty row
+
+    // Aging buckets
+    if (Array.isArray(data.aging) && data.aging.length > 0) {
+      const agingHeaderRow = worksheet.addRow(['Aging Range', 'Count', 'Amount']);
+      agingHeaderRow.font = { bold: true };
+      agingHeaderRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE0E0E0' },
+      };
+
+      data.aging.forEach((bucket: any) => {
+        worksheet.addRow([
+          bucket.range,
+          bucket.count,
+          `$${bucket.amount.toFixed(2)}`,
+        ]);
+      });
+      worksheet.addRow([]); // Empty row
+    }
+
+    // By payer
+    if (Array.isArray(data.byPayer) && data.byPayer.length > 0) {
+      const payerHeaderRow = worksheet.addRow([
+        'Payer Name',
+        'Visit Count',
+        'Billed Amount',
+        'Paid Amount',
+        'Outstanding Amount',
+      ]);
+      payerHeaderRow.font = { bold: true };
+      payerHeaderRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE0E0E0' },
+      };
+
+      data.byPayer.forEach((payer: any) => {
+        worksheet.addRow([
+          payer.payerName,
+          payer.visitCount,
+          `$${payer.billedAmount.toFixed(2)}`,
+          `$${payer.paidAmount.toFixed(2)}`,
+          `$${payer.outstandingAmount.toFixed(2)}`,
+        ]);
+      });
+    }
+  }
+
+  /**
+   * Add Caregiver Performance data to Excel worksheet
+   */
+  private addCaregiverPerformanceToExcel(
+    worksheet: ExcelJS.Worksheet,
+    data: Record<string, unknown>
+  ): void {
+    worksheet.addRow(['Metric', 'Value']).font = { bold: true };
+    worksheet.addRow(['Caregiver Name', data.caregiverName]);
+    worksheet.addRow(['Visits Completed', data.visitsCompleted]);
+    worksheet.addRow([
+      'Avg Visit Duration',
+      `${(data.averageVisitDuration as number).toFixed(0)} min`,
+    ]);
+    worksheet.addRow([
+      'On-Time Percentage',
+      `${((data.onTimePercentage as number) * 100).toFixed(1)}%`,
+    ]);
+    worksheet.addRow([
+      'EVV Compliance Rate',
+      `${((data.evvComplianceRate as number) * 100).toFixed(1)}%`,
+    ]);
+    worksheet.addRow([
+      'No-Show Rate',
+      `${((data.noShowRate as number) * 100).toFixed(1)}%`,
+    ]);
+    worksheet.addRow(['Geofence Violations', data.geofenceViolations]);
+    worksheet.addRow(['Overtime Hours', (data.overtimeHours as number).toFixed(2)]);
+    worksheet.addRow(['Performance Score', (data.performanceScore as number).toFixed(1)]);
+  }
+
+  /**
+   * Add generic data to Excel worksheet
+   */
+  private addGenericDataToExcel(
+    worksheet: ExcelJS.Worksheet,
+    data: Record<string, unknown>
+  ): void {
+    const headerRow = worksheet.addRow(['Key', 'Value']);
+    headerRow.font = { bold: true };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE0E0E0' },
+    };
+
+    Object.entries(data).forEach(([key, value]) => {
+      worksheet.addRow([
+        key,
+        typeof value === 'object' && value !== null ? JSON.stringify(value) : value,
+      ]);
+    });
   }
 
   /**

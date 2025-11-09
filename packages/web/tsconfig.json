@@ -49,13 +49,14 @@
     "src/app/pages/admin/__tests__/StateConfigPanel.test.tsx",
     "src/core/hooks/sync",
     "src/core/services/sync-api.ts",
-    "src/core/services/sync-service.ts",
-    "src/verticals/family-engagement",
-    "src/app/layouts/FamilyPortalLayout.tsx"
+    "src/core/services/sync-service.ts"
   ],
   "references": [
     {
       "path": "../core"
+    },
+    {
+      "path": "../../verticals/care-plans-tasks"
     },
     {
       "path": "../../verticals/family-engagement"

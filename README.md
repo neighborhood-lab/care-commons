@@ -69,35 +69,36 @@ care-commons/
 
 ## Verticals
 
-### ✅ Implemented
+### ✅ Production Ready (Backend + Frontend Complete)
 
 - **[Client & Demographics Management](./verticals/client-demographics/)** - Foundational record system for individuals receiving care
 - **[Caregiver & Staff Management](./verticals/caregiver-staff/)** - Secure directory of personnel providing care services
 - **[Scheduling & Visit Management](./verticals/scheduling-visits/)** - Service patterns, automated scheduling, and real-time visit tracking
-- **[Care Plans & Tasks Library](./verticals/care-plans-tasks/)** - Structured care plans with goals, interventions, and task management
-- **[Family Engagement Platform](./verticals/family-engagement/)** - Transparency and communication features for family portal, notifications, and messaging
+- **[Time Tracking & EVV](./verticals/time-tracking-evv/)** - Electronic Visit Verification with GPS, geofencing, and state compliance (TX/FL)
+- **[Shift Matching](./verticals/shift-matching/)** - ML-based automated caregiver-to-visit matching and schedule optimization
+- **[Care Plans & Tasks](./verticals/care-plans-tasks/)** - Structured care plans with goals, interventions, and task management (17 components + 7 pages)
+- **[Family Engagement](./verticals/family-engagement/)** - Family portal with transparency, notifications, and messaging (implemented November 2024)
+- **[Billing & Invoicing](./verticals/billing-invoicing/)** - Claims generation, invoice management, and payment tracking
+
+### 🚧 In Progress (Backend Complete, Frontend Partial)
+
+- **[Payroll Processing](./verticals/payroll-processing/)** - Timesheet processing, tax calculations, direct deposit (70% complete - backend done)
+- **[Analytics & Reporting](./verticals/analytics-reporting/)** - Dashboards, KPIs, and compliance reports (70% complete - backend done)
 
 ### 📋 Planned
-- Time Tracking & Electronic Visit Verification (EVV)
-- Shift Matching & Assignment
-- Billing & Invoicing
-- Payroll Processing
+
+- **[Quality Assurance & Audits](./verticals/quality-assurance-audits/)** - Quality metrics and audit workflows (40% - schema ready)
 - Compliance & Documentation
-- Mobile App for Field Staff
 - Care Notes & Progress Reporting
 - Incident & Risk Reporting
 - Referral & Intake Management
 - Medication Management
 - Training & Certification Tracking
-- Quality Assurance & Audits
-- Reporting & Analytics
 - Communication & Messaging
 - Document Management & eSignatures
 - Inventory & Supplies Tracking
 - HR & Onboarding
 - Mileage & Expense Tracking
-- Role-Based Access Control & Security
-- Data Backup & Offline Support
 
 ## Getting Started
 

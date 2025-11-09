@@ -13,13 +13,15 @@ import { randomUUID } from 'node:crypto';
 import { OAuth2Client } from 'google-auth-library';
 import { Database } from '../db/connection.js';
 import { UUID } from '../types/base.js';
-import { 
-  NotFoundError, 
-  ValidationError, 
-  AuthenticationError 
+import {
+  NotFoundError,
+  ValidationError,
+  AuthenticationError
 } from '../types/base.js';
 import { PasswordUtils } from '../utils/password-utils.js';
 import { JWTUtils, TokenPayload, TokenPair } from '../utils/jwt-utils.js';
+import { getCacheService } from './cache.service.js';
+import { CacheKeys, CacheTTL } from '../constants/cache-keys.js';
 
 /**
  * Google OAuth profile data
@@ -45,6 +47,7 @@ export interface LoginResult {
     email: string;
     name: string;
     roles: string[];
+    permissions: string[];
     organizationId: UUID;
   };
   tokens: TokenPair;
@@ -158,6 +161,7 @@ export class AuthService {
         email: user.email,
         name: `${user.first_name} ${user.last_name}`,
         roles: user.roles,
+        permissions: user.permissions,
         organizationId: user.organization_id
       },
       tokens
@@ -270,6 +274,7 @@ export class AuthService {
         email: user.email,
         name: `${user.first_name} ${user.last_name}`,
         roles: user.roles,
+        permissions: user.permissions,
         organizationId: user.organization_id
       },
       tokens
@@ -384,42 +389,58 @@ export class AuthService {
 
   /**
    * Find user by email
-   * 
+   *
    * @param email - User email
    * @returns User record or null
    */
   private async findUserByEmail(email: string): Promise<UserRecord | null> {
-    const result = await this.db.query(
-      `SELECT id, organization_id, email, password_hash, first_name, last_name, 
-              roles, permissions, status, token_version, failed_login_attempts, 
-              locked_until, oauth_provider, oauth_provider_id
-       FROM users 
-       WHERE email = $1 AND deleted_at IS NULL`,
-      [email]
-    );
+    const cache = getCacheService();
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    return (result.rows[0] as unknown as UserRecord) ?? null;
+    return cache.getOrSet(
+      CacheKeys.userByEmail(email),
+      async () => {
+        const result = await this.db.query(
+          `SELECT id, organization_id, email, password_hash, first_name, last_name,
+                  roles, permissions, status, token_version, failed_login_attempts,
+                  locked_until, oauth_provider, oauth_provider_id
+           FROM users
+           WHERE email = $1 AND deleted_at IS NULL`,
+          [email]
+        );
+
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        return (result.rows[0] as unknown as UserRecord) ?? null;
+      },
+      CacheTTL.SHORT // User data changes frequently
+    );
   }
 
   /**
    * Find user by ID
-   * 
+   *
    * @param userId - User ID
    * @returns User record or null
    */
   private async findUserById(userId: UUID): Promise<UserRecord | null> {
-    const result = await this.db.query(
-      `SELECT id, organization_id, email, password_hash, first_name, last_name, 
-              roles, permissions, status, token_version, failed_login_attempts, 
-              locked_until, oauth_provider, oauth_provider_id
-       FROM users 
-       WHERE id = $1 AND deleted_at IS NULL`,
-      [userId]
-    );
+    const cache = getCacheService();
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    return (result.rows[0] as unknown as UserRecord) ?? null;
+    return cache.getOrSet(
+      CacheKeys.user(userId),
+      async () => {
+        const result = await this.db.query(
+          `SELECT id, organization_id, email, password_hash, first_name, last_name,
+                  roles, permissions, status, token_version, failed_login_attempts,
+                  locked_until, oauth_provider, oauth_provider_id
+           FROM users
+           WHERE id = $1 AND deleted_at IS NULL`,
+          [userId]
+        );
+
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        return (result.rows[0] as unknown as UserRecord) ?? null;
+      },
+      CacheTTL.SHORT // User data changes frequently
+    );
   }
 
   /**
@@ -483,7 +504,7 @@ export class AuthService {
    */
   private async updateOAuthFields(userId: UUID, profile: OAuthProfile): Promise<void> {
     await this.db.query(
-      `UPDATE users 
+      `UPDATE users
        SET oauth_provider = $2,
            oauth_provider_id = $3,
            oauth_email_verified = $4,
@@ -502,6 +523,10 @@ export class AuthService {
         profile.locale
       ]
     );
+
+    // Invalidate user cache
+    const cache = getCacheService();
+    await cache.delPattern(CacheKeys.patterns.user(userId));
   }
 
   /**
@@ -536,7 +561,7 @@ export class AuthService {
    */
   private async updatePasswordHash(userId: UUID, passwordHash: string): Promise<void> {
     await this.db.query(
-      `UPDATE users 
+      `UPDATE users
        SET password_hash = $2,
            last_password_change_at = NOW(),
            updated_at = NOW(),
@@ -544,6 +569,10 @@ export class AuthService {
        WHERE id = $1`,
       [userId, passwordHash]
     );
+
+    // Invalidate user cache
+    const cache = getCacheService();
+    await cache.delPattern(CacheKeys.patterns.user(userId));
   }
 
   /**
@@ -553,11 +582,11 @@ export class AuthService {
    */
   private async incrementFailedAttempts(userId: UUID): Promise<void> {
     const result = await this.db.query<{ failed_login_attempts: number }>(
-      `UPDATE users 
+      `UPDATE users
        SET failed_login_attempts = failed_login_attempts + 1,
            last_failed_login_at = NOW(),
-           locked_until = CASE 
-             WHEN failed_login_attempts + 1 >= $2 
+           locked_until = CASE
+             WHEN failed_login_attempts + 1 >= $2
              THEN NOW() + INTERVAL '${AuthService.LOCKOUT_DURATION_MINUTES} minutes'
              ELSE locked_until
            END,
@@ -579,6 +608,10 @@ export class AuthService {
         `Account locked after ${attempts} failed attempts`
       );
     }
+
+    // Invalidate user cache
+    const cache = getCacheService();
+    await cache.delPattern(CacheKeys.patterns.user(userId));
   }
 
   /**
@@ -588,7 +621,7 @@ export class AuthService {
    */
   private async resetFailedAttempts(userId: UUID): Promise<void> {
     await this.db.query(
-      `UPDATE users 
+      `UPDATE users
        SET failed_login_attempts = 0,
            locked_until = NULL,
            updated_at = NOW(),
@@ -596,6 +629,10 @@ export class AuthService {
        WHERE id = $1`,
       [userId]
     );
+
+    // Invalidate user cache
+    const cache = getCacheService();
+    await cache.delPattern(CacheKeys.patterns.user(userId));
   }
 
   /**

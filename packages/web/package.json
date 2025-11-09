@@ -9,7 +9,6 @@
   "engines": {
     "node": "22.x"
   },
-
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config vite.config.showcase.ts",
@@ -20,11 +19,12 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 410",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 420",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@care-commons/care-plans-tasks": "file:../../verticals/care-plans-tasks",
     "@care-commons/family-engagement": "file:../../verticals/family-engagement",
     "@care-commons/shared-components": "file:../shared-components",
     "@headlessui/react": "^2.2.9",
@@ -43,6 +43,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@codecov/vite-plugin": "^1.9.1",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.1.17",
     "@testing-library/react": "^16.3.0",

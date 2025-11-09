@@ -5,6 +5,6 @@ export default defineProject({
     name: 'analytics-reporting',
     globals: true,
     environment: 'node',
-    include: ['src/**/__tests__/**/*.ts', 'src/**/?(*.)+(spec|test).ts'],
+    include: ['src/**/__tests__/**/*.test.ts', 'src/**/?(*.)+(spec|test).ts'],
   },
 });

@@ -1,0 +1,135 @@
+name: Notifications
+
+on:
+  workflow_run:
+    workflows: ["CI", "Deploy"]
+    types:
+      - completed
+
+jobs:
+  notify-slack:
+    name: Send Slack Notification
+    runs-on: ubuntu-latest
+    if: always() && github.event.workflow_run.conclusion != 'skipped'
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    steps:
+      - name: Determine status emoji
+        id: status
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.conclusion }}" == "failure" ]; then
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+          else
+            echo "emoji=⚠️" >> $GITHUB_OUTPUT
+            echo "color=warning" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        if: ${{ env.SLACK_WEBHOOK_URL != '' }}
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "text": "${{ steps.status.outputs.emoji }} ${{ github.event.workflow_run.name }} - ${{ github.event.workflow_run.conclusion }}",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ steps.status.outputs.emoji }} ${{ github.event.workflow_run.name }} - ${{ github.event.workflow_run.conclusion }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Repository:*\n${{ github.repository }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${{ github.event.workflow_run.head_branch }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Triggered by:*\n${{ github.event.workflow_run.actor.login }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Status:*\n${{ github.event.workflow_run.conclusion }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Workflow"
+                      },
+                      "url": "${{ github.event.workflow_run.html_url }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Slack not configured
+        if: ${{ env.SLACK_WEBHOOK_URL == '' }}
+        run: |
+          echo "ℹ️ Slack notifications not configured (this is expected)"
+          echo "To enable Slack notifications, add SLACK_WEBHOOK_URL to GitHub Secrets"
+          echo "Get a webhook URL from: https://api.slack.com/messaging/webhooks"
+          exit 0
+
+  notify-email:
+    name: Send Email Notification
+    runs-on: ubuntu-latest
+    if: always() && github.event.workflow_run.name == 'Deploy' && github.event.workflow_run.conclusion != 'skipped'
+    env:
+      EMAIL_SERVER: ${{ secrets.EMAIL_SERVER }}
+    steps:
+      - name: Send deployment email
+        if: ${{ env.EMAIL_SERVER != '' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.EMAIL_SERVER }}
+          server_port: ${{ secrets.EMAIL_PORT || '587' }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Deployment ${{ github.event.workflow_run.conclusion }}: ${{ github.repository }}"
+          to: ${{ secrets.DEPLOYMENT_EMAIL_RECIPIENTS }}
+          from: ${{ secrets.EMAIL_FROM || 'noreply@care-commons.com' }}
+          body: |
+            Deployment Status: ${{ github.event.workflow_run.conclusion }}
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.event.workflow_run.head_branch }}
+            Commit: ${{ github.event.workflow_run.head_sha }}
+            Triggered by: ${{ github.event.workflow_run.actor.login }}
+
+            View workflow: ${{ github.event.workflow_run.html_url }}
+
+            Time: ${{ github.event.workflow_run.updated_at }}
+
+      - name: Email not configured
+        if: ${{ env.EMAIL_SERVER == '' }}
+        run: |
+          echo "ℹ️ Email notifications not configured (this is expected)"
+          echo "To enable email notifications, add these secrets to GitHub:"
+          echo "  - EMAIL_SERVER"
+          echo "  - EMAIL_USERNAME"
+          echo "  - EMAIL_PASSWORD"
+          echo "  - DEPLOYMENT_EMAIL_RECIPIENTS"
+          echo "  - EMAIL_FROM (optional)"
+          echo "  - EMAIL_PORT (optional, defaults to 587)"
+          exit 0

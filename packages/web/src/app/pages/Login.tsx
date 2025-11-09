@@ -34,7 +34,13 @@ export const Login: React.FC = () => {
       const response = await authService.login(data);
       login(response.user, response.token);
       toast.success('Welcome back!');
-      navigate('/');
+
+      // Route based on user role
+      if (response.user.roles.includes('FAMILY')) {
+        navigate('/family-portal');
+      } else {
+        navigate('/');
+      }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       toast.error(errorMessage);
@@ -69,6 +75,10 @@ export const Login: React.FC = () => {
             <div className="flex-1">
               <h3 className="text-sm font-medium text-blue-900">Demo Credentials</h3>
               <p className="mt-1 text-sm text-blue-700">
+                Email: <span className="font-mono">family@carecommons.example</span><br />
+                Password: <span className="font-mono">Family123!</span>
+              </p>
+              <p className="mt-2 text-sm text-blue-700">
                 Email: <span className="font-mono">admin@carecommons.example</span><br />
                 Password: <span className="font-mono">Admin123!</span>
               </p>

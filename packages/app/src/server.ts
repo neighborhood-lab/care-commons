@@ -18,12 +18,17 @@ if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test' && process.env
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { requestLogger, metricsMiddleware } from '@care-commons/core';
+import swaggerUi from 'swagger-ui-express';
+import { requestLogger, metricsMiddleware, sanitizeInput } from '@care-commons/core';
 import { authContextMiddleware } from './middleware/auth-context.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
+import { configureCsrfProtection } from './middleware/csrf.js';
+import { generalApiLimiter } from './middleware/rate-limit.js';
 import { initializeDatabase, getDatabase } from '@care-commons/core';
+import { initCacheService } from '@care-commons/core/service/cache.service';
 import { setupRoutes } from './routes/index.js';
+import { swaggerSpec } from './config/swagger.js';
 
 const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
@@ -158,8 +163,17 @@ function setupMiddleware(): void {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+  // Input sanitization (prevent XSS)
+  app.use(sanitizeInput);
+
+  // CSRF protection
+  configureCsrfProtection(app);
+
   // User context extraction
   app.use(authContextMiddleware);
+
+  // Apply general rate limiter to all API routes
+  app.use('/api', generalApiLimiter);
 }
 
 /**
@@ -180,7 +194,7 @@ function setupApiRoutes(): void {
         clients: '/api/clients',
         carePlans: '/api/care-plans',
       },
-      documentation: 'http://localhost:3000/api',
+      documentation: 'http://localhost:3000/api-docs',
     });
   });
 
@@ -191,6 +205,15 @@ function setupApiRoutes(): void {
       version: '0.1.0',
       environment: NODE_ENV,
     });
+  });
+
+  // Swagger documentation
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+  // Swagger JSON endpoint
+  app.get('/api-docs.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
   });
 
   // Setup vertical routes
@@ -221,6 +244,29 @@ export async function createApp(): Promise<express.Express> {
   }
   console.log('Database connection established');
 
+  // Initialize cache service
+  const redisUrl = process.env['REDIS_URL'];
+  if (redisUrl !== undefined && redisUrl !== '') {
+    try {
+      const url = new globalThis.URL(redisUrl);
+      const cacheConfig = {
+        host: url.hostname,
+        port: Number(url.port) !== 0 ? Number(url.port) : 6379,
+        password: url.password !== '' ? url.password : undefined,
+        ttl: 300, // 5 minutes default
+      };
+      await initCacheService(cacheConfig);
+      console.log('Cache service initialized with Redis');
+    } catch (error) {
+      console.warn('Failed to initialize Redis cache, using in-memory cache:', error);
+      await initCacheService();
+    }
+  } else {
+    // No Redis configured, use in-memory cache
+    await initCacheService();
+    console.log('Cache service initialized with in-memory cache');
+  }
+
   // Setup middleware and routes
   setupMiddleware();
   setupApiRoutes();
@@ -244,7 +290,7 @@ async function start(): Promise<void> {
       console.log(`\n✅ Server running on port ${PORT}`);
       console.log(`   Environment: ${NODE_ENV}`);
       console.log(`   Health check: http://localhost:${PORT}/health`);
-      console.log(`   API docs: http://localhost:${PORT}/api\n`);
+      console.log(`   API docs: http://localhost:${PORT}/api-docs\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { codecovVitePlugin } from '@codecov/vite-plugin';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -12,6 +13,17 @@ export default defineConfig({
       jsxImportSource: 'react',
       babel: {
         plugins: [],
+      },
+    }),
+    // Codecov bundle analysis - must be placed after all other plugins
+    codecovVitePlugin({
+      enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+      bundleName: 'care-commons-web',
+      uploadToken: process.env.CODECOV_TOKEN,
+      // Only upload in CI or when explicitly enabled
+      uploadOverrides: {
+        sha: process.env.GITHUB_SHA,
+        branch: process.env.GITHUB_REF_NAME,
       },
     }),
   ],

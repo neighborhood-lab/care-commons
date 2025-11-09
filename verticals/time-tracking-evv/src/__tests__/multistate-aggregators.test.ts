@@ -175,13 +175,14 @@ describe('Multi-State Aggregator Support', () => {
       }
     });
 
-    it('should throw error for TX and FL (handled by existing providers)', async () => {
-      const mockEVVRecord = createMockEVVRecord('TX');
+    it('should route TX and FL to HHAeXchange aggregator', async () => {
+      const mockTXRecord = createMockEVVRecord('TX');
       
-      // TX should throw because it's handled by TexasEVVProvider
-      await expect(async () => {
-        await router.submit(mockEVVRecord, 'TX');
-      }).rejects.toThrow(/TexasEVVProvider/);
+      // TX routes to HHAeXchange aggregator
+      const result = await router.submit(mockTXRecord, 'TX');
+      
+      expect(result).toBeDefined();
+      expect(result.submissionId).toBeDefined();
     });
   });
 

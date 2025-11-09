@@ -1,8 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
-import { Dashboard, Login, NotFound, AdminDashboard } from './app/pages';
+import { DashboardSelector, Login, NotFound, AdminDashboard } from './app/pages';
 import { ClientList, ClientDetail } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
@@ -12,28 +14,74 @@ import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
+import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
+import {
+  FamilyDashboard,
+  FamilySettings,
+  ActivityPage,
+  MessagesPage,
+  NotificationsPage,
+  SchedulePage,
+  CarePlanPage,
+  HealthUpdatesPage
+} from './verticals/family-engagement/pages';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
+  const { isAuthenticated, user } = useAuth();
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
+  // Redirect family users to family portal
+  if (user?.roles.includes('FAMILY')) {
+    return <Navigate to="/family-portal" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const FamilyProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Redirect non-family users to admin dashboard
+  if (!user?.roles.includes('FAMILY')) {
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
+  const { isAuthenticated, user } = useAuth();
+
   if (isAuthenticated) {
+    // Route to appropriate dashboard based on role
+    if (user?.roles.includes('FAMILY')) {
+      return <Navigate to="/family-portal" replace />;
+    }
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
 function AppRoutes() {
+  const { isAuthenticated, user } = useAuth();
+
   return (
     <Routes>
       <Route
@@ -47,11 +95,15 @@ function AppRoutes() {
       <Route
         path="/"
         element={
-          <ProtectedRoute>
+          !isAuthenticated ? (
+            <Navigate to="/login" replace />
+          ) : user?.roles.includes('FAMILY') ? (
+            <Navigate to="/family-portal" replace />
+          ) : (
             <AppShell>
-              <Dashboard />
+              <DashboardSelector />
             </AppShell>
-          </ProtectedRoute>
+          )
         }
       />
       <Route
@@ -280,15 +332,25 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      {/* Family Portal Routes - temporarily disabled due to missing @care-commons/family-engagement and @care-commons/core packages */}
-      {/* <Route path="/family-portal/login" element={<FamilyLoginPage />} /> */}
-      {/* <Route path="/family-portal" element={<FamilyPortalLayout />}> */}
-      {/*   <Route index element={<FamilyDashboard />} /> */}
-      {/*   <Route path="activity" element={<ActivityPage />} /> */}
-      {/*   <Route path="messages" element={<MessagesPage />} /> */}
-      {/*   <Route path="messages/:threadId" element={<MessagesPage />} /> */}
-      {/*   <Route path="notifications" element={<NotificationsPage />} /> */}
-      {/* </Route> */}
+      {/* Family Portal Routes */}
+      <Route
+        path="/family-portal"
+        element={
+          <FamilyProtectedRoute>
+            <FamilyPortalLayout />
+          </FamilyProtectedRoute>
+        }
+      >
+        <Route index element={<FamilyDashboard />} />
+        <Route path="settings" element={<FamilySettings />} />
+        <Route path="activity" element={<ActivityPage />} />
+        <Route path="messages" element={<MessagesPage />} />
+        <Route path="messages/:threadId" element={<MessagesPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
+        <Route path="schedule" element={<SchedulePage />} />
+        <Route path="care-plan" element={<CarePlanPage />} />
+        <Route path="health-updates" element={<HealthUpdatesPage />} />
+      </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -296,13 +358,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    // <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <DemoModeBar />
         <AppRoutes />
-        {/* <Toaster position="top-right" /> */}
+        <Toaster position="top-right" />
       </BrowserRouter>
-    // </QueryClientProvider>
+    </QueryClientProvider>
   );
 }
 
