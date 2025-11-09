@@ -34,8 +34,8 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div id="dashboard" className="space-y-6">
+      <div id="family-dashboard">
         <h1 className="text-2xl font-bold text-gray-900">
           Welcome back, {user?.name?.split(' ')[0]}
         </h1>
@@ -63,7 +63,7 @@ export const Dashboard: React.FC = () => {
         <Card>
           <CardHeader title="Recent Activity" />
           <CardContent>
-            <div className="space-y-4">
+            <div id="visit-timeline" className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="h-2 w-2 mt-2 rounded-full bg-green-500" />
                 <div className="flex-1">
@@ -82,7 +82,7 @@ export const Dashboard: React.FC = () => {
                   <p className="text-xs text-gray-600">4 hours ago</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              <div id="messages" className="flex items-start gap-3">
                 <div className="h-2 w-2 mt-2 rounded-full bg-yellow-500" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">
@@ -98,8 +98,8 @@ export const Dashboard: React.FC = () => {
         <Card>
           <CardHeader title="Upcoming Visits" />
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+            <div id="today-visits" className="space-y-4">
+              <div id="check-in-btn" className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
                 <div>
                   <p className="text-sm font-medium text-gray-900">Sarah Johnson</p>
                   <p className="text-xs text-gray-600">Personal Care - 2 hours</p>
