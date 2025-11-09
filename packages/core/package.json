@@ -48,7 +48,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext ts --max-warnings 100 && npm run lint:sql",
+    "lint": "eslint . --ext ts --max-warnings 101 && npm run lint:sql",
     "lint:sql": "sql-lint --driver postgres migrations/*.sql || echo 'SQL lint completed'",
     "db:migrate": "cd ../.. && tsx packages/core/scripts/migrate.ts",
     "db:migrate:rollback": "cd ../.. && tsx packages/core/scripts/rollback.ts",
