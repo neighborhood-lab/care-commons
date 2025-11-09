@@ -166,7 +166,7 @@ export const PayrollDashboard: React.FC = () => {
               totalTaxWithheld: 0,
               pendingApprovals: 0,
               recentPayRuns: { total: 0, completed: 0, failed: 0 },
-              ytdTotals: { grossPay: 0, netPay: 0, hours: 0 }
+              ytdTotals: { grossPay: 0, netPay: 0, taxWithheld: 0 }
             }} 
           />
         </section>
