@@ -12,6 +12,7 @@ describe('AnalyticsService', () => {
 
   beforeEach(() => {
     // Create mock database
+    // eslint-disable-next-line sonarjs/no-nested-functions -- Complex mock structure required for testing
     mockDb = {
       getConnection: vi.fn(() => ({
         from: vi.fn(() => ({
