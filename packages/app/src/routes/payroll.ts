@@ -25,6 +25,7 @@ import {
   TimeSheetSearchFilters,
 } from '@care-commons/payroll-processing';
 import { Database } from '@care-commons/core';
+import { requireAuth } from '../middleware/auth-context.js';
 
 /**
  * Create payroll router with all endpoints
@@ -35,6 +36,9 @@ export function createPayrollRouter(db: Database): Router {
   const payrollService = new PayrollService(pool);
   const payStubGenerator = new PayStubGeneratorService();
   const payrollRepository = new PayrollRepository(pool);
+
+  // Apply authentication to all payroll routes
+  router.use(requireAuth);
 
   /**
    * GET /api/payroll/periods
