@@ -157,23 +157,14 @@ export const PayrollDashboard: React.FC = () => {
       {currentPeriod && currentPeriod.totalGrossPay && (
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Summary</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <PayrollSummaryCard
-              title="Total Caregivers"
-              value={currentPeriod.totalCaregivers || 0}
-              icon="👥"
-            />
-            <PayrollSummaryCard
-              title="Total Hours"
-              value={`${(currentPeriod.totalHours || 0).toFixed(1)} hrs`}
-              icon="⏱️"
-            />
-            <PayrollSummaryCard
-              title="Gross Payroll"
-              value={`$${(currentPeriod.totalGrossPay || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              icon="💵"
-            />
-          </div>
+          <PayrollSummaryCard 
+            summary={{
+              totalEmployees: currentPeriod.totalCaregivers || 0,
+              totalHours: currentPeriod.totalHours || 0,
+              grossPay: currentPeriod.totalGrossPay || 0,
+              netPay: currentPeriod.totalNetPay || 0
+            }} 
+          />
         </section>
       )}
     </div>
