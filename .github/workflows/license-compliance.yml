@@ -13,6 +13,10 @@ on:
 env:
   NODE_VERSION: '22'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   license-check:
     name: License Compliance Check
@@ -33,9 +37,9 @@ jobs:
       - name: Check licenses
         run: |
           echo "Checking licenses for all dependencies..."
-          npx license-checker --summary --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;Python-2.0" --production || {
+          npx license-checker --summary --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;Python-2.0" --production --excludePrivatePackages || {
             echo "::warning::Some dependencies have licenses that need review"
-            npx license-checker --production --json > licenses.json
+            npx license-checker --production --excludePrivatePackages --json > licenses.json
             cat licenses.json
           }
 
@@ -45,7 +49,7 @@ jobs:
           echo "" >> license-report.md
           echo "Generated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> license-report.md
           echo "" >> license-report.md
-          npx license-checker --production --markdown >> license-report.md
+          npx license-checker --production --excludePrivatePackages --markdown >> license-report.md
 
       - name: Upload license report
         uses: actions/upload-artifact@v4
@@ -57,7 +61,7 @@ jobs:
       - name: Check for GPL licenses
         run: |
           echo "Checking for GPL licenses (which may require special consideration)..."
-          if npx license-checker --production --onlyAllow "GPL" 2>&1 | grep -q "GPL"; then
+          if npx license-checker --production --excludePrivatePackages --onlyAllow "GPL" 2>&1 | grep -q "GPL"; then
             echo "::warning::Found GPL-licensed dependencies. Please review for compatibility."
           else
             echo "✅ No GPL licenses found"

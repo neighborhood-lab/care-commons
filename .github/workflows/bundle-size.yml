@@ -10,6 +10,10 @@ on:
 env:
   NODE_VERSION: '22'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   bundle-size:
     name: Track Bundle Size
