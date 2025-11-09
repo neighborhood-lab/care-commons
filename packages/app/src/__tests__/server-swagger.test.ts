@@ -49,7 +49,7 @@ describe('Server Swagger Setup (server.ts lines 199-205)', () => {
     // Import and create app - this executes setupApiRoutes() which contains lines 199-205
     const { createApp } = await import('../server.js');
     app = await createApp();
-  });
+  }, 30000); // 30 second timeout for app initialization
 
   afterAll(async () => {
     // Clean up
