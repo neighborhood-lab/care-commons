@@ -5,7 +5,7 @@
  * Automatically handles cache invalidation on data mutations.
  */
 
-import { CacheService, getCacheService } from '../service/cache.service.js';
+import { getCacheService } from '../service/cache.service.js';
 import { CacheTTL } from '../constants/cache-keys.js';
 import crypto from 'node:crypto';
 
