@@ -94,13 +94,13 @@ export async function up(knex: Knex): Promise<void> {
   `);
 
   // Optimize authorization expiration queries
+  // Note: Cannot use CURRENT_DATE in partial index (not immutable)
+  // Index still helps with date-filtered queries
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_authorizations_expiring
     ON service_authorizations(organization_id, effective_to)
     WHERE deleted_at IS NULL
       AND status = 'ACTIVE'
-      AND effective_to >= CURRENT_DATE
-      AND effective_to <= CURRENT_DATE + INTERVAL '30 days'
   `);
 
   // Optimize low units threshold alerts
