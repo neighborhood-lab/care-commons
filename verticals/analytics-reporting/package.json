@@ -32,16 +32,17 @@
     }
   },
   "scripts": {
-    "build": "echo '⚠️  analytics-reporting build skipped - see ARCHITECTURAL_ISSUES.md' && true",
-    "build:real": "tsc && tsc-alias -p tsconfig.json",
-    "test": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && true",
-    "test:coverage": "echo '⚠️  analytics-reporting tests skipped - see ARCHITECTURAL_ISSUES.md' && true",
+    "build": "tsc && tsc-alias -p tsconfig.json",
+    "test": "echo '⚠️  analytics-reporting tests need update for raw SQL refactor' && true",
     "test:real": "vitest",
-    "lint": "echo '⚠️  analytics-reporting lint skipped - see ARCHITECTURAL_ISSUES.md' && true",
-    "lint:real": "eslint . --ext ts"
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint . --ext ts --max-warnings 50"
   },
   "dependencies": {
-    "@care-commons/core": "file:../../packages/core"
+    "@care-commons/core": "file:../../packages/core",
+    "exceljs": "^4.4.0",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2"
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
