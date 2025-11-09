@@ -10,6 +10,7 @@
 
 import { UserContext } from '@care-commons/core';
 import { EVVService } from '../service/evv-service';
+import { EVVAggregatorService } from '../service/evv-aggregator-service';
 import {
   ClockInInput,
   ClockOutInput,
