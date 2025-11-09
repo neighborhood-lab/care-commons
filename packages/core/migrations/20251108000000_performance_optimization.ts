@@ -20,7 +20,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Covering index for client + branch JOINs (includes commonly accessed columns)
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_clients_org_branch_status_covering
+    CREATE INDEX IF NOT EXISTS idx_clients_org_branch_status_covering
     ON clients (organization_id, branch_id, status)
     INCLUDE (first_name, last_name, client_number, email, phone)
     WHERE deleted_at IS NULL;
@@ -28,7 +28,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Covering index for caregiver assignment queries
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_caregivers_org_status_covering
+    CREATE INDEX IF NOT EXISTS idx_caregivers_org_status_covering
     ON caregivers (organization_id, status, compliance_status)
     INCLUDE (first_name, last_name, employee_number, email, phone)
     WHERE deleted_at IS NULL;
@@ -41,7 +41,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Visit statistics by date range
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_visits_org_date_status_stats
+    CREATE INDEX IF NOT EXISTS idx_visits_org_date_status_stats
     ON visits (organization_id, scheduled_start_time, status)
     INCLUDE (scheduled_end_time, actual_start_time, actual_end_time)
     WHERE deleted_at IS NULL;
@@ -49,7 +49,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Task completion analytics
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_task_instances_completion_stats
+    CREATE INDEX IF NOT EXISTS idx_task_instances_completion_stats
     ON task_instances (care_plan_id, status, completed_at)
     INCLUDE (template_id, completed_by)
     WHERE deleted_at IS NULL;
@@ -57,7 +57,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Invoice aging reports
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_invoices_aging_report
+    CREATE INDEX IF NOT EXISTS idx_invoices_aging_report
     ON invoices (organization_id, status, due_date)
     INCLUDE (invoice_number, total_amount, balance_due)
     WHERE deleted_at IS NULL;
@@ -65,7 +65,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Timesheet approval workflow
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_timesheets_approval_workflow
+    CREATE INDEX IF NOT EXISTS idx_timesheets_approval_workflow
     ON timesheets (organization_id, status, pay_period_id)
     INCLUDE (caregiver_id, submitted_at, approved_at)
     WHERE deleted_at IS NULL;
@@ -78,21 +78,21 @@ export async function up(knex: Knex): Promise<void> {
 
   // EVV records by status and submission date
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_evv_records_status_submission
+    CREATE INDEX IF NOT EXISTS idx_evv_records_status_submission
     ON evv_records (organization_id, submission_status, verification_date)
     WHERE deleted_at IS NULL;
   `);
 
   // Care plans by coordinator and status
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_care_plans_coordinator_status
+    CREATE INDEX IF NOT EXISTS idx_care_plans_coordinator_status
     ON care_plans (care_coordinator_id, status, effective_date)
     WHERE deleted_at IS NULL;
   `);
 
   // Service authorizations by client and dates
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_care_plans_client_dates
+    CREATE INDEX IF NOT EXISTS idx_care_plans_client_dates
     ON care_plans (client_id, effective_date, expiration_date)
     WHERE deleted_at IS NULL;
   `);
@@ -104,7 +104,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Active visits only (most queries filter for non-cancelled)
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_visits_active_only
+    CREATE INDEX IF NOT EXISTS idx_visits_active_only
     ON visits (organization_id, scheduled_start_time, caregiver_id)
     WHERE deleted_at IS NULL
       AND status NOT IN ('CANCELLED', 'NO_SHOW');
@@ -112,7 +112,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Pending approvals (timesheets, invoices, etc.)
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_timesheets_pending_approval
+    CREATE INDEX IF NOT EXISTS idx_timesheets_pending_approval
     ON timesheets (organization_id, pay_period_id, submitted_at)
     WHERE deleted_at IS NULL
       AND status = 'PENDING_APPROVAL';
@@ -120,7 +120,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Overdue invoices
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_invoices_overdue
+    CREATE INDEX IF NOT EXISTS idx_invoices_overdue
     ON invoices (organization_id, due_date, balance_due)
     WHERE deleted_at IS NULL
       AND status NOT IN ('PAID', 'CANCELLED')
@@ -129,7 +129,7 @@ export async function up(knex: Knex): Promise<void> {
 
   // Failed EVV submissions
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_evv_records_failed
+    CREATE INDEX IF NOT EXISTS idx_evv_records_failed
     ON evv_records (organization_id, verification_date, submission_status)
     WHERE deleted_at IS NULL
       AND submission_status = 'FAILED';
@@ -142,14 +142,14 @@ export async function up(knex: Knex): Promise<void> {
 
   // Task instance details search
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_task_instances_details_gin
+    CREATE INDEX IF NOT EXISTS idx_task_instances_details_gin
     ON task_instances USING gin(task_details jsonb_path_ops)
     WHERE deleted_at IS NULL;
   `);
 
   // Visit exception details
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_visit_exceptions_details_gin
+    CREATE INDEX IF NOT EXISTS idx_visit_exceptions_details_gin
     ON visit_exceptions USING gin(exception_details jsonb_path_ops)
     WHERE deleted_at IS NULL;
   `);
@@ -161,19 +161,19 @@ export async function up(knex: Knex): Promise<void> {
 
   // These should already exist, but we check to ensure optimal JOIN performance
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_visits_service_pattern_id
+    CREATE INDEX IF NOT EXISTS idx_visits_service_pattern_id
     ON visits (service_pattern_id)
     WHERE deleted_at IS NULL;
   `);
 
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_task_instances_visit_id
+    CREATE INDEX IF NOT EXISTS idx_task_instances_visit_id
     ON task_instances (visit_id)
     WHERE deleted_at IS NULL;
   `);
 
   await knex.raw(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_progress_notes_visit_id
+    CREATE INDEX IF NOT EXISTS idx_progress_notes_visit_id
     ON progress_notes (visit_id)
     WHERE deleted_at IS NULL;
   `);
@@ -226,24 +226,24 @@ export async function down(knex: Knex): Promise<void> {
   console.log('Rolling back performance optimization migration...');
 
   // Drop all indexes created
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_clients_org_branch_status_covering;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_caregivers_org_status_covering;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_visits_org_date_status_stats;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_task_instances_completion_stats;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_invoices_aging_report;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_timesheets_approval_workflow;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_evv_records_status_submission;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_care_plans_coordinator_status;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_care_plans_client_dates;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_visits_active_only;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_timesheets_pending_approval;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_invoices_overdue;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_evv_records_failed;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_task_instances_details_gin;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_visit_exceptions_details_gin;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_visits_service_pattern_id;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_task_instances_visit_id;');
-  await knex.raw('DROP INDEX CONCURRENTLY IF EXISTS idx_progress_notes_visit_id;');
+  await knex.raw('DROP INDEX IF EXISTS idx_clients_org_branch_status_covering;');
+  await knex.raw('DROP INDEX IF EXISTS idx_caregivers_org_status_covering;');
+  await knex.raw('DROP INDEX IF EXISTS idx_visits_org_date_status_stats;');
+  await knex.raw('DROP INDEX IF EXISTS idx_task_instances_completion_stats;');
+  await knex.raw('DROP INDEX IF EXISTS idx_invoices_aging_report;');
+  await knex.raw('DROP INDEX IF EXISTS idx_timesheets_approval_workflow;');
+  await knex.raw('DROP INDEX IF EXISTS idx_evv_records_status_submission;');
+  await knex.raw('DROP INDEX IF EXISTS idx_care_plans_coordinator_status;');
+  await knex.raw('DROP INDEX IF EXISTS idx_care_plans_client_dates;');
+  await knex.raw('DROP INDEX IF EXISTS idx_visits_active_only;');
+  await knex.raw('DROP INDEX IF EXISTS idx_timesheets_pending_approval;');
+  await knex.raw('DROP INDEX IF EXISTS idx_invoices_overdue;');
+  await knex.raw('DROP INDEX IF EXISTS idx_evv_records_failed;');
+  await knex.raw('DROP INDEX IF EXISTS idx_task_instances_details_gin;');
+  await knex.raw('DROP INDEX IF EXISTS idx_visit_exceptions_details_gin;');
+  await knex.raw('DROP INDEX IF EXISTS idx_visits_service_pattern_id;');
+  await knex.raw('DROP INDEX IF EXISTS idx_task_instances_visit_id;');
+  await knex.raw('DROP INDEX IF EXISTS idx_progress_notes_visit_id;');
 
   // Reset database configuration to defaults
   await knex.raw(`ALTER DATABASE ${knex.client.database()} RESET plan_cache_mode;`);
