@@ -37,7 +37,7 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'], permissions: [], branchIds: [],
       };
 
       const options = {
@@ -62,7 +62,7 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-2',
-        role: 'ADMIN',
+        roles: ['ADMIN'], permissions: [], branchIds: [],
       };
 
       const options = {
@@ -84,7 +84,7 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'], permissions: [], branchIds: [],
       };
 
       const alerts = await service.getComplianceAlerts('org-1', undefined, context);
@@ -97,7 +97,7 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'], permissions: [], branchIds: [],
       };
 
       const alerts = await service.getComplianceAlerts('org-1', undefined, context);
