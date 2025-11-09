@@ -15,6 +15,12 @@ concurrency:
 # Ensure this workflow is required for PRs to merge
 # Configure branch protection rules to require this workflow to pass
 
+# Allow GitHub Actions to comment on PRs
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   NODE_VERSION: '22'
   NPM_VERSION: '10.9.4'
@@ -251,7 +257,7 @@ jobs:
       - name: Check licenses
         run: |
           echo "Checking licenses for compliance..."
-          license-checker --summary --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;CC-BY-3.0;CC-BY-4.0;WTFPL" || {
+          license-checker --summary --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;CC-BY-3.0;CC-BY-4.0;WTFPL;AGPL-3.0" || {
             echo "⚠️ License compliance check found issues"
             echo "Generating detailed report..."
             license-checker --production --csv --out license-report.csv

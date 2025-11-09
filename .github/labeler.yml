@@ -1,38 +1,34 @@
 # Auto-label PRs based on changed files
+# Updated for actions/labeler@v5 syntax
 
 'documentation':
-  - '**/*.md'
-  - 'docs/**/*'
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.md', 'docs/**/*']
 
 'dependencies':
-  - 'package.json'
-  - 'package-lock.json'
-  - '**/package.json'
+  - changed-files:
+    - any-glob-to-any-file: ['package.json', 'package-lock.json', '**/package.json']
 
 'ci/cd':
-  - '.github/workflows/**'
-  - '.github/actions/**'
+  - changed-files:
+    - any-glob-to-any-file: ['.github/workflows/**', '.github/actions/**']
 
 'tests':
-  - '**/*.test.ts'
-  - '**/*.test.tsx'
-  - '**/*.spec.ts'
-  - '**/__tests__/**'
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/__tests__/**']
 
 'backend':
-  - 'packages/core/**'
-  - 'packages/api/**'
+  - changed-files:
+    - any-glob-to-any-file: ['packages/core/**', 'packages/api/**']
 
 'frontend':
-  - 'packages/web/**'
-  - 'packages/mobile/**'
+  - changed-files:
+    - any-glob-to-any-file: ['packages/web/**', 'packages/mobile/**']
 
 'database':
-  - 'packages/core/src/database/**'
-  - '**/migrations/**'
-  - '**/schema/**'
+  - changed-files:
+    - any-glob-to-any-file: ['packages/core/src/database/**', '**/migrations/**', '**/schema/**']
 
 'security':
-  - '**/auth/**'
-  - '**/security/**'
-  - '**/permissions/**'
+  - changed-files:
+    - any-glob-to-any-file: ['**/auth/**', '**/security/**', '**/permissions/**']
