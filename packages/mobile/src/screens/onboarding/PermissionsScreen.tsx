@@ -51,9 +51,11 @@ export function PermissionsScreen({ navigation }: PermissionsScreenProps) {
 
   const requestNotificationPermission = async () => {
     try {
-      const { status } = await Notifications.requestPermissionsAsync();
-      setNotificationsGranted(status === 'granted');
-      return status === 'granted';
+      const result = await Notifications.requestPermissionsAsync();
+      // Check granted status (PermissionResponse.granted or iOS-specific status)
+      const isGranted = (result as any).granted === true || result.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED;
+      setNotificationsGranted(isGranted);
+      return isGranted;
     } catch (error) {
       console.error('Error requesting notification permission:', error);
       return false;
