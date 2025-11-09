@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
 import { DashboardSelector, Login, NotFound, AdminDashboard } from './app/pages';
@@ -23,6 +25,15 @@ import {
   CarePlanPage,
   HealthUpdatesPage
 } from './verticals/family-engagement/pages';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
@@ -69,6 +80,8 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function AppRoutes() {
+  const { isAuthenticated, user } = useAuth();
+
   return (
     <Routes>
       <Route
@@ -82,11 +95,15 @@ function AppRoutes() {
       <Route
         path="/"
         element={
-          <ProtectedRoute>
+          !isAuthenticated ? (
+            <Navigate to="/login" replace />
+          ) : user?.roles.includes('FAMILY') ? (
+            <Navigate to="/family-portal" replace />
+          ) : (
             <AppShell>
               <DashboardSelector />
             </AppShell>
-          </ProtectedRoute>
+          )
         }
       />
       <Route
@@ -341,13 +358,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    // <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <DemoModeBar />
         <AppRoutes />
-        {/* <Toaster position="top-right" /> */}
+        <Toaster position="top-right" />
       </BrowserRouter>
-    // </QueryClientProvider>
+    </QueryClientProvider>
   );
 }
 
