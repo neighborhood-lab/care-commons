@@ -42,7 +42,7 @@ export const useClockIn = () => {
       } 
     }) => evvApi.clockIn(visitId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['evv-records'] });
+      void queryClient.invalidateQueries({ queryKey: ['evv-records'] });
       toast.success('Clocked in successfully');
     },
     onError: (error: Error) => {
@@ -64,7 +64,7 @@ export const useClockOut = () => {
       } 
     }) => evvApi.clockOut(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['evv-records'] });
+      void queryClient.invalidateQueries({ queryKey: ['evv-records'] });
       toast.success('Clocked out successfully');
     },
     onError: (error: Error) => {
