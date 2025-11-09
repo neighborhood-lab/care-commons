@@ -47,6 +47,7 @@ export interface LoginResult {
     email: string;
     name: string;
     roles: string[];
+    permissions: string[];
     organizationId: UUID;
   };
   tokens: TokenPair;
@@ -160,6 +161,7 @@ export class AuthService {
         email: user.email,
         name: `${user.first_name} ${user.last_name}`,
         roles: user.roles,
+        permissions: user.permissions,
         organizationId: user.organization_id
       },
       tokens
@@ -272,6 +274,7 @@ export class AuthService {
         email: user.email,
         name: `${user.first_name} ${user.last_name}`,
         roles: user.roles,
+        permissions: user.permissions,
         organizationId: user.organization_id
       },
       tokens

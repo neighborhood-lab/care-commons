@@ -68,6 +68,11 @@ export const configureCsrfProtection = (app: Express): void => {
       return next();
     }
 
+    // Skip CSRF in development mode (for easier local development)
+    if (process.env.NODE_ENV === 'development') {
+      return next();
+    }
+
     // Skip CSRF for mobile API (uses JWT)
     if (req.headers['x-mobile-app'] !== undefined) {
       return next();
