@@ -378,11 +378,13 @@ export class TellusAggregator implements IAggregator {
 
     try {
       // Create AbortController for timeout
+      // eslint-disable-next-line no-undef
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
       try {
         // Send payload to Tellus API
+        // eslint-disable-next-line no-undef
         const response = await fetch(config.aggregatorEndpoint, {
           method: 'POST',
           headers: {
@@ -398,14 +400,14 @@ export class TellusAggregator implements IAggregator {
         clearTimeout(timeout);
 
         // Parse response
-        const responseBody = await response.json();
+        const responseBody = await response.json() as TellusResponse;
 
         // Check for HTTP errors
         if (!response.ok) {
           // Handle rate limiting
           if (response.status === 429) {
             return {
-              status: 'SYSTEM_ERROR',
+              status: 'SYSTEM_ERROR' as const,
               referenceNumber: responseBody.referenceNumber,
               errors: [{
                 field: 'rate_limit',
@@ -417,12 +419,12 @@ export class TellusAggregator implements IAggregator {
 
           // Other HTTP errors
           return {
-            status: 'SYSTEM_ERROR',
+            status: 'SYSTEM_ERROR' as const,
             referenceNumber: responseBody.referenceNumber || `http-${response.status}`,
             errors: [{
               field: 'http',
               errorCode: `HTTP_${response.status}`,
-              errorMessage: responseBody.errorMessage || `HTTP error: ${response.statusText}`,
+              errorMessage: (responseBody as { errorMessage?: string }).errorMessage || `HTTP error: ${response.statusText}`,
             }],
           };
         }

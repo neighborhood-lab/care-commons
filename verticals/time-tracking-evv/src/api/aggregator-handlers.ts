@@ -149,7 +149,7 @@ export class AggregatorHandlers {
    * GET /api/evv/aggregator/submissions/pending
    * Get all pending submissions that need retry
    */
-  async getPendingSubmissions(req: APIRequest): Promise<APIResponse> {
+  async getPendingSubmissions(_req: APIRequest): Promise<APIResponse> {
     try {
       const submissions = await this.submissionRepository.getPendingRetries();
 
@@ -182,7 +182,7 @@ export class AggregatorHandlers {
    * POST /api/evv/aggregator/submissions/retry-all
    * Trigger retry for all pending submissions
    */
-  async retryAllPending(req: APIRequest): Promise<APIResponse> {
+  async retryAllPending(_req: APIRequest): Promise<APIResponse> {
     try {
       await this.aggregatorService.retryPendingSubmissions();
 
@@ -233,7 +233,7 @@ export class AggregatorHandlers {
    * GET /api/evv/aggregator/submissions/stats
    * Get submission statistics
    */
-  async getSubmissionStats(req: APIRequest): Promise<APIResponse> {
+  async getSubmissionStats(_req: APIRequest): Promise<APIResponse> {
     try {
       const pending = await this.submissionRepository.getPendingRetries();
 

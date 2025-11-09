@@ -333,9 +333,9 @@ export class HHAeXchangeAggregator implements IAggregator {
     // Add pause events if present
     if (evvRecord.pauseEvents && evvRecord.pauseEvents.length > 0) {
       payload.pauseEvents = evvRecord.pauseEvents.map(pause => ({
-        pauseTime: pause.pauseTime.toISOString(),
-        resumeTime: pause.resumeTime?.toISOString(),
-        pauseReason: pause.pauseReason,
+        pauseTime: pause.pausedAt.toISOString(),
+        resumeTime: pause.resumedAt?.toISOString(),
+        pauseReason: pause.reason,
       }));
     }
 
@@ -375,11 +375,13 @@ export class HHAeXchangeAggregator implements IAggregator {
 
     try {
       // Create AbortController for timeout
+      // eslint-disable-next-line no-undef
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
       try {
         // Send payload to HHAeXchange API
+        // eslint-disable-next-line no-undef
         const response = await fetch(config.aggregatorEndpoint, {
           method: 'POST',
           headers: {
@@ -395,7 +397,7 @@ export class HHAeXchangeAggregator implements IAggregator {
         clearTimeout(timeout);
 
         // Parse response
-        const responseBody = await response.json();
+        const responseBody = await response.json() as HHAeXchangeResponse;
 
         // Check for HTTP errors
         if (!response.ok) {
@@ -419,7 +421,7 @@ export class HHAeXchangeAggregator implements IAggregator {
             errors: [{
               field: 'http',
               code: `HTTP_${response.status}`,
-              message: responseBody.message || `HTTP error: ${response.statusText}`,
+              message: (responseBody as { message?: string }).message || `HTTP error: ${response.statusText}`,
             }],
           };
         }

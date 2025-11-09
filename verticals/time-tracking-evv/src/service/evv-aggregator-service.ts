@@ -20,42 +20,45 @@ import { EVVRecord } from '../types/evv';
 import {
   StateCode,
   StateAggregatorSubmission,
+  TexasEVVConfig,
+  FloridaEVVConfig,
 } from '../types/state-specific';
 import { getAggregatorRouter } from '../aggregators/aggregator-router.js';
-import { StateEVVConfig } from '../aggregators/base-aggregator.js';
 
 /**
  * Aggregator submission payload for HHAeXchange
+ * (Note: Unused - kept for reference)
  */
-interface HHAeXchangePayload extends Record<string, unknown> {
-  visitId: string;
-  memberId: string;
-  memberName: string;
-  providerId: string;
-  providerName: string;
-  serviceCode: string;
-  serviceDate: string;
-  clockInTime: string;
-  clockOutTime?: string;
-  clockInLatitude: number;
-  clockInLongitude: number;
-  clockOutLatitude?: number;
-  clockOutLongitude?: number;
-  clockMethod: string;
-  duration?: number;
-  verificationStatus: string;
-}
+// interface HHAeXchangePayload extends Record<string, unknown> {
+//   visitId: string;
+//   memberId: string;
+//   memberName: string;
+//   providerId: string;
+//   providerName: string;
+//   serviceCode: string;
+//   serviceDate: string;
+//   clockInTime: string;
+//   clockOutTime?: string;
+//   clockInLatitude: number;
+//   clockInLongitude: number;
+//   clockOutLatitude?: number;
+//   clockOutLongitude?: number;
+//   clockMethod: string;
+//   duration?: number;
+//   verificationStatus: string;
+// }
 
 /**
  * Aggregator response
+ * (Note: Unused - kept for reference)
  */
-interface AggregatorResponse extends Record<string, unknown> {
-  success: boolean;
-  confirmationId?: string;
-  errorCode?: string;
-  errorMessage?: string;
-  requiresRetry?: boolean;
-}
+// interface AggregatorResponse extends Record<string, unknown> {
+//   success: boolean;
+//   confirmationId?: string;
+//   errorCode?: string;
+//   errorMessage?: string;
+//   requiresRetry?: boolean;
+// }
 
 /**
  * Aggregator configuration repository interface
@@ -124,9 +127,9 @@ export class EVVAggregatorService {
     const submission = await this.submissionRepository.createSubmission({
       state: stateCode,
       evvRecordId: evvRecord.id,
-      aggregatorId: (config as any).aggregatorEntityId || 'default',
-      aggregatorType: (config as any).aggregatorType || 'UNKNOWN',
-      submissionPayload: evvRecord, // Will be formatted by aggregator
+      aggregatorId: (config as unknown as Record<string, unknown>).aggregatorEntityId as string || 'default',
+      aggregatorType: (config as unknown as Record<string, unknown>).aggregatorType as string || 'UNKNOWN',
+      submissionPayload: evvRecord as unknown as Record<string, unknown>, // Will be formatted by aggregator
       submissionFormat: 'JSON',
       submittedAt: new Date(),
       submittedBy: evvRecord.recordedBy,
@@ -138,13 +141,13 @@ export class EVVAggregatorService {
     try {
       // Use aggregator router to submit
       const router = getAggregatorRouter();
-      const result = await router.submit(evvRecord, config as StateEVVConfig);
+      const result = await router.submit(evvRecord, stateCode);
 
       if (result.success) {
         // Update submission as accepted
         const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: 'ACCEPTED',
-          aggregatorResponse: result,
+          aggregatorResponse: result as unknown as Record<string, unknown>,
           aggregatorReceivedAt: new Date(),
         };
 
@@ -157,7 +160,7 @@ export class EVVAggregatorService {
         // Update submission with error
         const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: result.requiresRetry ? 'RETRY' : 'REJECTED',
-          errorDetails: result,
+          errorDetails: result as unknown as Record<string, unknown>,
           retryCount: 0,
         };
 
@@ -231,13 +234,13 @@ export class EVVAggregatorService {
     try {
       // Use aggregator router to retry
       const router = getAggregatorRouter();
-      const result = await router.submit(evvRecord, config as StateEVVConfig);
+      const result = await router.submit(evvRecord, stateCode);
 
       if (result.success) {
         // Update submission as accepted
         const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: 'ACCEPTED',
-          aggregatorResponse: result,
+          aggregatorResponse: result as unknown as Record<string, unknown>,
           aggregatorReceivedAt: new Date(),
           retryCount: sub.retryCount + 1,
         };
@@ -251,7 +254,7 @@ export class EVVAggregatorService {
         // Update submission with error
         const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: result.requiresRetry ? 'RETRY' : 'REJECTED',
-          errorDetails: result,
+          errorDetails: result as unknown as Record<string, unknown>,
           retryCount: sub.retryCount + 1,
         };
 

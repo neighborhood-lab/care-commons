@@ -312,11 +312,13 @@ export class SandataAggregator implements IAggregator {
       const token = await this.getOAuthToken(config);
 
       // Create AbortController for timeout
+      // eslint-disable-next-line no-undef
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
       try {
         // Send payload to Sandata API
+        // eslint-disable-next-line no-undef
         const response = await fetch(config.aggregatorEndpoint, {
           method: 'POST',
           headers: {
@@ -332,7 +334,7 @@ export class SandataAggregator implements IAggregator {
         clearTimeout(timeout);
 
         // Parse response
-        const responseBody = await response.json();
+        const responseBody = await response.json() as SandataResponse;
 
         // Check for HTTP errors
         if (!response.ok) {
@@ -392,21 +394,21 @@ export class SandataAggregator implements IAggregator {
 
     try {
       // Request access token
+      // eslint-disable-next-line no-undef
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
       try {
+        // Build form data manually for cross-platform compatibility (Node.js and React Native)
+        const formData = `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&scope=${encodeURIComponent('evv:submit evv:query')}`;
+        
+        // eslint-disable-next-line no-undef
         const response = await fetch(authEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: new URLSearchParams({
-            grant_type: 'client_credentials',
-            client_id: clientId,
-            client_secret: clientSecret,
-            scope: 'evv:submit evv:query',
-          }),
+          body: formData,
           signal: controller.signal,
         });
 
@@ -416,7 +418,7 @@ export class SandataAggregator implements IAggregator {
           throw new Error(`OAuth token request failed: ${response.statusText}`);
         }
 
-        const tokenResponse = await response.json();
+        const tokenResponse = await response.json() as { access_token: string; expires_in?: number };
 
         // Cache token (expires 5 minutes before actual expiry)
         const expiresIn = tokenResponse.expires_in || 3600;
