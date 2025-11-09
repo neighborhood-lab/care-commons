@@ -1,3 +1,4 @@
+export * from './PayrollDashboard';
 export * from './PayRunList';
 export * from './PayRunDetail';
 export * from './PayStubList';

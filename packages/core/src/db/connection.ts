@@ -32,6 +32,13 @@ export class Database {
   }
 
   /**
+   * Get the underlying connection pool
+   */
+  getPool(): Pool {
+    return this.pool;
+  }
+
+  /**
    * Execute a query
    */
   async query<T extends Record<string, unknown> = Record<string, unknown>>(

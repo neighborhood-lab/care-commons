@@ -18,6 +18,8 @@ export type {
   CreatePayRunInput,
   ApproveTimeSheetInput,
 } from './service/payroll-service';
+export { PayStubGeneratorService } from './service/pay-stub-generator.service';
+export type { PayStubPDFData } from './service/pay-stub-generator.service';
 
 // Utilities
 export * from './utils/pay-calculations';
