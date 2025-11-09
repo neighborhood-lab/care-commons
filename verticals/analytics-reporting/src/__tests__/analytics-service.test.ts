@@ -35,7 +35,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const options = {
@@ -60,7 +62,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-2',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const options = {
@@ -82,7 +86,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const alerts = await service.getComplianceAlerts('org-1', undefined, context);
@@ -95,7 +101,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const alerts = await service.getComplianceAlerts('org-1', undefined, context);
@@ -103,8 +111,8 @@ describe('AnalyticsService', () => {
       // Verify alerts are sorted by severity (CRITICAL first)
       for (let i = 0; i < alerts.length - 1; i++) {
         const severityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, WARNING: 3, INFO: 4 };
-        expect(severityOrder[alerts[i].severity]).toBeLessThanOrEqual(
-          severityOrder[alerts[i + 1].severity]
+        expect(severityOrder[alerts[i]!.severity]).toBeLessThanOrEqual(
+          severityOrder[alerts[i + 1]!.severity]
         );
       }
     });

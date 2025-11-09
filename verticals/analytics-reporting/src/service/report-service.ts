@@ -16,7 +16,7 @@ import {
 export class ReportService {
   private repository: AnalyticsRepository;
 
-  constructor(private database: Database) {
+  constructor(database: Database) {
     this.repository = new AnalyticsRepository(database);
   }
 
@@ -270,10 +270,10 @@ export class ReportService {
    * NOTE: Requires refactor to raw SQL - see ARCHITECTURAL_ISSUES.md
    */
   async scheduleReport(
-    reportType: ReportType,
+    _reportType: ReportType,
     orgId: string,
-    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY',
-    recipients: string[],
+    _frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY',
+    _recipients: string[],
     context: UserContext
   ): Promise<void> {
     this.validateAccess(context, orgId);
