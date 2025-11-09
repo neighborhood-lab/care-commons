@@ -44,9 +44,15 @@ const mockPayrollRepository = {
 };
 
 vi.mock('@care-commons/payroll-processing', () => ({
-  PayrollService: vi.fn().mockImplementation(() => mockPayrollService),
-  PayStubGeneratorService: vi.fn().mockImplementation(() => mockPayStubGenerator),
-  PayrollRepository: vi.fn().mockImplementation(() => mockPayrollRepository),
+  PayrollService: vi.fn(function(this: unknown) {
+    return mockPayrollService;
+  }),
+  PayStubGeneratorService: vi.fn(function(this: unknown) {
+    return mockPayStubGenerator;
+  }),
+  PayrollRepository: vi.fn(function(this: unknown) {
+    return mockPayrollRepository;
+  }),
 }));
 
 describe('Payroll Routes', () => {
@@ -124,10 +130,12 @@ describe('Payroll Routes', () => {
       expect(response.body.data.id).toBe('period-1');
     });
 
-    it('should return 400 for empty id', async () => {
+    it('should handle trailing slash by returning list', async () => {
       const response = await request(app).get('/api/payroll/periods/');
 
-      expect(response.status).toBe(404); // Express router will not match the route
+      expect(response.status).toBe(200); // Express matches this to the list endpoint
+      expect(response.body.data).toBeDefined();
+      expect(Array.isArray(response.body.data)).toBe(true);
     });
   });
 
