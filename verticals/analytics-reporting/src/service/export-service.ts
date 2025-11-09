@@ -323,7 +323,8 @@ export class ExportService {
     });
 
     // Generate buffer
-    return Buffer.from(await workbook.xlsx.writeBuffer());
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 
   /**

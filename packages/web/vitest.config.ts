@@ -11,7 +11,11 @@ export default defineProject({
     environment: 'happy-dom',
     setupFiles: './src/test/setup.ts',
     maxConcurrency: 1,
-    pool: 'threads', // Use threads pool instead of vmThreads to avoid .node file issues
+    // Use forks pool to avoid worker timeout issues when running concurrent tests
+    pool: 'forks',
+    testTimeout: 10000, // Increased timeout for complex React component tests
+    hookTimeout: 10000,
+    fileParallelism: false, // Disable parallel file execution to reduce resource contention
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
