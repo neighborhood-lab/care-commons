@@ -40,7 +40,8 @@
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
     "exceljs": "^4.4.0",
-    "jspdf": "^3.0.3"
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2"
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
