@@ -33,7 +33,7 @@ echo "🔎 Running type checks..."
 npx turbo run typecheck
 
 echo "🧪 Running tests with coverage..."
-npx turbo run test:coverage
+npx turbo run test:coverage --concurrency=4
 
 echo "🏗️  Building project..."
 npx turbo run build

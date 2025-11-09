@@ -8,6 +8,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   validators,
+  validationHelpers,
   clientSchema,
   caregiverSchema,
   visitSchema,
@@ -336,5 +337,143 @@ describe('Register Schema', () => {
   it('should require all fields', () => {
     const registration = { ...validRegistration, first_name: '' };
     expect(() => registerSchema.parse(registration)).toThrow();
+  });
+});
+
+describe('Validation Helpers', () => {
+  describe('isEmail', () => {
+    it('should validate correct email addresses', () => {
+      expect(validationHelpers.isEmail('test@example.com')).toBe(true);
+      expect(validationHelpers.isEmail('user.name@domain.co')).toBe(true);
+      expect(validationHelpers.isEmail('user+tag@example.com')).toBe(true);
+      expect(validationHelpers.isEmail('user_name@example.com')).toBe(true);
+      expect(validationHelpers.isEmail('user123@example.com')).toBe(true);
+    });
+
+    it('should reject invalid email addresses', () => {
+      expect(validationHelpers.isEmail('invalid')).toBe(false);
+      expect(validationHelpers.isEmail('test@')).toBe(false);
+      expect(validationHelpers.isEmail('@example.com')).toBe(false);
+      expect(validationHelpers.isEmail('test@.com')).toBe(false);
+      expect(validationHelpers.isEmail('test @example.com')).toBe(false);
+      expect(validationHelpers.isEmail('test@domain')).toBe(false);
+    });
+  });
+
+  describe('isPhone', () => {
+    it('should validate correct phone numbers', () => {
+      expect(validationHelpers.isPhone('555-123-4567')).toBe(true);
+      expect(validationHelpers.isPhone('(555) 123-4567')).toBe(true);
+      expect(validationHelpers.isPhone('555.123.4567')).toBe(true);
+      expect(validationHelpers.isPhone('5551234567')).toBe(true);
+    });
+
+    it('should reject invalid phone numbers', () => {
+      expect(validationHelpers.isPhone('123')).toBe(false);
+      expect(validationHelpers.isPhone('invalid')).toBe(false);
+      expect(validationHelpers.isPhone('123-456')).toBe(false);
+      expect(validationHelpers.isPhone('(555) 123')).toBe(false);
+    });
+  });
+
+  describe('isZipCode', () => {
+    it('should validate correct ZIP codes', () => {
+      expect(validationHelpers.isZipCode('12345')).toBe(true);
+      expect(validationHelpers.isZipCode('12345-6789')).toBe(true);
+    });
+
+    it('should reject invalid ZIP codes', () => {
+      expect(validationHelpers.isZipCode('1234')).toBe(false);
+      expect(validationHelpers.isZipCode('123456')).toBe(false);
+      expect(validationHelpers.isZipCode('invalid')).toBe(false);
+      expect(validationHelpers.isZipCode('12345-123')).toBe(false);
+    });
+  });
+
+  describe('isSSN', () => {
+    it('should validate correct SSN format', () => {
+      expect(validationHelpers.isSSN('123-45-6789')).toBe(true);
+      expect(validationHelpers.isSSN('123456789')).toBe(true);
+    });
+
+    it('should reject invalid SSN format', () => {
+      expect(validationHelpers.isSSN('12-345-6789')).toBe(false);
+      expect(validationHelpers.isSSN('123-456-789')).toBe(false);
+      expect(validationHelpers.isSSN('invalid')).toBe(false);
+      expect(validationHelpers.isSSN('12345678')).toBe(false);
+    });
+  });
+
+  describe('isEmpty', () => {
+    it('should return true for null and undefined', () => {
+      expect(validationHelpers.isEmpty(null)).toBe(true);
+      expect(validationHelpers.isEmpty(undefined)).toBe(true);
+    });
+
+    it('should return true for empty strings', () => {
+      expect(validationHelpers.isEmpty('')).toBe(true);
+      expect(validationHelpers.isEmpty('   ')).toBe(true);
+    });
+
+    it('should return true for empty arrays', () => {
+      expect(validationHelpers.isEmpty([])).toBe(true);
+    });
+
+    it('should return true for empty objects', () => {
+      expect(validationHelpers.isEmpty({})).toBe(true);
+    });
+
+    it('should return false for non-empty values', () => {
+      expect(validationHelpers.isEmpty('text')).toBe(false);
+      expect(validationHelpers.isEmpty([1, 2, 3])).toBe(false);
+      expect(validationHelpers.isEmpty({ key: 'value' })).toBe(false);
+      expect(validationHelpers.isEmpty(0)).toBe(false);
+      expect(validationHelpers.isEmpty(false)).toBe(false);
+    });
+  });
+
+  describe('isValidDate', () => {
+    it('should validate Date objects', () => {
+      expect(validationHelpers.isValidDate(new Date())).toBe(true);
+      expect(validationHelpers.isValidDate(new Date('2024-01-01'))).toBe(true);
+    });
+
+    it('should validate parseable date strings', () => {
+      expect(validationHelpers.isValidDate('2024-01-01')).toBe(true);
+      expect(validationHelpers.isValidDate('2024-01-01T00:00:00.000Z')).toBe(true);
+      expect(validationHelpers.isValidDate('January 1, 2024')).toBe(true);
+    });
+
+    it('should reject invalid dates', () => {
+      expect(validationHelpers.isValidDate('invalid')).toBe(false);
+      expect(validationHelpers.isValidDate('not-a-date')).toBe(false);
+      expect(validationHelpers.isValidDate(new Date('invalid'))).toBe(false);
+    });
+  });
+
+  describe('minLength', () => {
+    it('should return true when string meets minimum length', () => {
+      expect(validationHelpers.minLength('hello', 5)).toBe(true);
+      expect(validationHelpers.minLength('hello', 3)).toBe(true);
+      expect(validationHelpers.minLength('', 0)).toBe(true);
+    });
+
+    it('should return false when string is too short', () => {
+      expect(validationHelpers.minLength('hi', 3)).toBe(false);
+      expect(validationHelpers.minLength('', 1)).toBe(false);
+    });
+  });
+
+  describe('maxLength', () => {
+    it('should return true when string is within maximum length', () => {
+      expect(validationHelpers.maxLength('hello', 10)).toBe(true);
+      expect(validationHelpers.maxLength('hello', 5)).toBe(true);
+      expect(validationHelpers.maxLength('', 5)).toBe(true);
+    });
+
+    it('should return false when string is too long', () => {
+      expect(validationHelpers.maxLength('hello', 3)).toBe(false);
+      expect(validationHelpers.maxLength('toolong', 5)).toBe(false);
+    });
   });
 });

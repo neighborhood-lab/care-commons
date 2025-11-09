@@ -41,7 +41,8 @@
         "test/**/*.tsx",
         "**/__tests__/**/*.ts",
         "**/__tests__/**/*.tsx"
-      ]
+      ],
+      "persistent": false
     },
     "test:coverage": {
       "dependsOn": ["^build"],
@@ -53,7 +54,8 @@
         "test/**/*.tsx",
         "**/__tests__/**/*.ts",
         "**/__tests__/**/*.tsx"
-      ]
+      ],
+      "persistent": false
     },
     "lint": {
       "outputs": [],
