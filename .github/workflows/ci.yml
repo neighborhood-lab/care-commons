@@ -15,6 +15,12 @@ concurrency:
 # Ensure this workflow is required for PRs to merge
 # Configure branch protection rules to require this workflow to pass
 
+# Allow GitHub Actions to comment on PRs
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   NODE_VERSION: '22'
   NPM_VERSION: '10.9.4'
@@ -23,8 +29,11 @@ env:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20', '22']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,11 +41,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install npm 10.9.4
         run: npm install -g npm@10.9.4
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
       - name: Install dependencies
         run: npm ci || (npm cache clean --force && npm ci)
@@ -45,8 +62,11 @@ jobs:
         run: npx turbo run lint
 
   typecheck:
-    name: Type Check
+    name: Type Check (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20', '22']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -54,11 +74,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install npm 10.9.4
         run: npm install -g npm@10.9.4
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
       - name: Install dependencies
         run: npm ci || (npm cache clean --force && npm ci)
@@ -67,8 +95,11 @@ jobs:
         run: npx turbo run typecheck
 
   test:
-    name: Test
+    name: Test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20', '22']
     services:
       postgres:
         image: postgres:15
@@ -90,11 +121,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install npm 10.9.4
         run: npm install -g npm@10.9.4
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
       - name: Install dependencies
         run: npm ci || (npm cache clean --force && npm ci)
@@ -170,6 +209,14 @@ jobs:
       - name: Install npm 10.9.4
         run: npm install -g npm@10.9.4
 
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
       - name: Install dependencies
         run: npm ci || (npm cache clean --force && npm ci)
 
@@ -184,3 +231,114 @@ jobs:
             packages/*/dist
             verticals/*/dist
           retention-days: 7
+
+  license-compliance:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm 10.9.4
+        run: npm install -g npm@10.9.4
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Install license checker
+        run: npm install -g license-checker
+
+      - name: Check licenses
+        run: |
+          echo "Checking licenses for compliance..."
+          # Exclude private packages (like the monorepo root) from license checking
+          # Allow common OSI-approved and permissive licenses
+          license-checker --summary --production --excludePrivatePackages --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;CC-BY-3.0;CC-BY-4.0;WTFPL;AGPL-3.0;Python-2.0;MPL-2.0" || {
+            echo "⚠️ License compliance check found issues"
+            echo "Generating detailed report..."
+            license-checker --production --excludePrivatePackages --csv --out license-report.csv
+            exit 1
+          }
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: license-report.csv
+          retention-days: 30
+
+  bundle-size:
+    name: Bundle Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm 10.9.4
+        run: npm install -g npm@10.9.4
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Build packages (Turbo)
+        run: npx turbo run build
+
+      - name: Analyze bundle sizes
+        run: |
+          echo "📦 Analyzing bundle sizes..."
+          echo "## Bundle Size Report" > bundle-size-report.md
+          echo "" >> bundle-size-report.md
+
+          for package_dir in packages/*/dist verticals/*/dist; do
+            if [ -d "$package_dir" ]; then
+              package_name=$(echo $package_dir | cut -d'/' -f1-2)
+              size=$(du -sh "$package_dir" | cut -f1)
+              echo "- **$package_name**: $size" >> bundle-size-report.md
+              echo "  $package_name: $size"
+            fi
+          done
+
+          cat bundle-size-report.md
+
+      - name: Upload bundle size report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-size-report
+          path: bundle-size-report.md
+          retention-days: 30
+
+      - name: Comment PR with bundle size
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('bundle-size-report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
