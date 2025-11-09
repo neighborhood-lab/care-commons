@@ -29,6 +29,7 @@ describe('AnalyticsService', () => {
       getConnection: vi.fn(() => ({
         from: fromFn,
       })),
+      query: vi.fn(() => Promise.resolve({ rows: [{ count: '10' }] })),
       healthCheck: vi.fn(),
       close: vi.fn(),
     } as any;
