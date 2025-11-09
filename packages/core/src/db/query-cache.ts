@@ -105,10 +105,10 @@ export async function invalidateEntityCache(
     // Invalidate specific entity
     await cache.del(generateCacheKey(prefix, entityId));
     // Also invalidate list queries containing this entity
-    await cache.invalidatePattern(`${prefix}:list:*`);
+    await cache.delPattern(`${prefix}:list:*`);
   } else {
     // Invalidate all queries for this entity type
-    await cache.invalidatePattern(`${prefix}:*`);
+    await cache.delPattern(`${prefix}:*`);
   }
 }
 
@@ -124,10 +124,10 @@ export async function invalidateOrganizationCache(
 
   if (prefix !== undefined) {
     // Invalidate specific entity type for organization
-    await cache.invalidatePattern(`${prefix}:org:${organizationId}:*`);
+    await cache.delPattern(`${prefix}:org:${organizationId}:*`);
   } else {
     // Invalidate all organization data
-    await cache.invalidatePattern(`*:org:${organizationId}:*`);
+    await cache.delPattern(`*:org:${organizationId}:*`);
   }
 }
 
@@ -168,10 +168,6 @@ export function withQueryCache<TArgs extends unknown[], TResult>(
  * Pre-populate cache with frequently accessed data
  */
 export class CacheWarmer {
-  private cache: CacheService;
-
-  constructor() {
-    this.cache = getCacheService();
   }
 
   /**
