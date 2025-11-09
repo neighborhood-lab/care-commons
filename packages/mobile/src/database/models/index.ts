@@ -3,4 +3,7 @@
  */
 
 export { Visit } from './Visit.js';
-// Export other models as they're created
+export { VisitAttachment } from './VisitAttachment.js';
+export { VisitNote } from './VisitNote.js';
+export { NoteTemplate } from './NoteTemplate.js';
+export { Notification } from './Notification.js';
