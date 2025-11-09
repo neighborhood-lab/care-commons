@@ -131,24 +131,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
           {/* Navigation */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            {filteredNavItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                    isActive
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  )
-                }
-              >
-                {item.icon}
-                {item.label}
-              </NavLink>
-            ))}
+            {filteredNavItems.map((item) => {
+              // Add IDs for tour targeting
+              let id: string | undefined;
+              if (item.path === '/clients') id = 'clients-nav';
+              if (item.path === '/scheduling') id = 'scheduling';
+              if (item.path === '/care-plans') id = 'care-plan';
+              if (item.path === '/tasks') id = 'tasks';
+              if (item.path === '/time-tracking') id = 'evv-status';
+
+              return (
+                <NavLink
+                  key={item.path}
+                  id={id}
+                  to={item.path}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-primary-50 text-primary-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    )
+                  }
+                >
+                  {item.icon}
+                  {item.label}
+                </NavLink>
+              );
+            })}
           </nav>
 
           {/* Footer */}

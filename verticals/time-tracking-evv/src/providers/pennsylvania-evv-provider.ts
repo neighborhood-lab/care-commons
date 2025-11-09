@@ -73,6 +73,8 @@ export class PennsylvaniaEVVProvider implements IPennsylvaniaEVVProvider {
     };
 
     // Store submission record
+    // EVVRecord extends Entity which has an id field
+    const evvRecordWithId = evvRecord as EVVRecord & { id: UUID };
     const submissionId = await this.database.query(`
       INSERT INTO state_aggregator_submissions (
         id, state_code, evv_record_id, aggregator_id, aggregator_type,
@@ -81,7 +83,7 @@ export class PennsylvaniaEVVProvider implements IPennsylvaniaEVVProvider {
         gen_random_uuid(), 'PA', $1, 'SANDATA', 'PRIMARY',
         $2::jsonb, 'JSON', $3, 'PENDING'
       ) RETURNING id
-    `, [(evvRecord as any).id, JSON.stringify(payload), evvRecord.recordedBy]);
+    `, [evvRecordWithId.id, JSON.stringify(payload), evvRecord.recordedBy]);
 
     return {
       submissionId: submissionId.rows[0]!['id'] as UUID,

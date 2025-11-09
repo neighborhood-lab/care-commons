@@ -4,3 +4,4 @@
 
 export { EnhancedLandingPage } from './EnhancedLandingPage';
 export { ScenarioLibraryPage } from './ScenarioLibraryPage';
+export { ShowcaseDashboard } from './ShowcaseDashboard';

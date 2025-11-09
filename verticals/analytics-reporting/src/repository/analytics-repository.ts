@@ -24,19 +24,22 @@ export class AnalyticsRepository {
     statuses: string[],
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('schedules')
-      .where('organization_id', orgId)
-      .whereIn('status', statuses)
-      .whereBetween('start_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COUNT(*) as count
+      FROM schedules
+      WHERE organization_id = $1
+        AND status = ANY($2)
+        AND start_date BETWEEN $3 AND $4
+    `;
+    const params: unknown[] = [orgId, statuses, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $5';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -47,21 +50,24 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('evv_records')
-      .where('organization_id', orgId)
-      .where('record_status', 'COMPLETE')
-      .where('verification_level', 'FULL')
-      .whereRaw("compliance_flags = '[]'::jsonb")
-      .whereBetween('service_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COUNT(*) as count
+      FROM evv_records
+      WHERE organization_id = $1
+        AND record_status = 'COMPLETE'
+        AND verification_level = 'FULL'
+        AND compliance_flags = '[]'::jsonb
+        AND service_date BETWEEN $2 AND $3
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $4';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -72,19 +78,22 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('evv_records')
-      .where('organization_id', orgId)
-      .whereRaw("jsonb_array_length(compliance_flags) > 0")
-      .whereBetween('service_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COUNT(*) as count
+      FROM evv_records
+      WHERE organization_id = $1
+        AND jsonb_array_length(compliance_flags) > 0
+        AND service_date BETWEEN $2 AND $3
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $4';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -95,19 +104,22 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('evv_records')
-      .where('organization_id', orgId)
-      .where('record_status', 'PENDING')
-      .whereBetween('service_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COUNT(*) as count
+      FROM evv_records
+      WHERE organization_id = $1
+        AND record_status = 'PENDING'
+        AND service_date BETWEEN $2 AND $3
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $4';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -118,19 +130,22 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('evv_records')
-      .where('organization_id', orgId)
-      .where('record_status', 'COMPLETE')
-      .whereBetween('service_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COALESCE(SUM(total_duration), 0) as total
+      FROM evv_records
+      WHERE organization_id = $1
+        AND record_status = 'COMPLETE'
+        AND service_date BETWEEN $2 AND $3
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $4';
+      params.push(branchId);
     }
 
-    const result = await query.sum('total_duration as total').first();
-    const totalMinutes = parseInt(result?.total as string) || 0;
+    const result = await this.database.query(query, params);
+    const totalMinutes = parseFloat(result.rows[0]?.total as string) || 0;
     return totalMinutes / 60; // Convert to hours
   }
 
@@ -142,19 +157,22 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('invoice_line_items as ili')
-      .join('invoices as i', 'ili.invoice_id', 'i.id')
-      .where('i.organization_id', orgId)
-      .whereBetween('i.invoice_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COALESCE(SUM(ili.total_amount), 0) as total
+      FROM invoice_line_items ili
+      JOIN invoices i ON ili.invoice_id = i.id
+      WHERE i.organization_id = $1
+        AND i.invoice_date BETWEEN $2 AND $3
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('i.branch_id', branchId);
+      query += ' AND i.branch_id = $4';
+      params.push(branchId);
     }
 
-    const result = await query.sum('ili.total_amount as total').first();
-    return parseFloat(result?.total as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseFloat(result.rows[0]?.total as string) || 0;
   }
 
   /**
@@ -165,56 +183,65 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('payments as p')
-      .join('invoices as i', 'p.invoice_id', 'i.id')
-      .where('i.organization_id', orgId)
-      .whereBetween('p.payment_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COALESCE(SUM(p.amount), 0) as total
+      FROM payments p
+      JOIN invoices i ON p.invoice_id = i.id
+      WHERE i.organization_id = $1
+        AND p.payment_date BETWEEN $2 AND $3
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('i.branch_id', branchId);
+      query += ' AND i.branch_id = $4';
+      params.push(branchId);
     }
 
-    const result = await query.sum('p.amount as total').first();
-    return parseFloat(result?.total as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseFloat(result.rows[0]?.total as string) || 0;
   }
 
   /**
    * Get outstanding accounts receivable
    */
   async getOutstandingAR(orgId: string, branchId?: string): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('invoices')
-      .where('organization_id', orgId)
-      .whereIn('status', ['SENT', 'OVERDUE']);
+    let query = `
+      SELECT COALESCE(SUM(balance_due), 0) as total
+      FROM invoices
+      WHERE organization_id = $1
+        AND status = ANY($2)
+    `;
+    const params: unknown[] = [orgId, ['SENT', 'OVERDUE']];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $3';
+      params.push(branchId);
     }
 
-    const result = await query.sum('balance_due as total').first();
-    return parseFloat(result?.total as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseFloat(result.rows[0]?.total as string) || 0;
   }
 
   /**
    * Count active caregivers
    */
   async countActiveCaregivers(orgId: string, branchId?: string): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('caregivers')
-      .where('organization_id', orgId)
-      .where('employment_status', 'ACTIVE')
-      .whereNull('deleted_at');
+    let query = `
+      SELECT COUNT(*) as count
+      FROM caregivers
+      WHERE organization_id = $1
+        AND employment_status = 'ACTIVE'
+        AND deleted_at IS NULL
+    `;
+    const params: unknown[] = [orgId];
 
     if (branchId) {
-      query.whereRaw('? = ANY(branch_ids)', [branchId]);
+      query += ' AND $2 = ANY(branch_ids)';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -228,15 +255,6 @@ export class AnalyticsRepository {
     // This would require calculating hours worked per caregiver per week
     // and determining which hours exceed 40/week
     // Simplified version - actual implementation would be more complex
-    const query = this.database
-      .getConnection()
-      .from('evv_records')
-      .where('organization_id', orgId)
-      .whereBetween('service_date', [dateRange.startDate, dateRange.endDate]);
-
-    if (branchId) {
-      query.andWhere('branch_id', branchId);
-    }
 
     // This is a placeholder - real implementation would calculate weekly hours
     return 0;
@@ -253,44 +271,48 @@ export class AnalyticsRepository {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + daysAhead);
 
-    const query = this.database
-      .getConnection()
-      .from('caregivers')
-      .where('organization_id', orgId)
-      .where('employment_status', 'ACTIVE')
-      .whereRaw(`
-        EXISTS (
+    let query = `
+      SELECT COUNT(*) as count
+      FROM caregivers
+      WHERE organization_id = $1
+        AND employment_status = 'ACTIVE'
+        AND EXISTS (
           SELECT 1 FROM jsonb_array_elements(credentials) as cred
-          WHERE (cred->>'expirationDate')::date <= ?
+          WHERE (cred->>'expirationDate')::date <= $2
           AND (cred->>'expirationDate')::date >= CURRENT_DATE
         )
-      `, [expirationDate.toISOString().split('T')[0]]);
+    `;
+    const params: unknown[] = [orgId, expirationDate.toISOString().split('T')[0]];
 
     if (branchId) {
-      query.whereRaw('? = ANY(branch_ids)', [branchId]);
+      query += ' AND $3 = ANY(branch_ids)';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
    * Count active clients
    */
   async countActiveClients(orgId: string, branchId?: string): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('clients')
-      .where('organization_id', orgId)
-      .where('status', 'ACTIVE')
-      .whereNull('deleted_at');
+    let query = `
+      SELECT COUNT(*) as count
+      FROM clients
+      WHERE organization_id = $1
+        AND status = 'ACTIVE'
+        AND deleted_at IS NULL
+    `;
+    const params: unknown[] = [orgId];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $2';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -301,19 +323,22 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('clients')
-      .where('organization_id', orgId)
-      .whereBetween('created_at', [dateRange.startDate, dateRange.endDate])
-      .whereNull('deleted_at');
+    let query = `
+      SELECT COUNT(*) as count
+      FROM clients
+      WHERE organization_id = $1
+        AND created_at BETWEEN $2 AND $3
+        AND deleted_at IS NULL
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $4';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -324,58 +349,67 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('clients')
-      .where('organization_id', orgId)
-      .whereIn('status', ['DISCHARGED', 'DECEASED'])
-      .whereBetween('updated_at', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT COUNT(*) as count
+      FROM clients
+      WHERE organization_id = $1
+        AND status = ANY($2)
+        AND updated_at BETWEEN $3 AND $4
+    `;
+    const params: unknown[] = [orgId, ['DISCHARGED', 'DECEASED'], dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $5';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
    * Count high risk clients
    */
   async countHighRiskClients(orgId: string, branchId?: string): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('clients')
-      .where('organization_id', orgId)
-      .where('status', 'ACTIVE')
-      .whereRaw("jsonb_array_length(risk_flags) > 0")
-      .whereNull('deleted_at');
+    let query = `
+      SELECT COUNT(*) as count
+      FROM clients
+      WHERE organization_id = $1
+        AND status = 'ACTIVE'
+        AND jsonb_array_length(risk_flags) > 0
+        AND deleted_at IS NULL
+    `;
+    const params: unknown[] = [orgId];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $2';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
    * Count overdue assessments
    */
   async countOverdueAssessments(orgId: string, branchId?: string): Promise<number> {
-    const query = this.database
-      .getConnection()
-      .from('care_plans')
-      .where('organization_id', orgId)
-      .where('status', 'ACTIVE')
-      .where('effective_to', '<', new Date());
+    let query = `
+      SELECT COUNT(*) as count
+      FROM care_plans
+      WHERE organization_id = $1
+        AND status = 'ACTIVE'
+        AND effective_to < $2
+    `;
+    const params: unknown[] = [orgId, new Date()];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $3';
+      params.push(branchId);
     }
 
-    const result = await query.count('* as count').first();
-    return parseInt(result?.count as string) || 0;
+    const result = await this.database.query(query, params);
+    return parseInt(result.rows[0]?.count as string) || 0;
   }
 
   /**
@@ -385,14 +419,16 @@ export class AnalyticsRepository {
     caregiverId: string,
     dateRange: DateRange
   ): Promise<Array<Record<string, unknown>>> {
-    const visits = await this.database
-      .getConnection()
-      .from('evv_records')
-      .where('caregiver_id', caregiverId)
-      .whereBetween('service_date', [dateRange.startDate, dateRange.endDate])
-      .select('*');
+    const query = `
+      SELECT *
+      FROM evv_records
+      WHERE caregiver_id = $1
+        AND service_date BETWEEN $2 AND $3
+    `;
+    const params = [caregiverId, dateRange.startDate, dateRange.endDate];
 
-    return visits;
+    const result = await this.database.query(query, params);
+    return result.rows as Array<Record<string, unknown>>;
   }
 
   /**
@@ -403,53 +439,47 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<CaregiverPerformance[]> {
-    const query = this.database
-      .getConnection()
-      .from('caregivers as c')
-      .leftJoin('evv_records as evv', function() {
-        this.on('c.id', 'evv.caregiver_id')
-          .andOnBetween('evv.service_date', [dateRange.startDate, dateRange.endDate]);
-      })
-      .where('c.organization_id', orgId)
-      .where('c.employment_status', 'ACTIVE')
-      .whereNull('c.deleted_at');
-
-    if (branchId) {
-      query.whereRaw('? = ANY(c.branch_ids)', [branchId]);
-    }
-
-    const results = await query
-      .select(
-        'c.id as caregiver_id',
-        'c.first_name',
-        'c.last_name',
-        this.database.getConnection().raw(`
-          COUNT(CASE WHEN evv.record_status = 'COMPLETE' THEN 1 END) as visits_completed
-        `),
-        this.database.getConnection().raw(`
-          AVG(evv.total_duration) as avg_duration
-        `),
-        this.database.getConnection().raw(`
-          COUNT(CASE WHEN jsonb_array_length(evv.compliance_flags) = 0 THEN 1 END)::float /
-          NULLIF(COUNT(evv.id), 0) as evv_compliance_rate
-        `),
-        this.database.getConnection().raw(`
-          COUNT(CASE WHEN jsonb_array_length(evv.compliance_flags) > 0
+    let query = `
+      SELECT
+        c.id as caregiver_id,
+        c.first_name,
+        c.last_name,
+        COUNT(CASE WHEN evv.record_status = 'COMPLETE' THEN 1 END) as visits_completed,
+        AVG(evv.total_duration) as avg_duration,
+        COUNT(CASE WHEN jsonb_array_length(evv.compliance_flags) = 0 THEN 1 END)::float /
+          NULLIF(COUNT(evv.id), 0) as evv_compliance_rate,
+        COUNT(CASE WHEN jsonb_array_length(evv.compliance_flags) > 0
           AND 'GEOFENCE_VIOLATION' = ANY(SELECT jsonb_array_elements_text(evv.compliance_flags))
           THEN 1 END) as geofence_violations
-        `)
-      )
-      .groupBy('c.id', 'c.first_name', 'c.last_name');
+      FROM caregivers c
+      LEFT JOIN evv_records evv ON c.id = evv.caregiver_id
+        AND evv.service_date BETWEEN $2 AND $3
+      WHERE c.organization_id = $1
+        AND c.employment_status = 'ACTIVE'
+        AND c.deleted_at IS NULL
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
-    return results.map(row => ({
-      caregiverId: row.caregiver_id,
+    if (branchId) {
+      query += ' AND $4 = ANY(c.branch_ids)';
+      params.push(branchId);
+    }
+
+    query += `
+      GROUP BY c.id, c.first_name, c.last_name
+    `;
+
+    const result = await this.database.query(query, params);
+
+    return result.rows.map(row => ({
+      caregiverId: row.caregiver_id as string,
       caregiverName: `${row.first_name} ${row.last_name}`,
-      visitsCompleted: parseInt(row.visits_completed) || 0,
-      averageVisitDuration: parseFloat(row.avg_duration) || 0,
+      visitsCompleted: parseInt(row.visits_completed as string) || 0,
+      averageVisitDuration: parseFloat(row.avg_duration as string) || 0,
       onTimePercentage: 0.95, // Placeholder - would need clock_in time comparison
-      evvComplianceRate: parseFloat(row.evv_compliance_rate) || 0,
+      evvComplianceRate: parseFloat(row.evv_compliance_rate as string) || 0,
       noShowRate: 0, // Placeholder - would need visit status data
-      geofenceViolations: parseInt(row.geofence_violations) || 0,
+      geofenceViolations: parseInt(row.geofence_violations as string) || 0,
       overtimeHours: 0, // Placeholder
       performanceScore: 85, // Placeholder - would calculate based on multiple factors
     }));
@@ -463,35 +493,37 @@ export class AnalyticsRepository {
     months: number,
     branchId?: string
   ): Promise<RevenueTrendDataPoint[]> {
-    const query = this.database
-      .getConnection()
-      .from('invoices')
-      .where('organization_id', orgId)
-      .where('invoice_date', '>=', this.database.getConnection().raw(`CURRENT_DATE - INTERVAL '${months} months'`));
+    let query = `
+      SELECT
+        EXTRACT(YEAR FROM invoice_date)::int as year,
+        EXTRACT(MONTH FROM invoice_date)::int as month,
+        SUM(total_amount) as billed,
+        SUM(amount_paid) as paid,
+        SUM(balance_due) as outstanding
+      FROM invoices
+      WHERE organization_id = $1
+        AND invoice_date >= CURRENT_DATE - INTERVAL '${months} months'
+    `;
+    const params: unknown[] = [orgId];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $2';
+      params.push(branchId);
     }
 
-    const results = await query
-      .select(
-        this.database.getConnection().raw(`
-          EXTRACT(YEAR FROM invoice_date)::int as year,
-          EXTRACT(MONTH FROM invoice_date)::int as month,
-          SUM(total_amount) as billed,
-          SUM(amount_paid) as paid,
-          SUM(balance_due) as outstanding
-        `)
-      )
-      .groupByRaw('EXTRACT(YEAR FROM invoice_date), EXTRACT(MONTH FROM invoice_date)')
-      .orderByRaw('year, month');
+    query += `
+      GROUP BY EXTRACT(YEAR FROM invoice_date), EXTRACT(MONTH FROM invoice_date)
+      ORDER BY year, month
+    `;
 
-    return results.map(row => ({
-      month: new Date(row.year, row.month - 1).toLocaleString('default', { month: 'short' }),
-      year: row.year,
-      billed: parseFloat(row.billed) || 0,
-      paid: parseFloat(row.paid) || 0,
-      outstanding: parseFloat(row.outstanding) || 0,
+    const result = await this.database.query(query, params);
+
+    return result.rows.map(row => ({
+      month: new Date(row.year as number, (row.month as number) - 1).toLocaleString('default', { month: 'short' }),
+      year: row.year as number,
+      billed: parseFloat(row.billed as string) || 0,
+      paid: parseFloat(row.paid as string) || 0,
+      outstanding: parseFloat(row.outstanding as string) || 0,
     }));
   }
 
@@ -502,49 +534,53 @@ export class AnalyticsRepository {
     orgId: string,
     branchId?: string
   ): Promise<VisitException[]> {
-    const query = this.database
-      .getConnection()
-      .from('evv_records as evv')
-      .join('caregivers as cg', 'evv.caregiver_id', 'cg.id')
-      .join('clients as cl', 'evv.client_id', 'cl.id')
-      .where('evv.organization_id', orgId)
-      .whereRaw("jsonb_array_length(evv.compliance_flags) > 0")
-      .where('evv.record_status', 'PENDING');
+    let query = `
+      SELECT
+        evv.id,
+        evv.visit_id,
+        evv.caregiver_id,
+        cg.first_name as caregiver_first,
+        cg.last_name as caregiver_last,
+        evv.client_id,
+        cl.first_name as client_first,
+        cl.last_name as client_last,
+        evv.service_date,
+        evv.compliance_flags,
+        evv.record_status
+      FROM evv_records evv
+      JOIN caregivers cg ON evv.caregiver_id = cg.id
+      JOIN clients cl ON evv.client_id = cl.id
+      WHERE evv.organization_id = $1
+        AND jsonb_array_length(evv.compliance_flags) > 0
+        AND evv.record_status = 'PENDING'
+    `;
+    const params: unknown[] = [orgId];
 
     if (branchId) {
-      query.andWhere('evv.branch_id', branchId);
+      query += ' AND evv.branch_id = $2';
+      params.push(branchId);
     }
 
-    const results = await query
-      .select(
-        'evv.id',
-        'evv.visit_id',
-        'evv.caregiver_id',
-        'cg.first_name as caregiver_first',
-        'cg.last_name as caregiver_last',
-        'evv.client_id',
-        'cl.first_name as client_first',
-        'cl.last_name as client_last',
-        'evv.service_date',
-        'evv.compliance_flags',
-        'evv.record_status'
-      )
-      .orderBy('evv.service_date', 'desc')
-      .limit(50);
+    query += `
+      ORDER BY evv.service_date DESC
+      LIMIT 50
+    `;
 
-    return results.map(row => ({
-      id: row.id,
-      visitId: row.visit_id,
-      caregiverId: row.caregiver_id,
+    const result = await this.database.query(query, params);
+
+    return result.rows.map(row => ({
+      id: row.id as string,
+      visitId: row.visit_id as string,
+      caregiverId: row.caregiver_id as string,
       caregiverName: `${row.caregiver_first} ${row.caregiver_last}`,
-      clientId: row.client_id,
+      clientId: row.client_id as string,
       clientName: `${row.client_first} ${row.client_last}`,
-      visitDate: row.service_date,
+      visitDate: row.service_date as Date,
       exceptionType: 'EVV_COMPLIANCE',
-      description: this.formatComplianceFlags(row.compliance_flags),
+      description: this.formatComplianceFlags(row.compliance_flags as string[]),
       severity: 'MEDIUM',
       status: 'PENDING',
-      complianceFlags: row.compliance_flags,
+      complianceFlags: row.compliance_flags as string[],
     }));
   }
 
@@ -560,43 +596,43 @@ export class AnalyticsRepository {
    * Get aging buckets for A/R
    */
   async getAgingBuckets(orgId: string, branchId?: string): Promise<AgingBucket[]> {
-    const query = this.database
-      .getConnection()
-      .from('invoices')
-      .where('organization_id', orgId)
-      .whereIn('status', ['SENT', 'OVERDUE']);
+    let query = `
+      SELECT
+        CASE
+          WHEN CURRENT_DATE - invoice_date <= 30 THEN '0-30'
+          WHEN CURRENT_DATE - invoice_date <= 60 THEN '31-60'
+          WHEN CURRENT_DATE - invoice_date <= 90 THEN '61-90'
+          ELSE '90+'
+        END as range,
+        COUNT(*) as count,
+        SUM(balance_due) as amount
+      FROM invoices
+      WHERE organization_id = $1
+        AND status = ANY($2)
+    `;
+    const params: unknown[] = [orgId, ['SENT', 'OVERDUE']];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $3';
+      params.push(branchId);
     }
 
-    const results = await query
-      .select(
-        this.database.getConnection().raw(`
-          CASE
-            WHEN CURRENT_DATE - invoice_date <= 30 THEN '0-30'
-            WHEN CURRENT_DATE - invoice_date <= 60 THEN '31-60'
-            WHEN CURRENT_DATE - invoice_date <= 90 THEN '61-90'
-            ELSE '90+'
-          END as range,
-          COUNT(*) as count,
-          SUM(balance_due) as amount
-        `)
-      )
-      .groupByRaw('range')
-      .orderByRaw(`
-        CASE range
-          WHEN '0-30' THEN 1
-          WHEN '31-60' THEN 2
-          WHEN '61-90' THEN 3
-          ELSE 4
-        END
-      `);
+    query += `
+      GROUP BY range
+      ORDER BY CASE range
+        WHEN '0-30' THEN 1
+        WHEN '31-60' THEN 2
+        WHEN '61-90' THEN 3
+        ELSE 4
+      END
+    `;
 
-    return results.map(row => ({
-      range: row.range,
-      count: parseInt(row.count),
-      amount: parseFloat(row.amount) || 0,
+    const result = await this.database.query(query, params);
+
+    return result.rows.map(row => ({
+      range: row.range as string,
+      count: parseInt(row.count as string),
+      amount: parseFloat(row.amount as string) || 0,
     }));
   }
 
@@ -608,36 +644,40 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<RevenueByPayer[]> {
-    const query = this.database
-      .getConnection()
-      .from('invoices')
-      .where('organization_id', orgId)
-      .whereBetween('invoice_date', [dateRange.startDate, dateRange.endDate]);
+    let query = `
+      SELECT
+        payer_id,
+        payer_name,
+        COUNT(*) as visit_count,
+        SUM(total_amount) as billed_amount,
+        SUM(amount_paid) as paid_amount,
+        SUM(balance_due) as outstanding_amount
+      FROM invoices
+      WHERE organization_id = $1
+        AND invoice_date BETWEEN $2 AND $3
+        AND payer_id IS NOT NULL
+    `;
+    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query.andWhere('branch_id', branchId);
+      query += ' AND branch_id = $4';
+      params.push(branchId);
     }
 
-    const results = await query
-      .select(
-        'payer_id',
-        'payer_name',
-        this.database.getConnection().raw('COUNT(*) as visit_count'),
-        this.database.getConnection().raw('SUM(total_amount) as billed_amount'),
-        this.database.getConnection().raw('SUM(amount_paid) as paid_amount'),
-        this.database.getConnection().raw('SUM(balance_due) as outstanding_amount')
-      )
-      .whereNotNull('payer_id')
-      .groupBy('payer_id', 'payer_name')
-      .orderBy('billed_amount', 'desc');
+    query += `
+      GROUP BY payer_id, payer_name
+      ORDER BY billed_amount DESC
+    `;
 
-    return results.map(row => ({
-      payerId: row.payer_id,
-      payerName: row.payer_name,
-      billedAmount: parseFloat(row.billed_amount) || 0,
-      paidAmount: parseFloat(row.paid_amount) || 0,
-      outstandingAmount: parseFloat(row.outstanding_amount) || 0,
-      visitCount: parseInt(row.visit_count) || 0,
+    const result = await this.database.query(query, params);
+
+    return result.rows.map(row => ({
+      payerId: row.payer_id as string,
+      payerName: row.payer_name as string,
+      billedAmount: parseFloat(row.billed_amount as string) || 0,
+      paidAmount: parseFloat(row.paid_amount as string) || 0,
+      outstandingAmount: parseFloat(row.outstanding_amount as string) || 0,
+      visitCount: parseInt(row.visit_count as string) || 0,
     }));
   }
 }
