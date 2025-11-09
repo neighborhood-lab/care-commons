@@ -311,7 +311,6 @@ async function seedClients(ctx: SeedContext): Promise<void> {
       INSERT INTO clients (
         id, organization_id, branch_id,
         first_name, last_name, date_of_birth,
-        medicaid_id,
         service_address_line1, service_address_city,
         service_address_state, service_address_postal_code,
         service_address_country,
@@ -322,23 +321,21 @@ async function seedClients(ctx: SeedContext): Promise<void> {
       ) VALUES (
         $1, $2, $3,
         $4, $5, $6,
-        $7,
-        $8, $9,
-        'TX', $10,
+        $7, $8,
+        'TX', $9,
         'US',
-        $11, $12,
+        $10, $11,
         true,
-        $13::jsonb,
-        'ACTIVE', NOW(), $14, NOW(), $14
+        $12::jsonb,
+        'ACTIVE', NOW(), $13, NOW(), $13
       )
     `, [
       clientId, ctx.texasOrgId, ctx.texasBranchId,
       client.firstName, client.lastName, client.dob,
-      client.medicaidId,
       client.address, client.city,
       client.zip,
       client.lat, client.lon,
-      JSON.stringify({ texasMedicaidProgram: client.program }),
+      JSON.stringify({ texasMedicaidProgram: client.program, medicaidId: client.medicaidId }),
       ctx.texasAdminId,
     ]);
   }
@@ -379,7 +376,6 @@ async function seedClients(ctx: SeedContext): Promise<void> {
       INSERT INTO clients (
         id, organization_id, branch_id,
         first_name, last_name, date_of_birth,
-        medicaid_id,
         service_address_line1, service_address_city,
         service_address_state, service_address_postal_code,
         service_address_country,
@@ -390,23 +386,21 @@ async function seedClients(ctx: SeedContext): Promise<void> {
       ) VALUES (
         $1, $2, $3,
         $4, $5, $6,
-        $7,
-        $8, $9,
-        'FL', $10,
+        $7, $8,
+        'FL', $9,
         'US',
-        $11, $12,
+        $10, $11,
         true,
-        $13::jsonb,
-        'ACTIVE', NOW(), $14, NOW(), $14
+        $12::jsonb,
+        'ACTIVE', NOW(), $13, NOW(), $13
       )
     `, [
       clientId, ctx.floridaOrgId, ctx.floridaBranchId,
       client.firstName, client.lastName, client.dob,
-      client.medicaidId,
       client.address, client.city,
       client.zip,
       client.lat, client.lon,
-      JSON.stringify({ floridaMedicaidProgram: client.program }),
+      JSON.stringify({ floridaMedicaidProgram: client.program, medicaidId: client.medicaidId }),
       ctx.floridaAdminId,
     ]);
   }
