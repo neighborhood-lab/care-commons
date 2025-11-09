@@ -73,7 +73,7 @@ export class BrandingRepository implements IBrandingRepository {
     }>(query, [organizationId]);
 
     const row = result.rows[0];
-    if (!row) {
+    if (row === undefined) {
       return null;
     }
 
@@ -88,19 +88,19 @@ export class BrandingRepository implements IBrandingRepository {
     // Check if branding exists
     const existing = await this.getBrandingByOrganizationId(organizationId);
 
-    if (existing) {
+    if (existing !== null) {
       // Update existing branding
       const updateFields: string[] = [];
       const values: unknown[] = [organizationId];
       let paramIndex = 2;
 
       // Build dynamic update query
-      Object.entries(branding).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(branding)) {
         const snakeKey = this.camelToSnake(key);
         updateFields.push(`${snakeKey} = $${paramIndex}`);
         values.push(value);
         paramIndex++;
-      });
+      }
 
       updateFields.push(`updated_by = $${paramIndex}`);
       values.push(userId);
@@ -239,8 +239,8 @@ export class BrandingRepository implements IBrandingRepository {
         branding.brandName ?? null,
         branding.tagline ?? null,
         branding.customCss ?? null,
-        branding.themeOverrides ? JSON.stringify(branding.themeOverrides) : null,
-        branding.componentOverrides ? JSON.stringify(branding.componentOverrides) : null,
+        branding.themeOverrides !== undefined ? JSON.stringify(branding.themeOverrides) : null,
+        branding.componentOverrides !== undefined ? JSON.stringify(branding.componentOverrides) : null,
         branding.termsOfServiceUrl ?? null,
         branding.privacyPolicyUrl ?? null,
         branding.supportEmail ?? null,

@@ -161,7 +161,7 @@ export function createWhiteLabelRouter(db: Database): Router {
       const userId = req.user!.userId;
       const featureKey = req.params.featureKey;
 
-      if (featureKey === '') {
+      if (featureKey === undefined || featureKey === '') {
         res.status(400).json({ error: 'Feature key is required' });
         return;
       }
@@ -184,7 +184,7 @@ export function createWhiteLabelRouter(db: Database): Router {
       const userId = req.user!.userId;
       const featureKey = req.params.featureKey;
 
-      if (featureKey === '') {
+      if (featureKey === undefined || featureKey === '') {
         res.status(400).json({ error: 'Feature key is required' });
         return;
       }
@@ -232,14 +232,14 @@ export function createWhiteLabelRouter(db: Database): Router {
       const userId = req.user!.userId;
       const id = req.params.id;
 
-      if (id === '') {
+      if (id === undefined || id === '') {
         res.status(400).json({ error: 'Feature flag ID is required' });
         return;
       }
 
       const validatedData = createFeatureFlagSchema.partial().parse(req.body);
       const feature = await featureFlagRepo.updateFeatureFlag(
-        id,
+        id as string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod validation ensures type safety
         validatedData as any,
         userId
@@ -261,12 +261,12 @@ export function createWhiteLabelRouter(db: Database): Router {
       const featureFlagRepo = new FeatureFlagRepository(db);
       const id = req.params.id;
 
-      if (id === '') {
+      if (id === undefined || id === '') {
         res.status(400).json({ error: 'Feature flag ID is required' });
         return;
       }
 
-      await featureFlagRepo.deleteFeatureFlag(id);
+      await featureFlagRepo.deleteFeatureFlag(id as string);
       res.status(204).send();
     })
   );

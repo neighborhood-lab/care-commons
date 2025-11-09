@@ -21,7 +21,7 @@ export default function AgencyManagement() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadOrganizations();
+    void loadOrganizations();
   }, []);
 
   const loadOrganizations = async () => {

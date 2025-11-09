@@ -51,13 +51,13 @@ export class WhiteLabelService implements IWhiteLabelService {
     userId: UUID
   ): Promise<OrganizationBranding> {
     // Validate hex colors if provided
-    if (branding.primaryColor) {
+    if (branding.primaryColor !== undefined) {
       this.validateHexColor(branding.primaryColor, 'primaryColor');
     }
-    if (branding.secondaryColor) {
+    if (branding.secondaryColor !== undefined && branding.secondaryColor !== null) {
       this.validateHexColor(branding.secondaryColor, 'secondaryColor');
     }
-    if (branding.accentColor) {
+    if (branding.accentColor !== undefined && branding.accentColor !== null) {
       this.validateHexColor(branding.accentColor, 'accentColor');
     }
 
@@ -67,7 +67,7 @@ export class WhiteLabelService implements IWhiteLabelService {
   async getCompiledTheme(organizationId: UUID): Promise<CompiledTheme> {
     const branding = await this.getBranding(organizationId);
 
-    if (!branding) {
+    if (branding === null) {
       // Return default theme
       return {
         colors: {
@@ -124,7 +124,7 @@ export class WhiteLabelService implements IWhiteLabelService {
       featureKey
     );
 
-    if (!flag) {
+    if (flag === null) {
       return {
         featureKey,
         isEnabled: false,
@@ -141,7 +141,7 @@ export class WhiteLabelService implements IWhiteLabelService {
     }
 
     // Check rollout
-    if (flag.rolloutPercentage < 100 && userId) {
+    if (flag.rolloutPercentage < 100 && userId !== undefined) {
       const isInRollout = await this.featureFlagRepository.isFeatureEnabled(
         organizationId,
         featureKey,
@@ -194,7 +194,7 @@ export class WhiteLabelService implements IWhiteLabelService {
   }
 
   private validateHexColor(color: string, fieldName: string): void {
-    const hexColorRegex = /^#[0-9A-Fa-f]{6}$/;
+    const hexColorRegex = /^#[\dA-Fa-f]{6}$/;
     if (!hexColorRegex.test(color)) {
       throw new Error(
         `Invalid hex color for ${fieldName}: ${color}. Expected format: #RRGGBB`

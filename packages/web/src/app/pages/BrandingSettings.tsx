@@ -32,7 +32,7 @@ export default function BrandingSettings() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    loadBranding();
+    void loadBranding();
   }, []);
 
   const loadBranding = async () => {
@@ -45,13 +45,13 @@ export default function BrandingSettings() {
         const branding = await response.json();
         if (branding) {
           setForm({
-            logoUrl: branding.logoUrl || '',
-            primaryColor: branding.primaryColor || '#0ea5e9',
-            secondaryColor: branding.secondaryColor || '',
-            brandName: branding.brandName || '',
-            tagline: branding.tagline || '',
-            supportEmail: branding.supportEmail || '',
-            supportPhone: branding.supportPhone || '',
+            logoUrl: branding.logoUrl ?? '',
+            primaryColor: branding.primaryColor ?? '#0ea5e9',
+            secondaryColor: branding.secondaryColor ?? '',
+            brandName: branding.brandName ?? '',
+            tagline: branding.tagline ?? '',
+            supportEmail: branding.supportEmail ?? '',
+            supportPhone: branding.supportPhone ?? '',
           });
         }
       }
@@ -80,9 +80,10 @@ export default function BrandingSettings() {
         await refreshTheme();
       } else {
         const error = await response.json();
-        setMessage({ type: 'error', text: error.message || 'Failed to update branding' });
+        setMessage({ type: 'error', text: error.message ?? 'Failed to update branding' });
       }
     } catch (error) {
+      console.error('Error updating branding:', error);
       setMessage({ type: 'error', text: 'An error occurred while updating branding' });
     } finally {
       setLoading(false);
@@ -103,7 +104,7 @@ export default function BrandingSettings() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Visual Identity</h2>
 
@@ -234,7 +235,7 @@ export default function BrandingSettings() {
         <div className="flex justify-end gap-4">
           <button
             type="button"
-            onClick={loadBranding}
+            onClick={() => void loadBranding()}
             className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
           >
             Reset

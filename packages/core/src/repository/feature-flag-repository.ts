@@ -66,7 +66,7 @@ export class FeatureFlagRepository implements IFeatureFlagRepository {
 
     const result = await this.db.query<FeatureFlagRow>(query, [organizationId, featureKey]);
     const row = result.rows[0];
-    return row ? this.mapRowToFeatureFlag(row) : null;
+    return row !== undefined ? this.mapRowToFeatureFlag(row) : null;
   }
 
   async createFeatureFlag(
@@ -98,8 +98,8 @@ export class FeatureFlagRepository implements IFeatureFlagRepository {
       request.featureName,
       request.description ?? null,
       request.isEnabled ?? false,
-      request.configuration ? JSON.stringify(request.configuration) : null,
-      request.limits ? JSON.stringify(request.limits) : null,
+      request.configuration !== undefined ? JSON.stringify(request.configuration) : null,
+      request.limits !== undefined ? JSON.stringify(request.limits) : null,
       request.rolloutPercentage ?? 100,
       request.rolloutUserIds ?? [],
       request.rolloutBranchIds ?? [],
@@ -114,6 +114,7 @@ export class FeatureFlagRepository implements IFeatureFlagRepository {
     return this.mapRowToFeatureFlag(result.rows[0]!);
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity -- Complex update logic with many optional fields
   async updateFeatureFlag(
     id: UUID,
     request: UpdateFeatureFlagRequest,
@@ -141,11 +142,11 @@ export class FeatureFlagRepository implements IFeatureFlagRepository {
     }
     if (request.configuration !== undefined) {
       updateFields.push(`configuration = $${paramIndex++}`);
-      values.push(request.configuration ? JSON.stringify(request.configuration) : null);
+      values.push(JSON.stringify(request.configuration));
     }
     if (request.limits !== undefined) {
       updateFields.push(`limits = $${paramIndex++}`);
-      values.push(request.limits ? JSON.stringify(request.limits) : null);
+      values.push(JSON.stringify(request.limits));
     }
     if (request.rolloutPercentage !== undefined) {
       updateFields.push(`rollout_percentage = $${paramIndex++}`);
@@ -211,12 +212,16 @@ export class FeatureFlagRepository implements IFeatureFlagRepository {
   ): Promise<boolean> {
     const flag = await this.getFeatureFlagByKey(organizationId, featureKey);
 
-    if (!flag || !flag.isEnabled) {
+    if (flag === null) {
+      return false;
+    }
+
+    if (!flag.isEnabled) {
       return false;
     }
 
     // Check rollout percentage
-    if (flag.rolloutPercentage < 100 && userId) {
+    if (flag.rolloutPercentage < 100 && userId !== undefined) {
       // Simple hash-based percentage check
       const hash = this.hashUserId(userId);
       const percentage = (hash % 100) + 1;
@@ -226,7 +231,7 @@ export class FeatureFlagRepository implements IFeatureFlagRepository {
     }
 
     // Check if user is in rollout list
-    if (flag.rolloutUserIds.length > 0 && userId) {
+    if (flag.rolloutUserIds.length > 0 && userId !== undefined) {
       return flag.rolloutUserIds.includes(userId);
     }
 

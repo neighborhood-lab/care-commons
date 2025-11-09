@@ -49,7 +49,7 @@ const defaultTheme: CompiledTheme = {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 interface ThemeProviderProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
@@ -87,7 +87,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   };
 
   useEffect(() => {
-    loadTheme();
+    void loadTheme();
   }, []);
 
   const value: ThemeContextValue = {
@@ -100,6 +100,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- useTheme hook exported with provider is a common pattern
 export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
   if (context === undefined) {
