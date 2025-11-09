@@ -35,6 +35,8 @@ process.env['NODE_ENV'] = 'test';
 process.env['VERCEL'] = '1'; // Prevent auto-start
 // eslint-disable-next-line sonarjs/no-hardcoded-passwords
 process.env['DB_PASSWORD'] = 'test_password';
+// eslint-disable-next-line sonarjs/no-hardcoded-passwords
+process.env['DATABASE_URL'] = 'postgresql://test:test_password@localhost:5432/test';
 
 describe('Server Swagger Setup (server.ts lines 199-205)', () => {
   let app: Awaited<ReturnType<typeof import('../server.js').createApp>>;
