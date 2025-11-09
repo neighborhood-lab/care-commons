@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { EnhancedLandingPage, ScenarioLibraryPage } from './pages';
+import { EnhancedLandingPage, ScenarioLibraryPage, ShowcaseDashboard } from './pages';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { EnhancedRoleSelector } from './components/onboarding/EnhancedRoleSelector';
 import { ComparisonTable } from './components/visual/ComparisonTable';
@@ -16,7 +16,7 @@ import { ScenarioProvider, ScenarioContainer } from './scenarios';
 import { ScenarioButton } from './components/scenarios/ScenarioButton';
 import { PersonaRole } from './types';
 import { AppShell } from '../app/components';
-import { Dashboard, NotFound, AdminDashboard } from '../app/pages';
+import { NotFound, AdminDashboard } from '../app/pages';
 import { ClientList, ClientDetail } from '../verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList, CreateCarePlanPage } from '../verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from '../verticals/time-tracking-evv';
@@ -96,7 +96,7 @@ export const ShowcaseRouter: React.FC = () => {
           path="/dashboard"
           element={
             <AppShell>
-              <Dashboard />
+              <ShowcaseDashboard />
             </AppShell>
           }
         />

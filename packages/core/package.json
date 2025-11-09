@@ -27,6 +27,16 @@
       "types": "./dist/browser.d.ts",
       "import": "./dist/browser.js",
       "default": "./dist/browser.js"
+    },
+    "./service/cache.service": {
+      "types": "./dist/service/cache.service.d.ts",
+      "import": "./dist/service/cache.service.js",
+      "default": "./dist/service/cache.service.js"
+    },
+    "./constants/cache-keys": {
+      "types": "./dist/constants/cache-keys.d.ts",
+      "import": "./dist/constants/cache-keys.js",
+      "default": "./dist/constants/cache-keys.js"
     }
   },
   "engines": {
@@ -75,16 +85,19 @@
   },
   "devDependencies": {
     "@ls-lint/ls-lint": "^2.3.1",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/luxon": "^3.4.2",
     "@types/node": "^24.10.0",
     "@types/pg": "^8.15.6",
+    "@types/zxcvbn": "^4.4.5",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitest/coverage-v8": "^4.0.8",
     "eslint": "^9.39.1",
     "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
     "ts-node": "^10.9.2",

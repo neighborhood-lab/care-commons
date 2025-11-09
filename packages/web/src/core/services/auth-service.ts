@@ -11,7 +11,12 @@ export interface AuthService {
 export const createAuthService = (apiClient: ApiClient): AuthService => {
   return {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-      return apiClient.post<AuthResponse>('/api/auth/login', credentials);
+      const response = await apiClient.post<{ success: boolean; data: { user: User; tokens: { accessToken: string; refreshToken: string } } }>('/api/auth/login', credentials);
+      // Transform backend response to frontend format
+      return {
+        user: response.data.user,
+        token: response.data.tokens.accessToken,
+      };
     },
 
     async logout(): Promise<void> {

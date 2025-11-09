@@ -33,7 +33,7 @@ export function createAnalyticsRouter(db: Database): Router {
         : new Date();
 
       const options: AnalyticsQueryOptions = {
-        organizationId: (req.query['organizationId'] as string) || context.organizationId!,
+        organizationId: (req.query['organizationId'] as string | undefined) ?? context.organizationId!,
         branchId: req.query['branchId'] as string | undefined,
         dateRange: { startDate, endDate },
         includeSubBranches: req.query['includeSubBranches'] === 'true',
@@ -57,7 +57,7 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
+        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
 
         const alerts = await service.getComplianceAlerts(orgId, branchId, context);
@@ -79,9 +79,9 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
+        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
-        const months = parseInt((req.query['months'] as string) || '12', 10);
+        const months = parseInt((req.query['months'] as string | undefined) ?? '12', 10);
 
         const trends = await service.getRevenueTrends(orgId, months, branchId, context);
         res.json(trends);
@@ -133,7 +133,7 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
+        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
 
         const exceptions = await service.getEVVExceptions(orgId, branchId, context);
@@ -155,7 +155,7 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const service = new AnalyticsService(db);
 
-        const orgId = (req.query['organizationId'] as string) || context.organizationId!;
+        const orgId = (req.query['organizationId'] as string | undefined) ?? context.organizationId!;
         const branchId = req.query['branchId'] as string | undefined;
 
         const stats = await service.getDashboardStats(orgId, branchId, context);
@@ -268,7 +268,7 @@ export function createAnalyticsRouter(db: Database): Router {
         const context = req.userContext!;
         const exportService = new ExportService();
 
-        const format = (req.query['format'] as ExportFormat) ?? 'PDF';
+        const format = (req.query['format'] as ExportFormat | undefined) ?? 'PDF';
 
         // In a real implementation, you would fetch the report from storage/cache
         // For now, this is a placeholder
