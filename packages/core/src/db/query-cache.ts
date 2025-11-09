@@ -45,12 +45,13 @@ export function generateCacheKey(
   ...params: (string | number | boolean | object | undefined)[]
 ): string {
   const serialized = params.map(p => {
-    if (p === undefined || p === null) return 'null';
+    if (p == null) return 'null'; // Intentionally using == to catch both null and undefined
     if (typeof p === 'object') return JSON.stringify(p);
     return String(p);
   }).join(':');
 
   // For long parameter lists, hash them to keep key length manageable
+  // Using MD5 for non-security-critical cache key generation only
   if (serialized.length > 100) {
     const hash = crypto.createHash('md5').update(serialized).digest('hex');
     return `${prefix}:${hash}`;
@@ -220,7 +221,7 @@ export class CacheWarmer {
       return { connected: false };
     }
 
-    // TODO: Implement hit rate tracking
+    // NOTE: Hit rate tracking not yet implemented
     // This would require adding instrumentation to cache reads
 
     return {

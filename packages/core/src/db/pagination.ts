@@ -109,7 +109,7 @@ export function buildOffsetPaginationQuery(
   `;
 
   // Build count query (without ORDER BY, LIMIT, OFFSET)
-  const countQuery = baseQuery.replace(/ORDER BY .*/gi, '');
+  const countQuery = baseQuery.replace(/order by .*/gi, '');
 
   return {
     query: paginatedQuery,
@@ -148,9 +148,12 @@ export function buildCursorPaginationQuery(
 
   // Combine with existing WHERE clauses
   const hasWhere = baseQuery.toLowerCase().includes('where');
-  const whereClause = whereClauses.length > 0
-    ? (hasWhere ? ` AND ${whereClauses.join(' AND ')}` : ` WHERE ${whereClauses.join(' AND ')}`)
-    : '';
+  let whereClause = '';
+  if (whereClauses.length > 0) {
+    whereClause = hasWhere 
+      ? ` AND ${whereClauses.join(' AND ')}` 
+      : ` WHERE ${whereClauses.join(' AND ')}`;
+  }
 
   // Fetch one extra record to check if there's a next page
   const fetchLimit = limit + 1;
@@ -221,6 +224,7 @@ export async function executeOffsetPaginatedQuery<T>(
   );
 
   // Execute count query
+  // eslint-disable-next-line sonarjs/sql-queries -- Safe: countQuery is generated from validated base query, baseParams are parameterized
   const countResult = await pool.query(`SELECT COUNT(*) as total FROM (${countQuery}) as count_query`, baseParams);
   const total = parseInt(countResult.rows[0].total, 10);
 

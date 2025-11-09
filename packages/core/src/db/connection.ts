@@ -95,7 +95,7 @@ export class Database {
           name: queryName,
           duration,
           rows: result.rowCount,
-          text: text.substring(0, 100), // Truncate for logging
+          text: text.slice(0, 100), // Truncate for logging
         });
       }
 
@@ -106,7 +106,7 @@ export class Database {
 
       return result;
     } catch (error) {
-      console.error('Query error', { name: queryName, text: text.substring(0, 100), error });
+      console.error('Query error', { name: queryName, text: text.slice(0, 100), error });
       throw error;
     }
   }
