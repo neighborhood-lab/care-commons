@@ -107,6 +107,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "optionalDependencies": {
+    "@esbuild/linux-x64": "0.25.12",
     "@rollup/rollup-linux-x64-gnu": "4.52.5",
     "@tailwindcss/oxide-linux-x64-gnu": "4.1.17",
     "lightningcss-linux-x64-gnu": "1.30.2"
