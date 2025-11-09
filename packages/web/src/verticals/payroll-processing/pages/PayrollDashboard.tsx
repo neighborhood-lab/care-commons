@@ -58,6 +58,7 @@ async function fetchRecentPeriods(organizationId: string, limit: number = 5): Pr
 export const PayrollDashboard: React.FC = () => {
   // Get organization ID from context or header
   // For now, using a mock value - in production this would come from auth context
+  // eslint-disable-next-line sonarjs/fixme-tag
   // FIXME: Get organizationId from auth context
   const organizationId = 'org-123';
 
