@@ -8,7 +8,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { PayrollSummaryCard } from '../components/PayrollSummaryCard';
 
 interface PayPeriod {
   id: string;
@@ -158,21 +157,23 @@ export const PayrollDashboard: React.FC = () => {
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Summary</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <PayrollSummaryCard
-              title="Total Caregivers"
-              value={currentPeriod.totalCaregivers || 0}
-              icon="👥"
-            />
-            <PayrollSummaryCard
-              title="Total Hours"
-              value={`${(currentPeriod.totalHours || 0).toFixed(1)} hrs`}
-              icon="⏱️"
-            />
-            <PayrollSummaryCard
-              title="Gross Payroll"
-              value={`$${(currentPeriod.totalGrossPay || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              icon="💵"
-            />
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-4xl mb-2">👥</div>
+              <h3 className="text-sm text-gray-600 mb-1">Total Caregivers</h3>
+              <p className="text-2xl font-bold text-gray-900">{currentPeriod.totalCaregivers || 0}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-4xl mb-2">⏱️</div>
+              <h3 className="text-sm text-gray-600 mb-1">Total Hours</h3>
+              <p className="text-2xl font-bold text-gray-900">{(currentPeriod.totalHours || 0).toFixed(1)} hrs</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-4xl mb-2">💵</div>
+              <h3 className="text-sm text-gray-600 mb-1">Gross Payroll</h3>
+              <p className="text-2xl font-bold text-gray-900">
+                ${(currentPeriod.totalGrossPay || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
           </div>
         </section>
       )}
