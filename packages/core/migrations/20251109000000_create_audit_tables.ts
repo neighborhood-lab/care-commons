@@ -270,7 +270,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.raw('CREATE INDEX idx_corrective_actions_status ON corrective_actions(status)');
   await knex.raw('CREATE INDEX idx_corrective_actions_responsible ON corrective_actions(responsible_person_id)');
   await knex.raw('CREATE INDEX idx_corrective_actions_target_date ON corrective_actions(target_completion_date)');
-  await knex.raw('CREATE INDEX idx_corrective_actions_overdue ON corrective_actions(organization_id, status, target_completion_date) WHERE status IN (\'PLANNED\', \'IN_PROGRESS\') AND target_completion_date < NOW()');
+  await knex.raw('CREATE INDEX idx_corrective_actions_active ON corrective_actions(organization_id, status, target_completion_date) WHERE status IN (\'PLANNED\', \'IN_PROGRESS\')');
 
   // GIN indexes for JSONB columns
   await knex.raw('CREATE INDEX idx_corrective_actions_specific_actions_gin ON corrective_actions USING gin(specific_actions)');
