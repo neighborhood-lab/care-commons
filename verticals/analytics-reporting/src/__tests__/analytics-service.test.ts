@@ -6,23 +6,31 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AnalyticsService } from '../service/analytics-service';
 import { Database } from '@care-commons/core';
 
+// Helper to create mock query builder
+function createMockQueryBuilder() {
+  const countFn = vi.fn(() => Promise.resolve({ count: '10' }));
+  const sumFn = vi.fn(() => Promise.resolve({ total: '100' }));
+  const whereBetweenResult = { count: countFn, sum: sumFn };
+  const whereBetweenFn = vi.fn(() => whereBetweenResult);
+  const whereResult = { whereBetween: whereBetweenFn };
+  const whereFn = vi.fn(() => whereResult);
+  const fromResult = { where: whereFn };
+  const fromFn = vi.fn(() => fromResult);
+  
+  return { from: fromFn };
+}
+
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
   let mockDb: Database;
 
   beforeEach(() => {
     // Create mock database
+    const queryBuilder = createMockQueryBuilder();
+    
     mockDb = {
-      getConnection: vi.fn(() => ({
-        from: vi.fn(() => ({
-          where: vi.fn(() => ({
-            whereBetween: vi.fn(() => ({
-              count: vi.fn(() => Promise.resolve({ count: '10' })),
-              sum: vi.fn(() => Promise.resolve({ total: '100' })),
-            })),
-          })),
-        })),
-      })),
+      getConnection: vi.fn(() => queryBuilder),
+      query: vi.fn(() => Promise.resolve({ rows: [{ count: '10' }] })),
       healthCheck: vi.fn(),
       close: vi.fn(),
     } as any;

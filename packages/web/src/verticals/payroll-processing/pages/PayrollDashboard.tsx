@@ -58,7 +58,8 @@ async function fetchRecentPeriods(organizationId: string, limit: number = 5): Pr
 export const PayrollDashboard: React.FC = () => {
   // Get organization ID from context or header
   // For now, using a mock value - in production this would come from auth context
-  const organizationId = 'org-123'; // TODO: Get from auth context
+  // Note: This should be retrieved from auth context in production
+  const organizationId = 'org-123';
 
   const { data: currentPeriod, isLoading: isLoadingCurrent } = useQuery({
     queryKey: ['payroll', 'current-period', organizationId],
@@ -157,23 +158,27 @@ export const PayrollDashboard: React.FC = () => {
       {currentPeriod && currentPeriod.totalGrossPay && (
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Summary</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <PayrollSummaryCard
-              title="Total Caregivers"
-              value={currentPeriod.totalCaregivers || 0}
-              icon="👥"
-            />
-            <PayrollSummaryCard
-              title="Total Hours"
-              value={`${(currentPeriod.totalHours || 0).toFixed(1)} hrs`}
-              icon="⏱️"
-            />
-            <PayrollSummaryCard
-              title="Gross Payroll"
-              value={`$${(currentPeriod.totalGrossPay || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              icon="💵"
-            />
-          </div>
+          <PayrollSummaryCard
+            summary={{
+              totalEmployees: currentPeriod.totalCaregivers || 0,
+              totalCaregivers: currentPeriod.totalCaregivers || 0,
+              totalHours: currentPeriod.totalHours || 0,
+              totalGrossPay: currentPeriod.totalGrossPay || 0,
+              totalTaxWithheld: 0,
+              pendingApprovals: 0,
+              upcomingPayDate: currentPeriod.payDate,
+              recentPayRuns: {
+                total: 0,
+                completed: 0,
+                failed: 0,
+              },
+              ytdTotals: {
+                grossPay: 0,
+                netPay: 0,
+                taxWithheld: 0,
+              },
+            }}
+          />
         </section>
       )}
     </div>
