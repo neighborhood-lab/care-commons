@@ -6,19 +6,17 @@
 import { Database, UserContext } from '@care-commons/core';
 import { AnalyticsRepository } from '../repository/analytics-repository';
 import {
-  Report,
   EVVComplianceReport,
   ProductivityReport,
   RevenueCycleReport,
   DateRange,
   ReportType,
-  ExportFormat,
 } from '../types/analytics';
 
 export class ReportService {
   private repository: AnalyticsRepository;
 
-  constructor(private database: Database) {
+  constructor(database: Database) {
     this.repository = new AnalyticsRepository(database);
   }
 
@@ -35,7 +33,7 @@ export class ReportService {
   ): Promise<EVVComplianceReport> {
     this.validateAccess(context, orgId);
 
-    const [compliantVisits, totalVisits, flaggedVisits, flaggedVisitDetails] =
+    const [compliantVisits, totalVisits, , flaggedVisitDetails] =
       await Promise.all([
         this.repository.countCompliantVisits(orgId, dateRange, branchId),
         this.repository.countVisits(
@@ -190,11 +188,12 @@ export class ReportService {
 
   /**
    * Get detailed information about flagged visits
+   * NOTE: This method requires refactor to raw SQL - see ARCHITECTURAL_ISSUES.md
    */
   private async getFlaggedVisitDetails(
-    orgId: string,
-    dateRange: DateRange,
-    branchId?: string
+    _orgId: string,
+    _dateRange: DateRange,
+    _branchId?: string
   ): Promise<
     Array<{
       visitId: string;
@@ -205,7 +204,6 @@ export class ReportService {
       resolutionStatus: string;
     }>
   > {
-    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
     // This method uses Knex query builder which doesn't exist on Database class
     throw new Error('Not implemented - requires refactor to raw SQL');
     /* 
@@ -269,17 +267,17 @@ export class ReportService {
   /**
    * Schedule automated report generation
    * This would be called by a cron job or scheduler
+   * NOTE: Requires refactor to raw SQL - see ARCHITECTURAL_ISSUES.md
    */
   async scheduleReport(
-    reportType: ReportType,
+    _reportType: ReportType,
     orgId: string,
-    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY',
-    recipients: string[],
+    _frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY',
+    _recipients: string[],
     context: UserContext
   ): Promise<void> {
     this.validateAccess(context, orgId);
 
-    // TODO: Rewrite using raw SQL - see ARCHITECTURAL_ISSUES.md
     throw new Error('Not implemented - requires refactor to raw SQL');
     /*
     // Store scheduled report configuration

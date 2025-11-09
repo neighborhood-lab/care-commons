@@ -12,13 +12,34 @@
  * - Integrity verification
  */
 
-import type { Database } from '@nozbe/watermelondb';
+import type { Database, Model } from '@nozbe/watermelondb';
 import { Q } from '@nozbe/watermelondb';
 import NetInfo from '@react-native-community/netinfo';
 import type {
   ClockInInput,
   ClockOutInput,
 } from '../shared/index.js';
+
+/**
+ * WatermelonDB record interface for sync queue
+ */
+interface SyncQueueRecord extends Model {
+  id: string;
+  operationType: QueueOperationType;
+  entityType: 'VISIT' | 'EVV_RECORD' | 'TIME_ENTRY';
+  entityId: string;
+  payloadJson: string;
+  priority: number;
+  retryCount: number;
+  maxRetries: number;
+  status: QueueStatus;
+  createdAt: number;
+  updatedAt: number;
+  nextRetryAt?: number;
+  errorMessage?: string;
+  errorDetailsJson?: string;
+  completedAt?: number;
+}
 
 export type QueueOperationType = 'CLOCK_IN' | 'CLOCK_OUT' | 'UPDATE_EVV' | 'SYNC_VISIT';
 export type QueueStatus = 'PENDING' | 'IN_PROGRESS' | 'FAILED' | 'COMPLETED';
@@ -84,10 +105,10 @@ export class OfflineQueueService {
    */
   async queueClockIn(input: ClockInInput): Promise<string> {
     const operationId = this.generateOperationId();
-    
+
     await this.database.write(async () => {
-      const syncQueue = this.database.collections.get('sync_queue');
-      await syncQueue.create((record: any) => {
+      const syncQueue = this.database.collections.get<SyncQueueRecord>('sync_queue');
+      await syncQueue.create((record) => {
         record.id = operationId;
         record.operationType = 'CLOCK_IN';
         record.entityType = 'TIME_ENTRY';
@@ -115,8 +136,8 @@ export class OfflineQueueService {
     const operationId = this.generateOperationId();
     
     await this.database.write(async () => {
-      const syncQueue = this.database.collections.get('sync_queue');
-      await syncQueue.create((record: any) => {
+      const syncQueue = this.database.collections.get<SyncQueueRecord>('sync_queue');
+      await syncQueue.create((record) => {
         record.id = operationId;
         record.operationType = 'CLOCK_OUT';
         record.entityType = 'TIME_ENTRY';
@@ -157,7 +178,7 @@ export class OfflineQueueService {
     try {
       // Get pending operations ordered by priority
       const pendingOps = await this.database
-        .get('sync_queue')
+        .get<SyncQueueRecord>('sync_queue')
         .query(
           Q.where('status', 'PENDING'),
           Q.sortBy('priority', Q.desc),
@@ -186,12 +207,12 @@ export class OfflineQueueService {
   /**
    * Process a single queued operation
    */
-  private async processOperation(operation: any): Promise<void> {
+  private async processOperation(operation: SyncQueueRecord): Promise<void> {
     const payload = JSON.parse(operation.payloadJson);
 
     // Mark as in progress
     await this.database.write(async () => {
-      await operation.update((record: any) => {
+      await operation.update((record) => {
         record.status = 'IN_PROGRESS';
         record.updatedAt = Date.now();
       });
@@ -217,7 +238,7 @@ export class OfflineQueueService {
 
     // Mark as completed
     await this.database.write(async () => {
-      await operation.update((record: any) => {
+      await operation.update((record) => {
         record.status = 'COMPLETED';
         record.completedAt = Date.now();
         record.updatedAt = Date.now();
@@ -228,7 +249,7 @@ export class OfflineQueueService {
   /**
    * Handle operation failure with retry logic
    */
-  private async handleOperationFailure(operation: any, error: unknown): Promise<void> {
+  private async handleOperationFailure(operation: SyncQueueRecord, error: unknown): Promise<void> {
     const retryCount = operation.retryCount + 1;
     const shouldRetry = retryCount < operation.maxRetries;
 
@@ -243,7 +264,7 @@ export class OfflineQueueService {
       const nextRetryAt = Date.now() + delay;
 
       await this.database.write(async () => {
-        await operation.update((record: any) => {
+        await operation.update((record) => {
           record.status = 'PENDING';
           record.retryCount = retryCount;
           record.nextRetryAt = nextRetryAt;
@@ -254,7 +275,7 @@ export class OfflineQueueService {
     } else {
       // Max retries exceeded - mark as failed
       await this.database.write(async () => {
-        await operation.update((record: any) => {
+        await operation.update((record) => {
           record.status = 'FAILED';
           record.errorMessage = errorMessage;
           record.errorDetailsJson = JSON.stringify({ error: String(error) });
@@ -399,28 +420,28 @@ export class OfflineQueueService {
     completed: number;
   }> {
     const pending = await this.database
-      .get('sync_queue')
+      .get<SyncQueueRecord>('sync_queue')
       .query(
         Q.where('status', 'PENDING')
       )
       .fetchCount();
 
     const inProgress = await this.database
-      .get('sync_queue')
+      .get<SyncQueueRecord>('sync_queue')
       .query(
         Q.where('status', 'IN_PROGRESS')
       )
       .fetchCount();
 
     const failed = await this.database
-      .get('sync_queue')
+      .get<SyncQueueRecord>('sync_queue')
       .query(
         Q.where('status', 'FAILED')
       )
       .fetchCount();
 
     const completed = await this.database
-      .get('sync_queue')
+      .get<SyncQueueRecord>('sync_queue')
       .query(
         Q.where('status', 'COMPLETED')
       )
@@ -443,7 +464,7 @@ export class OfflineQueueService {
     const cutoffDate = Date.now() - olderThanDays * 24 * 60 * 60 * 1000;
     
     const completed = await this.database
-      .get('sync_queue')
+      .get<SyncQueueRecord>('sync_queue')
       .query(
         Q.where('status', 'COMPLETED'),
         Q.where('completed_at', Q.lt(cutoffDate))

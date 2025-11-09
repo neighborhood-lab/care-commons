@@ -1,11 +1,14 @@
 /**
  * EVV Aggregator Integration Service
- * 
+ *
  * Handles submission of EVV data to state-mandated aggregators:
- * - Texas: HHAeXchange (mandatory)
- * - Florida: Multiple aggregators (HHAeXchange, Netsmart/Tellus, etc.)
- * 
+ * - Texas: HHAeXchange
+ * - Florida: HHAeXchange (multi-aggregator support)
+ * - Ohio, Pennsylvania, North Carolina, Arizona: Sandata
+ * - Georgia: Tellus
+ *
  * Implements retry logic, error handling, and compliance tracking.
+ * Uses aggregator router for automatic state-based routing.
  */
 
 import {
@@ -16,43 +19,46 @@ import {
 import { EVVRecord } from '../types/evv';
 import {
   StateCode,
+  StateAggregatorSubmission,
   TexasEVVConfig,
   FloridaEVVConfig,
-  StateAggregatorSubmission,
 } from '../types/state-specific';
+import { getAggregatorRouter } from '../aggregators/aggregator-router.js';
 
 /**
  * Aggregator submission payload for HHAeXchange
+ * (Note: Unused - kept for reference)
  */
-interface HHAeXchangePayload extends Record<string, unknown> {
-  visitId: string;
-  memberId: string;
-  memberName: string;
-  providerId: string;
-  providerName: string;
-  serviceCode: string;
-  serviceDate: string;
-  clockInTime: string;
-  clockOutTime?: string;
-  clockInLatitude: number;
-  clockInLongitude: number;
-  clockOutLatitude?: number;
-  clockOutLongitude?: number;
-  clockMethod: string;
-  duration?: number;
-  verificationStatus: string;
-}
+// interface HHAeXchangePayload extends Record<string, unknown> {
+//   visitId: string;
+//   memberId: string;
+//   memberName: string;
+//   providerId: string;
+//   providerName: string;
+//   serviceCode: string;
+//   serviceDate: string;
+//   clockInTime: string;
+//   clockOutTime?: string;
+//   clockInLatitude: number;
+//   clockInLongitude: number;
+//   clockOutLatitude?: number;
+//   clockOutLongitude?: number;
+//   clockMethod: string;
+//   duration?: number;
+//   verificationStatus: string;
+// }
 
 /**
  * Aggregator response
+ * (Note: Unused - kept for reference)
  */
-interface AggregatorResponse extends Record<string, unknown> {
-  success: boolean;
-  confirmationId?: string;
-  errorCode?: string;
-  errorMessage?: string;
-  requiresRetry?: boolean;
-}
+// interface AggregatorResponse extends Record<string, unknown> {
+//   success: boolean;
+//   confirmationId?: string;
+//   errorCode?: string;
+//   errorMessage?: string;
+//   requiresRetry?: boolean;
+// }
 
 /**
  * Aggregator configuration repository interface
@@ -85,7 +91,10 @@ export class EVVAggregatorService {
 
   /**
    * Submit EVV record to appropriate state aggregator(s)
-   * 
+   *
+   * Uses aggregator router to automatically route to the correct aggregator
+   * based on state configuration.
+   *
    * @throws ValidationError if EVV record is incomplete
    * @throws NotFoundError if aggregator configuration not found
    */
@@ -114,31 +123,13 @@ export class EVVAggregatorService {
       );
     }
 
-    // Submit based on state
-    if (config.state === 'TX') {
-      return await this.submitToTexasAggregator(evvRecord, config as TexasEVVConfig);
-    } else if (config.state === 'FL') {
-      return await this.submitToFloridaAggregators(evvRecord, config as FloridaEVVConfig);
-    }
-
-    throw new ValidationError(`Unsupported state code: ${stateCode}`);
-  }
-
-  /**
-   * Submit to Texas aggregator (single mandatory aggregator)
-   */
-  private async submitToTexasAggregator(
-    evvRecord: EVVRecord,
-    config: TexasEVVConfig
-  ): Promise<StateAggregatorSubmission[]> {
-    const payload = this.buildHHAeXchangePayload(evvRecord, 'TX');
-
+    // Create submission record
     const submission = await this.submissionRepository.createSubmission({
-      state: 'TX',
+      state: stateCode,
       evvRecordId: evvRecord.id,
-      aggregatorId: config.aggregatorEntityId,
-      aggregatorType: config.aggregatorType,
-      submissionPayload: payload,
+      aggregatorId: (config as unknown as Record<string, unknown>).aggregatorEntityId as string || 'default',
+      aggregatorType: (config as unknown as Record<string, unknown>).aggregatorType as string || 'UNKNOWN',
+      submissionPayload: evvRecord as unknown as Record<string, unknown>, // Will be formatted by aggregator
       submissionFormat: 'JSON',
       submittedAt: new Date(),
       submittedBy: evvRecord.recordedBy,
@@ -147,50 +138,50 @@ export class EVVAggregatorService {
       maxRetries: 3,
     });
 
-    // Attempt to send to aggregator
     try {
-      const response = await this.sendToHHAeXchange(
-        config.aggregatorSubmissionEndpoint,
-        payload,
-        config.aggregatorApiKey
-      );
+      // Use aggregator router to submit
+      const router = getAggregatorRouter();
+      const result = await router.submit(evvRecord, stateCode);
 
-      if (response.success) {
+      if (result.success) {
+        // Update submission as accepted
         const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: 'ACCEPTED',
-          aggregatorResponse: response,
+          aggregatorResponse: result as unknown as Record<string, unknown>,
           aggregatorReceivedAt: new Date(),
         };
 
-        if (response.confirmationId !== undefined) {
-          updateData.aggregatorConfirmationId = response.confirmationId;
+        if (result.confirmationId) {
+          updateData.aggregatorConfirmationId = result.confirmationId;
         }
 
         await this.submissionRepository.updateSubmission(submission.id, updateData);
       } else {
+        // Update submission with error
         const updateData: Partial<StateAggregatorSubmission> = {
-          submissionStatus: response.requiresRetry ? 'RETRY' : 'REJECTED',
-          errorDetails: response,
+          submissionStatus: result.requiresRetry ? 'RETRY' : 'REJECTED',
+          errorDetails: result as unknown as Record<string, unknown>,
           retryCount: 0,
         };
 
-        if (response.errorCode !== undefined) {
-          updateData.errorCode = response.errorCode;
+        if (result.errorCode) {
+          updateData.errorCode = result.errorCode;
         }
-        if (response.errorMessage !== undefined) {
-          updateData.errorMessage = response.errorMessage;
+        if (result.errorMessage) {
+          updateData.errorMessage = result.errorMessage;
         }
-        if (response.requiresRetry) {
-          updateData.nextRetryAt = this.calculateNextRetry(0);
+        if (result.requiresRetry && result.retryAfterSeconds) {
+          updateData.nextRetryAt = new Date(Date.now() + result.retryAfterSeconds * 1000);
         }
 
         await this.submissionRepository.updateSubmission(submission.id, updateData);
       }
     } catch (error: any) {
+      // Handle submission error
       await this.submissionRepository.updateSubmission(submission.id, {
-        submissionStatus: 'RETRY' as const,
+        submissionStatus: 'RETRY',
         errorCode: 'NETWORK_ERROR',
-        errorMessage: error.message,
+        errorMessage: error.message || 'Unknown error',
         retryCount: 0,
         nextRetryAt: this.calculateNextRetry(0),
       });
@@ -200,105 +191,108 @@ export class EVVAggregatorService {
   }
 
   /**
-   * Submit to Florida aggregators (potentially multiple)
+   * Manually retry a failed submission
+   *
+   * Allows coordinators to manually retry submissions that failed.
    */
-  private async submitToFloridaAggregators(
-    evvRecord: EVVRecord,
-    config: FloridaEVVConfig
-  ): Promise<StateAggregatorSubmission[]> {
-    const submissions: StateAggregatorSubmission[] = [];
+  async retrySubmission(submissionId: UUID): Promise<StateAggregatorSubmission> {
+    const submission = await this.submissionRepository.getSubmissionsByEVVRecord(submissionId);
 
-    // Determine which aggregator(s) to use based on payer/MCO
-    // For now, use the default aggregator
-    const aggregatorConfig = config.aggregators.find(
-      agg => agg.id === config.defaultAggregator && agg.isActive
+    if (!submission || submission.length === 0) {
+      throw new NotFoundError(`Submission not found: ${submissionId}`);
+    }
+
+    const sub = submission[0]!;
+
+    // Check if retry is allowed
+    if (sub.retryCount >= sub.maxRetries) {
+      throw new ValidationError(
+        'Maximum retries exceeded. Cannot retry this submission.',
+        { submissionId, retryCount: sub.retryCount, maxRetries: sub.maxRetries }
+      );
+    }
+
+    // Get the EVV record (from submission payload)
+    const evvRecord = sub.submissionPayload as unknown as EVVRecord;
+
+    // Get state code
+    const stateCode = this.extractStateCode(evvRecord);
+
+    // Get aggregator configuration
+    const config = await this.configRepository.getStateConfig(
+      evvRecord.organizationId,
+      evvRecord.branchId,
+      stateCode
     );
 
-    if (!aggregatorConfig) {
+    if (!config) {
       throw new NotFoundError(
-        `No active aggregator found for Florida`,
-        { organizationId: evvRecord.organizationId }
+        `Aggregator configuration not found for state ${stateCode}`
       );
     }
 
-    const payload = this.buildHHAeXchangePayload(evvRecord, 'FL');
-
-    const submission = await this.submissionRepository.createSubmission({
-      state: 'FL',
-      evvRecordId: evvRecord.id,
-      aggregatorId: aggregatorConfig.id,
-      aggregatorType: aggregatorConfig.type,
-      submissionPayload: payload,
-      submissionFormat: 'JSON',
-      submittedAt: new Date(),
-      submittedBy: evvRecord.recordedBy,
-      submissionStatus: 'PENDING',
-      retryCount: 0,
-      maxRetries: 3,
-    });
-
-    // Attempt to send to aggregator
     try {
-      const response = await this.sendToHHAeXchange(
-        aggregatorConfig.endpoint,
-        payload,
-        aggregatorConfig.apiKey
-      );
+      // Use aggregator router to retry
+      const router = getAggregatorRouter();
+      const result = await router.submit(evvRecord, stateCode);
 
-      if (response.success) {
+      if (result.success) {
+        // Update submission as accepted
         const updateData: Partial<StateAggregatorSubmission> = {
           submissionStatus: 'ACCEPTED',
-          aggregatorResponse: response,
+          aggregatorResponse: result as unknown as Record<string, unknown>,
           aggregatorReceivedAt: new Date(),
+          retryCount: sub.retryCount + 1,
         };
 
-        if (response.confirmationId !== undefined) {
-          updateData.aggregatorConfirmationId = response.confirmationId;
+        if (result.confirmationId) {
+          updateData.aggregatorConfirmationId = result.confirmationId;
         }
 
-        await this.submissionRepository.updateSubmission(submission.id, updateData);
+        return await this.submissionRepository.updateSubmission(sub.id, updateData);
       } else {
+        // Update submission with error
         const updateData: Partial<StateAggregatorSubmission> = {
-          submissionStatus: response.requiresRetry ? 'RETRY' : 'REJECTED',
-          errorDetails: response,
-          retryCount: 0,
+          submissionStatus: result.requiresRetry ? 'RETRY' : 'REJECTED',
+          errorDetails: result as unknown as Record<string, unknown>,
+          retryCount: sub.retryCount + 1,
         };
 
-        if (response.errorCode !== undefined) {
-          updateData.errorCode = response.errorCode;
+        if (result.errorCode) {
+          updateData.errorCode = result.errorCode;
         }
-        if (response.errorMessage !== undefined) {
-          updateData.errorMessage = response.errorMessage;
+        if (result.errorMessage) {
+          updateData.errorMessage = result.errorMessage;
         }
-        if (response.requiresRetry) {
-          updateData.nextRetryAt = this.calculateNextRetry(0);
+        if (result.requiresRetry && result.retryAfterSeconds) {
+          updateData.nextRetryAt = new Date(Date.now() + result.retryAfterSeconds * 1000);
         }
 
-        await this.submissionRepository.updateSubmission(submission.id, updateData);
+        return await this.submissionRepository.updateSubmission(sub.id, updateData);
       }
     } catch (error: any) {
-      await this.submissionRepository.updateSubmission(submission.id, {
+      // Handle submission error
+      return await this.submissionRepository.updateSubmission(sub.id, {
         submissionStatus: 'RETRY',
         errorCode: 'NETWORK_ERROR',
-        errorMessage: error.message,
-        retryCount: 0,
-        nextRetryAt: this.calculateNextRetry(0),
+        errorMessage: error.message || 'Unknown error',
+        retryCount: sub.retryCount + 1,
+        nextRetryAt: this.calculateNextRetry(sub.retryCount + 1),
       });
     }
-
-    submissions.push(submission);
-    return submissions;
   }
 
   /**
-   * Retry failed submissions
+   * Retry all pending submissions
+   *
+   * Called by the submission scheduler to automatically retry failed submissions.
    */
   async retryPendingSubmissions(): Promise<void> {
     const pending = await this.submissionRepository.getPendingRetries();
 
     for (const submission of pending) {
+      // Skip if max retries reached
       if (submission.retryCount >= submission.maxRetries) {
-        // Max retries reached, mark as failed
         await this.submissionRepository.updateSubmission(submission.id, {
           submissionStatus: 'REJECTED',
           errorMessage: 'Max retries exceeded',
@@ -306,78 +300,19 @@ export class EVVAggregatorService {
         continue;
       }
 
-      // TODO: Retry the submission
-      // This would fetch the config and resend
+      // Skip if not yet time to retry
+      if (submission.nextRetryAt && submission.nextRetryAt > new Date()) {
+        continue;
+      }
+
+      // Retry the submission
+      try {
+        await this.retrySubmission(submission.id);
+      } catch (error) {
+        console.error(`Failed to retry submission ${submission.id}:`, error);
+        // Continue with next submission
+      }
     }
-  }
-
-  /**
-   * Build HHAeXchange-compatible payload
-   */
-  private buildHHAeXchangePayload(
-    evvRecord: EVVRecord,
-    _stateCode: StateCode
-  ): HHAeXchangePayload {
-    const basePayload = {
-      visitId: evvRecord.visitId,
-      memberId: evvRecord.clientMedicaidId ?? evvRecord.clientId,
-      memberName: evvRecord.clientName,
-      providerId: evvRecord.caregiverEmployeeId,
-      providerName: evvRecord.caregiverName,
-      serviceCode: evvRecord.serviceTypeCode,
-      serviceDate: evvRecord.serviceDate.toISOString().split('T')[0]!,
-      clockInTime: evvRecord.clockInTime.toISOString(),
-      clockInLatitude: evvRecord.clockInVerification.latitude,
-      clockInLongitude: evvRecord.clockInVerification.longitude,
-      clockMethod: evvRecord.clockInVerification.method,
-      duration: evvRecord.totalDuration,
-      verificationStatus: this.mapVerificationStatus(evvRecord),
-    };
-
-    const optionalFields = {
-      clockOutTime: evvRecord.clockOutTime?.toISOString(),
-      clockOutLatitude: evvRecord.clockOutVerification?.latitude,
-      clockOutLongitude: evvRecord.clockOutVerification?.longitude,
-    };
-
-    const filteredOptional = Object.fromEntries(
-      Object.entries(optionalFields).filter(([_, value]) => value !== undefined)
-    );
-
-    return { ...basePayload, ...filteredOptional } as HHAeXchangePayload;
-  }
-
-  /**
-   * Send payload to HHAeXchange API
-   * 
-   * NOTE: This is a stub implementation. In production, implement proper HTTP client
-   * with authentication, SSL/TLS, retries, and logging.
-   */
-  private async sendToHHAeXchange(
-    endpoint: string,
-    _payload: HHAeXchangePayload,
-    _apiKey?: string
-  ): Promise<AggregatorResponse> {
-    // TODO: Implement actual HTTP POST to aggregator
-    // Example using fetch or axios:
-    //
-    // const response = await fetch(endpoint, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${apiKey}`,
-    //   },
-    //   body: JSON.stringify(payload),
-    // });
-    //
-    // return await response.json();
-
-    throw new Error(
-      'HHAeXchange integration not implemented. ' +
-      'Production implementation must include proper HTTP client with ' +
-      'authentication, SSL/TLS verification, retries, and logging. ' +
-      `Endpoint: ${endpoint}`
-    );
   }
 
   /**
@@ -435,23 +370,6 @@ export class EVVAggregatorService {
     );
   }
 
-  /**
-   * Map verification level to aggregator-friendly status
-   */
-  private mapVerificationStatus(evvRecord: EVVRecord): string {
-    switch (evvRecord.verificationLevel) {
-      case 'FULL':
-        return 'VERIFIED';
-      case 'PARTIAL':
-        return 'PARTIAL';
-      case 'MANUAL':
-        return 'MANUAL_OVERRIDE';
-      case 'EXCEPTION':
-        return 'EXCEPTION';
-      default:
-        return 'UNKNOWN';
-    }
-  }
 
   /**
    * Calculate next retry time with exponential backoff

@@ -1,0 +1,34 @@
+# Auto-label PRs based on changed files
+# Updated for actions/labeler@v5 syntax
+
+'documentation':
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.md', 'docs/**/*']
+
+'dependencies':
+  - changed-files:
+    - any-glob-to-any-file: ['package.json', 'package-lock.json', '**/package.json']
+
+'ci/cd':
+  - changed-files:
+    - any-glob-to-any-file: ['.github/workflows/**', '.github/actions/**']
+
+'tests':
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/__tests__/**']
+
+'backend':
+  - changed-files:
+    - any-glob-to-any-file: ['packages/core/**', 'packages/api/**']
+
+'frontend':
+  - changed-files:
+    - any-glob-to-any-file: ['packages/web/**', 'packages/mobile/**']
+
+'database':
+  - changed-files:
+    - any-glob-to-any-file: ['packages/core/src/database/**', '**/migrations/**', '**/schema/**']
+
+'security':
+  - changed-files:
+    - any-glob-to-any-file: ['**/auth/**', '**/security/**', '**/permissions/**']

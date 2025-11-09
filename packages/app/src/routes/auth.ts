@@ -478,4 +478,63 @@ export function createAuthRouter(db: Database): Router {
   return router;
 }
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: Unique user identifier
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User email address
+ *         first_name:
+ *           type: string
+ *           description: User first name
+ *         last_name:
+ *           type: string
+ *           description: User last name
+ *         role:
+ *           type: string
+ *           enum: [admin, coordinator, caregiver, family]
+ *           description: User role
+ *         organization_id:
+ *           type: string
+ *           format: uuid
+ *           description: Organization ID the user belongs to
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: Timestamp when user was created
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ *           description: Timestamp when user was last updated
+ *     Error:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         error:
+ *           type: string
+ *           description: Error message
+ *         code:
+ *           type: string
+ *           description: Error code
+ *         context:
+ *           type: object
+ *           description: Additional error context
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+
 export default createAuthRouter;

@@ -6,23 +6,31 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AnalyticsService } from '../service/analytics-service';
 import { Database } from '@care-commons/core';
 
+// Helper to create mock query builder
+function createMockQueryBuilder() {
+  const countFn = vi.fn(() => Promise.resolve({ count: '10' }));
+  const sumFn = vi.fn(() => Promise.resolve({ total: '100' }));
+  const whereBetweenResult = { count: countFn, sum: sumFn };
+  const whereBetweenFn = vi.fn(() => whereBetweenResult);
+  const whereResult = { whereBetween: whereBetweenFn };
+  const whereFn = vi.fn(() => whereResult);
+  const fromResult = { where: whereFn };
+  const fromFn = vi.fn(() => fromResult);
+  
+  return { from: fromFn };
+}
+
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
   let mockDb: Database;
 
   beforeEach(() => {
     // Create mock database
+    const queryBuilder = createMockQueryBuilder();
+    
     mockDb = {
-      getConnection: vi.fn(() => ({
-        from: vi.fn(() => ({
-          where: vi.fn(() => ({
-            whereBetween: vi.fn(() => ({
-              count: vi.fn(() => Promise.resolve({ count: '10' })),
-              sum: vi.fn(() => Promise.resolve({ total: '100' })),
-            })),
-          })),
-        })),
-      })),
+      getConnection: vi.fn(() => queryBuilder),
+      query: vi.fn(() => Promise.resolve({ rows: [{ count: '10' }] })),
       healthCheck: vi.fn(),
       close: vi.fn(),
     } as any;
@@ -35,7 +43,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const options = {
@@ -60,7 +70,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-2',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const options = {
@@ -82,7 +94,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const alerts = await service.getComplianceAlerts('org-1', undefined, context);
@@ -95,7 +109,9 @@ describe('AnalyticsService', () => {
       const context = {
         userId: 'user-1',
         organizationId: 'org-1',
-        role: 'ADMIN',
+        roles: ['ADMIN'],
+        permissions: ['analytics:read'],
+        branchIds: [],
       };
 
       const alerts = await service.getComplianceAlerts('org-1', undefined, context);
@@ -103,8 +119,8 @@ describe('AnalyticsService', () => {
       // Verify alerts are sorted by severity (CRITICAL first)
       for (let i = 0; i < alerts.length - 1; i++) {
         const severityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, WARNING: 3, INFO: 4 };
-        expect(severityOrder[alerts[i].severity]).toBeLessThanOrEqual(
-          severityOrder[alerts[i + 1].severity]
+        expect(severityOrder[alerts[i]!.severity]).toBeLessThanOrEqual(
+          severityOrder[alerts[i + 1]!.severity]
         );
       }
     });

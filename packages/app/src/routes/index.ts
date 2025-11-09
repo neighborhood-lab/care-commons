@@ -15,15 +15,14 @@ import { createAuthRouter } from './auth.js';
 import { createOrganizationRouter } from './organizations.js';
 import { createCaregiverRouter } from './caregivers.js';
 import { createDemoRouter } from './demo.js';
+import { createAnalyticsRouter } from './analytics.js';
 import { authLimiter } from '../middleware/rate-limit.js';
-/**
- * NOTE: Analytics routes temporarily disabled - requires architectural refactor
- * The analytics-reporting vertical uses Knex query builder, but the codebase uses raw SQL via Database class
- * See verticals/analytics-reporting/ARCHITECTURAL_ISSUES.md for implementation details
- * When re-enabling: import { createAnalyticsRouter } from './analytics.js';
- */
 import { createSyncRouter } from '../api/sync/sync-routes.js';
 import docsRoutes from './docs.routes.js';
+import { createPayrollRouter } from './payroll.js';
+import adminRoutes from './admin.js';
+import { createWhiteLabelRouter } from './white-label.js';
+import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
 
 /**
  * Setup all API routes for the application
@@ -82,23 +81,50 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/demo', demoRouter);
   console.log('  ✓ Demo routes registered');
 
-  // Analytics & Reporting routes - TEMPORARILY DISABLED
-  // Requires architectural refactor: analytics-reporting uses Knex, but codebase uses raw SQL
-  // const analyticsRouter = createAnalyticsRouter(db);
-  // app.use('/api/analytics', analyticsRouter);
-  // console.log('  ✓ Analytics & Reporting routes registered');
+  // Analytics & Reporting routes
+  const analyticsRouter = createAnalyticsRouter(db);
+  app.use('/api/analytics', analyticsRouter);
+  console.log('  ✓ Analytics & Reporting routes registered');
 
   // Offline Sync routes
   const syncRouter = createSyncRouter(db);
   app.use('/api/sync', syncRouter);
   console.log('  ✓ Offline Sync routes registered');
 
+  // Payroll Processing routes
+  const payrollRouter = createPayrollRouter(db);
+  app.use('/api', payrollRouter);
+  console.log('  ✓ Payroll Processing routes registered');
+
+  // Admin routes (cache monitoring, etc.)
+  app.use('/api/admin', adminRoutes);
+  console.log('  ✓ Admin routes registered');
+
+  // White-label routes (branding, feature flags)
+  const whiteLabelRouter = createWhiteLabelRouter(db);
+  app.use('/api/white-label', whiteLabelRouter);
+  console.log('  ✓ White-label routes registered');
+
+  // Quality Assurance & Audits routes
+  const auditRepository = new AuditRepository(db);
+  const auditFindingRepository = new AuditFindingRepository(db);
+  const correctiveActionRepository = new CorrectiveActionRepository(db);
+  const auditService = new AuditService(
+    auditRepository,
+    auditFindingRepository,
+    correctiveActionRepository,
+    permissionService
+  );
+  const auditRouter = Router();
+  createAuditRoutes(auditService, auditRouter);
+  app.use('/api', auditRouter);
+  console.log('  ✓ Quality Assurance & Audits routes registered');
+
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
   // - EVV & Time Tracking
   // - Shift Matching
   // - Billing & Invoicing
-  // - Payroll Processing
 
   console.log('API routes setup complete\n');
 }

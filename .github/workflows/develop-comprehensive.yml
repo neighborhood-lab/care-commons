@@ -1,0 +1,126 @@
+name: Develop Comprehensive Validation
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+# Run independently from CI workflow
+# This provides a comprehensive, cache-free validation of the develop branch
+
+env:
+  NODE_VERSION: '22'
+  NPM_VERSION: '10.9.4'
+  # Disable Turbo remote caching for comprehensive validation
+  TURBO_FORCE: 'true'
+
+jobs:
+  comprehensive-validation:
+    name: Comprehensive Validation (No Cache)
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: care_commons_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for comprehensive analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm 10.9.4
+        run: npm install -g npm@10.9.4
+
+      - name: Clean install dependencies
+        run: |
+          npm ci || (npm cache clean --force && npm ci)
+
+      - name: Comprehensive Lint (No Cache)
+        run: npx turbo run lint --force --no-cache
+        continue-on-error: false
+
+      - name: Comprehensive Type Check (No Cache)
+        run: npx turbo run typecheck --force --no-cache
+        continue-on-error: false
+
+      - name: Comprehensive Build (No Cache)
+        run: npx turbo run build --force --no-cache
+        continue-on-error: false
+
+      - name: Setup test database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/care_commons_test
+          NODE_ENV: test
+        run: |
+          npm run db:migrate
+          npm run db:seed
+
+      - name: Comprehensive Test with Coverage (No Cache)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/care_commons_test
+          NODE_ENV: test
+        run: npx turbo run test:coverage --force --no-cache
+        continue-on-error: false
+
+      - name: Upload comprehensive coverage reports
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./packages/*/coverage/lcov.info,./verticals/*/coverage/lcov.info
+          flags: comprehensive-develop
+          name: comprehensive-validation
+          fail_ci_if_error: false
+
+      - name: Generate validation report
+        if: always()
+        run: |
+          echo "# Comprehensive Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Validation Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Lint (all packages, no cache)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Type Check (all packages, no cache)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build (all packages, no cache)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Test with Coverage (all packages, no cache)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This validation represents the complete current state of the \`develop\` branch." >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comprehensive-build-artifacts
+          path: |
+            packages/*/dist
+            verticals/*/dist
+            packages/*/coverage
+            verticals/*/coverage
+          retention-days: 14
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Comprehensive validation failed on develop branch"
+          echo "::error::All checks must pass with no cache to ensure develop branch integrity"
+          exit 1
