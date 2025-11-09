@@ -282,7 +282,7 @@ export class AnalyticsService {
   async getCaregiverPerformance(
     caregiverId: string,
     dateRange: DateRange,
-    context: UserContext
+    _context: UserContext
   ): Promise<CaregiverPerformance> {
     // Get visits for this caregiver
     const visits = await this.repository.getVisitsByCaregiver(

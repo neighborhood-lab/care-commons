@@ -84,6 +84,12 @@ describe('Database Connection', () => {
       });
     });
 
+    it('should expose connection pool via getPool method', () => {
+      const pool = database.getPool();
+      expect(pool).toBeDefined();
+      expect(pool).toBe(mockPool);
+    });
+
     it('should handle SSL configuration', () => {
       const config = {
         ...createMockDatabaseConfig(),

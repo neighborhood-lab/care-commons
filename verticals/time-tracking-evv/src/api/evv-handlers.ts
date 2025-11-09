@@ -43,6 +43,50 @@ export class EVVHandlers {
   constructor(private evvService: EVVService) {}
 
   /**
+   * @openapi
+   * /api/evv/clock-in:
+   *   post:
+   *     summary: Clock in to start a visit with EVV compliance
+   *     tags: [EVV]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ClockInInput'
+   *     responses:
+   *       201:
+   *         description: Clock-in successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 evvRecordId:
+   *                   type: string
+   *                   format: uuid
+   *                 timeEntryId:
+   *                   type: string
+   *                   format: uuid
+   *                 verification:
+   *                   $ref: '#/components/schemas/VerificationResult'
+   *                 clockInTime:
+   *                   type: string
+   *                   format: date-time
+   *                 location:
+   *                   $ref: '#/components/schemas/LocationVerification'
+   *       400:
+   *         description: Invalid request or EVV compliance failure
+   *       401:
+   *         description: Unauthorized
+   *       500:
+   *         description: Server error
+   *
    * POST /api/evv/clock-in
    * Clock in to start a visit
    */
@@ -78,6 +122,56 @@ export class EVVHandlers {
   }
 
   /**
+   * @openapi
+   * /api/evv/clock-out:
+   *   post:
+   *     summary: Clock out to end a visit with EVV compliance
+   *     tags: [EVV]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ClockOutInput'
+   *     responses:
+   *       200:
+   *         description: Clock-out successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 evvRecordId:
+   *                   type: string
+   *                   format: uuid
+   *                 timeEntryId:
+   *                   type: string
+   *                   format: uuid
+   *                 verification:
+   *                   $ref: '#/components/schemas/VerificationResult'
+   *                 clockOutTime:
+   *                   type: string
+   *                   format: date-time
+   *                 totalDuration:
+   *                   type: number
+   *                   description: Total duration in minutes
+   *                 billableHours:
+   *                   type: string
+   *                   description: Billable hours formatted as decimal
+   *                 location:
+   *                   $ref: '#/components/schemas/LocationVerification'
+   *       400:
+   *         description: Invalid request or EVV compliance failure
+   *       401:
+   *         description: Unauthorized
+   *       500:
+   *         description: Server error
+   *
    * POST /api/evv/clock-out
    * Clock out to end a visit
    */
@@ -527,3 +621,172 @@ export class EVVHandlers {
     };
   }
 }
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     ClockInInput:
+ *       type: object
+ *       required:
+ *         - visitId
+ *         - location
+ *         - deviceInfo
+ *       properties:
+ *         visitId:
+ *           type: string
+ *           format: uuid
+ *           description: The visit ID to clock in for
+ *         location:
+ *           type: object
+ *           required:
+ *             - latitude
+ *             - longitude
+ *           properties:
+ *             latitude:
+ *               type: number
+ *               format: double
+ *               example: 30.2672
+ *               description: GPS latitude coordinate
+ *             longitude:
+ *               type: number
+ *               format: double
+ *               example: -97.7431
+ *               description: GPS longitude coordinate
+ *             accuracy:
+ *               type: number
+ *               description: GPS accuracy in meters
+ *               example: 10
+ *         deviceInfo:
+ *           type: object
+ *           required:
+ *             - deviceId
+ *           properties:
+ *             deviceId:
+ *               type: string
+ *               description: Unique device identifier
+ *             deviceModel:
+ *               type: string
+ *               description: Device model name
+ *               example: iPhone 12
+ *             deviceOS:
+ *               type: string
+ *               description: Operating system version
+ *               example: iOS 15.0
+ *         biometricVerified:
+ *           type: boolean
+ *           description: Whether biometric authentication was used
+ *         offlineRecorded:
+ *           type: boolean
+ *           description: Whether this was recorded offline
+ *     ClockOutInput:
+ *       type: object
+ *       required:
+ *         - visitId
+ *         - location
+ *         - deviceInfo
+ *       properties:
+ *         visitId:
+ *           type: string
+ *           format: uuid
+ *           description: The visit ID to clock out from
+ *         location:
+ *           type: object
+ *           required:
+ *             - latitude
+ *             - longitude
+ *           properties:
+ *             latitude:
+ *               type: number
+ *               format: double
+ *               example: 30.2672
+ *             longitude:
+ *               type: number
+ *               format: double
+ *               example: -97.7431
+ *             accuracy:
+ *               type: number
+ *               description: GPS accuracy in meters
+ *         deviceInfo:
+ *           type: object
+ *           properties:
+ *             deviceId:
+ *               type: string
+ *             deviceModel:
+ *               type: string
+ *             deviceOS:
+ *               type: string
+ *         biometricVerified:
+ *           type: boolean
+ *         offlineRecorded:
+ *           type: boolean
+ *     VerificationResult:
+ *       type: object
+ *       properties:
+ *         passed:
+ *           type: boolean
+ *           description: Whether EVV verification passed
+ *         verificationLevel:
+ *           type: string
+ *           enum: [FULL, PARTIAL, MANUAL, PHONE, EXCEPTION]
+ *           description: Level of verification achieved
+ *         complianceFlags:
+ *           type: array
+ *           items:
+ *             type: string
+ *             enum: [COMPLIANT, GEOFENCE_VIOLATION, TIME_GAP, DEVICE_SUSPICIOUS, LOCATION_SUSPICIOUS, DUPLICATE_ENTRY, MISSING_SIGNATURE, LATE_SUBMISSION, MANUAL_OVERRIDE, AMENDED]
+ *         requiresSupervisorReview:
+ *           type: boolean
+ *           description: Whether supervisor review is required
+ *         issues:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: List of verification issues found
+ *     LocationVerification:
+ *       type: object
+ *       properties:
+ *         isWithinGeofence:
+ *           type: boolean
+ *           description: Whether location is within the geofence
+ *         distanceFromAddress:
+ *           type: number
+ *           description: Distance from expected address in meters
+ *         accuracy:
+ *           type: number
+ *           description: GPS accuracy in meters
+ *     EVVRecord:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         visit_id:
+ *           type: string
+ *           format: uuid
+ *         clockInTime:
+ *           type: string
+ *           format: date-time
+ *         clockOutTime:
+ *           type: string
+ *           format: date-time
+ *         totalDuration:
+ *           type: number
+ *           description: Total duration in minutes
+ *         recordStatus:
+ *           type: string
+ *           enum: [PENDING, IN_PROGRESS, COMPLETE, CANCELLED]
+ *         verificationLevel:
+ *           type: string
+ *           enum: [FULL, PARTIAL, MANUAL, PHONE, EXCEPTION]
+ *         complianceFlags:
+ *           type: array
+ *           items:
+ *             type: string
+ *             enum: [COMPLIANT, GEOFENCE_VIOLATION, TIME_GAP, DEVICE_SUSPICIOUS, LOCATION_SUSPICIOUS, DUPLICATE_ENTRY, MISSING_SIGNATURE, LATE_SUBMISSION, MANUAL_OVERRIDE, AMENDED]
+ *         submittedToPayor:
+ *           type: boolean
+ *         payorApprovalStatus:
+ *           type: string
+ *           enum: [PENDING, APPROVED, DENIED, PENDING_INFO, APPEALED]
+ */
