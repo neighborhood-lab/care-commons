@@ -15,6 +15,9 @@ export * from './utils/timezone.utils.js';
 export * from './utils/memoize.js';
 export * from './utils/pagination.js';
 
+// Validation (browser-compatible)
+export * from './validation/schemas.js';
+
 // Sync types only (browser-compatible)
 export type * from './sync/types.js';
 

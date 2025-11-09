@@ -1,10 +1,36 @@
 import logger from './logger.js';
 
+/**
+ * Minimal Sentry type definitions for dynamic imports
+ */
+interface SentryEvent {
+  request?: {
+    cookies?: unknown;
+    headers?: Record<string, unknown>;
+  };
+  [key: string]: unknown;
+}
+
+interface SentryScope {
+  setUser(user: { id: string; email?: string }): void;
+}
+
+interface SentryModule {
+  init(config: {
+    dsn?: string;
+    environment?: string;
+    integrations?: unknown[];
+    tracesSampleRate?: number;
+    profilesSampleRate?: number;
+    beforeSend?: (event: SentryEvent, hint: unknown) => SentryEvent | null;
+  }): void;
+  captureException(error: unknown, options?: { extra?: unknown }): void;
+  getCurrentScope(): SentryScope;
+}
+
 // Dynamic import for Sentry to avoid bundling in browser environments
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let Sentry: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let nodeProfilingIntegration: any = null;
+let Sentry: SentryModule | null = null;
+let nodeProfilingIntegration: (() => unknown) | null = null;
 
 // Check if we're in a Node.js environment (not browser)
 const isNodeEnvironment = typeof process !== 'undefined' &&
@@ -18,7 +44,7 @@ async function loadSentryModules(): Promise<void> {
 
   try {
     // Dynamically import @sentry/node
-    Sentry = await import('@sentry/node');
+    Sentry = (await import('@sentry/node')) as SentryModule;
 
     // Try to load profiling integration
     try {
@@ -41,8 +67,7 @@ export function initializeErrorTracking(): void {
       if (Sentry === null) {
         return;
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const integrations: any[] = [];
+      const integrations: unknown[] = [];
       
       // Only add profiling integration if available (server-side)
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -57,8 +82,7 @@ export function initializeErrorTracking(): void {
         tracesSampleRate: 0.1, // 10% of requests
         profilesSampleRate: nodeProfilingIntegration !== null ? 0.1 : 0, // Only enable profiling if available
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        beforeSend(event: any, _hint: any): any {
+        beforeSend(event: SentryEvent, _hint: unknown): SentryEvent | null {
           // Filter out sensitive data
           if (event.request !== undefined) {
             delete event.request.cookies;
@@ -77,8 +101,7 @@ export function initializeErrorTracking(): void {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function captureException(error: any, context?: any): void {
+export function captureException(error: unknown, context?: Record<string, unknown>): void {
   logger.error({ error, ...context }, 'Exception captured');
 
   if (process.env.NODE_ENV === 'production' && Sentry !== null) {
