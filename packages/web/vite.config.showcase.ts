@@ -21,6 +21,11 @@ export default defineConfig({
         __dirname,
         '../../verticals/care-plans-tasks/dist/browser.js'
       ),
+      '@care-commons/core/browser': path.resolve(
+        __dirname,
+        '../core/dist/browser.js'
+      ),
+      '@care-commons/core': path.resolve(__dirname, '../core/dist/index.js'),
     },
   },
   define: {
