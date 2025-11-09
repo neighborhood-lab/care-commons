@@ -5,6 +5,7 @@ on:
     branches:
       - production  # Production deployments
       - preview     # Preview deployments (preview branch uses Vercel preview environment)
+      - develop     # Auto-deploy staging on merge to develop
   workflow_dispatch:
     inputs:
       environment:
@@ -115,6 +116,79 @@ jobs:
           name: build-artifacts
           path: packages/*/dist
           retention-days: 1
+
+  deploy-staging:
+    name: Deploy Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.6.2
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Run Database Migrations (Staging)
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          echo "::group::Running database migrations"
+          START_TIME=$(date +%s)
+          npm run db:migrate
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Migrations completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Build for Staging
+        env:
+          NODE_ENV: production
+        run: npx turbo run build
+
+      - name: Deploy to Vercel Staging
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.STAGING_DATABASE_URL }}" --env ENVIRONMENT="staging")
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "✅ Staging deployment complete: $DEPLOYMENT_URL"
+        env:
+          ENVIRONMENT: staging
+
+      - name: Deployment Summary
+        run: |
+          echo "✅ Staging deployment complete (auto-deployed from develop branch)"
+          echo "URL: ${{ steps.deploy.outputs.url }}"
 
   deploy-preview:
     name: Deploy Preview
@@ -365,8 +439,8 @@ jobs:
   deployment-health-check:
     name: Verify Deployment Health
     runs-on: ubuntu-latest
-    needs: [deploy-preview, deploy-production]
-    if: always() && (needs.deploy-preview.result == 'success' || needs.deploy-production.result == 'success')
+    needs: [deploy-staging, deploy-preview, deploy-production]
+    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-preview.result == 'success' || needs.deploy-production.result == 'success')
 
     steps:
       - name: Wait for deployment to stabilize

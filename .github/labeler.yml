@@ -1,0 +1,38 @@
+# Auto-label PRs based on changed files
+
+'documentation':
+  - '**/*.md'
+  - 'docs/**/*'
+
+'dependencies':
+  - 'package.json'
+  - 'package-lock.json'
+  - '**/package.json'
+
+'ci/cd':
+  - '.github/workflows/**'
+  - '.github/actions/**'
+
+'tests':
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/__tests__/**'
+
+'backend':
+  - 'packages/core/**'
+  - 'packages/api/**'
+
+'frontend':
+  - 'packages/web/**'
+  - 'packages/mobile/**'
+
+'database':
+  - 'packages/core/src/database/**'
+  - '**/migrations/**'
+  - '**/schema/**'
+
+'security':
+  - '**/auth/**'
+  - '**/security/**'
+  - '**/permissions/**'
