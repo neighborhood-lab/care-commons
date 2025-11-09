@@ -3,11 +3,11 @@
  *
  * Allows caregivers to document care activities during a visit:
  * - Task completion checklist
- * - Care notes entry with voice-to-text
+ * - Care notes entry with voice-to-text and templates
  * - Vital signs recording
  * - Incident reporting
- * - Photo documentation
- * - Signature capture
+ * - Photo documentation with upload
+ * - Signature capture with integrity verification
  * - Auto-save drafts to local DB
  */
 
@@ -21,11 +21,18 @@ import {
   Alert,
   Pressable,
   ActivityIndicator,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Card, CardContent, Badge, Button } from '../../components/index.js';
 import type { RootStackParamList } from '../../navigation/RootNavigator.js';
+import { noteTemplatesService } from '../../services/note-templates.service.js';
+import { voiceToTextService } from '../../services/voice-to-text.service.js';
+import { photoUploadService } from '../../services/photo-upload.service.js';
+import { useAuth } from '../../hooks/useAuth.js';
+import type { NoteTemplate } from '../../database/models/NoteTemplate.js';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type RouteProps = NativeStackScreenProps<RootStackParamList, 'VisitDocumentation'>['route'];
@@ -55,6 +62,7 @@ export function VisitDocumentationScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
   const { visitId } = route.params;
+  const { user } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -78,8 +86,17 @@ export function VisitDocumentationScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
+  // Voice-to-text state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+
+  // Note templates state
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [templates, setTemplates] = useState<NoteTemplate[]>([]);
+
   useEffect(() => {
     loadDocumentation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
   useEffect(() => {
@@ -94,9 +111,34 @@ export function VisitDocumentationScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tasks, careNotes, vitalSigns, incidentReport, photos]);
 
+  useEffect(() => {
+    // Recording timer
+    let interval: NodeJS.Timeout | null = null;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setRecordingDuration(0);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRecording]);
+
   const loadDocumentation = async () => {
     setIsLoading(true);
     try {
+      // Load templates
+      if (user?.organizationId) {
+        const loadedTemplates = await noteTemplatesService.getActiveTemplates(
+          user.organizationId,
+          'care_notes'
+        );
+        setTemplates(loadedTemplates);
+      }
+
       // TODO: Load from WatermelonDB
       // Mock data
       const mockTasks: Task[] = [
@@ -107,7 +149,8 @@ export function VisitDocumentationScreen() {
         { id: '5', title: 'Recreational activities', required: false, completed: false },
       ];
       setTasks(mockTasks);
-    } catch {
+    } catch (error) {
+      console.error('Failed to load documentation:', error);
       Alert.alert('Error', 'Failed to load documentation');
     } finally {
       setIsLoading(false);
@@ -131,8 +174,23 @@ export function VisitDocumentationScreen() {
 
   const handleTakePhoto = () => {
     navigation.navigate('Camera', {
-      onCapture: (uri: string) => {
-        setPhotos([...photos, uri]);
+      onCapture: async (uri: string) => {
+        // Save photo to database and queue for upload
+        try {
+          if (user) {
+            await photoUploadService.savePhoto(uri, {
+              visitId,
+              organizationId: user.organizationId,
+              caregiverId: user.id, // Using user.id as caregiver identifier
+              clientId: 'client_id', // TODO: Get from visit
+              photoType: 'care_documentation',
+            });
+            setPhotos([...photos, uri]);
+          }
+        } catch (error) {
+          console.error('Failed to save photo:', error);
+          Alert.alert('Error', 'Failed to save photo');
+        }
       },
     });
   };
@@ -141,8 +199,83 @@ export function VisitDocumentationScreen() {
     navigation.navigate('Signature', {
       visitId,
       clientName: 'Client Name', // TODO: Get from visit
+      clientId: 'client_id', // TODO: Get from visit
     });
-    // TODO: Handle signature capture callback
+  };
+
+  // Voice-to-text handlers
+  const handleStartRecording = async () => {
+    try {
+      await voiceToTextService.startRecording();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+      Alert.alert('Error', 'Failed to start voice recording. Please check microphone permissions.');
+    }
+  };
+
+  const handleStopRecording = async () => {
+    try {
+      const recording = await voiceToTextService.stopRecording();
+      setIsRecording(false);
+
+      // Show transcription in progress
+      Alert.alert(
+        'Transcribing...',
+        'Converting your voice to text. This may take a moment.',
+        [{ text: 'OK' }]
+      );
+
+      // Transcribe audio
+      const transcription = await voiceToTextService.transcribeAudio(recording.uri);
+
+      // Append to care notes
+      const newText = careNotes
+        ? `${careNotes}\n\n${transcription.text}`
+        : transcription.text;
+      setCareNotes(newText);
+
+      // TODO: Save voice note to database
+      if (user) {
+        await noteTemplatesService.createNote({
+          visitId,
+          organizationId: user.organizationId,
+          caregiverId: user.id, // Using user.id as caregiver identifier
+          clientId: 'client_id', // TODO: Get from visit
+          noteText: transcription.text,
+          noteType: 'care_notes',
+          isVoiceTranscribed: true,
+          audioUri: recording.uri,
+          transcriptionConfidence: transcription.confidence,
+          durationSeconds: Math.floor(recording.durationMillis / 1000),
+        });
+      }
+
+      Alert.alert(
+        'Transcription Complete',
+        `Voice note added to care notes (${Math.floor(transcription.confidence * 100)}% confidence)`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+      Alert.alert('Error', 'Failed to process voice recording');
+      setIsRecording(false);
+    }
+  };
+
+  const handleCancelRecording = async () => {
+    await voiceToTextService.cancelRecording();
+    setIsRecording(false);
+  };
+
+  // Template handlers
+  const handleSelectTemplate = (template: NoteTemplate) => {
+    const templateText = noteTemplatesService.applyTemplate(template);
+    const newText = careNotes
+      ? `${careNotes}\n\n${templateText}`
+      : templateText;
+    setCareNotes(newText);
+    setShowTemplates(false);
   };
 
   const handleSave = async () => {
@@ -170,8 +303,17 @@ export function VisitDocumentationScreen() {
 
     setIsSaving(true);
     try {
-      // TODO: Save to WatermelonDB and queue for sync
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save care notes
+      if (user) {
+        await noteTemplatesService.createNote({
+          visitId,
+          organizationId: user.organizationId,
+          caregiverId: user.id, // Using user.id as caregiver identifier
+          clientId: 'client_id', // TODO: Get from visit
+          noteText: careNotes,
+          noteType: 'care_notes',
+        });
+      }
 
       Alert.alert(
         'Documentation Saved',
@@ -183,7 +325,8 @@ export function VisitDocumentationScreen() {
           },
         ]
       );
-    } catch {
+    } catch (error) {
+      console.error('Failed to save documentation:', error);
       Alert.alert('Error', 'Failed to save documentation. Please try again.');
     } finally {
       setIsSaving(false);
@@ -268,15 +411,54 @@ export function VisitDocumentationScreen() {
             textAlignVertical="top"
           />
 
-          {/* TODO: Add voice-to-text button */}
-          <Button
-            variant="secondary"
-            size="sm"
-            onPress={() => Alert.alert('Voice Input', 'Voice-to-text not yet implemented')}
-            style={styles.voiceButton}
-          >
-            🎤 Voice Input
-          </Button>
+          {/* Voice-to-text and Templates */}
+          <View style={styles.noteActions}>
+            {!isRecording ? (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onPress={handleStartRecording}
+                  style={styles.noteActionButton}
+                >
+                  🎤 Voice Input
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onPress={() => setShowTemplates(true)}
+                  style={styles.noteActionButton}
+                >
+                  📝 Use Template
+                </Button>
+              </>
+            ) : (
+              <View style={styles.recordingControls}>
+                <View style={styles.recordingIndicator}>
+                  <View style={styles.recordingDot} />
+                  <Text style={styles.recordingText}>
+                    Recording... {Math.floor(recordingDuration / 60)}:{(recordingDuration % 60).toString().padStart(2, '0')}
+                  </Text>
+                </View>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onPress={handleCancelRecording}
+                  style={styles.recordingButton}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onPress={handleStopRecording}
+                  style={styles.recordingButton}
+                >
+                  Stop & Transcribe
+                </Button>
+              </View>
+            )}
+          </View>
         </CardContent>
       </Card>
 
@@ -499,6 +681,44 @@ export function VisitDocumentationScreen() {
           {isSaving ? 'Saving...' : 'Save Documentation'}
         </Button>
       </View>
+
+      {/* Note Templates Modal */}
+      <Modal
+        visible={showTemplates}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowTemplates(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Note Template</Text>
+              <Pressable onPress={() => setShowTemplates(false)}>
+                <Text style={styles.modalClose}>✕</Text>
+              </Pressable>
+            </View>
+
+            <FlatList
+              data={templates}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={styles.templateItem}
+                  onPress={() => handleSelectTemplate(item)}
+                >
+                  <Text style={styles.templateName}>{item.templateName}</Text>
+                  <Text style={styles.templatePreview} numberOfLines={2}>
+                    {item.templateText}
+                  </Text>
+                </Pressable>
+              )}
+              ListEmptyComponent={
+                <Text style={styles.emptyText}>No templates available</Text>
+              }
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -600,8 +820,39 @@ const styles = StyleSheet.create({
     minHeight: 120,
     backgroundColor: '#FFFFFF',
   },
-  voiceButton: {
+  noteActions: {
+    flexDirection: 'row',
+    gap: 8,
     marginTop: 8,
+  },
+  noteActionButton: {
+    flex: 1,
+  },
+  recordingControls: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  recordingIndicator: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  recordingDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#DC2626',
+  },
+  recordingText: {
+    fontSize: 14,
+    color: '#DC2626',
+    fontWeight: '600',
+  },
+  recordingButton: {
+    paddingHorizontal: 12,
   },
   vitalSignsRow: {
     flexDirection: 'row',
@@ -706,5 +957,55 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     width: '100%',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  modalClose: {
+    fontSize: 24,
+    color: '#6B7280',
+  },
+  templateItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  templateName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  templatePreview: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    padding: 20,
   },
 });

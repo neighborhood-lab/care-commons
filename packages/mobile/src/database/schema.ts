@@ -9,7 +9,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-  version: 1,
+  version: 2,
   tables: [
     // Visits - Core scheduling and visit tracking
     tableSchema({
@@ -187,24 +187,223 @@ export const schema = appSchema({
         { name: 'user_id', type: 'string', isIndexed: true },
         { name: 'organization_id', type: 'string', isIndexed: true },
         { name: 'caregiver_id', type: 'string', isOptional: true, isIndexed: true },
-        
+
         // Auth tokens (encrypted in secure storage, just metadata here)
         { name: 'token_expires_at', type: 'number', isIndexed: true },
         { name: 'refresh_token_expires_at', type: 'number', isIndexed: true },
-        
+
         // User info
         { name: 'user_name', type: 'string' },
         { name: 'user_email', type: 'string' },
         { name: 'user_roles_json', type: 'string' },
         { name: 'permissions_json', type: 'string' },
-        
+
         // Preferences
         { name: 'preferences_json', type: 'string' },
-        
+
         // Last sync
         { name: 'last_sync_at', type: 'number', isOptional: true },
         { name: 'last_sync_success', type: 'boolean' },
-        
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Photos - Visit documentation photos
+    tableSchema({
+      name: 'photos',
+      columns: [
+        { name: 'visit_id', type: 'string', isIndexed: true },
+        { name: 'evv_record_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'task_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'organization_id', type: 'string', isIndexed: true },
+        { name: 'caregiver_id', type: 'string', isIndexed: true },
+        { name: 'client_id', type: 'string', isIndexed: true },
+
+        // Photo details
+        { name: 'local_uri', type: 'string' }, // Local file path
+        { name: 'remote_url', type: 'string', isOptional: true }, // Cloud storage URL after upload
+        { name: 'file_name', type: 'string' },
+        { name: 'file_size', type: 'number' }, // Bytes
+        { name: 'mime_type', type: 'string' },
+        { name: 'width', type: 'number' },
+        { name: 'height', type: 'number' },
+
+        // Metadata
+        { name: 'caption', type: 'string', isOptional: true },
+        { name: 'photo_type', type: 'string', isIndexed: true }, // 'care_documentation', 'incident', 'task_completion', 'general'
+        { name: 'taken_at', type: 'number', isIndexed: true },
+        { name: 'location_json', type: 'string', isOptional: true }, // GPS location when photo taken
+
+        // Upload status
+        { name: 'upload_status', type: 'string', isIndexed: true }, // 'pending', 'uploading', 'uploaded', 'failed'
+        { name: 'upload_error', type: 'string', isOptional: true },
+        { name: 'uploaded_at', type: 'number', isOptional: true },
+
+        // HIPAA compliance
+        { name: 'is_hipaa_compliant', type: 'boolean' },
+        { name: 'encryption_key_id', type: 'string', isOptional: true },
+
+        // Sync
+        { name: 'is_synced', type: 'boolean', isIndexed: true },
+        { name: 'sync_pending', type: 'boolean', isIndexed: true },
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Signatures - Client signatures for EVV
+    tableSchema({
+      name: 'signatures',
+      columns: [
+        { name: 'visit_id', type: 'string', isIndexed: true },
+        { name: 'evv_record_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'organization_id', type: 'string', isIndexed: true },
+        { name: 'caregiver_id', type: 'string', isIndexed: true },
+        { name: 'client_id', type: 'string', isIndexed: true },
+
+        // Signature data
+        { name: 'signature_type', type: 'string', isIndexed: true }, // 'client', 'caregiver', 'supervisor'
+        { name: 'local_uri', type: 'string' }, // Local image file path
+        { name: 'remote_url', type: 'string', isOptional: true }, // Cloud storage URL after upload
+        { name: 'signature_data_url', type: 'string' }, // Base64 data URL for quick preview
+        { name: 'file_size', type: 'number' },
+
+        // Attestation
+        { name: 'attestation_text', type: 'string' },
+        { name: 'signer_name', type: 'string' },
+        { name: 'signed_at', type: 'number', isIndexed: true },
+
+        // Device info for integrity
+        { name: 'device_info_json', type: 'string' },
+        { name: 'location_json', type: 'string', isOptional: true },
+
+        // Cryptographic integrity
+        { name: 'integrity_hash', type: 'string' }, // SHA-256 hash of signature + attestation + device info
+        { name: 'hash_algorithm', type: 'string' }, // 'SHA-256'
+
+        // Upload status
+        { name: 'upload_status', type: 'string', isIndexed: true }, // 'pending', 'uploading', 'uploaded', 'failed'
+        { name: 'upload_error', type: 'string', isOptional: true },
+        { name: 'uploaded_at', type: 'number', isOptional: true },
+
+        // Sync
+        { name: 'is_synced', type: 'boolean', isIndexed: true },
+        { name: 'sync_pending', type: 'boolean', isIndexed: true },
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Visit Notes - Rich text notes for visit documentation
+    tableSchema({
+      name: 'visit_notes',
+      columns: [
+        { name: 'visit_id', type: 'string', isIndexed: true },
+        { name: 'evv_record_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'organization_id', type: 'string', isIndexed: true },
+        { name: 'caregiver_id', type: 'string', isIndexed: true },
+        { name: 'client_id', type: 'string', isIndexed: true },
+
+        // Note content
+        { name: 'note_text', type: 'string' },
+        { name: 'note_html', type: 'string', isOptional: true }, // Rich text HTML if applicable
+        { name: 'note_type', type: 'string', isIndexed: true }, // 'care_notes', 'incident', 'vital_signs', 'medication', 'general'
+        { name: 'template_id', type: 'string', isOptional: true, isIndexed: true },
+
+        // Voice-to-text metadata
+        { name: 'is_voice_transcribed', type: 'boolean' },
+        { name: 'audio_uri', type: 'string', isOptional: true }, // Path to audio file if recorded
+        { name: 'transcription_confidence', type: 'number', isOptional: true }, // 0-1 confidence score
+
+        // Metadata
+        { name: 'recorded_at', type: 'number', isIndexed: true },
+        { name: 'duration_seconds', type: 'number', isOptional: true }, // For audio notes
+
+        // Auto-save tracking
+        { name: 'is_auto_saved', type: 'boolean' },
+        { name: 'last_edited_at', type: 'number', isIndexed: true },
+
+        // Sync
+        { name: 'is_synced', type: 'boolean', isIndexed: true },
+        { name: 'sync_pending', type: 'boolean', isIndexed: true },
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Note Templates - Pre-defined templates for common observations
+    tableSchema({
+      name: 'note_templates',
+      columns: [
+        { name: 'organization_id', type: 'string', isIndexed: true },
+        { name: 'template_name', type: 'string', isIndexed: true },
+        { name: 'template_category', type: 'string', isIndexed: true }, // 'care_notes', 'vital_signs', 'medication', 'incident'
+        { name: 'template_text', type: 'string' },
+        { name: 'template_html', type: 'string', isOptional: true },
+
+        // Variables/placeholders
+        { name: 'variables_json', type: 'string', isOptional: true }, // e.g., ['client_name', 'time', 'vital_value']
+
+        // Usage tracking
+        { name: 'usage_count', type: 'number' },
+        { name: 'last_used_at', type: 'number', isOptional: true },
+
+        // Ordering
+        { name: 'sort_order', type: 'number', isIndexed: true },
+        { name: 'is_active', type: 'boolean', isIndexed: true },
+        { name: 'is_default', type: 'boolean' },
+
+        // Sync
+        { name: 'is_synced', type: 'boolean', isIndexed: true },
+        { name: 'last_synced_at', type: 'number', isOptional: true },
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Push Notifications - Store notification history and preferences
+    tableSchema({
+      name: 'notifications',
+      columns: [
+        { name: 'notification_id', type: 'string', isIndexed: true },
+        { name: 'user_id', type: 'string', isIndexed: true },
+        { name: 'organization_id', type: 'string', isIndexed: true },
+
+        // Notification content
+        { name: 'title', type: 'string' },
+        { name: 'body', type: 'string' },
+        { name: 'notification_type', type: 'string', isIndexed: true }, // 'visit_reminder', 'message', 'schedule_change', 'system'
+        { name: 'priority', type: 'string' }, // 'low', 'normal', 'high'
+
+        // Related entities
+        { name: 'related_entity_type', type: 'string', isOptional: true, isIndexed: true }, // 'visit', 'message', 'schedule'
+        { name: 'related_entity_id', type: 'string', isOptional: true, isIndexed: true },
+
+        // Action data
+        { name: 'action_data_json', type: 'string', isOptional: true }, // Deep link data
+
+        // Status
+        { name: 'is_read', type: 'boolean', isIndexed: true },
+        { name: 'read_at', type: 'number', isOptional: true },
+        { name: 'is_dismissed', type: 'boolean' },
+        { name: 'dismissed_at', type: 'number', isOptional: true },
+
+        // Scheduling
+        { name: 'scheduled_for', type: 'number', isOptional: true, isIndexed: true },
+        { name: 'sent_at', type: 'number', isOptional: true, isIndexed: true },
+        { name: 'received_at', type: 'number', isOptional: true },
+
         // Timestamps
         { name: 'created_at', type: 'number', isIndexed: true },
         { name: 'updated_at', type: 'number', isIndexed: true },

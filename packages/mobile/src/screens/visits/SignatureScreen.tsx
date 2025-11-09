@@ -26,15 +26,15 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import SignatureCanvas from 'react-native-signature-canvas';
 import { Button } from '../../components/index.js';
-import { deviceInfoService } from '../../services/device-info.js';
-import { OfflineQueueService } from '../../services/offline-queue.js';
-import { database } from '../../database/index.js';
+import { signatureService } from '../../services/signature.service.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import type { RootStackParamList } from '../../navigation/RootNavigator.js';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Signature'>;
 
 export function SignatureScreen({ route, navigation }: Props) {
   const { visitId, clientName } = route.params;
+  const { user } = useAuth();
 
   const [signature, setSignature] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,36 +77,28 @@ export function SignatureScreen({ route, navigation }: Props) {
       return;
     }
 
+    if (!user) {
+      Alert.alert('Error', 'User information not available.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const deviceInfo = await deviceInfoService.getDeviceInfo();
-
-      // Create attestation record
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const attestation = {
+      // Save signature with cryptographic hashing
+      await signatureService.saveSignature(signature, {
         visitId,
-        signatureData: signature, // Base64 encoded image
-        attestedByName: clientName,
-        attestedAt: new Date(),
-        attestationType: 'CLIENT',
-        statement: attestationStatement,
-        deviceId: deviceInfo.deviceId,
-        deviceInfo,
-        // In production, generate cryptographic hash:
-        // signatureHash: await CryptoUtils.generateHash(signature),
-      };
-
-      // Queue for sync (handles offline)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const offlineQueue = new OfflineQueueService(database);
-
-      // TODO: Add queueSignature method to OfflineQueueService
-      // await offlineQueue.queueSignature(attestation);
+        organizationId: user.organizationId,
+        caregiverId: user.id, // Using user.id as caregiver identifier
+        clientId: route.params.clientId || 'unknown', // Should be passed from route params
+        signatureType: 'client',
+        signerName: clientName,
+        attestationText: attestationStatement,
+      });
 
       Alert.alert(
         'Success',
-        'Signature captured successfully!',
+        'Signature captured successfully with integrity verification!',
         [
           {
             text: 'OK',

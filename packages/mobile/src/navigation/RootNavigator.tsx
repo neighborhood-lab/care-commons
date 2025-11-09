@@ -42,7 +42,7 @@ export type RootStackParamList = {
   ClockIn: { visitId: string };
   Camera: { onCapture: (uri: string) => void };
   Tasks: { visitId: string };
-  Signature: { visitId: string; clientName: string };
+  Signature: { visitId: string; clientName: string; clientId?: string };
 };
 
 export type MainTabParamList = {
