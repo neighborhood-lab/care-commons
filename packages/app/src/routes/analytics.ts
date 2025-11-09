@@ -272,8 +272,14 @@ export function createAnalyticsRouter(db: Database): Router {
 
         // In a real implementation, you would fetch the report from storage/cache
         // For now, this is a placeholder
+        const reportId = req.params['reportId'];
+        if (!reportId) {
+          res.status(400).json({ error: 'Report ID is required' });
+          return;
+        }
+
         const report = {
-          id: req.params['reportId'],
+          id: reportId,
           reportType: 'EVV_COMPLIANCE' as const,
           title: 'Sample Report',
           organizationId: context.organizationId!,
