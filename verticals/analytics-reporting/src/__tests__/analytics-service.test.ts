@@ -12,6 +12,7 @@ describe('AnalyticsService', () => {
 
   beforeEach(() => {
     // Create mock database
+    /* eslint-disable sonarjs/no-nested-functions */
     mockDb = {
       getConnection: vi.fn(() => ({
         from: vi.fn(() => ({
@@ -26,6 +27,7 @@ describe('AnalyticsService', () => {
       healthCheck: vi.fn(),
       close: vi.fn(),
     } as any;
+    /* eslint-enable sonarjs/no-nested-functions */
 
     service = new AnalyticsService(mockDb);
   });
