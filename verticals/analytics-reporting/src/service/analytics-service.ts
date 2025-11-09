@@ -279,6 +279,7 @@ export class AnalyticsService {
   /**
    * Get caregiver performance
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getCaregiverPerformance(
     caregiverId: string,
     dateRange: DateRange,

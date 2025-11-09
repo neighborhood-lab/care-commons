@@ -11,17 +11,24 @@ describe('AnalyticsService', () => {
   let mockDb: Database;
 
   beforeEach(() => {
+    // Create mock query builder with reduced nesting
+    const mockQueryBuilder = {
+      count: vi.fn(() => Promise.resolve({ count: '10' })),
+      sum: vi.fn(() => Promise.resolve({ total: '100' })),
+    };
+
+    const mockWhereBuilder = {
+      whereBetween: vi.fn(() => mockQueryBuilder),
+    };
+
+    const mockFromBuilder = {
+      where: vi.fn(() => mockWhereBuilder),
+    };
+
     // Create mock database
     mockDb = {
       getConnection: vi.fn(() => ({
-        from: vi.fn(() => ({
-          where: vi.fn(() => ({
-            whereBetween: vi.fn(() => ({
-              count: vi.fn(() => Promise.resolve({ count: '10' })),
-              sum: vi.fn(() => Promise.resolve({ total: '100' })),
-            })),
-          })),
-        })),
+        from: vi.fn(() => mockFromBuilder),
       })),
       healthCheck: vi.fn(),
       close: vi.fn(),

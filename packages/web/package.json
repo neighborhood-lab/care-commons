@@ -9,7 +9,6 @@
   "engines": {
     "node": "22.x"
   },
-
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config vite.config.showcase.ts",

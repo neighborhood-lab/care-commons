@@ -190,6 +190,7 @@ export class ReportService {
    * Get detailed information about flagged visits
    * NOTE: This method requires refactor to raw SQL - see ARCHITECTURAL_ISSUES.md
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getFlaggedVisitDetails(
     _orgId: string,
     _dateRange: DateRange,

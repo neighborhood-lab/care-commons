@@ -21,6 +21,13 @@ import { createSyncRouter } from '../api/sync/sync-routes.js';
 import docsRoutes from './docs.routes.js';
 import { createPayrollRouter } from './payroll.js';
 import adminRoutes from './admin.js';
+import {
+  AuditRepository,
+  AuditFindingRepository,
+  CorrectiveActionRepository,
+  AuditService,
+  createAuditRoutes
+} from '@care-commons/quality-assurance-audits';
 
 /**
  * Setup all API routes for the application
@@ -93,6 +100,21 @@ export function setupRoutes(app: Express, db: Database): void {
   const payrollRouter = createPayrollRouter(db);
   app.use('/api', payrollRouter);
   console.log('  ✓ Payroll Processing routes registered');
+
+  // Quality Assurance & Audits routes
+  const auditRepository = new AuditRepository(db);
+  const auditFindingRepository = new AuditFindingRepository(db);
+  const correctiveActionRepository = new CorrectiveActionRepository(db);
+  const auditService = new AuditService(
+    auditRepository,
+    auditFindingRepository,
+    correctiveActionRepository,
+    permissionService
+  );
+  const auditRouter = Router();
+  createAuditRoutes(auditService, auditRouter);
+  app.use('/api', auditRouter);
+  console.log('  ✓ Quality Assurance & Audits routes registered');
 
   // Admin routes (cache monitoring, etc.)
   app.use('/api/admin', adminRoutes);
