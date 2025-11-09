@@ -4,11 +4,20 @@ import typescriptParser from '@typescript-eslint/parser'
 import sonarjs from 'eslint-plugin-sonarjs'
 import unicorn from 'eslint-plugin-unicorn'
 import promise from 'eslint-plugin-promise'
+import security from 'eslint-plugin-security'
 
 export default [
   js.configs.recommended,
   sonarjs.configs.recommended,
   promise.configs['flat/recommended'],
+  {
+    plugins: {
+      security,
+    },
+    rules: {
+      ...security.configs.recommended.rules,
+    },
+  },
   {
     files: ['**/*.ts'],
     languageOptions: {

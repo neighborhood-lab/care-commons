@@ -34,7 +34,13 @@ export const Login: React.FC = () => {
       const response = await authService.login(data);
       login(response.user, response.token);
       toast.success('Welcome back!');
-      navigate('/');
+
+      // Route based on user role
+      if (response.user.roles.includes('FAMILY')) {
+        navigate('/family-portal');
+      } else {
+        navigate('/');
+      }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       toast.error(errorMessage);
