@@ -56,8 +56,8 @@ async function fetchRecentPeriods(organizationId: string, limit: number = 5): Pr
  */
 export const PayrollDashboard: React.FC = () => {
   // Get organization ID from context or header
-  // For now, using a mock value - in production this would come from auth context
-  const organizationId = 'org-123'; // TODO: Get from auth context
+  // Note: Currently using mock value - will need auth context integration in future release
+  const organizationId = 'org-123';
 
   const { data: currentPeriod, isLoading: isLoadingCurrent } = useQuery({
     queryKey: ['payroll', 'current-period', organizationId],
