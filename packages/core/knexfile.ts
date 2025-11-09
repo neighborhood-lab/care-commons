@@ -38,6 +38,18 @@ const config: { [key: string]: Knex.Config } = {
     seeds: {
       directory: './seeds',
     },
+    pool: {
+      // Optimized for local development
+      min: 2, // Minimum connections
+      max: 10, // Maximum connections (lower than default for local dev)
+      acquireTimeoutMillis: 10000,
+      createTimeoutMillis: 10000,
+      destroyTimeoutMillis: 5000,
+      idleTimeoutMillis: 30000, // 30s idle timeout
+      reapIntervalMillis: 1000,
+      createRetryIntervalMillis: 200,
+      propagateCreateError: false,
+    },
   },
 
   staging: {

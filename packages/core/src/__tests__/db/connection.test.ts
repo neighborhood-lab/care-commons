@@ -80,7 +80,14 @@ describe('Database Connection', () => {
         password: config.password,
         ssl: false,
         max: config.max,
+        min: 2,
         idleTimeoutMillis: config.idleTimeoutMillis,
+        connectionTimeoutMillis: 10000,
+        allowExitOnIdle: false,
+        statement_timeout: 30000,
+        query_timeout: 30000,
+        application_name: 'care-commons',
+        options: `-c plan_cache_mode=force_custom_plan`,
       });
     });
 
