@@ -17,6 +17,10 @@ export default defineConfig({
         __dirname,
         '../shared-components/src'
       ),
+      '@care-commons/care-plans-tasks/browser': path.resolve(
+        __dirname,
+        '../../verticals/care-plans-tasks/dist/browser.js'
+      ),
     },
   },
   define: {
