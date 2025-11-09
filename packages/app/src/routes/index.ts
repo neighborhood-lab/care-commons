@@ -25,6 +25,7 @@ import { authLimiter } from '../middleware/rate-limit.js';
 import { createSyncRouter } from '../api/sync/sync-routes.js';
 import docsRoutes from './docs.routes.js';
 import { createPayrollRouter } from './payroll.js';
+import adminRoutes from './admin.js';
 
 /**
  * Setup all API routes for the application
@@ -98,6 +99,10 @@ export function setupRoutes(app: Express, db: Database): void {
   const payrollRouter = createPayrollRouter(db);
   app.use('/api', payrollRouter);
   console.log('  ✓ Payroll Processing routes registered');
+
+  // Admin routes (cache monitoring, etc.)
+  app.use('/api/admin', adminRoutes);
+  console.log('  ✓ Admin routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits

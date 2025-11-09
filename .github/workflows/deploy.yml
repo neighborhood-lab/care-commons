@@ -216,6 +216,15 @@ jobs:
           ./scripts/validate-deployment.sh "${{ steps.deploy.outputs.url }}" preview
           echo "::endgroup::"
 
+      - name: Seed Demo Data (Preview)
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "::group::Seeding demo data"
+          node --import tsx --no-warnings packages/core/scripts/seed-tx-fl-demo.ts
+          echo "✅ Demo data seeded"
+          echo "::endgroup::"
+
       - name: Deployment Summary
         run: |
           echo "✅ Preview deployment complete"
@@ -345,11 +354,13 @@ jobs:
           echo ""
 
       - name: Seed Demo Data (Production)
-        if: github.event_name == 'workflow_dispatch'
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          echo "::group::Seeding demo data"
           node --import tsx --no-warnings packages/core/scripts/seed-tx-fl-demo.ts
+          echo "✅ Demo data seeded"
+          echo "::endgroup::"
 
   deployment-health-check:
     name: Verify Deployment Health
