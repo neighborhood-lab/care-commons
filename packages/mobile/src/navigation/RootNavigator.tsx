@@ -28,6 +28,8 @@ import { ClockInScreen } from '../screens/visits/ClockInScreen.js';
 import { CameraScreen } from '../screens/visits/CameraScreen.js';
 import { TasksScreen } from '../screens/visits/TasksScreen.js';
 import { SignatureScreen } from '../screens/visits/SignatureScreen.js';
+import { PhotoGalleryScreen } from '../screens/visits/PhotoGalleryScreen.js';
+import { VisitNotesScreen } from '../screens/visits/VisitNotesScreen.js';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -43,6 +45,19 @@ export type RootStackParamList = {
   Camera: { onCapture: (uri: string) => void };
   Tasks: { visitId: string };
   Signature: { visitId: string; clientName: string };
+  PhotoGallery: {
+    visitId: string;
+    organizationId: string;
+    caregiverId: string;
+    evvRecordId?: string;
+    category?: 'CLOCK_IN' | 'CLOCK_OUT' | 'TASK' | 'INCIDENT' | 'GENERAL';
+  };
+  VisitNotes: {
+    visitId: string;
+    organizationId: string;
+    caregiverId: string;
+    evvRecordId?: string;
+  };
 };
 
 export type MainTabParamList = {
@@ -191,6 +206,20 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               options={{
                 title: 'Client Signature',
                 presentation: 'modal',
+              }}
+            />
+            <RootStack.Screen
+              name="PhotoGallery"
+              component={PhotoGalleryScreen}
+              options={{
+                title: 'Photos',
+              }}
+            />
+            <RootStack.Screen
+              name="VisitNotes"
+              component={VisitNotesScreen}
+              options={{
+                title: 'Visit Notes',
               }}
             />
           </>
