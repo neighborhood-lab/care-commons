@@ -9,7 +9,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-  version: 1,
+  version: 2,
   tables: [
     // Visits - Core scheduling and visit tracking
     tableSchema({
@@ -187,24 +187,139 @@ export const schema = appSchema({
         { name: 'user_id', type: 'string', isIndexed: true },
         { name: 'organization_id', type: 'string', isIndexed: true },
         { name: 'caregiver_id', type: 'string', isOptional: true, isIndexed: true },
-        
+
         // Auth tokens (encrypted in secure storage, just metadata here)
         { name: 'token_expires_at', type: 'number', isIndexed: true },
         { name: 'refresh_token_expires_at', type: 'number', isIndexed: true },
-        
+
         // User info
         { name: 'user_name', type: 'string' },
         { name: 'user_email', type: 'string' },
         { name: 'user_roles_json', type: 'string' },
         { name: 'permissions_json', type: 'string' },
-        
+
         // Preferences
         { name: 'preferences_json', type: 'string' },
-        
+
         // Last sync
         { name: 'last_sync_at', type: 'number', isOptional: true },
         { name: 'last_sync_success', type: 'boolean' },
-        
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Visit Attachments - Photos and signatures attached to visits
+    tableSchema({
+      name: 'visit_attachments',
+      columns: [
+        { name: 'visit_id', type: 'string', isIndexed: true },
+        { name: 'evv_record_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'organization_id', type: 'string', isIndexed: true },
+        { name: 'caregiver_id', type: 'string', isIndexed: true },
+
+        // Attachment details
+        { name: 'attachment_type', type: 'string', isIndexed: true }, // PHOTO, SIGNATURE, DOCUMENT
+        { name: 'attachment_category', type: 'string', isIndexed: true }, // CLOCK_IN, CLOCK_OUT, TASK, INCIDENT, GENERAL
+        { name: 'file_uri', type: 'string' }, // Local file path
+        { name: 'file_name', type: 'string' },
+        { name: 'file_size', type: 'number' },
+        { name: 'mime_type', type: 'string' },
+
+        // Metadata
+        { name: 'caption', type: 'string', isOptional: true },
+        { name: 'metadata_json', type: 'string', isOptional: true }, // Camera settings, GPS, etc.
+
+        // Upload status
+        { name: 'upload_status', type: 'string', isIndexed: true }, // PENDING, UPLOADING, UPLOADED, FAILED
+        { name: 'upload_url', type: 'string', isOptional: true }, // Server URL after upload
+        { name: 'upload_error', type: 'string', isOptional: true },
+
+        // Sync
+        { name: 'is_synced', type: 'boolean', isIndexed: true },
+        { name: 'sync_pending', type: 'boolean', isIndexed: true },
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Visit Notes - Rich text notes for visit documentation
+    tableSchema({
+      name: 'visit_notes',
+      columns: [
+        { name: 'visit_id', type: 'string', isIndexed: true },
+        { name: 'evv_record_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'organization_id', type: 'string', isIndexed: true },
+        { name: 'caregiver_id', type: 'string', isIndexed: true },
+
+        // Note details
+        { name: 'note_type', type: 'string', isIndexed: true }, // GENERAL, CLINICAL, INCIDENT, TASK
+        { name: 'note_text', type: 'string' }, // Plain text content
+        { name: 'note_html', type: 'string', isOptional: true }, // Rich text HTML
+        { name: 'template_id', type: 'string', isOptional: true, isIndexed: true },
+
+        // Voice-to-text
+        { name: 'is_voice_note', type: 'boolean', isIndexed: true },
+        { name: 'audio_file_uri', type: 'string', isOptional: true },
+        { name: 'transcription_confidence', type: 'number', isOptional: true },
+
+        // Sync
+        { name: 'is_synced', type: 'boolean', isIndexed: true },
+        { name: 'sync_pending', type: 'boolean', isIndexed: true },
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Note Templates - Predefined note templates for common observations
+    tableSchema({
+      name: 'note_templates',
+      columns: [
+        { name: 'organization_id', type: 'string', isIndexed: true },
+        { name: 'template_name', type: 'string' },
+        { name: 'template_category', type: 'string', isIndexed: true }, // GENERAL, CLINICAL, ADL, VITAL_SIGNS
+        { name: 'template_text', type: 'string' },
+        { name: 'template_fields_json', type: 'string', isOptional: true }, // Dynamic fields
+        { name: 'is_active', type: 'boolean', isIndexed: true },
+        { name: 'sort_order', type: 'number', isIndexed: true },
+
+        // Sync
+        { name: 'is_synced', type: 'boolean', isIndexed: true },
+        { name: 'last_synced_at', type: 'number', isOptional: true },
+
+        // Timestamps
+        { name: 'created_at', type: 'number', isIndexed: true },
+        { name: 'updated_at', type: 'number', isIndexed: true },
+      ],
+    }),
+
+    // Push Notifications - Notification queue and history
+    tableSchema({
+      name: 'notifications',
+      columns: [
+        { name: 'notification_type', type: 'string', isIndexed: true }, // VISIT_REMINDER, MESSAGE, SCHEDULE_CHANGE, SYSTEM
+        { name: 'title', type: 'string' },
+        { name: 'body', type: 'string' },
+        { name: 'data_json', type: 'string', isOptional: true }, // Additional payload
+
+        // Related entities
+        { name: 'visit_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'user_id', type: 'string', isIndexed: true },
+
+        // Scheduling
+        { name: 'scheduled_at', type: 'number', isOptional: true, isIndexed: true },
+        { name: 'delivered_at', type: 'number', isOptional: true, isIndexed: true },
+
+        // Status
+        { name: 'status', type: 'string', isIndexed: true }, // PENDING, SCHEDULED, DELIVERED, READ, DISMISSED
+        { name: 'is_read', type: 'boolean', isIndexed: true },
+
         // Timestamps
         { name: 'created_at', type: 'number', isIndexed: true },
         { name: 'updated_at', type: 'number', isIndexed: true },

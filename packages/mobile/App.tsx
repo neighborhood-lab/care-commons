@@ -4,17 +4,30 @@
  * Main entry point with:
  * - Authentication state management
  * - Navigation setup
+ * - Push notification initialization
  * - Loading screen
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { RootNavigator } from './src/navigation/RootNavigator.js';
 import { useAuth } from './src/hooks/useAuth.js';
+import { NotificationService } from './src/services/notification.service.js';
+import { database } from './src/database/index.js';
 
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
+
+  /**
+   * Initialize push notifications
+   */
+  useEffect(() => {
+    if (isAuthenticated) {
+      const notificationService = new NotificationService(database);
+      void notificationService.initialize();
+    }
+  }, [isAuthenticated]);
 
   // Show loading screen while checking auth
   if (loading) {
