@@ -11,10 +11,10 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { RootNavigator } from './src/navigation/RootNavigator.js';
-import { useAuth } from './src/hooks/useAuth.js';
-import { NotificationService } from './src/services/notification.service.js';
-import { database } from './src/database/index.js';
+import { RootNavigator } from './src/navigation/RootNavigator';
+import { useAuth } from './src/hooks/useAuth';
+import { NotificationService } from './src/services/notification.service';
+import { database } from './src/database';
 
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
