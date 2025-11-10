@@ -23,7 +23,7 @@ import {
   TexasEVVConfig,
   FloridaEVVConfig,
 } from '../types/state-specific';
-import { getAggregatorRouter } from '../aggregators/aggregator-router.js';
+import { getAggregatorRouter } from '../aggregators/aggregator-router';
 
 /**
  * Aggregator submission payload for HHAeXchange

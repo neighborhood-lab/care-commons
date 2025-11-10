@@ -12,7 +12,7 @@
  * - Graceful shutdown support
  */
 
-import { EVVAggregatorService } from '../service/evv-aggregator-service.js';
+import { EVVAggregatorService } from '../service/evv-aggregator-service';
 
 export interface SubmissionWorkerConfig {
   /**

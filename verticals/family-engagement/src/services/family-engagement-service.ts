@@ -27,13 +27,13 @@ import type {
   CreateMessageThreadInput,
   SendMessageInput,
   FamilyDashboard
-} from '../types/family-engagement.js';
+} from '../types/family-engagement';
 import {
   FamilyMemberRepository,
   NotificationRepository,
   ActivityFeedRepository,
   MessageRepository
-} from '../repositories/family-engagement-repository.js';
+} from '../repositories/family-engagement-repository';
 
 /**
  * Service for managing family portal and engagement

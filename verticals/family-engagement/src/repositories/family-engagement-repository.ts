@@ -17,7 +17,7 @@ import type {
   SendNotificationInput,
   CreateMessageThreadInput,
   SendMessageInput
-} from '../types/family-engagement.js';
+} from '../types/family-engagement';
 
 /**
  * Repository for family member management

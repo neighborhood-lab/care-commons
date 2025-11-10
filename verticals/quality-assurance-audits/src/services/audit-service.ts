@@ -26,12 +26,12 @@ import type {
   AuditDetail,
   AuditDashboard,
   AuditStatistics
-} from '../types/audit.js';
+} from '../types/audit';
 import {
   AuditRepository,
   AuditFindingRepository,
   CorrectiveActionRepository
-} from '../repositories/audit-repository.js';
+} from '../repositories/audit-repository';
 
 /**
  * Service for managing quality assurance and audits

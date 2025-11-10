@@ -4,7 +4,7 @@
  * Quality Assurance & Audits - Compliance, Quality, and Safety Auditing
  */
 
-export * from './types/index.js';
-export * from './repositories/index.js';
-export * from './services/index.js';
-export * from './routes/index.js';
+export * from './types/index';
+export * from './repositories/index';
+export * from './services/index';
+export * from './routes/index';

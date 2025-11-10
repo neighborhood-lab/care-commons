@@ -14,21 +14,21 @@
  * - FL → Multi-aggregator (existing)
  */
 
-import { StateCode } from '../types/state-specific.js';
-import { EVVRecord } from '../types/evv.js';
+import { StateCode } from '../types/state-specific';
+import { EVVRecord } from '../types/evv';
 import {
   IAggregator,
   StateEVVConfig,
   AggregatorSubmissionResult,
-} from './base-aggregator.js';
-import { SandataAggregator } from './sandata-aggregator.js';
-import { TellusAggregator } from './tellus-aggregator.js';
-import { HHAeXchangeAggregator } from './hhaeexchange-aggregator.js';
+} from './base-aggregator';
+import { SandataAggregator } from './sandata-aggregator';
+import { TellusAggregator } from './tellus-aggregator';
+import { HHAeXchangeAggregator } from './hhaeexchange-aggregator';
 import {
   getStateConfig,
   getAggregatorType,
   usesSandata,
-} from '../config/state-evv-configs.js';
+} from '../config/state-evv-configs';
 
 /**
  * Aggregator Router

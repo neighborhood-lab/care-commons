@@ -6,7 +6,7 @@
 
 import type { Request, Response } from 'express';
 import type { UserContext, Role } from '@care-commons/core';
-import { FamilyEngagementService } from '../services/family-engagement-service.js';
+import { FamilyEngagementService } from '../services/family-engagement-service';
 
 /**
  * Extract user context from request

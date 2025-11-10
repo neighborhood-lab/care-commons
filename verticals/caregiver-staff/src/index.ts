@@ -5,16 +5,16 @@
  */
 
 // Types
-export * from './types/caregiver.js';
+export * from './types/caregiver';
 
 // Repository
-export { CaregiverRepository } from './repository/caregiver-repository.js';
+export { CaregiverRepository } from './repository/caregiver-repository';
 
 // Service
-export { CaregiverService } from './service/caregiver-service.js';
+export { CaregiverService } from './service/caregiver-service';
 
 // Validation
-export { CaregiverValidator } from './validation/caregiver-validator.js';
+export { CaregiverValidator } from './validation/caregiver-validator';
 
 // Utilities
-export * from './utils/caregiver-utils.js';
+export * from './utils/caregiver-utils';
