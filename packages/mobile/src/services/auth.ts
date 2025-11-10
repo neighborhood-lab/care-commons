@@ -10,8 +10,8 @@
 
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { getApiClient, type ApiClient } from './api-client.js';
-import type { UUID } from '../shared/index.js';
+import { getApiClient, type ApiClient } from './api-client';
+import type { UUID } from '../shared/index';
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';

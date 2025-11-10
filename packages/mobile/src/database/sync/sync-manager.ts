@@ -1,7 +1,7 @@
 import NetInfo from '@react-native-community/netinfo';
 import { synchronize } from '@nozbe/watermelondb/sync';
-import { database } from '../index.js';
-import { ConflictResolver } from './conflict-resolver.js';
+import { database } from '../index';
+import { ConflictResolver } from './conflict-resolver';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
 

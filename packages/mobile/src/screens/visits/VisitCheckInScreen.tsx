@@ -21,9 +21,9 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Card, CardContent, Badge, Button } from '../../components/index.js';
-import type { RootStackParamList } from '../../navigation/RootNavigator.js';
-import type { MobileVisit, LocationVerification } from '../../shared/index.js';
+import { Card, CardContent, Badge, Button } from '../../components/index';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
+import type { MobileVisit, LocationVerification } from '../../shared/index';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type RouteProps = NativeStackScreenProps<RootStackParamList, 'VisitCheckIn'>['route'];

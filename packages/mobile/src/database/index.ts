@@ -10,8 +10,8 @@ import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import type { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
 import { schemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
-import { schema } from './schema.js';
-import { Visit, VisitAttachment, VisitNote, NoteTemplate, Notification } from './models/index.js';
+import { schema } from './schema';
+import { Visit, VisitAttachment, VisitNote, NoteTemplate, Notification } from './models/index';
 
 // Schema migrations - v1 to v2 adds attachments, notes, templates, and notifications
 const migrations: SchemaMigrations = schemaMigrations({

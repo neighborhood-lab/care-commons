@@ -17,10 +17,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Card, CardContent, Badge, Button } from '../../components/index.js';
+import { Card, CardContent, Badge, Button } from '../../components/index';
 import { format, isPast, isFuture } from 'date-fns';
-import type { RootStackParamList } from '../../navigation/RootNavigator.js';
-import type { MobileVisit } from '../../shared/index.js';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
+import type { MobileVisit } from '../../shared/index';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

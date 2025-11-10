@@ -8,7 +8,7 @@
 import * as Speech from 'expo-speech';
 import { Alert, Platform } from 'react-native';
 import type { Database } from '@nozbe/watermelondb';
-import type { VisitNote } from '../database/models/VisitNote.js';
+import type { VisitNote } from '../database/models/VisitNote';
 
 export interface VoiceRecognitionOptions {
   language?: string;

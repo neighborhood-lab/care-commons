@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { LocationService } from '../location.js';
-import type { Geofence } from '../../shared/index.js';
+import { LocationService } from '../location';
+import type { Geofence } from '../../shared/index';
 
 // Mock expo-location
 vi.mock('expo-location', () => ({

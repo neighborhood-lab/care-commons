@@ -4,8 +4,8 @@
 
 import { Model } from '@nozbe/watermelondb';
 import { field, readonly, date, json } from '@nozbe/watermelondb/decorators';
-import type { ServiceAddress } from '../../shared/index.js';
-import type { VisitStatus } from '../../shared/index.js';
+import type { ServiceAddress } from '../../shared/index';
+import type { VisitStatus } from '../../shared/index';
 
 export class Visit extends Model {
   static table = 'visits';

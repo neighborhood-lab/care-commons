@@ -19,8 +19,8 @@ import type {
   Geofence,
   GeofenceCheckResult,
   StateCode,
-} from '../shared/index.js';
-import { getStateEVVRules } from '../shared/index.js';
+} from '../shared/index';
+import { getStateEVVRules } from '../shared/index';
 
 export class LocationService {
   /**
