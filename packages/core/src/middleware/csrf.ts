@@ -14,7 +14,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import crypto from 'node:crypto';
+import * as crypto from '../utils/crypto.js';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
