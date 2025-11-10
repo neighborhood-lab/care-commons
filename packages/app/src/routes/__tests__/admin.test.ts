@@ -3,6 +3,7 @@ import express from 'express';
 import request from 'supertest';
 import adminRoutes from '../admin.js';
 import { initCacheService, getCacheService } from '@care-commons/core/service/cache.service';
+import { authContextMiddleware } from '../../middleware/auth-context.js';
 
 describe('Admin Routes', () => {
   let app: express.Express;
@@ -10,6 +11,10 @@ describe('Admin Routes', () => {
   beforeEach(async () => {
     app = express();
     app.use(express.json());
+    
+    // Add auth context middleware to populate req.userContext from headers
+    app.use(authContextMiddleware);
+    
     app.use('/admin', adminRoutes);
     
     // Initialize cache service
@@ -30,6 +35,9 @@ describe('Admin Routes', () => {
 
       const response = await request(app)
         .get('/admin/cache/stats')
+        .set('X-User-Id', 'admin-1')
+        .set('X-Organization-Id', 'org-1')
+        .set('X-User-Roles', 'ADMIN')
         .expect(200);
 
       expect(response.body).toHaveProperty('type', 'memory');
@@ -45,6 +53,9 @@ describe('Admin Routes', () => {
 
       const response = await request(app)
         .get('/admin/cache/stats')
+        .set('X-User-Id', 'admin-1')
+        .set('X-Organization-Id', 'org-1')
+        .set('X-User-Roles', 'ADMIN')
         .expect(500);
 
       expect(response.body).toHaveProperty('error', 'Failed to get cache stats');
@@ -65,6 +76,9 @@ describe('Admin Routes', () => {
     it('should clear cache by pattern', async () => {
       const response = await request(app)
         .post('/admin/cache/clear')
+        .set('X-User-Id', 'admin-1')
+        .set('X-Organization-Id', 'org-1')
+        .set('X-User-Roles', 'ADMIN')
         .send({ pattern: 'user:*' })
         .expect(200);
 
@@ -80,6 +94,9 @@ describe('Admin Routes', () => {
     it('should clear all cache when no pattern provided', async () => {
       const response = await request(app)
         .post('/admin/cache/clear')
+        .set('X-User-Id', 'admin-1')
+        .set('X-Organization-Id', 'org-1')
+        .set('X-User-Roles', 'ADMIN')
         .send({})
         .expect(200);
 
@@ -98,6 +115,9 @@ describe('Admin Routes', () => {
 
       const response = await request(app)
         .post('/admin/cache/clear')
+        .set('X-User-Id', 'admin-1')
+        .set('X-Organization-Id', 'org-1')
+        .set('X-User-Roles', 'ADMIN')
         .send({ pattern: 'test:*' })
         .expect(500);
 
