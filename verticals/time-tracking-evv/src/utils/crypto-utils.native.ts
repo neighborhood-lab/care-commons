@@ -1,79 +1,113 @@
 /**
- * Crypto Utilities - React Native Implementation
- * 
- * React Native-compatible cryptographic utilities using expo-crypto and react-native-get-random-values.
- * This file is used when the time-tracking-evv package is imported in React Native/Expo.
+ * Cryptographic utility functions for EVV integrity and security
+ * React Native implementation using expo-crypto
  */
 
 // Dynamic imports to avoid TypeScript errors during build
 // These will be available at runtime in React Native
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const require: (module: string) => any;
 const Crypto = require('expo-crypto');
 require('react-native-get-random-values');
 
 export class CryptoUtils {
   /**
-   * Generate SHA-256 hash of data
+   * Generate a cryptographically secure SHA-256 hash
    */
-  static async sha256(data: string): Promise<string> {
-    const hash = await Crypto.digestStringAsync(
+  static async generateHash(data: string | object): Promise<string> {
+    const input = typeof data === 'string' ? data : JSON.stringify(data);
+    return await Crypto.digestStringAsync(
       Crypto.CryptoDigestAlgorithm.SHA256,
-      data
+      input
     );
-    return hash;
   }
 
   /**
-   * Generate HMAC-SHA256 signature
-   * Note: expo-crypto doesn't have built-in HMAC, so we use a simpler approach
+   * Generate integrity hash for EVV records
+   * Uses HMAC with a secret key for additional security
+   * Note: Basic HMAC implementation (concatenate secret + data)
    */
-  static async hmacSha256(data: string, secret: string): Promise<string> {
-    // Concatenate secret and data for basic HMAC-like behavior
-    // For production, consider using a dedicated HMAC library
-    const combined = secret + data;
-    return await this.sha256(combined);
-  }
-
-  /**
-   * Generate cryptographically secure random bytes
-   */
-  static randomBytes(size: number): Uint8Array {
-    // react-native-get-random-values polyfills crypto.getRandomValues
-    const array = new Uint8Array(size);
-    crypto.getRandomValues(array);
-    return array;
-  }
-
-  /**
-   * Generate random hex string
-   */
-  static randomHex(byteLength: number): string {
-    const bytes = this.randomBytes(byteLength);
-    return Array.from(bytes)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-
-  /**
-   * Generate integrity hash for EVV audit trail
-   */
-  static async generateIntegrityHash(data: Record<string, unknown>): Promise<string> {
-    const sortedKeys = Object.keys(data).sort();
-    const dataString = sortedKeys
-      .map(key => `${key}=${JSON.stringify(data[key])}`)
-      .join('&');
+  static async generateIntegrityHash(data: object, secret?: string): Promise<string> {
+    const input = JSON.stringify(data);
     
-    return await this.sha256(dataString);
+    if (secret) {
+      // Simple HMAC-like approach: hash(secret + data)
+      const combined = secret + input;
+      return await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        combined
+      );
+    }
+    
+    return this.generateHash(input);
+  }
+
+  /**
+   * Generate a checksum for data integrity verification
+   * Alias for generateHash for API compatibility
+   */
+  static async generateChecksum(data: string | object): Promise<string> {
+    return this.generateHash(data);
   }
 
   /**
    * Verify integrity hash
    */
   static async verifyIntegrityHash(
-    data: Record<string, unknown>,
-    expectedHash: string
+    data: object,
+    expectedHash: string,
+    secret?: string
   ): Promise<boolean> {
-    const calculatedHash = await this.generateIntegrityHash(data);
-    return calculatedHash === expectedHash;
+    const computedHash = await this.generateIntegrityHash(data, secret);
+    return computedHash === expectedHash;
+  }
+
+  /**
+   * Generate a secure random UUID-like string
+   */
+  static generateSecureId(): string {
+    const bytes = new Uint8Array(16);
+    // react-native-get-random-values polyfills global.crypto.getRandomValues
+    global.crypto.getRandomValues(bytes);
+    return Array.from(bytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  /**
+   * Hash sensitive data for storage (one-way)
+   */
+  static async hashSensitiveData(data: string): Promise<string> {
+    return await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      data
+    );
+  }
+
+  /**
+   * Generate a signature for data
+   */
+  static async signData(data: object, secret: string): Promise<string> {
+    const input = JSON.stringify(data);
+    const combined = secret + input;
+    const hash = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      combined
+    );
+    // Return hash as-is (hex format instead of base64)
+    // This differs slightly from Node.js version but maintains security
+    return hash;
+  }
+
+  /**
+   * Verify a data signature
+   */
+  static async verifySignature(
+    data: object,
+    signature: string,
+    secret: string
+  ): Promise<boolean> {
+    const expectedSignature = await this.signData(data, secret);
+    return signature === expectedSignature;
   }
 }
