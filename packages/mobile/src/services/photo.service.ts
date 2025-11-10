@@ -11,7 +11,7 @@ import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { Alert } from 'react-native';
 import { Q } from '@nozbe/watermelondb';
 import type { Database } from '@nozbe/watermelondb';
-import type { VisitAttachment } from '../database/models/VisitAttachment.js';
+import type { VisitAttachment } from '../database/models/VisitAttachment';
 
 export interface PhotoMetadata {
   width?: number;

@@ -23,18 +23,18 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { Button, Badge } from '../../components/index.js';
-import { locationService } from '../../services/location.js';
-import { deviceInfoService } from '../../services/device-info.js';
-import { OfflineQueueService } from '../../services/offline-queue.js';
-import { database } from '../../database/index.js';
-import type { RootStackParamList } from '../../navigation/RootNavigator.js';
+import { Button, Badge } from '../../components/index';
+import { locationService } from '../../services/location';
+import { deviceInfoService } from '../../services/device-info';
+import { OfflineQueueService } from '../../services/offline-queue';
+import { database } from '../../database/index';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type {
   LocationVerificationInput,
   ClockInInput,
   StateCode,
-} from '../../shared/index.js';
-import { getStateEVVRules } from '../../shared/index.js';
+} from '../../shared/index';
+import { getStateEVVRules } from '../../shared/index';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClockIn'>;
 

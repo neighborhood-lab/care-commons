@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { createAuthService, type User, type LoginCredentials } from '../services/auth.js';
+import { createAuthService, type User, type LoginCredentials } from '../services/auth';
 
 interface UseAuthReturn {
   user: User | null;

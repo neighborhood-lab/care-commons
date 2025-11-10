@@ -18,7 +18,7 @@ import NetInfo from '@react-native-community/netinfo';
 import type {
   ClockInInput,
   ClockOutInput,
-} from '../shared/index.js';
+} from '../shared/index';
 
 /**
  * WatermelonDB record interface for sync queue

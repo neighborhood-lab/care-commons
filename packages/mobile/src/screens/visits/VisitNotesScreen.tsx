@@ -20,12 +20,12 @@ import {
   FlatList,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Button } from '../../components/index.js';
-import { VoiceService } from '../../services/voice.service.js';
+import { Button } from '../../components/index';
+import { VoiceService } from '../../services/voice.service';
 import { Q } from '@nozbe/watermelondb';
-import { database } from '../../database/index.js';
-import type { VisitNote } from '../../database/models/VisitNote.js';
-import type { RootStackParamList } from '../../navigation/RootNavigator.js';
+import { database } from '../../database/index';
+import type { VisitNote } from '../../database/models/VisitNote';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VisitNotes'>;
 

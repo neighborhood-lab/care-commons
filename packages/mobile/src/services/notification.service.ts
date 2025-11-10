@@ -13,7 +13,7 @@ import * as Device from 'expo-device';
 import { Platform, Alert } from 'react-native';
 import { Q } from '@nozbe/watermelondb';
 import type { Database } from '@nozbe/watermelondb';
-import type { Notification as NotificationModel } from '../database/models/Notification.js';
+import type { Notification as NotificationModel } from '../database/models/Notification';
 import Constants from 'expo-constants';
 
 // Configure notification behavior

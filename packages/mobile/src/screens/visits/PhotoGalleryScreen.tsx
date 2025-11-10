@@ -17,11 +17,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Button } from '../../components/index.js';
-import { PhotoService } from '../../services/photo.service.js';
-import { database } from '../../database/index.js';
-import type { VisitAttachment } from '../../database/models/VisitAttachment.js';
-import type { RootStackParamList } from '../../navigation/RootNavigator.js';
+import { Button } from '../../components/index';
+import { PhotoService } from '../../services/photo.service';
+import { database } from '../../database/index';
+import type { VisitAttachment } from '../../database/models/VisitAttachment';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PhotoGallery'>;
 

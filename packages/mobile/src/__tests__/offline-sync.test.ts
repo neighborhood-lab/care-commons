@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ConflictResolver } from '../database/sync/conflict-resolver.js';
-import { OfflineQueue } from '../database/sync/offline-queue.js';
+import { ConflictResolver } from '../database/sync/conflict-resolver';
+import { OfflineQueue } from '../database/sync/offline-queue';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock AsyncStorage

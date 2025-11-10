@@ -6,9 +6,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { database } from '../../../database/index.js';
-import type { Visit } from '../../../database/models/index.js';
-import type { MobileVisit } from '../../../shared/index.js';
+import { database } from '../../../database/index';
+import type { Visit } from '../../../database/models/index';
+import type { MobileVisit } from '../../../shared/index';
 
 export function useVisit(visitId: string) {
   const [visit, setVisit] = useState<MobileVisit | null>(null);

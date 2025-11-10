@@ -25,11 +25,11 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import SignatureCanvas from 'react-native-signature-canvas';
-import { Button } from '../../components/index.js';
-import { deviceInfoService } from '../../services/device-info.js';
-import { OfflineQueueService } from '../../services/offline-queue.js';
-import { database } from '../../database/index.js';
-import type { RootStackParamList } from '../../navigation/RootNavigator.js';
+import { Button } from '../../components/index';
+import { deviceInfoService } from '../../services/device-info';
+import { OfflineQueueService } from '../../services/offline-queue';
+import { database } from '../../database/index';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Signature'>;
 

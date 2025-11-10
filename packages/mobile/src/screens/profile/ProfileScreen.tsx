@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Button } from '../../components/index.js';
-import { createAuthService } from '../../services/auth.js';
+import { Button } from '../../components/index';
+import { createAuthService } from '../../services/auth';
 
 export function ProfileScreen() {
   const handleLogout = async () => {
