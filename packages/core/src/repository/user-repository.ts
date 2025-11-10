@@ -6,7 +6,7 @@ import {
   InviteDetails 
 } from '../types/organization';
 import { Database } from '../db/connection';
-import { randomBytes } from '../utils/crypto.js';
+import { randomBytes } from '../utils/crypto';
 
 export interface User {
   id: UUID;

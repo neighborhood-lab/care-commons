@@ -5,7 +5,7 @@
  * Meets NIST SP 800-132 recommendations for password-based key derivation.
  */
 
-import { pbkdf2Sync, randomBytes } from './crypto.js';
+import { pbkdf2Sync, randomBytes } from './crypto';
 import { ValidationError } from '../types/base';
 
 export class PasswordUtils {

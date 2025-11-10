@@ -25,10 +25,14 @@ let expoCrypto: ExpoCrypto | null = null;
 
 /**
  * Get Node.js crypto module (lazy loaded)
+ * Uses dynamic require to avoid Metro bundler issues
  */
 function getNodeCrypto(): NodeCryptoModule {
   if (nodeCrypto === null) {
-    nodeCrypto = require('node:crypto') as NodeCryptoModule;
+    // Dynamic require to prevent Metro from bundling for React Native
+    // The 'node' + ':' concatenation prevents static analysis
+    const moduleName = 'node' + ':' + 'crypto';
+    nodeCrypto = require(moduleName) as NodeCryptoModule;
   }
   return nodeCrypto;
 }
