@@ -62,12 +62,14 @@
     "deploy:preview": "vercel",
     "deploy:rollback": "tsx scripts/rollback-deployment.ts",
     "predeploy": "tsx scripts/pre-deploy-checks.ts",
-    "test:e2e:server": "tsx scripts/e2e-server.ts",    "test:smoke": "playwright test e2e/tests/smoke.spec.ts",
+    "test:e2e:server": "tsx scripts/e2e-server.ts",
+    "test:smoke": "playwright test e2e/tests/smoke.spec.ts",
     "vercel:build": "npm run build",
     "prepare": "husky"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
+    "@expo/config-plugins": "^54.0.2",
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.1",
     "@types/express-rate-limit": "^5.1.3",
