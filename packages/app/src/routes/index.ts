@@ -9,19 +9,19 @@ import { Database, PermissionService, UserRepository, AuthMiddleware } from '@ca
 import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
 import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
-import { createHealthRouter } from './health.js';
-import { createMetricsRouter } from './metrics.js';
-import { createAuthRouter } from './auth.js';
-import { createOrganizationRouter } from './organizations.js';
-import { createCaregiverRouter } from './caregivers.js';
-import { createDemoRouter } from './demo.js';
-import { createAnalyticsRouter } from './analytics.js';
-import { authLimiter } from '../middleware/rate-limit.js';
-import { createSyncRouter } from '../api/sync/sync-routes.js';
-import docsRoutes from './docs.routes.js';
-import { createPayrollRouter } from './payroll.js';
-import adminRoutes from './admin.js';
-import { createWhiteLabelRouter } from './white-label.js';
+import { createHealthRouter } from './health';
+import { createMetricsRouter } from './metrics';
+import { createAuthRouter } from './auth';
+import { createOrganizationRouter } from './organizations';
+import { createCaregiverRouter } from './caregivers';
+import { createDemoRouter } from './demo';
+import { createAnalyticsRouter } from './analytics';
+import { authLimiter } from '../middleware/rate-limit';
+import { createSyncRouter } from '../api/sync/sync-routes';
+import docsRoutes from './docs.routes';
+import { createPayrollRouter } from './payroll';
+import adminRoutes from './admin';
+import { createWhiteLabelRouter } from './white-label';
 import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
 
 /**

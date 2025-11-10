@@ -11,7 +11,7 @@ import {
   DemoSession, 
   DemoSessionNotFoundError, 
   DemoSessionExpiredError 
-} from './types.js';
+} from './types';
 
 export class DemoStateStore {
   private sessions: Map<string, DemoSession> = new Map();

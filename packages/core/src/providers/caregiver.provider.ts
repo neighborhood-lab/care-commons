@@ -10,8 +10,8 @@
 /* eslint-disable sonarjs/todo-tag */
 /* eslint-disable sonarjs/cognitive-complexity */
 
-import { Database } from '../db/connection.js';
-import type { UUID } from '../types/base.js';
+import { Database } from '../db/connection';
+import type { UUID } from '../types/base';
 
 /**
  * Caregiver data structure for cross-vertical use

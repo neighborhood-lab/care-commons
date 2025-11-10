@@ -4,8 +4,8 @@
 
 /* eslint-disable sonarjs/no-hardcoded-passwords */
 import { describe, it, expect } from 'vitest';
-import { PasswordUtils } from '../../utils/password-utils.js';
-import { ValidationError } from '../../types/base.js';
+import { PasswordUtils } from '../../utils/password-utils';
+import { ValidationError } from '../../types/base';
 
 describe('PasswordUtils', () => {
   describe('hashPassword', () => {

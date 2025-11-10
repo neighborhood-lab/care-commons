@@ -2,11 +2,11 @@
  * Unit tests for WhiteLabelService
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { WhiteLabelService } from '../../service/white-label.service.js';
-import type { BrandingRepository } from '../../repository/branding-repository.js';
-import type { FeatureFlagRepository } from '../../repository/feature-flag-repository.js';
-import type { UpsertBrandingRequest } from '../../types/branding.js';
-import { BillingTier } from '../../types/feature-flags.js';
+import { WhiteLabelService } from '../../service/white-label.service';
+import type { BrandingRepository } from '../../repository/branding-repository';
+import type { FeatureFlagRepository } from '../../repository/feature-flag-repository';
+import type { UpsertBrandingRequest } from '../../types/branding';
+import { BillingTier } from '../../types/feature-flags';
 
 describe('WhiteLabelService', () => {
   let service: WhiteLabelService;

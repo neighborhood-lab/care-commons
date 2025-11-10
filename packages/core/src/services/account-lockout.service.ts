@@ -1,4 +1,4 @@
-import { getCacheService } from '../service/cache.service.js';
+import { getCacheService } from '../service/cache.service';
 
 export class AccountLockoutService {
   private static MAX_ATTEMPTS = 5;

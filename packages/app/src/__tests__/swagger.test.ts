@@ -9,7 +9,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from '../config/swagger.js';
+import { swaggerSpec } from '../config/swagger';
 
 // Type assertion for swagger spec (swagger-jsdoc returns object type)
 type SwaggerSpec = {

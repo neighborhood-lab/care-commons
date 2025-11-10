@@ -5,7 +5,7 @@
  */
 
 import type { Knex } from 'knex';
-import type { PaginationParams, PaginatedResult } from '../types/base.js';
+import type { PaginationParams, PaginatedResult } from '../types/base';
 
 /**
  * Validate and normalize pagination parameters

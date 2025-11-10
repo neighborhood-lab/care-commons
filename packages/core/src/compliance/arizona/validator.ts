@@ -19,8 +19,8 @@
  * - High independent agency percentage (~88%)
  */
 
-import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator.js';
-import { StateCode } from '../../types/base.js';
+import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator';
+import { StateCode } from '../../types/base';
 import {
   ComplianceIssue,
   CaregiverCredentials,
@@ -30,7 +30,7 @@ import {
   isExpiringSoon,
   daysUntilExpiration,
   daysSince,
-} from '../types/index.js';
+} from '../types/index';
 
 /**
  * Arizona-specific credential data structure

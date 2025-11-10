@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database } from '@care-commons/core';
-import { requireAuth } from '../middleware/auth-context.js';
+import { requireAuth } from '../middleware/auth-context';
 import { CaregiverService } from '@care-commons/caregiver-staff';
 import type { CreateCaregiverInput, UpdateCaregiverInput, CaregiverSearchFilters } from '@care-commons/caregiver-staff';
 

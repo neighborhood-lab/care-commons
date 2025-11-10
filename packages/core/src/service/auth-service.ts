@@ -11,17 +11,17 @@
 
 import { randomUUID } from 'node:crypto';
 import { OAuth2Client } from 'google-auth-library';
-import { Database } from '../db/connection.js';
-import { UUID } from '../types/base.js';
+import { Database } from '../db/connection';
+import { UUID } from '../types/base';
 import {
   NotFoundError,
   ValidationError,
   AuthenticationError
-} from '../types/base.js';
-import { PasswordUtils } from '../utils/password-utils.js';
-import { JWTUtils, TokenPayload, TokenPair } from '../utils/jwt-utils.js';
-import { getCacheService } from './cache.service.js';
-import { CacheKeys, CacheTTL } from '../constants/cache-keys.js';
+} from '../types/base';
+import { PasswordUtils } from '../utils/password-utils';
+import { JWTUtils, TokenPayload, TokenPair } from '../utils/jwt-utils';
+import { getCacheService } from './cache.service';
+import { CacheKeys, CacheTTL } from '../constants/cache-keys';
 
 /**
  * Google OAuth profile data

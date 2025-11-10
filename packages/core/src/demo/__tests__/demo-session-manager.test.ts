@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { DemoSessionManager } from '../demo-session-manager.js';
-import { resetDemoStateStore } from '../demo-state-store.js';
-import { DemoSnapshot, DemoPersona } from '../types.js';
+import { DemoSessionManager } from '../demo-session-manager';
+import { resetDemoStateStore } from '../demo-state-store';
+import { DemoSnapshot, DemoPersona } from '../types';
 
 describe('DemoSessionManager', () => {
   let manager: DemoSessionManager;

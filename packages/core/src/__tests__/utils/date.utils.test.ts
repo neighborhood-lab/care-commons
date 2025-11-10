@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { DateUtils } from '../../utils/date.utils.js';
+import { DateUtils } from '../../utils/date.utils';
 
 describe('DateUtils', () => {
   describe('formatDate', () => {

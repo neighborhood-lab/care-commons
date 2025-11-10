@@ -22,8 +22,8 @@
  * - Complex MCO landscape (MyCare Ohio + 5 Medicaid MCOs)
  */
 
-import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator.js';
-import { StateCode } from '../../types/base.js';
+import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator';
+import { StateCode } from '../../types/base';
 import {
   ComplianceIssue,
   CaregiverCredentials,
@@ -33,7 +33,7 @@ import {
   isExpiringSoon,
   daysUntilExpiration,
   daysSince,
-} from '../types/index.js';
+} from '../types/index';
 
 /**
  * Ohio-specific credential data structure

@@ -6,9 +6,9 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { JWTUtils, TokenPayload } from '../utils/jwt-utils.js';
-import { Database } from '../db/connection.js';
-import { AuditService } from '../audit/audit-service.js';
+import { JWTUtils, TokenPayload } from '../utils/jwt-utils';
+import { Database } from '../db/connection';
+import { AuditService } from '../audit/audit-service';
 
 /**
  * Extend Express Request type to include authenticated user

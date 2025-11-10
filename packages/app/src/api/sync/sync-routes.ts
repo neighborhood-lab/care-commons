@@ -7,8 +7,8 @@
 import { Router } from 'express';
 import type { Database } from '@care-commons/core';
 import { AuthMiddleware } from '@care-commons/core';
-import { createSyncHandlers } from './sync-handlers.js';
-import { syncLimiter } from '../../middleware/rate-limit.js';
+import { createSyncHandlers } from './sync-handlers';
+import { syncLimiter } from '../../middleware/rate-limit';
 
 export function createSyncRouter(db: Database): Router {
   const router = Router();

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { AuthenticationError } from '../../types/base.js';
+import { AuthenticationError } from '../../types/base';
 
 describe('AuthenticationError', () => {
   it('should create error with message', () => {
