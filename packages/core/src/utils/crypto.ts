@@ -7,6 +7,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-implied-eval */
 
 // Platform detection
 const isReactNative = typeof navigator !== 'undefined' && (navigator as any).product === 'ReactNative';
@@ -25,14 +26,14 @@ let expoCrypto: ExpoCrypto | null = null;
 
 /**
  * Get Node.js crypto module (lazy loaded)
- * Uses dynamic require to avoid Metro bundler issues
+ * Uses eval to completely hide from Metro bundler
  */
 function getNodeCrypto(): NodeCryptoModule {
   if (nodeCrypto === null) {
-    // Dynamic require to prevent Metro from bundling for React Native
-    // The 'node' + ':' concatenation prevents static analysis
-    const moduleName = 'node' + ':' + 'crypto';
-    nodeCrypto = require(moduleName) as NodeCryptoModule;
+    // Use eval + string encoding to completely hide from Metro
+    // Metro cannot statically analyze eval expressions
+    const req = eval('require');
+    nodeCrypto = req('node' + String.fromCharCode(58) + 'crypto') as NodeCryptoModule;
   }
   return nodeCrypto;
 }
