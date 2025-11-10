@@ -2,7 +2,8 @@
  * EVV Validator - Validation and integrity checking for EVV data
  */
 
-import { ValidationError } from '@care-commons/core';
+// Import only the error class - browser-safe (no server deps)
+import { ValidationError } from '@care-commons/core/browser';
 import {
   ClockInInput,
   ClockOutInput,

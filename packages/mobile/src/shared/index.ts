@@ -54,7 +54,7 @@ export type {
 // Note: PermissionService and AuditService are server-only
 // Mobile app should use API endpoints for permissions/audit instead
 
-// EVV types - Direct reuse of all EVV domain models
+// EVV types - Direct reuse of all EVV domain models (browser-safe)
 export type {
   // Core EVV entities
   EVVRecord,
@@ -112,9 +112,9 @@ export type {
   // Search filters
   EVVRecordSearchFilters,
   TimeEntrySearchFilters,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
 
-// State-specific types
+// State-specific types (browser-safe)
 export type {
   StateCode,
   TexasEVVConfig,
@@ -133,19 +133,19 @@ export type {
   StateEVVException,
   StateExceptionType,
   FloridaEVVException,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
 
-// State-specific helper functions (these are pure functions, browser-safe)
+// State-specific helper functions (browser-safe)
 export {
   getStateEVVRules,
   selectAggregator,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
 
 // EVV Validation (browser-safe)
 export {
   EVVValidator,
   CryptoUtils,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
 
 // Note: EVVService and IntegrationService use Database (server-only)
 // Mobile app should use API endpoints for EVV operations instead

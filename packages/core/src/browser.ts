@@ -5,9 +5,19 @@
  * This file excludes server-only modules that depend on Node.js built-ins
  */
 
-// Types only - safe for browser
+// Types - safe for browser
 export type * from './types/base';
 export type * from './types/organization';
+
+// Export error classes as values (browser-safe, no server deps)
+export {
+  DomainError,
+  ValidationError,
+  PermissionError,
+  NotFoundError,
+  ConflictError,
+  AuthenticationError,
+} from './types/base';
 
 // Utils that are browser-compatible
 export * from './utils/date.utils';
