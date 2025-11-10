@@ -34,6 +34,7 @@ export * from './middleware/request-logger';
 export * from './middleware/metrics';
 export * from './middleware/validation';
 export * from './middleware/csrf';
+export * from './utils/crypto';
 export * from './utils/password-utils';
 export * from './utils/jwt-utils';
 export * from './utils/date.utils';

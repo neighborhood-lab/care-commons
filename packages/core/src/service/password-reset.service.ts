@@ -10,7 +10,7 @@
  * - No user enumeration (consistent responses)
  */
 
-import crypto from 'node:crypto';
+import * as crypto from '../utils/crypto.js';
 import { Database } from '../db/connection';
 import { PasswordUtils } from '../utils/password-utils';
 

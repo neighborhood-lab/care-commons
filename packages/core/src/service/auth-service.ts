@@ -9,7 +9,7 @@
  * - Rate limiting and account locking
  */
 
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from '../utils/crypto.js';
 import { OAuth2Client } from 'google-auth-library';
 import { Database } from '../db/connection';
 import { UUID } from '../types/base';
