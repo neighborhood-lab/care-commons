@@ -66,13 +66,10 @@ const FamilyProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childre
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
+  // If already authenticated, redirect to home (which will handle role-based routing)
   if (isAuthenticated) {
-    // Route to appropriate dashboard based on role
-    if (user?.roles.includes('FAMILY')) {
-      return <Navigate to="/family-portal" replace />;
-    }
     return <Navigate to="/" replace />;
   }
 
