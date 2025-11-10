@@ -45,6 +45,7 @@
     "expo-local-authentication": "~17.0.7",
     "expo-localization": "~17.0.7",
     "expo-location": "~19.0.7",
+    "expo-modules-core": "^3.0.25",
     "expo-notifications": "^0.32.12",
     "expo-secure-store": "~15.0.7",
     "expo-speech": "^14.0.7",
