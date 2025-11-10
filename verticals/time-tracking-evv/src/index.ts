@@ -35,6 +35,7 @@ export type { CreateVMURInput, ApproveVMURInput, DenyVMURInput } from './service
 
 // Utilities
 export { IntegrationService } from './utils/integration-service';
+// Platform-specific: will use crypto-utils.native.ts in React Native
 export { CryptoUtils } from './utils/crypto-utils';
 
 // API Handlers
