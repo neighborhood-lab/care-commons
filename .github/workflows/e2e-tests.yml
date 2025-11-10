@@ -1,34 +1,15 @@
 name: E2E Tests
 
-# TEMPORARILY DISABLED: E2E tests require the development server to be running
-# The server is not starting properly in CI environment (times out after 120s)
-# This needs to be debugged separately from the E2E infrastructure PR
-# 
-# To enable: uncomment the 'on:' triggers below and fix server startup issues
-#
-# on:
-#   pull_request:
-#     branches: [main, preview, develop]
-#   push:
-#     branches: [main, preview, develop]
-#   schedule:
-#     # Run nightly at 2 AM UTC
-#     - cron: '0 2 * * *'
-#   workflow_dispatch:
-#     inputs:
-#       browser:
-#         description: 'Browser to test (all, chromium, firefox, webkit, mobile)'
-#         required: false
-#         default: 'chromium'
-#         type: choice
-#         options:
-#           - all
-#           - chromium
-#           - firefox
-#           - webkit
-#           - mobile
-
+# E2E tests run on PRs and pushes to main branches
+# Also available for manual dispatch and nightly runs
 on:
+  pull_request:
+    branches: [main, preview, develop]
+  push:
+    branches: [main, preview, develop]
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       browser:
