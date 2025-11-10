@@ -238,6 +238,22 @@ async function seedUsers(ctx: SeedContext): Promise<void> {
   // eslint-disable-next-line sonarjs/no-hardcoded-passwords
   const adminPasswordHash = '98717edc53d97a37344eac44932b6b40:7187df1055cb4f96d510e1dc24469b868218e32aff39d2045af6750ddd23f0f4e7dc94d1d956ed75207efa7ec34b36f13e28053df2f8cd1074df3cb64b7c05a7';
   
+  // Hash for 'Family123!' - using proper salt:hash format
+  // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+  const familyPasswordHash = '40d72a83e2661f50c8a6df1eaa83e5dc:1a5fc3f5a9e1a4c2a384d12c3c9a79a5de98e8c9d4da832b6ed8c84ec9385e0db7c4ceacf1af5a6b32c9d0e48f0f8b6e0c43f0f7eb5e1e3e9f5cdc1e9be5d7d3';
+  
+  // Global family user (for demo/testing)
+  await pool.query(`
+    INSERT INTO users (
+      id, organization_id, username, email, password_hash, first_name, last_name,
+      roles, permissions, status,
+      created_at, created_by, updated_at, updated_by
+    ) VALUES
+      ($1, $2, 'family@carecommons.example', 'family@carecommons.example', $3, 'Demo', 'Family',
+       '{FAMILY}', '{family_portal:read}', 'ACTIVE', NOW(), $1, NOW(), $1)
+    ON CONFLICT (email) DO NOTHING
+  `, ['family-user-global-demo', ctx.texasOrgId, familyPasswordHash]);
+  
   // Texas users
   await pool.query(`
     INSERT INTO users (
