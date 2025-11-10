@@ -135,19 +135,21 @@ export type {
   FloridaEVVException,
 } from '@care-commons/time-tracking-evv';
 
-// State-specific helper functions
+// State-specific helper functions (these are pure functions, browser-safe)
 export {
   getStateEVVRules,
   selectAggregator,
 } from '@care-commons/time-tracking-evv';
 
-// EVV Service - Business logic reuse
+// EVV Validation (browser-safe)
 export {
-  EVVService,
   EVVValidator,
   CryptoUtils,
-  IntegrationService,
 } from '@care-commons/time-tracking-evv';
+
+// Note: EVVService and IntegrationService use Database (server-only)
+// Mobile app should use API endpoints for EVV operations instead
+// Types above provide the contract for API requests/responses
 
 // Validation schemas (Zod)
 // Note: Core package should export validation schemas if available
