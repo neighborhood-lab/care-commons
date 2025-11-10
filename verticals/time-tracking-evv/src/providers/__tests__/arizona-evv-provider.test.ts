@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ArizonaEVVProvider } from '../arizona-evv-provider.js';
+import { ArizonaEVVProvider } from '../arizona-evv-provider';
 import type { Database } from '@care-commons/core';
 import type { EVVRecord, LocationVerification } from '../../types/evv';
 

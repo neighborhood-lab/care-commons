@@ -37,8 +37,8 @@ import {
   ICaregiverProvider,
 } from '../interfaces/visit-provider';
 import { Database } from '@care-commons/core';
-import { StateCode } from '../types/state-specific.js';
-import { StateProviderFactory } from '../providers/state-provider-factory.js';
+import { StateCode } from '../types/state-specific';
+import { StateProviderFactory } from '../providers/state-provider-factory';
 
 export class EVVService {
   constructor(

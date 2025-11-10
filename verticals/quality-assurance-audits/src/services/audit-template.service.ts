@@ -14,7 +14,7 @@ import type {
   AuditTemplate,
   AuditChecklistSection,
   CreateAuditTemplateInput
-} from '../types/audit.js';
+} from '../types/audit';
 
 /**
  * Predefined audit templates for common compliance audits

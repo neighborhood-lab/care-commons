@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import * as types from '../types/audit.js';
-import { AuditRepository, AuditFindingRepository, CorrectiveActionRepository } from '../repositories/audit-repository.js';
-import { AuditService } from '../services/audit-service.js';
-import { createAuditRoutes } from '../routes/audit-handlers.js';
+import * as types from '../types/audit';
+import { AuditRepository, AuditFindingRepository, CorrectiveActionRepository } from '../repositories/audit-repository';
+import { AuditService } from '../services/audit-service';
+import { createAuditRoutes } from '../routes/audit-handlers';
 
 describe('Quality Assurance & Audits', () => {
   it('should have basic test setup', () => {

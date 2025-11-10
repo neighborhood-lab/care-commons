@@ -6,7 +6,7 @@
  */
 
 import PDFDocument from 'pdfkit';
-import { PayStub } from '../types/payroll.js';
+import { PayStub } from '../types/payroll';
 
 export interface PayStubPDFData extends PayStub {
   organizationName?: string;

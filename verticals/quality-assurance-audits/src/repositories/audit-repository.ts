@@ -14,7 +14,7 @@ import type {
   CreateAuditFindingInput,
   CreateCorrectiveActionInput,
   AuditSummary
-} from '../types/audit.js';
+} from '../types/audit';
 
 /**
  * Repository for audit management

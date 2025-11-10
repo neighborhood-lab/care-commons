@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CaregiverProvider, createCaregiverProvider } from '../caregiver-provider.js';
+import { CaregiverProvider, createCaregiverProvider } from '../caregiver-provider';
 import { NotFoundError } from '@care-commons/core';
 import type { Database } from '@care-commons/core';
 

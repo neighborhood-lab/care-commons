@@ -6,7 +6,7 @@
  */
 
 import { UUID, NotFoundError, Database } from '@care-commons/core';
-import type { IClientProvider } from '../interfaces/visit-provider.js';
+import type { IClientProvider } from '../interfaces/visit-provider';
 
 /**
  * Type definitions for JSONB fields
