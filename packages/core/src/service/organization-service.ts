@@ -4,7 +4,7 @@
  * Business logic for multi-tenant organization management with state-based isolation
  */
 
-import { randomBytes, pbkdf2Sync } from '../utils/crypto.js';
+import { randomBytes, pbkdf2Sync } from '../utils/crypto';
 import { UUID, ValidationError, ConflictError, NotFoundError } from '../types/base';
 import {
   Organization,
