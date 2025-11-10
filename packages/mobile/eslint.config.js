@@ -61,6 +61,7 @@ export default [
       'ios/**',
       'android/**',
       '*.config.js',
+      '*.config.cjs',
       '*.config.ts',
       '**/*.d.ts',
       'expo-env.d.ts',
