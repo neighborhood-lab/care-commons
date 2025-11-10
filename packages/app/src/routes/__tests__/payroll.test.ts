@@ -8,8 +8,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import express, { Express } from 'express';
 import request from 'supertest';
 import { Database } from '@care-commons/core';
-import { createPayrollRouter } from '../payroll.js';
-import { authContextMiddleware } from '../../middleware/auth-context.js';
+import { createPayrollRouter } from '../payroll';
+import { authContextMiddleware } from '../../middleware/auth-context';
 
 // Mock the payroll-processing module
 const mockPayrollService = {

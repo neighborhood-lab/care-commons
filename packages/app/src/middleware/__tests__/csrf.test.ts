@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import express, { type Express } from 'express';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
-import { configureCsrfProtection } from '../csrf.js';
+import { configureCsrfProtection } from '../csrf';
 
 describe('CSRF Protection Middleware', () => {
   let app: Express;

@@ -10,12 +10,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { FloridaComplianceValidator, FloridaCredentials, FloridaClientData } from '../validator.js';
+import { FloridaComplianceValidator, FloridaCredentials, FloridaClientData } from '../validator';
 import type {
   CaregiverCredentials,
   VisitDetails,
   ClientDetails,
-} from '../../types/index.js';
+} from '../../types/index';
 
 describe('FloridaComplianceValidator', () => {
   let validator: FloridaComplianceValidator;

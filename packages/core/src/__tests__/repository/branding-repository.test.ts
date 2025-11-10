@@ -2,9 +2,9 @@
  * Unit tests for BrandingRepository
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BrandingRepository } from '../../repository/branding-repository.js';
-import type { Database } from '../../db/connection.js';
-import type { UpsertBrandingRequest } from '../../types/branding.js';
+import { BrandingRepository } from '../../repository/branding-repository';
+import type { Database } from '../../db/connection';
+import type { UpsertBrandingRequest } from '../../types/branding';
 
 describe('BrandingRepository', () => {
   let repository: BrandingRepository;

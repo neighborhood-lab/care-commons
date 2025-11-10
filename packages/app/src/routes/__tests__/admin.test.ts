@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
-import adminRoutes from '../admin.js';
+import adminRoutes from '../admin';
 import { initCacheService, getCacheService } from '@care-commons/core/service/cache.service';
-import { authContextMiddleware } from '../../middleware/auth-context.js';
+import { authContextMiddleware } from '../../middleware/auth-context';
 
 describe('Admin Routes', () => {
   let app: express.Express;

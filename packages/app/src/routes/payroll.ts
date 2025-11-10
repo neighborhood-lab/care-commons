@@ -25,7 +25,7 @@ import {
   TimeSheetSearchFilters,
 } from '@care-commons/payroll-processing';
 import { Database } from '@care-commons/core';
-import { requireAuth } from '../middleware/auth-context.js';
+import { requireAuth } from '../middleware/auth-context';
 
 /**
  * Create payroll router with all endpoints

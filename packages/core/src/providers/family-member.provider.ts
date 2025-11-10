@@ -9,8 +9,8 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable sonarjs/no-nested-conditional */
 
-import { Database } from '../db/connection.js';
-import type { UUID } from '../types/base.js';
+import { Database } from '../db/connection';
+import type { UUID } from '../types/base';
 
 /**
  * Family Member data structure for cross-vertical use

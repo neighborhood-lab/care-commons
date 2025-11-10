@@ -1,4 +1,4 @@
-import { getRedisClient } from '../config/redis.js';
+import { getRedisClient } from '../config/redis';
 
 interface RateLimitStats {
   general: number;

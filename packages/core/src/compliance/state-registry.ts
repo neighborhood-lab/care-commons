@@ -5,8 +5,8 @@
  * Eliminates need to hunt through multiple files for state info.
  */
 
-import { StateCode } from '../types/base.js';
-import type { StateComplianceValidator } from './types/index.js';
+import { StateCode } from '../types/base';
+import type { StateComplianceValidator } from './types/index';
 
 export interface StateInfo {
   code: StateCode;

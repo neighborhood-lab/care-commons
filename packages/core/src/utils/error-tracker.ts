@@ -1,4 +1,4 @@
-import logger from './logger.js';
+import logger from './logger';
 
 /**
  * Minimal Sentry type definitions for dynamic imports

@@ -5,9 +5,9 @@
  * Built on top of the AuditService for compliance and security monitoring.
  */
 
-import { Database } from '../db/connection.js';
-import { AuditService } from '../audit/audit-service.js';
-import { UserContext } from '../types/base.js';
+import { Database } from '../db/connection';
+import { AuditService } from '../audit/audit-service';
+import { UserContext } from '../types/base';
 
 /**
  * Security event types

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { Database, initializeDatabase, resetDatabase } from '../db/connection.js';
+import { Database, initializeDatabase, resetDatabase } from '../db/connection';
 
 describe.skipIf(process.env.DB_NAME === undefined || process.env.DB_NAME === '')('SQL Injection Protection', () => {
   let db: Database;

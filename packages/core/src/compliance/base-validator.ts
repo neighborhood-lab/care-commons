@@ -7,7 +7,7 @@
  * State-specific validators extend this class and implement state-specific rules.
  */
 
-import { StateCode } from '../types/base.js';
+import { StateCode } from '../types/base';
 import {
   StateComplianceValidator,
   ValidationResult,
@@ -25,7 +25,7 @@ import {
   isExpiringSoon,
   daysUntilExpiration,
   daysSince,
-} from './types/index.js';
+} from './types/index';
 
 /**
  * Configuration for state-specific credential requirements

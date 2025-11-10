@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import DOMPurify from 'isomorphic-dompurify';
-import { sanitizeInput } from '../middleware/sanitize-input.js';
+import { sanitizeInput } from '../middleware/sanitize-input';
 
 describe('XSS Protection', () => {
   it('should sanitize script tags from user input', () => {

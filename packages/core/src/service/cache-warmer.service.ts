@@ -1,5 +1,5 @@
-import { ReferenceDataService } from './reference-data.service.js';
-import { Database } from '../db/connection.js';
+import { ReferenceDataService } from './reference-data.service';
+import { Database } from '../db/connection';
 
 export class CacheWarmerService {
   private referenceDataService: ReferenceDataService;

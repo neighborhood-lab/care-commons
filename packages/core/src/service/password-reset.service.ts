@@ -11,8 +11,8 @@
  */
 
 import crypto from 'node:crypto';
-import { Database } from '../db/connection.js';
-import { PasswordUtils } from '../utils/password-utils.js';
+import { Database } from '../db/connection';
+import { PasswordUtils } from '../utils/password-utils';
 
 /**
  * Password reset request result

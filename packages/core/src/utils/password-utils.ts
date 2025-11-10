@@ -6,7 +6,7 @@
  */
 
 import { pbkdf2Sync, randomBytes } from 'node:crypto';
-import { ValidationError } from '../types/base.js';
+import { ValidationError } from '../types/base';
 
 export class PasswordUtils {
   // NIST recommends at least 10,000 iterations; we use 100,000 for enhanced security

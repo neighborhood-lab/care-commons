@@ -4,7 +4,7 @@
 
 import { Router } from 'express';
 import { getCacheService } from '@care-commons/core/service/cache.service';
-import { requireAuth } from '../middleware/auth-context.js';
+import { requireAuth } from '../middleware/auth-context';
 
 const router = Router();
 

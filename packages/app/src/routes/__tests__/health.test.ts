@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createHealthRouter } from '../health.js';
+import { createHealthRouter } from '../health';
 import type { Database } from '@care-commons/core';
 import type { Request, Response } from 'express';
 
