@@ -3,7 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "target": "ES2020",
-    "lib": ["ES2020"],
+    "lib": [
+      "ES2020"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -19,13 +21,24 @@
     "useDefineForClassFields": false,
     "baseUrl": ".",
     "paths": {
-      "@care-commons/core": ["../core/src"],
-      "@care-commons/core/*": ["../core/src/*"],
-      "@care-commons/time-tracking-evv": ["../../verticals/time-tracking-evv/src"],
-      "@care-commons/time-tracking-evv/*": ["../../verticals/time-tracking-evv/src/*"]
+      "@care-commons/core": [
+        "../core/src"
+      ],
+      "@care-commons/core/*": [
+        "../core/src/*"
+      ],
+      "@care-commons/time-tracking-evv": [
+        "../../verticals/time-tracking-evv/src"
+      ],
+      "@care-commons/time-tracking-evv/*": [
+        "../../verticals/time-tracking-evv/src/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
   "exclude": [
     "node_modules",
     "src/services/__tests__/location.test.ts",
