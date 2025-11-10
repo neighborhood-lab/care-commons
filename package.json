@@ -62,7 +62,7 @@
     "deploy:preview": "vercel",
     "deploy:rollback": "tsx scripts/rollback-deployment.ts",
     "predeploy": "tsx scripts/pre-deploy-checks.ts",
-    "test:smoke": "playwright test e2e/tests/smoke.spec.ts",
+    "test:e2e:server": "tsx scripts/e2e-server.ts",    "test:smoke": "playwright test e2e/tests/smoke.spec.ts",
     "vercel:build": "npm run build",
     "prepare": "husky"
   },
