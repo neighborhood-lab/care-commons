@@ -120,8 +120,8 @@ const migrations: SchemaMigrations = schemaMigrations({
 // Configure SQLite adapter
 const adapter = new SQLiteAdapter({
   schema,
-  // Production apps should use JSI for better performance
-  jsi: true,
+  // Use JSI if available (not available in Expo Go)
+  jsi: false, // Set to false for Expo Go compatibility
   // Migrations will be added here as schema evolves
   migrations,
   onSetUpError: (error: Error) => {
