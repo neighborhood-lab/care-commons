@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import type { Express, Request, Response, NextFunction } from 'express';
 
 // Extend Express Request type
-declare module 'express-serve-static-core' {
+declare module 'express' {
   interface Request {
     csrfToken?: () => string;
   }

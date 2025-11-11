@@ -24,12 +24,14 @@
     "@care-commons/core": "file:../../packages/core",
     "@care-commons/time-tracking-evv": "file:../time-tracking-evv",
     "pdfkit": "^0.15.0",
+    "pg": "^8.16.3",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.0",
     "@types/pdfkit": "^0.13.5",
+    "@types/pg": "^8.11.10",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitest/coverage-v8": "^4.0.8",
