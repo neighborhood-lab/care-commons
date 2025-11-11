@@ -1,11 +1,14 @@
 /**
- * Visit Notes Screen
+ * Visit Notes Screen - Enhanced
  *
  * Rich text notes for visit documentation with:
  * - Template selection
  * - Voice-to-text input
- * - Text formatting
- * - Offline storage and sync
+ * - Activities performed checkboxes
+ * - Client mood/condition assessment
+ * - Incident reporting with severity
+ * - Offline storage and API sync
+ * - 24-hour modification lock (compliance)
  */
 
 import React, { useState, useEffect } from 'react';
@@ -18,6 +21,7 @@ import {
   Pressable,
   Alert,
   FlatList,
+  Switch,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button } from '../../components/index';
@@ -62,11 +66,55 @@ const DEFAULT_TEMPLATES = [
   },
 ];
 
+const COMMON_ACTIVITIES = [
+  { id: 'bathing', label: 'Bathing/Showering' },
+  { id: 'dressing', label: 'Dressing' },
+  { id: 'grooming', label: 'Grooming' },
+  { id: 'meal_prep', label: 'Meal Preparation' },
+  { id: 'feeding', label: 'Feeding Assistance' },
+  { id: 'mobility', label: 'Mobility Assistance' },
+  { id: 'medication', label: 'Medication Reminder' },
+  { id: 'companionship', label: 'Companionship' },
+  { id: 'light_housekeeping', label: 'Light Housekeeping' },
+  { id: 'vital_signs', label: 'Vital Signs Check' },
+];
+
+const CLIENT_MOODS = [
+  { value: 'EXCELLENT', label: 'Excellent', color: '#10B981' },
+  { value: 'GOOD', label: 'Good', color: '#3B82F6' },
+  { value: 'FAIR', label: 'Fair', color: '#F59E0B' },
+  { value: 'POOR', label: 'Poor', color: '#EF4444' },
+  { value: 'DISTRESSED', label: 'Distressed', color: '#DC2626' },
+  { value: 'UNRESPONSIVE', label: 'Unresponsive', color: '#991B1B' },
+];
+
+const INCIDENT_SEVERITIES = [
+  { value: 'LOW', label: 'Low', description: 'Minor issue, no injury' },
+  { value: 'MEDIUM', label: 'Medium', description: 'Moderate concern' },
+  { value: 'HIGH', label: 'High', description: 'Significant issue' },
+  { value: 'CRITICAL', label: 'Critical', description: 'Immediate action required' },
+];
+
 export function VisitNotesScreen({ route, navigation }: Props) {
   const { visitId, organizationId, caregiverId, evvRecordId } = route.params;
 
+  // Note content
   const [noteText, setNoteText] = useState('');
   const [noteType, setNoteType] = useState<'GENERAL' | 'CLINICAL' | 'INCIDENT' | 'TASK'>('GENERAL');
+  
+  // Activities performed
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  
+  // Client assessment
+  const [clientMood, setClientMood] = useState<string | null>(null);
+  const [clientConditionNotes, setClientConditionNotes] = useState('');
+  
+  // Incident tracking
+  const [isIncident, setIsIncident] = useState(false);
+  const [incidentSeverity, setIncidentSeverity] = useState<string | null>(null);
+  const [incidentDescription, setIncidentDescription] = useState('');
+  
+  // UI state
   const [templates, setTemplates] = useState<typeof DEFAULT_TEMPLATES>([]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -86,8 +134,6 @@ export function VisitNotesScreen({ route, navigation }: Props) {
 
   const loadTemplates = async () => {
     try {
-      // In production, load from database
-      // For now, use default templates
       setTemplates(DEFAULT_TEMPLATES);
     } catch (error) {
       console.error('Load templates error:', error);
@@ -116,11 +162,21 @@ export function VisitNotesScreen({ route, navigation }: Props) {
   };
 
   /**
+   * Handle activity toggle
+   */
+  const toggleActivity = (activityId: string) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activityId)
+        ? prev.filter((id) => id !== activityId)
+        : [...prev, activityId]
+    );
+  };
+
+  /**
    * Handle voice recording
    */
   const handleVoiceRecord = async () => {
     if (isRecording) {
-      // Stop recording
       try {
         const recognizedText = await voiceService.stopRecognition();
         if (recognizedText) {
@@ -132,7 +188,6 @@ export function VisitNotesScreen({ route, navigation }: Props) {
         setIsRecording(false);
       }
     } else {
-      // Start recording
       try {
         await voiceService.startRecognition(
           {
@@ -167,6 +222,11 @@ export function VisitNotesScreen({ route, navigation }: Props) {
       return;
     }
 
+    if (isIncident && !incidentSeverity) {
+      Alert.alert('Error', 'Please select incident severity');
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -181,6 +241,27 @@ export function VisitNotesScreen({ route, navigation }: Props) {
           record.isVoiceNote = false;
           record.isSynced = false;
           record.syncPending = true;
+          record.isIncident = isIncident;
+          
+          // Store activities as JSON string
+          if (selectedActivities.length > 0) {
+            record.activitiesPerformed = JSON.stringify(selectedActivities);
+          }
+          
+          // Store mood and condition
+          if (clientMood) {
+            record.clientMood = clientMood as typeof record.clientMood;
+          }
+          if (clientConditionNotes) {
+            record.clientConditionNotes = clientConditionNotes;
+          }
+          
+          // Store incident data
+          if (isIncident) {
+            record.incidentSeverity = incidentSeverity as typeof record.incidentSeverity;
+            record.incidentDescription = incidentDescription;
+            record.incidentReportedAt = Date.now();
+          }
         });
       });
 
@@ -188,7 +269,14 @@ export function VisitNotesScreen({ route, navigation }: Props) {
         {
           text: 'Add Another',
           onPress: () => {
+            // Reset form
             setNoteText('');
+            setSelectedActivities([]);
+            setClientMood(null);
+            setClientConditionNotes('');
+            setIsIncident(false);
+            setIncidentSeverity(null);
+            setIncidentDescription('');
             void loadExistingNotes();
           },
         },
@@ -208,10 +296,7 @@ export function VisitNotesScreen({ route, navigation }: Props) {
   /**
    * Render note type button
    */
-  const renderNoteTypeButton = (
-    type: typeof noteType,
-    label: string
-  ) => (
+  const renderNoteTypeButton = (type: typeof noteType, label: string) => (
     <Pressable
       style={[
         styles.typeButton,
@@ -249,20 +334,29 @@ export function VisitNotesScreen({ route, navigation }: Props) {
   /**
    * Render existing note
    */
-  const renderExistingNote = ({ item }: { item: VisitNote }) => (
-    <View style={styles.existingNote}>
-      <View style={styles.existingNoteHeader}>
-        <Text style={styles.existingNoteType}>{item.noteType}</Text>
-        <Text style={styles.existingNoteDate}>
-          {new Date(item.createdAt).toLocaleString()}
-        </Text>
+  const renderExistingNote = ({ item }: { item: VisitNote }) => {
+    const isLocked = item.createdAt < new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    return (
+      <View style={styles.existingNote}>
+        <View style={styles.existingNoteHeader}>
+          <Text style={styles.existingNoteType}>{item.noteType}</Text>
+          <View style={styles.existingNoteMetadata}>
+            <Text style={styles.existingNoteDate}>
+              {new Date(item.createdAt).toLocaleString()}
+            </Text>
+            {isLocked && <Text style={styles.lockedIndicator}>🔒 Locked</Text>}
+            {item.syncPending && <Text style={styles.syncIndicator}>⏳ Pending</Text>}
+            {item.isSynced && <Text style={styles.syncedIndicator}>✓ Synced</Text>}
+          </View>
+        </View>
+        <Text style={styles.existingNoteText}>{item.noteText}</Text>
+        {item.isVoiceNote && (
+          <Text style={styles.voiceIndicator}>🎤 Voice note</Text>
+        )}
       </View>
-      <Text style={styles.existingNoteText}>{item.noteText}</Text>
-      {item.isVoiceNote && (
-        <Text style={styles.voiceIndicator}>🎤 Voice note</Text>
-      )}
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -305,12 +399,136 @@ export function VisitNotesScreen({ route, navigation }: Props) {
           )}
         </View>
 
+        {/* Activities Performed */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Activities Performed</Text>
+          <View style={styles.activitiesGrid}>
+            {COMMON_ACTIVITIES.map((activity) => (
+              <Pressable
+                key={activity.id}
+                style={[
+                  styles.activityItem,
+                  selectedActivities.includes(activity.id) && styles.activityItemSelected,
+                ]}
+                onPress={() => toggleActivity(activity.id)}
+              >
+                <View style={styles.checkbox}>
+                  {selectedActivities.includes(activity.id) && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </View>
+                <Text
+                  style={[
+                    styles.activityLabel,
+                    selectedActivities.includes(activity.id) && styles.activityLabelSelected,
+                  ]}
+                >
+                  {activity.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* Client Mood/Condition */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Client Mood</Text>
+          <View style={styles.moodButtons}>
+            {CLIENT_MOODS.map((mood) => (
+              <Pressable
+                key={mood.value}
+                style={[
+                  styles.moodButton,
+                  clientMood === mood.value && { backgroundColor: mood.color, borderColor: mood.color },
+                ]}
+                onPress={() => setClientMood(mood.value)}
+              >
+                <Text
+                  style={[
+                    styles.moodButtonText,
+                    clientMood === mood.value && styles.moodButtonTextSelected,
+                  ]}
+                >
+                  {mood.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          
+          <Text style={styles.subSectionLabel}>Additional Condition Notes</Text>
+          <TextInput
+            style={styles.conditionInput}
+            placeholder="Any observations about client's condition..."
+            placeholderTextColor="#9CA3AF"
+            multiline
+            numberOfLines={3}
+            value={clientConditionNotes}
+            onChangeText={setClientConditionNotes}
+            textAlignVertical="top"
+          />
+        </View>
+
+        {/* Incident Reporting */}
+        <View style={styles.section}>
+          <View style={styles.incidentHeader}>
+            <Text style={styles.sectionLabel}>Incident Reported</Text>
+            <Switch
+              value={isIncident}
+              onValueChange={setIsIncident}
+              trackColor={{ false: '#D1D5DB', true: '#EF4444' }}
+              thumbColor={isIncident ? '#DC2626' : '#F3F4F6'}
+            />
+          </View>
+
+          {isIncident && (
+            <>
+              <Text style={styles.subSectionLabel}>Incident Severity</Text>
+              <View style={styles.severityButtons}>
+                {INCIDENT_SEVERITIES.map((severity) => (
+                  <Pressable
+                    key={severity.value}
+                    style={[
+                      styles.severityButton,
+                      incidentSeverity === severity.value && styles.severityButtonActive,
+                    ]}
+                    onPress={() => setIncidentSeverity(severity.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.severityButtonLabel,
+                        incidentSeverity === severity.value && styles.severityButtonLabelActive,
+                      ]}
+                    >
+                      {severity.label}
+                    </Text>
+                    <Text style={styles.severityButtonDescription}>
+                      {severity.description}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text style={styles.subSectionLabel}>Incident Description</Text>
+              <TextInput
+                style={styles.incidentInput}
+                placeholder="Describe the incident in detail..."
+                placeholderTextColor="#9CA3AF"
+                multiline
+                numberOfLines={4}
+                value={incidentDescription}
+                onChangeText={setIncidentDescription}
+                textAlignVertical="top"
+              />
+            </>
+          )}
+        </View>
+
         {/* Note Input */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Note Text</Text>
+          <Text style={styles.sectionLabel}>Visit Notes</Text>
           <TextInput
             style={styles.noteInput}
-            placeholder="Enter visit notes here..."
+            placeholder="Enter detailed visit notes here..."
             placeholderTextColor="#9CA3AF"
             multiline
             numberOfLines={8}
@@ -339,7 +557,7 @@ export function VisitNotesScreen({ route, navigation }: Props) {
         {/* Existing Notes */}
         {existingNotes.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Previous Notes</Text>
+            <Text style={styles.sectionLabel}>Previous Notes ({existingNotes.length})</Text>
             {existingNotes.map((note) => (
               <View key={note.id}>
                 {renderExistingNote({ item: note })}
@@ -404,6 +622,13 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginBottom: 12,
   },
+  subSectionLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#6B7280',
+    marginTop: 12,
+    marginBottom: 8,
+  },
   typeButtons: {
     flexDirection: 'row',
     gap: 8,
@@ -467,6 +692,125 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     lineHeight: 16,
   },
+  activitiesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  activityItem: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  activityItemSelected: {
+    backgroundColor: '#EFF6FF',
+    borderColor: '#2563EB',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkmark: {
+    fontSize: 14,
+    color: '#2563EB',
+    fontWeight: 'bold',
+  },
+  activityLabel: {
+    flex: 1,
+    fontSize: 12,
+    color: '#374151',
+  },
+  activityLabelSelected: {
+    color: '#2563EB',
+    fontWeight: '500',
+  },
+  moodButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  moodButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  moodButtonText: {
+    fontSize: 12,
+    color: '#374151',
+    fontWeight: '500',
+  },
+  moodButtonTextSelected: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  conditionInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 12,
+    fontSize: 14,
+    color: '#111827',
+    minHeight: 80,
+  },
+  incidentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  severityButtons: {
+    gap: 8,
+    marginBottom: 12,
+  },
+  severityButton: {
+    padding: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  severityButtonActive: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#EF4444',
+  },
+  severityButtonLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 2,
+  },
+  severityButtonLabelActive: {
+    color: '#DC2626',
+  },
+  severityButtonDescription: {
+    fontSize: 11,
+    color: '#6B7280',
+  },
+  incidentInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 12,
+    fontSize: 14,
+    color: '#111827',
+    minHeight: 100,
+  },
   noteInput: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
@@ -518,9 +862,26 @@ const styles = StyleSheet.create({
     color: '#2563EB',
     textTransform: 'uppercase',
   },
+  existingNoteMetadata: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
   existingNoteDate: {
     fontSize: 10,
     color: '#6B7280',
+  },
+  lockedIndicator: {
+    fontSize: 10,
+    color: '#EF4444',
+  },
+  syncIndicator: {
+    fontSize: 10,
+    color: '#F59E0B',
+  },
+  syncedIndicator: {
+    fontSize: 10,
+    color: '#10B981',
   },
   existingNoteText: {
     fontSize: 14,
