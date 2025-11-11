@@ -77,7 +77,7 @@ export const DashboardPage: React.FC = () => {
       {/* Role-specific dashboard content */}
       <div className="space-y-6">
         {/* Quick Stats */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-tour="dashboard-stats">
           {currentRole === 'patient' || currentRole === 'family' ? (
             <>
               <StatCard
@@ -178,7 +178,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Upcoming Tasks/Schedule */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6" data-tour="upcoming-tasks">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">
               {currentRole === 'caregiver' ? 'My Schedule' : 'Upcoming Tasks'}
@@ -230,7 +230,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6" data-tour="quick-actions">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {currentPersona.primaryFeatures.map((feature, idx) => (
