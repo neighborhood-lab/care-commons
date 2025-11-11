@@ -1,0 +1,251 @@
+name: Database Backup
+
+on:
+  # Daily backup at 2 AM UTC (9 PM EST / 6 PM PST)
+  schedule:
+    - cron: '0 2 * * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      backup_type:
+        description: 'Backup type'
+        required: true
+        type: choice
+        default: 'both'
+        options:
+          - branch
+          - dump
+          - both
+      verify:
+        description: 'Verify backup after creation'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  NODE_VERSION: '22'
+  NPM_VERSION: '10.9.4'
+
+jobs:
+  backup:
+    name: Create Database Backup
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Setup npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build packages
+        run: npm run build
+      
+      - name: Install Neon CLI
+        run: |
+          curl -fsSL https://neon.tech/install.sh | bash
+          echo "$HOME/.neon/bin" >> $GITHUB_PATH
+      
+      - name: Install AWS CLI
+        if: secrets.S3_BACKUP_BUCKET != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      
+      - name: Create backup directory
+        run: mkdir -p /tmp/backups
+      
+      - name: Run backup
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_DIR: /tmp/backups
+          S3_BACKUP_BUCKET: ${{ secrets.S3_BACKUP_BUCKET }}
+          BACKUP_RETENTION_DAYS: 30
+          MONTHLY_RETENTION_MONTHS: 12
+        run: |
+          BACKUP_TYPE="${{ github.event.inputs.backup_type || 'both' }}"
+          tsx scripts/backup-neon.ts --type "$BACKUP_TYPE"
+      
+      - name: Verify backup
+        if: github.event.inputs.verify != 'false'
+        env:
+          BACKUP_DIR: /tmp/backups
+        run: tsx scripts/backup-neon.ts --verify
+      
+      - name: Upload backup artifacts (for debugging)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-logs
+          path: /tmp/backups/*.log
+          retention-days: 7
+      
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Database Backup Failed',
+              body: `
+                ## Backup Failure Alert
+                
+                **Workflow:** ${context.workflow}
+                **Run:** ${context.runNumber}
+                **Time:** ${new Date().toISOString()}
+                **Branch:** ${context.ref}
+                
+                [View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+                
+                ### Action Required
+                - Check workflow logs for errors
+                - Verify Neon API credentials
+                - Verify S3 bucket access (if applicable)
+                - Manually run backup if needed
+                
+                ### HIPAA Compliance Note
+                This is a critical compliance issue. Backups must be restored within 24 hours.
+                
+                cc: @bedwards (repository owner)
+              `,
+              labels: ['bug', 'critical', 'compliance', 'backup']
+            });
+            
+            core.setOutput('issue-number', issue.data.number);
+      
+      - name: Send Slack notification on failure
+        if: failure() && secrets.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "🚨 Database Backup Failed",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🚨 Database Backup Failed"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow:*\n${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Time:*\n<!date^${{ github.event.head_commit.timestamp }}^{date_num} {time_secs}|${{ github.event.head_commit.timestamp }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${{ github.ref_name }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "⚠️ *HIPAA Compliance Alert* - Critical backup failure. Must be resolved within 24 hours."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+  verify-retention:
+    name: Verify Backup Retention Policy
+    runs-on: ubuntu-latest
+    needs: backup
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install Neon CLI
+        run: |
+          curl -fsSL https://neon.tech/install.sh | bash
+          echo "$HOME/.neon/bin" >> $GITHUB_PATH
+      
+      - name: Verify retention policy
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          echo "Checking backup retention policy (30 days)..."
+          
+          # List all backup branches
+          neon branches list --project-id "$NEON_PROJECT_ID" --output json > /tmp/branches.json
+          
+          # Count backup branches
+          BACKUP_COUNT=$(jq '[.[] | select(.name | startswith("backup-"))] | length' /tmp/branches.json)
+          echo "Current backup branch count: $BACKUP_COUNT"
+          
+          # Check for backups older than 30 days
+          THIRTY_DAYS_AGO=$(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          OLD_BACKUPS=$(jq --arg cutoff "$THIRTY_DAYS_AGO" '[.[] | select(.name | startswith("backup-")) | select(.created_at < $cutoff)] | length' /tmp/branches.json)
+          
+          if [ "$OLD_BACKUPS" -gt 0 ]; then
+            echo "⚠️ Warning: Found $OLD_BACKUPS backup branches older than 30 days"
+            echo "These should have been cleaned up by the retention policy"
+            exit 1
+          else
+            echo "✅ Retention policy verified - no backups older than 30 days"
+          fi
+      
+      - name: Verify backup count
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          echo "Verifying minimum backup count..."
+          
+          neon branches list --project-id "$NEON_PROJECT_ID" --output json > /tmp/branches.json
+          BACKUP_COUNT=$(jq '[.[] | select(.name | startswith("backup-"))] | length' /tmp/branches.json)
+          
+          # Should have at least 7 backups (one week of daily backups)
+          if [ "$BACKUP_COUNT" -lt 7 ]; then
+            echo "⚠️ Warning: Only $BACKUP_COUNT backup branches found (expected at least 7)"
+            echo "This may indicate backup failures or recent deployment"
+          else
+            echo "✅ Backup count verified - $BACKUP_COUNT backup branches available"
+          fi
