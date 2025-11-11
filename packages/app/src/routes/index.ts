@@ -24,6 +24,7 @@ import adminRoutes from './admin';
 import { createWhiteLabelRouter } from './white-label';
 import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
 import { createSearchRouter } from './search';
+import { MedicationService, createMedicationHandlers } from '@care-commons/medication-management';
 
 /**
  * Setup all API routes for the application
@@ -126,6 +127,13 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/search', searchRouter);
   console.log('  ✓ Global Search routes registered');
 
+  // Medication Management routes
+  const medicationService = new MedicationService(db);
+  const medicationHandlers = createMedicationHandlers(medicationService);
+  const medicationRouter = createMedicationRouter(medicationHandlers, db);
+  app.use('/api', medicationRouter);
+  console.log('  ✓ Medication Management routes registered');
+
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
   // - EVV & Time Tracking
@@ -179,6 +187,33 @@ function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers
   // Analytics
   router.get('/analytics/care-plans', handlers.getCarePlanAnalytics);
   router.get('/analytics/tasks/completion', handlers.getTaskCompletionMetrics);
+
+  return router;
+}
+
+/**
+ * Helper to create router from medication handlers object
+ */
+function createMedicationRouter(handlers: ReturnType<typeof createMedicationHandlers>, db: Database): Router {
+  const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All medication routes require authentication
+  router.use(authMiddleware.requireAuth);
+
+  // Client medication endpoints
+  router.get('/clients/:clientId/medications', handlers.getClientMedications);
+  router.get('/clients/:clientId/administrations', handlers.getClientAdministrations);
+
+  // Medication CRUD endpoints
+  router.post('/medications', handlers.createMedication);
+  router.get('/medications/:medicationId', handlers.getMedication);
+  router.patch('/medications/:medicationId', handlers.updateMedication);
+  router.post('/medications/:medicationId/discontinue', handlers.discontinueMedication);
+
+  // Medication administration endpoints
+  router.post('/medications/:medicationId/administer', handlers.recordAdministration);
+  router.get('/medications/:medicationId/administrations', handlers.getMedicationAdministrations);
 
   return router;
 }
