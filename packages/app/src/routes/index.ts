@@ -25,6 +25,101 @@ import { createWhiteLabelRouter } from './white-label';
 import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
 import { createSearchRouter } from './search';
 import { MedicationService, createMedicationHandlers } from '@care-commons/medication-management';
+import { IncidentService, createIncidentHandlers } from '@care-commons/incident-reporting';
+
+/**
+ * Helper to create router from care plan handlers object
+ */
+function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers>, db: Database): Router {
+  const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All care plan routes require authentication
+  router.use(authMiddleware.requireAuth);
+
+  // Care Plan endpoints
+  router.post('/care-plans', handlers.createCarePlan);
+  router.get('/care-plans', handlers.searchCarePlans);
+  router.get('/care-plans/:id', handlers.getCarePlanById);
+  router.put('/care-plans/:id', handlers.updateCarePlan);
+  router.delete('/care-plans/:id', handlers.deleteCarePlan);
+  router.post('/care-plans/:id/activate', handlers.activateCarePlan);
+  router.get('/care-plans/expiring', handlers.getExpiringCarePlans);
+
+  // Client-specific care plan endpoints
+  router.get('/clients/:clientId/care-plans', handlers.getCarePlansByClientId);
+  router.get('/clients/:clientId/care-plans/active', handlers.getActiveCarePlanForClient);
+
+  // Task generation
+  router.post('/care-plans/:id/tasks/generate', handlers.createTasksForVisit);
+
+  // Task endpoints
+  router.post('/tasks', handlers.createTaskInstance);
+  router.get('/tasks', handlers.searchTaskInstances);
+  router.get('/tasks/:id', handlers.getTaskInstanceById);
+  router.post('/tasks/:id/complete', handlers.completeTask);
+  router.post('/tasks/:id/skip', handlers.skipTask);
+  router.post('/tasks/:id/report-issue', handlers.reportTaskIssue);
+
+  // Visit tasks
+  router.get('/visits/:visitId/tasks', handlers.getTasksByVisitId);
+
+  // Progress notes
+  router.post('/progress-notes', handlers.createProgressNote);
+  router.get('/care-plans/:id/progress-notes', handlers.getProgressNotesByCarePlanId);
+
+  // Analytics
+  router.get('/analytics/care-plans', handlers.getCarePlanAnalytics);
+  router.get('/analytics/tasks/completion', handlers.getTaskCompletionMetrics);
+
+  return router;
+}
+
+/**
+ * Helper to create router from medication handlers object
+ */
+function createMedicationRouter(handlers: ReturnType<typeof createMedicationHandlers>, db: Database): Router {
+  const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All medication routes require authentication
+  router.use(authMiddleware.requireAuth);
+
+  // Client medication endpoints
+  router.get('/clients/:clientId/medications', handlers.getClientMedications);
+  router.get('/clients/:clientId/administrations', handlers.getClientAdministrations);
+
+  // Medication CRUD endpoints
+  router.post('/medications', handlers.createMedication);
+  router.get('/medications/:medicationId', handlers.getMedication);
+  router.patch('/medications/:medicationId', handlers.updateMedication);
+  router.post('/medications/:medicationId/discontinue', handlers.discontinueMedication);
+
+  // Medication administration endpoints
+  router.post('/medications/:medicationId/administer', handlers.recordAdministration);
+  router.get('/medications/:medicationId/administrations', handlers.getMedicationAdministrations);
+
+  return router;
+}
+
+/**
+ * Helper to create router from incident handlers object
+ */
+function createIncidentRouter(handlers: ReturnType<typeof createIncidentHandlers>, db: Database): Router {
+  const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
+
+  // All incident routes require authentication
+  router.use(authMiddleware.requireAuth);
+
+  // Incident CRUD endpoints
+  router.post('/incidents', handlers.createIncident);
+  router.get('/incidents', handlers.searchIncidents);
+  router.get('/incidents/:incidentId', handlers.getIncident);
+  router.patch('/incidents/:incidentId', handlers.updateIncident);
+
+  return router;
+}
 
 /**
  * Setup all API routes for the application
@@ -134,6 +229,13 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api', medicationRouter);
   console.log('  ✓ Medication Management routes registered');
 
+  // Incident Reporting routes
+  const incidentService = new IncidentService(db);
+  const incidentHandlers = createIncidentHandlers(incidentService);
+  const incidentRouter = createIncidentRouter(incidentHandlers, db);
+  app.use('/api', incidentRouter);
+  console.log('  ✓ Incident Reporting routes registered');
+
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
   // - EVV & Time Tracking
@@ -141,79 +243,4 @@ export function setupRoutes(app: Express, db: Database): void {
   // - Billing & Invoicing
 
   console.log('API routes setup complete\n');
-}
-
-/**
- * Helper to create router from care plan handlers object
- */
-function createCarePlanRouter(handlers: ReturnType<typeof createCarePlanHandlers>, db: Database): Router {
-  const router = Router();
-  const authMiddleware = new AuthMiddleware(db);
-
-  // All care plan routes require authentication
-  router.use(authMiddleware.requireAuth);
-
-  // Care Plan endpoints
-  router.post('/care-plans', handlers.createCarePlan);
-  router.get('/care-plans', handlers.searchCarePlans);
-  router.get('/care-plans/:id', handlers.getCarePlanById);
-  router.put('/care-plans/:id', handlers.updateCarePlan);
-  router.delete('/care-plans/:id', handlers.deleteCarePlan);
-  router.post('/care-plans/:id/activate', handlers.activateCarePlan);
-  router.get('/care-plans/expiring', handlers.getExpiringCarePlans);
-
-  // Client-specific care plan endpoints
-  router.get('/clients/:clientId/care-plans', handlers.getCarePlansByClientId);
-  router.get('/clients/:clientId/care-plans/active', handlers.getActiveCarePlanForClient);
-
-  // Task generation
-  router.post('/care-plans/:id/tasks/generate', handlers.createTasksForVisit);
-
-  // Task endpoints
-  router.post('/tasks', handlers.createTaskInstance);
-  router.get('/tasks', handlers.searchTaskInstances);
-  router.get('/tasks/:id', handlers.getTaskInstanceById);
-  router.post('/tasks/:id/complete', handlers.completeTask);
-  router.post('/tasks/:id/skip', handlers.skipTask);
-  router.post('/tasks/:id/report-issue', handlers.reportTaskIssue);
-
-  // Visit tasks
-  router.get('/visits/:visitId/tasks', handlers.getTasksByVisitId);
-
-  // Progress notes
-  router.post('/progress-notes', handlers.createProgressNote);
-  router.get('/care-plans/:id/progress-notes', handlers.getProgressNotesByCarePlanId);
-
-  // Analytics
-  router.get('/analytics/care-plans', handlers.getCarePlanAnalytics);
-  router.get('/analytics/tasks/completion', handlers.getTaskCompletionMetrics);
-
-  return router;
-}
-
-/**
- * Helper to create router from medication handlers object
- */
-function createMedicationRouter(handlers: ReturnType<typeof createMedicationHandlers>, db: Database): Router {
-  const router = Router();
-  const authMiddleware = new AuthMiddleware(db);
-
-  // All medication routes require authentication
-  router.use(authMiddleware.requireAuth);
-
-  // Client medication endpoints
-  router.get('/clients/:clientId/medications', handlers.getClientMedications);
-  router.get('/clients/:clientId/administrations', handlers.getClientAdministrations);
-
-  // Medication CRUD endpoints
-  router.post('/medications', handlers.createMedication);
-  router.get('/medications/:medicationId', handlers.getMedication);
-  router.patch('/medications/:medicationId', handlers.updateMedication);
-  router.post('/medications/:medicationId/discontinue', handlers.discontinueMedication);
-
-  // Medication administration endpoints
-  router.post('/medications/:medicationId/administer', handlers.recordAdministration);
-  router.get('/medications/:medicationId/administrations', handlers.getMedicationAdministrations);
-
-  return router;
 }
