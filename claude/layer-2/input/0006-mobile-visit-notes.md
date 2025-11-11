@@ -1,7 +1,7 @@
 # Task 0006: Mobile Visit Notes Entry
 
 ## Status
-[x] In Progress
+[x] Completed - 2025-11-11
 
 ## Priority
 Medium
