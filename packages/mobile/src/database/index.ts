@@ -13,7 +13,9 @@ import { schemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
 import { schema } from './schema';
 import { Visit, VisitAttachment, VisitNote, NoteTemplate, Notification } from './models/index';
 
-// Schema migrations - v1 to v2 adds attachments, notes, templates, and notifications
+// Schema migrations
+// v1 to v2: Added attachments, notes, templates, and notifications
+// v2 to v3: Enhanced visit_notes with activities, mood, and incident tracking
 const migrations: SchemaMigrations = schemaMigrations({
   migrations: [
     {
@@ -111,6 +113,24 @@ const migrations: SchemaMigrations = schemaMigrations({
               { name: 'updated_at', type: 'number', isIndexed: true },
             ],
           },
+        },
+      ],
+    },
+    {
+      toVersion: 3,
+      steps: [
+        {
+          type: 'add_columns',
+          table: 'visit_notes',
+          columns: [
+            { name: 'activities_performed', type: 'string', isOptional: true },
+            { name: 'client_mood', type: 'string', isOptional: true, isIndexed: true },
+            { name: 'client_condition_notes', type: 'string', isOptional: true },
+            { name: 'is_incident', type: 'boolean', isIndexed: true },
+            { name: 'incident_severity', type: 'string', isOptional: true, isIndexed: true },
+            { name: 'incident_description', type: 'string', isOptional: true },
+            { name: 'incident_reported_at', type: 'number', isOptional: true },
+          ],
         },
       ],
     },
