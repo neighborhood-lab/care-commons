@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
+    "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
     "zod": "^4.1.12"
   },

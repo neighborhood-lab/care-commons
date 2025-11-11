@@ -15,6 +15,7 @@ import {
   Video,
 } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
+import { DemoReset } from './DemoReset';
 
 interface ShowcaseLayoutProps {
   children: ReactNode;
@@ -79,6 +80,7 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
               <p className="text-sm text-gray-500">Showcase Edition</p>
             </div>
             <div className="flex items-center gap-3">
+              <DemoReset />
               <button
                 onClick={() => navigate('/tours')}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
