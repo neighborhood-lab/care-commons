@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useRole, type UserRole, rolePersonas } from '../contexts/RoleContext';
+import { WelcomeTourBanner } from '../components/tours/WelcomeTourBanner';
+import { QuickStartGuide } from '../components/tours/QuickStartGuide';
 import {
   Users,
   ClipboardList,
@@ -165,6 +167,9 @@ export const LandingPage: React.FC = () => {
 
   return (
     <ShowcaseLayout>
+      {/* Welcome Tour Banner */}
+      <WelcomeTourBanner />
+
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
@@ -324,6 +329,11 @@ export const LandingPage: React.FC = () => {
             );
           })}
         </div>
+      </div>
+
+      {/* Quick Start Guide */}
+      <div className="mb-16">
+        <QuickStartGuide />
       </div>
 
       {/* Features Grid */}
