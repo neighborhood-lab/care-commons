@@ -169,8 +169,11 @@ export function TasksScreen({ route, navigation }: Props) {
 
       setTasks(updatedTasks);
 
-      // Queue for sync (in production, use OfflineQueueService)
-      // await offlineQueue.queueTaskCompletion({ ... });
+      // TODO: Queue task completion for API sync when online
+      // This requires adding a task-specific queue method to OfflineQueueService
+      // For now, task completion is stored locally in state and will be persisted
+      // to WatermelonDB once the full offline sync architecture is implemented
+      // await taskQueue.queueTaskCompletion({ taskId, visitId, completedAt, notes, photos });
 
       setCompletionModalVisible(false);
       setSelectedTask(null);
@@ -214,6 +217,10 @@ export function TasksScreen({ route, navigation }: Props) {
             );
 
             setTasks(updatedTasks);
+
+            // TODO: Queue task skip for API sync when online
+            // await taskQueue.queueTaskSkip({ taskId, visitId, skipReason });
+
             setCompletionModalVisible(false);
             setSelectedTask(null);
           },
