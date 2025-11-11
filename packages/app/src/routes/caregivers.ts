@@ -15,6 +15,22 @@ export function createCaregiverRouter(db: Database): Router {
   router.use(requireAuth);
 
   /**
+   * GET /api/caregivers/me
+   * Get authenticated caregiver's profile
+   */
+  router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new CaregiverService(db);
+
+      const caregiver = await service.getCurrentCaregiverProfile(context);
+      res.json(caregiver);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
    * GET /api/caregivers
    * Search/list caregivers with filters
    */

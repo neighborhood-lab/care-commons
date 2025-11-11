@@ -10,6 +10,7 @@ import {
   NotFoundError,
   PermissionError,
   ConflictError,
+  UserRepository,
 } from '@care-commons/core';
 import { CaregiverRepository } from '../repository/caregiver-repository';
 import {
@@ -56,10 +57,12 @@ interface StateScreening {
 
 export class CaregiverService {
   private repository: CaregiverRepository;
+  private userRepository: UserRepository;
   private validator: CaregiverValidator;
 
   constructor(database: Database) {
     this.repository = new CaregiverRepository(database);
+    this.userRepository = new UserRepository(database);
     this.validator = new CaregiverValidator();
   }
 
@@ -201,6 +204,34 @@ export class CaregiverService {
       throw new NotFoundError(`Caregiver not found: ${employeeNumber}`);
     }
 
+    return this.filterSensitiveData(caregiver, context);
+  }
+
+  /**
+   * Get authenticated caregiver's profile
+   * 
+   * Links user authentication record to caregiver profile via email.
+   * This is a temporary solution using email lookup. Future enhancement:
+   * add user_id field to caregivers table for direct linkage and better performance.
+   * 
+   * @param context - User context containing userId and permissions
+   * @returns Caregiver profile for the authenticated user
+   * @throws NotFoundError if user or caregiver profile not found
+   */
+  async getCurrentCaregiverProfile(context: UserContext): Promise<Caregiver> {
+    // Get user email from user repository
+    const user = await this.userRepository.getUserById(context.userId);
+    if (!user) {
+      throw new NotFoundError(`User not found: ${context.userId}`);
+    }
+
+    // Find caregiver by email
+    const caregiver = await this.repository.findByEmail(user.email);
+    if (!caregiver) {
+      throw new NotFoundError(`Caregiver profile not found for user: ${context.userId}`);
+    }
+
+    // Caregivers can always read their own profile
     return this.filterSensitiveData(caregiver, context);
   }
 
