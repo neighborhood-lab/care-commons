@@ -17,6 +17,7 @@ import {
 import {
   ServicePattern,
   Visit,
+  VisitWithClient,
   VisitSearchFilters,
   VisitStatus,
   CreateServicePatternInput,
@@ -498,6 +499,46 @@ export class ScheduleRepository {
 
     const result = await this.pool.query(query, values);
     return result.rows.map(row => this.mapRowToVisit(row));
+  }
+
+  /**
+   * Get visits assigned to a specific caregiver within a date range
+   * 
+   * Used by mobile app to show caregiver's schedule.
+   * Includes client information for display.
+   * 
+   * @param caregiverId - ID of the caregiver
+   * @param startDate - Start of date range (inclusive)
+   * @param endDate - End of date range (inclusive)
+   * @returns Array of visits with embedded client names
+   */
+  async getVisitsByCaregiver(
+    caregiverId: UUID,
+    startDate: Date,
+    endDate: Date
+  ): Promise<VisitWithClient[]> {
+    const query = `
+      SELECT 
+        v.*,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name,
+        c.primary_phone as client_phone
+      FROM visits v
+      LEFT JOIN clients c ON v.client_id = c.id
+      WHERE v.assigned_caregiver_id = $1
+        AND v.scheduled_date >= $2
+        AND v.scheduled_date <= $3
+        AND v.deleted_at IS NULL
+      ORDER BY v.scheduled_date ASC, v.scheduled_start_time ASC
+    `;
+
+    const result = await this.pool.query(query, [caregiverId, startDate, endDate]);
+    return result.rows.map(row => ({
+      ...this.mapRowToVisit(row),
+      clientFirstName: row.client_first_name,
+      clientLastName: row.client_last_name,
+      clientPhone: row.client_phone ? JSON.parse(row.client_phone) : undefined,
+    }));
   }
 
   /**

@@ -23,9 +23,10 @@ import { createPayrollRouter } from './payroll';
 import adminRoutes from './admin';
 import { createWhiteLabelRouter } from './white-label';
 import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
-import { createSearchRouter } from './search';
+import { createSearchRouter } from './search.js';
 import { MedicationService, createMedicationHandlers } from '@care-commons/medication-management';
 import { IncidentService, createIncidentHandlers } from '@care-commons/incident-reporting';
+import { createVisitRouter } from './visits.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -172,6 +173,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered');
+
+  // Visit & Scheduling routes
+  const visitRouter = createVisitRouter(db);
+  app.use('/api/visits', visitRouter);
+  console.log('  ✓ Visit & Scheduling routes registered');
 
   // Demo routes (interactive demo system)
   const demoRouter = createDemoRouter(db);
