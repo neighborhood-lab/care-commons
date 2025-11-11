@@ -117,10 +117,33 @@ export const LandingPage: React.FC = () => {
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
           Care Commons Showcase
         </h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
           Experience the complete care coordination platform from multiple perspectives.
           All data runs locally in your browser - no backend required.
         </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            Realistic Demo Data Included
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-blue-800">
+            <div>
+              <p className="font-bold text-2xl">60+</p>
+              <p>Clients</p>
+            </div>
+            <div>
+              <p className="font-bold text-2xl">35+</p>
+              <p>Caregivers</p>
+            </div>
+            <div>
+              <p className="font-bold text-2xl">40+</p>
+              <p>Care Plans</p>
+            </div>
+            <div>
+              <p className="font-bold text-2xl">100+</p>
+              <p>Tasks & Visits</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Experience Selection */}
@@ -325,12 +348,26 @@ export const LandingPage: React.FC = () => {
             </tbody>
           </table>
         </div>
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-md p-4">
-          <p className="text-sm text-blue-800">
-            <strong>Note:</strong> This showcase runs entirely in your browser with no backend.
-            Changes you make are saved to localStorage and will persist across page reloads.
-            The full demo includes authentication, real-time sync, and production-grade infrastructure.
-          </p>
+        <div className="mt-6 space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> This showcase runs entirely in your browser with no backend.
+              Changes you make are saved to localStorage and will persist across page reloads.
+              The full demo includes authentication, real-time sync, and production-grade infrastructure.
+            </p>
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-md p-4">
+            <p className="text-sm text-green-800">
+              <strong>Demo Data:</strong> This showcase includes realistic, comprehensive demo data showcasing:
+            </p>
+            <ul className="mt-2 ml-6 list-disc text-sm text-green-800 space-y-1">
+              <li>60+ clients across Texas, Florida, and Ohio with varied demographics and conditions</li>
+              <li>35+ caregivers with different certifications, specializations, and availability</li>
+              <li>40+ care plans covering all plan types and compliance scenarios</li>
+              <li>100+ tasks and visits in various states (scheduled, in-progress, completed)</li>
+              <li>Billing, payroll, and shift matching scenarios</li>
+            </ul>
+          </div>
         </div>
       </div>
     </ShowcaseLayout>
