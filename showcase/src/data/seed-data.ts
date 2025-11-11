@@ -2,7 +2,15 @@
  * Showcase Seed Data
  *
  * Comprehensive mock data for the Care Commons showcase.
- * Different from the demo to make them distinguishable.
+ * Demonstrates all platform capabilities with realistic, varied data.
+ * 
+ * Data Scale:
+ * - 60 clients (various states, conditions, and statuses)
+ * - 35 caregivers (different certifications, specializations, availability)
+ * - 40 care plans (all types, priorities, and compliance statuses)
+ * - 600+ visits (past, present, future)
+ * - 50+ tasks (scheduled, in-progress, completed)
+ * - Multiple billing, payroll, and shift matching scenarios
  */
 
 import type {
@@ -16,6 +24,7 @@ import type {
   ShiftApplication,
 } from '../types/showcase-types.js';
 
+// Date utilities
 const now = new Date();
 const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();

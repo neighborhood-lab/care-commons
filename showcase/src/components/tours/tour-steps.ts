@@ -4,36 +4,36 @@ export const coordinatorOverviewSteps: DriveStep[] = [
   {
     element: '.dashboard-overview',
     popover: {
-      title: 'Welcome to Care Commons!',
-      description: 'This is your coordinator dashboard where you manage clients, caregivers, and visits.',
+      title: 'Welcome to Care Commons! 🎉',
+      description: 'This is your coordinator dashboard where you manage clients, caregivers, and visits. The showcase includes 60+ clients, 35+ caregivers, and 100+ tasks across TX, FL, and OH.',
     }
   },
   {
     element: '.today-visits-widget',
     popover: {
       title: "Today's Visits",
-      description: "Here you can see today's scheduled visits and their real-time status."
+      description: "See today's scheduled visits and their real-time status. The demo includes visits in various states: scheduled, in-progress, and completed with EVV compliance data."
     }
   },
   {
     element: '.active-clients-widget',
     popover: {
       title: 'Active Clients',
-      description: 'View your active clients and quickly access their care plans.'
+      description: 'View your 60+ active clients with realistic demographics, conditions, and emergency contacts. Click any client to see their full profile and care plan.'
     }
   },
   {
     element: '.caregiver-status-widget',
     popover: {
       title: 'Caregiver Status',
-      description: 'Monitor caregiver availability and current location during visits.'
+      description: 'Monitor your 35+ caregivers with varied certifications (CNAs, HHAs, companions) and availability. Real-time location tracking during visits.'
     }
   },
   {
     element: '.create-visit-button',
     popover: {
       title: 'Create New Visit',
-      description: "Let's create a new visit. Click here to get started."
+      description: "Try the smart shift matching system! It automatically suggests the best caregiver based on skills, location, and availability."
     }
   }
 ];
@@ -170,36 +170,36 @@ export const adminDashboardSteps: DriveStep[] = [
   {
     element: '.kpi-cards',
     popover: {
-      title: 'Admin Dashboard',
-      description: 'Admin dashboard provides high-level metrics for your entire agency.',
+      title: 'Admin Dashboard 📊',
+      description: 'High-level metrics for your entire agency across all locations. The demo includes multi-state operations (TX, FL, OH) with realistic KPIs.',
     }
   },
   {
     element: '.revenue-chart',
     popover: {
       title: 'Revenue Trends',
-      description: 'Track revenue trends and financial performance.'
+      description: 'Track revenue trends and financial performance with 30+ realistic invoices across paid, pending, and overdue states.'
     }
   },
   {
     element: '.compliance-alerts',
     popover: {
       title: 'Compliance Monitoring',
-      description: 'Monitor compliance issues requiring attention (EVV, credentials, training).'
+      description: 'Monitor compliance issues: EVV requirements, expiring credentials, and mandatory training. The demo includes caregivers with certifications expiring soon to demonstrate alerts.'
     }
   },
   {
     element: '.performance-metrics',
     popover: {
       title: 'Performance Metrics',
-      description: 'View caregiver performance and reliability scores.'
+      description: 'View caregiver performance scores, reliability metrics, and client satisfaction ratings based on completed visits.'
     }
   },
   {
     element: '.reports-button',
     popover: {
       title: 'Reports',
-      description: 'Generate detailed reports for payroll, billing, and compliance.'
+      description: 'Generate detailed reports for payroll, billing, compliance, and state-specific regulatory requirements (21 CFR Part 11, HIPAA).'
     }
   }
 ];
