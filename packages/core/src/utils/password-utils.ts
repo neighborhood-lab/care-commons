@@ -5,8 +5,8 @@
  * Meets NIST SP 800-132 recommendations for password-based key derivation.
  */
 
-import { pbkdf2Sync, randomBytes } from './crypto';
-import { ValidationError } from '../types/base';
+import { pbkdf2Sync, randomBytes } from './crypto-node.js';
+import { ValidationError } from '../types/base.js';
 
 export class PasswordUtils {
   // NIST recommends at least 10,000 iterations; we use 100,000 for enhanced security
