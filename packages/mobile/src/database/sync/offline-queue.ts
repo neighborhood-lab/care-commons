@@ -95,6 +95,22 @@ export class OfflineQueue {
     const queue = await this.getQueue();
     return queue.length;
   }
+  
+  static async getQueueItems(): Promise<QueuedAction[]> {
+    return await this.getQueue();
+  }
+  
+  static async retryFailedItems(): Promise<void> {
+    const queue = await this.getQueue();
+    
+    // Reset retry count for failed items
+    const resetQueue = queue.map(item => 
+      item.retries > 0 ? { ...item, retries: 0 } : item
+    );
+    
+    await AsyncStorage.setItem(this.QUEUE_KEY, JSON.stringify(resetQueue));
+    await this.processQueue();
+  }
 
   static async clearQueue() {
     await AsyncStorage.removeItem(this.QUEUE_KEY);
