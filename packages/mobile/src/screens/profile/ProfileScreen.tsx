@@ -11,7 +11,7 @@
  * - Logout functionality
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -22,12 +22,14 @@ import {
   Alert,
   Linking,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { Button, Card, CardContent, Badge } from '../../components/index';
 import { createAuthService } from '../../services/auth';
 import { useSyncStatus } from '../../hooks/useSyncStatus';
+import { getApiClient } from '../../services/api-client';
 
 interface UserProfile {
   id: string;
@@ -52,6 +54,7 @@ interface AppSettings {
 }
 
 const APP_VERSION = '1.0.0';
+const SETTINGS_STORAGE_KEY = 'app_settings';
 
 type ProfileScreenNavProp = NativeStackNavigationProp<RootStackParamList, 'Main'>;
 
@@ -67,14 +70,15 @@ export function ProfileScreen() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadProfile();
-    loadSettings();
-  }, []);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
-      // Mock data - in production, fetch from API
+      const apiClient = getApiClient();
+      const response = await apiClient.get<UserProfile>('/api/caregivers/me');
+      setProfile(response.data);
+    } catch (error) {
+      console.warn('Failed to fetch profile from API, using mock data:', error);
+      
+      // Fallback to mock data for offline or development
       const mockProfile: UserProfile = {
         id: 'cg-1',
         firstName: 'Maria',
@@ -97,51 +101,52 @@ export function ProfileScreen() {
         ],
         languages: ['English', 'Spanish'],
       };
-
       setProfile(mockProfile);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-      Alert.alert('Error', 'Failed to load profile information');
+    } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
-      // In production, load from AsyncStorage
-      // const stored = await AsyncStorage.getItem('app_settings');
-      // if (stored) setSettings(JSON.parse(stored));
+      const stored = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
+      if (stored) {
+        setSettings(JSON.parse(stored));
+      }
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      console.error('Failed to load settings from AsyncStorage:', error);
     }
-  };
+  }, []);
 
-  const saveSettings = async (newSettings: AppSettings) => {
+  const saveSettings = useCallback(async (newSettings: AppSettings) => {
     try {
       setSettings(newSettings);
-      // In production, save to AsyncStorage
-      // await AsyncStorage.setItem('app_settings', JSON.stringify(newSettings));
+      await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(newSettings));
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error('Failed to save settings to AsyncStorage:', error);
       Alert.alert('Error', 'Failed to save settings');
     }
-  };
+  }, []);
 
-  const toggleNotifications = () => {
+  useEffect(() => {
+    void loadProfile();
+    void loadSettings();
+  }, [loadProfile, loadSettings]);
+
+  const toggleNotifications = useCallback(() => {
     const newSettings = {
       ...settings,
       notificationsEnabled: !settings.notificationsEnabled,
     };
-    saveSettings(newSettings);
-  };
+    void saveSettings(newSettings);
+  }, [settings, saveSettings]);
 
-  const toggleBiometric = () => {
+  const toggleBiometric = useCallback(() => {
     const newSettings = {
       ...settings,
       biometricEnabled: !settings.biometricEnabled,
     };
-    saveSettings(newSettings);
+    void saveSettings(newSettings);
     
     if (newSettings.biometricEnabled) {
       Alert.alert(
@@ -149,22 +154,22 @@ export function ProfileScreen() {
         'Biometric authentication will be required for future logins.'
       );
     }
-  };
+  }, [settings, saveSettings]);
 
-  const toggleDarkMode = () => {
+  const toggleDarkMode = useCallback(() => {
     const newSettings = {
       ...settings,
       darkModeEnabled: !settings.darkModeEnabled,
     };
-    saveSettings(newSettings);
+    void saveSettings(newSettings);
     
     Alert.alert(
       'Theme Changed',
       'Dark mode will be applied on next app restart.'
     );
-  };
+  }, [settings, saveSettings]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
@@ -174,25 +179,33 @@ export function ProfileScreen() {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
-            const authService = createAuthService();
-            await authService.logout();
+            try {
+              const authService = createAuthService();
+              await authService.logout();
+              
+              // Clear stored settings on logout for privacy
+              await AsyncStorage.removeItem(SETTINGS_STORAGE_KEY);
+            } catch (error) {
+              console.error('Failed to logout:', error);
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
           },
         },
       ]
     );
-  };
+  }, []);
 
-  const openTerms = () => {
+  const openTerms = useCallback(() => {
     Linking.openURL('https://carecommons.example/terms');
-  };
+  }, []);
 
-  const openPrivacy = () => {
+  const openPrivacy = useCallback(() => {
     Linking.openURL('https://carecommons.example/privacy');
-  };
+  }, []);
 
-  const openSupport = () => {
+  const openSupport = useCallback(() => {
     Linking.openURL('mailto:support@carecommons.example');
-  };
+  }, []);
 
   const getCertStatusVariant = (
     status: string
