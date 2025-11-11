@@ -13,6 +13,7 @@ import {
   X,
   Plus,
   ClipboardCheck,
+  AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/core/utils';
 import { useAuth, usePermissions } from '@/core/hooks';
@@ -79,6 +80,12 @@ const navItems: NavItem[] = [
     path: '/billing',
     icon: <DollarSign className="h-5 w-5" />,
     permission: 'billing:read',
+  },
+  {
+    label: 'Incidents',
+    path: '/incidents',
+    icon: <AlertTriangle className="h-5 w-5" />,
+    permission: 'incidents:read',
   },
   {
     label: 'Quality Assurance',
