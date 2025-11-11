@@ -1,4 +1,5 @@
 import { TourLauncher } from '../components/tours/TourLauncher';
+import { TourOverview } from '../components/tours/TourOverview';
 import {
   Users,
   Calendar,
@@ -8,7 +9,8 @@ import {
   ClipboardList,
   FileText,
   Zap,
-  DollarSign
+  DollarSign,
+  Sparkles
 } from 'lucide-react';
 import { ShowcaseLayout } from '../components/ShowcaseLayout';
 
@@ -19,6 +21,42 @@ export function ToursPage() {
       description="Learn how Care Commons works through guided, interactive tours for each role and module."
     >
       <div className="space-y-8">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-8 mb-8">
+          <div className="flex items-start gap-4">
+            <div className="bg-blue-600 rounded-lg p-3">
+              <Sparkles className="h-8 w-8 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Experience Care Commons Through Interactive Guides
+              </h2>
+              <p className="text-gray-700 mb-4">
+                Our interactive tours walk you through real workflows using actual demo data. 
+                Each tour highlights key features, explains regulatory compliance considerations, 
+                and demonstrates how different roles use the platform. Complete all tours to 
+                become a Care Commons expert!
+              </p>
+              <div className="flex flex-wrap gap-3 text-sm">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  <span>Click-through demonstrations</span>
+                </div>
+                <div className="flex items-center gap-2 text-blue-700">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  <span>Real demo data included</span>
+                </div>
+                <div className="flex items-center gap-2 text-blue-700">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  <span>Track your progress</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tour Progress Overview */}
+        <TourOverview />
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             For Coordinators
