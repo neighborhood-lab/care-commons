@@ -27,6 +27,7 @@ import { Button, Badge } from '../../components/index';
 import { locationService } from '../../services/location';
 import { deviceInfoService } from '../../services/device-info';
 import { OfflineQueueService } from '../../services/offline-queue';
+import { BiometricService } from '../../services/biometric.service';
 import { database } from '../../database/index';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type {
@@ -71,6 +72,9 @@ export function ClockInScreen({ route, navigation }: Props) {
   const [isClocking, setIsClocking] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [locationSubscription, setLocationSubscription] = useState<any>(null);
+  const [biometricVerified, setBiometricVerified] = useState(false);
+  const [biometricChecking, setBiometricChecking] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   // Mock visit data (in production, load from database)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,6 +98,17 @@ export function ClockInScreen({ route, navigation }: Props) {
   };
 
   const stateRules = getStateEVVRules(visit.clientAddress.state);
+
+  /**
+   * Check biometric availability on mount
+   */
+  useEffect(() => {
+    const checkBiometric = async () => {
+      const available = await BiometricService.isAvailable();
+      setBiometricAvailable(available);
+    };
+    void checkBiometric();
+  }, []);
 
   /**
    * Initialize location tracking
@@ -244,6 +259,27 @@ export function ClockInScreen({ route, navigation }: Props) {
   };
 
   /**
+   * Handle biometric verification
+   */
+  const handleBiometricVerification = async () => {
+    setBiometricChecking(true);
+    try {
+      const success = await BiometricService.authenticate('Verify your identity to clock in');
+      if (success) {
+        setBiometricVerified(true);
+        Alert.alert('Success', 'Biometric verification successful');
+      } else {
+        Alert.alert('Verification Failed', 'Biometric authentication was not successful. Please try again.');
+      }
+    } catch (error) {
+      console.error('Biometric verification error:', error);
+      Alert.alert('Error', 'Biometric verification failed. Please try again.');
+    } finally {
+      setBiometricChecking(false);
+    }
+  };
+
+  /**
    * Handle clock in
    */
   const handleClockIn = async () => {
@@ -256,6 +292,16 @@ export function ClockInScreen({ route, navigation }: Props) {
       Alert.alert(
         'Pre-Flight Checks Failed',
         'Please resolve all issues before clocking in.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Require biometric verification if available
+    if (biometricAvailable && !biometricVerified) {
+      Alert.alert(
+        'Biometric Verification Required',
+        'Please verify your identity before clocking in.',
         [{ text: 'OK' }]
       );
       return;
@@ -470,6 +516,33 @@ export function ClockInScreen({ route, navigation }: Props) {
           />
         </View>
 
+        {/* Biometric Verification */}
+        {biometricAvailable && (
+          <View style={styles.biometricContainer}>
+            <View style={styles.biometricHeader}>
+              <Text style={styles.biometricLabel}>Biometric Verification</Text>
+              {biometricVerified && (
+                <Badge variant="success" size="sm">
+                  VERIFIED
+                </Badge>
+              )}
+            </View>
+            <Button
+              variant={biometricVerified ? 'secondary' : 'primary'}
+              onPress={handleBiometricVerification}
+              disabled={biometricChecking || biometricVerified}
+              loading={biometricChecking}
+              style={styles.biometricButton}
+            >
+              {biometricChecking
+                ? 'Verifying...'
+                : biometricVerified
+                ? 'Verified ✓'
+                : 'Verify Identity'}
+            </Button>
+          </View>
+        )}
+
         {photoUri && (
           <View style={styles.photoPreview}>
             <Text style={styles.photoPreviewText}>✓ Photo captured</Text>
@@ -490,17 +563,22 @@ export function ClockInScreen({ route, navigation }: Props) {
         <Button
           variant="primary"
           onPress={handleClockIn}
-          disabled={!preFlightPassed || isClocking}
+          disabled={
+            !preFlightPassed ||
+            isClocking ||
+            (biometricAvailable && !biometricVerified)
+          }
           loading={isClocking}
           style={styles.clockInButton}
         >
           {isClocking ? 'Clocking In...' : 'Clock In'}
         </Button>
 
-        {!preFlightPassed && (
+        {(!preFlightPassed || (biometricAvailable && !biometricVerified)) && (
           <View style={styles.warningBox}>
             <Text style={styles.warningText}>
-              ⚠️ Please resolve all pre-flight check issues before clocking in
+              ⚠️ Please resolve all pre-flight check issues
+              {biometricAvailable && !biometricVerified && ' and complete biometric verification'} before clocking in
             </Text>
           </View>
         )}
@@ -655,6 +733,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2563EB',
     fontWeight: '500',
+  },
+  biometricContainer: {
+    marginBottom: 20,
+    padding: 16,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  biometricHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  biometricLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  biometricButton: {
+    marginBottom: 0,
   },
   photoButton: {
     marginBottom: 12,
