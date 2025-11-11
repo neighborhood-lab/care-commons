@@ -19,6 +19,7 @@ import { ShiftMatchingPage } from './pages/ShiftMatchingPage';
 import { BillingPage } from './pages/BillingPage';
 import { ToursPage } from './pages/ToursPage';
 import { VideosPage } from './pages/VideosPage';
+import { StateDemoPage } from './pages/StateDemoPage';
 
 // Mobile Pages
 import { MobileHomePage } from './pages/mobile/MobileHomePage';
@@ -62,6 +63,7 @@ export const App: React.FC = () => {
                 <Route path="/billing" element={<BillingPage />} />
                 <Route path="/tours" element={<ToursPage />} />
                 <Route path="/videos" element={<VideosPage />} />
+                <Route path="/states" element={<StateDemoPage />} />
 
                 {/* Mobile Routes */}
                 <Route path="/mobile" element={<MobileHomePage />} />
