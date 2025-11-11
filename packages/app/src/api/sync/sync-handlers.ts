@@ -61,7 +61,7 @@ export function createSyncHandlers(_db: Database): {
     try {
       // Validate request
       const result = PullChangesRequestSchema.safeParse(req.query);
-      if (!result.success) {
+      if (result.success === false) {
         res.status(400).json({
           error: 'Invalid request',
           details: result.error.issues,
@@ -112,7 +112,7 @@ export function createSyncHandlers(_db: Database): {
     try {
       // Validate request
       const result = PushChangesRequestSchema.safeParse(req.body);
-      if (!result.success) {
+      if (result.success === false) {
         res.status(400).json({
           error: 'Invalid request',
           details: result.error.issues,
