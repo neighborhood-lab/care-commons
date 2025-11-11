@@ -51,6 +51,7 @@
     "db:seed:demo": "cd packages/core && npm run db:seed:demo",
     "db:seed:demo-v2": "cd packages/core && npm run db:seed:demo-v2",
     "db:seed:showcase": "cd packages/core && npm run db:seed:showcase",
+    "db:seed:showcase-comprehensive": "cd packages/core && npm run db:seed:showcase-comprehensive",
     "db:reset": "npm run db:nuke && npm run db:migrate && npm run db:seed",
     "db:reset:demo": "npm run db:reset && npm run db:seed:demo",
     "db:nuke": "cd packages/core && npm run db:nuke",
@@ -71,6 +72,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
     "@expo/config-plugins": "^54.0.2",
+    "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.1",
     "@types/express-rate-limit": "^5.1.3",
