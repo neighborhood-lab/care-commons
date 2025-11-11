@@ -29,6 +29,7 @@
     "@care-commons/caregiver-staff": "*",
     "@care-commons/client-demographics": "*",
     "@care-commons/core": "*",
+    "@care-commons/incident-reporting": "*",
     "@care-commons/medication-management": "*",
     "@care-commons/payroll-processing": "*",
     "@care-commons/quality-assurance-audits": "*",
