@@ -1,7 +1,10 @@
 /**
- * Visit Note Model
+ * Visit Note Model - Enhanced
  *
- * Represents rich text notes for visit documentation
+ * Represents rich text notes for visit documentation with:
+ * - Activities performed tracking
+ * - Client mood/condition assessment
+ * - Incident reporting
  */
 
 import { Model } from '@nozbe/watermelondb';
@@ -20,6 +23,19 @@ export class VisitNote extends Model {
   @field('note_text') noteText!: string;
   @field('note_html') noteHtml?: string;
   @field('template_id') templateId?: string;
+  
+  // Activities performed (JSON array of activity IDs)
+  @field('activities_performed') activitiesPerformed?: string;
+  
+  // Client assessment
+  @field('client_mood') clientMood?: 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR' | 'DISTRESSED' | 'UNRESPONSIVE';
+  @field('client_condition_notes') clientConditionNotes?: string;
+  
+  // Incident tracking
+  @field('is_incident') isIncident!: boolean;
+  @field('incident_severity') incidentSeverity?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  @field('incident_description') incidentDescription?: string;
+  @field('incident_reported_at') incidentReportedAt?: number;
 
   // Voice-to-text
   @field('is_voice_note') isVoiceNote!: boolean;

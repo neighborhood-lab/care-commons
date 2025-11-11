@@ -241,32 +241,26 @@ export function VisitNotesScreen({ route, navigation }: Props) {
           record.isVoiceNote = false;
           record.isSynced = false;
           record.syncPending = true;
+          record.isIncident = isIncident;
           
-          // Store activities as JSONB-compatible string
-          // Will be synced to backend as array
+          // Store activities as JSON string
           if (selectedActivities.length > 0) {
-            // @ts-expect-error - WatermelonDB doesn't have built-in JSONB support yet
-            record._raw.activities_performed = JSON.stringify(selectedActivities);
+            record.activitiesPerformed = JSON.stringify(selectedActivities);
           }
           
           // Store mood and condition
           if (clientMood) {
-            // @ts-expect-error - Extended schema field
-            record._raw.client_mood = clientMood;
+            record.clientMood = clientMood as typeof record.clientMood;
           }
           if (clientConditionNotes) {
-            // @ts-expect-error - Extended schema field
-            record._raw.client_condition_notes = clientConditionNotes;
+            record.clientConditionNotes = clientConditionNotes;
           }
           
           // Store incident data
           if (isIncident) {
-            // @ts-expect-error - Extended schema field
-            record._raw.is_incident = true;
-            // @ts-expect-error - Extended schema field
-            record._raw.incident_severity = incidentSeverity;
-            // @ts-expect-error - Extended schema field
-            record._raw.incident_description = incidentDescription;
+            record.incidentSeverity = incidentSeverity as typeof record.incidentSeverity;
+            record.incidentDescription = incidentDescription;
+            record.incidentReportedAt = Date.now();
           }
         });
       });
