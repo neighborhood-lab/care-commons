@@ -20,20 +20,37 @@ interface ExpoCrypto {
 
 type NodeCryptoModule = typeof import('node:crypto');
 
-// Lazy-loaded modules
+// Import node:crypto at module level for Node.js
+// This import will be tree-shaken/ignored by Metro bundler since it's conditional
 let nodeCrypto: NodeCryptoModule | null = null;
 let expoCrypto: ExpoCrypto | null = null;
 
+// Load node:crypto in Node.js context (not React Native)
+if (!isReactNative) {
+  // Use dynamic import at module load time
+  // This works in both ESM and CommonJS when using tsx/Node.js 22+
+  try {
+    // In Node.js, import() is available and synchronous for built-in modules
+    nodeCrypto = await import('node:crypto');
+  } catch {
+    // Fallback: not available (shouldn't happen in Node.js)
+    nodeCrypto = null;
+  }
+}
+
 /**
- * Get Node.js crypto module (lazy loaded)
- * Uses eval to completely hide from Metro bundler
+ * Get Node.js crypto module (lazy loaded for React Native)
  */
 function getNodeCrypto(): NodeCryptoModule {
   if (nodeCrypto === null) {
-    // Use eval + string encoding to completely hide from Metro
-    // Metro cannot statically analyze eval expressions
-    const req = eval('require');
-    nodeCrypto = req('node' + String.fromCharCode(58) + 'crypto') as NodeCryptoModule;
+    if (isReactNative) {
+      // Metro bundler (React Native) - use eval to hide from static analysis
+      // This prevents Metro from trying to bundle node:crypto
+      const req = eval('require');
+      nodeCrypto = req('node' + String.fromCharCode(58) + 'crypto') as NodeCryptoModule;
+    } else {
+      throw new Error('node:crypto should have been loaded at module initialization');
+    }
   }
   return nodeCrypto;
 }
