@@ -22,13 +22,15 @@
   "dependencies": {
     "@care-commons/client-demographics": "file:../client-demographics",
     "@care-commons/core": "file:../../packages/core",
-    "@care-commons/scheduling-visits": "file:../scheduling-visits",
-    "@care-commons/time-tracking-evv": "file:../time-tracking-evv",
-    "uuid": "^13.0.0"
+    "date-fns": "^4.1.0",
+    "pg": "^8.16.3",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.0",
+    "@types/pg": "^8.11.10",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitest/coverage-v8": "^4.0.8",
