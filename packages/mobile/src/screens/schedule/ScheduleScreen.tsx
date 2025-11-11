@@ -10,7 +10,7 @@
  * - Pull-to-refresh for updates
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -22,150 +22,74 @@ import {
   Linking,
   Platform,
 } from 'react-native';
-import { format, startOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
+import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { Button, Badge, Card, CardContent } from '../../components/index';
-
-// Mock types - in production, import from shared
-interface Visit {
-  id: string;
-  clientId: string;
-  clientName: string;
-  clientAddress: {
-    line1: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    latitude: number;
-    longitude: number;
-  };
-  scheduledStartTime: string;
-  scheduledEndTime: string;
-  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  serviceTypes: string[];
-}
+import { useSchedule } from '../../features/visits/hooks/useSchedule';
+import type { MobileVisit, VisitStatus } from '../../shared/index';
 
 type StatusFilter = 'all' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
 
+// TODO: Get caregiver ID from auth context
+const MOCK_CAREGIVER_ID = 'mock-caregiver-id';
+
 export function ScheduleScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [visits, setVisits] = useState<Visit[]>([]);
-  const [filteredVisits, setFilteredVisits] = useState<Visit[]>([]);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [refreshing, setRefreshing] = useState(false);
-  const [weekDays, setWeekDays] = useState<Date[]>([]);
+
+  // Use the schedule hook for offline-first data
+  const { visits, refetch } = useSchedule({
+    caregiverId: MOCK_CAREGIVER_ID,
+    selectedDate,
+  });
 
   /**
-   * Initialize week days
+   * Calculate week days
    */
-  useEffect(() => {
+  const weekDays = useMemo(() => {
     const weekStart = startOfWeek(selectedDate, { weekStartsOn: 0 }); // Sunday
-    const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-    setWeekDays(days);
+    return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   }, [selectedDate]);
-
-  /**
-   * Load visits for the week
-   */
-  useEffect(() => {
-    loadVisits();
-  }, []);
 
   /**
    * Filter visits by selected date and status
    */
-  useEffect(() => {
+  const filteredVisits = useMemo(() => {
     let filtered = visits.filter((visit) =>
-      isSameDay(parseISO(visit.scheduledStartTime), selectedDate)
+      isSameDay(visit.scheduledStartTime, selectedDate)
     );
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter((visit) => visit.status === statusFilter);
     }
 
-    setFilteredVisits(filtered);
+    return filtered;
   }, [visits, selectedDate, statusFilter]);
 
   /**
-   * Load visits from API/cache
-   */
-  const loadVisits = async () => {
-    try {
-      // Mock data - in production, fetch from API or local DB
-      const mockVisits: Visit[] = [
-        {
-          id: '1',
-          clientId: 'c1',
-          clientName: 'Dorothy Chen',
-          clientAddress: {
-            line1: '123 Main St',
-            city: 'Austin',
-            state: 'TX',
-            postalCode: '78701',
-            latitude: 30.2672,
-            longitude: -97.7431,
-          },
-          scheduledStartTime: new Date().toISOString(),
-          scheduledEndTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-          status: 'SCHEDULED',
-          serviceTypes: ['Personal Care', 'Medication Reminder'],
-        },
-        {
-          id: '2',
-          clientId: 'c2',
-          clientName: 'Robert Martinez',
-          clientAddress: {
-            line1: '456 Oak Ave',
-            city: 'Austin',
-            state: 'TX',
-            postalCode: '78702',
-            latitude: 30.2849,
-            longitude: -97.7341,
-          },
-          scheduledStartTime: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
-          scheduledEndTime: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
-          status: 'SCHEDULED',
-          serviceTypes: ['Companionship', 'Light Housekeeping'],
-        },
-        {
-          id: '3',
-          clientId: 'c3',
-          clientName: 'Sarah Johnson',
-          clientAddress: {
-            line1: '789 Elm St',
-            city: 'Austin',
-            state: 'TX',
-            postalCode: '78703',
-            latitude: 30.2911,
-            longitude: -97.7595,
-          },
-          scheduledStartTime: addDays(new Date(), 1).toISOString(),
-          scheduledEndTime: addDays(new Date(Date.now() + 2 * 60 * 60 * 1000), 1).toISOString(),
-          status: 'SCHEDULED',
-          serviceTypes: ['Meal Preparation', 'Medication Administration'],
-        },
-      ];
-
-      setVisits(mockVisits);
-    } catch (error) {
-      console.error('Failed to load visits:', error);
-      Alert.alert('Error', 'Failed to load schedule. Using cached data.');
-    }
-  };
-
-  /**
-   * Refresh visits
+   * Refresh visits (pull-to-refresh)
    */
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadVisits();
-    setRefreshing(false);
-  }, []);
+    try {
+      await refetch();
+    } catch {
+      Alert.alert('Error', 'Failed to refresh schedule. Using cached data.');
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   /**
    * Open maps app for navigation
    */
-  const handleGetDirections = (visit: Visit) => {
+  const handleGetDirections = useCallback((visit: MobileVisit) => {
     const { latitude, longitude } = visit.clientAddress;
+    if (!latitude || !longitude) {
+      Alert.alert('Error', 'Client address does not have GPS coordinates.');
+      return;
+    }
+
     const label = encodeURIComponent(visit.clientName);
 
     const scheme = Platform.select({
@@ -188,36 +112,41 @@ export function ScheduleScreen() {
         }
       });
     }
-  };
+  }, []);
 
   /**
    * Get status badge variant
    */
-  const getStatusVariant = (
-    status: Visit['status']
-  ): 'primary' | 'success' | 'warning' | 'danger' => {
-    switch (status) {
-      case 'SCHEDULED':
-        return 'primary';
-      case 'IN_PROGRESS':
-        return 'warning';
-      case 'COMPLETED':
-        return 'success';
-      case 'CANCELLED':
-        return 'danger';
-      default:
-        return 'primary';
-    }
-  };
+  const getStatusVariant = useCallback(
+    (status: VisitStatus): 'primary' | 'success' | 'warning' | 'danger' => {
+      switch (status) {
+        case 'SCHEDULED':
+          return 'primary';
+        case 'IN_PROGRESS':
+        case 'PAUSED':
+          return 'warning';
+        case 'COMPLETED':
+          return 'success';
+        case 'CANCELLED':
+        case 'PENDING_SYNC':
+          return 'danger';
+        default:
+          return 'primary';
+      }
+    },
+    []
+  );
 
   /**
    * Get visit count for a day
    */
-  const getVisitCountForDay = (day: Date): number => {
-    return visits.filter((visit) =>
-      isSameDay(parseISO(visit.scheduledStartTime), day)
-    ).length;
-  };
+  const getVisitCountForDay = useCallback(
+    (day: Date): number => {
+      return visits.filter((visit) => isSameDay(visit.scheduledStartTime, day))
+        .length;
+    },
+    [visits]
+  );
 
   return (
     <View style={styles.container}>
@@ -316,8 +245,8 @@ export function ScheduleScreen() {
                   </Badge>
                 </View>
                 <Text style={styles.visitTime}>
-                  {format(parseISO(visit.scheduledStartTime), 'h:mm a')} -{' '}
-                  {format(parseISO(visit.scheduledEndTime), 'h:mm a')}
+                  {format(visit.scheduledStartTime, 'h:mm a')} -{' '}
+                  {format(visit.scheduledEndTime, 'h:mm a')}
                 </Text>
               </View>
 
@@ -325,9 +254,10 @@ export function ScheduleScreen() {
                 <Text style={styles.visitAddress}>
                   📍 {visit.clientAddress.line1}, {visit.clientAddress.city}
                 </Text>
-                <Text style={styles.visitServices}>
-                  {visit.serviceTypes.join(' • ')}
-                </Text>
+                <Text style={styles.visitServices}>{visit.serviceTypeName}</Text>
+                {!visit.isSynced && (
+                  <Text style={styles.syncStatus}>⚠️ Not synced</Text>
+                )}
               </View>
 
               <View style={styles.visitActions}>
@@ -336,6 +266,7 @@ export function ScheduleScreen() {
                   size="sm"
                   onPress={() => handleGetDirections(visit)}
                   style={styles.actionButton}
+                  disabled={!visit.clientAddress.latitude || !visit.clientAddress.longitude}
                 >
                   Get Directions
                 </Button>
@@ -502,6 +433,12 @@ const styles = StyleSheet.create({
   visitServices: {
     fontSize: 12,
     color: '#9CA3AF',
+  },
+  syncStatus: {
+    fontSize: 12,
+    color: '#F59E0B',
+    marginTop: 4,
+    fontWeight: '500',
   },
   visitActions: {
     flexDirection: 'row',
