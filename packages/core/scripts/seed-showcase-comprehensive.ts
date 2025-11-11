@@ -32,10 +32,8 @@ const SEED_CONFIG = {
   clients: 60,        // 20 per state (TX, FL, OH)
   caregivers: 35,     // Mix of CNAs, HHAs, companions
   visits: 600,        // ~10 visits per client
-  carePlans: 50,      // Most active clients have care plans
-  familyMembers: 40,  // ~60% of clients have family portal access
-  messages: 80,       // Family-coordinator messages
-  tasks: 150,         // Scheduled tasks within care plans
+  carePlans: 50,      // ~83% of clients have care plans
+  familyMembers: 40,  // ~67% of clients have family portal access
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -60,7 +58,7 @@ function daysAgo(days: number): Date {
   return date;
 }
 
-function _daysFromNow(days: number): Date {
+function daysFromNow(days: number): Date {
   const date = new Date();
   date.setDate(date.getDate() + days);
   return date;
@@ -731,6 +729,252 @@ async function seedDatabase() {
       console.log(`✅ Created ${visits.length} visits\n`);
       
       // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 6: Generate and insert care plans (50 total, ~80% of active clients)
+      // ═══════════════════════════════════════════════════════════════════════════
+      
+      console.log(`📋 Creating ${SEED_CONFIG.carePlans} care plans...`);
+      
+      const carePlans: { id: string; clientId: string }[] = [];
+      const activeClients = clients.slice(0, SEED_CONFIG.carePlans); // First 50 clients get care plans
+      
+      for (let i = 0; i < activeClients.length; i++) {
+        const planClient = activeClients[i];
+        const planId = uuidv4();
+        const planNumber = `CP-${planClient.state}-${String(i + 1).padStart(4, '0')}`;
+        
+        const planType = randomElement<string>(['PERSONAL_CARE', 'SKILLED_NURSING', 'COMPANION', 'THERAPY']);
+        const priority = randomElement<string>(['LOW', 'MEDIUM', 'HIGH', 'URGENT']);
+        const effectiveDate = randomDateBetween(daysAgo(90), daysAgo(7));
+        const expirationDate = randomDateBetween(daysFromNow(30), daysFromNow(180));
+        
+        const goals = [
+          {
+            id: uuidv4(),
+            category: randomElement(['MOBILITY', 'ADL', 'MEDICATION_MANAGEMENT', 'SOCIAL_ENGAGEMENT']),
+            description: randomElement([
+              'Maintain safe ambulation with walker',
+              'Independent bathing with standby assistance',
+              'Medication self-administration with reminders',
+              'Attend weekly community activities',
+            ]),
+            targetDate: randomDateBetween(daysFromNow(30), daysFromNow(90)),
+            status: randomElement(['ON_TRACK', 'IN_PROGRESS', 'ACHIEVED', 'AT_RISK']),
+            progress: faker.number.int({ min: 20, max: 95 }),
+          },
+        ];
+        
+        await client.query(
+          `
+          INSERT INTO care_plans (
+            id, organization_id, branch_id, client_id,
+            plan_number, name, plan_type, status, priority,
+            effective_date, expiration_date, review_date,
+            assessment_summary, goals, estimated_hours_per_week,
+            compliance_status, created_by, updated_by, is_demo_data
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
+          `,
+          [
+            planId,
+            orgId,
+            branchId,
+            planClient.id,
+            planNumber,
+            `${planType.replace('_', ' ')} Plan for ${planClient.firstName} ${planClient.lastName}`,
+            planType,
+            'ACTIVE',
+            priority,
+            effectiveDate,
+            expirationDate,
+            randomDateBetween(daysFromNow(7), daysFromNow(30)),
+            `Comprehensive care plan for ${planClient.diagnosis}. Client requires ${planClient.mobilityLevel.toLowerCase()} assistance.`,
+            JSON.stringify(goals),
+            faker.number.int({ min: 10, max: 40 }),
+            'COMPLIANT',
+            systemUserId,
+            systemUserId,
+          ]
+        );
+        
+        carePlans.push({ id: planId, clientId: planClient.id });
+      }
+      
+      console.log(`✅ Created ${carePlans.length} care plans\n`);
+      
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 7: Generate and insert family members (40 total, ~60% of clients)
+      // ═══════════════════════════════════════════════════════════════════════════
+      
+      console.log(`👨‍👩‍👧‍👦 Creating ${SEED_CONFIG.familyMembers} family members...`);
+      
+      const familyMembers: { id: string; clientId: string }[] = [];
+      const clientsWithFamily = clients.slice(0, SEED_CONFIG.familyMembers);
+      
+      for (const familyClient of clientsWithFamily) {
+        const familyId = uuidv4();
+        const relationship = randomElement<string>(['SPOUSE', 'CHILD', 'SIBLING', 'GRANDCHILD', 'GUARDIAN']);
+        const firstName = faker.person.firstName();
+        const lastName = familyClient.lastName; // Same last name
+        
+        await client.query(
+          `
+          INSERT INTO family_members (
+            id, organization_id, branch_id, client_id,
+            first_name, last_name, email, phone_number,
+            relationship, is_primary_contact,
+            preferred_contact_method, portal_access_level,
+            status, invitation_status, receive_notifications,
+            access_granted_by, created_by, updated_by, is_demo_data
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
+          `,
+          [
+            familyId,
+            orgId,
+            branchId,
+            familyClient.id,
+            firstName,
+            lastName,
+            faker.internet.email({ firstName, lastName }).toLowerCase(),
+            `${faker.string.numeric(3)}-${faker.string.numeric(3)}-${faker.string.numeric(4)}`,
+            relationship,
+            true,
+            'EMAIL',
+            'VIEW_DETAILED',
+            'ACTIVE',
+            'ACCEPTED',
+            true,
+            systemUserId,
+            systemUserId,
+            systemUserId,
+          ]
+        );
+        
+        familyMembers.push({ id: familyId, clientId: familyClient.id });
+      }
+      
+      console.log(`✅ Created ${familyMembers.length} family members\n`);
+      
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 8: Generate basic invoices (for completed visits)
+      // ═══════════════════════════════════════════════════════════════════════════
+      
+      console.log(`💰 Creating invoices for completed visits...`);
+      
+      const completedVisits = visits.filter(v => v.status === 'COMPLETED');
+      const visitsByClient = new Map<string, typeof visits>();
+      
+      for (const visit of completedVisits) {
+        if (!visitsByClient.has(visit.clientId)) {
+          visitsByClient.set(visit.clientId, []);
+        }
+        visitsByClient.get(visit.clientId)!.push(visit);
+      }
+      
+      let invoiceCount = 0;
+      for (const [clientId, clientVisits] of visitsByClient.entries()) {
+        const invoiceClient = clients.find(c => c.id === clientId);
+        if (!invoiceClient || clientVisits.length === 0) continue;
+        
+        // Group visits by month
+        const visitsByMonth = new Map<string, typeof clientVisits>();
+        for (const visit of clientVisits) {
+          const monthKey = visit.scheduledStart.toISOString().substring(0, 7); // YYYY-MM
+          if (!visitsByMonth.has(monthKey)) {
+            visitsByMonth.set(monthKey, []);
+          }
+          visitsByMonth.get(monthKey)!.push(visit);
+        }
+        
+        // Create one invoice per month
+        for (const [monthKey, monthVisits] of visitsByMonth.entries()) {
+          const totalHours = monthVisits.reduce((sum, v) => {
+            if (!v.actualStart || !v.actualEnd) return sum;
+            const hours = (v.actualEnd.getTime() - v.actualStart.getTime()) / (1000 * 60 * 60);
+            return sum + hours;
+          }, 0);
+          
+          if (totalHours === 0) continue;
+          
+          const ratePerHour = 25.00;
+          const subtotal = totalHours * ratePerHour;
+          const taxAmount = 0; // Healthcare services often tax-exempt
+          const totalAmount = subtotal + taxAmount;
+          
+          const lineItems = monthVisits.map(v => {
+            const hours = v.actualStart && v.actualEnd 
+              ? (v.actualEnd.getTime() - v.actualStart.getTime()) / (1000 * 60 * 60)
+              : 0;
+            return {
+              visitId: v.id,
+              serviceDate: v.scheduledStart.toISOString().split('T')[0],
+              description: `${v.visitType} Services`,
+              hours: Math.round(hours * 100) / 100,
+              rate: ratePerHour,
+              amount: Math.round(hours * ratePerHour * 100) / 100,
+            };
+          });
+          
+          const periodStart = new Date(monthKey + '-01');
+          const periodEnd = new Date(periodStart);
+          periodEnd.setMonth(periodEnd.getMonth() + 1);
+          periodEnd.setDate(0); // Last day of month
+          
+          const invoiceNumber = `INV-${monthKey}-${String(invoiceCount + 1).padStart(4, '0')}`;
+          const status = randomElement<string>(['DRAFT', 'SENT', 'PAID', 'OVERDUE']);
+          
+          await client.query(
+            `
+            INSERT INTO invoices (
+              id, organization_id, branch_id,
+              invoice_number, invoice_type,
+              payer_id, payer_type, payer_name,
+              client_id, client_name,
+              period_start, period_end, invoice_date, due_date,
+              billable_item_ids, line_items,
+              subtotal, tax_amount, discount_amount, adjustment_amount,
+              total_amount, paid_amount, balance_due,
+              status, status_history, payment_terms,
+              created_by, updated_by, is_demo_data
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, true)
+            `,
+            [
+              uuidv4(),
+              orgId,
+              branchId,
+              invoiceNumber,
+              'SERVICE',
+              invoiceClient.medicaidNumber ? orgId : invoiceClient.id, // Medicaid or private pay
+              invoiceClient.medicaidNumber ? 'MEDICAID' : 'PRIVATE_PAY',
+              invoiceClient.medicaidNumber ? 'Medicaid' : `${invoiceClient.firstName} ${invoiceClient.lastName}`,
+              invoiceClient.id,
+              `${invoiceClient.firstName} ${invoiceClient.lastName}`,
+              periodStart,
+              periodEnd,
+              periodEnd, // Invoice date is end of period
+              new Date(periodEnd.getTime() + 30 * 24 * 60 * 60 * 1000), // Due 30 days later
+              JSON.stringify([]), // billable_item_ids
+              JSON.stringify(lineItems),
+              subtotal,
+              taxAmount,
+              0, // discount_amount
+              0, // adjustment_amount
+              totalAmount,
+              status === 'PAID' ? totalAmount : 0,
+              status === 'PAID' ? 0 : totalAmount,
+              status,
+              JSON.stringify([{ status, date: periodEnd, notes: 'Initial invoice' }]),
+              'Net 30',
+              systemUserId,
+              systemUserId,
+            ]
+          );
+          
+          invoiceCount++;
+        }
+      }
+      
+      console.log(`✅ Created ${invoiceCount} invoices\n`);
+      
+      // ═══════════════════════════════════════════════════════════════════════════
       // SUMMARY
       // ═══════════════════════════════════════════════════════════════════════════
       
@@ -744,6 +988,10 @@ async function seedDatabase() {
       console.log(`   - ${visits.filter(v => v.status === 'COMPLETED').length} completed visits with EVV data`);
       console.log(`   - ${visits.filter(v => v.status === 'IN_PROGRESS').length} visits in progress`);
       console.log(`   - ${visits.filter(v => v.status === 'SCHEDULED').length} scheduled future visits`);
+      console.log(`   - ${carePlans.length} care plans with goals`);
+      console.log(`   - ${familyMembers.length} family members with portal access`);
+      console.log(`   - ${invoiceCount} invoices generated`);
+      console.log(`   - Total records created: ${clients.length + caregivers.length + visits.length + carePlans.length + familyMembers.length + invoiceCount + visits.filter(v => v.evvClockInGPS).length}`);
       console.log('═══════════════════════════════════════════════════════════════\n');
     });
 
