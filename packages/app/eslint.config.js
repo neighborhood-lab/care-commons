@@ -110,6 +110,13 @@ export default [
     },
   },
   {
+    files: ['**/routes/**/*.ts', '**/api/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-misused-promises': 'off', // Express async route handlers are intentional
+      'sonarjs/deprecation': 'warn', // Zod v4 deprecations are non-breaking, downgrade to warning
+    },
+  },
+  {
     ignores: [
       'dist/',
       'dist-vercel/',
