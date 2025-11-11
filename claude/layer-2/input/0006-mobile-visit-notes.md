@@ -1,7 +1,7 @@
 # Task 0006: Mobile Visit Notes Entry
 
 ## Status
-[ ] To Do
+[x] In Progress
 
 ## Priority
 Medium
