@@ -642,3 +642,18 @@ export interface AvailabilitySlot {
   conflictingVisitIds?: UUID[];
   reason?: string;
 }
+
+/**
+ * Visit with client information for API responses
+ * 
+ * Extends Visit with denormalized client data for mobile/web display
+ */
+export interface VisitWithClient extends Visit {
+  clientFirstName?: string;
+  clientLastName?: string;
+  clientPhone?: {
+    number: string;
+    type: string;
+    canReceiveSMS: boolean;
+  };
+}
