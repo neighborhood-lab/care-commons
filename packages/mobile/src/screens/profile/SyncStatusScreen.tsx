@@ -31,16 +31,30 @@ interface SyncHistoryEntry {
   changesCount?: number;
 }
 
+interface QueuedItem {
+  id: string;
+  type: 'visit-check-in' | 'visit-check-out' | 'task-complete' | 'care-note';
+  payload: any;
+  timestamp: number;
+  retries: number;
+}
+
 export function SyncStatusScreen() {
   const { isOnline, isSyncing, lastSyncTime, manualSync } = useSyncStatus();
   const [queueSize, setQueueSize] = useState(0);
+  const [queueItems, setQueueItems] = useState<QueuedItem[]>([]);
   const [syncHistory, setSyncHistory] = useState<SyncHistoryEntry[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isManualSyncing, setIsManualSyncing] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const loadSyncData = async () => {
     const size = await OfflineQueue.getQueueSize();
     setQueueSize(size);
+    
+    // Get queue items for detailed view
+    const items = await OfflineQueue.getQueueItems();
+    setQueueItems(items);
     
     // Get sync history from manager
     const history = syncManager.getSyncHistory();
@@ -83,6 +97,31 @@ export function SyncStatusScreen() {
       );
     } finally {
       setIsManualSyncing(false);
+    }
+  };
+
+  const handleRetryFailed = async () => {
+    const failedCount = queueItems.filter(item => item.retries > 0).length;
+    
+    if (failedCount === 0) {
+      Alert.alert('No Failed Items', 'There are no failed items to retry.', [{ text: 'OK' }]);
+      return;
+    }
+    
+    if (!isOnline) {
+      Alert.alert('No Connection', 'You must be online to retry failed items.', [{ text: 'OK' }]);
+      return;
+    }
+    
+    try {
+      setIsRetrying(true);
+      await OfflineQueue.retryFailedItems();
+      await loadSyncData();
+      Alert.alert('Retry Complete', `Retried ${failedCount} failed items.`, [{ text: 'OK' }]);
+    } catch (error) {
+      Alert.alert('Retry Failed', error instanceof Error ? error.message : 'An error occurred', [{ text: 'OK' }]);
+    } finally {
+      setIsRetrying(false);
     }
   };
 
@@ -150,6 +189,26 @@ export function SyncStatusScreen() {
     if (queueSize > 0) return '⏳';
     return '✅';
   };
+  
+  const getQueueItemLabel = (type: string): string => {
+    const labels: Record<string, string> = {
+      'visit-check-in': 'Visit Check-In',
+      'visit-check-out': 'Visit Check-Out',
+      'task-complete': 'Task Completion',
+      'care-note': 'Care Note',
+    };
+    return labels[type] || type;
+  };
+  
+  const getQueueItemIcon = (type: string): string => {
+    const icons: Record<string, string> = {
+      'visit-check-in': '🟢',
+      'visit-check-out': '🔴',
+      'task-complete': '✅',
+      'care-note': '📝',
+    };
+    return icons[type] || '📄';
+  };
 
   return (
     <ScrollView
@@ -189,23 +248,69 @@ export function SyncStatusScreen() {
         </View>
       </View>
 
-      {/* Manual Sync Button */}
-      <TouchableOpacity
-        style={[
-          styles.syncButton,
-          (!isOnline || isManualSyncing || isSyncing) && styles.syncButtonDisabled,
-        ]}
-        onPress={handleManualSync}
-        disabled={!isOnline || isManualSyncing || isSyncing}
-      >
-        {isManualSyncing || isSyncing ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.syncButtonText}>
-            {isOnline ? '🔄 Sync Now' : '📴 Offline - Cannot Sync'}
-          </Text>
+      {/* Action Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[
+            styles.syncButton,
+            (!isOnline || isManualSyncing || isSyncing) && styles.syncButtonDisabled,
+          ]}
+          onPress={handleManualSync}
+          disabled={!isOnline || isManualSyncing || isSyncing}
+        >
+          {isManualSyncing || isSyncing ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.syncButtonText}>
+              {isOnline ? '🔄 Sync Now' : '📴 Offline - Cannot Sync'}
+            </Text>
+          )}
+        </TouchableOpacity>
+        
+        {queueItems.some(item => item.retries > 0) && (
+          <TouchableOpacity
+            style={[
+              styles.retryButton,
+              (!isOnline || isRetrying) && styles.syncButtonDisabled,
+            ]}
+            onPress={handleRetryFailed}
+            disabled={!isOnline || isRetrying}
+          >
+            {isRetrying ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.retryButtonText}>
+                🔄 Retry Failed ({queueItems.filter(i => i.retries > 0).length})
+              </Text>
+            )}
+          </TouchableOpacity>
         )}
-      </TouchableOpacity>
+      </View>
+      
+      {/* Pending Queue Items */}
+      {queueItems.length > 0 && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Pending Items ({queueItems.length})</Text>
+          {queueItems.map((item) => (
+            <View key={item.id} style={styles.queueItem}>
+              <View style={styles.queueItemHeader}>
+                <Text style={styles.queueItemIcon}>{getQueueItemIcon(item.type)}</Text>
+                <View style={styles.queueItemContent}>
+                  <Text style={styles.queueItemLabel}>{getQueueItemLabel(item.type)}</Text>
+                  <Text style={styles.queueItemTime}>
+                    {formatTimestamp(new Date(item.timestamp))}
+                  </Text>
+                </View>
+                {item.retries > 0 && (
+                  <View style={styles.retryBadge}>
+                    <Text style={styles.retryBadgeText}>❌ Failed ({item.retries})</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
 
       {/* Sync History */}
       {syncHistory.length > 0 && (
@@ -333,10 +438,13 @@ const styles = StyleSheet.create({
   pendingText: {
     color: '#F59E0B',
   },
-  syncButton: {
-    backgroundColor: '#2563EB',
+  buttonContainer: {
     marginHorizontal: 16,
     marginTop: 16,
+    gap: 12,
+  },
+  syncButton: {
+    backgroundColor: '#2563EB',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -347,6 +455,54 @@ const styles = StyleSheet.create({
   syncButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  retryButton: {
+    backgroundColor: '#F59E0B',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  queueItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  queueItemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  queueItemIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  queueItemContent: {
+    flex: 1,
+  },
+  queueItemLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  queueItemTime: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  retryBadge: {
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  retryBadgeText: {
+    fontSize: 11,
+    color: '#DC2626',
     fontWeight: '600',
   },
   historyItem: {

@@ -1,7 +1,7 @@
 # Task 0003: Mobile Offline Sync Status Screen
 
 ## Status
-[ ] To Do
+[x] In Progress
 
 ## Priority
 Medium
