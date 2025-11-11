@@ -3,3 +3,4 @@
  */
 
 export { useVisit } from './useVisit';
+export { useSchedule } from './useSchedule';
