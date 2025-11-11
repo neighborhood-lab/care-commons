@@ -22,8 +22,12 @@ import {
   Alert,
   Linking,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { Button, Card, CardContent, Badge } from '../../components/index';
 import { createAuthService } from '../../services/auth';
+import { useSyncStatus } from '../../hooks/useSyncStatus';
 
 interface UserProfile {
   id: string;
@@ -49,7 +53,11 @@ interface AppSettings {
 
 const APP_VERSION = '1.0.0';
 
+type ProfileScreenNavProp = NativeStackNavigationProp<RootStackParamList, 'Main'>;
+
 export function ProfileScreen() {
+  const navigation = useNavigation<ProfileScreenNavProp>();
+  const { isOnline, isSyncing } = useSyncStatus();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [settings, setSettings] = useState<AppSettings>({
     notificationsEnabled: true,
@@ -289,7 +297,22 @@ export function ProfileScreen() {
       </View>
       <Card style={styles.section}>
         <CardContent>
-          <View style={styles.settingItem}>
+          <Pressable
+            style={styles.settingItem}
+            onPress={() => navigation.navigate('SyncStatus')}
+          >
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>
+                Sync Status {isSyncing && '🔄'}
+              </Text>
+              <Text style={styles.settingDesc}>
+                {isOnline ? 'Connected - View sync status' : '📴 Offline - View pending changes'}
+              </Text>
+            </View>
+            <Text style={styles.linkArrow}>›</Text>
+          </Pressable>
+
+          <View style={[styles.settingItem, styles.settingItemBorder]}>
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Notifications</Text>
               <Text style={styles.settingDesc}>

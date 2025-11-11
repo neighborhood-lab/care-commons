@@ -30,6 +30,7 @@ import { TasksScreen } from '../screens/visits/TasksScreen';
 import { SignatureScreen } from '../screens/visits/SignatureScreen';
 import { PhotoGalleryScreen } from '../screens/visits/PhotoGalleryScreen';
 import { VisitNotesScreen } from '../screens/visits/VisitNotesScreen';
+import { SyncStatusScreen } from '../screens/profile/SyncStatusScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -58,6 +59,7 @@ export type RootStackParamList = {
     caregiverId: string;
     evvRecordId?: string;
   };
+  SyncStatus: undefined;
 };
 
 export type MainTabParamList = {
@@ -220,6 +222,13 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               component={VisitNotesScreen}
               options={{
                 title: 'Visit Notes',
+              }}
+            />
+            <RootStack.Screen
+              name="SyncStatus"
+              component={SyncStatusScreen}
+              options={{
+                title: 'Sync Status',
               }}
             />
           </>

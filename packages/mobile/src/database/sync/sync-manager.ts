@@ -8,6 +8,14 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
 interface SyncResult {
   success: boolean;
   error?: string;
+  changesCount?: number;
+}
+
+interface SyncHistoryEntry {
+  timestamp: Date;
+  success: boolean;
+  error?: string;
+  changesCount?: number;
 }
 
 // Helper function to get auth token (to be implemented)
@@ -23,6 +31,7 @@ export class SyncManager {
   private lastSyncTimestamp: number | null = null;
   private syncRetryCount = 0;
   private maxRetries = 3;
+  private syncHistory: SyncHistoryEntry[] = [];
 
   async initialize() {
     // Listen for network changes
@@ -53,6 +62,8 @@ export class SyncManager {
     this.syncInProgress = true;
 
     try {
+      let totalChanges = 0;
+      
       await synchronize({
         database,
         pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
@@ -74,6 +85,16 @@ export class SyncManager {
           }
 
           const { changes, timestamp } = await response.json();
+          
+          // Count changes
+          if (changes) {
+            Object.values(changes).forEach((tableChanges: any) => {
+              if (tableChanges?.created) totalChanges += tableChanges.created.length;
+              if (tableChanges?.updated) totalChanges += tableChanges.updated.length;
+              if (tableChanges?.deleted) totalChanges += tableChanges.deleted.length;
+            });
+          }
+          
           return { changes, timestamp };
         },
 
@@ -107,10 +128,25 @@ export class SyncManager {
       this.lastSyncTimestamp = Date.now();
       this.syncRetryCount = 0;
 
+      // Record successful sync in history
+      this.addToHistory({
+        timestamp: new Date(),
+        success: true,
+        changesCount: totalChanges,
+      });
+
       console.log('Sync completed successfully');
-      return { success: true };
+      return { success: true, changesCount: totalChanges };
     } catch (error) {
       console.error('Sync failed:', error);
+
+      // Record failed sync in history
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.addToHistory({
+        timestamp: new Date(),
+        success: false,
+        error: errorMessage,
+      });
 
       // Retry with exponential backoff
       if (this.syncRetryCount < this.maxRetries) {
@@ -124,7 +160,7 @@ export class SyncManager {
         }, retryDelay);
       }
 
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      return { success: false, error: errorMessage };
     } finally {
       this.syncInProgress = false;
     }
@@ -153,12 +189,24 @@ export class SyncManager {
     }
   }
 
+  private addToHistory(entry: SyncHistoryEntry) {
+    this.syncHistory.unshift(entry);
+    // Keep only last 20 entries
+    if (this.syncHistory.length > 20) {
+      this.syncHistory = this.syncHistory.slice(0, 20);
+    }
+  }
+
   getLastSyncTime(): Date | null {
     return this.lastSyncTimestamp ? new Date(this.lastSyncTimestamp) : null;
   }
 
   isSyncInProgress(): boolean {
     return this.syncInProgress;
+  }
+
+  getSyncHistory(): SyncHistoryEntry[] {
+    return [...this.syncHistory];
   }
 }
 
