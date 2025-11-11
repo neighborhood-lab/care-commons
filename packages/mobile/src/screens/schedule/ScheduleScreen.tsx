@@ -21,10 +21,12 @@ import {
   Alert,
   Linking,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { Button, Badge, Card, CardContent } from '../../components/index';
 import { useSchedule } from '../../features/visits/hooks/useSchedule';
+import { checkInToVisit, checkOutFromVisit } from '../../features/visits/services/visitCheckIn';
 import type { MobileVisit, VisitStatus } from '../../shared/index';
 
 type StatusFilter = 'all' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
@@ -36,6 +38,7 @@ export function ScheduleScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [refreshing, setRefreshing] = useState(false);
+  const [checkingInOut, setCheckingInOut] = useState<string | null>(null);
 
   // Use the schedule hook for offline-first data
   const { visits, refetch } = useSchedule({
@@ -77,6 +80,50 @@ export function ScheduleScreen() {
       Alert.alert('Error', 'Failed to refresh schedule. Using cached data.');
     } finally {
       setRefreshing(false);
+    }
+  }, [refetch]);
+
+  /**
+   * Handle check-in to visit
+   */
+  const handleCheckIn = useCallback(async (visit: MobileVisit) => {
+    setCheckingInOut(visit.id);
+    
+    const result = await checkInToVisit(visit.id);
+    
+    setCheckingInOut(null);
+    
+    if (result.success) {
+      const message = result.queuedForSync
+        ? 'Checked in successfully. Will sync when online.'
+        : 'Checked in successfully!';
+      
+      Alert.alert('Check-In Complete', message);
+      await refetch(); // Refresh to show updated status
+    } else {
+      Alert.alert('Check-In Failed', result.error || 'Unable to check in');
+    }
+  }, [refetch]);
+
+  /**
+   * Handle check-out from visit
+   */
+  const handleCheckOut = useCallback(async (visit: MobileVisit) => {
+    setCheckingInOut(visit.id);
+    
+    const result = await checkOutFromVisit(visit.id);
+    
+    setCheckingInOut(null);
+    
+    if (result.success) {
+      const message = result.queuedForSync
+        ? 'Checked out successfully. Will sync when online.'
+        : 'Checked out successfully!';
+      
+      Alert.alert('Check-Out Complete', message);
+      await refetch(); // Refresh to show updated status
+    } else {
+      Alert.alert('Check-Out Failed', result.error || 'Unable to check out');
     }
   }, [refetch]);
 
@@ -271,8 +318,33 @@ export function ScheduleScreen() {
                   Get Directions
                 </Button>
                 {visit.status === 'SCHEDULED' && (
-                  <Button variant="primary" size="sm" style={styles.actionButton}>
-                    Start Visit
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    style={styles.actionButton}
+                    onPress={() => handleCheckIn(visit)}
+                    disabled={checkingInOut === visit.id}
+                  >
+                    {checkingInOut === visit.id ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      'Check In'
+                    )}
+                  </Button>
+                )}
+                {visit.status === 'IN_PROGRESS' && (
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    style={styles.actionButton}
+                    onPress={() => handleCheckOut(visit)}
+                    disabled={checkingInOut === visit.id}
+                  >
+                    {checkingInOut === visit.id ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      'Check Out'
+                    )}
                   </Button>
                 )}
               </View>
