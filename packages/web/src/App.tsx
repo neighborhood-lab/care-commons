@@ -25,6 +25,7 @@ import {
   CarePlanPage,
   HealthUpdatesPage
 } from './verticals/family-engagement/pages';
+import { GlobalSearch, useGlobalSearch } from './components/search/GlobalSearch';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,9 +79,12 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
+  const { isOpen, closeSearch } = useGlobalSearch();
 
   return (
-    <Routes>
+    <>
+      {isAuthenticated && <GlobalSearch isOpen={isOpen} onClose={closeSearch} />}
+      <Routes>
       <Route
         path="/login"
         element={
@@ -350,6 +354,7 @@ function AppRoutes() {
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
 
