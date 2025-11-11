@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
 import { DashboardSelector, Login, NotFound, AdminDashboard } from './app/pages';
-import { ClientList, ClientDetail } from './verticals/client-demographics';
+import { ClientList, ClientDetail, ClientDashboard } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
@@ -116,6 +116,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <ClientList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/clients/dashboard"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <ClientDashboard />
             </AppShell>
           </ProtectedRoute>
         }
