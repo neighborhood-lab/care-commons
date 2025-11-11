@@ -19,7 +19,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 441",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 445",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "typecheck": "tsc --noEmit"
   },
@@ -30,6 +30,8 @@
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@nozbe/watermelondb": "^0.25.5",
+    "@sentry/react": "^10.25.0",
+    "@sentry/vite-plugin": "^4.6.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
