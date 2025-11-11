@@ -23,6 +23,7 @@ import { createPayrollRouter } from './payroll';
 import adminRoutes from './admin';
 import { createWhiteLabelRouter } from './white-label';
 import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
+import { createSearchRouter } from './search';
 
 /**
  * Setup all API routes for the application
@@ -119,6 +120,11 @@ export function setupRoutes(app: Express, db: Database): void {
   createAuditRoutes(auditService, auditRouter);
   app.use('/api', auditRouter);
   console.log('  ✓ Quality Assurance & Audits routes registered');
+
+  // Global Search routes
+  const searchRouter = createSearchRouter(db);
+  app.use('/api/search', searchRouter);
+  console.log('  ✓ Global Search routes registered');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
