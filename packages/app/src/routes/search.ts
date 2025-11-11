@@ -302,7 +302,7 @@ async function searchOrganizations(
   offset: number,
 ): Promise<SearchResult[]> {
   // Only allow for system admins
-  if (!context.roles.includes('admin')) {
+  if (context.roles.includes('admin') === false) {
     return [];
   }
 
