@@ -1,7 +1,7 @@
 # Task 0004: Caregiver Profile API Endpoint
 
 ## Status
-[ ] To Do
+[x] In Progress
 
 ## Priority
 High
