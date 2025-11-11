@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayrollDashboard, PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
@@ -123,6 +124,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <ClientDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/clients/:clientId/medications"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <MedicationListPage />
             </AppShell>
           </ProtectedRoute>
         }
