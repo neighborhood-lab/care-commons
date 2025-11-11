@@ -19,6 +19,10 @@ import {
   Shield,
   Monitor,
   Smartphone,
+  MapPin,
+  DollarSign,
+  TrendingUp,
+  ShieldCheck,
 } from 'lucide-react';
 
 const features = [
@@ -58,11 +62,60 @@ const features = [
     color: 'bg-pink-500',
   },
   {
+    name: 'Scheduling & Visits',
+    description: 'Manage client visits and caregiver schedules with intelligent routing and conflict detection.',
+    icon: Calendar,
+    href: '/scheduling',
+    color: 'bg-cyan-500',
+  },
+  {
+    name: 'Shift Matching',
+    description: 'Smart shift matching system connecting caregivers with client needs.',
+    icon: Users,
+    href: '/shifts',
+    color: 'bg-pink-500',
+  },
+  {
+    name: 'EVV Compliance',
+    description: '21st Century Cures Act compliance with GPS verification and multi-state aggregator support.',
+    icon: MapPin,
+    href: '/evv',
+    color: 'bg-emerald-500',
+  },
+  {
+    name: 'Payroll Processing',
+    description: 'Automated payroll with state-specific tax withholding, overtime calculations, and direct deposit.',
+    icon: DollarSign,
+    href: '/payroll',
+    color: 'bg-green-500',
+  },
+  {
     name: 'Billing & Invoicing',
-    description: 'Generate invoices, track payments, and manage billing workflows.',
+    description: 'Generate invoices, track payments, and manage billing workflows with Medicaid/Medicare support.',
     icon: FileText,
     href: '/billing',
     color: 'bg-indigo-500',
+  },
+  {
+    name: 'Analytics & Reporting',
+    description: 'Real-time dashboards and insights for financial performance, utilization, and compliance.',
+    icon: TrendingUp,
+    href: '/analytics',
+    color: 'bg-amber-500',
+  },
+  {
+    name: 'Quality Assurance',
+    description: 'Compliance checks, audits, caregiver evaluations, and incident tracking.',
+    icon: ShieldCheck,
+    href: '/quality',
+    color: 'bg-red-500',
+  },
+  {
+    name: 'Family Portal',
+    description: 'Keep families connected with real-time updates, messaging, and care plan visibility.',
+    icon: Heart,
+    href: '/family-portal',
+    color: 'bg-rose-500',
   },
 ];
 
