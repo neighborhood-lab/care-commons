@@ -8,6 +8,10 @@ import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { initializeSentry } from './src/utils/sentry';
+
+// Initialize error tracking
+initializeSentry();
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
