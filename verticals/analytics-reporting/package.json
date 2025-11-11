@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
+    "eslint": "^9.39.1",
     "exceljs": "^4.4.0",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2"

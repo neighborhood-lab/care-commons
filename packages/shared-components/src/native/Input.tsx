@@ -47,7 +47,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(
         <View
           style={[
             styles.inputContainer,
-            error && styles.inputContainerError,
+            error ? styles.inputContainerError : undefined,
           ]}
         >
           {leftIcon && <View style={styles.icon}>{leftIcon}</View>}
