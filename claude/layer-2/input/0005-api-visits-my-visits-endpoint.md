@@ -1,7 +1,7 @@
 # Task 0005: My Visits API Endpoint
 
 ## Status
-[ ] To Do
+[x] In Progress
 
 ## Priority
 High
