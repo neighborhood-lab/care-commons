@@ -14,6 +14,7 @@ import { PayrollDashboard, PayRunList, PayRunDetail } from './verticals/payroll-
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
+import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
@@ -145,6 +146,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <IncidentListPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents/new"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CreateIncidentPage />
             </AppShell>
           </ProtectedRoute>
         }
