@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@care-commons/core": "file:../../packages/core",
-    "@care-commons/scheduling-visits": "file:../scheduling-visits",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
