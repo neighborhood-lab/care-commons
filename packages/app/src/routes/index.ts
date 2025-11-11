@@ -16,7 +16,13 @@ import { createOrganizationRouter } from './organizations';
 import { createCaregiverRouter } from './caregivers';
 import { createDemoRouter } from './demo';
 import { createAnalyticsRouter } from './analytics';
-import { authLimiter } from '../middleware/rate-limit';
+import { 
+  authLimiter, 
+  generalApiLimiter, 
+  syncLimiter, 
+  reportLimiter,
+  evvLimiter 
+} from '../middleware/rate-limit';
 import { createSyncRouter } from '../api/sync/sync-routes';
 import docsRoutes from './docs.routes';
 import { createPayrollRouter } from './payroll';
@@ -149,15 +155,15 @@ export function setupRoutes(app: Express, db: Database): void {
 
   // Organization & Invitation routes
   const organizationRouter = createOrganizationRouter(db);
-  app.use('/api', organizationRouter);
-  console.log('  ✓ Organization & Invitation routes registered');
+  app.use('/api', generalApiLimiter, organizationRouter);
+  console.log('  ✓ Organization & Invitation routes registered (with rate limiting)');
 
   // Client Demographics routes
   const clientRepository = new ClientRepository(db);
   const clientService = new ClientService(clientRepository);
   const clientRouter = createClientRouter(clientService);
-  app.use('/api', clientRouter);
-  console.log('  ✓ Client Demographics routes registered');
+  app.use('/api', generalApiLimiter, clientRouter);
+  console.log('  ✓ Client Demographics routes registered (with rate limiting)');
 
   // Care Plans & Tasks routes
   const carePlanRepository = new CarePlanRepository(db);
@@ -166,47 +172,47 @@ export function setupRoutes(app: Express, db: Database): void {
   const carePlanService = new CarePlanService(carePlanRepository, permissionService, userRepository);
   const carePlanHandlers = createCarePlanHandlers(carePlanService);
   const carePlanRouter = createCarePlanRouter(carePlanHandlers, db);
-  app.use('/api', carePlanRouter);
-  console.log('  ✓ Care Plans & Tasks routes registered');
+  app.use('/api', generalApiLimiter, carePlanRouter);
+  console.log('  ✓ Care Plans & Tasks routes registered (with rate limiting)');
 
   // Caregiver & Staff Management routes
   const caregiverRouter = createCaregiverRouter(db);
-  app.use('/api/caregivers', caregiverRouter);
-  console.log('  ✓ Caregiver & Staff Management routes registered');
+  app.use('/api/caregivers', generalApiLimiter, caregiverRouter);
+  console.log('  ✓ Caregiver & Staff Management routes registered (with rate limiting)');
 
   // Visit & Scheduling routes
   const visitRouter = createVisitRouter(db);
-  app.use('/api/visits', visitRouter);
-  console.log('  ✓ Visit & Scheduling routes registered');
+  app.use('/api/visits', generalApiLimiter, visitRouter);
+  console.log('  ✓ Visit & Scheduling routes registered (with rate limiting)');
 
-  // Demo routes (interactive demo system)
+  // Demo routes (interactive demo system) - includes EVV clock-in/out
   const demoRouter = createDemoRouter(db);
-  app.use('/api/demo', demoRouter);
-  console.log('  ✓ Demo routes registered');
+  app.use('/api/demo', evvLimiter, demoRouter);
+  console.log('  ✓ Demo routes registered (with EVV rate limiting)');
 
   // Analytics & Reporting routes
   const analyticsRouter = createAnalyticsRouter(db);
-  app.use('/api/analytics', analyticsRouter);
-  console.log('  ✓ Analytics & Reporting routes registered');
+  app.use('/api/analytics', reportLimiter, analyticsRouter);
+  console.log('  ✓ Analytics & Reporting routes registered (with rate limiting)');
 
   // Offline Sync routes
   const syncRouter = createSyncRouter(db);
-  app.use('/api/sync', syncRouter);
-  console.log('  ✓ Offline Sync routes registered');
+  app.use('/api/sync', syncLimiter, syncRouter);
+  console.log('  ✓ Offline Sync routes registered (with rate limiting)');
 
   // Payroll Processing routes
   const payrollRouter = createPayrollRouter(db);
-  app.use('/api', payrollRouter);
-  console.log('  ✓ Payroll Processing routes registered');
+  app.use('/api', generalApiLimiter, payrollRouter);
+  console.log('  ✓ Payroll Processing routes registered (with rate limiting)');
 
   // Admin routes (cache monitoring, etc.)
-  app.use('/api/admin', adminRoutes);
-  console.log('  ✓ Admin routes registered');
+  app.use('/api/admin', generalApiLimiter, adminRoutes);
+  console.log('  ✓ Admin routes registered (with rate limiting)');
 
   // White-label routes (branding, feature flags)
   const whiteLabelRouter = createWhiteLabelRouter(db);
-  app.use('/api/white-label', whiteLabelRouter);
-  console.log('  ✓ White-label routes registered');
+  app.use('/api/white-label', generalApiLimiter, whiteLabelRouter);
+  console.log('  ✓ White-label routes registered (with rate limiting)');
 
   // Quality Assurance & Audits routes
   const auditRepository = new AuditRepository(db);
@@ -220,27 +226,27 @@ export function setupRoutes(app: Express, db: Database): void {
   );
   const auditRouter = Router();
   createAuditRoutes(auditService, auditRouter);
-  app.use('/api', auditRouter);
-  console.log('  ✓ Quality Assurance & Audits routes registered');
+  app.use('/api', generalApiLimiter, auditRouter);
+  console.log('  ✓ Quality Assurance & Audits routes registered (with rate limiting)');
 
   // Global Search routes
   const searchRouter = createSearchRouter(db);
-  app.use('/api/search', searchRouter);
-  console.log('  ✓ Global Search routes registered');
+  app.use('/api/search', generalApiLimiter, searchRouter);
+  console.log('  ✓ Global Search routes registered (with rate limiting)');
 
   // Medication Management routes
   const medicationService = new MedicationService(db);
   const medicationHandlers = createMedicationHandlers(medicationService);
   const medicationRouter = createMedicationRouter(medicationHandlers, db);
-  app.use('/api', medicationRouter);
-  console.log('  ✓ Medication Management routes registered');
+  app.use('/api', generalApiLimiter, medicationRouter);
+  console.log('  ✓ Medication Management routes registered (with rate limiting)');
 
   // Incident Reporting routes
   const incidentService = new IncidentService(db);
   const incidentHandlers = createIncidentHandlers(incidentService);
   const incidentRouter = createIncidentRouter(incidentHandlers, db);
-  app.use('/api', incidentRouter);
-  console.log('  ✓ Incident Reporting routes registered');
+  app.use('/api', generalApiLimiter, incidentRouter);
+  console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits
