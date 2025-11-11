@@ -10,7 +10,7 @@ import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
-import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
+import { PayrollDashboard, PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
@@ -262,6 +262,16 @@ function AppRoutes() {
       />
       <Route
         path="/payroll"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayrollDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/runs"
         element={
           <ProtectedRoute>
             <AppShell>

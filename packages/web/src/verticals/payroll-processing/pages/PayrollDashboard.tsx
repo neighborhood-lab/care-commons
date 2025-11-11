@@ -8,6 +8,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../core/hooks';
 import { PayrollSummaryCard } from '../components/PayrollSummaryCard';
 
 interface PayPeriod {
@@ -56,10 +57,8 @@ async function fetchRecentPeriods(organizationId: string, limit: number = 5): Pr
  * Payroll Dashboard Component
  */
 export const PayrollDashboard: React.FC = () => {
-  // Get organization ID from context or header
-  // For now, using a mock value - in production this would come from auth context
-  // Note: This should be retrieved from auth context in production
-  const organizationId = 'org-123';
+  const { user } = useAuth();
+  const organizationId = user?.organizationId || '';
 
   const { data: currentPeriod, isLoading: isLoadingCurrent } = useQuery({
     queryKey: ['payroll', 'current-period', organizationId],
@@ -77,7 +76,7 @@ export const PayrollDashboard: React.FC = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Payroll Management</h1>
         <Link
-          to="/admin/payroll/periods/new"
+          to="/payroll/periods/new"
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Create New Period
@@ -110,21 +109,21 @@ export const PayrollDashboard: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <QuickActionCard
-            title="Manage Timesheets"
-            description="Review and approve caregiver timesheets"
-            link="/admin/payroll/timesheets"
+            title="Manage Pay Runs"
+            description="View and manage payroll runs"
+            link="/payroll/runs"
             icon="📋"
           />
           <QuickActionCard
             title="Run Payroll"
             description="Process payroll for current period"
-            link="/admin/payroll/pay-runs/new"
+            link="/payroll/runs/new"
             icon="💰"
           />
           <QuickActionCard
-            title="View Pay Stubs"
-            description="Access pay stubs and download PDFs"
-            link="/admin/payroll/pay-stubs"
+            title="View Reports"
+            description="Access payroll reports and analytics"
+            link="/payroll/reports"
             icon="📄"
           />
         </div>
@@ -257,17 +256,17 @@ const PayPeriodCard: React.FC<PayPeriodCardProps> = ({ period, isCurrent = false
 
       <div className="mt-4 flex gap-2">
         <Link
-          to={`/admin/payroll/periods/${period.id}`}
+          to={`/payroll/periods/${period.id}`}
           className="px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           View Details
         </Link>
         {period.status === 'OPEN' && (
           <Link
-            to={`/admin/payroll/timesheets?periodId=${period.id}`}
+            to={`/payroll/runs?periodId=${period.id}`}
             className="px-3 py-2 text-sm bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
-            View Timesheets
+            View Pay Runs
           </Link>
         )}
       </div>
