@@ -6,7 +6,8 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "lib": ["ES2022", "DOM"]
   },
   "tsc-alias": {
     "resolveFullPaths": true,

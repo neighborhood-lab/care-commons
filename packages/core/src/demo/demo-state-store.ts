@@ -116,9 +116,9 @@ export class DemoStateStore {
     }, this.cleanupIntervalMs);
 
     // Don't prevent Node from exiting (only relevant in Node.js, not browser)
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, sonarjs/different-types-comparison
-    if (this.cleanupInterval !== null && 'unref' in this.cleanupInterval) {
-      this.cleanupInterval.unref();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, sonarjs/different-types-comparison, @typescript-eslint/no-explicit-any
+    if (this.cleanupInterval !== null && 'unref' in (this.cleanupInterval as any)) {
+      (this.cleanupInterval as any).unref();
     }
   }
 
