@@ -1,7 +1,7 @@
 # Backup and Restore Procedures
 
-**Version**: 1.0
-**Last Updated**: 2025-11-08
+**Version**: 2.0
+**Last Updated**: 2025-11-11
 **Owner**: DevOps/Engineering Team
 
 ---
@@ -9,6 +9,8 @@
 ## Overview
 
 This document outlines backup and restore procedures for the Care Commons platform, ensuring data protection and recovery capabilities.
+
+> **📘 Note**: This document covers manual backup procedures. For the **automated backup system** (recommended for production), see [BACKUP_RECOVERY.md](./BACKUP_RECOVERY.md).
 
 ---
 
@@ -596,7 +598,15 @@ aws s3api head-object \
 
 ---
 
-**Document Version**: 1.0
-**Last Review**: 2025-11-08
-**Next Review**: 2026-02-08 (Quarterly)
+**Document Version**: 2.0
+**Last Review**: 2025-11-11
+**Next Review**: 2026-02-11 (Quarterly)
 **Last Restore Drill**: [Schedule first drill]
+
+---
+
+## See Also
+
+- **[Automated Backup System](./BACKUP_RECOVERY.md)** - Production backup automation with GitHub Actions
+- **[Disaster Recovery Plan](../DISASTER_RECOVERY_PLAN.md)** - Complete DR procedures
+- **[Database Performance](../DATABASE_PERFORMANCE.md)** - Performance optimization guide
