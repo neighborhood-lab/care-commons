@@ -400,8 +400,8 @@ export class EVVHandlers {
       const filters: EVVRecordSearchFilters = Object.fromEntries(filterEntries);
 
       const pagination = {
-        page: parseInt(req['query']['page'] || '1'),
-        limit: parseInt(req['query']['limit'] || '25'),
+        page: parseInt(req['query']['page'] || '1', 10),
+        limit: parseInt(req['query']['limit'] || '25', 10),
         sortBy: req['query']['sortBy'] || 'serviceDate',
         sortOrder: (req['query']['sortOrder'] || 'desc') as 'asc' | 'desc',
       };

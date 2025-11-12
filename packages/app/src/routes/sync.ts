@@ -183,10 +183,19 @@ export function createSyncRouter(db: Database): Router {
         return;
       }
 
+      // Aggregation queries always return at least one row, but check for safety
+      const syncStats = result.rows[0] ?? {
+        total_syncs: 0,
+        successful_syncs: 0,
+        conflicts: 0,
+        errors: 0,
+        last_sync_time: null,
+      };
+
       res.json({
         success: true,
         data: {
-          syncStats: result.rows[0],
+          syncStats,
           device: deviceResult.rows[0],
         },
       });

@@ -32,19 +32,35 @@ export class SyncManager {
   private syncRetryCount = 0;
   private maxRetries = 3;
   private syncHistory: SyncHistoryEntry[] = [];
+  private periodicSyncInterval: NodeJS.Timeout | null = null;
+  private networkUnsubscribe: (() => void) | null = null;
 
   async initialize() {
     // Listen for network changes
-    NetInfo.addEventListener(state => {
+    this.networkUnsubscribe = NetInfo.addEventListener(state => {
       if (state.isConnected && !this.syncInProgress) {
         this.performSync();
       }
     });
 
     // Periodic sync every 5 minutes if connected
-    setInterval(() => {
+    this.periodicSyncInterval = setInterval(() => {
       this.performSync();
     }, 5 * 60 * 1000);
+  }
+
+  /**
+   * Cleanup timers and listeners - call when app unmounts or user logs out
+   */
+  cleanup() {
+    if (this.periodicSyncInterval) {
+      clearInterval(this.periodicSyncInterval);
+      this.periodicSyncInterval = null;
+    }
+    if (this.networkUnsubscribe) {
+      this.networkUnsubscribe();
+      this.networkUnsubscribe = null;
+    }
   }
 
   async performSync(): Promise<SyncResult> {

@@ -394,7 +394,7 @@ export class ArizonaComplianceValidator extends BaseComplianceValidator {
         type: 'AZ_ALTCS_TRAINING_MISSING',
         severity: 'WARNING', // Arizona is lenient - warning only
         category: 'CAREGIVER_CREDENTIALS',
-        message: `ALTCS training recommended for ${azClientData?.ahcccsProgram} program`,
+        message: `ALTCS training recommended for ${azClientData.ahcccsProgram} program`,
         regulation: 'AHCCCS Provider Manual, ALTCS Program Requirements',
         remediation: 'Complete ALTCS-specific training through approved provider',
         canBeOverridden: true,

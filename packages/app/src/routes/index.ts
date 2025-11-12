@@ -33,6 +33,7 @@ import { createSearchRouter } from './search.js';
 import { MedicationService, createMedicationHandlers } from '@care-commons/medication-management';
 import { IncidentService, createIncidentHandlers } from '@care-commons/incident-reporting';
 import { createVisitRouter } from './visits.js';
+import pushNotificationRouter from './push-notifications.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -247,6 +248,10 @@ export function setupRoutes(app: Express, db: Database): void {
   const incidentRouter = createIncidentRouter(incidentHandlers, db);
   app.use('/api', generalApiLimiter, incidentRouter);
   console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
+
+  // Push Notifications routes (for mobile device token registration)
+  app.use('/api/push', generalApiLimiter, pushNotificationRouter);
+  console.log('  ✓ Push Notifications routes registered (with rate limiting)');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Scheduling & Visits

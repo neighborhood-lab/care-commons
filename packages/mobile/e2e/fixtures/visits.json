@@ -1,0 +1,60 @@
+[
+  {
+    "id": "visit-test-001",
+    "clientId": "client-test-001",
+    "caregiverId": "caregiver-test-001",
+    "scheduledStart": "2025-11-12T09:00:00-06:00",
+    "scheduledEnd": "2025-11-12T11:00:00-06:00",
+    "serviceType": "personal_care",
+    "status": "scheduled",
+    "state": "TX",
+    "geofenceRadius": 100,
+    "evvRequired": true,
+    "tasks": [
+      {
+        "id": "task-001",
+        "title": "Assist with morning hygiene",
+        "description": "Help client with bathing and dressing",
+        "completed": false
+      },
+      {
+        "id": "task-002",
+        "title": "Prepare and serve breakfast",
+        "description": "Prepare nutritious breakfast per dietary plan",
+        "completed": false
+      },
+      {
+        "id": "task-003",
+        "title": "Medication reminder",
+        "description": "Remind client to take morning medications",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "visit-test-002",
+    "clientId": "client-test-002",
+    "caregiverId": "caregiver-test-002",
+    "scheduledStart": "2025-11-12T14:00:00-05:00",
+    "scheduledEnd": "2025-11-12T16:00:00-05:00",
+    "serviceType": "companion_care",
+    "status": "scheduled",
+    "state": "FL",
+    "geofenceRadius": 150,
+    "evvRequired": true,
+    "tasks": [
+      {
+        "id": "task-004",
+        "title": "Accompany to physical therapy",
+        "description": "Transport client to PT appointment and provide support",
+        "completed": false
+      },
+      {
+        "id": "task-005",
+        "title": "Light exercise routine",
+        "description": "Guide client through prescribed exercises",
+        "completed": false
+      }
+    ]
+  }
+]

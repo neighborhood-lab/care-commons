@@ -82,3 +82,16 @@ export {
   type EVVAggregator,
   type BackgroundScreeningType,
 } from './compliance/states/index';
+// State compliance service
+export {
+  StateComplianceService,
+  type VisitData,
+  type EVVValidationResult,
+  type EVVValidationError,
+  type CaregiverComplianceData,
+  type ClientServiceType,
+  type PlanOfCareData,
+} from './compliance/state-compliance-service';
+// Notification system
+export { getNotificationService, NotificationService } from './notifications/notification-service';
+export * from './notifications/types';
