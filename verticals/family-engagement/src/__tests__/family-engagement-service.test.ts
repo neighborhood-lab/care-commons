@@ -23,6 +23,9 @@ describe('FamilyEngagementService', () => {
   let mockActivityFeedRepo: any;
   let mockMessageRepo: any;
   let mockPermissions: any;
+  let mockUserRepository: any;
+  let mockClientService: any;
+  let mockCarePlanService: any;
   let userContext: UserContext;
 
   beforeEach(() => {
@@ -48,12 +51,30 @@ describe('FamilyEngagementService', () => {
       hasPermission: vi.fn(),
     };
 
+    // Mock user repository
+    mockUserRepository = {
+      getUserById: vi.fn(),
+    };
+
+    // Mock client service
+    mockClientService = {
+      getClientById: vi.fn(),
+    };
+
+    // Mock care plan service
+    mockCarePlanService = {
+      getActiveCarePlanForClient: vi.fn(),
+    };
+
     service = new FamilyEngagementService(
       mockFamilyMemberRepo,
       mockNotificationRepo,
       mockActivityFeedRepo,
       mockMessageRepo,
-      mockPermissions
+      mockPermissions,
+      mockUserRepository,
+      mockClientService,
+      mockCarePlanService
     );
 
     // Default user context
