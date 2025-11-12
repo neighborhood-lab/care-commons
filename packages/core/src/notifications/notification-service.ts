@@ -11,14 +11,22 @@ import type {
   NotificationRecipient,
   NotificationChannel,
 } from './types.js';
+import type { Database } from '../db/connection.js';
 import { EmailProvider } from './providers/email-provider.js';
+import { PushProvider } from './providers/push-provider.js';
 
 export class NotificationService {
   private providers: Map<string, NotificationProvider> = new Map();
   private rateLimitCache: Map<string, number[]> = new Map(); // userId -> timestamps of recent notifications
 
-  constructor() {
+  constructor(database?: Database) {
     this.registerProvider(new EmailProvider());
+    
+    // Register push provider if database is available
+    if (database !== undefined) {
+      this.registerProvider(new PushProvider(database));
+    }
+    
     // Future: Register SMS and InApp providers when needed
   }
 
@@ -218,9 +226,9 @@ export class NotificationService {
 // Singleton instance
 let instance: NotificationService | null = null;
 
-export function getNotificationService(): NotificationService {
+export function getNotificationService(database?: Database): NotificationService {
   if (instance === null) {
-    instance = new NotificationService();
+    instance = new NotificationService(database);
   }
   return instance;
 }
