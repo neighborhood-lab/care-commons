@@ -700,8 +700,8 @@ export class ClientHandlers {
       status: client.status,
       primaryPhone: client.primaryPhone?.number,
       primaryContact: client.emergencyContacts.find((c) => c.isPrimary) ?? null,
-      activeRiskFlags: client.riskFlags.filter((f) => f.resolvedDate === null || f.resolvedDate === undefined).length,
-      criticalRiskFlags: client.riskFlags.filter(
+      activeRiskFlags: (client.riskFlags || []).filter((f) => f.resolvedDate === null || f.resolvedDate === undefined).length,
+      criticalRiskFlags: (client.riskFlags || []).filter(
         (f) => (f.resolvedDate === null || f.resolvedDate === undefined) && f.severity === 'CRITICAL'
       ),
       address: client.primaryAddress ? {
@@ -709,7 +709,7 @@ export class ClientHandlers {
         city: client.primaryAddress.city,
         state: client.primaryAddress.state,
       } : null,
-      programs: client.programs.filter((p) => p.status === 'ACTIVE'),
+      programs: (client.programs || []).filter((p) => p.status === 'ACTIVE'),
       hasAllergies: (client.allergies?.length ?? 0) > 0,
       specialInstructions: client.specialInstructions,
       accessInstructions: client.accessInstructions,
@@ -872,7 +872,7 @@ export class ClientHandlers {
     // Enrich each client with dashboard-specific data
     const enrichedClients = result.items.map((client) => {
       const age = new Date().getFullYear() - client.dateOfBirth.getFullYear();
-      const activeRiskFlags = client.riskFlags.filter(
+      const activeRiskFlags = (client.riskFlags || []).filter(
         (f) => f.resolvedDate === null || f.resolvedDate === undefined
       );
       const criticalRisks = activeRiskFlags.filter((f) => f.severity === 'CRITICAL');
@@ -893,7 +893,7 @@ export class ClientHandlers {
         alertsCount: activeRiskFlags.length,
         criticalAlerts: criticalRisks.length,
         hasCriticalRisks: criticalRisks.length > 0,
-        programs: client.programs.filter((p) => p.status === 'ACTIVE').map((p) => ({
+        programs: (client.programs || []).filter((p) => p.status === 'ACTIVE').map((p) => ({
           id: p.id,
           name: p.programName,
         })),
