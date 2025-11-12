@@ -1,14 +1,14 @@
 /**
- * Placeholder test - ensures test suite passes during initial setup
- * 
- * This will be replaced with real tests as functionality is implemented.
+ * Basic smoke tests for clinical documentation module
  */
 
 import { describe, it, expect } from 'vitest';
+import { ClinicalService } from '../service/clinical-service.js';
 
-describe('Clinical Documentation - Placeholder', () => {
-  it('should pass placeholder test', () => {
-    expect(true).toBe(true);
+describe('Clinical Documentation - Module Structure', () => {
+  it('should export ClinicalService', () => {
+    expect(ClinicalService).toBeDefined();
+    expect(typeof ClinicalService).toBe('function');
   });
 
   it('should validate package structure exists', () => {

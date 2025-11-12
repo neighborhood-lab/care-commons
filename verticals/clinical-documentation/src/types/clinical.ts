@@ -5,7 +5,7 @@
  * Supports Medicare/Medicaid documentation requirements.
  */
 
-import type { Entity, UUID, Timestamp } from '@care-commons/core';
+import type { Entity, SoftDeletable, UUID, Timestamp } from '@care-commons/core';
 
 /**
  * Visit Note - Clinical documentation for a visit
@@ -13,7 +13,7 @@ import type { Entity, UUID, Timestamp } from '@care-commons/core';
  * Supports structured and free-text documentation.
  * Must be signed by licensed clinical staff (RN, LVN, PT, OT, ST).
  */
-export interface VisitNote extends Entity {
+export interface VisitNote extends Entity, SoftDeletable {
   visitId: UUID;
   organizationId: UUID;
   branchId: UUID;
