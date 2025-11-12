@@ -1,6 +1,7 @@
 import { UUID } from '@care-commons/core';
 import { EVVRecord, LocationVerification } from '../types/evv';
 import { Database } from '@care-commons/core';
+import { HHAeXchangeClient, HHAeXchangeConfig, HHAeXchangeVisitPayload } from './hhaexchange-client.js';
 
 /**
  * TX EVV Provider - HHAeXchange Aggregator integration
@@ -14,6 +15,8 @@ export interface ITexasEVVProvider {
 }
 
 export class TexasEVVProvider implements ITexasEVVProvider {
+  private hhaClient: HHAeXchangeClient | null = null;
+
   constructor(private database: Database) {}
 
   /**
@@ -44,26 +47,68 @@ export class TexasEVVProvider implements ITexasEVVProvider {
       programType: config['medicaid_program']
     };
 
-    // TODO: Replace with actual HHAeXchange API call
-    // const response = await fetch('https://api.hhaeexchange.com/v2/visits', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${config.api_key}`,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(payload)
-    // });
+    // Initialize HHAeXchange client if not already done (and credentials configured)
+    if (!this.hhaClient) {
+      try {
+        this.hhaClient = await this.initializeHHAClient(evvRecord.organizationId);
+      } catch (error) {
+        // Credentials not configured - will queue for later submission
+        console.warn('[TexasEVVProvider] HHAeXchange client not initialized:', error);
+      }
+    }
+
+    // Submit to HHAeXchange API (if client is initialized)
+    let aggregatorResponse;
+    let submissionStatus: 'SUBMITTED' | 'PENDING' | 'FAILED';
+
+    if (this.hhaClient) {
+      try {
+        const visitPayload: HHAeXchangeVisitPayload = {
+          visitId: evvRecord.visitId,
+          memberId: evvRecord.clientMedicaidId || '',
+          providerId: (config['agency_npi'] as string) || '',
+          caregiverId: evvRecord.caregiverNationalProviderId || '',
+          serviceTypeCode: evvRecord.serviceTypeCode || '',
+          serviceStartDateTime: evvRecord.clockInTime.toISOString(),
+          serviceEndDateTime: evvRecord.clockOutTime?.toISOString(),
+          location: {
+            latitude: evvRecord.clockInVerification.latitude,
+            longitude: evvRecord.clockInVerification.longitude,
+            accuracy: evvRecord.clockInVerification.accuracy
+          },
+          programType: (config['medicaid_program'] as string) || 'STAR+PLUS'
+        };
+
+        aggregatorResponse = await this.hhaClient.submitVisit(visitPayload);
+        submissionStatus = aggregatorResponse.success ? 'SUBMITTED' : 'FAILED';
+      } catch (error) {
+        console.error('[TexasEVVProvider] HHAeXchange submission failed:', error);
+        submissionStatus = 'FAILED';
+        // Continue to store failed submission for retry queue
+      }
+    } else {
+      // Client not initialized (credentials missing) - queue for later
+      submissionStatus = 'PENDING';
+    }
 
     // Store submission record
     const submissionId = await this.database.query(`
       INSERT INTO state_aggregator_submissions (
         id, state_code, evv_record_id, aggregator_id, aggregator_type,
-        submission_payload, submission_format, submitted_by, submission_status
+        submission_payload, submission_format, submitted_by, submission_status,
+        aggregator_response, submitted_at
       ) VALUES (
         gen_random_uuid(), 'TX', $1, 'HHAEEXCHANGE', 'PRIMARY',
-        $2::jsonb, 'JSON', $3, 'PENDING'
+        $2::jsonb, 'JSON', $3, $4,
+        $5::jsonb, NOW()
       ) RETURNING id
-    `, [evvRecord.id, JSON.stringify(payload), evvRecord.recordedBy]);
+    `, [
+      evvRecord.id,
+      JSON.stringify(payload),
+      evvRecord.recordedBy,
+      submissionStatus,
+      aggregatorResponse ? JSON.stringify(aggregatorResponse) : null
+    ]);
 
     return {
       submissionId: submissionId.rows[0]!['id'] as UUID,
@@ -128,6 +173,36 @@ export class TexasEVVProvider implements ITexasEVVProvider {
       'SYSTEM_ERROR': 'TX_SYS_ERR'
     };
     return codeMap[reason] || 'TX_OTHER';
+  }
+
+  /**
+   * Initialize HHAeXchange client with credentials from environment/config
+   */
+  private async initializeHHAClient(orgId: UUID): Promise<HHAeXchangeClient> {
+    const config = await this.getTexasEVVConfig(orgId);
+
+    if (!config) {
+      throw new Error('Texas EVV configuration not found');
+    }
+
+    // Use environment variables for credentials (never store in DB)
+    const clientId = process.env.HHAEXCHANGE_CLIENT_ID || '';
+    const clientSecret = process.env.HHAEXCHANGE_CLIENT_SECRET || '';
+    const baseURL = process.env.HHAEXCHANGE_BASE_URL || 'https://sandbox.hhaexchange.com/api';
+
+    if (!clientId || !clientSecret) {
+      console.warn('[TexasEVVProvider] HHAeXchange credentials not configured - submissions will be queued');
+      throw new Error('HHAeXchange credentials not configured');
+    }
+
+    const hhaConfig: HHAeXchangeConfig = {
+      clientId,
+      clientSecret,
+      baseURL,
+      agencyId: (config['agency_id'] as string) || ''
+    };
+
+    return new HHAeXchangeClient(hhaConfig);
   }
 }
 
