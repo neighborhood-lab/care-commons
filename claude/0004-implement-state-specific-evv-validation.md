@@ -1,8 +1,8 @@
 # Task 0004: Implement State-Specific EVV Validation
 
 ## Status
-- [x] To Do
-- [ ] In Progress
+- [ ] To Do
+- [x] In Progress
 - [ ] Completed
 
 ## Priority
