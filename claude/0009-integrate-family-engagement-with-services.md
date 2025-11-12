@@ -1,8 +1,8 @@
 # Task 0009: Integrate Family Engagement with Client/Care Plan Services
 
 ## Status
-- [x] To Do
-- [ ] In Progress
+- [ ] To Do
+- [x] In Progress
 - [ ] Completed
 
 ## Priority
