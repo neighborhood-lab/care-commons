@@ -28,6 +28,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { Button, Card, CardContent, Badge } from '../../components/index';
 import { createAuthService } from '../../services/auth';
+import { BiometricService } from '../../services/biometric.service';
 import { useSyncStatus } from '../../hooks/useSyncStatus';
 import { getApiClient } from '../../services/api-client';
 
@@ -111,7 +112,20 @@ export function ProfileScreen() {
     try {
       const stored = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
       if (stored) {
-        setSettings(JSON.parse(stored));
+        const storedSettings = JSON.parse(stored);
+        // Load actual biometric enabled state from BiometricService
+        const biometricEnabled = await BiometricService.isBiometricEnabled();
+        setSettings({
+          ...storedSettings,
+          biometricEnabled,
+        });
+      } else {
+        // If no stored settings, load biometric state
+        const biometricEnabled = await BiometricService.isBiometricEnabled();
+        setSettings(prev => ({
+          ...prev,
+          biometricEnabled,
+        }));
       }
     } catch (error) {
       console.error('Failed to load settings from AsyncStorage:', error);
@@ -141,17 +155,61 @@ export function ProfileScreen() {
     void saveSettings(newSettings);
   }, [settings, saveSettings]);
 
-  const toggleBiometric = useCallback(() => {
-    const newSettings = {
-      ...settings,
-      biometricEnabled: !settings.biometricEnabled,
-    };
-    void saveSettings(newSettings);
-    
-    if (newSettings.biometricEnabled) {
+  const toggleBiometric = useCallback(async () => {
+    try {
+      // Check if biometric is available
+      const isAvailable = await BiometricService.isAvailable();
+      
+      if (!isAvailable) {
+        Alert.alert(
+          'Biometric Not Available',
+          'Biometric authentication is not available on this device. Please ensure you have enrolled your fingerprint or Face ID in device settings.'
+        );
+        return;
+      }
+
+      if (!settings.biometricEnabled) {
+        // Enabling biometric - authenticate first
+        const biometricType = await BiometricService.getBiometricTypeName();
+        const success = await BiometricService.enableBiometricLogin();
+        
+        if (success) {
+          const newSettings = {
+            ...settings,
+            biometricEnabled: true,
+          };
+          await saveSettings(newSettings);
+          
+          Alert.alert(
+            'Biometric Enabled',
+            `${biometricType} authentication will be used for future logins.`
+          );
+        } else {
+          Alert.alert(
+            'Authentication Failed',
+            'Biometric authentication failed. Please try again.'
+          );
+        }
+      } else {
+        // Disabling biometric
+        await BiometricService.disableBiometricLogin();
+        
+        const newSettings = {
+          ...settings,
+          biometricEnabled: false,
+        };
+        await saveSettings(newSettings);
+        
+        Alert.alert(
+          'Biometric Disabled',
+          'You will be required to enter your password on next login.'
+        );
+      }
+    } catch (error) {
+      console.error('Error toggling biometric:', error);
       Alert.alert(
-        'Biometric Authentication',
-        'Biometric authentication will be required for future logins.'
+        'Error',
+        'Failed to update biometric settings. Please try again.'
       );
     }
   }, [settings, saveSettings]);
@@ -182,6 +240,9 @@ export function ProfileScreen() {
             try {
               const authService = createAuthService();
               await authService.logout();
+              
+              // Clear biometric data for security
+              await BiometricService.disableBiometricLogin();
               
               // Clear stored settings on logout for privacy
               await AsyncStorage.removeItem(SETTINGS_STORAGE_KEY);
