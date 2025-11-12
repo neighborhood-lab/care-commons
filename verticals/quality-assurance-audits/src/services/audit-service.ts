@@ -597,15 +597,53 @@ export class AuditService {
     // Get overdue corrective actions
     const overdueCorrectiveActions = await this.correctiveActionRepo.getOverdueActions(context.organizationId, 10);
 
-    // TODO: Calculate statistics
+    // Calculate statistics from all audits
+    const allAudits = [...upcomingAudits, ...inProgressAudits, ...recentlyCompleted];
+    
+    // Group audits by status
+    const auditsByStatus: Record<string, number> = {};
+    for (const audit of allAudits) {
+      auditsByStatus[audit.status] = (auditsByStatus[audit.status] || 0) + 1;
+    }
+    
+    // Group audits by type
+    const auditsByType: Record<string, number> = {};
+    for (const audit of allAudits) {
+      auditsByType[audit.auditType] = (auditsByType[audit.auditType] || 0) + 1;
+    }
+    
+    // Group findings by severity from critical findings
+    const findingsBySeverity: Record<string, number> = {};
+    for (const finding of criticalFindings) {
+      findingsBySeverity[finding.severity] = (findingsBySeverity[finding.severity] || 0) + 1;
+    }
+    
+    // Calculate average compliance score from completed audits
+    const completedAuditsWithScores = recentlyCompleted.filter(audit => 
+      audit.complianceScore !== undefined && audit.complianceScore !== null
+    );
+    const averageComplianceScore = completedAuditsWithScores.length > 0
+      ? completedAuditsWithScores.reduce((sum, audit) => sum + (audit.complianceScore || 0), 0) / completedAuditsWithScores.length
+      : 0;
+    
+    // Get all corrective actions for organization to count open ones
+    // Use repository findAll method with high limit to get all for statistics
+    const allCorrectiveActionsResult = await this.correctiveActionRepo.findAll({
+      page: 1,
+      limit: 1000 // High limit to get all for stats calculation
+    });
+    const openCorrectiveActions = allCorrectiveActionsResult.items.filter((action: CorrectiveAction) => 
+      action.status !== 'IMPLEMENTED' && action.status !== 'VERIFIED' && action.status !== 'CLOSED'
+    ).length;
+    
     const statistics: AuditStatistics = {
-      totalAudits: upcomingAudits.length + inProgressAudits.length + recentlyCompleted.length,
-      auditsByStatus: {} as Record<string, number>,
-      auditsByType: {} as Record<string, number>,
+      totalAudits: allAudits.length,
+      auditsByStatus,
+      auditsByType,
       totalFindings: criticalFindings.length,
-      findingsBySeverity: {} as Record<string, number>,
-      averageComplianceScore: 0,
-      openCorrectiveActions: 0,
+      findingsBySeverity,
+      averageComplianceScore: Math.round(averageComplianceScore * 10) / 10, // Round to 1 decimal
+      openCorrectiveActions,
       overdueCorrectiveActions: overdueCorrectiveActions.length
     };
 
