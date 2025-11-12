@@ -555,6 +555,20 @@ export class MessageRepository {
   }
 
   /**
+   * Get thread by ID
+   */
+  async getThreadById(threadId: UUID): Promise<MessageThread | null> {
+    const query = `
+      SELECT * FROM message_threads
+      WHERE id = $1
+      AND deleted_at IS NULL
+    `;
+
+    const result = await this.database.query(query, [threadId]);
+    return result.rows[0] ? this.mapRowToThread(result.rows[0]) : null;
+  }
+
+  /**
    * Get messages in thread
    */
   async getMessagesInThread(threadId: UUID): Promise<Message[]> {
