@@ -1,7 +1,7 @@
 # Task 0011: Mobile Biometric Authentication
 
 ## Status
-[ ] To Do
+[x] In Progress
 
 ## Priority
 Medium
