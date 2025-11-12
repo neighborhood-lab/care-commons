@@ -1,7 +1,7 @@
 # Task 0012: API Documentation with OpenAPI
 
 ## Status
-[x] In Progress
+[x] Completed - PR #269 Merged
 
 ## Priority
 Medium
@@ -10,14 +10,14 @@ Medium
 Generate comprehensive API documentation using OpenAPI/Swagger spec. Essential for external integrations, mobile team coordination, and future API consumers.
 
 ## Acceptance Criteria
-- [ ] OpenAPI 3.0 spec file generated
-- [ ] All endpoints documented with request/response schemas
-- [ ] Authentication flow documented
-- [ ] Example requests and responses
-- [ ] Error codes documented
-- [ ] Swagger UI hosted at `/api/docs`
-- [ ] Auto-generated from JSDoc comments where possible
-- [ ] Rate limit documentation
+- [x] OpenAPI 3.0 spec file generated
+- [x] All endpoints documented with request/response schemas
+- [x] Authentication flow documented
+- [x] Example requests and responses
+- [x] Error codes documented
+- [x] Swagger UI hosted at `/api/docs`
+- [x] Auto-generated from JSDoc comments where possible
+- [x] Rate limit documentation
 - [ ] Versioning strategy documented
 - [ ] Postman collection exported
 

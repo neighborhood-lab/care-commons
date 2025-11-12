@@ -1,7 +1,7 @@
 # Task 0011: Mobile Biometric Authentication
 
 ## Status
-[x] In Progress
+[x] Completed - PR #270 Merged
 
 ## Priority
 Medium
@@ -10,15 +10,15 @@ Medium
 Allow caregivers to use fingerprint/Face ID for quick re-authentication after initial login. Improves UX while maintaining security for accessing PHI.
 
 ## Acceptance Criteria
-- [ ] Biometric enrollment flow after login
-- [ ] Store encrypted token in SecureStore
-- [ ] Biometric prompt on app foreground (after 5 min background)
-- [ ] Fallback to PIN/password if biometric fails
-- [ ] Settings toggle in ProfileScreen (already exists)
-- [ ] Clear biometric data on logout
-- [ ] Works on both iOS (Face ID/Touch ID) and Android
-- [ ] Graceful handling of unsupported devices
-- [ ] Respects user's biometric toggle preference
+- [x] Biometric enrollment flow after login
+- [x] Store encrypted token in SecureStore
+- [x] Biometric prompt on app foreground (after 5 min background)
+- [x] Fallback to PIN/password if biometric fails
+- [x] Settings toggle in ProfileScreen (already exists)
+- [x] Clear biometric data on logout
+- [x] Works on both iOS (Face ID/Touch ID) and Android
+- [x] Graceful handling of unsupported devices
+- [x] Respects user's biometric toggle preference
 
 ## Technical Notes
 - Use expo-local-authentication
