@@ -80,8 +80,8 @@ export const useMatchShift = () => {
   return useMutation({
     mutationFn: (input: MatchShiftInput) => shiftMatchingApi.matchShift(input),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['match-candidates', variables.openShiftId] });
-      queryClient.invalidateQueries({ queryKey: ['open-shifts'] });
+      void queryClient.invalidateQueries({ queryKey: ['match-candidates', variables.openShiftId] });
+      void queryClient.invalidateQueries({ queryKey: ['open-shifts'] });
       toast.success('Matching completed successfully');
     },
     onError: (error: Error) => {
@@ -97,8 +97,8 @@ export const useCreateProposal = () => {
   return useMutation({
     mutationFn: (input: CreateProposalInput) => shiftMatchingApi.createProposal(input),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['proposals'] });
-      queryClient.invalidateQueries({ queryKey: ['open-shifts', data.openShiftId] });
+      void queryClient.invalidateQueries({ queryKey: ['proposals'] });
+      void queryClient.invalidateQueries({ queryKey: ['open-shifts', data.openShiftId] });
       toast.success('Proposal created successfully');
     },
     onError: (error: Error) => {
@@ -115,9 +115,9 @@ export const useRespondToProposal = () => {
     mutationFn: ({ id, input }: { id: string; input: RespondToProposalInput }) =>
       shiftMatchingApi.respondToProposal(id, input),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['proposals'] });
-      queryClient.invalidateQueries({ queryKey: ['proposals', data.id] });
-      queryClient.invalidateQueries({ queryKey: ['open-shifts'] });
+      void queryClient.invalidateQueries({ queryKey: ['proposals'] });
+      void queryClient.invalidateQueries({ queryKey: ['proposals', data.id] });
+      void queryClient.invalidateQueries({ queryKey: ['open-shifts'] });
       toast.success(data.proposalStatus === 'ACCEPTED' ? 'Proposal accepted' : 'Proposal rejected');
     },
     onError: (error: Error) => {
@@ -133,8 +133,8 @@ export const useWithdrawProposal = () => {
   return useMutation({
     mutationFn: (id: string) => shiftMatchingApi.withdrawProposal(id),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['proposals'] });
-      queryClient.invalidateQueries({ queryKey: ['proposals', data.id] });
+      void queryClient.invalidateQueries({ queryKey: ['proposals'] });
+      void queryClient.invalidateQueries({ queryKey: ['proposals', data.id] });
       toast.success('Proposal withdrawn');
     },
     onError: (error: Error) => {
