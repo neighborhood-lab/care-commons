@@ -429,7 +429,7 @@ export class ScheduleService {
     );
 
     // If no time specified, just check if any visits exist
-    if (validated.startTime === undefined || validated.startTime === null || validated.endTime === undefined || validated.endTime === null) {
+    if (validated.startTime == null || validated.endTime == null) {
       return visits.items.length === 0;
     }
 
