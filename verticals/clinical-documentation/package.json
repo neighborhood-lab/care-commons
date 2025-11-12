@@ -1,0 +1,57 @@
+{
+  "name": "@care-commons/clinical-documentation",
+  "version": "0.1.0",
+  "//1": "════════════════════════════════════════════════════════════════",
+  "//2": "⚠️  ESM VERTICAL - type:module required",
+  "//3": "════════════════════════════════════════════════════════════════",
+  "type": "module",
+  "description": "Clinical Documentation - Visit notes, vital signs, wound care, OASIS assessments for skilled nursing",
+  "engines": {
+    "node": "22.x"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && tsc-alias -p tsconfig.json",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext ts --max-warnings 10",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@care-commons/core": "file:../../packages/core",
+    "date-fns": "^4.1.0",
+    "pg": "^8.16.3",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.0",
+    "@types/pg": "^8.11.10",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "@vitest/coverage-v8": "^4.0.8",
+    "eslint": "^9.39.1",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-security": "^3.0.0",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-unicorn": "^62.0.0",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "keywords": [
+    "clinical",
+    "documentation",
+    "visit-notes",
+    "vital-signs",
+    "wound-care",
+    "oasis",
+    "skilled-nursing",
+    "medicare",
+    "home-health"
+  ],
+  "license": "AGPL-3.0"
+}
