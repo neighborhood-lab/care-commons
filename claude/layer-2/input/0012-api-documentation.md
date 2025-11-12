@@ -1,7 +1,7 @@
 # Task 0012: API Documentation with OpenAPI
 
 ## Status
-[ ] To Do
+[x] In Progress
 
 ## Priority
 Medium
