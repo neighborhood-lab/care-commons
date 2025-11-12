@@ -2,8 +2,8 @@
 
 ## Status
 - [ ] To Do
-- [x] In Progress
-- [ ] Completed
+- [ ] In Progress
+- [x] Completed (MVP - Database Schema Only)
 
 ## Priority
 High
