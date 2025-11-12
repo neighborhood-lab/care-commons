@@ -2,8 +2,8 @@
 
 ## Status
 - [ ] To Do
-- [x] In Progress
-- [ ] Completed
+- [ ] In Progress
+- [x] Completed
 
 ## Priority
 Medium
@@ -58,4 +58,18 @@ Family Engagement service has 7 FIXME comments where it returns placeholder data
 - [ ] PR merged to develop
 
 ## Notes
+**Completed**: 2025-11-12
+
+Successfully integrated all 7 service dependencies:
+- ✅ UserRepository for user name resolution
+- ✅ ClientService for fetching client details in dashboard
+- ✅ CarePlanService for fetching active care plan with goals
+- ✅ MessageRepository.getThreadById() for thread validation
+- ✅ NotificationService for actual email/SMS delivery (visit notifications)
+
+All FIXMEs resolved. Family portal now displays real data instead of placeholders.
+
+**PR**: #280
+**Commit**: ecd459f
+
 Improves family engagement feature completeness. Enables real family portal functionality.
