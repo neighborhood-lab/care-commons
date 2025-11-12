@@ -21,27 +21,39 @@ export async function seedDatabase(db: Database): Promise<void> {
 
   // Create organization
   await db.query(
-    `INSERT INTO organizations (id, name, type, status, created_at, created_by, updated_at, updated_by, version)
+    `INSERT INTO organizations (id, name, primary_address, status, created_at, created_by, updated_at, updated_by, version)
      VALUES ($1, $2, $3, $4, NOW(), $5, NOW(), $5, 1)
      ON CONFLICT (id) DO NOTHING`,
-    [orgId, 'E2E Test Organization', 'HOME_HEALTH', 'ACTIVE', 'system']
+    [
+      orgId,
+      'E2E Test Organization',
+      JSON.stringify({
+        line1: '456 Healthcare Blvd',
+        city: 'Austin',
+        state: 'TX',
+        postalCode: '78701',
+        country: 'USA',
+      }),
+      'ACTIVE',
+      'system',
+    ]
   );
 
   // Create branch
   await db.query(
-    `INSERT INTO branches (id, organization_id, name, state, address, status, created_at, created_by, updated_at, updated_by, version)
-     VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, NOW(), $7, 1)
+    `INSERT INTO branches (id, organization_id, name, address, status, created_at, created_by, updated_at, updated_by, version)
+     VALUES ($1, $2, $3, $4, $5, NOW(), $6, NOW(), $6, 1)
      ON CONFLICT (id) DO NOTHING`,
     [
       branchId,
       orgId,
       'Main Branch',
-      'TX',
       JSON.stringify({
-        street: '123 Main St',
+        line1: '123 Main St',
         city: 'Austin',
         state: 'TX',
-        zip: '78701',
+        postalCode: '78701',
+        country: 'USA',
         latitude: 30.2672,
         longitude: -97.7431,
       }),

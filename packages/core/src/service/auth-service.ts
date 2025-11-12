@@ -473,7 +473,7 @@ export class AuthService {
       [
         userId,
         organizationId,
-        profile.email.split('@')[0], // Username from email
+        profile.email.split('@')[0] ?? profile.email, // Username from email (fallback to full email if no @)
         profile.email,
         profile.firstName ?? profile.name,
         profile.lastName ?? '',

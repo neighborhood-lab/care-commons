@@ -47,6 +47,7 @@ import {
   isBefore,
   isSameDay,
 } from 'date-fns';
+import { filterHolidays } from '../utils/holiday-calendar.js';
 
 /**
  * Interface for fetching client address data
@@ -630,8 +631,10 @@ export class ScheduleService {
       }
     }
 
-    // TODO: Filter holidays if skipHolidays is true
-    // Would need holiday calendar service
+    // Filter holidays if requested
+    if (_skipHolidays) {
+      return filterHolidays(dates, false); // false = exclude holidays
+    }
 
     return dates;
   }
