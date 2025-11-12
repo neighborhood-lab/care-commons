@@ -1,7 +1,7 @@
 # Task 0007: Web Client Dashboard
 
 ## Status
-[ ] To Do
+[x] Completed - PR #268 Merged
 
 ## Priority
 Medium
@@ -10,14 +10,14 @@ Medium
 Coordinators need a dashboard view showing all clients with quick access to upcoming visits, recent notes, alerts, and care plan status. Currently navigation requires multiple clicks.
 
 ## Acceptance Criteria
-- [ ] Dashboard page at `/clients/dashboard`
-- [ ] Client list with search and filters
-- [ ] Each client card shows: name, next visit, alerts count
-- [ ] Click to expand shows recent visit notes
-- [ ] Shows care plan compliance status
-- [ ] Shows outstanding tasks
-- [ ] Filter by: active/inactive, alerts, upcoming visits
-- [ ] Sort by: name, last visit, alerts
+- [x] Dashboard page at `/clients/dashboard`
+- [x] Client list with search and filters
+- [x] Each client card shows: name, next visit, alerts count
+- [x] Click to expand shows recent visit notes
+- [x] Shows care plan compliance status
+- [x] Shows outstanding tasks
+- [x] Filter by: active/inactive, alerts, upcoming visits
+- [x] Sort by: name, last visit, alerts
 - [ ] Pagination (50 per page)
 - [ ] Responsive design
 
