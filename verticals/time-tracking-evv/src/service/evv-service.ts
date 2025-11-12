@@ -39,7 +39,7 @@ import {
 import { Database } from '@care-commons/core';
 import { StateCode } from '../types/state-specific';
 import { StateProviderFactory } from '../providers/state-provider-factory';
-import { getNotificationService } from '@care-commons/core';
+import { getNotificationService, type NotificationChannel } from '@care-commons/core';
 
 export class EVVService {
   constructor(
@@ -48,11 +48,11 @@ export class EVVService {
     private visitProvider: IVisitProvider,
     private clientProvider: IClientProvider,
     private caregiverProvider: ICaregiverProvider,
-    _database: Database, // Used to initialize StateProviderFactory
+    private database: Database, // Used to initialize StateProviderFactory and queries
     private validator: EVVValidator = new EVVValidator()
   ) {
     // Initialize state provider factory with database
-    StateProviderFactory.initialize(_database);
+    StateProviderFactory.initialize(database);
   }
 
   /**
@@ -328,10 +328,16 @@ export class EVVService {
         clockInTime,
       });
 
+      // Resolve notification recipients (supervisors, coordinators)
+      const recipients = await this.resolveNotificationRecipients(
+        visitData.organizationId,
+        input.caregiverId
+      );
+
       await notificationService.send({
         eventType: 'VISIT_CLOCK_IN',
         priority: 'NORMAL',
-        recipients: [], // TODO: Determine recipients (supervisors, family members)
+        recipients,
         subject: template.subject,
         message: template.message,
         data: {
@@ -558,10 +564,16 @@ export class EVVService {
         duration: durationMinutes,
       });
 
+      // Resolve notification recipients (supervisors, coordinators)
+      const recipients = await this.resolveNotificationRecipients(
+        updatedRecord.organizationId,
+        input.caregiverId
+      );
+
       await notificationService.send({
         eventType: 'VISIT_CLOCK_OUT',
         priority: 'NORMAL',
-        recipients: [], // TODO: Determine recipients (supervisors, family members)
+        recipients,
         subject: template.subject,
         message: template.message,
         data: {
@@ -806,6 +818,67 @@ export class EVVService {
    */
   private generateCoreDataHash(data: any): string {
     return CryptoUtils.generateIntegrityHash(data);
+  }
+
+  /**
+   * Helper: Resolve notification recipients for EVV events
+   * 
+   * Returns supervisor and coordinator recipients for clock-in/clock-out notifications.
+   * TODO: Add family member notifications based on client preferences
+   */
+  private async resolveNotificationRecipients(
+    organizationId: UUID,
+    caregiverId: UUID
+  ): Promise<Array<{ userId: string; preferredChannels: NotificationChannel[] }>> {
+    const recipients: Array<{ userId: string; preferredChannels: NotificationChannel[] }> = [];
+    const seenIds = new Set<string>();
+
+    try {
+      // Get caregiver's supervisor from database
+      const result = await this.database.query(
+        `SELECT supervisor_id FROM caregivers 
+         WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL`,
+        [caregiverId, organizationId]
+      );
+
+      if (result.rows[0]?.['supervisor_id']) {
+        const supervisorId = result.rows[0]['supervisor_id'] as string;
+        if (!seenIds.has(supervisorId)) {
+          recipients.push({
+            userId: supervisorId,
+            preferredChannels: ['EMAIL' as NotificationChannel],
+          });
+          seenIds.add(supervisorId);
+        }
+      }
+
+      // Get branch coordinators/managers
+      const coordResult = await this.database.query(
+        `SELECT u.id, u.email FROM users u
+         JOIN caregivers c ON c.organization_id = u.organization_id
+         WHERE c.id = $1 
+         AND u.roles && ARRAY['COORDINATOR', 'BRANCH_ADMIN']::text[]
+         AND u.deleted_at IS NULL
+         LIMIT 5`,
+        [caregiverId]
+      );
+
+      for (const row of coordResult.rows) {
+        const userId = row['id'] as string;
+        if (userId && !seenIds.has(userId)) {
+          recipients.push({
+            userId,
+            preferredChannels: ['EMAIL' as NotificationChannel],
+          });
+          seenIds.add(userId);
+        }
+      }
+    } catch (error) {
+      // Log error but don't fail the operation
+      console.error('[EVV] Error resolving notification recipients:', error);
+    }
+
+    return recipients;
   }
 
   /**
