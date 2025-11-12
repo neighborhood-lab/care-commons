@@ -1,0 +1,72 @@
+# Cloudflare Pages Configuration
+# Deploys the React frontend to Cloudflare Pages
+#
+# The API runs separately on Cloudflare Workers (see wrangler.toml)
+# This file configures ONLY the static frontend build
+
+[build]
+command = "npm run build:web"
+publish = "packages/web/dist"
+
+# Build environment
+[build.environment]
+NODE_VERSION = "22"
+NPM_VERSION = "10"
+
+# Deployment environments
+[env.production]
+# Production uses cache and optimizations
+[env.production.build.environment]
+NODE_ENV = "production"
+VITE_API_URL = "https://api.care-commons.com"
+
+[env.preview]
+# Preview builds for PRs
+[env.preview.build.environment]
+NODE_ENV = "preview"
+VITE_API_URL = "https://api-preview.care-commons.com"
+
+[env.staging]
+# Staging environment
+[env.staging.build.environment]
+NODE_ENV = "staging"
+VITE_API_URL = "https://api-staging.care-commons.com"
+
+# Redirects and headers
+[[redirects]]
+from = "/api/*"
+to = "https://api.care-commons.com/:splat"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "SAMEORIGIN"
+X-Content-Type-Options = "nosniff"
+X-XSS-Protection = "1; mode=block"
+Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+for = "/assets/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.js"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.css"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/index.html"
+[headers.values]
+Cache-Control = "public, max-age=0, must-revalidate"
