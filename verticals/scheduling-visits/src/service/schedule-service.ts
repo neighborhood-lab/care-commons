@@ -19,6 +19,7 @@ import {
   PermissionError,
   NotFoundError,
   ConflictError,
+  getNotificationService,
 } from '@care-commons/core';
 import { ScheduleRepository } from '../repository/schedule-repository';
 import { ScheduleValidator } from '../validation/schedule-validator';
@@ -207,13 +208,81 @@ export class ScheduleService {
     // Validate status transition
     this.validateStatusTransition(visit.status, input.newStatus, context);
 
-    return await this.repository.updateVisitStatus(
+    const updatedVisit = await this.repository.updateVisitStatus(
       input.visitId,
       input.newStatus,
       context,
       input.notes,
       input.reason
     );
+
+    // Send notifications for critical status changes
+    this.sendVisitStatusNotification(updatedVisit, input.newStatus, input.reason).catch(err => {
+      console.error('[SCHEDULE] Failed to send visit status notification:', err);
+    });
+
+    return updatedVisit;
+  }
+
+  /**
+   * Send notification for visit status changes
+   */
+  private async sendVisitStatusNotification(
+    visit: Visit,
+    newStatus: VisitStatus,
+    reason?: string
+  ): Promise<void> {
+    // Only send notifications for critical status changes
+    const notifiableStatuses: VisitStatus[] = ['CANCELLED', 'NO_SHOW_CAREGIVER', 'NO_SHOW_CLIENT'];
+    if (!notifiableStatuses.includes(newStatus)) {
+      return;
+    }
+
+    try {
+      const notificationService = getNotificationService();
+      const { NotificationService: NS } = await import('@care-commons/core');
+
+      // Map visit status to notification event type
+      const eventTypeMap: Record<string, string> = {
+        CANCELLED: 'VISIT_CANCELED',
+        NO_SHOW_CAREGIVER: 'VISIT_NO_SHOW_CAREGIVER',
+        NO_SHOW_CLIENT: 'VISIT_NO_SHOW_CLIENT',
+      };
+
+      const eventType = eventTypeMap[newStatus];
+      if (eventType === undefined) return;
+
+      const scheduledTime = `${visit.scheduledDate.toLocaleDateString('en-US')} ${visit.scheduledStartTime}`;
+
+      const template = NS.getTemplate(eventType, {
+        clientName: 'Client', // Future: Get from client provider
+        caregiverName: 'Caregiver', // Future: Get from caregiver provider
+        scheduledTime,
+        reason: reason ?? 'Not specified',
+        minutesOverdue: 0, // Future: Calculate from scheduled time
+      });
+
+      await notificationService.send({
+        eventType: eventType as 'VISIT_CANCELED' | 'VISIT_NO_SHOW_CAREGIVER' | 'VISIT_NO_SHOW_CLIENT',
+        priority: newStatus === 'CANCELLED' ? 'NORMAL' : 'URGENT',
+        recipients: [], // Future: Determine recipients (supervisors, family members)
+        subject: template.subject,
+        message: template.message,
+        data: {
+          visitId: visit.id,
+          clientId: visit.clientId,
+          caregiverId: visit.assignedCaregiverId ?? '',
+          newStatus,
+          reason: reason ?? '',
+          scheduledStartTime: `${visit.scheduledDate.toISOString()} ${visit.scheduledStartTime}`,
+        },
+        organizationId: visit.organizationId,
+        relatedEntityType: 'visit',
+        relatedEntityId: visit.id,
+      });
+    } catch (error) {
+      console.error('[SCHEDULE] Notification error:', error);
+    }
   }
 
   async completeVisit(
