@@ -44,7 +44,7 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     
     // Foreign keys
-    table.uuid('notification_id').notNullable().references('id').inTable('notifications').onDelete('CASCADE');
+    table.uuid('notification_id').notNullable().references('id').inTable('push_notifications').onDelete('CASCADE');
     table.uuid('push_token_id').notNullable().references('id').inTable('push_tokens').onDelete('CASCADE');
     
     // Expo push notification tracking
