@@ -4,7 +4,7 @@
  * Supports multiple channels (email, SMS, in-app) with rate limiting and audit trails.
  */
 
-export type NotificationChannel = 'EMAIL' | 'SMS' | 'IN_APP';
+export type NotificationChannel = 'EMAIL' | 'SMS' | 'IN_APP' | 'PUSH';
 
 export type NotificationPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
 
