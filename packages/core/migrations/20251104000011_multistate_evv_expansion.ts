@@ -26,8 +26,6 @@
 import { type Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-  console.log('Starting multi-state EVV expansion migration...');
-  
   // ============================================================================
   // UPDATE STATE CODE CONSTRAINTS
   // ============================================================================
@@ -320,15 +318,9 @@ export async function up(knex: Knex): Promise<void> {
       updated_by: systemUserId,
     });
   }
-  
-  console.log('Multi-state EVV expansion completed successfully!');
-  console.log('Supported states: TX, FL, OH, PA, GA, NC, AZ');
-  console.log('Aggregators: HHAeXchange (TX), Multi (FL), Sandata (OH, PA, NC, AZ), Tellus (GA)');
 }
 
 export async function down(knex: Knex): Promise<void> {
-  console.log('Rolling back multi-state EVV expansion...');
-  
   // Drop new table
   await knex.schema.dropTableIfExists('evv_state_validation_rules');
   
@@ -366,6 +358,4 @@ export async function down(knex: Knex): Promise<void> {
     ALTER TABLE evv_state_config
     ADD CONSTRAINT chk_state_code CHECK (state_code IN ('TX', 'FL'))
   `);
-  
-  console.log('Rollback completed. Reverted to TX and FL only.');
 }
