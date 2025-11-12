@@ -39,6 +39,7 @@ import {
 import { Database } from '@care-commons/core';
 import { StateCode } from '../types/state-specific';
 import { StateProviderFactory } from '../providers/state-provider-factory';
+import { getNotificationService } from '@care-commons/core';
 
 export class EVVService {
   constructor(
@@ -311,6 +312,44 @@ export class EVVService {
       console.log('Clock-in verification issues detected', verification.issues);
     }
 
+    // Send notification after successful clock-in
+    try {
+      const notificationService = getNotificationService();
+      const clockInTime = now.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: 'America/Chicago', // Default timezone, should be configurable
+      });
+      
+      const { NotificationService: NS } = await import('@care-commons/core');
+      const template = NS.getTemplate('VISIT_CLOCK_IN', {
+        caregiverName: caregiver.name,
+        clientName: client.name,
+        clockInTime,
+      });
+
+      await notificationService.send({
+        eventType: 'VISIT_CLOCK_IN',
+        priority: 'NORMAL',
+        recipients: [], // TODO: Determine recipients (supervisors, family members)
+        subject: template.subject,
+        message: template.message,
+        data: {
+          visitId: input.visitId,
+          evvRecordId: evvRecord.id,
+          caregiverId: input.caregiverId,
+          clientId: visitData.clientId,
+          clockInTime: now.toISOString(),
+        },
+        organizationId: visitData.organizationId,
+        relatedEntityType: 'visit',
+        relatedEntityId: input.visitId,
+      });
+    } catch (notificationError) {
+      // Don't fail clock-in if notification fails
+      console.error('[EVV] Failed to send clock-in notification:', notificationError);
+    }
+
     return {
       evvRecord,
       timeEntry,
@@ -507,6 +546,39 @@ export class EVVService {
         },
         userContext.userId
       );
+    }
+
+    // Send notification after successful clock-out
+    try {
+      const notificationService = getNotificationService();
+      const { NotificationService: NS } = await import('@care-commons/core');
+      const template = NS.getTemplate('VISIT_CLOCK_OUT', {
+        caregiverName: updatedRecord.caregiverName,
+        clientName: updatedRecord.clientName,
+        duration: durationMinutes,
+      });
+
+      await notificationService.send({
+        eventType: 'VISIT_CLOCK_OUT',
+        priority: 'NORMAL',
+        recipients: [], // TODO: Determine recipients (supervisors, family members)
+        subject: template.subject,
+        message: template.message,
+        data: {
+          visitId: input.visitId,
+          evvRecordId: evvRecord.id,
+          caregiverId: input.caregiverId,
+          clientId: updatedRecord.clientId,
+          clockOutTime: now.toISOString(),
+          duration: durationMinutes,
+        },
+        organizationId: updatedRecord.organizationId,
+        relatedEntityType: 'visit',
+        relatedEntityId: input.visitId,
+      });
+    } catch (notificationError) {
+      // Don't fail clock-out if notification fails
+      console.error('[EVV] Failed to send clock-out notification:', notificationError);
     }
 
     return {
