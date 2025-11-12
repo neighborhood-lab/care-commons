@@ -67,3 +67,18 @@ export * from './services/account-lockout.service';
 export * from './sync/index';
 export * from './demo/index';
 export * from './providers/index';
+// State compliance configuration (StateCode already exported from types/base)
+export {
+  ALL_STATES_CONFIG,
+  getStateConfig,
+  getAllStateCodes,
+  isValidStateCode,
+  type EVVConfig,
+  type BackgroundScreeningConfig,
+  type CaregiverCredentialingConfig,
+  type PlanOfCareConfig,
+  type RegulatoryRequirements,
+  type StateComplianceConfig,
+  type EVVAggregator,
+  type BackgroundScreeningType,
+} from './compliance/states/index';
