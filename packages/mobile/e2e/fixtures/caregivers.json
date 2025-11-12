@@ -1,0 +1,36 @@
+[
+  {
+    "id": "caregiver-test-001",
+    "email": "maria.garcia@carecommons.test",
+    "password": "TestPass123!",
+    "firstName": "Maria",
+    "lastName": "Garcia",
+    "phone": "+1-512-555-0101",
+    "licenseNumber": "TX-CNA-12345",
+    "licenseState": "TX",
+    "licenseExpiration": "2026-12-31",
+    "backgroundCheckDate": "2024-01-15",
+    "backgroundCheckStatus": "cleared",
+    "registryStatus": "active",
+    "hiredDate": "2023-06-01",
+    "status": "active",
+    "biometricEnabled": false
+  },
+  {
+    "id": "caregiver-test-002",
+    "email": "james.wilson@carecommons.test",
+    "password": "TestPass123!",
+    "firstName": "James",
+    "lastName": "Wilson",
+    "phone": "+1-305-555-0202",
+    "licenseNumber": "FL-HHA-67890",
+    "licenseState": "FL",
+    "licenseExpiration": "2025-08-15",
+    "backgroundCheckDate": "2023-11-20",
+    "backgroundCheckStatus": "cleared",
+    "registryStatus": "active",
+    "hiredDate": "2022-03-15",
+    "status": "active",
+    "biometricEnabled": true
+  }
+]

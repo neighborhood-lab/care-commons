@@ -1,0 +1,48 @@
+[
+  {
+    "id": "client-test-001",
+    "firstName": "Dorothy",
+    "lastName": "Martinez",
+    "dateOfBirth": "1942-05-15",
+    "medicaidId": "TX-MCD-111222333",
+    "address": {
+      "street": "1234 Oak Street",
+      "city": "Austin",
+      "state": "TX",
+      "zip": "78701",
+      "latitude": 30.2672,
+      "longitude": -97.7431
+    },
+    "phone": "+1-512-555-1001",
+    "emergencyContact": {
+      "name": "Carlos Martinez",
+      "relationship": "son",
+      "phone": "+1-512-555-1002"
+    },
+    "planOfCareId": "poc-test-001",
+    "status": "active"
+  },
+  {
+    "id": "client-test-002",
+    "firstName": "Robert",
+    "lastName": "Thompson",
+    "dateOfBirth": "1938-11-22",
+    "medicaidId": "FL-MCD-444555666",
+    "address": {
+      "street": "5678 Palm Avenue",
+      "city": "Miami",
+      "state": "FL",
+      "zip": "33130",
+      "latitude": 25.7617,
+      "longitude": -80.1918
+    },
+    "phone": "+1-305-555-2001",
+    "emergencyContact": {
+      "name": "Susan Thompson",
+      "relationship": "daughter",
+      "phone": "+1-305-555-2002"
+    },
+    "planOfCareId": "poc-test-002",
+    "status": "active"
+  }
+]
