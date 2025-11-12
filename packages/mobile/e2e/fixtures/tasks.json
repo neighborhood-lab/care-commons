@@ -1,0 +1,57 @@
+[
+  {
+    "id": "task-001",
+    "visitId": "visit-test-001",
+    "title": "Assist with morning hygiene",
+    "description": "Help client with bathing and dressing",
+    "category": "personal_care",
+    "required": true,
+    "completed": false,
+    "completedAt": null,
+    "completedBy": null
+  },
+  {
+    "id": "task-002",
+    "visitId": "visit-test-001",
+    "title": "Prepare and serve breakfast",
+    "description": "Prepare nutritious breakfast per dietary plan",
+    "category": "meal_preparation",
+    "required": true,
+    "completed": false,
+    "completedAt": null,
+    "completedBy": null
+  },
+  {
+    "id": "task-003",
+    "visitId": "visit-test-001",
+    "title": "Medication reminder",
+    "description": "Remind client to take morning medications",
+    "category": "medication_assistance",
+    "required": true,
+    "completed": false,
+    "completedAt": null,
+    "completedBy": null
+  },
+  {
+    "id": "task-004",
+    "visitId": "visit-test-002",
+    "title": "Accompany to physical therapy",
+    "description": "Transport client to PT appointment and provide support",
+    "category": "transportation",
+    "required": true,
+    "completed": false,
+    "completedAt": null,
+    "completedBy": null
+  },
+  {
+    "id": "task-005",
+    "visitId": "visit-test-002",
+    "title": "Light exercise routine",
+    "description": "Guide client through prescribed exercises",
+    "category": "exercise_assistance",
+    "required": false,
+    "completed": false,
+    "completedAt": null,
+    "completedBy": null
+  }
+]

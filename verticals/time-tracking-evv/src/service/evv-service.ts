@@ -12,6 +12,7 @@ import {
   UUID,
   PaginationParams,
   PaginatedResult,
+  StateComplianceService,
 } from '@care-commons/core';
 import { EVVRepository } from '../repository/evv-repository';
 import { EVVValidator } from '../validation/evv-validator';
@@ -42,6 +43,8 @@ import { StateProviderFactory } from '../providers/state-provider-factory';
 import { getNotificationService, type NotificationChannel } from '@care-commons/core';
 
 export class EVVService {
+  private stateComplianceService: StateComplianceService;
+
   constructor(
     private repository: EVVRepository,
     _integrationService: IntegrationService,
@@ -53,6 +56,9 @@ export class EVVService {
   ) {
     // Initialize state provider factory with database
     StateProviderFactory.initialize(database);
+    
+    // Initialize state compliance service for EVV validation
+    this.stateComplianceService = new StateComplianceService();
   }
 
   /**
@@ -120,8 +126,16 @@ export class EVVService {
       );
     }
 
-    // Get or create geofence for location
-    const geofenceRadius = visitData.serviceAddress.geofenceRadius || 100; // Default 100m
+    // Get state-specific geofence radius using StateComplianceService
+    const state = visitData.serviceAddress.state as StateCode;
+    const stateGeofenceRadius = this.stateComplianceService.getGeofenceRadius(
+      state,
+      input.location.accuracy
+    );
+    
+    // Use state-specific radius or fallback to configured/default
+    const geofenceRadius = visitData.serviceAddress.geofenceRadius || stateGeofenceRadius;
+    
     const addressId = visitData.serviceAddress.addressId || this.generateFallbackAddressId(visitData.serviceAddress);
     const geofence = await this.getOrCreateGeofence(
       visitData.serviceAddress.latitude,
@@ -150,6 +164,35 @@ export class EVVService {
       geofenceCheck.isWithinGeofence,
       input.location.accuracy
     );
+
+    // Perform state-specific EVV validation
+    const evvValidation = this.stateComplianceService.validateEVVForState(state, {
+      clientLatitude: visitData.serviceAddress.latitude,
+      clientLongitude: visitData.serviceAddress.longitude,
+      clockInLatitude: input.location.latitude,
+      clockInLongitude: input.location.longitude,
+      clockInTime: new Date(),
+      scheduledStartTime: new Date(visitData.scheduledStartTime),
+      gpsAccuracy: input.location.accuracy,
+    });
+    
+    // If EVV validation fails, include state-specific error messages
+    if (!evvValidation.valid) {
+      const errorMessages = evvValidation.errors.map(err => 
+        `${err.message} (${err.regulation || 'State Requirement'})`
+      );
+      
+      // Log validation failures for compliance audit
+      console.warn(`EVV Validation Failed for ${state}:`, {
+        visitId: input.visitId,
+        caregiverId: input.caregiverId,
+        errors: evvValidation.errors,
+        regulatoryContext: evvValidation.regulatoryContext,
+      });
+      
+      // Still allow clock-in but flag for review
+      geofenceCheck.reason = errorMessages.join('; ');
+    }
 
     // Create location verification object
     const baseLocationVerification = {
@@ -416,6 +459,40 @@ export class EVVService {
       geofenceCheck.isWithinGeofence,
       input.location.accuracy
     );
+
+    // Perform state-specific EVV validation for clock-out
+    const state = evvRecord.serviceAddress.state as StateCode;
+    const clockOutTime = new Date();
+    const evvValidation = this.stateComplianceService.validateEVVForState(state, {
+      clientLatitude: evvRecord.serviceAddress.latitude,
+      clientLongitude: evvRecord.serviceAddress.longitude,
+      clockInLatitude: evvRecord.clockInVerification.latitude,
+      clockInLongitude: evvRecord.clockInVerification.longitude,
+      clockOutLatitude: input.location.latitude,
+      clockOutLongitude: input.location.longitude,
+      clockInTime: evvRecord.clockInTime,
+      clockOutTime: clockOutTime,
+      scheduledStartTime: new Date(evvRecord.serviceDate), // Would use actual scheduled time from visit
+      gpsAccuracy: input.location.accuracy,
+    });
+    
+    // If EVV validation fails, include state-specific error messages
+    if (!evvValidation.valid) {
+      const errorMessages = evvValidation.errors.map(err => 
+        `${err.message} (${err.regulation || 'State Requirement'})`
+      );
+      
+      // Log validation failures for compliance audit
+      console.warn(`EVV Clock-Out Validation Failed for ${state}:`, {
+        evvRecordId: input.evvRecordId,
+        caregiverId: input.caregiverId,
+        errors: evvValidation.errors,
+        regulatoryContext: evvValidation.regulatoryContext,
+      });
+      
+      // Still allow clock-out but flag for review
+      geofenceCheck.reason = errorMessages.join('; ');
+    }
 
     // Create location verification
     const baseLocationVerification = {

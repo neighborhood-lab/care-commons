@@ -1,0 +1,110 @@
+# Cloudflare Workers Configuration
+# Deploy API as Cloudflare Worker with compatibility for Express
+#
+# Usage:
+#   wrangler deploy                    # Deploy to production
+#   wrangler deploy --env staging      # Deploy to staging
+#   wrangler dev                       # Local development with Miniflare
+
+name = "care-commons-api"
+main = "api/cloudflare-worker.ts"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# Node.js compatibility for Express, pg, and other Node APIs
+node_compat = true
+
+# Environment: Production (default)
+[env.production]
+name = "care-commons-api"
+routes = [
+  { pattern = "api.care-commons.com/*", zone_name = "care-commons.com" }
+]
+vars = { ENVIRONMENT = "production" }
+
+# Environment: Staging
+[env.staging]
+name = "care-commons-api-staging"
+routes = [
+  { pattern = "api-staging.care-commons.com/*", zone_name = "care-commons.com" }
+]
+vars = { ENVIRONMENT = "staging" }
+
+# Environment: Preview (for PR previews)
+[env.preview]
+name = "care-commons-api-preview"
+vars = { ENVIRONMENT = "preview" }
+
+# Environment variables (use `wrangler secret put <KEY>` for sensitive values)
+# These are placeholders - actual values set via Cloudflare dashboard or CLI
+[vars]
+NODE_ENV = "production"
+LOG_LEVEL = "info"
+CORS_ORIGIN = "https://care-commons.com,https://www.care-commons.com"
+
+# Secrets (set with: wrangler secret put SECRET_NAME)
+# - DATABASE_URL
+# - JWT_SECRET
+# - JWT_REFRESH_SECRET
+# - SESSION_SECRET
+# - ENCRYPTION_KEY
+# - GOOGLE_CLIENT_ID
+# - GOOGLE_CLIENT_SECRET
+# - GEOCODING_API_KEY
+# - SENTRY_DSN (optional)
+
+# Resource limits
+[limits]
+cpu_ms = 50000  # 50 seconds max CPU time
+
+# Durable Objects (for future use - distributed locks, real-time features)
+# [[durable_objects.bindings]]
+# name = "SYNC_COORDINATOR"
+# class_name = "SyncCoordinator"
+# script_name = "care-commons-api"
+
+# R2 Storage (for file uploads - optional)
+# [[r2_buckets]]
+# binding = "UPLOADS"
+# bucket_name = "care-commons-uploads"
+# preview_bucket_name = "care-commons-uploads-preview"
+
+# KV Storage (for caching - optional alternative to Redis)
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "YOUR_KV_NAMESPACE_ID"
+# preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
+
+# D1 Database (SQLite at edge - not used, we use Neon PostgreSQL)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "care-commons-db"
+# database_id = "YOUR_D1_DATABASE_ID"
+
+# Analytics Engine (for metrics)
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+
+# Hyperdrive (PostgreSQL connection pooling - RECOMMENDED)
+# [[hyperdrive]]
+# binding = "DATABASE"
+# id = "YOUR_HYPERDRIVE_ID"
+# caching = { disabled = false }
+
+# Build configuration
+[build]
+command = "npm run build"
+watch_dirs = ["packages", "verticals", "api"]
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1.0
+
+# Triggers (cron jobs for background tasks)
+# [triggers]
+# crons = ["0 */5 * * *"]  # Every 5 minutes - for EVV submission retries
+
+# Tail Consumers (for log streaming)
+# [[tail_consumers]]
+# service = "care-commons-logs"

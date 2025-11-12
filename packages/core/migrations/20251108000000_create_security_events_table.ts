@@ -36,11 +36,8 @@ export async function up(knex: Knex): Promise<void> {
   await knex.raw(`
     CREATE INDEX idx_security_events_details_gin ON security_events USING gin (details);
   `);
-
-  console.log('✅ Created security_events table');
 }
 
 export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists('security_events');
-  console.log('✅ Dropped security_events table');
 }

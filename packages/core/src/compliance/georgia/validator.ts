@@ -328,7 +328,7 @@ export class GeorgiaComplianceValidator extends BaseComplianceValidator {
         type: 'GA_HCBS_TRAINING_MISSING',
         severity: 'BLOCKING',
         category: 'CAREGIVER_CREDENTIALS',
-        message: `HCBS waiver training required for ${gaClientData?.waiverProgram} program`,
+        message: `HCBS waiver training required for ${gaClientData.waiverProgram} program`,
         regulation: 'Georgia DCH HCBS Waiver Manual',
         remediation: 'Complete HCBS waiver-specific training through approved provider',
         canBeOverridden: false,
