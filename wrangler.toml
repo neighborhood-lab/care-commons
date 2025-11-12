@@ -1,61 +1,151 @@
-# Cloudflare Workers Configuration
-# Deploy API as Cloudflare Worker with compatibility for Express
-#
-# Usage:
-#   wrangler deploy                    # Deploy to production
-#   wrangler deploy --env staging      # Deploy to staging
-#   wrangler dev                       # Local development with Miniflare
+# ════════════════════════════════════════════════════════════════
+# Cloudflare Workers Configuration for Care Commons
+# Alternative deployment option (Cloudflare + Supabase)
+# ════════════════════════════════════════════════════════════════
 
 name = "care-commons-api"
-main = "api/cloudflare-worker.ts"
+main = "api/cloudflare-worker.ts"  # Production: cloudflare-worker.ts, Development: worker.ts
 compatibility_date = "2024-11-12"
 compatibility_flags = ["nodejs_compat"]
 
 # Node.js compatibility for Express, pg, and other Node APIs
 node_compat = true
 
-# Environment: Production (default)
-[env.production]
-name = "care-commons-api"
-routes = [
-  { pattern = "api.care-commons.com/*", zone_name = "care-commons.com" }
-]
-vars = { ENVIRONMENT = "production" }
-
-# Environment: Staging
-[env.staging]
-name = "care-commons-api-staging"
-routes = [
-  { pattern = "api-staging.care-commons.com/*", zone_name = "care-commons.com" }
-]
-vars = { ENVIRONMENT = "staging" }
-
-# Environment: Preview (for PR previews)
-[env.preview]
-name = "care-commons-api-preview"
-vars = { ENVIRONMENT = "preview" }
-
-# Environment variables (use `wrangler secret put <KEY>` for sensitive values)
-# These are placeholders - actual values set via Cloudflare dashboard or CLI
+# ════════════════════════════════════════════════════════════════
+# Environment Variables (Non-Sensitive)
+# ════════════════════════════════════════════════════════════════
 [vars]
 NODE_ENV = "production"
 LOG_LEVEL = "info"
 CORS_ORIGIN = "https://care-commons.com,https://www.care-commons.com"
 
-# Secrets (set with: wrangler secret put SECRET_NAME)
-# - DATABASE_URL
-# - JWT_SECRET
-# - JWT_REFRESH_SECRET
-# - SESSION_SECRET
-# - ENCRYPTION_KEY
-# - GOOGLE_CLIENT_ID
-# - GOOGLE_CLIENT_SECRET
-# - GEOCODING_API_KEY
-# - SENTRY_DSN (optional)
+# ════════════════════════════════════════════════════════════════
+# Hyperdrive Database Connection (CRITICAL for Postgres)
+# ════════════════════════════════════════════════════════════════
+# Hyperdrive provides connection pooling for Postgres from Workers
+# Without this, you'll exhaust database connections quickly
+# 
+# Setup Instructions:
+# 1. Get your Supabase pooler connection string:
+#    Go to: https://supabase.com/dashboard/project/aoxifllwcujpinwfaxmu/settings/database
+#    Use: Transaction pooler (port 6543) with ?pgbouncer=true
+#    Format: postgres://postgres.aoxifllwcujpinwfaxmu:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+#
+# 2. Create Hyperdrive configuration:
+#    wrangler hyperdrive create care-commons-db \
+#      --connection-string="postgres://postgres.aoxifllwcujpinwfaxmu:-Q\$gsyPD788qv\!S@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+#
+#    Note: Escape special characters in command line:
+#    - $ becomes \$
+#    - ! becomes \!
+#
+# 3. Copy the Hyperdrive ID from output and uncomment below
 
-# Resource limits
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "YOUR_HYPERDRIVE_ID"
+# caching = { disabled = false }
+
+# ════════════════════════════════════════════════════════════════
+# Secrets Management (Use wrangler secret put)
+# ════════════════════════════════════════════════════════════════
+# Run these commands to set secrets:
+#
+# Database (only needed if NOT using Hyperdrive binding):
+# wrangler secret put DATABASE_URL
+#
+# Authentication secrets (generate with: openssl rand -base64 32):
+# wrangler secret put JWT_SECRET
+# wrangler secret put JWT_REFRESH_SECRET
+# wrangler secret put SESSION_SECRET
+#
+# Encryption key (generate with: openssl rand -hex 32):
+# wrangler secret put ENCRYPTION_KEY
+#
+# OAuth (optional):
+# wrangler secret put GOOGLE_CLIENT_ID
+# wrangler secret put GOOGLE_CLIENT_SECRET
+#
+# Geocoding (optional):
+# wrangler secret put GEOCODING_API_KEY
+#
+# Supabase API keys (from Dashboard → Settings → API):
+# wrangler secret put SUPABASE_URL
+# wrangler secret put SUPABASE_ANON_KEY
+# wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+#
+# HHAeXchange (Texas EVV - optional):
+# wrangler secret put HHAEXCHANGE_CLIENT_ID
+# wrangler secret put HHAEXCHANGE_CLIENT_SECRET
+# wrangler secret put HHAEXCHANGE_BASE_URL
+#
+# Monitoring (optional):
+# wrangler secret put SENTRY_DSN
+#
+# List all secrets:
+# wrangler secret list
+
+# ════════════════════════════════════════════════════════════════
+# Environment: Production (default)
+# ════════════════════════════════════════════════════════════════
+[env.production]
+name = "care-commons-api"
+routes = [
+  { pattern = "api.care-commons.com/*", zone_name = "care-commons.com" }
+]
+vars = { ENVIRONMENT = "production", NODE_ENV = "production" }
+
+# ════════════════════════════════════════════════════════════════
+# Environment: Staging
+# ════════════════════════════════════════════════════════════════
+[env.staging]
+name = "care-commons-api-staging"
+routes = [
+  { pattern = "api-staging.care-commons.com/*", zone_name = "care-commons.com" }
+]
+vars = { ENVIRONMENT = "staging", NODE_ENV = "staging" }
+
+# ════════════════════════════════════════════════════════════════
+# Environment: Preview (for PR previews)
+# ════════════════════════════════════════════════════════════════
+[env.preview]
+name = "care-commons-api-preview"
+vars = { ENVIRONMENT = "preview", NODE_ENV = "development" }
+
+# ════════════════════════════════════════════════════════════════
+# Environment: Development
+# ════════════════════════════════════════════════════════════════
+[env.development]
+name = "care-commons-api-dev"
+vars = { NODE_ENV = "development" }
+
+# ════════════════════════════════════════════════════════════════
+# Build Configuration
+# ════════════════════════════════════════════════════════════════
+[build]
+command = "npm run build"
+watch_dirs = ["packages", "verticals", "api"]
+
+# ════════════════════════════════════════════════════════════════
+# Observability
+# ════════════════════════════════════════════════════════════════
+[observability]
+enabled = true
+head_sampling_rate = 1.0
+
+# ════════════════════════════════════════════════════════════════
+# Resource Limits
+# ════════════════════════════════════════════════════════════════
 [limits]
 cpu_ms = 50000  # 50 seconds max CPU time
+
+# ════════════════════════════════════════════════════════════════
+# Optional Features (Uncomment as needed)
+# ════════════════════════════════════════════════════════════════
+
+# Triggers (cron jobs for background tasks)
+# [triggers]
+# crons = ["0 */5 * * *"]  # Every 5 minutes - for EVV submission retries
 
 # Durable Objects (for future use - distributed locks, real-time features)
 # [[durable_objects.bindings]]
@@ -75,7 +165,7 @@ cpu_ms = 50000  # 50 seconds max CPU time
 # id = "YOUR_KV_NAMESPACE_ID"
 # preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
 
-# D1 Database (SQLite at edge - not used, we use Neon PostgreSQL)
+# D1 Database (SQLite at edge - not used, we use PostgreSQL)
 # [[d1_databases]]
 # binding = "DB"
 # database_name = "care-commons-db"
@@ -85,26 +175,18 @@ cpu_ms = 50000  # 50 seconds max CPU time
 # [[analytics_engine_datasets]]
 # binding = "ANALYTICS"
 
-# Hyperdrive (PostgreSQL connection pooling - RECOMMENDED)
-# [[hyperdrive]]
-# binding = "DATABASE"
-# id = "YOUR_HYPERDRIVE_ID"
-# caching = { disabled = false }
-
-# Build configuration
-[build]
-command = "npm run build"
-watch_dirs = ["packages", "verticals", "api"]
-
-# Observability
-[observability]
-enabled = true
-head_sampling_rate = 1.0
-
-# Triggers (cron jobs for background tasks)
-# [triggers]
-# crons = ["0 */5 * * *"]  # Every 5 minutes - for EVV submission retries
-
 # Tail Consumers (for log streaming)
 # [[tail_consumers]]
 # service = "care-commons-logs"
+
+# ════════════════════════════════════════════════════════════════
+# Notes for Care Commons Deployment
+# ════════════════════════════════════════════════════════════════
+# 1. ESM Architecture: This project uses ES modules everywhere
+# 2. Node.js 22.x: Required for compatibility
+# 3. Hyperdrive: Essential for Postgres connection pooling
+# 4. Supabase Pooler: Use port 6543 (transaction mode) with ?pgbouncer=true
+# 5. Security: All secrets managed via wrangler secret put
+# 6. HIPAA Compliance: Ensure encryption at rest/transit (Cloudflare provides SSL)
+# 7. Static Assets: Deploy frontend separately with Cloudflare Pages
+#    wrangler pages deploy public --project-name=care-commons-web
