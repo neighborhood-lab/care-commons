@@ -1,7 +1,7 @@
 # Task 0015: Test Coverage Improvements
 
 ## Status
-[ ] To Do
+[x] In Progress
 
 ## Priority
 Medium
