@@ -1,10 +1,10 @@
 # Care Commons - Docker Compose Configuration
 # 
 # Quick start:
-#   docker-compose up -d          # Start PostgreSQL and Redis
-#   docker-compose --profile tools up -d  # Start with pgAdmin, Redis Commander, and MailHog
-#   docker-compose down           # Stop all services
-#   docker-compose down -v        # Stop and remove volumes (DESTROYS DATA)
+#   docker compose up -d          # Start PostgreSQL and Redis
+#   docker compose --profile tools up -d  # Start with pgAdmin, Redis Commander, and MailHog
+#   docker compose down           # Stop all services
+#   docker compose down -v        # Stop and remove volumes (DESTROYS DATA)
 #
 # Services:
 #   - PostgreSQL 16 (port 5432)
@@ -13,7 +13,7 @@
 #   - Redis Commander (port 8081) - requires --profile tools
 #   - MailHog (ports 1025, 8025) - requires --profile tools
 
-version: '3.8'
+# Note: version field is obsolete in Docker Compose v2+
 
 services:
   postgres:
