@@ -560,7 +560,7 @@ export class FamilyEngagementService {
       if (carePlan) {
         // Count goals (if goals array exists)
         const goalsTotal = carePlan.goals?.length || 0;
-        const goalsAchieved = carePlan.goals?.filter(g => g.status === 'ACHIEVED').length || 0;
+        const goalsAchieved = carePlan.goals?.filter((g: { status: string }) => g.status === 'ACHIEVED').length || 0;
         
         activeCarePlan = {
           id: carePlan.id,

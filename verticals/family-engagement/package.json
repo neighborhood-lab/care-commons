@@ -21,7 +21,10 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@care-commons/care-plans-tasks": "^0.1.0",
+    "@care-commons/client-demographics": "^0.1.0",
     "@care-commons/core": "^0.1.0",
+    "@care-commons/scheduling-visits": "^0.1.0",
     "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
     "zod": "^4.1.12"
