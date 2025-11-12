@@ -1,8 +1,8 @@
 # Task 0014: Implement Mobile Push Notifications
 
 ## Status
-- [x] To Do
-- [ ] In Progress
+- [ ] To Do
+- [x] In Progress
 - [ ] Completed
 
 ## Priority
