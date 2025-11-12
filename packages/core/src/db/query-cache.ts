@@ -17,13 +17,14 @@ interface CacheEntry<T> {
 export class QueryCache {
   private cache: Map<string, CacheEntry<unknown>>;
   private defaultTTL: number;
+  private cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
 
   constructor(defaultTTLSeconds: number = 300) {
     this.cache = new Map();
     this.defaultTTL = defaultTTLSeconds * 1000; // Convert to milliseconds
 
     // Clean up expired entries every minute
-    setInterval(() => this.cleanup(), 60000);
+    this.cleanupIntervalId = setInterval(() => this.cleanup(), 60000);
   }
 
   /**
@@ -83,6 +84,18 @@ export class QueryCache {
    * Clear all cache entries
    */
   clear(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Destroy the cache instance and cleanup resources
+   * Should be called when the cache is no longer needed to prevent memory leaks
+   */
+  destroy(): void {
+    if (this.cleanupIntervalId !== null) {
+      clearInterval(this.cleanupIntervalId);
+      this.cleanupIntervalId = null;
+    }
     this.cache.clear();
   }
 
@@ -168,7 +181,7 @@ export function getQueryCache(): QueryCache {
  */
 export function resetQueryCache(): void {
   if (cacheInstance !== null) {
-    cacheInstance.clear();
+    cacheInstance.destroy();
   }
   cacheInstance = null;
 }

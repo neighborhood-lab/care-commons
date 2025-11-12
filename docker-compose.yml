@@ -1,9 +1,25 @@
+# Care Commons - Docker Compose Configuration
+# 
+# Quick start:
+#   docker-compose up -d          # Start PostgreSQL and Redis
+#   docker-compose --profile tools up -d  # Start with pgAdmin, Redis Commander, and MailHog
+#   docker-compose down           # Stop all services
+#   docker-compose down -v        # Stop and remove volumes (DESTROYS DATA)
+#
+# Services:
+#   - PostgreSQL 16 (port 5432)
+#   - Redis 7 (port 6379)
+#   - pgAdmin (port 5050) - requires --profile tools
+#   - Redis Commander (port 8081) - requires --profile tools
+#   - MailHog (ports 1025, 8025) - requires --profile tools
+
 version: '3.8'
 
 services:
   postgres:
     image: postgres:16-alpine
     container_name: care-commons-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -46,6 +62,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: care-commons-redis
+    restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
@@ -59,9 +76,13 @@ services:
     networks:
       - care-commons
 
+  # Database management UI
+  # Access at http://localhost:5050
+  # Email: admin@carecommons.local / Password: admin
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: care-commons-pgadmin
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@carecommons.local
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -78,9 +99,12 @@ services:
     profiles:
       - tools
 
+  # Redis management UI
+  # Access at http://localhost:8081
   redis-commander:
     image: rediscommander/redis-commander:latest
     container_name: care-commons-redis-commander
+    restart: unless-stopped
     environment:
       REDIS_HOSTS: local:redis:6379
     ports:
@@ -92,9 +116,13 @@ services:
     profiles:
       - tools
 
+  # Email testing (catches all outgoing emails)
+  # SMTP: localhost:1025
+  # Web UI: http://localhost:8025
   mailhog:
     image: mailhog/mailhog:latest
     container_name: care-commons-mailhog
+    restart: unless-stopped
     ports:
       - "1025:1025"  # SMTP server
       - "8025:8025"  # Web UI
@@ -105,8 +133,11 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
   pgadmin_data:
+    driver: local
 
 networks:
   care-commons:
