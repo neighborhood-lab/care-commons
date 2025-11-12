@@ -92,3 +92,6 @@ export {
   type ClientServiceType,
   type PlanOfCareData,
 } from './compliance/state-compliance-service';
+// Notification system
+export { getNotificationService, NotificationService } from './notifications/notification-service';
+export * from './notifications/types';
