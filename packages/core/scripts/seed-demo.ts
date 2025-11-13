@@ -473,13 +473,12 @@ async function seedDatabase() {
       // ═══════════════════════════════════════════════════════════════════════════
       
       console.log('🧹 Clearing previous demo data (if any)...');
-      
+
       // Delete in reverse dependency order
-      await client.query('DELETE FROM visit_tasks WHERE is_demo_data = true');
       await client.query('DELETE FROM visit_evv_records WHERE is_demo_data = true');
       await client.query('DELETE FROM visits WHERE is_demo_data = true');
-      await client.query('DELETE FROM care_plan_tasks WHERE is_demo_data = true');
-      await client.query('DELETE FROM care_plan_goals WHERE is_demo_data = true');
+      await client.query('DELETE FROM task_instances WHERE is_demo_data = true');
+      await client.query('DELETE FROM progress_notes WHERE is_demo_data = true');
       await client.query('DELETE FROM care_plans WHERE is_demo_data = true');
       await client.query('DELETE FROM family_messages WHERE is_demo_data = true');
       await client.query('DELETE FROM family_notifications WHERE is_demo_data = true');
