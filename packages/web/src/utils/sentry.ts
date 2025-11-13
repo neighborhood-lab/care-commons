@@ -74,7 +74,7 @@ export function initializeSentry(): void {
             // Redact email addresses
             exception.value = exception.value.replace(/\b[\w.-]+@[\w.-]+\.\w+\b/g, '[EMAIL-REDACTED]');
             // Redact phone numbers
-            exception.value = exception.value.replace(/\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g, '[PHONE-REDACTED]');
+            exception.value = exception.value.replace(/\b(?:\d{3}[.-]?){2}\d{4}\b/g, '[PHONE-REDACTED]');
           }
         }
       }
