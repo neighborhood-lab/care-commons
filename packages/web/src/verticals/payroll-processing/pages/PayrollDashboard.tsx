@@ -154,7 +154,7 @@ export const PayrollDashboard: React.FC = () => {
       </section>
 
       {/* Summary Statistics */}
-      {currentPeriod && currentPeriod.totalGrossPay && (
+      {currentPeriod?.totalGrossPay && (
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Summary</h2>
           <PayrollSummaryCard
