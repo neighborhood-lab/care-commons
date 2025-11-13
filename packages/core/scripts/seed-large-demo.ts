@@ -1,22 +1,17 @@
 /**
- * Showcase Database Seeding Script
- * 
- * Seeds comprehensive demo data for the Care Commons showcase.
+ * Large Demo Database Seeding Script
+ *
+ * Seeds comprehensive demo data for development and demonstrations.
  * This provides a realistic, rich dataset that demonstrates all platform capabilities.
- * 
+ *
  * Data Scale:
- * - 60 clients across TX, FL, OH with varied demographics and conditions
- * - 35 caregivers with different certifications, skills, and availability
- * - 40+ care plans covering all plan types and compliance scenarios
- * - 600+ visits (past, present, future) demonstrating full lifecycle
- * - 100+ tasks in various states (scheduled, in-progress, completed, overdue)
- * - 30+ invoices showing billing workflows
- * - Shift matching scenarios
- * - Family engagement data
- * 
+ * - TX clients with varied demographics and conditions
+ * - Caregivers with different certifications, skills, and availability
+ * - Realistic seeding for development/testing purposes
+ *
  * Usage:
- *   npm run db:seed:showcase
- * 
+ *   npm run db:seed:large-demo
+ *
  * PREREQUISITE: Run `npm run db:seed` first to create org, branch, and admin user.
  */
 
@@ -94,8 +89,8 @@ const CAREGIVERS = [
 // MAIN SEEDING FUNCTION
 // ═══════════════════════════════════════════════════════════════════════
 
-async function seedShowcase() {
-  console.log('🎭 Seeding Care Commons showcase data...\n');
+async function seedLargeDemo() {
+  console.log('🎭 Seeding large demo data...\n');
 
   const env = process.env.NODE_ENV || 'development';
   const dbName = process.env.DB_NAME || 'care_commons';
@@ -179,8 +174,8 @@ async function seedShowcase() {
       
       console.log(`Using org: ${orgId}, branch: ${branchId}, user: ${systemUserId}\n`);
 
-      // Clear existing showcase data if it exists
-      console.log('Clearing existing showcase data...');
+      // Clear existing large demo data if it exists
+      console.log('Clearing existing large demo data...');
       await client.query(`
         DELETE FROM visits WHERE caregiver_id IN (
           SELECT id FROM caregivers WHERE email LIKE '%carecommons.com'
@@ -223,7 +218,7 @@ async function seedShowcase() {
             clientId,
             orgId,
             branchId,
-            `SHOWCASE-${String(clientIds.length).padStart(3, '0')}`,
+            `LARGE-DEMO-${String(clientIds.length).padStart(3, '0')}`,
             clientData.firstName,
             clientData.lastName,
             clientData.dob,
@@ -309,7 +304,7 @@ async function seedShowcase() {
             orgId,
             [branchId],
             branchId,
-            `SHOWCG${String(caregiverIds.length).padStart(3, '0')}`,
+            `LGDEMO-CG${String(caregiverIds.length).padStart(3, '0')}`,
             cgData.firstName,
             cgData.lastName,
             cgData.dob,
@@ -353,11 +348,11 @@ async function seedShowcase() {
         );
       }
 
-      console.log('\n✅ Showcase data seeded successfully!');
+      console.log('\n✅ Large demo data seeded successfully!');
       console.log(`\n📊 Created:`);
       console.log(`  Clients: ${clientIds.length}`);
       console.log(`  Caregivers: ${caregiverIds.length}`);
-      console.log(`\nShowcase ready! 🎉`);
+      console.log(`\nDemo data ready! 🎉`);
     });
   } catch (error) {
     console.error('❌ Seeding failed:', error);
@@ -367,7 +362,7 @@ async function seedShowcase() {
   }
 }
 
-seedShowcase().catch((error) => {
+seedLargeDemo().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

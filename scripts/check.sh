@@ -44,7 +44,7 @@ npm run db:migrate
 npm run db:seed
 npm run db:seed:demo
 npm run db:seed:demo-v2
-npm run db:seed:showcase
-npm run db:seed:showcase-comprehensive
+npm run db:seed:large-demo
+npm run db:seed:comprehensive-demo
 
 echo "✅ All checks completed successfully!"
