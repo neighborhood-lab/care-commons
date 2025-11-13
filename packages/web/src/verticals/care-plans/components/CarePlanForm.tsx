@@ -62,15 +62,15 @@ export const CarePlanForm: React.FC<CarePlanFormProps> = ({
   } = useForm<CarePlanFormData>({
     resolver: zodResolver(carePlanSchema),
     defaultValues: {
-      clientId: initialData?.clientId || '',
-      organizationId: initialData?.organizationId || '',
-      branchId: initialData?.branchId || '',
-      name: initialData?.name || '',
-      planType: initialData?.planType || 'PERSONAL_CARE',
-      effectiveDate: initialData?.effectiveDate || formatDate(new Date()),
-      expirationDate: initialData?.expirationDate || '',
-      coordinatorId: initialData?.coordinatorId || '',
-      notes: initialData?.notes || '',
+      clientId: initialData?.clientId ?? '',
+      organizationId: initialData?.organizationId ?? '',
+      branchId: initialData?.branchId ?? '',
+      name: initialData?.name ?? '',
+      planType: initialData?.planType ?? 'PERSONAL_CARE',
+      effectiveDate: initialData?.effectiveDate ?? formatDate(new Date()),
+      expirationDate: initialData?.expirationDate ?? '',
+      coordinatorId: initialData?.coordinatorId ?? '',
+      notes: initialData?.notes ?? '',
     },
   });
 
