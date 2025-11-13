@@ -1,0 +1,327 @@
+name: Deploy to Cloudflare + Supabase
+
+# Triggers:
+# - Push to 'preview' branch → deploys to Cloudflare preview environment (Supabase preview database)
+# - Push to 'main' branch → deploys to Cloudflare production environment (Supabase production database)
+# - Manual workflow dispatch → choose environment
+
+on:
+  push:
+    branches:
+      - main      # Production deployment
+      - preview   # Preview deployment
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+      skip_tests:
+        description: 'Skip tests (emergency deployments only)'
+        required: false
+        type: boolean
+        default: false
+      run_migrations:
+        description: 'Run database migrations'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  NODE_VERSION: '22'
+  NPM_VERSION: '10.9.4'
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  # Determine Target Environment
+  # ════════════════════════════════════════════════════════════════
+  setup:
+    name: Setup Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.determine-env.outputs.environment }}
+      is-production: ${{ steps.determine-env.outputs.is-production }}
+      wrangler-env: ${{ steps.determine-env.outputs.wrangler-env }}
+      database-url-secret: ${{ steps.determine-env.outputs.database-url-secret }}
+    steps:
+      - name: Determine environment
+        id: determine-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            ENVIRONMENT="production"
+          elif [ "${{ github.ref }}" == "refs/heads/preview" ]; then
+            ENVIRONMENT="preview"
+          else
+            echo "::error::Unexpected branch: ${{ github.ref }}"
+            exit 1
+          fi
+          
+          IS_PRODUCTION="false"
+          WRANGLER_ENV="preview"
+          DATABASE_URL_SECRET="SUPABASE_DATABASE_URL_PREVIEW"
+          
+          if [ "$ENVIRONMENT" == "production" ]; then
+            IS_PRODUCTION="true"
+            WRANGLER_ENV="production"
+            DATABASE_URL_SECRET="SUPABASE_DATABASE_URL"
+          fi
+          
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "is-production=$IS_PRODUCTION" >> $GITHUB_OUTPUT
+          echo "wrangler-env=$WRANGLER_ENV" >> $GITHUB_OUTPUT
+          echo "database-url-secret=$DATABASE_URL_SECRET" >> $GITHUB_OUTPUT
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚀 Cloudflare Deployment Configuration"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: $ENVIRONMENT"
+          echo "Wrangler Env: $WRANGLER_ENV"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  # ════════════════════════════════════════════════════════════════
+  # Build and Test
+  # ════════════════════════════════════════════════════════════════
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm ${{ env.NPM_VERSION }}
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Build packages
+        run: |
+          echo "::group::Building packages"
+          START_TIME=$(date +%s)
+          npm run build
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Build completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Run tests
+        if: ${{ github.event.inputs.skip_tests != 'true' }}
+        run: |
+          echo "::group::Running tests"
+          START_TIME=$(date +%s)
+          npm run test
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Tests completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/*/dist
+            verticals/*/dist
+            packages/web/dist
+            api/cloudflare-worker.ts
+            wrangler.toml
+          retention-days: 1
+
+  # ════════════════════════════════════════════════════════════════
+  # Run Database Migrations (Supabase)
+  # ════════════════════════════════════════════════════════════════
+  migrate:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-test]
+    if: ${{ github.event.inputs.run_migrations != 'false' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm ${{ env.NPM_VERSION }}
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets[needs.setup.outputs.database-url-secret] }}
+        run: |
+          echo "::group::Running database migrations"
+          START_TIME=$(date +%s)
+          npm run db:migrate
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Migrations completed in ${DURATION}s"
+          echo "::endgroup::"
+
+  # ════════════════════════════════════════════════════════════════
+  # Deploy Workers (API Backend)
+  # ════════════════════════════════════════════════════════════════
+  deploy-workers:
+    name: Deploy Cloudflare Workers (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-test, migrate]
+    if: always() && (needs.migrate.result == 'success' || needs.migrate.result == 'skipped')
+    environment:
+      name: ${{ needs.setup.outputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm ${{ env.NPM_VERSION }}
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
+      - name: Deploy to Cloudflare Workers
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env ${{ needs.setup.outputs.wrangler-env }}
+          workingDirectory: .
+          packageManager: npm
+        env:
+          NODE_ENV: production
+
+      - name: Output deployment URL
+        run: |
+          WORKER_URL="https://care-commons-api${{ needs.setup.outputs.is-production == 'true' && '' || '-preview' }}.your-workers-subdomain.workers.dev"
+          echo "url=$WORKER_URL" >> $GITHUB_OUTPUT
+          echo "✅ Workers deployed to: $WORKER_URL"
+
+  # ════════════════════════════════════════════════════════════════
+  # Deploy Pages (Frontend)
+  # ════════════════════════════════════════════════════════════════
+  deploy-pages:
+    name: Deploy Cloudflare Pages (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-test, deploy-workers]
+    environment:
+      name: ${{ needs.setup.outputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy packages/web/dist --project-name=care-commons-web --branch=${{ needs.setup.outputs.wrangler-env }}
+          workingDirectory: .
+          packageManager: npm
+
+      - name: Output deployment URL
+        run: |
+          PAGES_URL="${{ needs.setup.outputs.is-production == 'true' && 'https://care-commons.pages.dev' || format('https://{0}.care-commons.pages.dev', needs.setup.outputs.wrangler-env) }}"
+          echo "url=$PAGES_URL" >> $GITHUB_OUTPUT
+          echo "✅ Pages deployed to: $PAGES_URL"
+
+  # ════════════════════════════════════════════════════════════════
+  # Verify Deployment
+  # ════════════════════════════════════════════════════════════════
+  verify:
+    name: Verify Deployment
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-workers, deploy-pages]
+    steps:
+      - name: Wait for deployment propagation
+        run: |
+          echo "⏳ Waiting 30 seconds for Cloudflare propagation..."
+          sleep 30
+
+      - name: Verify Workers health
+        run: |
+          WORKER_URL="${{ needs.deploy-workers.outputs.url }}"
+          echo "🔍 Checking Workers health: $WORKER_URL/health"
+          
+          for i in {1..5}; do
+            if curl -f -s "$WORKER_URL/health" > /tmp/health.json; then
+              echo "✅ Workers health check passed"
+              cat /tmp/health.json | jq '.' || cat /tmp/health.json
+              exit 0
+            fi
+            echo "⚠️ Attempt $i failed, retrying..."
+            sleep 10
+          done
+          
+          echo "::warning::Workers health check failed"
+
+      - name: Verify Pages deployment
+        run: |
+          PAGES_URL="${{ needs.deploy-pages.outputs.url }}"
+          echo "🔍 Checking Pages deployment: $PAGES_URL"
+          
+          if curl -f -s -o /dev/null "$PAGES_URL"; then
+            echo "✅ Pages deployment verified"
+          else
+            echo "::warning::Pages verification failed"
+          fi
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Cloudflare Deployment Complete"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ needs.setup.outputs.environment }}"
+          echo "Workers (API): ${{ needs.deploy-workers.outputs.url }}"
+          echo "Pages (Frontend): ${{ needs.deploy-pages.outputs.url }}"
+          echo "Platform: Cloudflare + Supabase"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

@@ -1,0 +1,254 @@
+name: Deploy to Vercel + Neon
+
+# Triggers:
+# - Push to 'preview' branch → deploys to Vercel preview environment (preview.neon.tech database)
+# - Push to 'main' branch → deploys to Vercel production environment (production.neon.tech database)
+# - Manual workflow dispatch → choose environment
+
+on:
+  push:
+    branches:
+      - main      # Production deployment
+      - preview   # Preview deployment
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+      skip_tests:
+        description: 'Skip tests (emergency deployments only)'
+        required: false
+        type: boolean
+        default: false
+      run_migrations:
+        description: 'Run database migrations'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  NODE_VERSION: '22'
+  NPM_VERSION: '10.9.4'
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  # Determine Target Environment
+  # ════════════════════════════════════════════════════════════════
+  setup:
+    name: Setup Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.determine-env.outputs.environment }}
+      is-production: ${{ steps.determine-env.outputs.is-production }}
+      database-url-secret: ${{ steps.determine-env.outputs.database-url-secret }}
+    steps:
+      - name: Determine environment
+        id: determine-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            ENVIRONMENT="production"
+          elif [ "${{ github.ref }}" == "refs/heads/preview" ]; then
+            ENVIRONMENT="preview"
+          else
+            echo "::error::Unexpected branch: ${{ github.ref }}"
+            exit 1
+          fi
+          
+          IS_PRODUCTION="false"
+          DATABASE_URL_SECRET="PREVIEW_DATABASE_URL"
+          
+          if [ "$ENVIRONMENT" == "production" ]; then
+            IS_PRODUCTION="true"
+            DATABASE_URL_SECRET="DATABASE_URL"
+          fi
+          
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "is-production=$IS_PRODUCTION" >> $GITHUB_OUTPUT
+          echo "database-url-secret=$DATABASE_URL_SECRET" >> $GITHUB_OUTPUT
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚀 Deployment Configuration"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: $ENVIRONMENT"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  # ════════════════════════════════════════════════════════════════
+  # Build and Test
+  # ════════════════════════════════════════════════════════════════
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm ${{ env.NPM_VERSION }}
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Build packages
+        run: |
+          echo "::group::Building packages"
+          START_TIME=$(date +%s)
+          npm run build
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Build completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Run tests
+        if: ${{ github.event.inputs.skip_tests != 'true' }}
+        run: |
+          echo "::group::Running tests"
+          START_TIME=$(date +%s)
+          npm run test
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Tests completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/*/dist
+            verticals/*/dist
+            packages/web/dist
+          retention-days: 1
+
+  # ════════════════════════════════════════════════════════════════
+  # Deploy to Vercel
+  # ════════════════════════════════════════════════════════════════
+  deploy:
+    name: Deploy to Vercel (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-test]
+    environment:
+      name: ${{ needs.setup.outputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm ${{ env.NPM_VERSION }}
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: |
+          if [ "${{ needs.setup.outputs.is-production }}" == "true" ]; then
+            vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          fi
+
+      - name: Verify Database Configuration
+        env:
+          DATABASE_URL: ${{ secrets[needs.setup.outputs.database-url-secret] }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Database URL not configured for ${{ needs.setup.outputs.environment }}"
+            echo "Required secret: ${{ needs.setup.outputs.database-url-secret }}"
+            exit 1
+          fi
+          echo "✅ Database URL is configured"
+
+      - name: Run Database Migrations
+        if: ${{ github.event.inputs.run_migrations != 'false' }}
+        env:
+          DATABASE_URL: ${{ secrets[needs.setup.outputs.database-url-secret] }}
+        run: |
+          echo "::group::Running database migrations"
+          START_TIME=$(date +%s)
+          npm run db:migrate
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Migrations completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Deploy to Vercel
+        id: deploy
+        env:
+          DATABASE_URL: ${{ secrets[needs.setup.outputs.database-url-secret] }}
+          ENVIRONMENT: ${{ needs.setup.outputs.environment }}
+        run: |
+          if [ "${{ needs.setup.outputs.is-production }}" == "true" ]; then
+            DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }})
+          else
+            DEPLOYMENT_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }})
+          fi
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "✅ Deployment complete: $DEPLOYMENT_URL"
+
+      - name: Verify Deployment Health
+        if: success()
+        run: |
+          echo "⏳ Waiting for deployment to stabilize..."
+          sleep 15
+          
+          echo "🔍 Checking health endpoint..."
+          for i in {1..5}; do
+            if curl -f -s "${{ steps.deploy.outputs.url }}/health" > /tmp/health.json; then
+              echo "✅ Health check passed"
+              cat /tmp/health.json | jq '.' || cat /tmp/health.json
+              exit 0
+            fi
+            echo "⚠️ Attempt $i failed, retrying..."
+            sleep 10
+          done
+          
+          echo "::warning::Health check failed - deployment may require manual verification"
+          exit 0
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Deployment Complete"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ needs.setup.outputs.environment }}"
+          echo "URL: ${{ steps.deploy.outputs.url }}"
+          echo "Platform: Vercel + Neon"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
