@@ -242,7 +242,7 @@ pg_ctlcluster 16 main start
 
 # 2. Configure authentication
 sed -i 's/^local\s*all\s*postgres\s*peer/local   all             postgres                                trust/' /etc/postgresql/16/main/pg_hba.conf
-sed -i 's/^local\s*all\s*all\s*peer/local   all             all                                     md5/' /etc/postgresql/16/main/pg_hba.conf
+sed -i 's/^host\s*all\s*all\s*127\.0\.0\.1\/32\s*scram-sha-256/host    all             all             127.0.0.1\/32            md5/' /etc/postgresql/16/main/pg_hba.conf
 pg_ctlcluster 16 main reload
 
 # 3. Create database and user
@@ -261,34 +261,23 @@ npm install
 npm run db:migrate
 npm run db:seed
 
-# 7. Test database connection
-# Create test file: test-db-connection.js
-cat > test-db-connection.js << 'EOF'
-import pg from 'pg';
-const { Client } = pg;
+# 7. Install GitHub CLI (if not already installed)
+if [ ! -f ~/bin/gh ]; then
+  mkdir -p ~/bin
+  cd /tmp
+  curl -sSL https://github.com/cli/cli/releases/download/v2.83.1/gh_2.83.1_linux_amd64.tar.gz -o gh.tar.gz
+  tar -xzf gh.tar.gz
+  cp gh_2.83.1_linux_amd64/bin/gh ~/bin/
+  chmod +x ~/bin/gh
+  cd -
+fi
 
-const client = new Client({
-  connectionString: process.env.DATABASE_URL
-});
+# 8. Verify all services are running
+psql "$DATABASE_URL" -c "SELECT NOW();"  # Test PostgreSQL
+redis-cli PING  # Test Redis
+~/bin/gh auth status  # Test GitHub CLI
 
-async function test() {
-  try {
-    await client.connect();
-    const result = await client.query('SELECT NOW()');
-    console.log('✅ Database connected:', result.rows[0]);
-    await client.end();
-  } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
-    process.exit(1);
-  }
-}
-
-test();
-EOF
-
-node test-db-connection.js
-
-# 8. Start development server
+# 9. Start development server
 npm run dev
 ```
 
@@ -1669,9 +1658,20 @@ If you cannot connect to cloud databases (Neon, Supabase) due to network restric
 # Error: "getaddrinfo ENOTFOUND" or DNS resolution failures
 # Solution: Set up local PostgreSQL (see Sandboxed Environment Setup above)
 
-# Quick setup:
+# Quick setup (if PostgreSQL fails to start):
+sed -i "s/^ssl = on/ssl = off/" /etc/postgresql/16/main/postgresql.conf
 pg_ctlcluster 16 main start
+
+# Configure authentication
+sed -i 's/^local\s*all\s*postgres\s*peer/local   all             postgres                                trust/' /etc/postgresql/16/main/pg_hba.conf
+sed -i 's/^host\s*all\s*all\s*127\.0\.0\.1\/32\s*scram-sha-256/host    all             all             127.0.0.1\/32            md5/' /etc/postgresql/16/main/pg_hba.conf
+pg_ctlcluster 16 main reload
+
+# Create database and set password
 su - postgres -c "psql -c 'CREATE DATABASE care_commons;'"
+su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD 'postgres';\""
+
+# Set environment and run migrations
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/care_commons"
 npm run db:migrate
 npm run db:seed
@@ -1697,6 +1697,39 @@ pg_ctlcluster 16 main status
 
 # Check PostgreSQL logs
 tail -f /var/log/postgresql/postgresql-16-main.log
+```
+
+### Sandboxed Environment Service Startup
+
+If working in a sandboxed environment (Claude Code, etc.), services need to be manually started each session:
+
+```bash
+# Check which services are running
+pg_lsclusters  # PostgreSQL status
+redis-cli ping 2>&1  # Redis status
+~/bin/gh auth status 2>&1  # GitHub CLI status
+
+# Start PostgreSQL (if down)
+pg_ctlcluster 16 main start
+
+# Start Redis (if not running)
+redis-server --daemonize yes --port 6379
+
+# Install GitHub CLI (if not found)
+if [ ! -f ~/bin/gh ]; then
+  mkdir -p ~/bin
+  cd /tmp
+  curl -sSL https://github.com/cli/cli/releases/download/v2.83.1/gh_2.83.1_linux_amd64.tar.gz -o gh.tar.gz
+  tar -xzf gh.tar.gz
+  cp gh_2.83.1_linux_amd64/bin/gh ~/bin/
+  chmod +x ~/bin/gh
+  cd -
+fi
+
+# Verify all services
+psql "$DATABASE_URL" -c "SELECT NOW();"  # PostgreSQL
+redis-cli PING  # Redis
+~/bin/gh auth status  # GitHub CLI
 ```
 
 ---
