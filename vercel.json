@@ -17,6 +17,10 @@
     {
       "source": "/health",
       "destination": "/api"
+    },
+    {
+      "source": "/:path((?!api|health).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
