@@ -2,8 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "regions": ["iad1"],
-  "buildCommand": "npm run build",
-  "outputDirectory": "packages/web/dist",
   "functions": {
     "api/index.ts": {
       "includeFiles": "{packages,verticals}/**/dist/**"
@@ -19,7 +17,7 @@
       "destination": "/api"
     },
     {
-      "source": "/:path((?!api|health).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
