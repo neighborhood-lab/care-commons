@@ -52,6 +52,8 @@ export const generalApiLimiter = rateLimit({
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
   store: getRedisStore('rl:general:'),
+  // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
+  validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
     error: 'Too many requests from this IP, please try again after 15 minutes.',
     retryAfter: 15 * 60, // seconds
@@ -70,6 +72,8 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: getRedisStore('rl:auth:'),
+  // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
+  validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
     error: 'Too many authentication attempts from this IP, please try again after 15 minutes.',
     retryAfter: 15 * 60,
@@ -83,6 +87,8 @@ export const passwordResetLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: getRedisStore('rl:reset:'),
+  // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
+  validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
     error: 'Too many password reset attempts, please try again after an hour.',
     retryAfter: 60 * 60,
@@ -103,6 +109,8 @@ export const evvLimiter = rateLimit({
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
   },
   store: getRedisStore('rl:evv:'),
+  // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
+  validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
     error: 'Too many EVV requests, please contact support if you need assistance.',
     retryAfter: 60 * 60,
@@ -122,6 +130,8 @@ export const syncLimiter = rateLimit({
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
   },
   store: getRedisStore('rl:sync:'),
+  // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
+  validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
     error: 'Sync rate limit exceeded, please wait a few minutes.',
     retryAfter: 5 * 60,
@@ -141,6 +151,8 @@ export const reportLimiter = rateLimit({
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
   },
   store: getRedisStore('rl:reports:'),
+  // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
+  validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
     error: 'Too many report requests, please try again later.',
     retryAfter: 60 * 60,
