@@ -456,7 +456,7 @@ async function seedDatabase() {
       
       console.log('📋 Fetching existing admin user...');
       const userResult = await client.query(
-        'SELECT id FROM users WHERE organization_id = $1 AND role = $2 ORDER BY created_at ASC LIMIT 1',
+        'SELECT id FROM users WHERE organization_id = $1 AND $2 = ANY(roles) ORDER BY created_at ASC LIMIT 1',
         [orgId, 'ADMINISTRATOR']
       );
       
