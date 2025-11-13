@@ -29,6 +29,20 @@ export async function up(knex: Knex): Promise<void> {
   ];
 
   for (const tableName of tables) {
+    // Check if table exists before attempting to alter it
+    const tableExists = await knex.schema.hasTable(tableName);
+    if (!tableExists) {
+      console.log(`⏭️  Skipping ${tableName} - table does not exist yet`);
+      continue;
+    }
+
+    // Check if column already exists
+    const hasColumn = await knex.schema.hasColumn(tableName, 'is_demo_data');
+    if (hasColumn) {
+      console.log(`⏭️  Skipping ${tableName} - is_demo_data column already exists`);
+      continue;
+    }
+
     // Add column if it doesn't exist
     await knex.raw(`
       ALTER TABLE ${tableName}
@@ -41,6 +55,8 @@ export async function up(knex: Knex): Promise<void> {
       ON ${tableName}(is_demo_data)
       WHERE is_demo_data = true
     `);
+
+    console.log(`✅ Added is_demo_data column to ${tableName}`);
   }
 }
 
