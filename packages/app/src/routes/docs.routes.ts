@@ -1,7 +1,7 @@
 import express, { type Router } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerOptions } from '../config/openapi.config';
+import { swaggerOptions } from '../config/openapi.config.js';
 
 const router: Router = express.Router();
 

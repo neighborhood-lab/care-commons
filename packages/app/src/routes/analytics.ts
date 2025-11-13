@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database } from '@care-commons/core';
-import { requireAuth } from '../middleware/auth-context';
+import { requireAuth } from '../middleware/auth-context.js';
 import { AnalyticsService } from '@care-commons/analytics-reporting';
 import { ExportService } from '@care-commons/analytics-reporting';
 import type { AnalyticsQueryOptions, ExportFormat, Report } from '@care-commons/analytics-reporting';
