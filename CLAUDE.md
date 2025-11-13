@@ -13,6 +13,7 @@
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Development Workflows](#development-workflows)
+- [GitHub Integration](#github-integration)
 - [Key Conventions](#key-conventions)
 - [Database Management](#database-management)
 - [Testing Standards](#testing-standards)
@@ -362,6 +363,300 @@ git push -u origin feature/your-feature-name
 **CRITICAL**: Pre-commit hooks are **MANDATORY** and **CANNOT BE BYPASSED**. Never use:
 - ❌ `git commit --no-verify`
 - ❌ `git commit -n`
+
+---
+
+## GitHub Integration
+
+### GitHub CLI (`gh`)
+
+Care Commons development environments include the GitHub CLI for seamless integration with GitHub repositories, pull requests, issues, and GitHub Actions.
+
+#### Installation & Location
+
+- **Binary Location**: `~/bin/gh`
+- **Version**: 2.83.1 (automatically installed if needed)
+- **Authentication**: Automatic via `GH_TOKEN` environment variable
+
+#### Quick Setup Verification
+
+```bash
+# Verify GitHub CLI is installed and authenticated
+~/bin/gh auth status
+
+# Test repository access
+~/bin/gh repo view neighborhood-lab/care-commons
+```
+
+#### Authentication
+
+The `GH_TOKEN` environment variable is pre-configured with a GitHub Personal Access Token for the repository.
+
+**Token Scopes**:
+- `public_repo` - Access to public repository operations
+- `workflow` - Manage GitHub Actions workflows
+
+```bash
+# Check authentication status
+~/bin/gh auth status
+
+# Expected output:
+# ✓ Logged in to github.com
+# ✓ Token: ghp_************************************
+# ✓ Token scopes: 'public_repo', 'workflow'
+```
+
+#### Common Commands
+
+##### Pull Requests
+
+```bash
+# List pull requests
+~/bin/gh pr list --repo neighborhood-lab/care-commons
+
+# View specific PR
+~/bin/gh pr view <number>
+
+# Create a new PR
+~/bin/gh pr create --title "feat: Add new feature" --body "Description of changes"
+
+# Check PR CI/test status
+~/bin/gh pr checks <number>
+
+# Watch PR checks in real-time
+~/bin/gh pr checks <number> --watch
+
+# Merge a PR
+~/bin/gh pr merge <number>
+
+# Close a PR
+~/bin/gh pr close <number>
+```
+
+##### Issues
+
+```bash
+# List issues
+~/bin/gh issue list --repo neighborhood-lab/care-commons
+
+# View specific issue
+~/bin/gh issue view <number>
+
+# Create a new issue
+~/bin/gh issue create --title "Bug: Description" --body "Details"
+
+# Close an issue
+~/bin/gh issue close <number>
+```
+
+##### GitHub Actions
+
+```bash
+# List recent workflow runs
+~/bin/gh run list --repo neighborhood-lab/care-commons
+
+# View specific workflow run
+~/bin/gh run view <run-id>
+
+# Watch a workflow run (real-time)
+~/bin/gh run watch <run-id>
+
+# Re-run a failed workflow
+~/bin/gh run rerun <run-id>
+
+# View workflow logs
+~/bin/gh run view <run-id> --log
+```
+
+##### Repository Information
+
+```bash
+# View repository details
+~/bin/gh repo view neighborhood-lab/care-commons
+
+# Get repository metadata as JSON
+~/bin/gh repo view neighborhood-lab/care-commons --json name,description,defaultBranchRef,isPrivate
+
+# Clone repository
+~/bin/gh repo clone neighborhood-lab/care-commons
+```
+
+#### Integration Patterns
+
+##### Creating a Pull Request
+
+```bash
+# 1. Ensure you're on your feature branch
+git branch --show-current
+
+# 2. Push your changes
+git push -u origin <branch-name>
+
+# 3. Create PR with title and description
+~/bin/gh pr create \
+  --title "feat(scope): Add new feature" \
+  --body "## Summary
+- Implemented X
+- Fixed Y
+- Updated Z
+
+## Test Plan
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manual testing completed"
+
+# 4. Monitor CI checks
+~/bin/gh pr checks --watch
+```
+
+##### Monitoring CI/CD
+
+```bash
+# Check status of current PR
+~/bin/gh pr checks
+
+# Watch for completion
+~/bin/gh pr checks --watch
+
+# View detailed logs if checks fail
+~/bin/gh pr view --json statusCheckRollup
+
+# Get workflow run details
+~/bin/gh run list --branch <branch-name>
+~/bin/gh run view <run-id> --log
+```
+
+##### Working with Issues
+
+```bash
+# Create issue for a bug
+~/bin/gh issue create \
+  --title "Bug: Database migration fails on fresh install" \
+  --body "**Description**
+Migration 20251113_xxx fails when running on a fresh database.
+
+**Steps to Reproduce**
+1. Fresh PostgreSQL instance
+2. Run npm run db:migrate
+3. Error occurs
+
+**Expected Behavior**
+Migration should complete successfully"
+
+# Link PR to issue
+~/bin/gh pr create \
+  --title "fix: Database migration issue" \
+  --body "Fixes #123"  # References issue number
+```
+
+#### Best Practices
+
+1. **Always use full path**: `~/bin/gh` (not in PATH by default in all contexts)
+
+2. **Check authentication first**: Before any operation, verify `~/bin/gh auth status` succeeds
+
+3. **Use JSON output for scripting**: Many commands support `--json` for structured output
+   ```bash
+   ~/bin/gh pr view 123 --json number,title,state,author
+   ```
+
+4. **Watch long-running operations**: Use `--watch` for CI checks and workflow runs
+   ```bash
+   ~/bin/gh pr checks <number> --watch
+   ```
+
+5. **Combine with jq for parsing**: Process JSON output with jq
+   ```bash
+   ~/bin/gh pr list --json number,title,author --limit 5 | jq '.[] | select(.author.login == "bedwards")'
+   ```
+
+#### Troubleshooting
+
+##### Authentication Issues
+
+```bash
+# Check if GH_TOKEN is set
+echo $GH_TOKEN | head -c 10
+
+# Verify authentication
+~/bin/gh auth status
+
+# If authentication fails, check token scopes
+# Token must have 'public_repo' and 'workflow' scopes
+```
+
+##### Command Not Found
+
+```bash
+# Verify gh is installed
+ls -la ~/bin/gh
+
+# If missing, install manually
+mkdir -p ~/bin
+cd /tmp
+curl -sSL https://github.com/cli/cli/releases/download/v2.83.1/gh_2.83.1_linux_amd64.tar.gz -o gh.tar.gz
+tar -xzf gh.tar.gz
+cp gh_2.83.1_linux_amd64/bin/gh ~/bin/
+chmod +x ~/bin/gh
+```
+
+##### API Rate Limiting
+
+```bash
+# Check rate limit status
+~/bin/gh api rate_limit
+
+# If rate limited, wait or use a different token
+# Authenticated requests have higher limits (5000/hour vs 60/hour)
+```
+
+#### MCP Server Configuration (Optional)
+
+For enhanced integration, an MCP (Model Context Protocol) server can be configured for GitHub operations. Configuration is stored at `~/.config/claude/mcp.json`.
+
+**Note**: MCP server may require session restart to activate. The `gh` CLI commands documented above work immediately without MCP configuration.
+
+#### Example Workflows
+
+##### Complete Feature Development Workflow
+
+```bash
+# 1. Create feature branch
+git checkout -b feature/new-feature
+
+# 2. Make changes, commit
+git add .
+git commit -m "feat: Implement new feature"
+
+# 3. Push and create PR
+git push -u origin feature/new-feature
+~/bin/gh pr create \
+  --title "feat: Implement new feature" \
+  --body "Detailed description of changes"
+
+# 4. Monitor CI checks
+~/bin/gh pr checks --watch
+
+# 5. Once approved and checks pass, merge
+~/bin/gh pr merge --squash --delete-branch
+```
+
+##### Debugging Failed CI
+
+```bash
+# 1. List recent workflow runs
+~/bin/gh run list --limit 5
+
+# 2. Find failed run
+~/bin/gh run view <run-id>
+
+# 3. View detailed logs
+~/bin/gh run view <run-id> --log
+
+# 4. Re-run after fixes
+git push  # Push fixes
+~/bin/gh run watch  # Watch new run
+```
 
 ---
 
