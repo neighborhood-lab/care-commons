@@ -95,6 +95,22 @@ The following documentation has been created to guide deployment:
 
 ---
 
+## 🚨 Critical: Database Seeding Required
+
+**IMPORTANT:** Database seeding is **NOT automatic** on deployment. After deploying to Vercel, you **MUST manually run the seed script** to populate the database with demo users and data.
+
+Without seeding, **ALL LOGINS WILL FAIL** with "Invalid credentials" because no users exist in the database.
+
+**Quick Seed Command:**
+```bash
+export DATABASE_URL="your-neon-production-connection-string"
+npm run db:seed-comprehensive
+```
+
+See **[SEEDING.md](./SEEDING.md)** for complete instructions and login credentials.
+
+---
+
 ## 🚀 Deployment Steps
 
 ### 1. Set Environment Variables (Required First)
