@@ -288,11 +288,11 @@ async function start(): Promise<void> {
     await createApp();
 
     // Start listening
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`\n✅ Server running on port ${PORT}`);
       console.log(`   Environment: ${NODE_ENV}`);
-      console.log(`   Health check: http://localhost:${PORT}/health`);
-      console.log(`   API docs: http://localhost:${PORT}/api-docs\n`);
+      console.log(`   Health check: http://0.0.0.0:${PORT}/health`);
+      console.log(`   API docs: http://0.0.0.0:${PORT}/api-docs\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
