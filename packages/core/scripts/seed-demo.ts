@@ -1,18 +1,19 @@
 /**
- * Comprehensive Showcase Seed Script
- * 
- * Seeds LARGE-SCALE realistic demo data for showcase and demonstration:
- * - 60 clients across TX, FL, OH (various demographics, conditions)
- * - 35 caregivers with certifications, specializations
- * - 500+ visits (past, present, future) with full EVV data
- * - 40+ care plans with tasks and goals
- * - Family portal data (members, messages, notifications)
+ * Demo Database Seeding Script
+ *
+ * Seeds comprehensive realistic demo data covering all states, roles, and features:
+ * - 60 clients across TX, FL, OH (various demographics, conditions, care needs)
+ * - 35 caregivers with certifications, specializations, varied roles
+ * - 600+ visits (past, present, future) with full EVV data
+ * - 50+ care plans with tasks and goals
+ * - 40+ family members with portal access
  * - Billing and invoicing data
- * - Payroll data
- * - Shift matching scenarios
- * 
- * **One-Command Execution**: npm run db:seed:showcase-comprehensive
- * 
+ * - Complete workflow demonstrations
+ *
+ * This is THE comprehensive demo - covers everything with realistic, useful fake data.
+ *
+ * Usage: npm run db:seed:demo
+ *
  * PREREQUISITE: Run `npm run db:seed` first to create org, branch, and admin user.
  */
 
@@ -380,7 +381,7 @@ function generateVisit(
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function seedDatabase() {
-  console.log('🎭 Seeding comprehensive showcase data...\n');
+  console.log('🎭 Seeding demo data (all states, all roles, comprehensive)...\n');
 
   const env = process.env.NODE_ENV || 'development';
   const dbName = process.env.DB_NAME || 'care_commons';
@@ -979,7 +980,7 @@ async function seedDatabase() {
       // ═══════════════════════════════════════════════════════════════════════════
       
       console.log('\n═══════════════════════════════════════════════════════════════');
-      console.log('✅ SHOWCASE DATA SEEDED SUCCESSFULLY!');
+      console.log('✅ DEMO DATA SEEDED SUCCESSFULLY!');
       console.log('═══════════════════════════════════════════════════════════════');
       console.log(`📊 Summary:`);
       console.log(`   - ${clients.length} clients (${clients.filter(c => c.state === 'TX').length} TX, ${clients.filter(c => c.state === 'FL').length} FL, ${clients.filter(c => c.state === 'OH').length} OH)`);
@@ -997,7 +998,7 @@ async function seedDatabase() {
 
     await db.close();
     console.log('✅ Database connection closed');
-    console.log('\n🎉 Done! Your showcase environment is ready.\n');
+    console.log('\n🎉 Done! Your demo environment is ready with comprehensive data across all states and roles.\n');
     
   } catch (error) {
     console.error('❌ Error seeding database:', error);
