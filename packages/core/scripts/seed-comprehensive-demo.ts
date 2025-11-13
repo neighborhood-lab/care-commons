@@ -317,8 +317,9 @@ async function seedComprehensiveDemo() {
             );
             stats.users++;
             process.stdout.write('.');
-          } catch (error) {
-            // User exists, fetch ID
+          // eslint-disable-next-line sonarjs/no-ignored-exceptions
+          } catch (_error) {
+            // User exists (conflict on unique email), fetch existing ID
             const existing = await client.query(
               'SELECT id FROM users WHERE email = $1',
               [email]
@@ -429,7 +430,6 @@ async function seedComprehensiveDemo() {
 
         // 4. CREATE CARE PLANS (1 per client)
         process.stdout.write('📋 Care Plans: ');
-        const stateCarePlans: string[] = [];
         
         for (const clientId of stateClients) {
           const carePlanId = uuidv4();
@@ -457,7 +457,6 @@ async function seedComprehensiveDemo() {
               stateUsers['COORDINATOR']
             ]
           );
-          stateCarePlans.push(carePlanId);
           stats.carePlans++;
           
           // 5. CREATE TASKS (5 per care plan)
