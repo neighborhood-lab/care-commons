@@ -34,7 +34,13 @@ describe('ClinicalService', () => {
     documentedAt: new Date('2024-01-15T10:00:00Z'),
     status: 'DRAFT',
     requiresCoSign: false,
+    signedBy: mockUserId,
+    signedByName: 'Test Nurse',
+    signedByCredentials: 'RN',
+    signedAt: new Date('2024-01-15T10:00:00Z'),
     isEncrypted: false,
+    deletedAt: null,
+    deletedBy: null,
     createdAt: new Date('2024-01-15T10:00:00Z'),
     createdBy: mockUserId,
     updatedAt: new Date('2024-01-15T10:00:00Z'),
@@ -75,6 +81,7 @@ describe('ClinicalService', () => {
       objectiveNotes: 'Vital signs stable',
       assessment: 'Recovering well from surgery',
       plan: 'Continue current care plan',
+      signedByCredentials: 'RN',
     };
 
     it('should create visit note for RN', async () => {
@@ -183,7 +190,7 @@ describe('ClinicalService', () => {
 
     it('should throw PermissionError when no credentials provided', async () => {
       await expect(
-        service.createVisitNote(createInput, mockUserId, undefined)
+        service.createVisitNote(createInput, mockUserId)
       ).rejects.toThrow(PermissionError);
     });
 
