@@ -43,5 +43,8 @@ npm run db:nuke
 npm run db:migrate
 npm run db:seed
 npm run db:seed:demo
+npm run db:seed:demo-v2
+npm run db:seed:showcase
+npm run db:seed:showcase-comprehensive
 
 echo "✅ All checks completed successfully!"
