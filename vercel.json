@@ -17,7 +17,7 @@
       "destination": "/api"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path((?!api|health|_next|favicon\\.ico).*)",
       "destination": "/index.html"
     }
   ],
