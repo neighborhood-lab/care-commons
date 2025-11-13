@@ -22,14 +22,14 @@ export function createSyncRouter(db: Database): Router {
    * Pull changes from server
    * GET /api/sync/pull?lastPulledAt=<timestamp>&entities=VISIT,TASK&organizationId=<uuid>
    */
-  router.get('/pull', syncLimiter, syncHandlers.handlePullChanges);
+  router.get('/pull', syncLimiter as any, syncHandlers.handlePullChanges);
 
   /**
    * Push local changes to server
    * POST /api/sync/push
    * Body: { changes: [...], deviceId: "...", timestamp: 123, organizationId: "..." }
    */
-  router.post('/push', syncLimiter, syncHandlers.handlePushChanges);
+  router.post('/push', syncLimiter as any, syncHandlers.handlePushChanges);
 
   /**
    * Get sync status

@@ -177,7 +177,7 @@ function setupMiddleware(): void {
   app.use(authContextMiddleware);
 
   // Apply general rate limiter to all API routes
-  app.use('/api', generalApiLimiter);
+  app.use('/api', generalApiLimiter as any);
 }
 
 /**
@@ -212,7 +212,7 @@ function setupApiRoutes(): void {
   });
 
   // Swagger documentation
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use('/api-docs', swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any);
 
   // Swagger JSON endpoint
   app.get('/api-docs.json', (_req, res) => {

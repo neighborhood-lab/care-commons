@@ -8,12 +8,12 @@ const router: Router = express.Router();
 const specs = swaggerJsdoc(swaggerOptions);
 
 // Swagger UI
-router.use('/api-docs', swaggerUi.serve);
+router.use('/api-docs', swaggerUi.serve as any);
 router.get('/api-docs', swaggerUi.setup(specs, {
   customSiteTitle: 'Care Commons API Documentation',
   customCss: '.swagger-ui .topbar { display: none }',
   explorer: true,
-}));
+}) as any);
 
 // OpenAPI JSON
 router.get('/openapi.json', (_req, res) => {

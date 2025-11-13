@@ -15,9 +15,9 @@ describe('Swagger Integration (server.ts lines 199-205)', () => {
   it('should serve swagger UI middleware at /api-docs', async () => {
     // This test mimics the exact setup in server.ts setupApiRoutes()
     const app = express();
-    
+
     // Line 199: app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/api-docs', swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any);
     
     // Verify the middleware is mounted and functional
     const response = await request(app)
@@ -68,9 +68,9 @@ describe('Swagger Integration (server.ts lines 199-205)', () => {
   it('should integrate both swagger UI and JSON endpoints together', async () => {
     // This test verifies the complete integration as in server.ts
     const app = express();
-    
+
     // Swagger documentation (line 199)
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/api-docs', swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any);
     
     // Swagger JSON endpoint (lines 202-205)
     app.get('/api-docs.json', (_req, res) => {
