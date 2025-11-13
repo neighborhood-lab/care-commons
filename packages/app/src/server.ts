@@ -34,7 +34,9 @@ const app = express();
 const PORT = Number(process.env['PORT'] ?? 3000);
 const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 
-
+// Trust proxy when behind reverse proxy (Vercel, etc.)
+// This allows Express to correctly read X-Forwarded-* headers for rate limiting and logging
+app.set('trust proxy', true);
 
 /**
  * Initialize database connection
