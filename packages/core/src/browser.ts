@@ -5,21 +5,31 @@
  * This file excludes server-only modules that depend on Node.js built-ins
  */
 
-// Types only - safe for browser
-export type * from './types/base.js';
-export type * from './types/organization.js';
+// Types - safe for browser
+export type * from './types/base';
+export type * from './types/organization';
+
+// Export error classes as values (browser-safe, no server deps)
+export {
+  DomainError,
+  ValidationError,
+  PermissionError,
+  NotFoundError,
+  ConflictError,
+  AuthenticationError,
+} from './types/base';
 
 // Utils that are browser-compatible
-export * from './utils/date.utils.js';
-export * from './utils/timezone.utils.js';
-export * from './utils/memoize.js';
-export * from './utils/pagination.js';
+export * from './utils/date.utils';
+export * from './utils/timezone.utils';
+export * from './utils/memoize';
+export * from './utils/pagination';
 
 // Validation (browser-compatible)
-export * from './validation/schemas.js';
+export * from './validation/schemas';
 
 // Sync types only (browser-compatible)
-export type * from './sync/types.js';
+export type * from './sync/types';
 
 // Error types (browser-compatible)
 export {
@@ -30,4 +40,4 @@ export {
   ServiceUnavailableError,
   InternalServerError,
   DatabaseError,
-} from './errors/app-errors.js';
+} from './errors/app-errors';

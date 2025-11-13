@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { httpRequestCounter, httpRequestDuration } from '../utils/metrics.js';
+import { httpRequestCounter, httpRequestDuration } from '../utils/metrics';
 
 export function metricsMiddleware(req: Request, res: Response, next: NextFunction): void {
   const start = Date.now();

@@ -8,7 +8,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import express, { Express } from 'express';
 import request from 'supertest';
 import { Database } from '@care-commons/core';
-import { createPayrollRouter } from '../payroll.js';
+import { createPayrollRouter } from '../payroll';
+import { authContextMiddleware } from '../../middleware/auth-context';
 
 // Mock the payroll-processing module
 const mockPayrollService = {
@@ -62,6 +63,9 @@ describe('Payroll Routes', () => {
   beforeEach(() => {
     app = express();
     app.use(express.json());
+    
+    // Add auth context middleware to populate req.userContext from headers
+    app.use(authContextMiddleware);
 
     // Mock database with getPool method
     mockDb = {

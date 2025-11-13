@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CaregiverService } from '../service/caregiver-service.js';
-import { CaregiverRepository } from '../repository/caregiver-repository.js';
+import { CaregiverService } from '../service/caregiver-service';
+import { CaregiverRepository } from '../repository/caregiver-repository';
 import type { Database, UserContext } from '@care-commons/core';
-import type { Caregiver } from '../types/caregiver.js';
+import type { Caregiver } from '../types/caregiver';
 
 describe('CaregiverService', () => {
   let service: CaregiverService;

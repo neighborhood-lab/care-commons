@@ -13,7 +13,7 @@ import type {
   ConflictResolution,
   ConflictResolutionStrategy,
   SyncEntityType,
-} from './types.js';
+} from './types';
 
 export class ConflictResolver {
   /**

@@ -6,7 +6,7 @@
  */
 
 import jwt from 'jsonwebtoken';
-import { UUID } from '../types/base.js';
+import { UUID } from '../types/base';
 
 // Re-export types for convenience
 type JwtPayload = jwt.JwtPayload;

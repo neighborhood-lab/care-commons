@@ -11,7 +11,7 @@
  * - Designed for supervisor override workflows
  */
 
-import { StateCode } from '../../types/base.js';
+import { StateCode } from '../../types/base';
 
 /**
  * Severity of a compliance issue

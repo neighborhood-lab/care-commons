@@ -5,7 +5,7 @@
  * across web and mobile platforms.
  */
 
-export * from './types.js';
-export * from './conflict-resolver.js';
-export * from './sync-protocol.js';
-export * from './offline-queue.js';
+export * from './types';
+export * from './conflict-resolver';
+export * from './sync-protocol';
+export * from './offline-queue';

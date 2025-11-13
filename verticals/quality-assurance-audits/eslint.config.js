@@ -105,6 +105,12 @@ export default [
     },
   },
   {
+    files: ['**/routes/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-misused-promises': 'off', // Express async route handlers are intentional
+    },
+  },
+  {
     ignores: [
       'dist/',
       '*.js',

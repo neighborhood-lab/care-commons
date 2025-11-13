@@ -3,10 +3,11 @@
   "info": {
     "title": "Care Commons API",
     "version": "1.0.0",
-    "description": "Home healthcare platform API documentation",
+    "description": "\n# Care Commons API Documentation\n\nComprehensive REST API for home healthcare management platform.\n\n## Features\n\n- **Client Demographics**: Manage client records, demographics, and intake\n- **Caregiver Management**: Staff credentials, certifications, and scheduling\n- **Visit Tracking**: EVV-compliant visit check-in/out with GPS verification\n- **Care Plans**: Care plan creation, task management, and progress notes\n- **Scheduling**: Visit scheduling and caregiver assignment\n- **Time Tracking**: Electronic Visit Verification (EVV) and payroll integration\n- **Incident Reporting**: Incident documentation and follow-up tracking\n- **Medication Management**: Medication administration records (MAR)\n- **Quality Assurance**: Audit management and corrective actions\n- **Billing & Invoicing**: Service authorization and claim management\n- **Analytics**: Reporting and dashboard metrics\n\n## Authentication\n\nAll API endpoints require JWT bearer token authentication. Include the token in the Authorization header:\n\n```\nAuthorization: Bearer <your-jwt-token>\n```\n\nObtain a token by logging in via `POST /api/auth/login`.\n\n## Rate Limiting\n\nAPI requests are rate-limited to prevent abuse:\n\n- **Authentication endpoints**: 5 requests per 15 minutes per IP\n- **General API**: 100 requests per 15 minutes per user\n- **Sync endpoints**: 200 requests per 15 minutes per user\n- **Report generation**: 10 requests per 15 minutes per user\n- **EVV check-in/out**: 500 requests per 15 minutes per user\n\nRate limit headers are included in responses:\n- `X-RateLimit-Limit`: Maximum requests allowed\n- `X-RateLimit-Remaining`: Requests remaining in current window\n- `X-RateLimit-Reset`: Time when limit resets (Unix timestamp)\n\n## Pagination\n\nList endpoints support pagination via query parameters:\n\n- `page`: Page number (default: 1)\n- `limit`: Items per page (default: 20, max: 100)\n- `sortBy`: Field to sort by\n- `sortDirection`: `asc` or `desc`\n\n## Error Handling\n\nErrors follow a consistent format:\n\n```json\n{\n  \"success\": false,\n  \"error\": \"Error message\",\n  \"code\": \"ERROR_CODE\",\n  \"details\": {}\n}\n```\n\nCommon error codes:\n- `UNAUTHORIZED`: Authentication required or invalid token\n- `FORBIDDEN`: Insufficient permissions\n- `NOT_FOUND`: Resource not found\n- `VALIDATION_ERROR`: Invalid request data\n- `RATE_LIMIT_EXCEEDED`: Too many requests\n- `INTERNAL_ERROR`: Server error\n\n## Compliance\n\nThis API implements:\n- **HIPAA**: Secure PHI handling with audit trails\n- **21st Century Cures Act**: EVV compliance for Medicaid services\n- **State-specific regulations**: Texas HHSC, Florida AHCA, and 48 other states\n\n## Versioning\n\nThe API uses semantic versioning. Breaking changes will be introduced in new major versions with deprecation notices.\n\nCurrent version: **v1.0.0**\n      ",
     "contact": {
       "name": "Care Commons Team",
-      "url": "https://github.com/neighborhood-lab/care-commons"
+      "url": "https://github.com/neighborhood-lab/care-commons",
+      "email": "support@carecommons.example"
     },
     "license": {
       "name": "AGPL-3.0",
@@ -19,6 +20,10 @@
       "description": "Development server"
     },
     {
+      "url": "https://preview.carecommons.example",
+      "description": "Staging server"
+    },
+    {
       "url": "https://care-commons.vercel.app",
       "description": "Production server"
     }
@@ -28,7 +33,8 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from login endpoint"
       }
     },
     "schemas": {
@@ -45,11 +51,11 @@
             "format": "email",
             "description": "User email address"
           },
-          "firstName": {
+          "first_name": {
             "type": "string",
             "description": "User first name"
           },
-          "lastName": {
+          "last_name": {
             "type": "string",
             "description": "User last name"
           },
@@ -63,6 +69,29 @@
             ],
             "description": "User role in the system"
           },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Organization ID the user belongs to"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when user was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when user was last updated"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -72,6 +101,39 @@
             "type": "string",
             "format": "date-time",
             "description": "User last update timestamp"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Error type"
+          },
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "context": {
+            "type": "object",
+            "description": "Additional error context"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP status code"
           }
         }
       },
@@ -480,24 +542,273 @@
           }
         }
       },
-      "Error": {
+      "ClockInInput": {
+        "type": "object",
+        "required": [
+          "visitId",
+          "location",
+          "deviceInfo"
+        ],
+        "properties": {
+          "visitId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The visit ID to clock in for"
+          },
+          "location": {
+            "type": "object",
+            "required": [
+              "latitude",
+              "longitude"
+            ],
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "format": "double",
+                "example": 30.2672,
+                "description": "GPS latitude coordinate"
+              },
+              "longitude": {
+                "type": "number",
+                "format": "double",
+                "example": -97.7431,
+                "description": "GPS longitude coordinate"
+              },
+              "accuracy": {
+                "type": "number",
+                "description": "GPS accuracy in meters",
+                "example": 10
+              }
+            }
+          },
+          "deviceInfo": {
+            "type": "object",
+            "required": [
+              "deviceId"
+            ],
+            "properties": {
+              "deviceId": {
+                "type": "string",
+                "description": "Unique device identifier"
+              },
+              "deviceModel": {
+                "type": "string",
+                "description": "Device model name",
+                "example": "iPhone 12"
+              },
+              "deviceOS": {
+                "type": "string",
+                "description": "Operating system version",
+                "example": "iOS 15.0"
+              }
+            }
+          },
+          "biometricVerified": {
+            "type": "boolean",
+            "description": "Whether biometric authentication was used"
+          },
+          "offlineRecorded": {
+            "type": "boolean",
+            "description": "Whether this was recorded offline"
+          }
+        }
+      },
+      "ClockOutInput": {
+        "type": "object",
+        "required": [
+          "visitId",
+          "location",
+          "deviceInfo"
+        ],
+        "properties": {
+          "visitId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The visit ID to clock out from"
+          },
+          "location": {
+            "type": "object",
+            "required": [
+              "latitude",
+              "longitude"
+            ],
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "format": "double",
+                "example": 30.2672
+              },
+              "longitude": {
+                "type": "number",
+                "format": "double",
+                "example": -97.7431
+              },
+              "accuracy": {
+                "type": "number",
+                "description": "GPS accuracy in meters"
+              }
+            }
+          },
+          "deviceInfo": {
+            "type": "object",
+            "properties": {
+              "deviceId": {
+                "type": "string"
+              },
+              "deviceModel": {
+                "type": "string"
+              },
+              "deviceOS": {
+                "type": "string"
+              }
+            }
+          },
+          "biometricVerified": {
+            "type": "boolean"
+          },
+          "offlineRecorded": {
+            "type": "boolean"
+          }
+        }
+      },
+      "VerificationResult": {
         "type": "object",
         "properties": {
-          "error": {
+          "passed": {
+            "type": "boolean",
+            "description": "Whether EVV verification passed"
+          },
+          "verificationLevel": {
             "type": "string",
-            "description": "Error type"
+            "enum": [
+              "FULL",
+              "PARTIAL",
+              "MANUAL",
+              "PHONE",
+              "EXCEPTION"
+            ],
+            "description": "Level of verification achieved"
           },
-          "message": {
+          "complianceFlags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "COMPLIANT",
+                "GEOFENCE_VIOLATION",
+                "TIME_GAP",
+                "DEVICE_SUSPICIOUS",
+                "LOCATION_SUSPICIOUS",
+                "DUPLICATE_ENTRY",
+                "MISSING_SIGNATURE",
+                "LATE_SUBMISSION",
+                "MANUAL_OVERRIDE",
+                "AMENDED"
+              ]
+            }
+          },
+          "requiresSupervisorReview": {
+            "type": "boolean",
+            "description": "Whether supervisor review is required"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of verification issues found"
+          }
+        }
+      },
+      "LocationVerification": {
+        "type": "object",
+        "properties": {
+          "isWithinGeofence": {
+            "type": "boolean",
+            "description": "Whether location is within the geofence"
+          },
+          "distanceFromAddress": {
+            "type": "number",
+            "description": "Distance from expected address in meters"
+          },
+          "accuracy": {
+            "type": "number",
+            "description": "GPS accuracy in meters"
+          }
+        }
+      },
+      "EVVRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "string",
-            "description": "Error message"
+            "format": "uuid"
           },
-          "details": {
-            "type": "object",
-            "description": "Additional error details"
+          "visit_id": {
+            "type": "string",
+            "format": "uuid"
           },
-          "statusCode": {
-            "type": "integer",
-            "description": "HTTP status code"
+          "clockInTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "clockOutTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalDuration": {
+            "type": "number",
+            "description": "Total duration in minutes"
+          },
+          "recordStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "COMPLETE",
+              "CANCELLED"
+            ]
+          },
+          "verificationLevel": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "PARTIAL",
+              "MANUAL",
+              "PHONE",
+              "EXCEPTION"
+            ]
+          },
+          "complianceFlags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "COMPLIANT",
+                "GEOFENCE_VIOLATION",
+                "TIME_GAP",
+                "DEVICE_SUSPICIOUS",
+                "LOCATION_SUSPICIOUS",
+                "DUPLICATE_ENTRY",
+                "MISSING_SIGNATURE",
+                "LATE_SUBMISSION",
+                "MANUAL_OVERRIDE",
+                "AMENDED"
+              ]
+            }
+          },
+          "submittedToPayor": {
+            "type": "boolean"
+          },
+          "payorApprovalStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "DENIED",
+              "PENDING_INFO",
+              "APPEALED"
+            ]
           }
         }
       }
@@ -506,6 +817,48 @@
   "security": [
     {
       "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User authentication and authorization"
+    },
+    {
+      "name": "Clients",
+      "description": "Client demographics and records management"
+    },
+    {
+      "name": "Caregivers",
+      "description": "Caregiver staff management and credentials"
+    },
+    {
+      "name": "Visits",
+      "description": "Visit scheduling and EVV tracking"
+    },
+    {
+      "name": "Care Plans",
+      "description": "Care plan and task management"
+    },
+    {
+      "name": "Medications",
+      "description": "Medication administration records"
+    },
+    {
+      "name": "Incidents",
+      "description": "Incident reporting and tracking"
+    },
+    {
+      "name": "Billing",
+      "description": "Invoicing and service authorization"
+    },
+    {
+      "name": "Analytics",
+      "description": "Reports and dashboard metrics"
+    },
+    {
+      "name": "Admin",
+      "description": "Administrative operations"
     }
   ],
   "paths": {
@@ -1629,7 +1982,49 @@
           }
         }
       }
+    },
+    "/api/clients/{id}/geocode": {
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Manually geocode client address",
+        "description": "Geocode a client's primary address and update coordinates",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Client ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address geocoded successfully"
+          },
+          "400": {
+            "description": "Invalid request or geocoding failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions"
+          },
+          "404": {
+            "description": "Client not found"
+          }
+        }
+      }
     }
-  },
-  "tags": []
+  }
 }

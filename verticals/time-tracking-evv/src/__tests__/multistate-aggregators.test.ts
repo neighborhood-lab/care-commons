@@ -6,18 +6,18 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AggregatorRouter } from '../aggregators/aggregator-router.js';
-import { SandataAggregator } from '../aggregators/sandata-aggregator.js';
-import { TellusAggregator } from '../aggregators/tellus-aggregator.js';
+import { AggregatorRouter } from '../aggregators/aggregator-router';
+import { SandataAggregator } from '../aggregators/sandata-aggregator';
+import { TellusAggregator } from '../aggregators/tellus-aggregator';
 import {
   getStateConfig,
   usesSandata,
   getStatesByAggregator,
   STATE_AGGREGATOR_MAP,
-} from '../config/state-evv-configs.js';
-import { getStateEVVRules } from '../types/state-specific.js';
-import type { EVVRecord } from '../types/evv.js';
-import type { StateCode } from '../types/state-specific.js';
+} from '../config/state-evv-configs';
+import { getStateEVVRules } from '../types/state-specific';
+import type { EVVRecord } from '../types/evv';
+import type { StateCode } from '../types/state-specific';
 
 describe('Multi-State Aggregator Support', () => {
   describe('State Configuration', () => {

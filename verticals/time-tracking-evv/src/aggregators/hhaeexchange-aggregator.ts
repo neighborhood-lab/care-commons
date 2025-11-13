@@ -22,8 +22,8 @@ import {
   ValidationError,
   ValidationWarning,
   EXPONENTIAL_BACKOFF,
-} from './base-aggregator.js';
-import { EVVRecord } from '../types/evv.js';
+} from './base-aggregator';
+import { EVVRecord } from '../types/evv';
 
 /**
  * HHAeXchange API payload structure

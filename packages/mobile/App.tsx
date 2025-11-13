@@ -3,61 +3,102 @@
  *
  * Main entry point with:
  * - Authentication state management
- * - Navigation setup
- * - Push notification initialization
- * - Loading screen
+ * - Biometric app lock integration
+ * - Root navigation
  */
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { initializeSentry } from './src/utils/sentry.js';
 import { RootNavigator } from './src/navigation/RootNavigator.js';
-import { useAuth } from './src/hooks/useAuth.js';
-import { NotificationService } from './src/services/notification.service.js';
-import { database } from './src/database/index.js';
+import { AppLockProvider, useAppLock } from './src/contexts/AppLockContext.js';
+import { BiometricLockScreen } from './src/screens/auth/BiometricLockScreen.js';
+import { createAuthService } from './src/services/auth.js';
 
-export default function App() {
-  const { isAuthenticated, loading } = useAuth();
+// Initialize error tracking
+initializeSentry();
 
-  /**
-   * Initialize push notifications
-   */
+/**
+ * App content with lock screen handling
+ */
+function AppContent() {
+  const { isLocked, unlockApp } = useAppLock();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
   useEffect(() => {
-    if (isAuthenticated) {
-      const notificationService = new NotificationService(database);
-      void notificationService.initialize();
-    }
-  }, [isAuthenticated]);
+    void checkAuthStatus();
+  }, []);
 
-  // Show loading screen while checking auth
-  if (loading) {
+  const checkAuthStatus = async () => {
+    try {
+      const authService = createAuthService();
+      const authenticated = await authService.isAuthenticated();
+      setIsAuthenticated(authenticated);
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setIsAuthenticated(false);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  // Handle logout navigation
+  useEffect(() => {
+    // Check auth status periodically
+    const interval = setInterval(() => {
+      void checkAuthStatus();
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (isCheckingAuth) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2563EB" />
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View style={styles.container}>
         <StatusBar style="auto" />
       </View>
     );
   }
 
+  // Show biometric lock screen if app is locked
+  if (isLocked) {
+    return (
+      <View style={styles.container}>
+        <StatusBar style="auto" />
+        <BiometricLockScreen
+          onUnlock={unlockApp}
+          onFallbackToPassword={() => {
+            // Navigate to login screen
+            setIsAuthenticated(false);
+          }}
+        />
+      </View>
+    );
+  }
+
   return (
-    <>
-      <RootNavigator isAuthenticated={isAuthenticated} />
+    <View style={styles.container}>
       <StatusBar style="auto" />
-    </>
+      <RootNavigator isAuthenticated={isAuthenticated} />
+    </View>
+  );
+}
+
+/**
+ * Root app component with providers
+ */
+export default function App() {
+  return (
+    <AppLockProvider>
+      <AppContent />
+    </AppLockProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
+  container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#6B7280',
   },
 });

@@ -12,8 +12,8 @@
 /* eslint-disable sonarjs/pseudo-random */
 /* eslint-disable unicorn/prefer-string-slice */
 
-import { Database } from '../db/connection.js';
-import type { UUID } from '../types/base.js';
+import { Database } from '../db/connection';
+import type { UUID } from '../types/base';
 
 /**
  * Visit data structure for cross-vertical use

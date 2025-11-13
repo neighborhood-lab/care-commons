@@ -60,6 +60,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.2.2",
+    "@types/react-native": "^0.72.8",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitest/coverage-v8": "^4.0.8",
@@ -72,6 +73,7 @@
     "happy-dom": "^20.0.10",
     "jsdom": "^27.1.0",
     "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8"

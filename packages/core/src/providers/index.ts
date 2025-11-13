@@ -5,50 +5,50 @@
  * This provides a convenient way to initialize all providers at once.
  */
 
-import { Database } from '../db/connection.js';
+import { Database } from '../db/connection';
 import {
   IClientProvider,
   createClientProvider,
-} from './client.provider.js';
+} from './client.provider';
 import {
   ICaregiverProvider,
   createCaregiverProvider,
-} from './caregiver.provider.js';
+} from './caregiver.provider';
 import {
   IVisitProvider,
   createVisitProvider,
-} from './visit.provider.js';
+} from './visit.provider';
 import {
   ICarePlanProvider,
   createCarePlanProvider,
-} from './care-plan.provider.js';
+} from './care-plan.provider';
 import {
   IFamilyMemberProvider,
   createFamilyMemberProvider,
-} from './family-member.provider.js';
+} from './family-member.provider';
 
 // Re-export provider interfaces and factory functions (not concrete classes or data types to avoid conflicts)
 export type {
   IClientProvider,
   Client,
   ClientFilters,
-} from './client.provider.js';
-export { createClientProvider } from './client.provider.js';
+} from './client.provider';
+export { createClientProvider } from './client.provider';
 
 export type {
   ICaregiverProvider,
   Caregiver,
   CaregiverFilters,
-} from './caregiver.provider.js';
-export { createCaregiverProvider } from './caregiver.provider.js';
+} from './caregiver.provider';
+export { createCaregiverProvider } from './caregiver.provider';
 
 export type {
   IVisitProvider,
   VisitFilters,
   CreateVisitInput,
   UpdateVisitInput,
-} from './visit.provider.js';
-export { createVisitProvider } from './visit.provider.js';
+} from './visit.provider';
+export { createVisitProvider } from './visit.provider';
 // Note: Visit type is not exported to avoid conflict with demo/types.ts
 
 export type {
@@ -57,8 +57,8 @@ export type {
   CarePlanFilters,
   CreateCarePlanInput,
   UpdateCarePlanInput,
-} from './care-plan.provider.js';
-export { createCarePlanProvider } from './care-plan.provider.js';
+} from './care-plan.provider';
+export { createCarePlanProvider } from './care-plan.provider';
 
 export type {
   IFamilyMemberProvider,
@@ -66,8 +66,8 @@ export type {
   FamilyMemberFilters,
   CreateFamilyMemberInput,
   UpdateFamilyMemberInput,
-} from './family-member.provider.js';
-export { createFamilyMemberProvider } from './family-member.provider.js';
+} from './family-member.provider';
+export { createFamilyMemberProvider } from './family-member.provider';
 
 /**
  * Container for all provider instances

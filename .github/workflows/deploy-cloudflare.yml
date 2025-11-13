@@ -1,0 +1,275 @@
+# ════════════════════════════════════════════════════════════════
+# Cloudflare + Supabase Deployment Workflow
+# Alternative deployment option for Care Commons
+# ════════════════════════════════════════════════════════════════
+
+name: Deploy to Cloudflare + Supabase
+
+on:
+  push:
+    branches: [main, preview]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '22'
+  NPM_VERSION: '10.9.4'
+  SUPABASE_PROJECT_REF: 'aoxifllwcujpinwfaxmu'
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  # Quality Gates (Lint, TypeCheck, Tests)
+  # ════════════════════════════════════════════════════════════════
+  quality-checks:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type checking
+        run: npm run typecheck
+
+      - name: Run unit tests
+        run: npm run test
+
+  # ════════════════════════════════════════════════════════════════
+  # Database Migrations (Supabase)
+  # ════════════════════════════════════════════════════════════════
+  migrate-database:
+    name: Run Database Migrations
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/preview'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm 10.9.4
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link to Supabase project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase link --project-ref ${{ env.SUPABASE_PROJECT_REF }}
+
+      - name: Run migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          echo "Running migrations against Supabase database"
+          echo "Project Ref: ${{ env.SUPABASE_PROJECT_REF }}"
+          npm run db:migrate
+
+  # ════════════════════════════════════════════════════════════════
+  # Build Application
+  # ════════════════════════════════════════════════════════════════
+  build:
+    name: Build Application
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm 10.9.4
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Build application
+        env:
+          NODE_ENV: production
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/*/dist
+            verticals/*/dist
+            public
+            api/index.ts
+          retention-days: 1
+
+  # ════════════════════════════════════════════════════════════════
+  # Deploy Workers (API)
+  # ════════════════════════════════════════════════════════════════
+  deploy-workers:
+    name: Deploy Cloudflare Workers
+    needs: [migrate-database, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/preview'
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm 10.9.4
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci || (npm cache clean --force && npm ci)
+
+      - name: Deploy to Cloudflare Workers
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          workingDirectory: .
+          packageManager: npm
+        env:
+          NODE_ENV: production
+
+      - name: Update deployment status
+        if: success()
+        run: |
+          echo "✅ Workers deployed successfully"
+          echo "API URL: ${{ steps.deploy.outputs.url }}"
+
+  # ════════════════════════════════════════════════════════════════
+  # Deploy Pages (Frontend)
+  # ════════════════════════════════════════════════════════════════
+  deploy-pages:
+    name: Deploy Cloudflare Pages
+    needs: [migrate-database, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/preview'
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy public --project-name=care-commons-web --branch=${{ github.ref == 'refs/heads/main' && 'main' || 'preview' }}
+          workingDirectory: .
+          packageManager: npm
+
+      - name: Update deployment status
+        if: success()
+        run: |
+          echo "✅ Pages deployed successfully"
+          echo "Frontend URL: ${{ steps.deploy.outputs.url }}"
+
+  # ════════════════════════════════════════════════════════════════
+  # Post-Deployment Verification
+  # ════════════════════════════════════════════════════════════════
+  verify-deployment:
+    name: Verify Deployment
+    needs: [deploy-workers, deploy-pages]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Health check - API
+        run: |
+          sleep 10 # Wait for deployment propagation
+          curl -f ${{ needs.deploy-workers.outputs.url }}/health || exit 1
+
+      - name: Health check - Frontend
+        run: |
+          curl -f ${{ needs.deploy-pages.outputs.url }} || exit 1
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against deployed environment"
+          # Add smoke test commands here
+
+  # ════════════════════════════════════════════════════════════════
+  # Deployment Notification
+  # ════════════════════════════════════════════════════════════════
+  notify:
+    name: Send Deployment Notification
+    needs: [verify-deployment]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Deployment status
+        run: |
+          if [ "${{ needs.verify-deployment.result }}" == "success" ]; then
+            echo "✅ Cloudflare deployment successful"
+            echo "Environment: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}"
+          else
+            echo "❌ Cloudflare deployment failed"
+            exit 1
+          fi

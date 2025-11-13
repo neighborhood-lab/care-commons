@@ -2,163 +2,290 @@
 
 This directory contains detailed implementation tasks created by the Layer 1 central planner. Each task is designed to be executed by Layer 2 implementor instances.
 
-## Quick Reference
+**Last Reorganization**: 2025-11-10 (Prioritized exposing backend features in UIs)
 
-### 🔴 Critical Priority (Production Readiness)
+---
 
-Must be completed before production launch:
+## Current Priorities
 
-| Task | Title | Effort | Focus |
-|------|-------|--------|-------|
-| [0021](0021-fix-evv-service-mocked-data.md) | Fix EVV Service Mocked Data | 3-4h | Replace placeholder data with real provider lookups |
-| [0022](0022-fix-scheduling-service-placeholder-addresses.md) | Fix Scheduling Service Addresses | 2-3h | Replace hardcoded addresses with real client data |
-| [0024](0024-wire-provider-interfaces-across-verticals.md) | Wire Provider Interfaces | 6-8h | Complete provider interface implementation across all verticals |
-| [0026](0026-timezone-handling-standardization.md) | Timezone Handling | 4-6h | Multi-timezone support for scheduling and EVV |
-| [0028](0028-client-address-geocoding-automation.md) | Automated Geocoding | 4-5h | Auto-geocode client addresses for GPS verification |
-| [0014](0014-security-enhancements-rbac-audit.md) | Security Enhancements & RBAC Audit | 8-10h | Comprehensive security hardening |
-| [0017](0017-monitoring-observability.md) | Monitoring & Observability | 6-8h | Logging, error tracking, metrics |
-| [0018](0018-backup-disaster-recovery.md) | Backup & Disaster Recovery | 6-8h | Automated backups, recovery procedures |
-| [0020](0020-production-launch-checklist.md) | Production Launch Checklist | 4-6h | Final verification and launch plan |
+### 1. **Expose Backend Features in UIs** (Tasks 0000-0014)
+Make all implemented backend functionality visible and usable in:
+- Showcase environment (for evaluation and demos)
+- Production-demo (for onboarding and exploration)
+- Mobile app (for caregivers in the field)
+- Web app (for coordinators and administrators)
 
-**Total Critical Effort**: ~50-66 hours
+### 2. **Complete Backend Integrations** (Tasks 0015-0017)
+Finish critical backend work that enables features:
+- Notification delivery system
+- Data integrations between verticals
+- Service layer completions
 
-### 🟠 High Priority (Core Features)
+### 3. **Improve Dev Speed & Onboarding** (Tasks 0020-0024)
+Accelerate development and reduce time-to-productivity:
+- User onboarding guides
+- E2E validation workflows
+- Deployment automation
 
-Complete missing functionality:
+---
 
-| Task | Title | Effort | Focus |
-|------|-------|--------|-------|
-| [0023](0023-implement-care-plans-frontend-ui.md) | Care Plans Frontend UI | 8-12h | Build UI for care plans and tasks |
-| [0025](0025-mobile-app-authentication-onboarding.md) | Mobile Authentication & Onboarding | 6-8h | Biometric auth, secure tokens, first-time UX |
-| [0003](0003-implement-family-engagement-portal-ui.md) | Family Engagement Portal UI | 10-14h | Family portal and messaging |
-| [0004](0004-mobile-app-visit-workflow-screens.md) | Mobile Visit Workflow Screens | 12-16h | Complete mobile visit screens |
-| [0016](0016-mobile-app-offline-improvements.md) | Mobile Offline Enhancements | 8-10h | Robust offline sync and conflict resolution |
+## Task Queue
 
-**Total High Effort**: ~44-60 hours
+### 🔴 TIER 1: EXPOSE FEATURES IN UI (Weeks 1-4) - HIGHEST PRIORITY
 
-### 🟡 Medium Priority (Polish & Expansion)
+**Goal**: Make 100% of implemented backend features discoverable and usable
 
-Feature completeness and developer experience:
+| Task | Title | Effort | Category |
+|------|-------|--------|----------|
+| [0000](0000-showcase-demo-data.md) | Showcase Demo Data Seeding | 3-5 days | Showcase / Demo |
+| [0001](0001-showcase-tours.md) | Showcase Interactive Tours | 1 week | Showcase / UX |
+| [0014](0014-showcase-vertical-exposure.md) | Showcase Vertical Feature Exposure | 1-2 weeks | Showcase / Discovery |
+| [0002](0002-mobile-clockin.md) | Mobile ClockIn Screen | 2-3 days | Mobile / Caregiver UX |
+| [0003](0003-mobile-tasks.md) | Mobile Tasks Screen | 2-3 days | Mobile / Caregiver UX |
+| [0004](0004-mobile-schedule.md) | Mobile Schedule Screen | 2-3 days | Mobile / Caregiver UX |
+| [0005](0005-mobile-profile.md) | Mobile Profile Screen | 2-3 days | Mobile / Settings |
+| [0006](0006-shift-matching-ui.md) | Shift Matching UI Implementation | 1-2 weeks | Web / Coordinator UX |
+| [0007](0007-payroll-ui.md) | Payroll Processing Frontend UI | 1 week | Web / Admin UX |
+| [0008](0008-analytics-ui.md) | Analytics Dashboard Completion | 1 week | Web / Insights |
+| [0009](0009-qa-module-ui.md) | Quality Assurance Module Implementation | 2 weeks | Web / Compliance |
+| [0010](0010-medication-tracking.md) | Medication Tracking Module | 2 weeks | New Vertical / Healthcare |
+| [0011](0011-emergency-alerts.md) | Emergency Contact & Alert System | 1 week | New Vertical / Safety |
+| [0012](0012-client-intake.md) | Client Intake Workflow | 1 week | Workflow / UX |
+| [0013](0013-global-search.md) | Global Search Functionality | 1 week | UX / DevEx |
 
-| Task | Title | Effort | Focus |
-|------|-------|--------|-------|
-| [0005](0005-analytics-dashboard-completion.md) | Analytics Dashboard | 8-10h | Complete admin and coordinator dashboards |
-| [0006](0006-payroll-processing-implementation.md) | Payroll Processing | 10-14h | Tax calculations, pay stubs, UI |
-| [0007](0007-quality-assurance-module-implementation.md) | Quality Assurance Module | 10-12h | Audit workflows and QA dashboard |
-| [0008](0008-expand-e2e-test-coverage.md) | Expand E2E Test Coverage | 8-10h | 50+ E2E tests for critical journeys |
-| [0009](0009-generate-openapi-documentation.md) | OpenAPI Documentation | 6-8h | Generate Swagger docs for all APIs |
-| [0010](0010-improve-local-dev-setup.md) | Improve Local Dev Setup | 4-6h | One-command development environment |
-| [0011](0011-showcase-guided-tours.md) | Showcase Guided Tours | 6-8h | Interactive tours for each persona |
-| [0012](0012-state-specific-compliance-expansion.md) | State Compliance Expansion | 10-12h | Full implementation for all 7 states |
-| [0013](0013-performance-optimization-queries.md) | Performance Optimization | 8-10h | Database indexing, caching, query optimization |
-| [0015](0015-refactor-duplicate-code-solid.md) | Refactor Duplicate Code | 8-12h | Apply SOLID principles, DRY |
-| [0019](0019-ci-cd-improvements.md) | CI/CD Improvements | 6-8h | Faster pipelines, automated deployments |
-| [0027](0027-form-validation-standardization.md) | Form Validation Standardization | 6-8h | Shared Zod schemas across web and mobile |
-| [0029](0029-care-plan-templates-library.md) | Care Plan Templates Library | 6-8h | Pre-built templates for common care scenarios |
+**Total Tier 1**: ~9-12 weeks (parallelizable across multiple developers)
 
-**Total Medium Effort**: ~96-126 hours
+---
 
-## Strategic Phases
+### 🟠 TIER 2: BACKEND COMPLETIONS (Weeks 3-5) - CRITICAL
 
-### Phase 1: Production Readiness (Weeks 1-4)
-**Goal**: Ensure existing features work end-to-end in production
+**Goal**: Complete missing backend functionality that blocks UI features
 
-**Critical Path**:
-1. Fix service integrations (0021, 0022) → Enables real production data
-2. Wire provider interfaces (0024) → Architecture foundation
-3. Timezone handling (0026) + Geocoding (0028) → Multi-state operations
-4. Security hardening (0014) → Required for HIPAA compliance
-5. Monitoring (0017) + Backups (0018) → Operational readiness
-6. Core frontend features (0023, 0003) → User-facing functionality
-5. Mobile critical path (0004, 0016) → Caregiver app functional
-6. Final verification (0020) → Launch readiness
+| Task | Title | Effort | Blocker For |
+|------|-------|--------|-------------|
+| [0015](0015-notifications.md) | Notification Delivery System | 1-2 weeks | Family engagement usability |
+| [0016](0016-family-data-integration.md) | Family Engagement Data Integration | 1 week | Family portal completeness |
+| [0017](0017-billing-completion.md) | Billing & Invoicing Service Completion | 2 weeks | Billing UI |
 
-### Phase 2: Feature Completeness (Weeks 5-8)
-**Goal**: Ship remaining verticals to production
+**Total Tier 2**: ~4-5 weeks
 
-**Tasks**: 0005 (Analytics), 0006 (Payroll), 0007 (QA), 0012 (State Compliance)
+---
 
-### Phase 3: Polish & Developer Experience (Weeks 9-12)
-**Goal**: Make platform learnable and maintainable
+### 🟡 TIER 3: DEV SPEED & ONBOARDING (Weeks 6-8) - HIGH VALUE
 
-**Tasks**: 0008 (Testing), 0009 (Docs), 0010 (DevEx), 0011 (Showcase), 0013 (Performance), 0015 (Refactoring), 0019 (CI/CD)
+**Goal**: Reduce time-to-value for new users and developers
 
-## Task Structure
+| Task | Title | Effort | Impact |
+|------|-------|--------|--------|
+| [0020](0020-mobile-onboarding.md) | Caregiver Mobile Onboarding Flow | 2-3 days | First-time caregiver experience |
+| [0021](0021-admin-guide.md) | Administrator Quick Start Guide | 3-4 days | Admin onboarding |
+| [0022](0022-coordinator-guide.md) | Coordinator Quick Start Guide | 3-4 days | Coordinator training |
+| [0023](0023-e2e-validation.md) | End-to-End User Journey Validation | 1 week | Catch integration bugs |
+| [0024](0024-deployment-runbook.md) | Production Deployment Runbook | 1 week | Agency self-deployment |
 
-Each task file includes:
+**Total Tier 3**: ~3-4 weeks
 
-1. **Priority & Phase**: Where it fits in the roadmap
-2. **Context**: Why this task is needed
-3. **Problem Statement**: What's currently broken or missing
-4. **Detailed Instructions**: Step-by-step implementation guide
-5. **Acceptance Criteria**: Definition of done
-6. **Testing Requirements**: How to verify success
-7. **Reference Links**: Additional resources
+---
+
+## Effort Summary
+
+| Tier | Tasks | Estimated Weeks | Can Parallelize? |
+|------|-------|-----------------|------------------|
+| 🔴 Tier 1 (UI Exposure) | 15 | 9-12 weeks | ✅ Yes (4-6 devs) |
+| 🟠 Tier 2 (Backend) | 3 | 4-5 weeks | ⚠️ Some dependencies |
+| 🟡 Tier 3 (DevEx) | 5 | 3-4 weeks | ✅ Yes (2-3 devs) |
+| **Total** | **23** | **16-21 weeks** | **2-4 weeks with team** |
+
+**With 4-6 parallel developers focusing on Tier 1 (UI exposure), estimated timeline: 2-4 weeks for critical path**
+
+---
+
+## Strategic Rationale
+
+### Why This Organization?
+
+**Previous Priority**: Infrastructure, testing, refactoring (tasks like rate limiting, caching, security hardening, performance optimization)
+
+**Current Priority**: **Expose features in UIs**
+
+**Reasoning**:
+1. **Backend is 85-90% complete** - significant investment already made
+2. **Hidden value** - features exist but users can't discover/use them
+3. **First impressions matter** - showcase determines adoption
+4. **Parallelizable** - UI tasks can be done simultaneously by multiple developers
+5. **User validation** - can't get feedback on features users can't see
+6. **Demo quality** - evaluators need to see platform capabilities immediately
+
+### What Was Removed?
+
+Deleted 16 tasks focused on infrastructure, performance, and refactoring:
+- API rate limiting
+- Security hardening (post-launch priority)
+- Monitoring/observability (basic monitoring already exists)
+- Load testing
+- Performance optimization
+- SOLID refactoring
+- DevEx improvements (beyond critical onboarding)
+- Mobile test automation
+- SQL optimization
+- TODO cleanup
+
+**Why delete these?**
+- Can be added back easily when needed
+- Lower ROI than exposing existing features
+- Not blockers for initial production launch
+- Better to validate features with users first, then optimize
+
+---
+
+## Dependencies
+
+### Critical Path
+
+```
+┌─────────────────────────────────────────────────┐
+│ SHOWCASE & DEMO (0000, 0001, 0014)             │
+│ ↓ (Foundation for all UI exposure)             │
+├─────────────────────────────────────────────────┤
+│ MOBILE SCREENS (0002-0005)                     │
+│ Can work in parallel →                         │
+│                                                 │
+│ WEB UIs (0006-0009, 0012-0013)                │
+│ Some depend on backend tasks ↓                 │
+├─────────────────────────────────────────────────┤
+│ BACKEND COMPLETIONS (0015-0017)                │
+│ Required for: 0001, 0006, 0007, 0008          │
+├─────────────────────────────────────────────────┤
+│ NEW VERTICALS (0010-0011)                      │
+│ Independent - can work anytime                 │
+├─────────────────────────────────────────────────┤
+│ ONBOARDING & DEVEX (0020-0024)                 │
+│ Final polish after features exposed            │
+└─────────────────────────────────────────────────┘
+```
+
+### Task Dependencies
+
+- **0000 → 0001, 0014**: Demo data needed before tours and feature exposure
+- **0015 → 0016**: Notifications needed for family engagement
+- **0017 → 0007**: Billing service completion needed for billing UI
+- **0006, 0007, 0008**: Can be done in parallel (different verticals)
+- **0002-0005**: Mobile screens independent of each other
+- **0010, 0011**: New verticals can start anytime
+- **0020-0024**: Should come after main features exposed
+
+---
 
 ## How to Use These Tasks
 
 ### For Layer 2 Implementors:
 
-1. **Read the task file completely** before starting
-2. **Check dependencies** - some tasks depend on others
-3. **Follow the instructions** step-by-step
-4. **Test thoroughly** - all acceptance criteria must pass
-5. **Commit and push** to the designated branch
-6. **Create PR** when complete
+1. **Start with Tier 1** - highest impact (exposing features)
+2. **Parallelize**: Multiple devs can work on different UI tasks simultaneously
+3. **Each task file contains**:
+   - Complete implementation instructions
+   - Code examples and mockups
+   - Testing requirements
+   - Success criteria
+4. **Pre-commit hooks MUST pass** - zero warnings/errors
+5. **Create PR when complete** - all CI checks must pass
 
 ### For Project Managers:
 
-- Use this as a backlog for sprint planning
-- Critical tasks must be completed before production
-- High tasks enable core user workflows
-- Medium tasks improve quality and maintainability
+- **Tier 1 is critical path** - determines when platform is "demo-ready"
+- **Assign by expertise**:
+  - Mobile developers → Tasks 0002-0005, 0020
+  - React developers → Tasks 0006-0009, 0012-0014
+  - Fullstack → Tasks 0010-0011, 0015-0017
+  - UX/Content → Tasks 0000-0001, 0021-0022
+- **Track via GitHub Projects** - create issues from task files
 
-## Effort Summary
+### Suggested Sprint Breakdown
 
-| Priority | Tasks | Estimated Hours |
-|----------|-------|----------------|
-| 🔴 Critical | 9 | 50-66 |
-| 🟠 High | 5 | 44-60 |
-| 🟡 Medium | 13 | 96-126 |
-| **Total** | **27** | **190-252** |
+**Sprint 1 (Week 1-2)**: Showcase Foundation
+- Tasks: 0000, 0001, 0014
+- Goal: Compelling demo environment
 
-With 2-3 developers, this represents approximately 12-17 weeks of work.
+**Sprint 2 (Week 3-4)**: Mobile App Completion
+- Tasks: 0002, 0003, 0004, 0005, 0020
+- Goal: Functional caregiver mobile experience
 
-## Dependencies
+**Sprint 3 (Week 3-4, parallel)**: Web UI Priority 1
+- Tasks: 0006, 0007, 0015, 0017
+- Goal: Shift matching and payroll UIs
 
-Some tasks have dependencies:
+**Sprint 4 (Week 5-6)**: Web UI Priority 2
+- Tasks: 0008, 0009, 0012, 0013, 0016
+- Goal: Analytics, QA, intake, search
 
-- **0021, 0022** should be done first (other features depend on real data) - HIGHEST PRIORITY
-- **0024** (Provider interfaces) depends on 0021, 0022 being complete
-- **0023, 0003, 0004** can be done in parallel (different UI areas)
-- **0026, 0028** (Timezone, Geocoding) needed for multi-state operations
-- **0014** (Security) should be done early
-- **0017, 0018** (Monitoring, Backups) needed before launch
-- **0020** (Launch Checklist) must be last
+**Sprint 5 (Week 7-8)**: New Verticals & Polish
+- Tasks: 0010, 0011, 0021-0024
+- Goal: Medications, emergency alerts, onboarding
 
-## Contact
+---
 
-For questions about these tasks, refer to:
-- **Vision Document**: `claude/layer-1/memory.md`
-- **Input Instructions**: `claude/layer-1/input.md`
-- **Architecture Docs**: Root `README.md` and `DEPLOYMENT.md`
+## Task Structure
 
-## Status Tracking
+Each task file includes:
+
+1. **Priority & Estimated Effort**
+2. **Context**: Why this task exists and current state
+3. **Objectives**: What needs to be built
+4. **Detailed Implementation**: Step-by-step guide with code examples
+5. **UI Mockups**: Visual representation of deliverables
+6. **API Integration**: Backend endpoints needed
+7. **Testing Requirements**: Unit, integration, and manual tests
+8. **Success Criteria**: Definition of done
+9. **Related Tasks**: Dependencies and follow-ups
+
+---
+
+## Monitoring Progress
 
 Create `STATUS.md` in this directory to track completion:
 
 ```markdown
 # Implementation Status
 
+Last Updated: YYYY-MM-DD
+
+## Tier 1: UI Exposure (15 tasks)
+
 | Task | Status | Assignee | PR | Completed |
-|------|--------|----------|----|-----------
-| 0021 | ⏳ In Progress | @dev1 | #123 | |
-| 0022 | ✅ Complete | @dev1 | #124 | 2025-01-15 |
-| 0023 | 📋 Not Started | | | |
+|------|--------|----------|----|-----------| 
+| 0000 | ✅ Complete | @dev1 | #234 | 2025-11-12 |
+| 0001 | ⏳ In Progress | @dev2 | #235 | |
+| 0002 | 📋 Not Started | | | |
+...
+
+## Tier 2: Backend (3 tasks)
+
+| Task | Status | Assignee | PR | Completed |
+|------|--------|----------|----|-----------| 
+| 0015 | ⏳ In Progress | @dev3 | #236 | |
+...
+
+## Tier 3: DevEx (5 tasks)
+
+| Task | Status | Assignee | PR | Completed |
+|------|--------|----------|----|-----------| 
+| 0020 | 📋 Not Started | | | |
 ...
 ```
 
 ---
 
-Last Updated: 2025-11-06
-Generated by: Layer 1 Central Planner
+## Contact & Resources
+
+- **Vision Document**: `claude/layer-1/memory.md`
+- **Central Planner Instructions**: `claude/layer-1/input.md`
+- **Architecture**: Root `README.md`
+- **Deployment**: `DEPLOYMENT.md`
+- **Contributing**: `CONTRIBUTING.md`
+
+---
+
+**Last Updated**: 2025-11-10  
+**Generated By**: Layer 1 Central Planner  
+**Total Tasks**: 23 (down from 39 after prioritization cleanup)  
+**Focus**: Expose backend features in UIs, improve first impressions

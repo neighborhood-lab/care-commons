@@ -3,7 +3,7 @@
  * Supports multiple providers: Google Maps, Mapbox, and Nominatim (OpenStreetMap)
  */
 
-import type { Address } from '../types/organization.js';
+import type { Address } from '../types/organization';
 
 export type GeocodingConfidence = 'high' | 'medium' | 'low';
 

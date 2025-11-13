@@ -2,13 +2,6 @@ import crypto from 'node:crypto';
 import cookieParser from 'cookie-parser';
 import type { Express, Request, Response, NextFunction } from 'express';
 
-// Extend Express Request type
-declare module 'express-serve-static-core' {
-  interface Request {
-    csrfToken?: () => string;
-  }
-}
-
 // Custom CSRF protection implementation (csurf is deprecated)
 // Uses double-submit cookie pattern
 
@@ -51,11 +44,11 @@ export const configureCsrfProtection = (app: Express): void => {
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
       });
 
-      // Add csrfToken() method to request
-      req.csrfToken = () => newToken;
+      // Add csrfToken to request
+      (req as Request & { csrfToken?: string }).csrfToken = newToken;
     } else {
-      // Add csrfToken() method to request
-      req.csrfToken = () => token;
+      // Add csrfToken to request
+      (req as Request & { csrfToken?: string }).csrfToken = token;
     }
 
     next();
@@ -121,6 +114,6 @@ export const configureCsrfProtection = (app: Express): void => {
 
   // Endpoint to get CSRF token
   app.get('/api/csrf-token', (req: Request, res: Response) => {
-    res.json({ csrfToken: req.csrfToken?.() });
+    res.json({ csrfToken: (req as Request & { csrfToken?: string }).csrfToken });
   });
 };

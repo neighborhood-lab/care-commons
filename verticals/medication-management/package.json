@@ -1,0 +1,65 @@
+{
+  "name": "@care-commons/medication-management",
+  "version": "0.1.0",
+  "//1": "════════════════════════════════════════════════════════════════",
+  "//2": "⚠️  ESM VERTICAL - type:module required",
+  "//3": "════════════════════════════════════════════════════════════════",
+  "type": "module",
+  "main": "./dist/index.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && tsc-alias -p tsconfig.json",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext ts --max-warnings 50",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+    "@care-commons/core": "^0.1.0",
+    "date-fns": "^4.1.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/express": "^4.17.21",
+    "@types/node": "^24.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "@vitest/coverage-v8": "^4.0.8",
+    "@vitest/ui": "^4.0.8",
+    "eslint": "^9.39.1",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-unicorn": "^62.0.0",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "peerDependencies": {
+    "express": "^4.17.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    }
+  },
+  "exports": {
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js",
+      "default": "./dist/browser.js"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  }
+}

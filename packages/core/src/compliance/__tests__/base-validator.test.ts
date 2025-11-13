@@ -11,14 +11,14 @@ import {
   BaseComplianceValidator,
   StateCredentialConfig,
   StateAuthorizationConfig,
-} from '../base-validator.js';
+} from '../base-validator';
 import type {
   CaregiverCredentials,
   VisitDetails,
   ClientDetails,
   ServiceAuthorization,
-} from '../types/index.js';
-import type { StateCode } from '../../types/base.js';
+} from '../types/index';
+import type { StateCode } from '../../types/base';
 
 /**
  * Test implementation of BaseComplianceValidator

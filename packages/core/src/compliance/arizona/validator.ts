@@ -19,8 +19,8 @@
  * - High independent agency percentage (~88%)
  */
 
-import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator.js';
-import { StateCode } from '../../types/base.js';
+import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator';
+import { StateCode } from '../../types/base';
 import {
   ComplianceIssue,
   CaregiverCredentials,
@@ -30,7 +30,7 @@ import {
   isExpiringSoon,
   daysUntilExpiration,
   daysSince,
-} from '../types/index.js';
+} from '../types/index';
 
 /**
  * Arizona-specific credential data structure
@@ -394,7 +394,7 @@ export class ArizonaComplianceValidator extends BaseComplianceValidator {
         type: 'AZ_ALTCS_TRAINING_MISSING',
         severity: 'WARNING', // Arizona is lenient - warning only
         category: 'CAREGIVER_CREDENTIALS',
-        message: `ALTCS training recommended for ${azClientData?.ahcccsProgram} program`,
+        message: `ALTCS training recommended for ${azClientData.ahcccsProgram} program`,
         regulation: 'AHCCCS Provider Manual, ALTCS Program Requirements',
         remediation: 'Complete ALTCS-specific training through approved provider',
         canBeOverridden: true,

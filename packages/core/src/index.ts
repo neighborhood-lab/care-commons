@@ -4,46 +4,47 @@
  * Shared foundation for all Care Commons verticals
  */
 
-export * from './types/base.js';
-export * from './types/organization.js';
-export * from './types/branding.js';
-export * from './types/feature-flags.js';
-export * from './types/domain-mappings.js';
-export * from './types/email-templates.js';
-export * from './db/connection.js';
-export * from './db/repository.js';
-export * from './db/query-logger.js';
-export * from './permissions/permission-service.js';
-export * from './audit/audit-service.js';
-export * from './repository/user-repository.js';
-export * from './repository/organization-repository.js';
-export * from './repository/branding-repository.js';
-export * from './repository/feature-flag-repository.js';
-export * from './service/organization-service.js';
-export * from './service/auth-service.js';
-export * from './service/white-label.service.js';
-export * from './service/security-logger.service.js';
-export * from './service/password-reset.service.js';
-export * from './service/cache.service.js';
-export * from './service/cache-warmer.service.js';
-export * from './service/reference-data.service.js';
-export * from './service/geocoding.service.js';
-export * from './constants/cache-keys.js';
-export * from './middleware/auth-middleware.js';
-export * from './middleware/request-logger.js';
-export * from './middleware/metrics.js';
-export * from './middleware/validation.js';
-export * from './middleware/csrf.js';
-export * from './utils/password-utils.js';
-export * from './utils/jwt-utils.js';
-export * from './utils/date.utils.js';
-export * from './utils/timezone.utils.js';
-export * from './utils/logger.js';
-export * from './utils/metrics.js';
-export * from './utils/error-tracker.js';
-export * from './utils/performance.js';
-export * from './utils/alerting.js';
-export * from './validation/common-schemas.js';
+export * from './types/base';
+export * from './types/organization';
+export * from './types/branding';
+export * from './types/feature-flags';
+export * from './types/domain-mappings';
+export * from './types/email-templates';
+export * from './db/connection';
+export * from './db/repository';
+export * from './db/query-logger';
+export * from './permissions/permission-service';
+export * from './audit/audit-service';
+export * from './repository/user-repository';
+export * from './repository/organization-repository';
+export * from './repository/branding-repository';
+export * from './repository/feature-flag-repository';
+export * from './service/organization-service';
+export * from './service/auth-service';
+export * from './service/white-label.service';
+export * from './service/security-logger.service';
+export * from './service/password-reset.service';
+export * from './service/cache.service';
+export * from './service/cache-warmer.service';
+export * from './service/reference-data.service';
+export * from './service/geocoding.service';
+export * from './constants/cache-keys';
+export * from './middleware/auth-middleware';
+export * from './middleware/request-logger';
+export * from './middleware/metrics';
+export * from './middleware/validation';
+export * from './middleware/csrf';
+export * from './utils/crypto';
+export * from './utils/password-utils';
+export * from './utils/jwt-utils';
+export * from './utils/date.utils';
+export * from './utils/timezone.utils';
+export * from './utils/logger';
+export * from './utils/metrics';
+export * from './utils/error-tracker';
+export * from './utils/performance';
+export * from './utils/alerting';
+export * from './validation/common-schemas';
 // HTTP error handlers and middleware (import directly if needed)
 export {
   AppError,
@@ -56,13 +57,41 @@ export {
   errorHandler,
   asyncHandler,
   notFoundHandler,
-} from './errors/app-errors.js';
-export * from './utils/memoize.js';
-export * from './utils/pagination.js';
-export * from './utils/password-validator.js';
-export * from './utils/sensitive-data-filter.js';
-export * from './middleware/sanitize-input.js';
-export * from './services/account-lockout.service.js';
-export * from './sync/index.js';
-export * from './demo/index.js';
-export * from './providers/index.js';
+} from './errors/app-errors';
+export * from './utils/memoize';
+export * from './utils/pagination';
+export * from './utils/password-validator';
+export * from './utils/sensitive-data-filter';
+export * from './middleware/sanitize-input';
+export * from './services/account-lockout.service';
+export * from './sync/index';
+export * from './demo/index';
+export * from './providers/index';
+// State compliance configuration (StateCode already exported from types/base)
+export {
+  ALL_STATES_CONFIG,
+  getStateConfig,
+  getAllStateCodes,
+  isValidStateCode,
+  type EVVConfig,
+  type BackgroundScreeningConfig,
+  type CaregiverCredentialingConfig,
+  type PlanOfCareConfig,
+  type RegulatoryRequirements,
+  type StateComplianceConfig,
+  type EVVAggregator,
+  type BackgroundScreeningType,
+} from './compliance/states/index';
+// State compliance service
+export {
+  StateComplianceService,
+  type VisitData,
+  type EVVValidationResult,
+  type EVVValidationError,
+  type CaregiverComplianceData,
+  type ClientServiceType,
+  type PlanOfCareData,
+} from './compliance/state-compliance-service';
+// Notification system
+export { getNotificationService, NotificationService } from './notifications/notification-service';
+export * from './notifications/types';

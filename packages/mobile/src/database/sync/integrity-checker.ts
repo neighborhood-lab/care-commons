@@ -1,4 +1,4 @@
-import { database } from '../index.js';
+import { database } from '../index';
 import { Q } from '@nozbe/watermelondb';
 
 // Helper function to get all client IDs

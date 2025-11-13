@@ -1,19 +1,19 @@
 {
   "item": [
     {
-      "id": "1bfad648-be9f-4e7b-9f14-fad6ea7607cf",
+      "id": "d5cf14f9-718c-4060-ab9d-1877a3d849e2",
       "name": "api",
       "item": [
         {
-          "id": "a8aed439-e932-4301-aca5-6c11ade58412",
+          "id": "9477cedc-bac2-4e4b-9a85-6c66987db4bd",
           "name": "auth",
           "item": [
             {
-              "id": "d4c1947e-f86b-44d3-814a-2b83f4cc5ad3",
+              "id": "e4753f4d-883f-426a-a978-e6168bf70109",
               "name": "login",
               "item": [
                 {
-                  "id": "675def7f-d977-4df5-943b-68206bc60cd1",
+                  "id": "b27fcf4b-85a9-4047-83a1-18e2351e4cc3",
                   "name": "Login with email and password",
                   "request": {
                     "name": "Login with email and password",
@@ -57,7 +57,7 @@
                   },
                   "response": [
                     {
-                      "id": "88d5e295-be40-44fb-a611-360eb1b2ea23",
+                      "id": "474905e3-9519-4a0e-9e22-e2fdec92c47d",
                       "name": "Login successful",
                       "originalRequest": {
                         "url": {
@@ -105,12 +105,12 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"fd0add86-5dee-ee95-c79e-65afde930c4f\",\n      \"email\": \"SzKIeO@ksySidhUYSQHkPnf.dgte\",\n      \"firstName\": \"string\",\n      \"lastName\": \"string\",\n      \"role\": \"family\",\n      \"createdAt\": \"1954-06-08T01:50:06.611Z\",\n      \"updatedAt\": \"1978-12-16T18:19:02.358Z\"\n    },\n    \"tokens\": {\n      \"accessToken\": \"string\",\n      \"refreshToken\": \"string\"\n    }\n  }\n}",
+                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"bdbffb9d-4112-8c40-bd69-1c22c544d736\",\n      \"email\": \"r6uF@wnQJQdqyJdHINSUibEdTsOFAVuMQBkVI.pejh\",\n      \"first_name\": \"string\",\n      \"last_name\": \"string\",\n      \"role\": \"coordinator\",\n      \"organization_id\": \"d6a0cb60-73ea-af5f-6a5e-6c0942a5b875\",\n      \"created_at\": \"1964-05-30T19:57:29.921Z\",\n      \"updated_at\": \"1967-02-13T16:55:01.532Z\",\n      \"firstName\": \"string\",\n      \"lastName\": \"string\",\n      \"createdAt\": \"1980-02-22T16:39:12.261Z\",\n      \"updatedAt\": \"2013-08-11T20:45:19.234Z\"\n    },\n    \"tokens\": {\n      \"accessToken\": \"string\",\n      \"refreshToken\": \"string\"\n    }\n  }\n}",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     },
                     {
-                      "id": "4e55b141-566f-4faa-890a-a66dee490116",
+                      "id": "e76b5c18-089b-4949-b102-b2309972eee7",
                       "name": "Invalid request",
                       "originalRequest": {
                         "url": {
@@ -159,7 +159,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "bfe11c61-9953-448d-ae05-d1230f4a89d7",
+                      "id": "142a70fb-2839-47e1-9430-30b0e3c8d545",
                       "name": "Invalid credentials",
                       "originalRequest": {
                         "url": {
@@ -208,7 +208,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "c48e9118-92a8-4067-b265-4a8757d5f25c",
+                      "id": "736210ef-e146-441d-8bf8-c188ce2e5a09",
                       "name": "Server error",
                       "originalRequest": {
                         "url": {
@@ -263,7 +263,7 @@
                   }
                 },
                 {
-                  "id": "cd6f8755-1e90-41cc-bd7a-c141a6b45c58",
+                  "id": "35da8231-5a4e-4570-a867-aa22513abcb5",
                   "name": "Authenticate with Google OAuth",
                   "request": {
                     "name": "Authenticate with Google OAuth",
@@ -308,7 +308,7 @@
                   },
                   "response": [
                     {
-                      "id": "f035ba10-18c8-4280-9c30-61b8e33bce59",
+                      "id": "2d6d9d4c-fe30-4721-b522-3b4fa3e57f76",
                       "name": "Authentication successful",
                       "originalRequest": {
                         "url": {
@@ -357,12 +357,12 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"a851f9eb-7553-f011-8df3-46fb53daff28\",\n      \"email\": \"p0e2V06q-JBe9@NWGNqAjeSdjRDGdgZ.hrye\",\n      \"firstName\": \"string\",\n      \"lastName\": \"string\",\n      \"role\": \"admin\",\n      \"createdAt\": \"1985-11-11T01:54:16.811Z\",\n      \"updatedAt\": \"2003-02-26T12:49:22.188Z\"\n    },\n    \"tokens\": {\n      \"accessToken\": \"string\",\n      \"refreshToken\": \"string\"\n    }\n  }\n}",
+                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"c5d956ef-f922-8905-f640-daf0a61aa79e\",\n      \"email\": \"v-KFX9y-U@TJpexHqzsQyVvcEMnRtCVtQCawYJ.zbs\",\n      \"first_name\": \"string\",\n      \"last_name\": \"string\",\n      \"role\": \"admin\",\n      \"organization_id\": \"d758b402-8e25-02e4-6d5d-4c64f907ca99\",\n      \"created_at\": \"1961-10-11T04:43:17.447Z\",\n      \"updated_at\": \"1973-11-18T20:14:17.692Z\",\n      \"firstName\": \"string\",\n      \"lastName\": \"string\",\n      \"createdAt\": \"1968-07-07T19:11:59.131Z\",\n      \"updatedAt\": \"1975-05-18T16:58:14.724Z\"\n    },\n    \"tokens\": {\n      \"accessToken\": \"string\",\n      \"refreshToken\": \"string\"\n    }\n  }\n}",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     },
                     {
-                      "id": "519b829f-9705-410d-bbd6-ac3f70921d62",
+                      "id": "f98110cf-beab-409d-b15e-d5dcbffdd140",
                       "name": "Invalid request",
                       "originalRequest": {
                         "url": {
@@ -416,7 +416,7 @@
                       "_postman_previewlanguage": "json"
                     },
                     {
-                      "id": "6cc7d392-7600-4534-b703-596376fd48e9",
+                      "id": "04afcbc6-40ee-4ad7-8896-b886da653108",
                       "name": "Authentication failed",
                       "originalRequest": {
                         "url": {
@@ -466,7 +466,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "34baf36a-219c-476a-8aa6-14b08dd5d7a8",
+                      "id": "e8e962a2-97e7-45a8-8512-67e618986a06",
                       "name": "Server error",
                       "originalRequest": {
                         "url": {
@@ -525,7 +525,7 @@
               "event": []
             },
             {
-              "id": "80748fa4-8415-4870-a26c-569e567c0dc0",
+              "id": "1fa6d72c-1b83-46df-ba90-6b78f473d6f8",
               "name": "Refresh access token",
               "request": {
                 "name": "Refresh access token",
@@ -569,7 +569,7 @@
               },
               "response": [
                 {
-                  "id": "65761a45-1779-4af7-8111-17882669dbdf",
+                  "id": "2ce75025-4a9a-4bb1-b8b2-18353edf0daf",
                   "name": "Token refreshed successfully",
                   "originalRequest": {
                     "url": {
@@ -622,7 +622,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "d360f33f-2d05-4312-bf53-233e84bc1f56",
+                  "id": "311b1b6d-3108-4a61-aceb-a18dd1ae5814",
                   "name": "Invalid request",
                   "originalRequest": {
                     "url": {
@@ -671,7 +671,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "e170924f-207c-45c2-9599-d137b4b6a4c9",
+                  "id": "8ca01f89-c545-489d-99b4-623a9af52267",
                   "name": "Invalid or expired refresh token",
                   "originalRequest": {
                     "url": {
@@ -720,7 +720,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "d5d155c5-baaa-488d-966a-52467fa5cf99",
+                  "id": "f72de883-3a16-4345-84e3-f0e1c7c4aade",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -775,7 +775,7 @@
               }
             },
             {
-              "id": "fa7d9b94-ceae-4dcb-a3dd-5b25f69dd202",
+              "id": "6456aa29-2a22-4ea8-ba9c-ae2f10772f0b",
               "name": "Logout user",
               "request": {
                 "name": "Logout user",
@@ -814,7 +814,7 @@
               },
               "response": [
                 {
-                  "id": "bfe2d7a4-c14e-4817-8ae0-567025d16407",
+                  "id": "caf192f7-fe4a-447e-88b3-1ed27a180e94",
                   "name": "Logout successful",
                   "originalRequest": {
                     "url": {
@@ -859,7 +859,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "8b221555-66f6-433c-9926-11e61d3c4ad8",
+                  "id": "6e986556-58fa-4a70-9bff-e10bef80648c",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -900,7 +900,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "b7ecee11-0fac-45e3-a7db-7dd25d7f8337",
+                  "id": "dd02a56d-31c7-4184-9800-04d0c17a6642",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -947,7 +947,7 @@
               }
             },
             {
-              "id": "220b7a1d-0679-47bd-ba9a-d92c49cdaef3",
+              "id": "946d5e05-16d5-4a3b-8ecf-d11b3c21dfa6",
               "name": "Get current authenticated user",
               "request": {
                 "name": "Get current authenticated user",
@@ -986,7 +986,7 @@
               },
               "response": [
                 {
-                  "id": "b77b13da-5a68-49e9-8b2a-76120cadc038",
+                  "id": "69b58c42-aaee-4c30-9140-354d82a33c28",
                   "name": "User profile retrieved successfully",
                   "originalRequest": {
                     "url": {
@@ -1026,12 +1026,12 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"37495bdd-9ec9-7c64-f076-454769fe67ee\",\n    \"email\": \"w9A6uTtcfC@GnhjEIpIp.tmxh\",\n    \"organizationId\": \"24650adf-94c1-b37c-1b2c-fcb0ce9afbfa\",\n    \"roles\": [\n      \"string\",\n      \"string\"\n    ],\n    \"permissions\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"d1da2d3e-7e3e-7e6e-91a8-bfafc9e519d4\",\n    \"email\": \"Qhw1GcBqMLtjIM@P.ce\",\n    \"organizationId\": \"2e0c937f-40c4-97d9-0241-b0b6a11c46df\",\n    \"roles\": [\n      \"string\",\n      \"string\"\n    ],\n    \"permissions\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
                   "cookie": [],
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "9298998a-42e9-41c9-8190-07c71b45a632",
+                  "id": "2ab4288d-3370-4082-9f93-c51ee01ff065",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -1072,7 +1072,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "cac3b631-36c4-4729-a43c-3f758ec2cb02",
+                  "id": "a9b89036-c569-40c1-8146-076479c3d052",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -1122,11 +1122,11 @@
           "event": []
         },
         {
-          "id": "26c506fc-08ca-42bb-be01-57bfffa42ec9",
+          "id": "d81106d8-636c-4a5c-b232-971a43421bb2",
           "name": "organizations",
           "item": [
             {
-              "id": "e047aa31-ae00-422f-8199-a647560cb11f",
+              "id": "d64cb592-089d-4a68-b80d-aa7fbfd8cbc7",
               "name": "Register new organization",
               "request": {
                 "name": "Register new organization",
@@ -1170,7 +1170,7 @@
               },
               "response": [
                 {
-                  "id": "fe11bfb1-8aa5-483a-aacb-d079149679cc",
+                  "id": "c58ef34e-f33f-4488-bd20-b50cbf07e033",
                   "name": "Organization registered successfully",
                   "originalRequest": {
                     "url": {
@@ -1218,12 +1218,12 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"organization\": {},\n    \"adminUserId\": \"1060b702-54d1-f523-3915-4819a8e1086e\"\n  }\n}",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"organization\": {},\n    \"adminUserId\": \"3e318a01-857b-d3b2-bf8a-d7f7d335c7b6\"\n  }\n}",
                   "cookie": [],
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "e4425620-59ef-4841-9771-f20cb36c9769",
+                  "id": "abd2972f-b22f-4454-bc2f-6f85dc3a9502",
                   "name": "Invalid input",
                   "originalRequest": {
                     "url": {
@@ -1272,7 +1272,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "4e2cebbe-8504-4f53-82d4-7b62a0cdc85c",
+                  "id": "3eb9a1a0-6d9c-4738-8e87-d37cb9e91a5b",
                   "name": "Organization or email already exists",
                   "originalRequest": {
                     "url": {
@@ -1321,7 +1321,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "9682007c-9edb-4252-be38-8a074001276d",
+                  "id": "080d9cc6-8981-4888-993c-f827accc41c4",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -1376,7 +1376,7 @@
               }
             },
             {
-              "id": "78e444f8-340a-4d90-abf8-0d6187d0d4a6",
+              "id": "4df5c4bb-1b74-4cf9-9767-ebd6b2b69b16",
               "name": "Get organization by ID",
               "request": {
                 "name": "Get organization by ID",
@@ -1423,7 +1423,7 @@
               },
               "response": [
                 {
-                  "id": "0a1cd9fd-d5f0-437e-a916-a2414e9b3d03",
+                  "id": "e715af1e-e801-4cce-8247-8d8560cd54d6",
                   "name": "Organization found",
                   "originalRequest": {
                     "url": {
@@ -1476,7 +1476,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "62c23ce5-160c-4eed-aed4-46af713cecae",
+                  "id": "665b4a4c-4609-4949-9b14-d58c6e85045f",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -1525,7 +1525,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "6e684b0d-5018-413e-82c8-38c748cd0322",
+                  "id": "790e772e-dc35-45ed-a1be-76a3879598eb",
                   "name": "Organization not found",
                   "originalRequest": {
                     "url": {
@@ -1574,7 +1574,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "126a2f5f-b725-42bf-a196-e73e4077fbc3",
+                  "id": "4aeeb0f6-aff4-4135-a6a2-09b546c37a7b",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -1632,11 +1632,11 @@
           "event": []
         },
         {
-          "id": "c318f377-0017-4aa5-82a4-d7d5f4b08fe9",
+          "id": "020fe78b-f3d1-4526-b05f-b812e57540c8",
           "name": "care-plans",
           "item": [
             {
-              "id": "ae1fd386-ffc4-4aad-b8eb-64d84a7d242b",
+              "id": "09e784ad-1cc5-4887-98ef-fe4efb769d22",
               "name": "Create new care plan",
               "request": {
                 "name": "Create new care plan",
@@ -1687,7 +1687,7 @@
               },
               "response": [
                 {
-                  "id": "283cee4f-0a12-43f0-80b0-a069f969f75e",
+                  "id": "9f1091bb-2fed-48a4-8ff3-3e8d7ecf33f4",
                   "name": "Care plan created successfully",
                   "originalRequest": {
                     "url": {
@@ -1734,12 +1734,12 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"id\": \"59b352ba-7bd7-c19a-265c-9cda870a304b\",\n  \"clientId\": \"5ec6bd44-d8f4-014b-dc65-387e2ca7c8d6\",\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"startDate\": \"1979-09-19\",\n  \"endDate\": \"2025-02-28\",\n  \"status\": \"cancelled\",\n  \"tasks\": [\n    {\n      \"id\": \"68b5c802-6e68-f83c-a52c-1fe95a071427\",\n      \"carePlanId\": \"92bbfbed-b600-cafd-0be7-97711e4c0335\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"daily\",\n      \"status\": \"in_progress\",\n      \"dueDate\": \"1989-03-02T05:26:28.343Z\",\n      \"createdAt\": \"1976-05-07T04:04:36.852Z\",\n      \"updatedAt\": \"1973-04-04T13:13:58.339Z\"\n    },\n    {\n      \"id\": \"fbe6d72d-3e94-5b0b-31cd-f6acc68df023\",\n      \"carePlanId\": \"9e02653c-930f-f2ff-d303-babffc4d1ce2\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"monthly\",\n      \"status\": \"in_progress\",\n      \"dueDate\": \"1969-03-19T10:35:39.008Z\",\n      \"createdAt\": \"1970-02-23T06:16:49.455Z\",\n      \"updatedAt\": \"1994-12-07T13:11:13.617Z\"\n    }\n  ],\n  \"createdAt\": \"1945-11-15T05:19:20.867Z\",\n  \"updatedAt\": \"2020-08-10T00:30:53.903Z\"\n}",
+                  "body": "{\n  \"id\": \"cc115c7e-4fab-e460-5cb7-9a4a333034aa\",\n  \"clientId\": \"a769619d-a052-4fea-769e-edd587f2e875\",\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"startDate\": \"1949-01-23\",\n  \"endDate\": \"2008-01-03\",\n  \"status\": \"completed\",\n  \"tasks\": [\n    {\n      \"id\": \"69f628bf-c934-1380-12c0-efe8ef7631c1\",\n      \"carePlanId\": \"f680a1cb-26a6-5e76-80e4-5fee9481840f\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"monthly\",\n      \"status\": \"pending\",\n      \"dueDate\": \"1969-11-09T11:05:14.022Z\",\n      \"createdAt\": \"1972-02-18T02:19:15.532Z\",\n      \"updatedAt\": \"2024-09-20T11:39:25.156Z\"\n    },\n    {\n      \"id\": \"d3bc9485-d07a-0647-a09d-a70e44494505\",\n      \"carePlanId\": \"32982245-648d-d25f-6439-f804720ebfd4\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"as_needed\",\n      \"status\": \"completed\",\n      \"dueDate\": \"1996-12-27T09:54:31.206Z\",\n      \"createdAt\": \"1970-04-21T15:27:02.769Z\",\n      \"updatedAt\": \"2006-07-20T00:32:34.229Z\"\n    }\n  ],\n  \"createdAt\": \"2004-12-19T13:29:36.779Z\",\n  \"updatedAt\": \"1985-09-24T16:01:18.189Z\"\n}",
                   "cookie": [],
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "c85ec662-1855-44ff-a06d-d877c374fb20",
+                  "id": "78533bfc-14c0-4dab-a062-1ff74fa2f768",
                   "name": "Invalid input",
                   "originalRequest": {
                     "url": {
@@ -1787,7 +1787,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "23afeda4-d9b9-4490-9ae9-398ebaef2c98",
+                  "id": "e3cc373e-bb54-49cc-92db-1189a048cd28",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -1835,7 +1835,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "692c34c2-8aeb-41b7-a3c1-75d345cdb76f",
+                  "id": "b378b1e5-9962-49f7-b7cb-85bb59dafe6b",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -1889,7 +1889,7 @@
               }
             },
             {
-              "id": "f7295560-402d-4670-ab9e-13134cd27961",
+              "id": "52623696-d7bd-4c32-a2b4-47c6eb150ef2",
               "name": "Search care plans",
               "request": {
                 "name": "Search care plans",
@@ -1964,7 +1964,7 @@
               },
               "response": [
                 {
-                  "id": "83339a46-7828-4c23-a689-cc7241ebd731",
+                  "id": "583e734c-4587-49dd-86d7-3c95c59b7615",
                   "name": "Care plans retrieved successfully",
                   "originalRequest": {
                     "url": {
@@ -2028,12 +2028,12 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"pagination\": {\n    \"page\": 2369,\n    \"limit\": 6748,\n    \"total\": 191,\n    \"totalPages\": 6607\n  }\n}",
+                  "body": "{\n  \"pagination\": {\n    \"page\": 5182,\n    \"limit\": 5829,\n    \"total\": 1057,\n    \"totalPages\": 2632\n  }\n}",
                   "cookie": [],
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "bd1a64f2-077a-4f06-832a-0fe104730542",
+                  "id": "127b17e7-6d99-4b14-8e65-ac1812eb83f0",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -2098,7 +2098,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "fe5f9606-60a5-419e-a232-6c7fbb57d7c1",
+                  "id": "9f1d8022-debc-4540-8c99-1f04dcbb7d24",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -2169,7 +2169,7 @@
               }
             },
             {
-              "id": "6a403b35-0469-4d64-952d-d94a1ed527e3",
+              "id": "905f20f4-0f42-4cb1-b7e7-c00ed7d2c54a",
               "name": "Get care plan by ID",
               "request": {
                 "name": "Get care plan by ID",
@@ -2216,7 +2216,7 @@
               },
               "response": [
                 {
-                  "id": "7a97699c-d44d-481e-bbcb-7e82e00d8b56",
+                  "id": "4c5b5a58-0399-4fb4-aa31-082fe947fe22",
                   "name": "Care plan found",
                   "originalRequest": {
                     "url": {
@@ -2264,12 +2264,12 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"id\": \"6afb7978-dac0-7c36-1a0a-122c35339889\",\n  \"clientId\": \"f2328bb8-58d7-c375-276e-d9ad8c30168e\",\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"startDate\": \"1988-04-27\",\n  \"endDate\": \"2018-01-07\",\n  \"status\": \"completed\",\n  \"tasks\": [\n    {\n      \"id\": \"1368a7fe-b129-e77c-ba07-32187e6b7962\",\n      \"carePlanId\": \"e687583e-d285-b397-9ae4-deedfa69e896\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"daily\",\n      \"status\": \"pending\",\n      \"dueDate\": \"2012-12-01T10:29:51.617Z\",\n      \"createdAt\": \"2012-08-27T15:17:17.393Z\",\n      \"updatedAt\": \"2012-06-16T15:05:22.143Z\"\n    },\n    {\n      \"id\": \"541328d7-2ee0-f20c-2089-c554ba9d6024\",\n      \"carePlanId\": \"060ed991-69a1-1ad9-98a3-47bbb5ae386e\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"monthly\",\n      \"status\": \"in_progress\",\n      \"dueDate\": \"1965-09-08T13:23:46.830Z\",\n      \"createdAt\": \"2001-08-08T11:04:07.930Z\",\n      \"updatedAt\": \"2007-05-05T07:42:16.559Z\"\n    }\n  ],\n  \"createdAt\": \"2004-05-11T15:16:42.971Z\",\n  \"updatedAt\": \"1980-04-11T02:53:30.901Z\"\n}",
+                  "body": "{\n  \"id\": \"6f3c20d6-f394-5966-c2e4-7319f6da630d\",\n  \"clientId\": \"da9edd82-084e-e7ea-89ba-d2b729296f27\",\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"startDate\": \"1981-05-11\",\n  \"endDate\": \"1964-05-29\",\n  \"status\": \"completed\",\n  \"tasks\": [\n    {\n      \"id\": \"d2bf5e07-b4af-5332-9f5a-9608a9d1428e\",\n      \"carePlanId\": \"2819618c-eaeb-0c6a-79b9-34f4368049e3\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"as_needed\",\n      \"status\": \"pending\",\n      \"dueDate\": \"2009-01-06T03:27:04.098Z\",\n      \"createdAt\": \"1982-07-06T15:29:14.913Z\",\n      \"updatedAt\": \"1990-09-18T17:18:55.401Z\"\n    },\n    {\n      \"id\": \"04f9a1cf-1382-4bb6-1068-f27509f98f5a\",\n      \"carePlanId\": \"8483af34-edb3-bc5c-3655-043fbf4cf33e\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"frequency\": \"monthly\",\n      \"status\": \"pending\",\n      \"dueDate\": \"1969-04-27T16:38:48.263Z\",\n      \"createdAt\": \"1991-12-05T06:31:37.181Z\",\n      \"updatedAt\": \"2012-12-26T06:30:20.010Z\"\n    }\n  ],\n  \"createdAt\": \"1948-05-04T23:12:54.304Z\",\n  \"updatedAt\": \"1973-02-24T19:53:14.275Z\"\n}",
                   "cookie": [],
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "a7c63d8d-8132-4a15-892f-a67f610e5875",
+                  "id": "c3c22284-fd56-406d-a045-c54245ee9e59",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -2318,7 +2318,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "925cee09-e632-4373-bb8d-3f89aa69aee2",
+                  "id": "3aa2a5b3-7706-4420-b773-c0f055b94fd2",
                   "name": "Care plan not found",
                   "originalRequest": {
                     "url": {
@@ -2367,7 +2367,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "e52a71ee-6bf7-4c69-b62b-884dee35c521",
+                  "id": "de96fa6f-274c-4ce7-ae87-e6d63159a544",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -2425,11 +2425,11 @@
           "event": []
         },
         {
-          "id": "c31771cb-adee-4e0d-a0d8-d468e3e09e85",
+          "id": "d502943d-132c-475d-bc40-6b9a8b90c2da",
           "name": "clients",
           "item": [
             {
-              "id": "36cb4c1e-0b89-4f07-9001-d67cd8e0c2c1",
+              "id": "001d4510-787b-45b7-8c6d-fbc49472934b",
               "name": "List and search clients",
               "request": {
                 "name": "List and search clients",
@@ -2528,7 +2528,7 @@
               },
               "response": [
                 {
-                  "id": "7fff2fe4-bb24-4ea1-8b5d-37825f6d5b2f",
+                  "id": "c60857cf-87c2-464d-9daa-4f43102e46be",
                   "name": "Clients retrieved successfully",
                   "originalRequest": {
                     "url": {
@@ -2608,12 +2608,12 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"pagination\": {\n      \"page\": 1019,\n      \"limit\": 3887,\n      \"total\": 8049,\n      \"totalPages\": 4862\n    }\n  }\n}",
+                  "body": "{\n  \"success\": false,\n  \"data\": {\n    \"pagination\": {\n      \"page\": 6594,\n      \"limit\": 7807,\n      \"total\": 4125,\n      \"totalPages\": 2173\n    }\n  }\n}",
                   "cookie": [],
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "f6b7088c-0936-4827-b872-a1a846133f27",
+                  "id": "a33868f8-5b8b-40e7-8405-d2a1a8e4269b",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -2694,7 +2694,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "76334415-82af-4b80-a54a-471bfc848cf7",
+                  "id": "65b02842-e652-4ba3-a063-441498451269",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -2781,7 +2781,7 @@
               }
             },
             {
-              "id": "42de0722-6af7-4469-9e68-b34eabe9f95c",
+              "id": "d1ec03e8-630d-4a23-b0e9-59fd6ffac3a3",
               "name": "Create new client",
               "request": {
                 "name": "Create new client",
@@ -2832,7 +2832,7 @@
               },
               "response": [
                 {
-                  "id": "435d1374-89cb-4a71-89ec-a3788f801754",
+                  "id": "433df9a6-3170-4fc3-957c-5aef284c6cfd",
                   "name": "Client created successfully",
                   "originalRequest": {
                     "url": {
@@ -2879,12 +2879,12 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"516ecbdc-5b30-7b2e-6d56-0128ecee98a9\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"2005-11-22\",\n    \"status\": \"inactive\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"jrk5a0Aq57x5@dkMywHTxoebHQFwszaZgkEviiUZHx.ybw\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"1991-11-08T07:31:06.261Z\",\n    \"updatedAt\": \"1969-12-06T02:07:41.158Z\"\n  },\n  \"message\": \"string\"\n}",
+                  "body": "{\n  \"success\": false,\n  \"data\": {\n    \"id\": \"5da21761-f3c9-5a25-db65-4c321b58fe3f\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"1972-12-21\",\n    \"status\": \"discharged\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"YjPYPtSf6gg02I0@BteFEIKCkxRGvIFiPaPwptfNr.pmjg\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"2015-03-31T21:26:52.418Z\",\n    \"updatedAt\": \"2001-07-12T22:44:48.265Z\"\n  },\n  \"message\": \"string\"\n}",
                   "cookie": [],
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "58fe503b-6732-4c39-98cd-896cea5acea8",
+                  "id": "a3765b2a-4b43-4e16-b263-d409f9de5858",
                   "name": "Invalid input",
                   "originalRequest": {
                     "url": {
@@ -2932,7 +2932,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "4ec9cddc-c7d3-4442-8b76-285c4dd8657a",
+                  "id": "b7f79fd7-140a-4a2b-92d9-4c57224c9e53",
                   "name": "Not authenticated",
                   "originalRequest": {
                     "url": {
@@ -2980,7 +2980,7 @@
                   "_postman_previewlanguage": "text"
                 },
                 {
-                  "id": "090ea4e5-3b40-4de7-ab8e-fc3cf1ab88cb",
+                  "id": "2f6e10fb-5ad9-48b6-9ad2-7f4f70a641b3",
                   "name": "Server error",
                   "originalRequest": {
                     "url": {
@@ -3034,11 +3034,11 @@
               }
             },
             {
-              "id": "f45556da-40da-45da-9bfe-54d445f29d71",
+              "id": "6dea77b5-099a-4d2a-b965-4cd06592a29e",
               "name": "{id}",
               "item": [
                 {
-                  "id": "36f21cc0-1336-4c6d-a21c-ad6b369cfee2",
+                  "id": "90684cb3-ba4a-4cb1-ae89-a9e10ccbd58f",
                   "name": "Get client by ID",
                   "request": {
                     "name": "Get client by ID",
@@ -3085,7 +3085,7 @@
                   },
                   "response": [
                     {
-                      "id": "be9af013-65a7-4643-9ead-34c8dd611b4e",
+                      "id": "6f356461-aa4f-4079-b33c-67b0e245a726",
                       "name": "Client found",
                       "originalRequest": {
                         "url": {
@@ -3133,12 +3133,12 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "{\n  \"success\": false,\n  \"data\": {\n    \"id\": \"a0c77cac-7544-c56c-a1b7-488f5f8bedb5\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"2018-04-27\",\n    \"status\": \"active\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"8NLA@WUucwNOpPPuysTeGaeCVaWibVPP.cwic\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"1950-10-12T20:26:09.631Z\",\n    \"updatedAt\": \"2002-09-30T00:06:33.721Z\"\n  }\n}",
+                      "body": "{\n  \"success\": false,\n  \"data\": {\n    \"id\": \"4aa9e633-5ada-87de-66b3-ddcab7a2c407\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"1987-05-27\",\n    \"status\": \"discharged\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"r9BQu@VveXOJQRIcIsVVUjQxobgsVidAiHZF.mx\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"2013-01-04T21:14:06.906Z\",\n    \"updatedAt\": \"2023-02-06T08:17:37.515Z\"\n  }\n}",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     },
                     {
-                      "id": "cc8f654c-5935-49ed-8145-7b5ae2e0f0d2",
+                      "id": "4f757cf0-aec7-49b0-b2a8-9a36cb8780ef",
                       "name": "Invalid client ID",
                       "originalRequest": {
                         "url": {
@@ -3187,7 +3187,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "0fbb0296-7df9-4d35-8803-e71ef40410ac",
+                      "id": "1088edcf-abd3-42c9-a7e2-4b299955c4f2",
                       "name": "Not authenticated",
                       "originalRequest": {
                         "url": {
@@ -3236,7 +3236,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "f010ca18-8f22-4ce4-b403-bea5c798195d",
+                      "id": "4beade25-cefb-462e-a9b1-74a5752f295d",
                       "name": "Client not found",
                       "originalRequest": {
                         "url": {
@@ -3285,7 +3285,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "37a78e2e-6417-40d4-870e-cbbde058b33d",
+                      "id": "05c6a1e8-eb2a-448f-bff1-6d359a410ac7",
                       "name": "Server error",
                       "originalRequest": {
                         "url": {
@@ -3340,7 +3340,7 @@
                   }
                 },
                 {
-                  "id": "a0c6f214-772e-4073-ba8b-1db5ca81ba97",
+                  "id": "d86e29cb-fa25-4924-a0f8-cf8f7f928f3a",
                   "name": "Update client",
                   "request": {
                     "name": "Update client",
@@ -3400,7 +3400,7 @@
                   },
                   "response": [
                     {
-                      "id": "ab2687a8-1467-42cd-b2b3-2fd4fe578c38",
+                      "id": "9e5b0275-187c-4ea2-ab7c-df97c4cb977a",
                       "name": "Client updated successfully",
                       "originalRequest": {
                         "url": {
@@ -3456,12 +3456,12 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"516ecbdc-5b30-7b2e-6d56-0128ecee98a9\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"2005-11-22\",\n    \"status\": \"inactive\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"jrk5a0Aq57x5@dkMywHTxoebHQFwszaZgkEviiUZHx.ybw\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"1991-11-08T07:31:06.261Z\",\n    \"updatedAt\": \"1969-12-06T02:07:41.158Z\"\n  },\n  \"message\": \"string\"\n}",
+                      "body": "{\n  \"success\": false,\n  \"data\": {\n    \"id\": \"5da21761-f3c9-5a25-db65-4c321b58fe3f\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"dateOfBirth\": \"1972-12-21\",\n    \"status\": \"discharged\",\n    \"primaryAddress\": {\n      \"street\": \"<string>\",\n      \"street2\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"zip\": \"<string>\",\n      \"country\": \"US\"\n    },\n    \"phoneNumber\": \"string\",\n    \"email\": \"YjPYPtSf6gg02I0@BteFEIKCkxRGvIFiPaPwptfNr.pmjg\",\n    \"emergencyContact\": {\n      \"name\": \"string\",\n      \"phone\": \"string\",\n      \"relationship\": \"string\"\n    },\n    \"createdAt\": \"2015-03-31T21:26:52.418Z\",\n    \"updatedAt\": \"2001-07-12T22:44:48.265Z\"\n  },\n  \"message\": \"string\"\n}",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     },
                     {
-                      "id": "e2596e96-8088-4a80-a1d3-aa1c786efd43",
+                      "id": "c3d15e5a-ea11-4d7d-b675-56c91fe93a84",
                       "name": "Invalid input",
                       "originalRequest": {
                         "url": {
@@ -3518,7 +3518,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "7dec0350-9abf-4ed3-a354-48333a92b27e",
+                      "id": "59916c4b-2c92-4bbf-8bee-47654adb5c58",
                       "name": "Not authenticated",
                       "originalRequest": {
                         "url": {
@@ -3575,7 +3575,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "28376bfe-b1b9-4316-b198-c1d741419fc4",
+                      "id": "1ec932b1-1c29-4acb-9a31-f869894b26db",
                       "name": "Client not found",
                       "originalRequest": {
                         "url": {
@@ -3632,7 +3632,7 @@
                       "_postman_previewlanguage": "text"
                     },
                     {
-                      "id": "f066cea7-ba51-4f35-a7bb-ab7d556a03f1",
+                      "id": "6299fb3d-9cfd-4f19-9cc1-34abd51eb6f0",
                       "name": "Server error",
                       "originalRequest": {
                         "url": {
@@ -3693,6 +3693,304 @@
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   }
+                },
+                {
+                  "id": "4790e4f4-1c33-4ffd-a1eb-f72fe9613a8c",
+                  "name": "Manually geocode client address",
+                  "request": {
+                    "name": "Manually geocode client address",
+                    "description": {
+                      "content": "Geocode a client's primary address and update coordinates",
+                      "type": "text/plain"
+                    },
+                    "url": {
+                      "path": [
+                        "api",
+                        "clients",
+                        ":id",
+                        "geocode"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<uuid>",
+                          "key": "id",
+                          "description": "(Required) Client ID"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "54c07436-e37a-4b6b-add7-a325267ffe61",
+                      "name": "Address geocoded successfully",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id",
+                            "geocode"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client ID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {}
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "ebda230c-2be3-426d-8cbb-655f7f20f35c",
+                      "name": "Invalid request or geocoding failed",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id",
+                            "geocode"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client ID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {}
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "e2490516-0b15-4bd7-9199-11f16b3947ae",
+                      "name": "Unauthorized",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id",
+                            "geocode"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client ID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {}
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "20062c40-2af4-4741-8ba8-b23179350422",
+                      "name": "Forbidden - insufficient permissions",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id",
+                            "geocode"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client ID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {}
+                      },
+                      "status": "Forbidden",
+                      "code": 403,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    },
+                    {
+                      "id": "fd1db9f1-9964-42f9-9688-750d5a52f5a1",
+                      "name": "Client not found",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "clients",
+                            ":id",
+                            "geocode"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "disabled": false,
+                              "type": "any",
+                              "value": "<uuid>",
+                              "key": "id",
+                              "description": "(Required) Client ID"
+                            }
+                          ]
+                        },
+                        "header": [
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {}
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "text/plain"
+                        }
+                      ],
+                      "body": "",
+                      "cookie": [],
+                      "_postman_previewlanguage": "text"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
                 }
               ],
               "event": []
@@ -3722,11 +4020,11 @@
     ]
   },
   "info": {
-    "_postman_id": "55560d32-67e6-41f7-a21f-20c5682f6bdc",
+    "_postman_id": "0aa0f510-1c78-4f0f-8132-486566e3aa83",
     "name": "Care Commons API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": {
-      "content": "Home healthcare platform API documentation\n\nContact Support:\n Name: Care Commons Team",
+      "content": "\n# Care Commons API Documentation\n\nComprehensive REST API for home healthcare management platform.\n\n## Features\n\n- **Client Demographics**: Manage client records, demographics, and intake\n- **Caregiver Management**: Staff credentials, certifications, and scheduling\n- **Visit Tracking**: EVV-compliant visit check-in/out with GPS verification\n- **Care Plans**: Care plan creation, task management, and progress notes\n- **Scheduling**: Visit scheduling and caregiver assignment\n- **Time Tracking**: Electronic Visit Verification (EVV) and payroll integration\n- **Incident Reporting**: Incident documentation and follow-up tracking\n- **Medication Management**: Medication administration records (MAR)\n- **Quality Assurance**: Audit management and corrective actions\n- **Billing & Invoicing**: Service authorization and claim management\n- **Analytics**: Reporting and dashboard metrics\n\n## Authentication\n\nAll API endpoints require JWT bearer token authentication. Include the token in the Authorization header:\n\n```\nAuthorization: Bearer <your-jwt-token>\n```\n\nObtain a token by logging in via `POST /api/auth/login`.\n\n## Rate Limiting\n\nAPI requests are rate-limited to prevent abuse:\n\n- **Authentication endpoints**: 5 requests per 15 minutes per IP\n- **General API**: 100 requests per 15 minutes per user\n- **Sync endpoints**: 200 requests per 15 minutes per user\n- **Report generation**: 10 requests per 15 minutes per user\n- **EVV check-in/out**: 500 requests per 15 minutes per user\n\nRate limit headers are included in responses:\n- `X-RateLimit-Limit`: Maximum requests allowed\n- `X-RateLimit-Remaining`: Requests remaining in current window\n- `X-RateLimit-Reset`: Time when limit resets (Unix timestamp)\n\n## Pagination\n\nList endpoints support pagination via query parameters:\n\n- `page`: Page number (default: 1)\n- `limit`: Items per page (default: 20, max: 100)\n- `sortBy`: Field to sort by\n- `sortDirection`: `asc` or `desc`\n\n## Error Handling\n\nErrors follow a consistent format:\n\n```json\n{\n  \"success\": false,\n  \"error\": \"Error message\",\n  \"code\": \"ERROR_CODE\",\n  \"details\": {}\n}\n```\n\nCommon error codes:\n- `UNAUTHORIZED`: Authentication required or invalid token\n- `FORBIDDEN`: Insufficient permissions\n- `NOT_FOUND`: Resource not found\n- `VALIDATION_ERROR`: Invalid request data\n- `RATE_LIMIT_EXCEEDED`: Too many requests\n- `INTERNAL_ERROR`: Server error\n\n## Compliance\n\nThis API implements:\n- **HIPAA**: Secure PHI handling with audit trails\n- **21st Century Cures Act**: EVV compliance for Medicaid services\n- **State-specific regulations**: Texas HHSC, Florida AHCA, and 48 other states\n\n## Versioning\n\nThe API uses semantic versioning. Breaking changes will be introduced in new major versions with deprecation notices.\n\nCurrent version: **v1.0.0**\n      \n\nContact Support:\n Name: Care Commons Team\n Email: support@carecommons.example",
       "type": "text/plain"
     }
   }

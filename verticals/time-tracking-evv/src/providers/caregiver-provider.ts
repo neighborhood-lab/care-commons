@@ -6,7 +6,7 @@
  */
 
 import { UUID, NotFoundError, Database } from '@care-commons/core';
-import type { ICaregiverProvider } from '../interfaces/visit-provider.js';
+import type { ICaregiverProvider } from '../interfaces/visit-provider';
 
 /**
  * Caregiver Provider for EVV Integration

@@ -24,8 +24,8 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CameraView, CameraType, FlashMode, useCameraPermissions } from 'expo-camera';
-import { Button } from '../../components/index.js';
-import type { RootStackParamList } from '../../navigation/RootNavigator.js';
+import { Button } from '../../components/index';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Camera'>;
 

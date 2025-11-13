@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OfflineQueueService } from '../offline-queue.js';
-import type { ClockInInput, ClockOutInput } from '../../shared/index.js';
+import { OfflineQueueService } from '../offline-queue';
+import type { ClockInInput, ClockOutInput } from '../../shared/index';
 
 // Mock NetInfo
 vi.mock('@react-native-community/netinfo', () => ({

@@ -1,0 +1,144 @@
+# Care Commons - Docker Compose Configuration
+# 
+# Quick start:
+#   docker compose up -d          # Start PostgreSQL and Redis
+#   docker compose --profile tools up -d  # Start with pgAdmin, Redis Commander, and MailHog
+#   docker compose down           # Stop all services
+#   docker compose down -v        # Stop and remove volumes (DESTROYS DATA)
+#
+# Services:
+#   - PostgreSQL 16 (port 5432)
+#   - Redis 7 (port 6379)
+#   - pgAdmin (port 5050) - requires --profile tools
+#   - Redis Commander (port 8081) - requires --profile tools
+#   - MailHog (ports 1025, 8025) - requires --profile tools
+
+# Note: version field is obsolete in Docker Compose v2+
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: care-commons-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: care_commons
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./packages/core/migrations:/migrations:ro
+    command: 
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=1310kB"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - care-commons
+
+  redis:
+    image: redis:7-alpine
+    container_name: care-commons-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - care-commons
+
+  # Database management UI
+  # Access at http://localhost:5050
+  # Email: admin@carecommons.local / Password: admin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: care-commons-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@carecommons.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - care-commons
+    profiles:
+      - tools
+
+  # Redis management UI
+  # Access at http://localhost:8081
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: care-commons-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - care-commons
+    profiles:
+      - tools
+
+  # Email testing (catches all outgoing emails)
+  # SMTP: localhost:1025
+  # Web UI: http://localhost:8025
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: care-commons-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    networks:
+      - care-commons
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  care-commons:
+    driver: bridge

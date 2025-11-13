@@ -165,17 +165,45 @@ The showcase is automatically deployed to GitHub Pages when changes are pushed t
 
 ## Mock Data
 
-The showcase includes comprehensive seed data representing:
+The showcase includes **comprehensive, realistic demo data** representing a multi-state home healthcare agency:
 
-- **4 Clients** - Diverse demographics across Oregon
-- **4 Caregivers** - Various certifications and specializations
-- **4 Care Plans** - Different types (Personal Care, Skilled Nursing, Companion, Therapy)
-- **8 Task Instances** - Mix of scheduled and completed tasks
-- **2 Invoices** - Paid and pending examples
-- **1 Payroll Period** - Processed payroll
-- **2 Shift Listings** - Open and filled shifts
+### Data Scale (Enhanced!)
 
-All data is **different from the main demo** to make them easily distinguishable.
+- **60+ Clients** - Diverse demographics across Texas, Florida, and Ohio
+  - Various conditions: Alzheimer's, Parkinson's, diabetes, stroke recovery, post-surgical care
+  - Different mobility levels: independent, walker, wheelchair, bedbound
+  - Realistic emergency contacts and insurance information
+  - Multiple statuses: active, pending intake, on hold, inquiry
+
+- **35+ Caregivers** - Various certifications, specializations, and availability
+  - CNAs, HHAs, companions, medication aides
+  - Specializations: dementia care, medication management, wound care, mobility assistance
+  - Bilingual capabilities (English, Spanish, Mandarin)
+  - Different employment types: full-time, part-time, per-diem
+  - Realistic credential expiration scenarios for compliance demonstrations
+
+- **40+ Care Plans** - All plan types and compliance scenarios
+  - Personal care, skilled nursing, companion care, therapy
+  - Various priorities: urgent, high, medium, low
+  - Compliance statuses: compliant, pending review, needs attention
+  - Goals with progress tracking
+
+- **100+ Tasks & Visits** - Full lifecycle demonstration
+  - Scheduled, in-progress, completed, overdue
+  - EVV requirements and biometric verification
+  - GPS geolocation data
+  - Task categories: bathing, medication, vital signs, mobility, companionship
+
+- **30+ Invoices** - Billing workflow scenarios
+  - Paid, pending, overdue statuses
+  - Multiple payment methods: Medicaid, Medicare, private insurance, private pay
+  - Line item details and service dates
+
+- **Payroll Periods** - Processed payroll data
+- **Shift Listings** - Open and filled shifts with applications
+- **Family Engagement** - Messages and notifications
+
+All data is **different from the production demo** to make environments easily distinguishable.
 
 ### localStorage Persistence
 
@@ -186,7 +214,30 @@ Changes you make (creating, updating, deleting) are saved to browser localStorag
 - ❌ Data is not synced across devices
 - ❌ Clearing browser data resets to seed data
 
-To reset to original seed data, clear your browser's localStorage for this domain.
+### Resetting Demo Data
+
+To reset to the original comprehensive seed data:
+
+**Option 1: Browser Developer Tools**
+1. Open browser DevTools (F12)
+2. Go to Application/Storage → Local Storage
+3. Delete the `care-commons-showcase-data` key
+4. Refresh the page
+
+**Option 2: Browser Settings**
+- Clear browsing data for this domain
+- Refresh the page
+
+**Option 3: Database Seed (For PostgreSQL Backend)**
+
+If running showcase with real PostgreSQL backend:
+
+```bash
+# From repository root
+npm run db:seed:showcase
+```
+
+This seeds the comprehensive showcase dataset (60+ clients, 35+ caregivers, etc.) into your database.
 
 ## 🎭 Multi-Role Experience (New in Part 3!)
 

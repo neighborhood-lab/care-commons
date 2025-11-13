@@ -17,8 +17,8 @@ import type {
   IVisitProvider,
   IClientProvider,
   EVVVisitData,
-} from '@care-commons/time-tracking-evv/src/interfaces/visit-provider';
-import { createClientProvider } from '@care-commons/time-tracking-evv/src/providers/client-provider.js';
+} from '@care-commons/time-tracking-evv';
+import { createClientProvider } from '@care-commons/time-tracking-evv';
 import { ScheduleRepository } from '../repository/schedule-repository';
 import { VisitStatus } from '../types/schedule';
 

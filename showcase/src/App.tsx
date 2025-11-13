@@ -17,8 +17,15 @@ import { TaskManagementPage } from './pages/TaskManagementPage';
 import { CaregiverManagementPage } from './pages/CaregiverManagementPage';
 import { ShiftMatchingPage } from './pages/ShiftMatchingPage';
 import { BillingPage } from './pages/BillingPage';
+import { SchedulingPage } from './pages/SchedulingPage';
+import { EVVPage } from './pages/EVVPage';
+import { PayrollPage } from './pages/PayrollPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+import { QualityAssurancePage } from './pages/QualityAssurancePage';
+import { FamilyPortalPage } from './pages/FamilyPortalPage';
 import { ToursPage } from './pages/ToursPage';
 import { VideosPage } from './pages/VideosPage';
+import { StateDemoPage } from './pages/StateDemoPage';
 
 // Mobile Pages
 import { MobileHomePage } from './pages/mobile/MobileHomePage';
@@ -58,10 +65,17 @@ export const App: React.FC = () => {
                 <Route path="/care-plans" element={<CarePlansPage />} />
                 <Route path="/tasks" element={<TaskManagementPage />} />
                 <Route path="/caregivers" element={<CaregiverManagementPage />} />
+                <Route path="/scheduling" element={<SchedulingPage />} />
                 <Route path="/shifts" element={<ShiftMatchingPage />} />
+                <Route path="/evv" element={<EVVPage />} />
+                <Route path="/payroll" element={<PayrollPage />} />
                 <Route path="/billing" element={<BillingPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/quality" element={<QualityAssurancePage />} />
+                <Route path="/family-portal" element={<FamilyPortalPage />} />
                 <Route path="/tours" element={<ToursPage />} />
                 <Route path="/videos" element={<VideosPage />} />
+                <Route path="/states" element={<StateDemoPage />} />
 
                 {/* Mobile Routes */}
                 <Route path="/mobile" element={<MobileHomePage />} />

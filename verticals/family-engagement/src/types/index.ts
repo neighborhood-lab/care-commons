@@ -2,4 +2,4 @@
  * @care-commons/family-engagement - Type Exports
  */
 
-export * from './family-engagement.js';
+export * from './family-engagement';

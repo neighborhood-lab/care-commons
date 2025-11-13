@@ -8,8 +8,8 @@
  * and enable the state router pattern in EVVService.
  */
 
-import { EVVRecord } from '../types/evv.js';
-import { StateCode, StateAggregatorSubmission } from '../types/state-specific.js';
+import { EVVRecord } from '../types/evv';
+import { StateCode, StateAggregatorSubmission } from '../types/state-specific';
 
 /**
  * State-specific EVV configuration

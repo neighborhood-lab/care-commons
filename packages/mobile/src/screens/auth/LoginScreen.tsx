@@ -7,10 +7,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Button } from '../../components/index.js';
-import { createAuthService } from '../../services/auth.js';
-import { BiometricService } from '../../services/biometric.service.js';
-import { useAuth } from '../../hooks/useAuth.js';
+import { Button } from '../../components/index';
+import { createAuthService } from '../../services/auth';
+import { BiometricService } from '../../services/biometric.service';
+import { useAuth } from '../../hooks/useAuth';
 
 interface LoginScreenProps {
   navigation: {

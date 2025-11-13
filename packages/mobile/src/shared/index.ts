@@ -6,7 +6,7 @@
  * consistent domain logic across web and mobile platforms.
  */
 
-// Core types - Base entity and lifecycle
+// Core types - Base entity and lifecycle (browser-safe)
 export type {
   Entity,
   UUID,
@@ -22,35 +22,39 @@ export type {
   PaginationParams,
   PaginatedResult,
   Result,
-} from '@care-commons/core';
+} from '@care-commons/core/browser';
 
-// Core error types
+// Core error types (browser-safe)
 export {
+  AppError,
+  UnauthorizedError,
+  UnprocessableEntityError,
+  TooManyRequestsError,
+  ServiceUnavailableError,
+  InternalServerError,
+  DatabaseError,
+} from '@care-commons/core/browser';
+
+// Additional error types from base
+export type {
   DomainError,
   ValidationError,
   PermissionError,
   NotFoundError,
   ConflictError,
   AuthenticationError,
-} from '@care-commons/core';
+} from '@care-commons/core/browser';
 
-// Organization types
+// Organization types (browser-safe)
 export type {
   Organization,
   OrganizationSettings,
-} from '@care-commons/core';
+} from '@care-commons/core/browser';
 
-// Permission system
-export {
-  PermissionService,
-} from '@care-commons/core';
+// Note: PermissionService and AuditService are server-only
+// Mobile app should use API endpoints for permissions/audit instead
 
-// Audit service
-export {
-  AuditService,
-} from '@care-commons/core';
-
-// EVV types - Direct reuse of all EVV domain models
+// EVV types - Direct reuse of all EVV domain models (browser-safe)
 export type {
   // Core EVV entities
   EVVRecord,
@@ -108,9 +112,9 @@ export type {
   // Search filters
   EVVRecordSearchFilters,
   TimeEntrySearchFilters,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
 
-// State-specific types
+// State-specific types (browser-safe)
 export type {
   StateCode,
   TexasEVVConfig,
@@ -129,21 +133,23 @@ export type {
   StateEVVException,
   StateExceptionType,
   FloridaEVVException,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
 
-// State-specific helper functions
+// State-specific helper functions (browser-safe)
 export {
   getStateEVVRules,
   selectAggregator,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
 
-// EVV Service - Business logic reuse
+// EVV Validation (browser-safe)
 export {
-  EVVService,
   EVVValidator,
   CryptoUtils,
-  IntegrationService,
-} from '@care-commons/time-tracking-evv';
+} from '@care-commons/time-tracking-evv/browser';
+
+// Note: EVVService and IntegrationService use Database (server-only)
+// Mobile app should use API endpoints for EVV operations instead
+// Types above provide the contract for API requests/responses
 
 // Validation schemas (Zod)
 // Note: Core package should export validation schemas if available

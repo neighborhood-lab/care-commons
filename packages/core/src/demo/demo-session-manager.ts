@@ -6,7 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { getDemoStateStore } from './demo-state-store.js';
+import { getDemoStateStore } from './demo-state-store';
 import {
   DemoSession,
   DemoSessionOptions,
@@ -16,7 +16,7 @@ import {
   DemoEventType,
   DemoPersonaNotFoundError,
   DemoSnapshot
-} from './types.js';
+} from './types';
 
 export class DemoSessionManager {
   private store = getDemoStateStore();

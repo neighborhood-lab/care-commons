@@ -11,9 +11,11 @@ import type {
   UUID,
   ValidationError,
   PermissionError,
-  NotFoundError
+  NotFoundError,
+  IUserRepository
 } from '@care-commons/core';
-import { PermissionService } from '@care-commons/core';
+import { PermissionService, getNotificationService } from '@care-commons/core';
+import type { NotificationChannel } from '@care-commons/core';
 import type {
   FamilyMember,
   FamilyMemberProfile,
@@ -27,13 +29,15 @@ import type {
   CreateMessageThreadInput,
   SendMessageInput,
   FamilyDashboard
-} from '../types/family-engagement.js';
+} from '../types/family-engagement';
 import {
   FamilyMemberRepository,
   NotificationRepository,
   ActivityFeedRepository,
   MessageRepository
-} from '../repositories/family-engagement-repository.js';
+} from '../repositories/family-engagement-repository';
+import type { ClientService } from '@care-commons/client-demographics';
+import type { CarePlanService } from '@care-commons/care-plans-tasks';
 
 /**
  * Service for managing family portal and engagement
@@ -44,8 +48,35 @@ export class FamilyEngagementService {
     private notificationRepo: NotificationRepository,
     private activityFeedRepo: ActivityFeedRepository,
     private messageRepo: MessageRepository,
-    private permissions: PermissionService
+    private permissions: PermissionService,
+    private userRepository: IUserRepository,
+    private clientService: ClientService,
+    private carePlanService: CarePlanService
   ) {}
+
+  // ============================================================================
+  // Helper Methods
+  // ============================================================================
+
+  /**
+   * Get user display name from user ID
+   * Returns "firstName lastName" or email if name not available
+   */
+  private async getUserName(userId: UUID): Promise<string> {
+    try {
+      const user = await this.userRepository.getUserById(userId);
+      if (!user) {
+        return 'Unknown User';
+      }
+      if (user.firstName && user.lastName) {
+        return `${user.firstName} ${user.lastName}`;
+      }
+      return user.email;
+    } catch (error) {
+      console.error(`Failed to get user name for ${userId}:`, error);
+      return 'Unknown User';
+    }
+  }
 
   // ============================================================================
   // Family Member Management
@@ -180,8 +211,60 @@ export class FamilyEngagementService {
       organizationId: context.organizationId
     });
 
-    // FIXME: Trigger actual notification delivery (email, SMS, push)
-    // This would integrate with external notification services
+    // Trigger actual notification delivery
+    // Note: NotificationService currently only supports visit-related event types
+    // Family portal notifications (messages, care plans, incidents) would require
+    // expanding the NotificationService event types. For now, we create the notification
+    // record in the database, which can be viewed in the portal.
+    // Future enhancement: Add FAMILY_MESSAGE, CARE_PLAN_UPDATE, etc. to NotificationService
+    try {
+      const notificationService = getNotificationService();
+      
+      // Map preferred contact method to notification channels
+      const preferredChannels: NotificationChannel[] = [];
+      if (familyMember.preferredContactMethod === 'EMAIL' || familyMember.preferredContactMethod === 'PORTAL') {
+        preferredChannels.push('EMAIL');
+      }
+      if (familyMember.preferredContactMethod === 'SMS') {
+        preferredChannels.push('SMS');
+      }
+      // Default to email if no preference set
+      if (preferredChannels.length === 0) {
+        preferredChannels.push('EMAIL');
+      }
+
+      // Only send via notification service if it's a visit-related notification
+      // Other notification types are stored in DB and shown in portal
+      if (input.category === 'VISIT' && input.relatedEntityType === 'VISIT') {
+        // Map to appropriate visit event type based on notification content
+        const eventType = input.title.includes('completed') ? 'VISIT_CLOCK_OUT' : 'VISIT_CLOCK_IN';
+        
+        await notificationService.send({
+          eventType,
+          priority: input.priority === 'HIGH' ? 'HIGH' : 'NORMAL',
+          recipients: [{
+            userId: familyMember.id,
+            email: familyMember.email,
+            phone: familyMember.phoneNumber,
+            preferredChannels
+          }],
+          subject: input.title,
+          message: input.message,
+          data: {
+            notificationId: notification.id,
+            category: input.category,
+            actionUrl: input.actionUrl,
+            actionLabel: input.actionLabel
+          },
+          organizationId: context.organizationId,
+          relatedEntityType: 'visit',
+          relatedEntityId: input.relatedEntityId
+        });
+      }
+    } catch (error) {
+      // Log but don't fail - notification record is saved, delivery can be retried
+      console.error('Failed to deliver notification via notification service:', error);
+    }
 
     return notification;
   }
@@ -325,6 +408,7 @@ export class FamilyEngagementService {
 
     // Send initial message if provided
     if (input.initialMessage) {
+      const senderName = await this.getUserName(context.userId);
       await this.messageRepo.sendMessage({
         threadId: thread.id,
         messageText: input.initialMessage,
@@ -332,7 +416,7 @@ export class FamilyEngagementService {
         clientId: input.clientId,
         sentBy: context.userId,
         senderType: 'STAFF',
-        senderName: context.userId, // FIXME: Get actual user name
+        senderName,
         organizationId: context.organizationId,
         createdBy: context.userId
       });
@@ -354,14 +438,20 @@ export class FamilyEngagementService {
       throw new Error('Insufficient permissions to send messages') as PermissionError;
     }
 
-    // FIXME: Get thread to validate access and get clientId, familyMemberId
+    // Get thread to validate access and get clientId, familyMemberId
+    const thread = await this.messageRepo.getThreadById(input.threadId);
+    if (!thread) {
+      throw new Error('Message thread not found') as NotFoundError;
+    }
+
+    const senderName = await this.getUserName(context.userId);
     const message = await this.messageRepo.sendMessage({
       ...input,
-      familyMemberId: context.userId, // Placeholder
-      clientId: context.userId, // Placeholder
+      familyMemberId: thread.familyMemberId,
+      clientId: thread.clientId,
       sentBy: context.userId,
       senderType,
-      senderName: context.userId, // FIXME: Get actual user name
+      senderName,
       organizationId: context.organizationId,
       createdBy: context.userId
     });
@@ -442,24 +532,58 @@ export class FamilyEngagementService {
     // Get recent activity
     const recentActivity = await this.activityFeedRepo.getRecentActivity(familyMemberId, 10);
 
-    // FIXME: Get upcoming visits from visit summary table
+    // Get upcoming visits for the client
+    // Note: Visit summaries are published to the family portal separately
+    // via the publishVisitSummary feature. This queries the visit_summaries table
+    // which is populated when visits are completed and approved for family viewing.
+    // For now, returning empty array - this would be enhanced to query visit_summaries
+    // table filtered by familyMemberId when that feature is implemented.
     const upcomingVisits: VisitSummary[] = [];
 
     // Get unread counts
     const unreadNotifications = profile.statistics.unreadNotifications;
     const unreadMessages = profile.statistics.unreadMessages;
 
+    // Fetch client details
+    let clientName = 'Unknown Client';
+    try {
+      const client = await this.clientService.getClientById(profile.clientId, context);
+      clientName = `${client.firstName} ${client.lastName}`;
+    } catch (error) {
+      console.error('Failed to fetch client details:', error);
+    }
+
+    // Fetch active care plan
+    let activeCarePlan;
+    try {
+      const carePlan = await this.carePlanService.getActiveCarePlanForClient(profile.clientId, context);
+      if (carePlan) {
+        // Count goals (if goals array exists)
+        const goalsTotal = carePlan.goals?.length || 0;
+        const goalsAchieved = carePlan.goals?.filter((g: { status: string }) => g.status === 'ACHIEVED').length || 0;
+        
+        activeCarePlan = {
+          id: carePlan.id,
+          name: carePlan.name,
+          goalsTotal,
+          goalsAchieved
+        };
+      }
+    } catch (error) {
+      console.error('Failed to fetch active care plan:', error);
+    }
+
     return {
       client: {
         id: profile.clientId,
-        name: 'Client Name', // FIXME: Fetch from client service
+        name: clientName,
         photoUrl: undefined
       },
       upcomingVisits,
       recentActivity,
       unreadNotifications,
       unreadMessages,
-      activeCarePlan: undefined // FIXME: Fetch from care plan service
+      activeCarePlan
     };
   }
 

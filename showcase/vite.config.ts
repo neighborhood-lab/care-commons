@@ -20,6 +20,7 @@ export default defineConfig({
       ),
       '@': path.resolve(__dirname, './src'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   // GitHub Pages deployment configuration
   base: '/care-commons/',

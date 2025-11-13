@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { ConflictResolver } from '../../sync/conflict-resolver.js';
-import type { SyncConflict } from '../../sync/types.js';
+import { ConflictResolver } from '../../sync/conflict-resolver';
+import type { SyncConflict } from '../../sync/types';
 
 describe('ConflictResolver', () => {
   const resolver = new ConflictResolver();

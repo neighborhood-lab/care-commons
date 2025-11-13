@@ -1,0 +1,68 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store
+
+# Testing
+coverage
+.nyc_output
+*.lcov
+playwright-report
+test-results
+
+# Build outputs
+dist
+build
+.next
+.turbo
+.cache
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.test
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+.github
+
+# Logs
+logs
+*.log
+
+# Misc
+.vercel
+.netlify
+.cloudflare
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Documentation (not needed in container)
+docs/*.md
+README.md
+*.md
+!**/README.md
+
+# Config files not needed
+.prettierrc*
+.editorconfig
+.eslintrc*
+tsconfig*.json
+vitest.config.ts
+playwright.config.ts

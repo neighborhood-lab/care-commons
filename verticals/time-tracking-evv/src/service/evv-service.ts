@@ -12,6 +12,7 @@ import {
   UUID,
   PaginationParams,
   PaginatedResult,
+  StateComplianceService,
 } from '@care-commons/core';
 import { EVVRepository } from '../repository/evv-repository';
 import { EVVValidator } from '../validation/evv-validator';
@@ -37,21 +38,27 @@ import {
   ICaregiverProvider,
 } from '../interfaces/visit-provider';
 import { Database } from '@care-commons/core';
-import { StateCode } from '../types/state-specific.js';
-import { StateProviderFactory } from '../providers/state-provider-factory.js';
+import { StateCode } from '../types/state-specific';
+import { StateProviderFactory } from '../providers/state-provider-factory';
+import { getNotificationService, type NotificationChannel } from '@care-commons/core';
 
 export class EVVService {
+  private stateComplianceService: StateComplianceService;
+
   constructor(
     private repository: EVVRepository,
     _integrationService: IntegrationService,
     private visitProvider: IVisitProvider,
     private clientProvider: IClientProvider,
     private caregiverProvider: ICaregiverProvider,
-    _database: Database, // Used to initialize StateProviderFactory
+    private database: Database, // Used to initialize StateProviderFactory and queries
     private validator: EVVValidator = new EVVValidator()
   ) {
     // Initialize state provider factory with database
-    StateProviderFactory.initialize(_database);
+    StateProviderFactory.initialize(database);
+    
+    // Initialize state compliance service for EVV validation
+    this.stateComplianceService = new StateComplianceService();
   }
 
   /**
@@ -119,8 +126,16 @@ export class EVVService {
       );
     }
 
-    // Get or create geofence for location
-    const geofenceRadius = visitData.serviceAddress.geofenceRadius || 100; // Default 100m
+    // Get state-specific geofence radius using StateComplianceService
+    const state = visitData.serviceAddress.state as StateCode;
+    const stateGeofenceRadius = this.stateComplianceService.getGeofenceRadius(
+      state,
+      input.location.accuracy
+    );
+    
+    // Use state-specific radius or fallback to configured/default
+    const geofenceRadius = visitData.serviceAddress.geofenceRadius || stateGeofenceRadius;
+    
     const addressId = visitData.serviceAddress.addressId || this.generateFallbackAddressId(visitData.serviceAddress);
     const geofence = await this.getOrCreateGeofence(
       visitData.serviceAddress.latitude,
@@ -149,6 +164,35 @@ export class EVVService {
       geofenceCheck.isWithinGeofence,
       input.location.accuracy
     );
+
+    // Perform state-specific EVV validation
+    const evvValidation = this.stateComplianceService.validateEVVForState(state, {
+      clientLatitude: visitData.serviceAddress.latitude,
+      clientLongitude: visitData.serviceAddress.longitude,
+      clockInLatitude: input.location.latitude,
+      clockInLongitude: input.location.longitude,
+      clockInTime: new Date(),
+      scheduledStartTime: new Date(visitData.scheduledStartTime),
+      gpsAccuracy: input.location.accuracy,
+    });
+    
+    // If EVV validation fails, include state-specific error messages
+    if (!evvValidation.valid) {
+      const errorMessages = evvValidation.errors.map(err => 
+        `${err.message} (${err.regulation || 'State Requirement'})`
+      );
+      
+      // Log validation failures for compliance audit
+      console.warn(`EVV Validation Failed for ${state}:`, {
+        visitId: input.visitId,
+        caregiverId: input.caregiverId,
+        errors: evvValidation.errors,
+        regulatoryContext: evvValidation.regulatoryContext,
+      });
+      
+      // Still allow clock-in but flag for review
+      geofenceCheck.reason = errorMessages.join('; ');
+    }
 
     // Create location verification object
     const baseLocationVerification = {
@@ -311,6 +355,51 @@ export class EVVService {
       console.log('Clock-in verification issues detected', verification.issues);
     }
 
+    // Send notification after successful clock-in
+    try {
+      const notificationService = getNotificationService();
+      const clockInTime = now.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: 'America/Chicago', // Default timezone, should be configurable
+      });
+      
+      const { NotificationService: NS } = await import('@care-commons/core');
+      const template = NS.getTemplate('VISIT_CLOCK_IN', {
+        caregiverName: caregiver.name,
+        clientName: client.name,
+        clockInTime,
+      });
+
+      // Resolve notification recipients (supervisors, coordinators, family members)
+      const recipients = await this.resolveNotificationRecipients(
+        visitData.organizationId,
+        input.caregiverId,
+        visitData.clientId
+      );
+
+      await notificationService.send({
+        eventType: 'VISIT_CLOCK_IN',
+        priority: 'NORMAL',
+        recipients,
+        subject: template.subject,
+        message: template.message,
+        data: {
+          visitId: input.visitId,
+          evvRecordId: evvRecord.id,
+          caregiverId: input.caregiverId,
+          clientId: visitData.clientId,
+          clockInTime: now.toISOString(),
+        },
+        organizationId: visitData.organizationId,
+        relatedEntityType: 'visit',
+        relatedEntityId: input.visitId,
+      });
+    } catch (notificationError) {
+      // Don't fail clock-in if notification fails
+      console.error('[EVV] Failed to send clock-in notification:', notificationError);
+    }
+
     return {
       evvRecord,
       timeEntry,
@@ -371,6 +460,40 @@ export class EVVService {
       geofenceCheck.isWithinGeofence,
       input.location.accuracy
     );
+
+    // Perform state-specific EVV validation for clock-out
+    const state = evvRecord.serviceAddress.state as StateCode;
+    const clockOutTime = new Date();
+    const evvValidation = this.stateComplianceService.validateEVVForState(state, {
+      clientLatitude: evvRecord.serviceAddress.latitude,
+      clientLongitude: evvRecord.serviceAddress.longitude,
+      clockInLatitude: evvRecord.clockInVerification.latitude,
+      clockInLongitude: evvRecord.clockInVerification.longitude,
+      clockOutLatitude: input.location.latitude,
+      clockOutLongitude: input.location.longitude,
+      clockInTime: evvRecord.clockInTime,
+      clockOutTime: clockOutTime,
+      scheduledStartTime: new Date(evvRecord.serviceDate), // Would use actual scheduled time from visit
+      gpsAccuracy: input.location.accuracy,
+    });
+    
+    // If EVV validation fails, include state-specific error messages
+    if (!evvValidation.valid) {
+      const errorMessages = evvValidation.errors.map(err => 
+        `${err.message} (${err.regulation || 'State Requirement'})`
+      );
+      
+      // Log validation failures for compliance audit
+      console.warn(`EVV Clock-Out Validation Failed for ${state}:`, {
+        evvRecordId: input.evvRecordId,
+        caregiverId: input.caregiverId,
+        errors: evvValidation.errors,
+        regulatoryContext: evvValidation.regulatoryContext,
+      });
+      
+      // Still allow clock-out but flag for review
+      geofenceCheck.reason = errorMessages.join('; ');
+    }
 
     // Create location verification
     const baseLocationVerification = {
@@ -507,6 +630,46 @@ export class EVVService {
         },
         userContext.userId
       );
+    }
+
+    // Send notification after successful clock-out
+    try {
+      const notificationService = getNotificationService();
+      const { NotificationService: NS } = await import('@care-commons/core');
+      const template = NS.getTemplate('VISIT_CLOCK_OUT', {
+        caregiverName: updatedRecord.caregiverName,
+        clientName: updatedRecord.clientName,
+        duration: durationMinutes,
+      });
+
+      // Resolve notification recipients (supervisors, coordinators, family members)
+      const recipients = await this.resolveNotificationRecipients(
+        updatedRecord.organizationId,
+        input.caregiverId,
+        updatedRecord.clientId
+      );
+
+      await notificationService.send({
+        eventType: 'VISIT_CLOCK_OUT',
+        priority: 'NORMAL',
+        recipients,
+        subject: template.subject,
+        message: template.message,
+        data: {
+          visitId: input.visitId,
+          evvRecordId: evvRecord.id,
+          caregiverId: input.caregiverId,
+          clientId: updatedRecord.clientId,
+          clockOutTime: now.toISOString(),
+          duration: durationMinutes,
+        },
+        organizationId: updatedRecord.organizationId,
+        relatedEntityType: 'visit',
+        relatedEntityId: input.visitId,
+      });
+    } catch (notificationError) {
+      // Don't fail clock-out if notification fails
+      console.error('[EVV] Failed to send clock-out notification:', notificationError);
     }
 
     return {
@@ -734,6 +897,108 @@ export class EVVService {
    */
   private generateCoreDataHash(data: any): string {
     return CryptoUtils.generateIntegrityHash(data);
+  }
+
+  /**
+   * Helper: Resolve notification recipients for EVV events
+   * 
+   * Returns supervisor, coordinator, and family member recipients for clock-in/clock-out notifications.
+   * Family members are included if they have opted in to receive notifications.
+   */
+  private async resolveNotificationRecipients(
+    organizationId: UUID,
+    caregiverId: UUID,
+    clientId: UUID
+  ): Promise<Array<{ userId: string; preferredChannels: NotificationChannel[] }>> {
+    const recipients: Array<{ userId: string; preferredChannels: NotificationChannel[] }> = [];
+    const seenIds = new Set<string>();
+
+    try {
+      // 1. Get caregiver's supervisor
+      const supervisorResult = await this.database.query(
+        `SELECT supervisor_id FROM caregivers 
+         WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL`,
+        [caregiverId, organizationId]
+      );
+
+      if (supervisorResult.rows[0]?.['supervisor_id']) {
+        const supervisorId = supervisorResult.rows[0]['supervisor_id'] as string;
+        if (!seenIds.has(supervisorId)) {
+          recipients.push({
+            userId: supervisorId,
+            preferredChannels: ['EMAIL' as NotificationChannel],
+          });
+          seenIds.add(supervisorId);
+        }
+      }
+
+      // 2. Get branch coordinators/managers for the caregiver's organization
+      const coordResult = await this.database.query(
+        `SELECT u.id, u.email FROM users u
+         JOIN caregivers c ON c.organization_id = u.organization_id
+         WHERE c.id = $1 
+         AND u.roles && ARRAY['COORDINATOR', 'BRANCH_ADMIN']::text[]
+         AND u.deleted_at IS NULL
+         LIMIT 5`,
+        [caregiverId]
+      );
+
+      for (const row of coordResult.rows) {
+        const userId = row['id'] as string;
+        if (userId && !seenIds.has(userId)) {
+          recipients.push({
+            userId,
+            preferredChannels: ['EMAIL' as NotificationChannel],
+          });
+          seenIds.add(userId);
+        }
+      }
+
+      // 3. Get family members who have opted in to receive notifications
+      const familyResult = await this.database.query(
+        `SELECT id, preferred_contact_method, notification_preferences
+         FROM family_members
+         WHERE client_id = $1
+         AND status = 'ACTIVE'
+         AND receive_notifications = true
+         AND deleted_at IS NULL
+         ORDER BY is_primary_contact DESC, created_at ASC
+         LIMIT 10`,
+        [clientId]
+      );
+
+      for (const row of familyResult.rows) {
+        const familyMemberId = row['id'] as string;
+        if (familyMemberId && !seenIds.has(familyMemberId)) {
+          const preferredMethod = row['preferred_contact_method'] as string;
+          
+          // Map preferred contact method to notification channels
+          const channels: NotificationChannel[] = [];
+          if (preferredMethod === 'EMAIL' || preferredMethod === 'BOTH') {
+            channels.push('EMAIL' as NotificationChannel);
+          }
+          if (preferredMethod === 'SMS' || preferredMethod === 'BOTH') {
+            channels.push('SMS' as NotificationChannel);
+          }
+          
+          // Default to EMAIL if no preference specified
+          if (channels.length === 0) {
+            channels.push('EMAIL' as NotificationChannel);
+          }
+
+          recipients.push({
+            userId: familyMemberId,
+            preferredChannels: channels,
+          });
+          seenIds.add(familyMemberId);
+        }
+      }
+    } catch (error) {
+      // Log error but don't fail the operation
+      console.error('[EVV] Error resolving notification recipients:', error);
+    }
+
+    return recipients;
   }
 
   /**

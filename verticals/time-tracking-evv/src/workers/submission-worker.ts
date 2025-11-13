@@ -13,6 +13,9 @@
  */
 
 import { EVVAggregatorService } from '../service/evv-aggregator-service.js';
+import { createLogger } from '@care-commons/core';
+
+const log = createLogger('SubmissionWorker');
 
 export interface SubmissionWorkerConfig {
   /**
@@ -65,28 +68,28 @@ export class SubmissionWorker {
    */
   start(): void {
     if (!this.config.enabled) {
-      console.log('SubmissionWorker is disabled');
+      log.info('SubmissionWorker is disabled');
       return;
     }
 
     if (this.isRunning) {
-      console.warn('SubmissionWorker is already running');
+      log.warn('SubmissionWorker is already running');
       return;
     }
 
-    console.log(`SubmissionWorker starting with ${this.config.checkIntervalMs}ms interval`);
+    log.info({ checkIntervalMs: this.config.checkIntervalMs }, 'SubmissionWorker starting');
 
     this.isRunning = true;
 
     // Run immediately on start
     this.processRetries().catch(error => {
-      console.error('Error in initial submission retry processing:', error);
+      log.error({ error }, 'Error in initial submission retry processing');
     });
 
     // Then run periodically
     this.intervalId = setInterval(() => {
       this.processRetries().catch(error => {
-        console.error('Error in submission retry processing:', error);
+        log.error({ error }, 'Error in submission retry processing');
       });
     }, this.config.checkIntervalMs);
   }
@@ -98,11 +101,11 @@ export class SubmissionWorker {
    */
   stop(): void {
     if (!this.isRunning) {
-      console.warn('SubmissionWorker is not running');
+      log.warn('SubmissionWorker is not running');
       return;
     }
 
-    console.log('SubmissionWorker stopping...');
+    log.info('SubmissionWorker stopping...');
 
     if (this.intervalId) {
       clearInterval(this.intervalId);
@@ -111,7 +114,7 @@ export class SubmissionWorker {
 
     this.isRunning = false;
 
-    console.log('SubmissionWorker stopped');
+    log.info('SubmissionWorker stopped');
   }
 
   /**
@@ -121,7 +124,7 @@ export class SubmissionWorker {
    */
   private async processRetries(): Promise<void> {
     try {
-      console.log('Processing pending submission retries...');
+      log.debug('Processing pending submission retries...');
 
       const startTime = Date.now();
 
@@ -130,9 +133,9 @@ export class SubmissionWorker {
 
       const duration = Date.now() - startTime;
 
-      console.log(`Finished processing submission retries in ${duration}ms`);
+      log.info({ duration }, 'Finished processing submission retries');
     } catch (error) {
-      console.error('Error processing submission retries:', error);
+      log.error({ error }, 'Error processing submission retries');
       // Don't throw - let the worker continue running
     }
   }
@@ -158,7 +161,7 @@ export class SubmissionWorker {
    */
   updateConfig(config: Partial<SubmissionWorkerConfig>): void {
     this.config = { ...this.config, ...config };
-    console.log('SubmissionWorker configuration updated. Restart required for changes to take effect.');
+    log.info('SubmissionWorker configuration updated. Restart required for changes to take effect.');
   }
 }
 
@@ -177,7 +180,7 @@ export function initializeSubmissionWorker(
   config?: Partial<SubmissionWorkerConfig>
 ): SubmissionWorker {
   if (workerInstance) {
-    console.warn('SubmissionWorker already initialized');
+    log.warn('SubmissionWorker already initialized');
     return workerInstance;
   }
 
@@ -186,12 +189,12 @@ export function initializeSubmissionWorker(
 
   // Graceful shutdown on process termination
   process.on('SIGTERM', () => {
-    console.log('SIGTERM received, shutting down SubmissionWorker...');
+    log.info('SIGTERM received, shutting down SubmissionWorker...');
     workerInstance?.stop();
   });
 
   process.on('SIGINT', () => {
-    console.log('SIGINT received, shutting down SubmissionWorker...');
+    log.info('SIGINT received, shutting down SubmissionWorker...');
     workerInstance?.stop();
   });
 

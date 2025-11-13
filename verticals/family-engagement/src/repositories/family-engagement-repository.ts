@@ -17,7 +17,7 @@ import type {
   SendNotificationInput,
   CreateMessageThreadInput,
   SendMessageInput
-} from '../types/family-engagement.js';
+} from '../types/family-engagement';
 
 /**
  * Repository for family member management
@@ -552,6 +552,20 @@ export class MessageRepository {
 
     const result = await this.database.query(query, [familyMemberId]);
     return result.rows.map(row => this.mapRowToThread(row));
+  }
+
+  /**
+   * Get thread by ID
+   */
+  async getThreadById(threadId: UUID): Promise<MessageThread | null> {
+    const query = `
+      SELECT * FROM message_threads
+      WHERE id = $1
+      AND deleted_at IS NULL
+    `;
+
+    const result = await this.database.query(query, [threadId]);
+    return result.rows[0] ? this.mapRowToThread(result.rows[0]) : null;
   }
 
   /**

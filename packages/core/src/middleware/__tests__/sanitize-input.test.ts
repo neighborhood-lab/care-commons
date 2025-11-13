@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import express, { type Express } from 'express';
 import request from 'supertest';
-import { sanitizeInput } from '../sanitize-input.js';
+import { sanitizeInput } from '../sanitize-input';
 
 describe('Input Sanitization Middleware', () => {
   let app: Express;

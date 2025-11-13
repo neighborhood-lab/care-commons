@@ -1,13 +1,15 @@
 /**
  * Admin routes for system management and monitoring
- *
- * SECURITY: These endpoints must have authentication/authorization added before production use
  */
 
-import { Router } from 'express';
+import { Router, type Router as RouterType } from 'express';
 import { getCacheService } from '@care-commons/core/service/cache.service';
+import { requireAuth } from '../middleware/auth-context';
 
-const router = Router();
+const router: RouterType = Router();
+
+// Apply authentication to all admin routes
+router.use(requireAuth);
 
 /**
  * Get cache statistics

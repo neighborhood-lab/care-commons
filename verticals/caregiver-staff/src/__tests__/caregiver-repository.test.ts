@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CaregiverRepository } from '../repository/caregiver-repository.js';
+import { CaregiverRepository } from '../repository/caregiver-repository';
 import type { Database, UserContext } from '@care-commons/core';
 
 describe('CaregiverRepository', () => {

@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { sign } from 'jsonwebtoken';
-import { JWTUtils, type TokenPayload } from '../../utils/jwt-utils.js';
+import { JWTUtils, type TokenPayload } from '../../utils/jwt-utils';
 
 // Set up test environment variables
 const TEST_JWT_SECRET = 'test-jwt-secret-at-least-32-characters-long-for-security';

@@ -293,8 +293,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
         if (expiringWithinDays) filters.expiringWithinDays = expiringWithinDays;
         
         const pagination = {
-          page: parseInt(req.query['page'] as string) || 1,
-          limit: parseInt(req.query['limit'] as string) || 20,
+          page: parseInt(req.query['page'] as string, 10) || 1,
+          limit: parseInt(req.query['limit'] as string, 10) || 20,
           sortBy: req.query['sortBy'] as string,
           sortOrder: (req.query['sortOrder'] as 'asc' | 'desc') || 'desc',
         };
@@ -344,7 +344,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getExpiringCarePlans(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const days = parseInt(req.query['days'] as string) || 30;
+        const days = parseInt(req.query['days'] as string, 10) || 30;
         const plans = await service.getExpiringCarePlans(days, context);
         res.json(plans);
       } catch (error: unknown) {
@@ -510,8 +510,8 @@ export function createCarePlanHandlers(service: CarePlanService) {
           filters.requiresSignature = true;
         }
         const pagination = {
-          page: parseInt(req.query['page'] as string) || 1,
-          limit: parseInt(req.query['limit'] as string) || 20,
+          page: parseInt(req.query['page'] as string, 10) || 1,
+          limit: parseInt(req.query['limit'] as string, 10) || 20,
           sortBy: req.query['sortBy'] as string,
           sortOrder: (req.query['sortOrder'] as 'asc' | 'desc') || 'asc',
         };

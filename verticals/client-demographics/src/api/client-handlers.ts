@@ -700,8 +700,8 @@ export class ClientHandlers {
       status: client.status,
       primaryPhone: client.primaryPhone?.number,
       primaryContact: client.emergencyContacts.find((c) => c.isPrimary) ?? null,
-      activeRiskFlags: client.riskFlags.filter((f) => f.resolvedDate === null || f.resolvedDate === undefined).length,
-      criticalRiskFlags: client.riskFlags.filter(
+      activeRiskFlags: (client.riskFlags || []).filter((f) => f.resolvedDate === null || f.resolvedDate === undefined).length,
+      criticalRiskFlags: (client.riskFlags || []).filter(
         (f) => (f.resolvedDate === null || f.resolvedDate === undefined) && f.severity === 'CRITICAL'
       ),
       address: client.primaryAddress ? {
@@ -709,7 +709,7 @@ export class ClientHandlers {
         city: client.primaryAddress.city,
         state: client.primaryAddress.state,
       } : null,
-      programs: client.programs.filter((p) => p.status === 'ACTIVE'),
+      programs: (client.programs || []).filter((p) => p.status === 'ACTIVE'),
       hasAllergies: (client.allergies?.length ?? 0) > 0,
       specialInstructions: client.specialInstructions,
       accessInstructions: client.accessInstructions,
@@ -854,6 +854,66 @@ export class ClientHandlers {
     return res.json({
       success: true,
       data: auditTrail,
+    });
+  });
+
+  /**
+   * GET /api/clients/dashboard
+   * Get comprehensive dashboard data with client details, visits, tasks, and alerts
+   */
+  getClientsDashboard = asyncHandler(async (req: Request, res: Response) => {
+    const context = getUserContext(req);
+    const filters = this.buildClientSearchFilters(req);
+    const pagination = this.buildPagination(req);
+
+    // Get clients with filters
+    const result = await this.clientService.searchClients(filters, pagination, context);
+
+    // Enrich each client with dashboard-specific data
+    const enrichedClients = result.items.map((client) => {
+      const age = new Date().getFullYear() - client.dateOfBirth.getFullYear();
+      const activeRiskFlags = (client.riskFlags || []).filter(
+        (f) => f.resolvedDate === null || f.resolvedDate === undefined
+      );
+      const criticalRisks = activeRiskFlags.filter((f) => f.severity === 'CRITICAL');
+
+      return {
+        id: client.id,
+        clientNumber: client.clientNumber,
+        fullName: `${client.firstName} ${client.lastName}`,
+        preferredName: client.preferredName,
+        age,
+        status: client.status,
+        primaryPhone: client.primaryPhone?.number ?? null,
+        address: client.primaryAddress ? {
+          line1: client.primaryAddress.line1,
+          city: client.primaryAddress.city,
+          state: client.primaryAddress.state,
+        } : null,
+        alertsCount: activeRiskFlags.length,
+        criticalAlerts: criticalRisks.length,
+        hasCriticalRisks: criticalRisks.length > 0,
+        programs: (client.programs || []).filter((p) => p.status === 'ACTIVE').map((p) => ({
+          id: p.id,
+          name: p.programName,
+        })),
+        // Placeholders for data from other verticals (to be populated via provider pattern)
+        nextVisit: null, // Would be populated from visit provider
+        recentNotes: [], // Would be populated from visit notes
+        outstandingTasks: 0, // Would be populated from care plan tasks
+        lastVisitDate: null, // Would be populated from visit provider
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        items: enrichedClients,
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
     });
   });
 
@@ -1004,6 +1064,7 @@ export function createClientRouter(clientService: ClientService): Router {
 
   // Dashboard
   router.get('/clients/dashboard/stats', handlers.getDashboardStats);
+  router.get('/clients/dashboard', handlers.getClientsDashboard);
 
   return router;
 }

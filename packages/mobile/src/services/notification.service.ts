@@ -13,7 +13,7 @@ import * as Device from 'expo-device';
 import { Platform, Alert } from 'react-native';
 import { Q } from '@nozbe/watermelondb';
 import type { Database } from '@nozbe/watermelondb';
-import type { Notification as NotificationModel } from '../database/models/Notification.js';
+import type { Notification as NotificationModel } from '../database/models/Notification';
 import Constants from 'expo-constants';
 
 // Configure notification behavior
@@ -62,6 +62,11 @@ export class NotificationService {
 
       // Get push token
       this.pushToken = await this.registerForPushNotifications();
+
+      // Register token with backend
+      if (this.pushToken) {
+        await this.registerTokenWithBackend(this.pushToken);
+      }
 
       // Set up notification listeners
       this.setupNotificationListeners();
@@ -407,6 +412,44 @@ export class NotificationService {
       await Notifications.setBadgeCountAsync(0);
     } catch (error) {
       console.error('Mark all as read error:', error);
+    }
+  }
+
+  /**
+   * Register push token with backend
+   */
+  private async registerTokenWithBackend(token: string): Promise<void> {
+    try {
+      // Get API base URL from environment
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+      
+      // Get device info
+      const deviceType = Platform.OS as 'ios' | 'android';
+      const deviceName = Device.deviceName || `${Platform.OS} Device`;
+
+      const response = await fetch(`${API_URL}/api/push/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // TODO: Add authentication header
+          // 'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          deviceToken: token,
+          deviceType,
+          deviceName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend registration failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Push token registered with backend:', data);
+    } catch (error) {
+      // Don't fail if backend registration fails
+      console.error('Failed to register token with backend:', error);
     }
   }
 
