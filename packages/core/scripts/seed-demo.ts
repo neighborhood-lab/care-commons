@@ -475,21 +475,20 @@ async function seedDatabase() {
       console.log('🧹 Clearing previous demo data (if any)...');
 
       // Delete in reverse dependency order
-      await client.query('DELETE FROM visit_evv_records WHERE is_demo_data = true');
+      await client.query('DELETE FROM evv_records WHERE is_demo_data = true');
       await client.query('DELETE FROM visits WHERE is_demo_data = true');
       await client.query('DELETE FROM task_instances WHERE is_demo_data = true');
       await client.query('DELETE FROM progress_notes WHERE is_demo_data = true');
       await client.query('DELETE FROM care_plans WHERE is_demo_data = true');
-      await client.query('DELETE FROM family_messages WHERE is_demo_data = true');
+      await client.query('DELETE FROM messages WHERE is_demo_data = true');
       await client.query('DELETE FROM family_notifications WHERE is_demo_data = true');
       await client.query('DELETE FROM family_members WHERE is_demo_data = true');
       await client.query('DELETE FROM invoices WHERE is_demo_data = true');
-      await client.query('DELETE FROM shift_applications WHERE is_demo_data = true');
-      await client.query('DELETE FROM shift_listings WHERE is_demo_data = true');
-      await client.query('DELETE FROM caregiver_certifications WHERE is_demo_data = true');
+      await client.query('DELETE FROM assignment_proposals WHERE is_demo_data = true');
+      await client.query('DELETE FROM open_shifts WHERE is_demo_data = true');
       await client.query('DELETE FROM caregivers WHERE is_demo_data = true');
       await client.query('DELETE FROM clients WHERE is_demo_data = true');
-      
+
       console.log('✅ Previous demo data cleared\n');
       
       // ═══════════════════════════════════════════════════════════════════════════
@@ -703,7 +702,7 @@ async function seedDatabase() {
         if (visit.evvClockInGPS) {
           await client.query(
             `
-            INSERT INTO visit_evv_records (
+            INSERT INTO evv_records (
               id, visit_id, clock_in_time, clock_in_gps_location,
               clock_out_time, clock_out_gps_location,
               verification_method, compliance_status,
