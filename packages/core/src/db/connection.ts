@@ -25,6 +25,9 @@ export class Database {
   private pool: Pool;
 
   constructor(config: DatabaseConfig) {
+    // Detect serverless environment for optimized pool settings
+    const isServerless = process.env.VERCEL !== undefined || process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined || process.env.WORKER_NAME !== undefined;
+    
     this.pool = new Pool({
       host: config.host,
       port: config.port,
@@ -32,12 +35,12 @@ export class Database {
       user: config.user,
       password: config.password,
       ssl: config.ssl === true ? { rejectUnauthorized: false } : false,
-      // Connection pool settings
-      max: config.max ?? 20, // Maximum number of clients in the pool
-      min: config.min ?? 2, // Minimum number of clients in the pool
-      idleTimeoutMillis: config.idleTimeoutMillis ?? 30000, // Close idle clients after 30s
-      connectionTimeoutMillis: config.connectionTimeoutMillis ?? 10000, // Wait 10s for connection
-      allowExitOnIdle: config.allowExitOnIdle ?? false,
+      // Connection pool settings optimized for serverless
+      max: config.max ?? (isServerless ? 1 : 20), // 1 connection for serverless, 20 for traditional
+      min: config.min ?? (isServerless ? 0 : 2), // 0 min for serverless to allow complete cleanup
+      idleTimeoutMillis: config.idleTimeoutMillis ?? (isServerless ? 1000 : 30000), // Fast cleanup in serverless
+      connectionTimeoutMillis: config.connectionTimeoutMillis ?? 3000, // 3s timeout to prevent hangs
+      allowExitOnIdle: config.allowExitOnIdle ?? isServerless, // Allow exit in serverless
       // Query timeout settings
       statement_timeout: config.statementTimeout ?? 30000, // 30s statement timeout
       query_timeout: config.queryTimeout ?? 30000, // 30s query timeout

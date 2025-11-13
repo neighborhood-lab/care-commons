@@ -72,6 +72,7 @@ describe('Database Connection', () => {
       const config = createMockDatabaseConfig();
       new Database(config);
 
+      // In test environment (not serverless), expects traditional pool settings
       expect(Pool).toHaveBeenCalledWith({
         host: config.host,
         port: config.port,
@@ -79,11 +80,11 @@ describe('Database Connection', () => {
         user: config.user,
         password: config.password,
         ssl: false,
-        max: config.max,
-        min: 2,
-        idleTimeoutMillis: config.idleTimeoutMillis,
-        connectionTimeoutMillis: 10000,
-        allowExitOnIdle: false,
+        max: config.max, // From mock config (20)
+        min: 2, // Default for traditional servers
+        idleTimeoutMillis: config.idleTimeoutMillis, // From mock config (30000)
+        connectionTimeoutMillis: 3000, // Added for serverless compatibility
+        allowExitOnIdle: false, // Traditional server default
         statement_timeout: 30000,
         query_timeout: 30000,
         application_name: 'care-commons',

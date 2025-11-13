@@ -24,7 +24,11 @@ export class QueryCache {
     this.defaultTTL = defaultTTLSeconds * 1000; // Convert to milliseconds
 
     // Clean up expired entries every minute
-    this.cleanupIntervalId = setInterval(() => this.cleanup(), 60000);
+    // Don't start interval in serverless - cleanup happens on-demand via get()
+    const isServerless = process.env.VERCEL !== undefined || process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined || process.env.WORKER_NAME !== undefined;
+    if (!isServerless) {
+      this.cleanupIntervalId = setInterval(() => this.cleanup(), 60000);
+    }
   }
 
   /**

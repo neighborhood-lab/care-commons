@@ -48,16 +48,20 @@ function initDb(): ReturnType<typeof initializeDatabase> {
     console.log('Using DATABASE_URL for connection');
     // Parse DATABASE_URL (format: postgresql://user:pass@host:port/db?sslmode=require)
     const url = new globalThis.URL(databaseUrl);
-    const port = Number(url.port);
+    
+    // Detect serverless environment for optimized pool settings
+    const isServerless = Boolean(process.env.VERCEL ?? process.env.AWS_LAMBDA_FUNCTION_NAME ?? process.env.WORKER_NAME);
+    
     const dbConfig = {
       host: url.hostname,
-      port: port !== 0 ? port : 5432,
+      port: Number(url.port),
       database: url.pathname.slice(1), // Remove leading /
       user: url.username,
       password: url.password,
       ssl: url.searchParams.get('sslmode') === 'require',
-      max: 20,
-      idleTimeoutMillis: 30000,
+      max: isServerless ? 1 : 20, // 1 connection for serverless, 20 for traditional
+      idleTimeoutMillis: isServerless ? 1000 : 30000, // Fast cleanup in serverless
+      connectionTimeoutMillis: 3000, // Prevent hangs
     };
     
     console.log('Database config:', { 
@@ -77,6 +81,9 @@ function initDb(): ReturnType<typeof initializeDatabase> {
     throw new Error('DATABASE_URL or DB_PASSWORD environment variable is required');
   }
 
+  // Detect serverless environment for optimized pool settings
+  const isServerless = Boolean(process.env.VERCEL ?? process.env.AWS_LAMBDA_FUNCTION_NAME ?? process.env.WORKER_NAME);
+  
   const dbConfig = {
     host: process.env['DB_HOST'] ?? 'localhost',
     port: Number(process.env['DB_PORT'] ?? 5432),
@@ -84,8 +91,9 @@ function initDb(): ReturnType<typeof initializeDatabase> {
     user: process.env['DB_USER'] ?? 'postgres',
     password: dbPassword,
     ssl: process.env['DB_SSL'] === 'true' ? true : false,
-    max: 20,
-    idleTimeoutMillis: 30000,
+    max: isServerless ? 1 : 20, // 1 connection for serverless, 20 for traditional
+    idleTimeoutMillis: isServerless ? 1000 : 30000, // Fast cleanup in serverless
+    connectionTimeoutMillis: 3000, // Prevent hangs
   };
 
   console.log(`Initializing database: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
@@ -294,30 +302,43 @@ async function start(): Promise<void> {
     });
   } catch (error) {
     console.error('Failed to start server:', error);
-    process.exit(1);
+    throw error; // Throw instead of process.exit for serverless compatibility
   }
 }
 
 /**
  * Graceful shutdown
+ * Note: SIGTERM/SIGINT handlers are not needed in serverless environments
+ * Serverless platforms handle cleanup automatically
  */
-process.on('SIGTERM', () => {
-  console.log('\nReceived SIGTERM, shutting down gracefully...');
-  void (async () => {
-    const db = getDatabase();
-    await db.close();
-    process.exit(0);
-  })();
-});
+if (process.env.VERCEL === undefined && process.env.AWS_LAMBDA_FUNCTION_NAME === undefined && process.env.WORKER_NAME === undefined) {
+  process.on('SIGTERM', () => {
+    console.log('\nReceived SIGTERM, shutting down gracefully...');
+    void (async () => {
+      try {
+        const db = getDatabase();
+        await db.close();
+      } catch (error) {
+        console.error('Error during shutdown:', error);
+      }
+      // In traditional servers, we can exit. In serverless, this is skipped.
+      process.exit(0);
+    })();
+  });
 
-process.on('SIGINT', () => {
-  console.log('\nReceived SIGINT, shutting down gracefully...');
-  void (async () => {
-    const db = getDatabase();
-    await db.close();
-    process.exit(0);
-  })();
-});
+  process.on('SIGINT', () => {
+    console.log('\nReceived SIGINT, shutting down gracefully...');
+    void (async () => {
+      try {
+        const db = getDatabase();
+        await db.close();
+      } catch (error) {
+        console.error('Error during shutdown:', error);
+      }
+      process.exit(0);
+    })();
+  });
+}
 
 // Only start the server if this file is run directly (not imported)
 // This allows Vercel to import createApp() without starting a server

@@ -40,15 +40,19 @@ interface CsrfTokenStore {
 const tokenStore: CsrfTokenStore = {};
 
 // Cleanup expired tokens every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const sessionId in tokenStore) {
-    const entry = tokenStore[sessionId];
-    if (entry !== undefined && entry.expiresAt < now) {
-      delete tokenStore[sessionId];
+// Skip in serverless - cleanup happens on-demand during token validation
+const isServerless = process.env.VERCEL !== undefined || process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined || process.env.WORKER_NAME !== undefined;
+if (!isServerless) {
+  setInterval(() => {
+    const now = Date.now();
+    for (const sessionId in tokenStore) {
+      const entry = tokenStore[sessionId];
+      if (entry !== undefined && entry.expiresAt < now) {
+        delete tokenStore[sessionId];
+      }
     }
-  }
-}, 5 * 60 * 1000);
+  }, 5 * 60 * 1000);
+}
 
 /**
  * Generate a CSRF token for a session
