@@ -59,6 +59,7 @@
     "db:seed:showcase": "cd ../.. && tsx packages/core/scripts/seed-showcase.ts",
     "db:seed:showcase-comprehensive": "cd ../.. && tsx packages/core/scripts/seed-showcase-comprehensive.ts",
     "db:seed-users": "cd ../.. && tsx packages/core/scripts/seed-users.ts",
+    "db:seed-all-states": "cd ../.. && tsx packages/core/scripts/seed-all-states-users.ts",
     "db:set-admin-password": "cd ../.. && tsx packages/core/scripts/set-admin-password.ts",
     "db:nuke": "cd ../.. && tsx packages/core/scripts/nuke.ts"
   },
