@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import express, { type Express } from 'express';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
@@ -6,12 +6,17 @@ import { configureCsrfProtection } from '../csrf';
 
 describe('CSRF Protection Middleware', () => {
   let app: Express;
+  let originalNodeEnv: string | undefined;
 
   beforeEach(() => {
+    // Save original NODE_ENV and set to test/production to enable CSRF
+    originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'test';
+
     app = express();
     app.use(express.json());
     app.use(cookieParser());
-    
+
     // Configure CSRF protection
     configureCsrfProtection(app);
 
@@ -31,6 +36,11 @@ describe('CSRF Protection Middleware', () => {
     app.delete('/api/test', (_req, res) => {
       res.json({ success: true, message: 'DELETE successful' });
     });
+  });
+
+  afterEach(() => {
+    // Restore original NODE_ENV
+    process.env.NODE_ENV = originalNodeEnv;
   });
 
   describe('CSRF Token Generation', () => {

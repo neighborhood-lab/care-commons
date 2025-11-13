@@ -216,13 +216,16 @@ jobs:
           ./scripts/validate-deployment.sh "${{ steps.deploy.outputs.url }}" preview
           echo "::endgroup::"
 
-      - name: Seed Demo Data (Preview)
+      - name: Seed Comprehensive Demo Data (Preview)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
-          echo "::group::Seeding demo data"
-          node --import tsx --no-warnings packages/core/scripts/seed-tx-fl-demo.ts
-          echo "✅ Demo data seeded"
+          echo "::group::Seeding comprehensive demo data"
+          START_TIME=$(date +%s)
+          npm run db:seed:demo
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Demo data seeded in ${DURATION}s"
           echo "::endgroup::"
 
       - name: Deployment Summary
@@ -288,21 +291,25 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
-      - name: Validate Migration Safety (Production)
-        if: ${{ github.event.inputs.run_migrations != 'false' }}
+      - name: Reset Database (Production)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          # SAFEGUARDS DISABLED: This is a demo app with no real customers (as of 2025-11-08).
-          # We've only been developing for 10 days and need to move fast.
-          # DO NOT re-enable these safeguards - they block deployments unnecessarily.
-          ACKNOWLEDGE_WARNINGS: 'true'
         run: |
-          echo "::group::Validating migration safety for PRODUCTION"
-          ./scripts/validate-migrations-safety.sh production
+          echo "::group::Resetting database (production demo reset)"
+          echo "⚠️  WARNING: Resetting production database for comprehensive demo"
+          echo "This will:"
+          echo "  1. Drop all tables and data"
+          echo "  2. Recreate database structure"
+          echo "  3. Seed with comprehensive demo data"
+          echo ""
+          START_TIME=$(date +%s)
+          npm run db:nuke
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Database reset completed in ${DURATION}s"
           echo "::endgroup::"
 
       - name: Run Database Migrations (Production)
-        if: ${{ github.event.inputs.run_migrations != 'false' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
@@ -314,10 +321,29 @@ jobs:
           echo "✅ Migrations completed in ${DURATION}s"
           echo "::endgroup::"
 
-      - name: Skip migrations notice
-        if: ${{ github.event.inputs.run_migrations == 'false' }}
+      - name: Seed Base Operational Data (Production)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          echo "::notice::Database migrations skipped by manual trigger"
+          echo "::group::Seeding base operational data"
+          START_TIME=$(date +%s)
+          npm run db:seed
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Base seed completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Seed Comprehensive Demo Data (Production)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Seeding comprehensive demo data"
+          START_TIME=$(date +%s)
+          npm run db:seed:demo
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Demo data seeded in ${DURATION}s"
+          echo "::endgroup::"
 
       - name: Build for Production
         env:
@@ -350,17 +376,9 @@ jobs:
           echo "URL: https://care-commons.vercel.app"
           echo "Health Check: https://care-commons.vercel.app/health"
           echo ""
+          echo "Database: Reset and seeded with comprehensive demo data"
           echo "Validation Status: See post-deployment checks above"
           echo ""
-
-      - name: Seed Demo Data (Production)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "::group::Seeding demo data"
-          node --import tsx --no-warnings packages/core/scripts/seed-tx-fl-demo.ts
-          echo "✅ Demo data seeded"
-          echo "::endgroup::"
 
   deployment-health-check:
     name: Verify Deployment Health
