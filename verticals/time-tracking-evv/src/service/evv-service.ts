@@ -371,10 +371,11 @@ export class EVVService {
         clockInTime,
       });
 
-      // Resolve notification recipients (supervisors, coordinators)
+      // Resolve notification recipients (supervisors, coordinators, family members)
       const recipients = await this.resolveNotificationRecipients(
         visitData.organizationId,
-        input.caregiverId
+        input.caregiverId,
+        visitData.clientId
       );
 
       await notificationService.send({
@@ -641,10 +642,11 @@ export class EVVService {
         duration: durationMinutes,
       });
 
-      // Resolve notification recipients (supervisors, coordinators)
+      // Resolve notification recipients (supervisors, coordinators, family members)
       const recipients = await this.resolveNotificationRecipients(
         updatedRecord.organizationId,
-        input.caregiverId
+        input.caregiverId,
+        updatedRecord.clientId
       );
 
       await notificationService.send({
@@ -900,26 +902,27 @@ export class EVVService {
   /**
    * Helper: Resolve notification recipients for EVV events
    * 
-   * Returns supervisor and coordinator recipients for clock-in/clock-out notifications.
-   * TODO: Add family member notifications based on client preferences
+   * Returns supervisor, coordinator, and family member recipients for clock-in/clock-out notifications.
+   * Family members are included if they have opted in to receive notifications.
    */
   private async resolveNotificationRecipients(
     organizationId: UUID,
-    caregiverId: UUID
+    caregiverId: UUID,
+    clientId: UUID
   ): Promise<Array<{ userId: string; preferredChannels: NotificationChannel[] }>> {
     const recipients: Array<{ userId: string; preferredChannels: NotificationChannel[] }> = [];
     const seenIds = new Set<string>();
 
     try {
-      // Get caregiver's supervisor from database
-      const result = await this.database.query(
+      // 1. Get caregiver's supervisor
+      const supervisorResult = await this.database.query(
         `SELECT supervisor_id FROM caregivers 
          WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL`,
         [caregiverId, organizationId]
       );
 
-      if (result.rows[0]?.['supervisor_id']) {
-        const supervisorId = result.rows[0]['supervisor_id'] as string;
+      if (supervisorResult.rows[0]?.['supervisor_id']) {
+        const supervisorId = supervisorResult.rows[0]['supervisor_id'] as string;
         if (!seenIds.has(supervisorId)) {
           recipients.push({
             userId: supervisorId,
@@ -929,7 +932,7 @@ export class EVVService {
         }
       }
 
-      // Get branch coordinators/managers
+      // 2. Get branch coordinators/managers for the caregiver's organization
       const coordResult = await this.database.query(
         `SELECT u.id, u.email FROM users u
          JOIN caregivers c ON c.organization_id = u.organization_id
@@ -948,6 +951,46 @@ export class EVVService {
             preferredChannels: ['EMAIL' as NotificationChannel],
           });
           seenIds.add(userId);
+        }
+      }
+
+      // 3. Get family members who have opted in to receive notifications
+      const familyResult = await this.database.query(
+        `SELECT id, preferred_contact_method, notification_preferences
+         FROM family_members
+         WHERE client_id = $1
+         AND status = 'ACTIVE'
+         AND receive_notifications = true
+         AND deleted_at IS NULL
+         ORDER BY is_primary_contact DESC, created_at ASC
+         LIMIT 10`,
+        [clientId]
+      );
+
+      for (const row of familyResult.rows) {
+        const familyMemberId = row['id'] as string;
+        if (familyMemberId && !seenIds.has(familyMemberId)) {
+          const preferredMethod = row['preferred_contact_method'] as string;
+          
+          // Map preferred contact method to notification channels
+          const channels: NotificationChannel[] = [];
+          if (preferredMethod === 'EMAIL' || preferredMethod === 'BOTH') {
+            channels.push('EMAIL' as NotificationChannel);
+          }
+          if (preferredMethod === 'SMS' || preferredMethod === 'BOTH') {
+            channels.push('SMS' as NotificationChannel);
+          }
+          
+          // Default to EMAIL if no preference specified
+          if (channels.length === 0) {
+            channels.push('EMAIL' as NotificationChannel);
+          }
+
+          recipients.push({
+            userId: familyMemberId,
+            preferredChannels: channels,
+          });
+          seenIds.add(familyMemberId);
         }
       }
     } catch (error) {
