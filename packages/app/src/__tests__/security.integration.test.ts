@@ -18,7 +18,7 @@
  */
 /* eslint-disable sonarjs/no-nested-functions, sonarjs/no-hardcoded-passwords, sonarjs/code-eval, unicorn/no-array-for-each, @typescript-eslint/strict-boolean-expressions */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import express, { type Express } from 'express';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
@@ -30,8 +30,13 @@ import rateLimit from 'express-rate-limit';
 describe('Security Middleware Integration Tests', () => {
   describe('CSRF Protection - Full Request Cycle', () => {
     let app: Express;
+    let originalNodeEnv: string | undefined;
 
     beforeEach(() => {
+      // Save original NODE_ENV and set to test to enable CSRF
+      originalNodeEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'test';
+
       app = express();
       app.use(express.json());
       app.use(cookieParser());
@@ -62,6 +67,11 @@ describe('Security Middleware Integration Tests', () => {
       app.post('/api/mobile/sync', (req, res) => {
         res.json({ message: 'Mobile sync', received: req.body });
       });
+    });
+
+    afterEach(() => {
+      // Restore original NODE_ENV
+      process.env.NODE_ENV = originalNodeEnv;
     });
 
     describe('Token Generation and Cookie Management', () => {
@@ -991,12 +1001,17 @@ describe('Security Middleware Integration Tests', () => {
 
   describe('Combined Security Middleware Stack', () => {
     let app: Express;
+    let originalNodeEnv: string | undefined;
 
     beforeEach(() => {
+      // Save original NODE_ENV and set to test to enable CSRF
+      originalNodeEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'test';
+
       app = express();
       app.use(express.json());
       app.use(cookieParser());
-      
+
       // Apply all security middleware
       app.use(securityHeaders);
       app.use(sanitizeInput);
@@ -1016,6 +1031,11 @@ describe('Security Middleware Integration Tests', () => {
           data: req.body,
         });
       });
+    });
+
+    afterEach(() => {
+      // Restore original NODE_ENV
+      process.env.NODE_ENV = originalNodeEnv;
     });
 
     it('should apply all security features together on a single request', async () => {
