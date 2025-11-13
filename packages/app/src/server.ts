@@ -36,7 +36,9 @@ const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 
 // Trust proxy when behind reverse proxy (Vercel, etc.)
 // This allows Express to correctly read X-Forwarded-* headers for rate limiting and logging
-app.set('trust proxy', true);
+// IMPORTANT: Set to 1 (not true) to prevent IP spoofing - only trust the first proxy hop
+// See: https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/
+app.set('trust proxy', 1);
 
 /**
  * Initialize database connection
