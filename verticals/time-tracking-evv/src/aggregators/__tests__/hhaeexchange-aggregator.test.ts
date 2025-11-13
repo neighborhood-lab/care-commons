@@ -6,10 +6,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { HHAeXchangeAggregator } from '../hhaeexchange-aggregator.js';
-import { getStateConfig } from '../../config/state-evv-configs.js';
-import type { EVVRecord } from '../../types/evv.js';
-import type { StateCode } from '../../types/state-specific.js';
+import { HHAeXchangeAggregator } from '../hhaeexchange-aggregator';
+import { getStateConfig } from '../../config/state-evv-configs';
+import type { EVVRecord } from '../../types/evv';
+import type { StateCode } from '../../types/state-specific';
 
 describe('HHAeXchangeAggregator', () => {
   let aggregator: HHAeXchangeAggregator;

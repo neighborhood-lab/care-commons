@@ -10,7 +10,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { z } from 'zod';
-import { validateBody, validateQuery, validateParams, CommonSchemas } from '../../middleware/validation.js';
+import { validateBody, validateQuery, validateParams, CommonSchemas } from '../../middleware/validation';
 import type { Request, Response, NextFunction } from 'express';
 
 describe('Security Tests', () => {

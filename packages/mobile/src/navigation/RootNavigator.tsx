@@ -13,23 +13,24 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Screens
-import { LoginScreen } from '../screens/auth/LoginScreen.js';
-import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen.js';
-import { PermissionsScreen } from '../screens/onboarding/PermissionsScreen.js';
-import { TodayVisitsScreen } from '../screens/visits/TodayVisitsScreen.js';
-import { ScheduleScreen } from '../screens/schedule/ScheduleScreen.js';
-import { ProfileScreen } from '../screens/profile/ProfileScreen.js';
-import { VisitDetailScreen } from '../screens/visits/VisitDetailScreen.js';
-import { VisitCheckInScreen } from '../screens/visits/VisitCheckInScreen.js';
-import { VisitCheckOutScreen } from '../screens/visits/VisitCheckOutScreen.js';
-import { VisitDocumentationScreen } from '../screens/visits/VisitDocumentationScreen.js';
-import { VisitHistoryScreen } from '../screens/visits/VisitHistoryScreen.js';
-import { ClockInScreen } from '../screens/visits/ClockInScreen.js';
-import { CameraScreen } from '../screens/visits/CameraScreen.js';
-import { TasksScreen } from '../screens/visits/TasksScreen.js';
-import { SignatureScreen } from '../screens/visits/SignatureScreen.js';
-import { PhotoGalleryScreen } from '../screens/visits/PhotoGalleryScreen.js';
-import { VisitNotesScreen } from '../screens/visits/VisitNotesScreen.js';
+import { LoginScreen } from '../screens/auth/LoginScreen';
+import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen';
+import { PermissionsScreen } from '../screens/onboarding/PermissionsScreen';
+import { TodayVisitsScreen } from '../screens/visits/TodayVisitsScreen';
+import { ScheduleScreen } from '../screens/schedule/ScheduleScreen';
+import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { VisitDetailScreen } from '../screens/visits/VisitDetailScreen';
+import { VisitCheckInScreen } from '../screens/visits/VisitCheckInScreen';
+import { VisitCheckOutScreen } from '../screens/visits/VisitCheckOutScreen';
+import { VisitDocumentationScreen } from '../screens/visits/VisitDocumentationScreen';
+import { VisitHistoryScreen } from '../screens/visits/VisitHistoryScreen';
+import { ClockInScreen } from '../screens/visits/ClockInScreen';
+import { CameraScreen } from '../screens/visits/CameraScreen';
+import { TasksScreen } from '../screens/visits/TasksScreen';
+import { SignatureScreen } from '../screens/visits/SignatureScreen';
+import { PhotoGalleryScreen } from '../screens/visits/PhotoGalleryScreen';
+import { VisitNotesScreen } from '../screens/visits/VisitNotesScreen';
+import { SyncStatusScreen } from '../screens/profile/SyncStatusScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -58,6 +59,7 @@ export type RootStackParamList = {
     caregiverId: string;
     evvRecordId?: string;
   };
+  SyncStatus: undefined;
 };
 
 export type MainTabParamList = {
@@ -220,6 +222,13 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               component={VisitNotesScreen}
               options={{
                 title: 'Visit Notes',
+              }}
+            />
+            <RootStack.Screen
+              name="SyncStatus"
+              component={SyncStatusScreen}
+              options={{
+                title: 'Sync Status',
               }}
             />
           </>

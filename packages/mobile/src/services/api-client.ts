@@ -11,7 +11,7 @@
  * - Type-safe API calls
  */
 
-import type { UUID } from '../shared/index.js';
+import type { UUID } from '../shared/index';
 
 export interface ApiConfig {
   baseUrl: string;

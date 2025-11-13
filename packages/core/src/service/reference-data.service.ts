@@ -1,6 +1,6 @@
-import { getCacheService } from './cache.service.js';
-import { CacheKeys, CacheTTL } from '../constants/cache-keys.js';
-import { Database } from '../db/connection.js';
+import { getCacheService } from './cache.service';
+import { CacheKeys, CacheTTL } from '../constants/cache-keys';
+import { Database } from '../db/connection';
 
 interface ServiceType extends Record<string, unknown> {
   id: string;

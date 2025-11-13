@@ -2,9 +2,9 @@
  * Unit tests for FeatureFlagRepository
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { FeatureFlagRepository } from '../../repository/feature-flag-repository.js';
-import type { Database } from '../../db/connection.js';
-import type { CreateFeatureFlagRequest, UpdateFeatureFlagRequest } from '../../types/feature-flags.js';
+import { FeatureFlagRepository } from '../../repository/feature-flag-repository';
+import type { Database } from '../../db/connection';
+import type { CreateFeatureFlagRequest, UpdateFeatureFlagRequest } from '../../types/feature-flags';
 
 describe('FeatureFlagRepository', () => {
   let repository: FeatureFlagRepository;

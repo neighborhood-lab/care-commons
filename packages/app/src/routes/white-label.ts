@@ -18,7 +18,7 @@ export function createWhiteLabelRouter(db: Database): Router {
   const authMiddleware = new AuthMiddleware(db);
 
   // Validation schemas
-  /* eslint-disable sonarjs/deprecation -- Zod URL/email/uuid validation methods are deprecated but still functional */
+   
   const upsertBrandingSchema = z.object({
     logoUrl: z.string().url().optional().nullable(),
     logoDarkUrl: z.string().url().optional().nullable(),
@@ -65,7 +65,7 @@ export function createWhiteLabelRouter(db: Database): Router {
     dependsOn: z.array(z.string()).optional(),
     conflictsWith: z.array(z.string()).optional(),
   });
-  /* eslint-enable sonarjs/deprecation */
+   
 
   // Helper to get service instances
   function getWhiteLabelService(): WhiteLabelService {

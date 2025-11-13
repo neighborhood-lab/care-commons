@@ -10,9 +10,9 @@
  * - No user enumeration (consistent responses)
  */
 
-import crypto from 'node:crypto';
-import { Database } from '../db/connection.js';
-import { PasswordUtils } from '../utils/password-utils.js';
+import * as crypto from '../utils/crypto';
+import { Database } from '../db/connection';
+import { PasswordUtils } from '../utils/password-utils';
 
 /**
  * Password reset request result

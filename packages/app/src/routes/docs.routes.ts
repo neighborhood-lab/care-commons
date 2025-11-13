@@ -1,9 +1,9 @@
-import express from 'express';
+import express, { type Router } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerOptions } from '../config/openapi.config.js';
+import { swaggerOptions } from '../config/openapi.config';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 const specs = swaggerJsdoc(swaggerOptions);
 

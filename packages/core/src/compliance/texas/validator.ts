@@ -17,15 +17,15 @@
  * - 10-minute grace periods (strict)
  */
 
-import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator.js';
-import { StateCode } from '../../types/base.js';
+import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator';
+import { StateCode } from '../../types/base';
 import {
   ComplianceIssue,
   CaregiverCredentials,
   VisitDetails,
   ClientDetails,
   daysSince,
-} from '../types/index.js';
+} from '../types/index';
 
 export interface TexasCredentials {
   // Employee Misconduct Registry Check

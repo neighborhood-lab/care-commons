@@ -11,12 +11,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Button, Card, ActivityIndicator } from 'react-native-paper';
-import { useVisit } from '../hooks/index.js';
-import { locationService } from '../../../services/location.js';
-import { deviceInfoService } from '../../../services/device-info.js';
-import { OfflineQueueService } from '../../../services/offline-queue.js';
-import { database } from '../../../database/index.js';
-import type { ClockInInput, ClockOutInput } from '../../../shared/index.js';
+import { useVisit } from '../hooks/index';
+import { locationService } from '../../../services/location';
+import { deviceInfoService } from '../../../services/device-info';
+import { OfflineQueueService } from '../../../services/offline-queue';
+import { database } from '../../../database/index';
+import type { ClockInInput, ClockOutInput } from '../../../shared/index';
 
 interface VisitDetailScreenProps {
   visitId: string;

@@ -58,6 +58,7 @@ export interface MatchCandidate {
   openShiftId: string;
   caregiverName: string;
   caregiverPhone: string;
+  employmentType: string;
   overallScore: number;
   matchQuality: MatchQuality;
   scores: {
@@ -67,6 +68,8 @@ export interface MatchCandidate {
     preferenceMatch: number;
     experienceMatch: number;
     reliabilityMatch: number;
+    complianceMatch: number;
+    capacityMatch: number;
   };
   isEligible: boolean;
   eligibilityIssues: Array<{
@@ -77,8 +80,15 @@ export interface MatchCandidate {
   distanceFromShift?: number;
   estimatedTravelTime?: number;
   hasConflict: boolean;
+  conflictingVisits?: Array<{
+    visitId: string;
+    clientName: string;
+    startTime: string;
+    endTime: string;
+  }>;
   previousVisitsWithClient?: number;
   clientRating?: number;
+  warnings: string[];
   matchReasons: Array<{
     category: string;
     description: string;
@@ -128,8 +138,18 @@ export interface MatchingMetrics {
   matchRate: number;
   averageMatchScore: number;
   averageCandidatesPerShift: number;
+  averageResponseTimeMinutes: number;
   proposalAcceptanceRate: number;
   proposalRejectionRate: number;
+  proposalExpirationRate: number;
+  excellentMatches: number;
+  goodMatches: number;
+  fairMatches: number;
+  poorMatches: number;
+  topRejectionReasons: Array<{
+    category: string;
+    count: number;
+  }>;
 }
 
 export interface OpenShiftSearchFilters {

@@ -25,7 +25,7 @@ import type {
   LocalChange,
   SyncError,
   SyncEntityType,
-} from './types.js';
+} from './types';
 
 export class SyncProtocol {
   private db: Knex;

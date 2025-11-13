@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ClientProvider, createClientProvider } from '../client-provider.js';
+import { ClientProvider, createClientProvider } from '../client-provider';
 import { NotFoundError } from '@care-commons/core';
 import type { Database } from '@care-commons/core';
 

@@ -20,14 +20,14 @@ export type {
   ValidationWarning,
   RetryPolicy,
   SubmissionStatus,
-} from './base-aggregator.js';
+} from './base-aggregator';
 
 export {
   EXPONENTIAL_BACKOFF,
   LINEAR_BACKOFF,
   calculateRetryDelay,
-} from './base-aggregator.js';
+} from './base-aggregator';
 
-export { SandataAggregator } from './sandata-aggregator.js';
-export { TellusAggregator } from './tellus-aggregator.js';
-export { AggregatorRouter, getAggregatorRouter } from './aggregator-router.js';
+export { SandataAggregator } from './sandata-aggregator';
+export { TellusAggregator } from './tellus-aggregator';
+export { AggregatorRouter, getAggregatorRouter } from './aggregator-router';

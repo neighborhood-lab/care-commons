@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import { syncManager } from '../database/sync/sync-manager.js';
-import { OfflineQueue } from '../database/sync/offline-queue.js';
+import { syncManager } from '../database/sync/sync-manager';
+import { OfflineQueue } from '../database/sync/offline-queue';
 
 export function OfflineIndicator() {
   const [isConnected, setIsConnected] = useState(true);

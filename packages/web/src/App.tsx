@@ -5,13 +5,16 @@ import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
 import { DashboardSelector, Login, NotFound, AdminDashboard } from './app/pages';
-import { ClientList, ClientDetail } from './verticals/client-demographics';
+import { ClientList, ClientDetail, ClientDashboard } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
 import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
-import { PayRunList, PayRunDetail } from './verticals/payroll-processing';
+import { PayrollDashboard, PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { MedicationListPage } from './pages/medications/MedicationListPage';
+import { IncidentListPage } from './pages/incidents/IncidentListPage';
+import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { DemoModeBar } from './demo';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
@@ -25,6 +28,7 @@ import {
   CarePlanPage,
   HealthUpdatesPage
 } from './verticals/family-engagement/pages';
+import { GlobalSearch, useGlobalSearch } from './components/search/GlobalSearch';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,13 +70,10 @@ const FamilyProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childre
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
+  // If already authenticated, redirect to home (which will handle role-based routing)
   if (isAuthenticated) {
-    // Route to appropriate dashboard based on role
-    if (user?.roles.includes('FAMILY')) {
-      return <Navigate to="/family-portal" replace />;
-    }
     return <Navigate to="/" replace />;
   }
 
@@ -81,9 +82,12 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
+  const { isOpen, closeSearch } = useGlobalSearch();
 
   return (
-    <Routes>
+    <>
+      {isAuthenticated && <GlobalSearch isOpen={isOpen} onClose={closeSearch} />}
+      <Routes>
       <Route
         path="/login"
         element={
@@ -117,11 +121,51 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/clients/dashboard"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <ClientDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/clients/:id"
         element={
           <ProtectedRoute>
             <AppShell>
               <ClientDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/clients/:clientId/medications"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <MedicationListPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <IncidentListPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents/new"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CreateIncidentPage />
             </AppShell>
           </ProtectedRoute>
         }
@@ -264,6 +308,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppShell>
+              <PayrollDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/runs"
+        element={
+          <ProtectedRoute>
+            <AppShell>
               <PayRunList />
             </AppShell>
           </ProtectedRoute>
@@ -353,6 +407,7 @@ function AppRoutes() {
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
 

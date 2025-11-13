@@ -5,7 +5,7 @@
  */
 
 import type { Request, Response, Router } from 'express';
-import type { AuditService } from '../services/audit-service.js';
+import type { AuditService } from '../services/audit-service';
 import type { UserContext, Database, TokenPayload } from '@care-commons/core';
 import { AuthMiddleware } from '@care-commons/core';
 
@@ -25,7 +25,8 @@ export function createAuditRoutes(auditService: AuditService, router: Router): R
   const authMiddleware = new AuthMiddleware({} as Database);
 
   // All audit routes require authentication
-  router.use(authMiddleware.requireAuth);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  router.use(authMiddleware.requireAuth as any);
 
   // Map req.user to req.userContext for compatibility
   router.use((req: RequestWithContext, _res: Response, next) => {

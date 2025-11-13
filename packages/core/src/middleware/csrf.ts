@@ -14,7 +14,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import crypto from 'node:crypto';
+import * as crypto from '../utils/crypto';
+import { timingSafeEqual } from 'node:crypto';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -182,7 +183,38 @@ export function csrfProtection(
     return;
   }
 
-  if (storedEntry.token !== submittedToken) {
+  // Use timing-safe comparison to prevent timing attacks
+  const storedBuffer = Buffer.from(storedEntry.token, 'utf-8');
+  const submittedBuffer = Buffer.from(submittedToken, 'utf-8');
+  
+  // Ensure buffers are same length before comparison
+  if (storedBuffer.length !== submittedBuffer.length) {
+    res.status(403).json({
+      success: false,
+      error: 'CSRF token mismatch',
+      code: 'CSRF_TOKEN_MISMATCH',
+      message: 'CSRF token does not match'
+    });
+    return;
+  }
+  
+  // Timing-safe comparison to prevent timing attacks
+  try {
+    if (!timingSafeEqual(storedBuffer, submittedBuffer)) {
+      res.status(403).json({
+        success: false,
+        error: 'CSRF token mismatch',
+        code: 'CSRF_TOKEN_MISMATCH',
+        message: 'CSRF token does not match'
+      });
+      return;
+    }
+  } catch (err) {
+    // timingSafeEqual throws if buffers are different lengths (already checked above)
+    // Log unexpected errors but don't expose details to client
+    if (err instanceof Error && !err.message.includes('length')) {
+      console.error('Unexpected CSRF comparison error:', err);
+    }
     res.status(403).json({
       success: false,
       error: 'CSRF token mismatch',

@@ -20,8 +20,8 @@
  * - Aggregator assignments match state mandates or common practice
  */
 
-import { StateCode } from '../types/state-specific.js';
-import { StateEVVConfig, EXPONENTIAL_BACKOFF } from '../aggregators/base-aggregator.js';
+import { StateCode } from '../types/state-specific';
+import { StateEVVConfig, EXPONENTIAL_BACKOFF } from '../aggregators/base-aggregator';
 
 /**
  * State-to-Aggregator mapping

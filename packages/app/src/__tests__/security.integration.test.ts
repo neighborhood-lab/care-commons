@@ -22,8 +22,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import express, { type Express } from 'express';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
-import { configureCsrfProtection } from '../middleware/csrf.js';
-import { securityHeaders } from '../middleware/security-headers.js';
+import { configureCsrfProtection } from '../middleware/csrf';
+import { securityHeaders } from '../middleware/security-headers';
 import { sanitizeInput } from '@care-commons/core';
 import rateLimit from 'express-rate-limit';
 

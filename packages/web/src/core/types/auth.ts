@@ -2,6 +2,7 @@ export type Role = 'ADMIN' | 'COORDINATOR' | 'CAREGIVER' | 'BILLING' | 'FAMILY';
 
 export interface User {
   id: string;
+  organizationId: string;
   email: string;
   name: string;
   roles: Role[];

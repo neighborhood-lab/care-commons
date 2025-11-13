@@ -128,11 +128,11 @@ npm run db:migrate
 # Seed minimal operational data (org, branch, admin user)
 npm run db:seed
 
-# Optional: Seed demo data (sample clients, caregivers, programs)
-npm run db:seed:demo
+# Optional: Seed comprehensive demo data (900+ records - recommended for showcase)
+npm run db:seed:showcase-comprehensive
 
-# Or use the convenience command for complete setup:
-npm run db:reset:demo
+# Or: Seed small demo dataset for quick development
+npm run db:seed:demo
 
 # Build all packages
 npm run build
@@ -168,6 +168,125 @@ The development environment includes three mock users for testing:
 | `caregiver@example.com`    | `password123` | CAREGIVER   |
 
 **Note:** These credentials are for development only. In production, proper authentication with hashed passwords and JWT tokens should be implemented.
+
+### Demo Data & Showcase
+
+Care Commons includes comprehensive seed scripts for generating realistic demo data:
+
+#### Quick Start with Demo Data
+
+```bash
+# 1. Set up database schema and minimal data
+npm run db:migrate
+npm run db:seed
+
+# 2. Generate comprehensive showcase data (900+ records)
+npm run db:seed:showcase-comprehensive
+```
+
+#### Available Seed Scripts
+
+| Command | Records | Purpose | Time |
+|---------|---------|---------|------|
+| `npm run db:seed` | ~10 | Org, branch, admin user (required first) | 5s |
+| `npm run db:seed:demo` | ~20 | Small demo dataset for development | 30s |
+| `npm run db:seed:showcase-comprehensive` | **900+** | **Full showcase with realistic data** | 2-5min |
+
+#### What's Generated (Comprehensive Seed)
+
+The `db:seed:showcase-comprehensive` script creates:
+
+- **60 clients** - Distributed across TX, FL, OH states
+  - Realistic demographics (ages 65-95)
+  - State-specific phone numbers and addresses
+  - Medicaid/Medicare coverage
+  - Emergency contacts
+  - Various diagnoses and mobility levels
+
+- **35 caregivers** - Mix of CNAs, HHAs, and companions
+  - Multiple certifications (CNA, CPR, Medication Aide, etc.)
+  - Specializations (Alzheimer's, Diabetic Care, Wound Care, etc.)
+  - Multiple languages
+  - Varying hourly rates and employment types
+
+- **600 visits** - Past, present, and future (-30 to +30 days)
+  - Completed visits with full EVV records
+  - GPS clock-in/out coordinates
+  - Visit statuses: completed, scheduled, in-progress, no-show, cancelled
+  - Visit notes for completed visits
+
+- **50 care plans** - ~83% of clients have active care plans
+  - Goals with progress tracking
+  - Compliance status
+  - Plan types: Personal Care, Skilled Nursing, Companion, Therapy
+
+- **40 family members** - ~67% of clients have family portal access
+  - Portal access levels
+  - Contact preferences
+  - Notification settings
+
+- **30-50 invoices** - Generated from completed visits
+  - Grouped by month per client
+  - Line items with hourly breakdowns
+  - Medicaid vs Private Pay
+  - Various statuses: Draft, Sent, Paid, Overdue
+
+#### Cleaning Up Demo Data
+
+All demo data is tagged with `is_demo_data = true` for easy cleanup:
+
+```sql
+-- Clear all demo data
+DELETE FROM visit_evv_records WHERE is_demo_data = true;
+DELETE FROM visits WHERE is_demo_data = true;
+DELETE FROM invoices WHERE is_demo_data = true;
+DELETE FROM care_plans WHERE is_demo_data = true;
+DELETE FROM family_members WHERE is_demo_data = true;
+DELETE FROM caregivers WHERE is_demo_data = true;
+DELETE FROM clients WHERE is_demo_data = true;
+```
+
+Or reset and reseed:
+
+```bash
+npm run db:nuke          # ⚠️ Drops all tables
+npm run db:migrate       # Recreates schema
+npm run db:seed          # Creates org/branch/admin
+npm run db:seed:showcase-comprehensive  # Generates demo data
+```
+
+#### Customizing Demo Data
+
+Edit `packages/core/scripts/seed-showcase-comprehensive.ts` to adjust:
+
+```typescript
+const SEED_CONFIG = {
+  clients: 60,        // Adjust number of clients
+  caregivers: 35,     // Adjust number of caregivers
+  visits: 600,        // Adjust number of visits
+  carePlans: 50,      // Adjust number of care plans
+  familyMembers: 40,  // Adjust number of family members
+};
+```
+
+#### Troubleshooting
+
+**Error: "No organization found"**
+- Run `npm run db:seed` first to create the required org, branch, and admin user
+
+**Error: Database connection failed**
+- Check your `.env` file has correct database credentials
+- Ensure PostgreSQL is running: `pg_isready`
+- Test connection: `psql -h localhost -U postgres -d care_commons`
+
+**Seed script is slow**
+- The script generates 900+ records with realistic data
+- Expected time: 2-5 minutes depending on your database speed
+- Uses transactions for data consistency
+
+**Need different states?**
+- Edit the `generateClient()` function to add/modify states
+- Default states: TX (Texas), FL (Florida), OH (Ohio)
 
 ## Development
 

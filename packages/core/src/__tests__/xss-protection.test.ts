@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import DOMPurify from 'isomorphic-dompurify';
-import { sanitizeInput } from '../middleware/sanitize-input.js';
+import { sanitizeInput } from '../middleware/sanitize-input';
 
 describe('XSS Protection', () => {
   it('should sanitize script tags from user input', () => {
@@ -26,8 +26,6 @@ describe('XSS Protection', () => {
 
   it('should prevent JavaScript in href attributes', () => {
     // Note: This test intentionally uses a dangerous pattern for security testing
-    // sonarjs/code-eval is disabled because we're testing XSS prevention, not using eval
-    // eslint-disable-next-line sonarjs/code-eval
     const maliciousContent = '<a href="javascript:alert(\'XSS\')">Click me</a>';
     const sanitized = DOMPurify.sanitize(maliciousContent, { ALLOWED_TAGS: [] });
 

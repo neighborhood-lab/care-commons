@@ -5,9 +5,9 @@
  * Centralizes validator instantiation logic with caching.
  */
 
-import { StateCode } from '../types/base.js';
-import { getValidator, isStateSupported, getSupportedStates } from './state-registry.js';
-import type { StateComplianceValidator } from './types/index.js';
+import { StateCode } from '../types/base';
+import { getValidator, isStateSupported, getSupportedStates } from './state-registry';
+import type { StateComplianceValidator } from './types/index';
 
 export class ValidatorFactory {
   private static instances: Map<StateCode, StateComplianceValidator> = new Map();

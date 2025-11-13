@@ -22,27 +22,29 @@ export async function seedDatabase(db: Database): Promise<void> {
 
   // Create Texas branch
   await db.query(
-    `INSERT INTO branches (id, organization_id, name, state, address, evv_config, status, created_at, created_by, updated_at, updated_by, version)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, NOW(), $8, 1)
+    `INSERT INTO branches (id, organization_id, name, address, settings, status, created_at, created_by, updated_at, updated_by, version)
+     VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, NOW(), $7, 1)
      ON CONFLICT (id) DO NOTHING`,
     [
       branchId,
       orgId,
       'Texas Branch',
-      'TX',
       JSON.stringify({
-        street: '100 Congress Ave',
+        line1: '100 Congress Ave',
         city: 'Austin',
         state: 'TX',
-        zip: '78701',
+        postalCode: '78701',
+        country: 'USA',
       }),
       JSON.stringify({
-        aggregator: 'HHAEEXCHANGE',
-        apiEndpoint: 'https://api.hhaeexchange.com/evv/tx',
-        geoPerimeterTolerance: 50, // 50 meters (Texas requirement)
-        gracePeriodMinutes: 10, // 10-minute grace period for clock-in
-        requiresGPSMobile: true,
-        requiresVMURForAmendments: true,
+        evv_config: {
+          aggregator: 'HHAEEXCHANGE',
+          apiEndpoint: 'https://api.hhaeexchange.com/evv/tx',
+          geoPerimeterTolerance: 50,
+          gracePeriodMinutes: 10,
+          requiresGPSMobile: true,
+          requiresVMURForAmendments: true,
+        },
       }),
       'ACTIVE',
       'system',
@@ -66,10 +68,11 @@ export async function seedDatabase(db: Database): Promise<void> {
       'Rodriguez',
       '1945-03-15',
       JSON.stringify({
-        street: '789 Riverside Dr',
+        line1: '789 Riverside Dr',
         city: 'Austin',
         state: 'TX',
-        zip: '78704',
+        postalCode: '78704',
+        country: 'USA',
         latitude: 30.2500,
         longitude: -97.7600,
         geofence_radius: 100,
@@ -111,11 +114,11 @@ export async function seedDatabase(db: Database): Promise<void> {
         emr_check: {
           status: 'CLEARED',
           clearanceDate: '2024-06-01',
-          expirationDate: '2029-06-01', // Texas EMR valid for 5 years
+          expirationDate: '2029-06-01',
           checkType: 'EMPLOYEE_MISCONDUCT_REGISTRY',
           verificationNumber: 'EMR-TX-987654',
           agency: 'Texas Health and Human Services',
-          citation: '26 TAC §558.353', // Texas statute
+          citation: '26 TAC §558.353',
         },
         criminal_background: {
           status: 'CLEARED',
@@ -168,9 +171,9 @@ export async function seedDatabase(db: Database): Promise<void> {
         state: 'TX',
         aggregator: 'HHAEEXCHANGE',
         requiresGPS: true,
-        requiresSignature: false, // Texas doesn't always require signature
-        gpsAccuracyThreshold: 50, // meters
-        vmurRequired: false, // Unless amendment needed
+        requiresSignature: false,
+        gpsAccuracyThreshold: 50,
+        vmurRequired: false,
       }),
       'system',
     ]

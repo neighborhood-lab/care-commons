@@ -1,4 +1,4 @@
-import logger from './logger.js';
+import logger from './logger';
 
 // Use browser performance API if available, otherwise minimal fallback
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

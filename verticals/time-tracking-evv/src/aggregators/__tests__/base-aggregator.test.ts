@@ -9,7 +9,7 @@ import {
   calculateRetryDelay,
   EXPONENTIAL_BACKOFF,
   LINEAR_BACKOFF,
-} from '../base-aggregator.js';
+} from '../base-aggregator';
 
 describe('Base Aggregator Utilities', () => {
   describe('calculateRetryDelay', () => {

@@ -163,6 +163,9 @@ export class CarePlanRepository extends Repository<CarePlan> {
       input.createdBy,
     ]);
 
+    if (!result.rows[0]) {
+      throw new Error('Failed to create care plan - no row returned');
+    }
     return this.mapRowToCarePlan(result.rows[0]);
   }
 
@@ -480,6 +483,9 @@ export class CarePlanRepository extends Repository<CarePlan> {
       input.createdBy,
     ]);
 
+    if (!result.rows[0]) {
+      throw new Error('Failed to create task instance - no row returned');
+    }
     return this.mapRowToTaskInstance(result.rows[0]);
   }
 
@@ -710,6 +716,9 @@ export class CarePlanRepository extends Repository<CarePlan> {
       input.signature ? JSON.stringify(input.signature) : null,
     ]);
 
+    if (!result.rows[0]) {
+      throw new Error('Failed to create progress note - no row returned');
+    }
     return this.mapRowToProgressNote(result.rows[0]);
   }
 

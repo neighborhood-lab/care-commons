@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, User } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, User, Pill, AlertTriangle } from 'lucide-react';
 import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage, StatusBadge } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { formatDate, formatPhone } from '@/core/utils';
@@ -203,6 +203,18 @@ export const ClientDetail: React.FC = () => {
             <CardHeader title="Quick Actions" />
             <CardContent>
               <div className="space-y-2">
+                <Link to={`/clients/${client.id}/medications`} className="block">
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Pill className="h-4 w-4 mr-2" />
+                    View Medications
+                  </Button>
+                </Link>
+                <Link to={`/incidents/new?clientId=${client.id}`} className="block">
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    Report Incident
+                  </Button>
+                </Link>
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule Visit

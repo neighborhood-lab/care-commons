@@ -122,7 +122,7 @@ export default defineConfig({
 
   // Web server configuration (start dev server before tests)
   webServer: {
-    command: 'npm run dev:server',
+    command: 'npm run test:e2e:server',
     port: 3000,
     timeout: 120000, // 2 minutes to start server
     reuseExistingServer: !process.env['CI'], // Reuse server in development
@@ -130,7 +130,7 @@ export default defineConfig({
     stderr: 'pipe',
     env: {
       NODE_ENV: 'test',
-      DATABASE_URL: process.env['E2E_DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/care_commons_e2e_test',
+      DATABASE_URL: process.env['E2E_DATABASE_URL'] || process.env['DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/care_commons_e2e_test',
       PORT: '3000',
       // JWT secrets for authentication
       // Generate cryptographically secure random secrets if not provided

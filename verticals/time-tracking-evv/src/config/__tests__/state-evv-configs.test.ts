@@ -13,8 +13,8 @@ import {
   validateStateGeography,
   STATE_AGGREGATOR_MAP,
   STATE_EVV_CONFIGS,
-} from '../state-evv-configs.js';
-import type { StateCode } from '../../types/state-specific.js';
+} from '../state-evv-configs';
+import type { StateCode } from '../../types/state-specific';
 
 describe('State EVV Configuration Helpers', () => {
   describe('getStateConfig', () => {

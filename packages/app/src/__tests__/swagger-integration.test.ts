@@ -9,7 +9,7 @@ import { describe, it, expect } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from '../config/swagger.js';
+import { swaggerSpec } from '../config/swagger';
 
 describe('Swagger Integration (server.ts lines 199-205)', () => {
   it('should serve swagger UI middleware at /api-docs', async () => {

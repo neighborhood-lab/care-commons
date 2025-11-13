@@ -6,7 +6,12 @@ import {
   createVisitSteps,
   caregiverWorkflowSteps,
   familyPortalSteps,
-  adminDashboardSteps
+  adminDashboardSteps,
+  clientManagementSteps,
+  carePlanSteps,
+  billingSteps,
+  shiftMatchingSteps,
+  payrollSteps
 } from './tour-steps';
 
 interface TourContextValue {
@@ -28,7 +33,12 @@ const tours: Record<string, DriveStep[]> = {
   'create-visit': createVisitSteps,
   'caregiver-workflow': caregiverWorkflowSteps,
   'family-portal': familyPortalSteps,
-  'admin-dashboard': adminDashboardSteps
+  'admin-dashboard': adminDashboardSteps,
+  'client-management': clientManagementSteps,
+  'care-plan': carePlanSteps,
+  'billing': billingSteps,
+  'shift-matching': shiftMatchingSteps,
+  'payroll': payrollSteps
 };
 
 export function TourProvider({ children }: { children: React.ReactNode }) {

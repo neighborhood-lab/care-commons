@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { VMURService } from '../vmur-service.js';
+import { VMURService } from '../vmur-service';
 import type { Database } from '@care-commons/core';
 import type { UserContext } from '@care-commons/core';
 import { ValidationError, NotFoundError, PermissionError } from '@care-commons/core';

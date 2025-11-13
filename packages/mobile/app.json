@@ -4,32 +4,13 @@
     "slug": "care-commons-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "plugins": [
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to access your location for accurate visit verification and EVV compliance.",
-          "locationAlwaysPermission": "Allow $(PRODUCT_NAME) to access your location in the background during active visits for EVV compliance.",
-          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to access your location while using the app for visit verification.",
-          "isAndroidBackgroundLocationEnabled": true,
-          "isAndroidForegroundServiceEnabled": true
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to capture photos for visit verification and documentation."
-        }
-      ]
-    ],
+    "plugins": [],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.carecommons.mobile",
@@ -50,7 +31,6 @@
     "android": {
       "package": "com.carecommons.mobile",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
@@ -69,8 +49,6 @@
         }
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "web": {}
   }
 }

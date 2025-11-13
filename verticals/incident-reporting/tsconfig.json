@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "types": [
+      "vitest/globals"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../../packages/core"
+    }
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "replacers": {
+      "replace-imports": {
+        "replace": "^(\\.{1,2}\\/[^'\"]+)$",
+        "with": "$1.js"
+      }
+    }
+  }
+}

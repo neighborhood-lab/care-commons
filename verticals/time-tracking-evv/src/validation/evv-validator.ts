@@ -2,7 +2,8 @@
  * EVV Validator - Validation and integrity checking for EVV data
  */
 
-import { ValidationError } from '@care-commons/core';
+// Import only the error class - browser-safe (no server deps)
+import { ValidationError } from '@care-commons/core/browser';
 import {
   ClockInInput,
   ClockOutInput,
@@ -694,35 +695,35 @@ export class EVVValidator {
 
         // Check client signature requirement
         if (mco.requiresClientSignature) {
-          // TODO: Implement client signature validation once EVVRecord type is extended
-          // In production, check if signature exists on record
-          // if (!record.clientSignature) {
-          //   issues.push({
-          //     issueType: 'MISSING_SIGNATURE',
-          //     severity: 'HIGH',
-          //     description: `MCO ${mco.mcoName} requires client signature`,
-          //     canBeOverridden: false,
-          //     requiresSupervisor: true,
-          //   });
-          //   complianceFlags.push('MISSING_SIGNATURE');
-          //   requiresSupervisorReview = true;
-          // }
+          if (!record.clientAttestation) {
+            issues.push({
+              issueType: 'MISSING_SIGNATURE',
+              severity: 'HIGH',
+              description: `MCO ${mco.mcoName} requires client signature`,
+              canBeOverridden: false,
+              requiresSupervisor: true,
+            });
+            complianceFlags.push('MISSING_SIGNATURE');
+            requiresSupervisorReview = true;
+          }
         }
 
         // Check photo verification requirement
         if (mco.requiresPhotoVerification) {
-          // TODO: Implement photo verification validation once EVVRecord type is extended
-          // In production, check if photo exists on record
-          // if (!record.photoVerification) {
-          //   issues.push({
-          //     issueType: 'MISSING_PHOTO_VERIFICATION',
-          //     severity: 'HIGH',
-          //     description: `MCO ${mco.mcoName} requires photo verification`,
-          //     canBeOverridden: false,
-          //     requiresSupervisor: true,
-          //   });
-          //   requiresSupervisorReview = true;
-          // }
+          // Check both clock-in and clock-out for photo verification
+          const hasClockInPhoto = record.clockInVerification?.photoUrl;
+          const hasClockOutPhoto = record.clockOutVerification?.photoUrl;
+          
+          if (!hasClockInPhoto && !hasClockOutPhoto) {
+            issues.push({
+              issueType: 'MISSING_PHOTO_VERIFICATION',
+              severity: 'HIGH',
+              description: `MCO ${mco.mcoName} requires photo verification`,
+              canBeOverridden: false,
+              requiresSupervisor: true,
+            });
+            requiresSupervisorReview = true;
+          }
         }
       }
 

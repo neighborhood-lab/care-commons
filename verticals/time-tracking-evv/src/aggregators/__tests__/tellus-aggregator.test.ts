@@ -6,9 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { TellusAggregator } from '../tellus-aggregator.js';
-import { getStateConfig } from '../../config/state-evv-configs.js';
-import type { EVVRecord } from '../../types/evv.js';
+import { TellusAggregator } from '../tellus-aggregator';
+import { getStateConfig } from '../../config/state-evv-configs';
+import type { EVVRecord } from '../../types/evv';
 
 describe('TellusAggregator', () => {
   let aggregator: TellusAggregator;

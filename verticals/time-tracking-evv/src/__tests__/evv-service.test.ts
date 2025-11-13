@@ -286,11 +286,21 @@ describe('EVVService', () => {
         id: 'visit-123',
         clientId: 'client-123',
         organizationId: 'org-123',
+        branchId: 'branch-123',
         serviceTypeCode: 'HCBS',
+        serviceTypeName: 'Home Care',
+        serviceDate: new Date(),
+        scheduledStartTime: new Date(),
         serviceAddress: {
+          line1: '123 Main St',
+          city: 'New York',
+          state: 'NY',
+          postalCode: '10001',
+          country: 'USA',
           latitude: 40.7128,
           longitude: -74.0060,
           geofenceRadius: 100,
+          addressVerified: true,
         },
       });
 
@@ -1135,7 +1145,7 @@ describe('EVVService', () => {
           .mockResolvedValueOnce(paRecord);
         
         // Submit sequentially to avoid nesting issues
-        const results = [];
+        const results: Array<{ submissions?: any[]; state?: string; error?: string }> = [];
         
         try {
           results.push(await service.submitToStateAggregator(ohRecord.id, userContext));

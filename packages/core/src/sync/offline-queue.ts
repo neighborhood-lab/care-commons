@@ -12,7 +12,7 @@ import type {
   OfflineQueueItem,
   SyncOperationType,
   SyncEntityType,
-} from './types.js';
+} from './types';
 
 export interface OfflineQueueConfig {
   maxRetries: number;

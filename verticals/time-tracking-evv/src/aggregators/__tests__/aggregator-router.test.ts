@@ -6,9 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AggregatorRouter, getAggregatorRouter } from '../aggregator-router.js';
-import { EVVRecord } from '../../types/evv.js';
-import { StateCode } from '../../types/state-specific.js';
+import { AggregatorRouter, getAggregatorRouter } from '../aggregator-router';
+import { EVVRecord } from '../../types/evv';
+import { StateCode } from '../../types/state-specific';
 
 describe('AggregatorRouter', () => {
   let router: AggregatorRouter;

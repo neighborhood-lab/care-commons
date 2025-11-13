@@ -9,7 +9,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-  version: 2,
+  version: 3,
   tables: [
     // Visits - Core scheduling and visit tracking
     tableSchema({
@@ -261,6 +261,19 @@ export const schema = appSchema({
         { name: 'note_text', type: 'string' }, // Plain text content
         { name: 'note_html', type: 'string', isOptional: true }, // Rich text HTML
         { name: 'template_id', type: 'string', isOptional: true, isIndexed: true },
+        
+        // Activities performed (JSONB array)
+        { name: 'activities_performed', type: 'string', isOptional: true }, // JSON array of activity IDs
+        
+        // Client assessment
+        { name: 'client_mood', type: 'string', isOptional: true, isIndexed: true }, // EXCELLENT, GOOD, FAIR, POOR, DISTRESSED, UNRESPONSIVE
+        { name: 'client_condition_notes', type: 'string', isOptional: true },
+        
+        // Incident tracking
+        { name: 'is_incident', type: 'boolean', isIndexed: true },
+        { name: 'incident_severity', type: 'string', isOptional: true, isIndexed: true }, // LOW, MEDIUM, HIGH, CRITICAL
+        { name: 'incident_description', type: 'string', isOptional: true },
+        { name: 'incident_reported_at', type: 'number', isOptional: true },
 
         // Voice-to-text
         { name: 'is_voice_note', type: 'boolean', isIndexed: true },

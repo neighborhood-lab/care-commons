@@ -35,13 +35,14 @@ export type { CreateVMURInput, ApproveVMURInput, DenyVMURInput } from './service
 
 // Utilities
 export { IntegrationService } from './utils/integration-service';
+// Platform-specific: will use crypto-utils.native.ts in React Native
 export { CryptoUtils } from './utils/crypto-utils';
 
 // API Handlers
 export { EVVHandlers } from './api/evv-handlers';
 
 // Aggregators (multi-state support)
-export * from './aggregators/index.js';
+export * from './aggregators/index';
 
 // State configurations
-export * from './config/state-evv-configs.js';
+export * from './config/state-evv-configs';

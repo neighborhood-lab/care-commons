@@ -19,8 +19,8 @@
  * - Generous rural exceptions
  */
 
-import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator.js';
-import { StateCode } from '../../types/base.js';
+import { BaseComplianceValidator, StateCredentialConfig, StateAuthorizationConfig } from '../base-validator';
+import { StateCode } from '../../types/base';
 import {
   ComplianceIssue,
   CaregiverCredentials,
@@ -30,7 +30,7 @@ import {
   isExpiringSoon,
   daysUntilExpiration,
   daysSince,
-} from '../types/index.js';
+} from '../types/index';
 
 /**
  * Georgia-specific credential data structure
@@ -328,7 +328,7 @@ export class GeorgiaComplianceValidator extends BaseComplianceValidator {
         type: 'GA_HCBS_TRAINING_MISSING',
         severity: 'BLOCKING',
         category: 'CAREGIVER_CREDENTIALS',
-        message: `HCBS waiver training required for ${gaClientData?.waiverProgram} program`,
+        message: `HCBS waiver training required for ${gaClientData.waiverProgram} program`,
         regulation: 'Georgia DCH HCBS Waiver Manual',
         remediation: 'Complete HCBS waiver-specific training through approved provider',
         canBeOverridden: false,

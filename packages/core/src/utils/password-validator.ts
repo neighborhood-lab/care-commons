@@ -1,5 +1,33 @@
+/* eslint-disable unicorn/prefer-module */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-implied-eval */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-undef */
+
 import zxcvbn from 'zxcvbn';
-import bcrypt from 'bcrypt';
+
+// Platform detection
+const isReactNative = typeof navigator !== 'undefined' && (navigator as any).product === 'ReactNative';
+
+type BcryptModule = typeof import('bcrypt');
+
+// Lazy-loaded bcrypt (Node.js only)
+let bcrypt: BcryptModule | null = null;
+
+/**
+ * Get bcrypt module (lazy loaded, Node.js only)
+ */
+function getBcrypt(): BcryptModule {
+  if (bcrypt === null) {
+    if (isReactNative) {
+      throw new Error('bcrypt is not supported in React Native. Password hashing should be done server-side.');
+    }
+    // Use eval to hide from Metro bundler
+    const req = eval('require');
+    bcrypt = req('bcrypt') as BcryptModule;
+  }
+  return bcrypt;
+}
 
 export interface PasswordValidationResult {
   valid: boolean;
@@ -57,10 +85,12 @@ export class PasswordValidator {
   }
 
   static async hash(password: string): Promise<string> {
-    return bcrypt.hash(password, 12); // Cost factor 12
+    const bcryptModule = getBcrypt();
+    return bcryptModule.hash(password, 12); // Cost factor 12
   }
 
   static async verify(password: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(password, hash);
+    const bcryptModule = getBcrypt();
+    return bcryptModule.compare(password, hash);
   }
 }

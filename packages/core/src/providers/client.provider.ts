@@ -8,8 +8,8 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable sonarjs/no-nested-conditional */
 
-import { Database } from '../db/connection.js';
-import type { UUID } from '../types/base.js';
+import { Database } from '../db/connection';
+import type { UUID } from '../types/base';
 
 /**
  * Client data structure for cross-vertical use

@@ -935,4 +935,408 @@ describe('EVVValidator', () => {
       expect(result.requiresSupervisorReview).toBe(true);
     });
   });
+
+  describe('MCO-specific validations (validateStateRequirements)', () => {
+    const baseMockEVVRecord: EVVRecord = {
+      id: 'evv-123',
+      visitId: 'visit-123',
+      organizationId: 'org-123',
+      branchId: 'branch-123',
+      clientId: 'client-123',
+      caregiverId: 'caregiver-123',
+      serviceTypeCode: 'HCBS',
+      serviceTypeName: 'Home Care',
+      clientName: 'John Doe',
+      caregiverName: 'Jane Smith',
+      caregiverEmployeeId: 'EMP123',
+      serviceDate: new Date('2025-01-15'),
+      serviceAddress: {
+        line1: '123 Main St',
+        city: 'Miami',
+        state: 'FL',
+        postalCode: '33101',
+        country: 'USA',
+        latitude: 25.7617,
+        longitude: -80.1918,
+        geofenceRadius: 150,
+        addressVerified: true,
+      },
+      clockInTime: new Date('2025-01-15T09:00:00Z'),
+      clockOutTime: new Date('2025-01-15T11:00:00Z'),
+      totalDuration: 120,
+      clockInVerification: {
+        latitude: 25.7617,
+        longitude: -80.1918,
+        accuracy: 10,
+        timestamp: new Date('2025-01-15T09:00:00Z'),
+        timestampSource: 'GPS',
+        isWithinGeofence: true,
+        distanceFromAddress: 50,
+        geofencePassed: true,
+        deviceId: 'device-123',
+        method: 'GPS',
+        locationSource: 'GPS_SATELLITE',
+        mockLocationDetected: false,
+        verificationPassed: true,
+      },
+      clockOutVerification: {
+        latitude: 25.7617,
+        longitude: -80.1918,
+        accuracy: 10,
+        timestamp: new Date('2025-01-15T11:00:00Z'),
+        timestampSource: 'GPS',
+        isWithinGeofence: true,
+        distanceFromAddress: 50,
+        geofencePassed: true,
+        deviceId: 'device-123',
+        method: 'GPS',
+        locationSource: 'GPS_SATELLITE',
+        mockLocationDetected: false,
+        verificationPassed: true,
+      },
+      recordStatus: 'COMPLETE',
+      verificationLevel: 'FULL',
+      complianceFlags: ['COMPLIANT'],
+      integrityHash: 'hash-123',
+      integrityChecksum: 'checksum-123',
+      recordedAt: new Date(),
+      recordedBy: 'user-123',
+      syncMetadata: {
+        syncId: 'sync-123',
+        lastSyncedAt: new Date(),
+        syncStatus: 'SYNCED',
+      },
+      createdAt: new Date(),
+      createdBy: 'user-123',
+      updatedAt: new Date(),
+      updatedBy: 'user-123',
+      version: 1,
+    };
+
+    const floridaConfigWithMCO = {
+      state: 'FL' as const,
+      requiresGPS: true,
+      requiresPhotoVerification: false,
+      minimumAccuracyMeters: 100,
+      geoPerimeterTolerance: 250,
+      clockInGracePeriodMinutes: 15,
+      clockOutGracePeriodMinutes: 15,
+      allowTelephonyFallback: true,
+      aggregatorId: 'HHAEXCHANGE',
+      allowedVerificationMethods: ['GPS', 'NETWORK'],
+      mcoRequirements: {
+        mcoId: 'HUMANA_FL',
+        mcoName: 'Humana Florida',
+        requiresClientSignature: true,
+        requiresPhotoVerification: false,
+      },
+    };
+
+    describe('client signature validation', () => {
+      it('should pass when MCO requires signature and signature is present', () => {
+        const recordWithSignature: EVVRecord = {
+          ...baseMockEVVRecord,
+          clientAttestation: {
+            attestedBy: 'client-123',
+            attestedByName: 'John Doe',
+            attestedAt: new Date('2025-01-15T11:00:00Z'),
+            attestationType: 'SIGNATURE',
+            signatureData: 'base64-encoded-signature',
+            signatureHash: 'signature-hash-123',
+            statement: 'I acknowledge receipt of home care services',
+            deviceId: 'device-123',
+          },
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          floridaConfigWithMCO,
+          recordWithSignature
+        );
+
+        expect(result.complianceFlags).not.toContain('MISSING_SIGNATURE');
+        expect(result.issues).not.toContainEqual(
+          expect.objectContaining({ issueType: 'MISSING_SIGNATURE' })
+        );
+      });
+
+      it('should fail when MCO requires signature and signature is missing', () => {
+        const recordWithoutSignature: EVVRecord = {
+          ...baseMockEVVRecord,
+          clientAttestation: undefined,
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          floridaConfigWithMCO,
+          recordWithoutSignature
+        );
+
+        expect(result.passed).toBe(false);
+        expect(result.complianceFlags).toContain('MISSING_SIGNATURE');
+        expect(result.issues).toContainEqual({
+          issueType: 'MISSING_SIGNATURE',
+          severity: 'HIGH',
+          description: 'MCO Humana Florida requires client signature',
+          canBeOverridden: false,
+          requiresSupervisor: true,
+        });
+        expect(result.requiresSupervisorReview).toBe(true);
+      });
+
+      it('should pass when MCO does not require signature and signature is missing', () => {
+        const configWithoutSignatureRequirement = {
+          ...floridaConfigWithMCO,
+          mcoRequirements: {
+            ...floridaConfigWithMCO.mcoRequirements,
+            requiresClientSignature: false,
+          },
+        };
+
+        const recordWithoutSignature: EVVRecord = {
+          ...baseMockEVVRecord,
+          clientAttestation: undefined,
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          configWithoutSignatureRequirement,
+          recordWithoutSignature
+        );
+
+        expect(result.complianceFlags).not.toContain('MISSING_SIGNATURE');
+        expect(result.issues).not.toContainEqual(
+          expect.objectContaining({ issueType: 'MISSING_SIGNATURE' })
+        );
+      });
+    });
+
+    describe('photo verification validation', () => {
+      it('should pass when MCO requires photo and clock-in photo is present', () => {
+        const configWithPhotoRequirement = {
+          ...floridaConfigWithMCO,
+          mcoRequirements: {
+            ...floridaConfigWithMCO.mcoRequirements,
+            requiresPhotoVerification: true,
+          },
+        };
+
+        const recordWithClockInPhoto: EVVRecord = {
+          ...baseMockEVVRecord,
+          clockInVerification: {
+            ...baseMockEVVRecord.clockInVerification!,
+            photoUrl: 's3://bucket/photos/clock-in-photo-123.jpg',
+            photoHash: 'photo-hash-123',
+          },
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          configWithPhotoRequirement,
+          recordWithClockInPhoto
+        );
+
+        expect(result.issues).not.toContainEqual(
+          expect.objectContaining({ issueType: 'MISSING_PHOTO_VERIFICATION' })
+        );
+      });
+
+      it('should pass when MCO requires photo and clock-out photo is present', () => {
+        const configWithPhotoRequirement = {
+          ...floridaConfigWithMCO,
+          mcoRequirements: {
+            ...floridaConfigWithMCO.mcoRequirements,
+            requiresPhotoVerification: true,
+          },
+        };
+
+        const recordWithClockOutPhoto: EVVRecord = {
+          ...baseMockEVVRecord,
+          clockOutVerification: {
+            ...baseMockEVVRecord.clockOutVerification!,
+            photoUrl: 's3://bucket/photos/clock-out-photo-123.jpg',
+            photoHash: 'photo-hash-456',
+          },
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          configWithPhotoRequirement,
+          recordWithClockOutPhoto
+        );
+
+        expect(result.issues).not.toContainEqual(
+          expect.objectContaining({ issueType: 'MISSING_PHOTO_VERIFICATION' })
+        );
+      });
+
+      it('should fail when MCO requires photo and no photos are present', () => {
+        const configWithPhotoRequirement = {
+          ...floridaConfigWithMCO,
+          mcoRequirements: {
+            ...floridaConfigWithMCO.mcoRequirements,
+            requiresPhotoVerification: true,
+          },
+        };
+
+        const recordWithoutPhotos: EVVRecord = {
+          ...baseMockEVVRecord,
+          clockInVerification: {
+            ...baseMockEVVRecord.clockInVerification!,
+            photoUrl: undefined,
+            photoHash: undefined,
+          },
+          clockOutVerification: {
+            ...baseMockEVVRecord.clockOutVerification!,
+            photoUrl: undefined,
+            photoHash: undefined,
+          },
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          configWithPhotoRequirement,
+          recordWithoutPhotos
+        );
+
+        expect(result.passed).toBe(false);
+        expect(result.issues).toContainEqual({
+          issueType: 'MISSING_PHOTO_VERIFICATION',
+          severity: 'HIGH',
+          description: 'MCO Humana Florida requires photo verification',
+          canBeOverridden: false,
+          requiresSupervisor: true,
+        });
+        expect(result.requiresSupervisorReview).toBe(true);
+      });
+
+      it('should pass when MCO does not require photo and no photos are present', () => {
+        const configWithoutPhotoRequirement = {
+          ...floridaConfigWithMCO,
+          mcoRequirements: {
+            ...floridaConfigWithMCO.mcoRequirements,
+            requiresPhotoVerification: false,
+          },
+        };
+
+        const recordWithoutPhotos: EVVRecord = {
+          ...baseMockEVVRecord,
+          clockInVerification: {
+            ...baseMockEVVRecord.clockInVerification!,
+            photoUrl: undefined,
+          },
+          clockOutVerification: {
+            ...baseMockEVVRecord.clockOutVerification!,
+            photoUrl: undefined,
+          },
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          configWithoutPhotoRequirement,
+          recordWithoutPhotos
+        );
+
+        expect(result.issues).not.toContainEqual(
+          expect.objectContaining({ issueType: 'MISSING_PHOTO_VERIFICATION' })
+        );
+      });
+    });
+
+    describe('combined MCO requirements', () => {
+      it('should fail with both signature and photo missing when both are required', () => {
+        const configRequiringBoth = {
+          ...floridaConfigWithMCO,
+          mcoRequirements: {
+            mcoId: 'SUNSHINE_FL',
+            mcoName: 'Sunshine Health',
+            requiresClientSignature: true,
+            requiresPhotoVerification: true,
+          },
+        };
+
+        const recordMissingBoth: EVVRecord = {
+          ...baseMockEVVRecord,
+          clientAttestation: undefined,
+          clockInVerification: {
+            ...baseMockEVVRecord.clockInVerification!,
+            photoUrl: undefined,
+          },
+          clockOutVerification: {
+            ...baseMockEVVRecord.clockOutVerification!,
+            photoUrl: undefined,
+          },
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          configRequiringBoth,
+          recordMissingBoth
+        );
+
+        expect(result.passed).toBe(false);
+        expect(result.complianceFlags).toContain('MISSING_SIGNATURE');
+        expect(result.issues).toContainEqual({
+          issueType: 'MISSING_SIGNATURE',
+          severity: 'HIGH',
+          description: 'MCO Sunshine Health requires client signature',
+          canBeOverridden: false,
+          requiresSupervisor: true,
+        });
+        expect(result.issues).toContainEqual({
+          issueType: 'MISSING_PHOTO_VERIFICATION',
+          severity: 'HIGH',
+          description: 'MCO Sunshine Health requires photo verification',
+          canBeOverridden: false,
+          requiresSupervisor: true,
+        });
+        expect(result.requiresSupervisorReview).toBe(true);
+      });
+
+      it('should pass with both signature and photo present when both are required', () => {
+        const configRequiringBoth = {
+          ...floridaConfigWithMCO,
+          mcoRequirements: {
+            mcoId: 'SUNSHINE_FL',
+            mcoName: 'Sunshine Health',
+            requiresClientSignature: true,
+            requiresPhotoVerification: true,
+          },
+        };
+
+        const recordWithBoth: EVVRecord = {
+          ...baseMockEVVRecord,
+          clientAttestation: {
+            attestedBy: 'client-123',
+            attestedByName: 'John Doe',
+            attestedAt: new Date('2025-01-15T11:00:00Z'),
+            attestationType: 'SIGNATURE',
+            signatureData: 'base64-encoded-signature',
+            signatureHash: 'signature-hash-123',
+            statement: 'I acknowledge receipt of home care services',
+            deviceId: 'device-123',
+          },
+          clockInVerification: {
+            ...baseMockEVVRecord.clockInVerification!,
+            photoUrl: 's3://bucket/photos/clock-in-123.jpg',
+            photoHash: 'photo-hash-123',
+          },
+        };
+
+        const result = validator.validateStateRequirements(
+          'FL',
+          configRequiringBoth,
+          recordWithBoth
+        );
+
+        expect(result.complianceFlags).not.toContain('MISSING_SIGNATURE');
+        expect(result.issues).not.toContainEqual(
+          expect.objectContaining({ issueType: 'MISSING_SIGNATURE' })
+        );
+        expect(result.issues).not.toContainEqual(
+          expect.objectContaining({ issueType: 'MISSING_PHOTO_VERIFICATION' })
+        );
+      });
+    });
+  });
 });

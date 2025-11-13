@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database } from '@care-commons/core';
-import { requireAuth } from '../middleware/auth-context.js';
+import { requireAuth } from '../middleware/auth-context';
 import { CaregiverService } from '@care-commons/caregiver-staff';
 import type { CreateCaregiverInput, UpdateCaregiverInput, CaregiverSearchFilters } from '@care-commons/caregiver-staff';
 
@@ -13,6 +13,22 @@ export function createCaregiverRouter(db: Database): Router {
 
   // All routes require authentication
   router.use(requireAuth);
+
+  /**
+   * GET /api/caregivers/me
+   * Get authenticated caregiver's profile
+   */
+  router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const service = new CaregiverService(db);
+
+      const caregiver = await service.getCurrentCaregiverProfile(context);
+      res.json(caregiver);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   /**
    * GET /api/caregivers

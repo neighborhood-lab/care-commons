@@ -79,3 +79,12 @@ export const useDeleteClient = () => {
     },
   });
 };
+
+export const useClientsDashboard = (filters?: ClientSearchFilters & SearchParams) => {
+  const clientApi = useClientApi();
+  
+  return useQuery({
+    queryKey: ['clients', 'dashboard', filters],
+    queryFn: () => clientApi.getClientsDashboard(filters),
+  });
+};

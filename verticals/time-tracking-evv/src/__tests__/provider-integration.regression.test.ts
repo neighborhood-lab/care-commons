@@ -9,8 +9,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ClientProvider } from '../providers/client-provider.js';
-import { CaregiverProvider } from '../providers/caregiver-provider.js';
+import { ClientProvider } from '../providers/client-provider';
+import { CaregiverProvider } from '../providers/caregiver-provider';
 import type { Database } from '@care-commons/core';
 
 describe('Provider Integration Regression Tests', () => {

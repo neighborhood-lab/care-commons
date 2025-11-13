@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ConflictResolver } from '../database/sync/conflict-resolver.js';
-import { OfflineQueue } from '../database/sync/offline-queue.js';
+import { ConflictResolver } from '../database/sync/conflict-resolver';
+import { OfflineQueue } from '../database/sync/offline-queue';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock AsyncStorage
@@ -108,6 +108,98 @@ describe('Offline Sync', () => {
         '@offline_queue',
         JSON.stringify([]) // Empty because max retries exceeded
       );
+    });
+
+    it('should increment retries on failed actions', async () => {
+      const queueItem = {
+        id: '123',
+        type: 'visit-check-in',
+        payload: { visitId: 'visit-123' },
+        timestamp: Date.now(),
+        retries: 0 // First attempt
+      };
+
+      (AsyncStorage.getItem as any).mockResolvedValue(JSON.stringify([queueItem]));
+      (AsyncStorage.setItem as any).mockResolvedValue(undefined);
+      (global.fetch as any).mockRejectedValue(new Error('Network error'));
+
+      await OfflineQueue.processQueue();
+
+      // Item should be kept with retries incremented
+      const savedQueue = (AsyncStorage.setItem as any).mock.calls[0][1];
+      const parsedQueue = JSON.parse(savedQueue);
+      expect(parsedQueue).toHaveLength(1);
+      expect(parsedQueue[0].retries).toBe(1);
+    });
+
+    it('should handle empty queue gracefully', async () => {
+      (AsyncStorage.getItem as any).mockResolvedValue(null);
+
+      await OfflineQueue.processQueue();
+
+      // Should not crash and not call setItem
+      expect(AsyncStorage.setItem).not.toHaveBeenCalled();
+    });
+
+    it('should get queue items', async () => {
+      const queue = [
+        { id: '1', type: 'visit-check-in', payload: {}, timestamp: Date.now(), retries: 0 },
+        { id: '2', type: 'visit-check-out', payload: {}, timestamp: Date.now(), retries: 0 }
+      ];
+
+      (AsyncStorage.getItem as any).mockResolvedValue(JSON.stringify(queue));
+
+      const items = await OfflineQueue.getQueueItems();
+      expect(items).toHaveLength(2);
+      expect(items[0].type).toBe('visit-check-in');
+      expect(items[1].type).toBe('visit-check-out');
+    });
+
+    it('should retry failed items by resetting retry count', async () => {
+      const queue = [
+        { id: '1', type: 'visit-check-in', payload: {}, timestamp: Date.now(), retries: 2 },
+        { id: '2', type: 'visit-check-out', payload: {}, timestamp: Date.now(), retries: 0 }
+      ];
+
+      (AsyncStorage.getItem as any).mockResolvedValue(JSON.stringify(queue));
+      (AsyncStorage.setItem as any).mockResolvedValue(undefined);
+      (global.fetch as any).mockResolvedValue({ ok: true, json: async () => ({}) });
+
+      await OfflineQueue.retryFailedItems();
+
+      // Should reset retries and process queue
+      expect(AsyncStorage.setItem).toHaveBeenCalled();
+      const calls = (AsyncStorage.setItem as any).mock.calls;
+      
+      // First call resets retries
+      const resetQueue = JSON.parse(calls[0][1]);
+      expect(resetQueue[0].retries).toBe(0);
+      expect(resetQueue[1].retries).toBe(0);
+    });
+
+    it('should handle HTTP errors when executing actions', async () => {
+      const queueItem = {
+        id: '123',
+        type: 'visit-check-in',
+        payload: { visitId: 'visit-123' },
+        timestamp: Date.now(),
+        retries: 0
+      };
+
+      (AsyncStorage.getItem as any).mockResolvedValue(JSON.stringify([queueItem]));
+      (AsyncStorage.setItem as any).mockResolvedValue(undefined);
+      (global.fetch as any).mockResolvedValue({
+        ok: false,
+        status: 500
+      });
+
+      await OfflineQueue.processQueue();
+
+      // Should keep item with incremented retries
+      const savedQueue = (AsyncStorage.setItem as any).mock.calls[0][1];
+      const parsedQueue = JSON.parse(savedQueue);
+      expect(parsedQueue).toHaveLength(1);
+      expect(parsedQueue[0].retries).toBe(1);
     });
   });
 

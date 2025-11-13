@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import express, { type Express } from 'express';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
-import { configureCsrfProtection } from '../csrf.js';
+import { configureCsrfProtection } from '../csrf';
 
 describe('CSRF Protection Middleware', () => {
   let app: Express;
@@ -228,11 +228,11 @@ describe('CSRF Protection Middleware', () => {
       expect(response.body).toHaveProperty('csrfToken');
     });
 
-    it('should provide csrfToken() function on request object', async () => {
+    it('should provide csrfToken property on request object', async () => {
       let tokenFromRequest: string | undefined;
 
       app.get('/test-token-function', (req, res) => {
-        tokenFromRequest = req.csrfToken?.();
+        tokenFromRequest = (req as any).csrfToken;
         res.json({ token: tokenFromRequest });
       });
 

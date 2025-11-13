@@ -12,7 +12,7 @@
 
 import { Q, Query } from '@nozbe/watermelondb';
 import type { Database } from '@nozbe/watermelondb';
-import type { Visit } from '../models/Visit.js';
+import type { Visit } from '../models/Visit';
 import { startOfDay, endOfDay, subDays } from 'date-fns';
 
 /**

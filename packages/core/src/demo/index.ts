@@ -6,16 +6,16 @@
  * @packageDocumentation
  */
 
-export * from './types.js';
-export * from './demo-state-store.js';
-export * from './demo-session-manager.js';
+export * from './types';
+export * from './demo-state-store';
+export * from './demo-session-manager';
 
 export {
   getDemoStateStore,
   resetDemoStateStore
-} from './demo-state-store.js';
+} from './demo-state-store';
 
 export {
   getDemoSessionManager,
   resetDemoSessionManager
-} from './demo-session-manager.js';
+} from './demo-session-manager';

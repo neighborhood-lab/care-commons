@@ -242,6 +242,32 @@ export class CaregiverRepository extends Repository<Caregiver> {
   }
 
   /**
+   * Find caregiver by email
+   * 
+   * Used to link authenticated users to their caregiver profile.
+   * This is a temporary solution. Once user_id field is added to caregivers table,
+   * this method should be refactored to use direct user_id lookup for better performance.
+   * 
+   * @param email - Email address to search for (case-insensitive)
+   * @returns Caregiver profile if found, null otherwise
+   */
+  async findByEmail(email: string): Promise<Caregiver | null> {
+    const query = `
+      SELECT * FROM ${this.tableName}
+      WHERE LOWER(email) = LOWER($1)
+        AND deleted_at IS NULL
+    `;
+
+    const result = await this.database.query(query, [email]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return this.mapRowToEntity(result.rows[0]!);
+  }
+
+  /**
    * Find caregiver by employee number
    */
   async findByEmployeeNumber(

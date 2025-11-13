@@ -11,7 +11,7 @@ import Constants from 'expo-constants';
 import * as Battery from 'expo-battery';
 import NetInfo from '@react-native-community/netinfo';
 import { Platform } from 'react-native';
-import type { DeviceInfo } from '../shared/index.js';
+import type { DeviceInfo } from '../shared/index';
 
 export class DeviceInfoService {
   /**

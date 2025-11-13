@@ -6,7 +6,7 @@
  */
 
 import { useMemo, useCallback } from 'react';
-import { TimezoneUtils } from '@care-commons/core';
+import { TimezoneUtils } from '@care-commons/core/browser';
 import * as Localization from 'expo-localization';
 
 export interface UseTimezoneResult {
@@ -70,7 +70,7 @@ export interface UseTimezoneResult {
 export const useTimezone = (): UseTimezoneResult => {
   // Get device timezone with fallback
   const timezone = useMemo(() => {
-    const deviceTimezone = Localization.timezone;
+    const deviceTimezone = Localization.getCalendars()[0]?.timeZone ?? null;
     if (deviceTimezone && TimezoneUtils.isValidTimezone(deviceTimezone)) {
       return deviceTimezone;
     }

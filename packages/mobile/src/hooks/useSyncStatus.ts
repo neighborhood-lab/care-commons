@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import NetInfo from '@react-native-community/netinfo';
-import { syncManager } from '../database/sync/sync-manager.js';
+import { syncManager } from '../database/sync/sync-manager';
 
 export function useSyncStatus() {
   const [isOnline, setIsOnline] = useState(true);
