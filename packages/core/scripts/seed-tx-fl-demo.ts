@@ -27,6 +27,7 @@ const FIXED_IDS = {
   floridaAdminId: '00000000-0000-4000-8000-000000000022',
   texasCoordinatorId: '00000000-0000-4000-8000-000000000023',
   floridaCoordinatorId: '00000000-0000-4000-8000-000000000024',
+  globalFamilyUserId: '00000000-0000-4000-8000-000000000025',
 };
 
 interface SeedContext {
@@ -252,7 +253,7 @@ async function seedUsers(ctx: SeedContext): Promise<void> {
       ($1, $2, 'family@carecommons.example', 'family@carecommons.example', $3, 'Demo', 'Family',
        '{FAMILY}', '{family_portal:read}', 'ACTIVE', NOW(), $1, NOW(), $1)
     ON CONFLICT (email) DO NOTHING
-  `, ['family-user-global-demo', ctx.texasOrgId, familyPasswordHash]);
+  `, [FIXED_IDS.globalFamilyUserId, ctx.texasOrgId, familyPasswordHash]);
   
   // Texas users
   await pool.query(`
