@@ -425,4 +425,175 @@ describe('FamilyEngagementService', () => {
       expect(result.accessExpiresAt).toBe(expirationDate);
     });
   });
+
+  describe('sendNotification', () => {
+    const notificationInput = {
+      familyMemberId: 'member-123',
+      clientId: 'client-123',
+      category: 'VISIT' as const,
+      priority: 'NORMAL' as const,
+      title: 'Visit completed',
+      message: 'Your family member\'s visit was completed',
+      relatedEntityType: 'VISIT' as const,
+      relatedEntityId: 'visit-123',
+    };
+
+    it('should send notification to family member', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(true);
+      mockFamilyMemberRepo.findById.mockResolvedValue({
+        id: 'member-123',
+        receiveNotifications: true,
+        preferredContactMethod: 'EMAIL',
+        email: 'john@example.com',
+        phoneNumber: '555-0123',
+      });
+
+      const createdNotification = {
+        id: 'notification-123',
+        ...notificationInput,
+        createdAt: new Date(),
+        readAt: null,
+      };
+      mockNotificationRepo.createNotification.mockResolvedValue(createdNotification);
+
+      // Act
+      const result = await service.sendNotification(notificationInput, userContext);
+
+      // Assert
+      expect(result).toEqual(createdNotification);
+      expect(mockNotificationRepo.createNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...notificationInput,
+          createdBy: 'user-123',
+          organizationId: 'org-123',
+        })
+      );
+    });
+
+    it('should reject without send permissions', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(false);
+
+      // Act & Assert
+      await expect(
+        service.sendNotification(notificationInput, userContext)
+      ).rejects.toThrow('Insufficient permissions to send notifications');
+    });
+
+    it('should throw error when family member not found', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(true);
+      mockFamilyMemberRepo.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(
+        service.sendNotification(notificationInput, userContext)
+      ).rejects.toThrow('Family member not found');
+    });
+
+    it('should throw error when notifications are disabled', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(true);
+      mockFamilyMemberRepo.findById.mockResolvedValue({
+        id: 'member-123',
+        receiveNotifications: false,
+      });
+
+      // Act & Assert
+      await expect(
+        service.sendNotification(notificationInput, userContext)
+      ).rejects.toThrow('Family member has disabled notifications');
+    });
+
+    it('should handle SMS preferred contact method', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(true);
+      mockFamilyMemberRepo.findById.mockResolvedValue({
+        id: 'member-123',
+        receiveNotifications: true,
+        preferredContactMethod: 'SMS',
+        phoneNumber: '555-0123',
+      });
+
+      const createdNotification = {
+        id: 'notification-123',
+        ...notificationInput,
+        createdAt: new Date(),
+      };
+      mockNotificationRepo.createNotification.mockResolvedValue(createdNotification);
+
+      // Act
+      const result = await service.sendNotification(notificationInput, userContext);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(mockNotificationRepo.createNotification).toHaveBeenCalled();
+    });
+  });
+
+  describe('getUnreadNotifications', () => {
+    it('should return unread notifications', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(true);
+      const notifications = [
+        { id: 'notif-1', title: 'Visit completed', readAt: null },
+        { id: 'notif-2', title: 'Care plan updated', readAt: null },
+      ];
+      mockNotificationRepo.getUnreadNotifications = vi.fn().mockResolvedValue(notifications);
+
+      // Act
+      const result = await service.getUnreadNotifications('member-123', userContext);
+
+      // Assert
+      expect(result).toEqual(notifications);
+      expect(mockNotificationRepo.getUnreadNotifications).toHaveBeenCalledWith('member-123');
+    });
+
+    it('should reject without view permissions', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(false);
+
+      // Act & Assert
+      await expect(
+        service.getUnreadNotifications('member-123', userContext)
+      ).rejects.toThrow('Insufficient permissions to view notifications');
+    });
+
+    it('should return empty array when no unread notifications', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(true);
+      mockNotificationRepo.getUnreadNotifications = vi.fn().mockResolvedValue([]);
+
+      // Act
+      const result = await service.getUnreadNotifications('member-123', userContext);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('markNotificationAsRead', () => {
+    it('should mark notification as read', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(true);
+      mockNotificationRepo.markAsRead = vi.fn().mockResolvedValue(undefined);
+
+      // Act
+      await service.markNotificationAsRead('notification-123', userContext);
+
+      // Assert
+      expect(mockNotificationRepo.markAsRead).toHaveBeenCalledWith('notification-123');
+    });
+
+    it('should reject without view permissions', async () => {
+      // Arrange
+      mockPermissions.hasPermission.mockReturnValue(false);
+
+      // Act & Assert
+      await expect(
+        service.markNotificationAsRead('notification-123', userContext)
+      ).rejects.toThrow('Insufficient permissions to update notifications');
+    });
+  });
 });
