@@ -38,7 +38,7 @@ npx turbo run test:coverage --concurrency=4
 echo "🏗️  Building project..."
 npx turbo run build
 
-echo "🗄️  Setting up database..."
+echo "🗄️  Setting up database with comprehensive demo data..."
 npm run db:nuke
 npm run db:migrate
 npm run db:seed
