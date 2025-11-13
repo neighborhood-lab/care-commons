@@ -15,10 +15,20 @@
     {
       "source": "/health",
       "destination": "/api"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/health",
+      "dest": "/api"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "headers": [

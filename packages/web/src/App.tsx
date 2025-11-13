@@ -16,6 +16,10 @@ import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
+import { QADashboard, AuditsPage, AuditDetailPage, CorrectiveActionsPage } from './verticals/quality-assurance';
+import { CaregiverList } from './verticals/caregivers';
+import { PayrollReports, CaregiverPayStubs, PayStubList, PayStubDetail, PayPeriodManagement } from './verticals/payroll-processing';
+import { MatchAnalyticsDashboard } from './verticals/shift-matching';
 import { DemoModeBar } from './demo';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
 import {
@@ -171,12 +175,22 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/caregivers/*"
+        path="/caregivers"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CaregiverList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scheduling"
         element={
           <ProtectedRoute>
             <AppShell>
               <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Caregivers Module</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Scheduling & Visits</h2>
                 <p className="text-gray-600 mt-2">Coming soon...</p>
               </div>
             </AppShell>
@@ -199,6 +213,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <OpenShiftDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shift-matching/analytics"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <MatchAnalyticsDashboard />
             </AppShell>
           </ProtectedRoute>
         }
@@ -334,6 +358,56 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/payroll/reports"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayrollReports />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/pay-stubs"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayStubList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/pay-stubs/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayStubDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/caregivers/:caregiverId/pay-stubs"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CaregiverPayStubs />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payroll/pay-periods"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PayPeriodManagement />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin"
         element={
           <ProtectedRoute>
@@ -369,6 +443,46 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <ReportsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quality-assurance"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <QADashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quality-assurance/audits"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <AuditsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quality-assurance/audits/:id"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <AuditDetailPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quality-assurance/corrective-actions"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CorrectiveActionsPage />
             </AppShell>
           </ProtectedRoute>
         }
