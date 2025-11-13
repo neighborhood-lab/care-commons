@@ -514,7 +514,7 @@ async function seedDatabase() {
               first_name, last_name, date_of_birth, gender,
               primary_phone, email, primary_address,
               emergency_contacts, status, intake_date,
-              medicaid_number, medicare_number,
+              insurance, service_eligibility,
               created_by, updated_by, is_demo_data
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
             `,
@@ -547,8 +547,34 @@ async function seedDatabase() {
               }]),
               'ACTIVE',
               randomDateBetween(daysAgo(365), daysAgo(30)),
-              newClient.medicaidNumber,
-              newClient.medicareNumber,
+              JSON.stringify({
+                primary: newClient.medicaidNumber || newClient.medicareNumber ? {
+                  type: newClient.medicaidNumber ? 'MEDICAID' : 'MEDICARE',
+                  memberId: newClient.medicaidNumber || newClient.medicareNumber,
+                  provider: newClient.medicaidNumber ? 'State Medicaid' : 'Medicare',
+                  isActive: true
+                } : null,
+                secondary: (newClient.medicaidNumber && newClient.medicareNumber) ? {
+                  type: 'MEDICARE',
+                  memberId: newClient.medicareNumber,
+                  provider: 'Medicare',
+                  isActive: true
+                } : null
+              }),
+              JSON.stringify({
+                medicaid: newClient.medicaidNumber ? {
+                  eligible: true,
+                  memberId: newClient.medicaidNumber,
+                  state: newClient.state,
+                  programType: 'COMMUNITY_BASED'
+                } : { eligible: false },
+                medicare: newClient.medicareNumber ? {
+                  eligible: true,
+                  memberId: newClient.medicareNumber,
+                  partA: true,
+                  partB: true
+                } : { eligible: false }
+              }),
               newClient.createdBy,
               newClient.createdBy,
             ]
