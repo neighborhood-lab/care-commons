@@ -28,6 +28,28 @@ export class ClientRepository extends Repository<Client> {
   }
 
   /**
+   * Parse JSON field that might already be an object (from JSONB columns)
+   */
+  private parseJsonField<T = unknown>(value: unknown, defaultValue?: T): T | unknown {
+    if (value === null || value === undefined) {
+      return defaultValue;
+    }
+    // If it's already an object, return it
+    if (typeof value === 'object') {
+      return value as T;
+    }
+    // If it's a string, parse it
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value) as T;
+      } catch {
+        return defaultValue;
+      }
+    }
+    return defaultValue;
+  }
+
+  /**
    * Map required client fields from database row
    */
   private mapRequiredFields(row: Record<string, unknown>): Client {
@@ -39,12 +61,12 @@ export class ClientRepository extends Repository<Client> {
       firstName: row['first_name'] as string,
       lastName: row['last_name'] as string,
       dateOfBirth: row['date_of_birth'] as Date,
-      primaryAddress: JSON.parse(row['primary_address'] as string),
-      emergencyContacts: JSON.parse((row['emergency_contacts'] as string | null) ?? '[]'),
-      authorizedContacts: JSON.parse((row['authorized_contacts'] as string | null) ?? '[]'),
-      programs: JSON.parse((row['programs'] as string | null) ?? '[]'),
-      serviceEligibility: JSON.parse(row['service_eligibility'] as string),
-      riskFlags: JSON.parse((row['risk_flags'] as string | null) ?? '[]'),
+      primaryAddress: this.parseJsonField(row['primary_address']) as Client['primaryAddress'],
+      emergencyContacts: this.parseJsonField(row['emergency_contacts']) as Client['emergencyContacts'],
+      authorizedContacts: this.parseJsonField(row['authorized_contacts']) as Client['authorizedContacts'],
+      programs: this.parseJsonField(row['programs']) as Client['programs'],
+      serviceEligibility: this.parseJsonField(row['service_eligibility']) as Client['serviceEligibility'],
+      riskFlags: this.parseJsonField(row['risk_flags']) as Client['riskFlags'],
       status: row['status'] as ClientStatus,
       createdAt: row['created_at'] as Date,
       createdBy: row['created_by'] as string,
@@ -81,8 +103,10 @@ export class ClientRepository extends Repository<Client> {
     const ethnicity = row['ethnicity'] as string | undefined;
     if (ethnicity !== undefined) entity.ethnicity = ethnicity;
 
-    const race = row['race'] as string | undefined;
-    if (race !== undefined) entity.race = JSON.parse(race);
+    const race = row['race'];
+    if (race !== undefined && race !== null) {
+      entity.race = this.parseJsonField(race) as typeof entity.race;
+    }
 
     const maritalStatus = row['marital_status'] as MaritalStatus | undefined;
     if (maritalStatus !== undefined) entity.maritalStatus = maritalStatus;
@@ -95,11 +119,15 @@ export class ClientRepository extends Repository<Client> {
    * Map optional contact fields
    */
   private mapOptionalContactFields(row: Record<string, unknown>, entity: Client): void {
-    const primaryPhone = row['primary_phone'] as string | undefined;
-    if (primaryPhone !== undefined) entity.primaryPhone = JSON.parse(primaryPhone);
+    const primaryPhone = row['primary_phone'];
+    if (primaryPhone !== undefined && primaryPhone !== null) {
+      entity.primaryPhone = this.parseJsonField(primaryPhone) as typeof entity.primaryPhone;
+    }
 
-    const alternatePhone = row['alternate_phone'] as string | undefined;
-    if (alternatePhone !== undefined) entity.alternatePhone = JSON.parse(alternatePhone);
+    const alternatePhone = row['alternate_phone'];
+    if (alternatePhone !== undefined && alternatePhone !== null) {
+      entity.alternatePhone = this.parseJsonField(alternatePhone) as typeof entity.alternatePhone;
+    }
 
     const email = row['email'] as string | undefined;
     if (email !== undefined) entity.email = email;
@@ -107,17 +135,25 @@ export class ClientRepository extends Repository<Client> {
     const preferredContactMethod = row['preferred_contact_method'] as ContactMethod | undefined;
     if (preferredContactMethod !== undefined) entity.preferredContactMethod = preferredContactMethod;
 
-    const communicationPreferences = row['communication_preferences'] as string | undefined;
-    if (communicationPreferences !== undefined) entity.communicationPreferences = JSON.parse(communicationPreferences);
+    const communicationPreferences = row['communication_preferences'];
+    if (communicationPreferences !== undefined && communicationPreferences !== null) {
+      entity.communicationPreferences = this.parseJsonField(communicationPreferences) as typeof entity.communicationPreferences;
+    }
 
-    const secondaryAddresses = row['secondary_addresses'] as string | undefined;
-    if (secondaryAddresses !== undefined) entity.secondaryAddresses = JSON.parse(secondaryAddresses);
+    const secondaryAddresses = row['secondary_addresses'];
+    if (secondaryAddresses !== undefined && secondaryAddresses !== null) {
+      entity.secondaryAddresses = this.parseJsonField(secondaryAddresses) as typeof entity.secondaryAddresses;
+    }
 
-    const livingArrangement = row['living_arrangement'] as string | undefined;
-    if (livingArrangement !== undefined) entity.livingArrangement = JSON.parse(livingArrangement);
+    const livingArrangement = row['living_arrangement'];
+    if (livingArrangement !== undefined && livingArrangement !== null) {
+      entity.livingArrangement = this.parseJsonField(livingArrangement) as typeof entity.livingArrangement;
+    }
 
-    const mobilityInfo = row['mobility_info'] as string | undefined;
-    if (mobilityInfo !== undefined) entity.mobilityInfo = JSON.parse(mobilityInfo);
+    const mobilityInfo = row['mobility_info'];
+    if (mobilityInfo !== undefined && mobilityInfo !== null) {
+      entity.mobilityInfo = this.parseJsonField(mobilityInfo) as typeof entity.mobilityInfo;
+    }
 
     const accessInstructions = row['access_instructions'] as string | undefined;
     if (accessInstructions !== undefined) entity.accessInstructions = accessInstructions;
@@ -127,23 +163,33 @@ export class ClientRepository extends Repository<Client> {
    * Map optional medical fields
    */
   private mapOptionalMedicalFields(row: Record<string, unknown>, entity: Client): void {
-    const primaryPhysician = row['primary_physician'] as string | undefined;
-    if (primaryPhysician !== undefined) entity.primaryPhysician = JSON.parse(primaryPhysician);
+    const primaryPhysician = row['primary_physician'];
+    if (primaryPhysician !== undefined && primaryPhysician !== null) {
+      entity.primaryPhysician = this.parseJsonField(primaryPhysician) as typeof entity.primaryPhysician;
+    }
 
-    const pharmacy = row['pharmacy'] as string | undefined;
-    if (pharmacy !== undefined) entity.pharmacy = JSON.parse(pharmacy);
+    const pharmacy = row['pharmacy'];
+    if (pharmacy !== undefined && pharmacy !== null) {
+      entity.pharmacy = this.parseJsonField(pharmacy) as typeof entity.pharmacy;
+    }
 
-    const insurance = row['insurance'] as string | undefined;
-    if (insurance !== undefined) entity.insurance = JSON.parse(insurance);
+    const insurance = row['insurance'];
+    if (insurance !== undefined && insurance !== null) {
+      entity.insurance = this.parseJsonField(insurance) as typeof entity.insurance;
+    }
 
     const medicalRecordNumber = row['medical_record_number'] as string | undefined;
     if (medicalRecordNumber !== undefined) entity.medicalRecordNumber = medicalRecordNumber;
 
-    const fundingSources = row['funding_sources'] as string | undefined;
-    if (fundingSources !== undefined) entity.fundingSources = JSON.parse(fundingSources);
+    const fundingSources = row['funding_sources'];
+    if (fundingSources !== undefined && fundingSources !== null) {
+      entity.fundingSources = this.parseJsonField(fundingSources) as typeof entity.fundingSources;
+    }
 
-    const allergies = row['allergies'] as string | undefined;
-    if (allergies !== undefined) entity.allergies = JSON.parse(allergies);
+    const allergies = row['allergies'];
+    if (allergies !== undefined && allergies !== null) {
+      entity.allergies = this.parseJsonField(allergies) as typeof entity.allergies;
+    }
 
     const specialInstructions = row['special_instructions'] as string | undefined;
     if (specialInstructions !== undefined) entity.specialInstructions = specialInstructions;
@@ -168,8 +214,10 @@ export class ClientRepository extends Repository<Client> {
     const notes = row['notes'] as string | undefined;
     if (notes !== undefined) entity.notes = notes;
 
-    const customFields = row['custom_fields'] as string | undefined;
-    if (customFields !== undefined) entity.customFields = JSON.parse(customFields);
+    const customFields = row['custom_fields'];
+    if (customFields !== undefined && customFields !== null) {
+      entity.customFields = this.parseJsonField(customFields) as typeof entity.customFields;
+    }
   }
 
   /**

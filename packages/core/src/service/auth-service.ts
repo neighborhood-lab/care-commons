@@ -22,6 +22,7 @@ import { PasswordUtils } from '../utils/password-utils';
 import { JWTUtils, TokenPayload, TokenPair } from '../utils/jwt-utils';
 import { getCacheService } from './cache.service';
 import { CacheKeys, CacheTTL } from '../constants/cache-keys';
+import { PermissionService } from '../permissions/permission-service';
 
 /**
  * Google OAuth profile data
@@ -75,6 +76,7 @@ interface UserRecord {
 
 export class AuthService {
   private googleClient: OAuth2Client;
+  private permissionService: PermissionService;
 
   // Rate limiting constants
   private static readonly MAX_FAILED_ATTEMPTS = 5;
@@ -86,12 +88,25 @@ export class AuthService {
     // Initialize Google OAuth client
     const googleClientId = process.env['GOOGLE_CLIENT_ID'] ?? '';
     this.googleClient = new OAuth2Client(googleClientId);
+
+    // Initialize permission service
+    this.permissionService = new PermissionService();
+  }
+
+  /**
+   * Merge explicit permissions with role-based permissions
+   * @private
+   */
+  private mergePermissions(explicitPermissions: string[], roles: string[]): string[] {
+    const rolePerms = this.permissionService.getPermissionsForRoles(roles);
+    const merged = new Set([...explicitPermissions, ...rolePerms]);
+    return Array.from(merged);
   }
 
   /**
    * Authenticate with Google OAuth
    * Primary authentication method for production
-   * 
+   *
    * @param idToken - Google ID token from client
    * @param organizationId - Organization ID for new user registration
    * @returns Login result with user info and tokens
@@ -137,13 +152,16 @@ export class AuthService {
       });
     }
 
+    // Merge explicit and role-based permissions
+    const mergedPermissions = this.mergePermissions(user.permissions, user.roles);
+
     // Generate tokens
     const tokenPayload: TokenPayload = {
       userId: user.id,
       email: user.email,
       organizationId: user.organization_id,
       roles: user.roles,
-      permissions: user.permissions,
+      permissions: mergedPermissions,
       tokenVersion: user.token_version
     };
 
@@ -161,7 +179,7 @@ export class AuthService {
         email: user.email,
         name: `${user.first_name} ${user.last_name}`,
         roles: user.roles,
-        permissions: user.permissions,
+        permissions: mergedPermissions,
         organizationId: user.organization_id
       },
       tokens
@@ -242,13 +260,16 @@ export class AuthService {
       await this.updatePasswordHash(user.id, newHash);
     }
 
+    // Merge explicit and role-based permissions
+    const mergedPermissions = this.mergePermissions(user.permissions, user.roles);
+
     // Generate tokens
     const tokenPayload: TokenPayload = {
       userId: user.id,
       email: user.email,
       organizationId: user.organization_id,
       roles: user.roles,
-      permissions: user.permissions,
+      permissions: mergedPermissions,
       tokenVersion: user.token_version
     };
 
@@ -259,9 +280,9 @@ export class AuthService {
 
     // Audit log
     await this.logAuthEvent(
-      user.id, 
-      'LOGIN_SUCCESS', 
-      'PASSWORD', 
+      user.id,
+      'LOGIN_SUCCESS',
+      'PASSWORD',
       'SUCCESS',
       undefined,
       ipAddress,
@@ -274,7 +295,7 @@ export class AuthService {
         email: user.email,
         name: `${user.first_name} ${user.last_name}`,
         roles: user.roles,
-        permissions: user.permissions,
+        permissions: mergedPermissions,
         organizationId: user.organization_id
       },
       tokens

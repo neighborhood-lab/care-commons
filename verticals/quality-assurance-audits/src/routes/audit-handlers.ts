@@ -19,14 +19,18 @@ interface RequestWithContext extends Request {
 
 /**
  * Create audit routes
+ * @param auditService - Audit service instance
+ * @param router - Express router
+ * @param db - Database instance for auth middleware
  */
-export function createAuditRoutes(auditService: AuditService, router: Router): Router {
-  // Initialize authentication middleware
-  const authMiddleware = new AuthMiddleware({} as Database);
-
-  // All audit routes require authentication
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  router.use(authMiddleware.requireAuth as any);
+export function createAuditRoutes(auditService: AuditService, router: Router, db?: Database): Router {
+  // Initialize authentication middleware if database provided
+  if (db) {
+    const authMiddleware = new AuthMiddleware(db);
+    // All audit routes require authentication
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    router.use(authMiddleware.requireAuth as any);
+  }
 
   // Map req.user to req.userContext for compatibility
   router.use((req: RequestWithContext, _res: Response, next) => {

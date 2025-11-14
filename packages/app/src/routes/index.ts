@@ -226,7 +226,7 @@ export function setupRoutes(app: Express, db: Database): void {
     permissionService
   );
   const auditRouter = Router();
-  createAuditRoutes(auditService, auditRouter);
+  createAuditRoutes(auditService, auditRouter, db);
   app.use('/api', generalApiLimiter, auditRouter);
   console.log('  ✓ Quality Assurance & Audits routes registered (with rate limiting)');
 
@@ -254,7 +254,7 @@ export function setupRoutes(app: Express, db: Database): void {
   console.log('  ✓ Push Notifications routes registered (with rate limiting)');
 
   // Additional verticals can be added here as they implement route handlers:
-  // - Scheduling & Visits
+  // - Family Engagement (in progress)
   // - EVV & Time Tracking
   // - Shift Matching
   // - Billing & Invoicing
