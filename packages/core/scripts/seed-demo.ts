@@ -1,16 +1,17 @@
 /**
  * Demo Database Seeding Script
  *
- * Seeds comprehensive realistic demo data covering all states, roles, and features:
- * - 60 clients across TX, FL, OH (various demographics, conditions, care needs)
- * - 35 caregivers with certifications, specializations, varied roles
- * - 600+ visits (past, present, future) with full EVV data
- * - 50+ care plans with tasks and goals
- * - 40+ family members with portal access
+ * Seeds comprehensive realistic demo data for TEXAS ONLY with rich personas:
+ * - 5 login personas (Admin, Coordinator, Caregiver, Nurse, Family)
+ * - 12 clients (all Texas addresses - Austin, Houston, Dallas, San Antonio)
+ * - 8 caregivers (including Sarah Chen from caregiver persona)
+ * - 50 visits (past, present, future) with full EVV data
+ * - 10 care plans with tasks and goals
+ * - 5 family members (including Emily Johnson)
  * - Billing and invoicing data
  * - Complete workflow demonstrations
  *
- * This is THE comprehensive demo - covers everything with realistic, useful fake data.
+ * This is THE comprehensive demo - consolidated to Texas for coherent relationships.
  *
  * Usage: npm run db:seed:demo
  *
@@ -31,90 +32,54 @@ dotenvConfig({ path: '.env', quiet: true });
 // ═══════════════════════════════════════════════════════════════════════════
 
 const SEED_CONFIG = {
-  clients: 60,        // 20 per state (TX, FL, OH)
-  caregivers: 35,     // Mix of CNAs, HHAs, companions
-  visits: 600,        // ~10 visits per client
-  carePlans: 50,      // ~83% of clients have care plans
-  familyMembers: 40,  // ~67% of clients have family portal access
+  clients: 12,        // All in Texas (Austin, Houston, Dallas, San Antonio)
+  caregivers: 8,      // Including Sarah Chen persona
+  visits: 50,         // Distributed across clients with proper relationships
+  carePlans: 10,      // ~83% of clients have care plans
+  familyMembers: 5,   // Including Emily Johnson persona
 };
 
-// All 50 US States + DC
-const US_STATES = [
-  { code: 'AL', name: 'Alabama' },
-  { code: 'AK', name: 'Alaska' },
-  { code: 'AZ', name: 'Arizona' },
-  { code: 'AR', name: 'Arkansas' },
-  { code: 'CA', name: 'California' },
-  { code: 'CO', name: 'Colorado' },
-  { code: 'CT', name: 'Connecticut' },
-  { code: 'DE', name: 'Delaware' },
-  { code: 'FL', name: 'Florida' },
-  { code: 'GA', name: 'Georgia' },
-  { code: 'HI', name: 'Hawaii' },
-  { code: 'ID', name: 'Idaho' },
-  { code: 'IL', name: 'Illinois' },
-  { code: 'IN', name: 'Indiana' },
-  { code: 'IA', name: 'Iowa' },
-  { code: 'KS', name: 'Kansas' },
-  { code: 'KY', name: 'Kentucky' },
-  { code: 'LA', name: 'Louisiana' },
-  { code: 'ME', name: 'Maine' },
-  { code: 'MD', name: 'Maryland' },
-  { code: 'MA', name: 'Massachusetts' },
-  { code: 'MI', name: 'Michigan' },
-  { code: 'MN', name: 'Minnesota' },
-  { code: 'MS', name: 'Mississippi' },
-  { code: 'MO', name: 'Missouri' },
-  { code: 'MT', name: 'Montana' },
-  { code: 'NE', name: 'Nebraska' },
-  { code: 'NV', name: 'Nevada' },
-  { code: 'NH', name: 'New Hampshire' },
-  { code: 'NJ', name: 'New Jersey' },
-  { code: 'NM', name: 'New Mexico' },
-  { code: 'NY', name: 'New York' },
-  { code: 'NC', name: 'North Carolina' },
-  { code: 'ND', name: 'North Dakota' },
-  { code: 'OH', name: 'Ohio' },
-  { code: 'OK', name: 'Oklahoma' },
-  { code: 'OR', name: 'Oregon' },
-  { code: 'PA', name: 'Pennsylvania' },
-  { code: 'RI', name: 'Rhode Island' },
-  { code: 'SC', name: 'South Carolina' },
-  { code: 'SD', name: 'South Dakota' },
-  { code: 'TN', name: 'Tennessee' },
-  { code: 'TX', name: 'Texas' },
-  { code: 'UT', name: 'Utah' },
-  { code: 'VT', name: 'Vermont' },
-  { code: 'VA', name: 'Virginia' },
-  { code: 'WA', name: 'Washington' },
-  { code: 'WV', name: 'West Virginia' },
-  { code: 'WI', name: 'Wisconsin' },
-  { code: 'WY', name: 'Wyoming' },
-  { code: 'DC', name: 'District of Columbia' },
+// Texas cities for realistic addresses
+const TEXAS_CITIES = [
+  { name: 'Austin', zipPrefix: '787' },
+  { name: 'Houston', zipPrefix: '770' },
+  { name: 'Dallas', zipPrefix: '752' },
+  { name: 'San Antonio', zipPrefix: '782' },
 ] as const;
 
-// Role definitions for state-specific users
-interface RoleDefinition {
-  value: string;
-  label: string;
+// Texas phone area codes
+const TEXAS_AREA_CODES = ['512', '210', '713', '214', '817', '469', '281', '832'] as const;
+
+// 5 Demo Personas (all Texas-based)
+interface DemoPersona {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
   roles: string[];
   permissions: string[];
+  description: string;
 }
 
-const ROLES: RoleDefinition[] = [
+const DEMO_PERSONAS: DemoPersona[] = [
   {
-    value: 'ADMIN',
-    label: 'Administrator',
+    email: 'admin@tx.carecommons.example',
+    password: 'Demo123!',
+    firstName: 'Maria',
+    lastName: 'Rodriguez',
     roles: ['SUPER_ADMIN'],
     permissions: [
       'organizations:*', 'users:*', 'clients:*', 'caregivers:*',
       'visits:*', 'schedules:*', 'care-plans:*', 'tasks:*', 'billing:*',
       'reports:*', 'settings:*'
-    ]
+    ],
+    description: 'Administrator - Full system access'
   },
   {
-    value: 'COORDINATOR',
-    label: 'Care Coordinator',
+    email: 'coordinator@tx.carecommons.example',
+    password: 'Demo123!',
+    firstName: 'James',
+    lastName: 'Thompson',
     roles: ['COORDINATOR', 'SCHEDULER'],
     permissions: [
       'clients:create', 'clients:read', 'clients:update',
@@ -124,37 +89,47 @@ const ROLES: RoleDefinition[] = [
       'care-plans:create', 'care-plans:read', 'care-plans:update',
       'tasks:create', 'tasks:read', 'tasks:update',
       'reports:read', 'reports:generate'
-    ]
+    ],
+    description: 'Care Coordinator - Schedules visits, assigns caregivers'
   },
   {
-    value: 'CAREGIVER',
-    label: 'Caregiver',
+    email: 'caregiver@tx.carecommons.example',
+    password: 'Demo123!',
+    firstName: 'Sarah',
+    lastName: 'Chen',
     roles: ['CAREGIVER'],
     permissions: [
       'clients:read', 'visits:read', 'visits:clock-in', 'visits:clock-out',
       'visits:update', 'care-plans:read', 'tasks:read', 'tasks:update'
-    ]
+    ],
+    description: 'Caregiver - Provides direct care, clocks in/out'
   },
   {
-    value: 'FAMILY',
-    label: 'Family Member',
-    roles: ['FAMILY'],
-    permissions: [
-      'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read',
-      'family-portal:view', 'notifications:view', 'messages:view', 'messages:write',
-      'activity-feed:view'
-    ]
-  },
-  {
-    value: 'NURSE',
-    label: 'Nurse/Clinical',
+    email: 'nurse@tx.carecommons.example',
+    password: 'Demo123!',
+    firstName: 'David',
+    lastName: 'Williams',
     roles: ['NURSE', 'CLINICAL'],
     permissions: [
       'clients:read', 'clients:update', 'visits:read', 'visits:create',
       'visits:update', 'care-plans:create', 'care-plans:read',
       'care-plans:update', 'tasks:create', 'tasks:read', 'tasks:update',
       'medications:*', 'clinical:*'
-    ]
+    ],
+    description: 'RN Clinical - Assessments, medication management'
+  },
+  {
+    email: 'family@tx.carecommons.example',
+    password: 'Demo123!',
+    firstName: 'Emily',
+    lastName: 'Johnson',
+    roles: ['FAMILY'],
+    permissions: [
+      'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read',
+      'family-portal:view', 'notifications:view', 'messages:view', 'messages:write',
+      'activity-feed:view'
+    ],
+    description: 'Family Member - Daughter of Margaret Johnson'
   }
 ];
 
@@ -235,59 +210,48 @@ function generateClient(
   index: number,
   orgId: string,
   branchId: string,
-  systemUserId: string,
-  state: string
+  systemUserId: string
 ): ClientData {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const gender = faker.helpers.arrayElement(['MALE', 'FEMALE', 'NON_BINARY']);
-  
+
   // Generate age-appropriate date of birth (65-95 years old)
   const age = faker.number.int({ min: 65, max: 95 });
   const dob = new Date();
   dob.setFullYear(dob.getFullYear() - age);
-  
-  // State-specific phone and zip patterns
-  const phoneAreaCodes = {
-    TX: ['512', '210', '713', '214', '817'],
-    FL: ['305', '407', '813', '904', '561'],
-    OH: ['216', '614', '513', '419', '937'],
-  };
-  
-  const areaCode = randomElement(phoneAreaCodes[state]);
+
+  // Texas cities (evenly distributed)
+  const cityData = TEXAS_CITIES[index % TEXAS_CITIES.length];
+  const city = cityData.name;
+  const zipCode = `${cityData.zipPrefix}${String(faker.number.int({ min: 10, max: 99 }))}`;
+
+  // Texas phone area code
+  const areaCode = randomElement(Array.from(TEXAS_AREA_CODES));
   const phone = `${areaCode}-555-${String(index).padStart(4, '0')}`;
-  
-  // State-specific cities
-  const cities = {
-    TX: ['Austin', 'Houston', 'Dallas', 'San Antonio', 'Fort Worth'],
-    FL: ['Miami', 'Orlando', 'Tampa', 'Jacksonville', 'Fort Lauderdale'],
-    OH: ['Columbus', 'Cleveland', 'Cincinnati', 'Toledo', 'Akron'],
-  };
-  
-  const city = randomElement(cities[state]);
-  
+
   return {
     id: uuidv4(),
     organizationId: orgId,
     branchId,
-    clientNumber: `CL-${state}-${String(index).padStart(4, '0')}`,
+    clientNumber: `CL-TX-${String(index).padStart(4, '0')}`,
     firstName,
     lastName,
     dateOfBirth: dob,
     gender,
-    state,
+    state: 'TX',
     city,
     address: faker.location.streetAddress(),
-    zipCode: faker.location.zipCode(),
+    zipCode,
     phone,
     email: faker.internet.email({ firstName, lastName }).toLowerCase(),
     emergencyContactName: faker.person.fullName(),
     emergencyContactPhone: `${areaCode}-555-${faker.string.numeric(4)}`,
-    medicaidNumber: Math.random() > 0.3 ? `MC-${state}-${faker.string.numeric(7)}` : null,
+    medicaidNumber: Math.random() > 0.3 ? `MC-TX-${faker.string.numeric(7)}` : null,
     medicareNumber: Math.random() > 0.4 ? `MCR${faker.string.numeric(9)}${randomElement(['A', 'B', 'C', 'D'])}` : null,
     diagnosis: randomElement<string>([
       'Alzheimer\'s Disease',
-      'Parkinson\'s Disease', 
+      'Parkinson\'s Disease',
       'Diabetes Type 2',
       'Heart Disease',
       'Stroke Recovery',
@@ -332,25 +296,27 @@ function generateCaregiver(
   index: number,
   orgId: string,
   branchId: string,
-  systemUserId: string
+  systemUserId: string,
+  specificName?: { firstName: string; lastName: string }
 ): CaregiverData {
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
+  // Use specific name if provided (for Sarah Chen persona), otherwise generate
+  const firstName = specificName?.firstName ?? faker.person.firstName();
+  const lastName = specificName?.lastName ?? faker.person.lastName();
   const gender = faker.helpers.arrayElement(['MALE', 'FEMALE', 'NON_BINARY']);
-  
+
   const age = faker.number.int({ min: 22, max: 65 });
   const dob = new Date();
   dob.setFullYear(dob.getFullYear() - age);
-  
+
   const hireDate = randomDateBetween(daysAgo(1095), daysAgo(30)); // Hired 1-3 years ago
-  
-  const state = randomElement(['TX', 'FL', 'OH']);
-  const cities = {
-    TX: ['Austin', 'Houston', 'Dallas'],
-    FL: ['Miami', 'Orlando', 'Tampa'],
-    OH: ['Columbus', 'Cleveland', 'Cincinnati'],
-  };
-  
+
+  // Texas cities only
+  const cityData = randomElement(Array.from(TEXAS_CITIES));
+  const city = cityData.name;
+  const zipCode = `${cityData.zipPrefix}${String(faker.number.int({ min: 10, max: 99 }))}`;
+
+  const areaCode = randomElement(Array.from(TEXAS_AREA_CODES));
+
   const allCertifications = ['CNA', 'HHA', 'PCA', 'CPR', 'FIRST_AID', 'MEDICATION_AIDE'];
   const allSpecializations = [
     'ALZHEIMERS_CARE',
@@ -364,7 +330,7 @@ function generateCaregiver(
     'MEAL_PREPARATION',
   ];
   const allLanguages = ['English', 'Spanish', 'Mandarin', 'Vietnamese', 'Tagalog', 'French'];
-  
+
   return {
     id: uuidv4(),
     organizationId: orgId,
@@ -374,12 +340,14 @@ function generateCaregiver(
     lastName,
     dateOfBirth: dob,
     gender,
-    phone: `${faker.string.numeric(3)}-${faker.string.numeric(3)}-${faker.string.numeric(4)}`,
-    email: faker.internet.email({ firstName, lastName }).toLowerCase(),
+    phone: `${areaCode}-${faker.string.numeric(3)}-${faker.string.numeric(4)}`,
+    email: specificName
+      ? faker.internet.email({ firstName, lastName }).toLowerCase()
+      : faker.internet.email({ firstName, lastName }).toLowerCase(),
     address: faker.location.streetAddress(),
-    city: randomElement(cities[state]),
-    state,
-    zipCode: faker.location.zipCode(),
+    city,
+    state: 'TX',
+    zipCode,
     hireDate,
     employmentType: randomElement(['FULL_TIME', 'PART_TIME', 'PER_DIEM']),
     hourlyRate: faker.number.float({ min: 18, max: 32, fractionDigits: 2 }),
@@ -597,130 +565,120 @@ async function seedDatabase() {
       console.log(`✅ Using org: ${orgId}, branch: ${branchId}, user: ${systemUserId}\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 1.5: Create state-specific users (all 50 states × 5 roles = 255 users)
+      // STEP 1.5: Create 5 Texas demo personas
       // ═══════════════════════════════════════════════════════════════════════════
 
-      console.log(`👥 Creating state-specific demo users (${US_STATES.length} states × ${ROLES.length} roles = ${US_STATES.length * ROLES.length} users)...\n`);
+      console.log(`👥 Creating 5 Texas demo personas...\n`);
 
       let usersCreated = 0;
       let usersUpdated = 0;
 
-      // Create users for each state × role combination
-      for (const state of US_STATES) {
-        for (const role of ROLES) {
-          const stateCode = state.code.toLowerCase();
-          const roleCode = role.value.toLowerCase();
+      // Create/update each persona
+      for (const persona of DEMO_PERSONAS) {
+        const passwordHash = PasswordUtils.hashPassword(persona.password);
+        const userId = uuidv4();
+        const username = persona.email.split('@')[0]; // Extract username from email
 
-          // Email format: role@state.carecommons.example
-          const email = `${roleCode}@${stateCode}.carecommons.example`;
-          const username = `${roleCode}-${stateCode}`;
-          const firstName = role.label;
-          const lastName = `(${state.code})`;
+        try {
+          // Try to update existing user first
+          const updateResult = await client.query(
+            `
+            UPDATE users
+            SET
+              password_hash = $1,
+              first_name = $2,
+              last_name = $3,
+              roles = $4,
+              permissions = $5,
+              status = 'ACTIVE',
+              branch_ids = $6,
+              updated_at = NOW()
+            WHERE email = $7
+            RETURNING id
+            `,
+            [
+              passwordHash,
+              persona.firstName,
+              persona.lastName,
+              persona.roles,
+              persona.permissions,
+              [branchId],
+              persona.email
+            ]
+          );
 
-          // Password format: Demo{State}{Role}123!
-          const password = `Demo${state.code}${role.value}123!`;
-          const passwordHash = PasswordUtils.hashPassword(password);
-
-          const userId = uuidv4();
-
-          try {
-            // Try to update existing user first
-            const updateResult = await client.query(
+          if (updateResult.rows.length > 0) {
+            usersUpdated++;
+          } else {
+            // User doesn't exist, create new one
+            await client.query(
+              `
+              INSERT INTO users (
+                id, organization_id, username, email, password_hash,
+                first_name, last_name, roles, permissions, branch_ids,
+                status, created_by, updated_by
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+              `,
+              [
+                userId,
+                orgId,
+                username,
+                persona.email,
+                passwordHash,
+                persona.firstName,
+                persona.lastName,
+                persona.roles,
+                persona.permissions,
+                [branchId],
+                'ACTIVE',
+                systemUserId,
+                systemUserId
+              ]
+            );
+            usersCreated++;
+          }
+        } catch (error) {
+          if (error instanceof Error && 'code' in error && error.code === '23505') {
+            // Unique constraint violation - try updating by username
+            await client.query(
               `
               UPDATE users
               SET
-                password_hash = $1,
-                first_name = $2,
-                last_name = $3,
-                roles = $4,
-                permissions = $5,
+                email = $1,
+                password_hash = $2,
+                first_name = $3,
+                last_name = $4,
+                roles = $5,
+                permissions = $6,
                 status = 'ACTIVE',
-                branch_ids = $6,
+                branch_ids = $7,
                 updated_at = NOW()
-              WHERE email = $7
-              RETURNING id
+              WHERE username = $8
               `,
               [
+                persona.email,
                 passwordHash,
-                firstName,
-                lastName,
-                role.roles,
-                role.permissions,
+                persona.firstName,
+                persona.lastName,
+                persona.roles,
+                persona.permissions,
                 [branchId],
-                email
+                username
               ]
             );
-
-            if (updateResult.rows.length > 0) {
-              usersUpdated++;
-            } else {
-              // User doesn't exist, create new one
-              await client.query(
-                `
-                INSERT INTO users (
-                  id, organization_id, username, email, password_hash,
-                  first_name, last_name, roles, permissions, branch_ids,
-                  status, created_by, updated_by
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-                `,
-                [
-                  userId,
-                  orgId,
-                  username,
-                  email,
-                  passwordHash,
-                  firstName,
-                  lastName,
-                  role.roles,
-                  role.permissions,
-                  [branchId],
-                  'ACTIVE',
-                  systemUserId,
-                  systemUserId
-                ]
-              );
-              usersCreated++;
-            }
-          } catch (error) {
-            if (error instanceof Error && 'code' in error && error.code === '23505') {
-              // Unique constraint violation - try updating by username
-              await client.query(
-                `
-                UPDATE users
-                SET
-                  email = $1,
-                  password_hash = $2,
-                  first_name = $3,
-                  last_name = $4,
-                  roles = $5,
-                  permissions = $6,
-                  status = 'ACTIVE',
-                  branch_ids = $7,
-                  updated_at = NOW()
-                WHERE username = $8
-                `,
-                [
-                  email,
-                  passwordHash,
-                  firstName,
-                  lastName,
-                  role.roles,
-                  role.permissions,
-                  [branchId],
-                  username
-                ]
-              );
-              usersUpdated++;
-            } else {
-              throw error;
-            }
+            usersUpdated++;
+          } else {
+            throw error;
           }
         }
       }
 
-      console.log(`✅ State-specific users: ${usersCreated} created, ${usersUpdated} updated (${usersCreated + usersUpdated} total)\n`);
-      console.log(`📝 Login format: {role}@{state}.carecommons.example / Demo{STATE}{ROLE}123!`);
-      console.log(`   Example: admin@al.carecommons.example / DemoALADMIN123!\n`);
+      console.log(`✅ Demo personas: ${usersCreated} created, ${usersUpdated} updated (${usersCreated + usersUpdated} total)\n`);
+      console.log(`📝 Demo Login Accounts (all passwords: Demo123!):`);
+      for (const persona of DEMO_PERSONAS) {
+        console.log(`   - ${persona.email.padEnd(35)} | ${persona.firstName} ${persona.lastName} - ${persona.description}`);
+      }
+      console.log('');
 
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 2: Clear existing demo data (optional, based on IS_DEMO flag)
@@ -746,110 +704,105 @@ async function seedDatabase() {
       console.log('✅ Previous demo data cleared\n');
       
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 3: Generate and insert clients (60 total: 20 TX, 20 FL, 20 OH)
+      // STEP 3: Generate and insert clients (12 total, all in Texas)
       // ═══════════════════════════════════════════════════════════════════════════
-      
-      console.log(`👥 Creating ${SEED_CONFIG.clients} clients...`);
-      
+
+      console.log(`👥 Creating ${SEED_CONFIG.clients} Texas clients...`);
+
       const clients: ClientData[] = [];
-      const states = ['TX', 'FL', 'OH'];
-      const clientsPerState = Math.floor(SEED_CONFIG.clients / states.length);
-      
-      let clientIndex = 1;
-      for (const state of states) {
-        for (let i = 0; i < clientsPerState; i++) {
-          const newClient = generateClient(clientIndex, orgId, branchId, systemUserId, state);
-          clients.push(newClient);
+
+      for (let i = 1; i <= SEED_CONFIG.clients; i++) {
+        const newClient = generateClient(i, orgId, branchId, systemUserId);
+        clients.push(newClient);
           
-          await client.query(
-            `
-            INSERT INTO clients (
-              id, organization_id, branch_id, client_number,
-              first_name, last_name, date_of_birth, gender,
-              primary_phone, email, primary_address,
-              emergency_contacts, status, intake_date,
-              insurance, service_eligibility,
-              created_by, updated_by, is_demo_data
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
-            `,
-            [
-              newClient.id,
-              newClient.organizationId,
-              newClient.branchId,
-              newClient.clientNumber,
-              newClient.firstName,
-              newClient.lastName,
-              newClient.dateOfBirth,
-              newClient.gender,
-              JSON.stringify({ number: newClient.phone, type: 'MOBILE', canReceiveSMS: true }),
-              newClient.email,
-              JSON.stringify({
-                type: 'HOME',
-                line1: newClient.address,
-                city: newClient.city,
+        await client.query(
+          `
+          INSERT INTO clients (
+            id, organization_id, branch_id, client_number,
+            first_name, last_name, date_of_birth, gender,
+            primary_phone, email, primary_address,
+            emergency_contacts, status, intake_date,
+            insurance, service_eligibility,
+            created_by, updated_by, is_demo_data
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
+          `,
+          [
+            newClient.id,
+            newClient.organizationId,
+            newClient.branchId,
+            newClient.clientNumber,
+            newClient.firstName,
+            newClient.lastName,
+            newClient.dateOfBirth,
+            newClient.gender,
+            JSON.stringify({ number: newClient.phone, type: 'MOBILE', canReceiveSMS: true }),
+            newClient.email,
+            JSON.stringify({
+              type: 'HOME',
+              line1: newClient.address,
+              city: newClient.city,
+              state: newClient.state,
+              postalCode: newClient.zipCode,
+              country: 'US',
+            }),
+            JSON.stringify([{
+              id: uuidv4(),
+              name: newClient.emergencyContactName,
+              relationship: randomElement(['Daughter', 'Son', 'Spouse', 'Sibling', 'Friend']),
+              phone: { number: newClient.emergencyContactPhone, type: 'MOBILE', canReceiveSMS: true },
+              isPrimary: true,
+              canMakeHealthcareDecisions: true,
+            }]),
+            'ACTIVE',
+            randomDateBetween(daysAgo(365), daysAgo(30)),
+            JSON.stringify({
+              primary: newClient.medicaidNumber || newClient.medicareNumber ? {
+                type: newClient.medicaidNumber ? 'MEDICAID' : 'MEDICARE',
+                memberId: newClient.medicaidNumber || newClient.medicareNumber,
+                provider: newClient.medicaidNumber ? 'State Medicaid' : 'Medicare',
+                isActive: true
+              } : null,
+              secondary: (newClient.medicaidNumber && newClient.medicareNumber) ? {
+                type: 'MEDICARE',
+                memberId: newClient.medicareNumber,
+                provider: 'Medicare',
+                isActive: true
+              } : null
+            }),
+            JSON.stringify({
+              medicaid: newClient.medicaidNumber ? {
+                eligible: true,
+                memberId: newClient.medicaidNumber,
                 state: newClient.state,
-                postalCode: newClient.zipCode,
-                country: 'US',
-              }),
-              JSON.stringify([{
-                id: uuidv4(),
-                name: newClient.emergencyContactName,
-                relationship: randomElement(['Daughter', 'Son', 'Spouse', 'Sibling', 'Friend']),
-                phone: { number: newClient.emergencyContactPhone, type: 'MOBILE', canReceiveSMS: true },
-                isPrimary: true,
-                canMakeHealthcareDecisions: true,
-              }]),
-              'ACTIVE',
-              randomDateBetween(daysAgo(365), daysAgo(30)),
-              JSON.stringify({
-                primary: newClient.medicaidNumber || newClient.medicareNumber ? {
-                  type: newClient.medicaidNumber ? 'MEDICAID' : 'MEDICARE',
-                  memberId: newClient.medicaidNumber || newClient.medicareNumber,
-                  provider: newClient.medicaidNumber ? 'State Medicaid' : 'Medicare',
-                  isActive: true
-                } : null,
-                secondary: (newClient.medicaidNumber && newClient.medicareNumber) ? {
-                  type: 'MEDICARE',
-                  memberId: newClient.medicareNumber,
-                  provider: 'Medicare',
-                  isActive: true
-                } : null
-              }),
-              JSON.stringify({
-                medicaid: newClient.medicaidNumber ? {
-                  eligible: true,
-                  memberId: newClient.medicaidNumber,
-                  state: newClient.state,
-                  programType: 'COMMUNITY_BASED'
-                } : { eligible: false },
-                medicare: newClient.medicareNumber ? {
-                  eligible: true,
-                  memberId: newClient.medicareNumber,
-                  partA: true,
-                  partB: true
-                } : { eligible: false }
-              }),
-              newClient.createdBy,
-              newClient.createdBy,
-            ]
-          );
-          
-          clientIndex++;
-        }
+                programType: 'COMMUNITY_BASED'
+              } : { eligible: false },
+              medicare: newClient.medicareNumber ? {
+                eligible: true,
+                memberId: newClient.medicareNumber,
+                partA: true,
+                partB: true
+              } : { eligible: false }
+            }),
+            newClient.createdBy,
+            newClient.createdBy,
+          ]
+        );
       }
       
       console.log(`✅ Created ${clients.length} clients\n`);
       
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 4: Generate and insert caregivers (35 total)
+      // STEP 4: Generate and insert caregivers (8 total, including Sarah Chen)
       // ═══════════════════════════════════════════════════════════════════════════
-      
-      console.log(`👨‍⚕️ Creating ${SEED_CONFIG.caregivers} caregivers...`);
-      
+
+      console.log(`👨‍⚕️ Creating ${SEED_CONFIG.caregivers} Texas caregivers (including Sarah Chen)...`);
+
       const caregivers: CaregiverData[] = [];
-      
+
       for (let i = 1; i <= SEED_CONFIG.caregivers; i++) {
-        const caregiver = generateCaregiver(i, orgId, branchId, systemUserId);
+        // First caregiver is Sarah Chen (the caregiver persona)
+        const specificName = i === 1 ? { firstName: 'Sarah', lastName: 'Chen' } : undefined;
+        const caregiver = generateCaregiver(i, orgId, branchId, systemUserId, specificName);
         caregivers.push(caregiver);
         
         // Create user account for caregiver
@@ -1361,13 +1314,16 @@ async function seedDatabase() {
       console.log(`✅ Created ${invoiceCount} invoices\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 10: Create specific "Gertrude Stein" client for Family Portal demo
+      // STEP 10: Create specific "Margaret Johnson" client for Family Portal demo
       // ═══════════════════════════════════════════════════════════════════════════
 
-      console.log(`👵 Creating Gertrude Stein (family portal demo client)...`);
+      console.log(`👵 Creating Margaret Johnson (Emily Johnson's mother - family portal demo client)...`);
 
-      const gertrudeId = uuidv4();
-      const gertrudeClientNumber = 'CL-FAMILY-0001';
+      const gertrudeId = uuidv4(); // Keep variable name for compatibility
+      const gertrudeClientNumber = 'CL-TX-JOHNSON';
+
+      // Texas city data for Margaret
+      const margaretCity = TEXAS_CITIES[0]; // Austin
 
       await client.query(
         `
@@ -1385,25 +1341,25 @@ async function seedDatabase() {
           orgId,
           branchId,
           gertrudeClientNumber,
-          'Gertrude',
-          'Stein',
+          'Margaret',
+          'Johnson',
           new Date('1940-05-15'), // 84 years old
           'FEMALE',
-          JSON.stringify({ number: '555-0199', type: 'MOBILE', canReceiveSMS: true }),
-          'gertrude.stein@example.com',
+          JSON.stringify({ number: '512-555-0199', type: 'MOBILE', canReceiveSMS: true }),
+          'margaret.johnson@example.com',
           JSON.stringify({
             type: 'HOME',
             line1: '456 Oak Avenue',
-            city: 'Springfield',
-            state: 'IL',
-            postalCode: '62702',
+            city: margaretCity.name,
+            state: 'TX',
+            postalCode: `${margaretCity.zipPrefix}15`,
             country: 'US',
           }),
           JSON.stringify([{
             id: uuidv4(),
-            name: 'Stein Family',
+            name: 'Emily Johnson',
             relationship: 'Daughter',
-            phone: { number: '555-0198', type: 'MOBILE', canReceiveSMS: true },
+            phone: { number: '512-555-0198', type: 'MOBILE', canReceiveSMS: true },
             isPrimary: true,
             canMakeHealthcareDecisions: true,
           }]),
@@ -1432,13 +1388,13 @@ async function seedDatabase() {
         ]
       );
 
-      // Update family user to link to Gertrude
+      // Update family user to link to Margaret
       await client.query(
-        `UPDATE family_members SET client_id = $1 WHERE email = 'family@carecommons.example'`,
+        `UPDATE family_members SET client_id = $1 WHERE email = 'family@tx.carecommons.example'`,
         [gertrudeId]
       );
 
-      // Create a family member record for the family portal if it doesn't exist
+      // Create a family member record for Emily Johnson if it doesn't exist
       const familyMemberCheck = await client.query(
         `SELECT id FROM family_members WHERE client_id = $1 LIMIT 1`,
         [gertrudeId]
@@ -1463,10 +1419,10 @@ async function seedDatabase() {
             orgId,
             branchId,
             gertrudeId,
-            'Stein',
-            'Family',
-            'family@carecommons.example',
-            '555-0198',
+            'Emily',
+            'Johnson',
+            'family@tx.carecommons.example',
+            '512-555-0198',
             'CHILD',
             true,
             'EMAIL',
@@ -1483,16 +1439,16 @@ async function seedDatabase() {
         familyMemberId = familyMemberCheck.rows[0].id;
       }
 
-      console.log(`✅ Created Gertrude Stein client\n`);
+      console.log(`✅ Created Margaret Johnson client (Emily Johnson's mother)\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 11: Create care plan for Gertrude
+      // STEP 11: Create care plan for Margaret Johnson
       // ═══════════════════════════════════════════════════════════════════════════
 
-      console.log(`📋 Creating care plan for Gertrude...`);
+      console.log(`📋 Creating care plan for Margaret Johnson...`);
 
       const gertrudePlanId = uuidv4();
-      const primaryCaregiverId = caregivers[0]?.id; // Sarah Johnson
+      const primaryCaregiverId = caregivers[0]?.id; // Sarah Chen
 
       await client.query(
         `
@@ -1510,8 +1466,8 @@ async function seedDatabase() {
           orgId,
           branchId,
           gertrudeId,
-          'CP-FAMILY-0001',
-          'Personal Care Plan for Gertrude Stein',
+          'CP-TX-JOHNSON',
+          'Personal Care Plan for Margaret Johnson',
           'PERSONAL_CARE',
           'ACTIVE',
           'MEDIUM',
@@ -1519,7 +1475,7 @@ async function seedDatabase() {
           daysFromNow(120), // Expires in 4 months
           daysFromNow(15), // Review in 2 weeks
           primaryCaregiverId,
-          'Comprehensive care plan for Gertrude Stein. Client has mild dementia and requires assistance with ADLs. Lives independently with daily caregiver support.',
+          'Comprehensive care plan for Margaret Johnson. Client has mild dementia and requires assistance with ADLs. Lives independently with daily caregiver support.',
           JSON.stringify([
             {
               id: uuidv4(),
@@ -1553,13 +1509,13 @@ async function seedDatabase() {
         ]
       );
 
-      console.log(`✅ Created care plan for Gertrude\n`);
+      console.log(`✅ Created care plan for Margaret Johnson\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 12: Create visits for Gertrude (upcoming and recent)
+      // STEP 12: Create visits for Margaret Johnson (upcoming and recent)
       // ═══════════════════════════════════════════════════════════════════════════
 
-      console.log(`📅 Creating visits for Gertrude...`);
+      console.log(`📅 Creating visits for Margaret Johnson...`);
 
       const gertrudeVisits = [];
 
@@ -1604,7 +1560,7 @@ async function seedDatabase() {
             scheduledStart,
             scheduledEnd,
             120, // 2 hours
-            JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: 'Springfield', state: 'IL', postalCode: '62702', country: 'US' }),
+            JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: margaretCity.name, state: 'TX', postalCode: `${margaretCity.zipPrefix}15`, country: 'US' }),
             'SCHEDULED',
             systemUserId,
             systemUserId,
@@ -1665,9 +1621,9 @@ async function seedDatabase() {
             actualStart,
             actualEnd,
             170, // actual duration
-            JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: 'Springfield', state: 'IL', postalCode: '62702', country: 'US' }),
+            JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: margaretCity.name, state: 'TX', postalCode: `${margaretCity.zipPrefix}15`, country: 'US' }),
             'COMPLETED',
-            i === 0 ? 'Client in good spirits. Assisted with morning routine and medication. All tasks completed.' : 'Helped with afternoon ADLs. Client enjoyed conversation about gardening.',
+            i === 0 ? 'Margaret in good spirits. Assisted with morning routine and medication. All tasks completed.' : 'Helped with afternoon ADLs. Margaret enjoyed conversation about gardening.',
             systemUserId,
             systemUserId,
           ]
@@ -1704,7 +1660,7 @@ async function seedDatabase() {
               { task: 'Light housekeeping', completed: true },
               { task: 'Meal preparation', completed: true },
             ]),
-            i === 0 ? 'Gertrude was in excellent spirits today. We completed all morning routines smoothly.' : 'Great visit today. Gertrude shared stories about her garden.',
+            i === 0 ? 'Margaret was in excellent spirits today. We completed all morning routines smoothly.' : 'Great visit today. Margaret shared stories about her garden.',
             'COMPLETED',
             true,
             actualEnd,
@@ -1717,7 +1673,7 @@ async function seedDatabase() {
         );
       }
 
-      console.log(`✅ Created ${gertrudeVisits.length} visits for Gertrude\n`);
+      console.log(`✅ Created ${gertrudeVisits.length} visits for Margaret Johnson\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 13: Create task instances for caregivers (7 pending tasks)
@@ -1947,30 +1903,36 @@ async function seedDatabase() {
       // ═══════════════════════════════════════════════════════════════════════════
       
       console.log('\n═══════════════════════════════════════════════════════════════');
-      console.log('✅ DEMO DATA SEEDED SUCCESSFULLY!');
+      console.log('✅ DEMO DATA SEEDED SUCCESSFULLY (TEXAS ONLY)!');
       console.log('═══════════════════════════════════════════════════════════════');
       console.log(`📊 Summary:`);
-      console.log(`   - ${clients.length + 1} clients (${clients.filter(c => c.state === 'TX').length} TX, ${clients.filter(c => c.state === 'FL').length} FL, ${clients.filter(c => c.state === 'OH').length} OH, 1 Gertrude Stein)`);
-      console.log(`   - ${caregivers.length} caregivers`);
-      console.log(`   - ${visits.length + gertrudeVisits.length} visits (${visits.length} general + ${gertrudeVisits.length} Gertrude)`);
+      console.log(`   - ${clients.length + 1} clients (all in Texas: Austin, Houston, Dallas, San Antonio)`);
+      console.log(`   - ${caregivers.length} caregivers (including Sarah Chen)`);
+      console.log(`   - ${visits.length + gertrudeVisits.length} visits (${visits.length} general + ${gertrudeVisits.length} for Margaret Johnson)`);
       console.log(`   - ${visits.filter(v => v.status === 'COMPLETED').length + gertrudeVisits.filter(v => v.status === 'COMPLETED').length} completed visits with EVV data`);
       console.log(`   - ${visits.filter(v => v.status === 'IN_PROGRESS').length} visits in progress`);
       console.log(`   - ${visits.filter(v => v.status === 'SCHEDULED').length + gertrudeVisits.filter(v => v.status === 'SCHEDULED').length} scheduled future visits`);
-      console.log(`   - ${carePlans.length + 1} care plans with goals (includes Gertrude's plan)`);
+      console.log(`   - ${carePlans.length + 1} care plans with goals`);
       console.log(`   - ${familyMembers.length + 1} family members with portal access`);
       console.log(`   - ${taskCount} task instances for caregivers`);
       console.log(`   - ${threadCount} message threads with ${messageCount} messages`);
       console.log(`   - ${activityCount} activity feed entries`);
       console.log(`   - ${invoiceCount} invoices generated`);
       console.log('═══════════════════════════════════════════════════════════════');
-      console.log('\n📋 Special Demo Data:');
-      console.log(`   🎯 Gertrude Stein (Family Portal Demo):`);
-      console.log(`      - Client ID: ${gertrudeId.substring(0, 8)}...`);
+      console.log('\n👥 Demo Login Accounts (all passwords: Demo123!):');
+      console.log(`   1. admin@tx.carecommons.example        | Maria Rodriguez - Administrator`);
+      console.log(`   2. coordinator@tx.carecommons.example  | James Thompson - Care Coordinator`);
+      console.log(`   3. caregiver@tx.carecommons.example    | Sarah Chen - Caregiver`);
+      console.log(`   4. nurse@tx.carecommons.example        | David Williams - RN Clinical`);
+      console.log(`   5. family@tx.carecommons.example       | Emily Johnson - Family Member (daughter of Margaret Johnson)`);
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('\n📋 Key Demo Clients:');
+      console.log(`   🎯 Margaret Johnson (Emily's mother):`);
       console.log(`      - ${gertrudeVisits.length} visits (3 today, 2 completed yesterday)`);
       console.log(`      - ${taskCount} pending tasks for caregivers`);
       console.log(`      - ${threadCount} message conversations with care team`);
       console.log(`      - ${activityCount} recent activities logged`);
-      console.log(`      - Family portal: family@carecommons.example / Family123!`);
+      console.log(`      - View via family portal: family@tx.carecommons.example / Demo123!`);
       console.log('═══════════════════════════════════════════════════════════════\n');
     });
 
