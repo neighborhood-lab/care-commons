@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/hooks';
 import { Card, CardHeader, CardContent } from '@/core/components';
 import { Users, Calendar, ClipboardList, AlertCircle } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const stats = [
     {
@@ -12,24 +14,28 @@ export const Dashboard: React.FC = () => {
       value: '124',
       icon: <Users className="h-6 w-6 text-primary-600" />,
       change: '+12%',
+      onClick: () => navigate('/clients'),
     },
     {
       label: "Today's Visits",
       value: '18',
       icon: <Calendar className="h-6 w-6 text-green-600" />,
       change: '+5%',
+      onClick: () => navigate('/scheduling'),
     },
     {
       label: 'Pending Tasks',
       value: '7',
       icon: <ClipboardList className="h-6 w-6 text-yellow-600" />,
       change: '-3%',
+      onClick: () => navigate('/tasks'),
     },
     {
       label: 'Alerts',
       value: '3',
       icon: <AlertCircle className="h-6 w-6 text-red-600" />,
       change: '+2',
+      onClick: () => navigate('/incidents'),
     },
   ];
 
@@ -46,7 +52,12 @@ export const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <Card key={stat.label} padding="md">
+          <Card
+            key={stat.label}
+            padding="md"
+            className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 active:scale-95"
+            onClick={stat.onClick}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">{stat.label}</p>
