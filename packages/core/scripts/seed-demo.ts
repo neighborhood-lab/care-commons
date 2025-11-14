@@ -140,7 +140,9 @@ const ROLES: RoleDefinition[] = [
     label: 'Family Member',
     roles: ['FAMILY'],
     permissions: [
-      'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read'
+      'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read',
+      'family-portal:view', 'notifications:view', 'messages:view', 'messages:write',
+      'activity-feed:view'
     ]
   },
   {
