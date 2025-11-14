@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useAuthService } from '@/core/hooks';
-import { Button } from '@/core/components';
 import toast from 'react-hot-toast';
 
 // 5 Demo Personas (all Texas-based)
@@ -62,6 +61,8 @@ export const Login: React.FC = () => {
 
   const handleLogin = async (personaIndex: number) => {
     const persona = DEMO_PERSONAS[personaIndex];
+    if (!persona) return;
+    
     setSelectedPersona(personaIndex);
     setIsLoading(true);
 
@@ -93,28 +94,31 @@ export const Login: React.FC = () => {
       <div className="max-w-4xl w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="inline-block px-3 py-1 mb-3 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-            DEMO MODE
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-semibold text-blue-700 bg-blue-100 rounded-full border-2 border-blue-300">
+            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+            </svg>
+            TEXAS DEMO
           </div>
-          <h1 className="text-4xl font-bold text-primary-600">
+          <h1 className="text-5xl font-bold text-gray-900 mb-3">
             Care Commons
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Try the platform with sample data • All accounts in Texas • No real PHI
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Experience home healthcare management with realistic Texas data
           </p>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-blue-900">Demo Accounts</h3>
-              <p className="mt-1 text-xs text-blue-700">
+              <h3 className="text-base font-semibold text-blue-900">Demo Accounts</h3>
+              <p className="mt-1 text-sm text-blue-700">
                 Choose a persona to explore the platform. All accounts use password: <span className="font-mono font-semibold">Demo123!</span>
               </p>
             </div>
@@ -122,12 +126,12 @@ export const Login: React.FC = () => {
         </div>
 
         {/* Persona Cards */}
-        <div className="bg-white shadow-xl rounded-lg p-8">
+        <div className="bg-white shadow-2xl rounded-2xl p-8 sm:p-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Choose Your Demo Account
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {DEMO_PERSONAS.map((persona, index) => (
               <button
                 key={persona.email}
