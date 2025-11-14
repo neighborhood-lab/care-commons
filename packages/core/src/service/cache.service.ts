@@ -24,8 +24,28 @@ export class CacheService {
 
     try {
       const passwordPart = this.config.password !== undefined ? `:${this.config.password}@` : '';
-      const url = `redis://${passwordPart}${this.config.host}:${this.config.port}/${this.config.db ?? 0}`;
-      this.redis = createClient({ url });
+
+      // Determine protocol based on TLS requirement
+      // Use 'rediss://' for TLS (Upstash, Vercel KV, etc.)
+      // Check if we should use TLS (environment variable or port 6380 which is common for TLS Redis)
+      const useTLS = process.env.REDIS_USE_TLS === 'true' || this.config.port === 6380;
+      const protocol = useTLS ? 'rediss' : 'redis';
+
+      const url = `${protocol}://${passwordPart}${this.config.host}:${this.config.port}/${this.config.db ?? 0}`;
+
+      const clientOptions: Parameters<typeof createClient>[0] = { url };
+
+      // Enable TLS for Upstash and other cloud Redis providers
+      if (useTLS) {
+        clientOptions.socket = {
+          tls: true,
+          // Disable certificate verification for Vercel deployments
+          // (Vercel's serverless functions may have issues with cert chains)
+          rejectUnauthorized: false,
+        };
+      }
+
+      this.redis = createClient(clientOptions);
 
       this.redis.on('error', (err) => {
         console.error('Redis client error:', err);
@@ -37,7 +57,7 @@ export class CacheService {
       // Test connection
       await this.redis.ping();
       this.isRedisAvailable = true;
-      console.log('Cache service: Redis connected successfully');
+      console.log(`Cache service: Redis connected successfully (TLS: ${useTLS})`);
     } catch (error) {
       console.error('Failed to initialize Redis cache:', error);
       console.log('Cache service: Falling back to in-memory cache');
