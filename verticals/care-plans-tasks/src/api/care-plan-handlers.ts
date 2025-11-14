@@ -35,18 +35,38 @@ function handleError(error: unknown, res: Response, operation: string): void {
 }
 
 /**
- * Extract user context from request
- * In production, this would extract from JWT or session
+ * Extend Express Request to include user from JWT
+ */
+declare module 'express' {
+  interface Request {
+    user?: {
+      userId: string;
+      email: string;
+      organizationId: string;
+      branchIds: string[];
+      roles: string[];
+      permissions: string[];
+      tokenVersion: number;
+    };
+  }
+}
+
+/**
+ * Extract user context from authenticated request
+ * Uses req.user populated by AuthMiddleware from JWT token
  */
 function getUserContext(req: Request): UserContext {
-  // This is a placeholder - in production, extract from authenticated session
-  const branchId = req.header('X-Branch-Id');
+  // Extract from JWT token payload (set by AuthMiddleware.requireAuth)
+  if (!req.user) {
+    throw new PermissionError('Authentication required');
+  }
+
   return {
-    userId: req.header('X-User-Id') || 'system',
-    organizationId: req.header('X-Organization-Id') || '',
-    branchIds: branchId ? [branchId] : [],
-    roles: (req.header('X-User-Roles') || 'CAREGIVER').split(',') as Role[],
-    permissions: (req.header('X-User-Permissions') || '').split(',').filter(Boolean),
+    userId: req.user.userId,
+    organizationId: req.user.organizationId,
+    branchIds: req.user.branchIds,
+    roles: req.user.roles as Role[],
+    permissions: req.user.permissions,
   };
 }
 
