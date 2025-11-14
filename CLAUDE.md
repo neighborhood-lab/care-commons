@@ -1242,10 +1242,85 @@ ENCRYPTION_KEY=<32-byte-hex-string>
 NODE_ENV=production
 CORS_ORIGIN=https://yourdomain.com
 
-# Optional
-REDIS_URL=redis://...
+# Optional but Recommended
+REDIS_URL=rediss://default:password@your-endpoint.upstash.io:6379
 CODECOV_TOKEN=...
 ```
+
+#### Redis Configuration for Vercel
+
+Care Commons uses Redis for:
+- **Distributed rate limiting** - Prevent API abuse across serverless functions
+- **Caching** - Improve performance by caching frequently accessed data
+- **Session storage** - (Future) Shared session state
+
+##### Option 1: Upstash Redis (Recommended)
+
+[Upstash](https://upstash.com) provides serverless-native Redis optimized for edge and serverless platforms.
+
+**Setup Steps:**
+
+1. Create a free Upstash account at https://console.upstash.com
+2. Create a new Redis database (select region closest to your Vercel deployment)
+3. Copy the connection string from the dashboard (format: `rediss://default:password@host.upstash.io:6379`)
+4. Add to Vercel environment variables:
+
+```bash
+# Via Vercel CLI
+vercel env add REDIS_URL
+
+# Or via Vercel Dashboard:
+# Project Settings → Environment Variables → Add
+# Name: REDIS_URL
+# Value: rediss://default:your_password@your-endpoint.upstash.io:6379
+# Environments: Production, Preview, Development
+```
+
+**Important Notes:**
+- ✅ Use `rediss://` (with double 's') for TLS connections (required by Upstash)
+- ✅ The Care Commons Redis client automatically detects TLS based on the URL protocol
+- ✅ Free tier includes 10,000 commands/day (sufficient for small deployments)
+- ✅ Pay-as-you-go pricing for larger deployments
+
+##### Option 2: Vercel KV (Built on Upstash)
+
+Vercel KV is Vercel's managed Redis offering, powered by Upstash.
+
+**Setup Steps:**
+
+1. In Vercel Dashboard, go to your project
+2. Navigate to Storage → Create Database → KV (Redis)
+3. Vercel automatically sets environment variables: `KV_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`
+4. Map `KV_URL` to `REDIS_URL`:
+
+```bash
+# In Vercel Dashboard → Environment Variables
+# Add new variable:
+# Name: REDIS_URL
+# Value: Use @KV_URL (reference existing variable)
+```
+
+**Advantages:**
+- ✅ Integrated billing with Vercel
+- ✅ Automatic configuration
+- ✅ Single dashboard for all services
+
+##### Option 3: No Redis (In-Memory Fallback)
+
+If `REDIS_URL` is not set, Care Commons gracefully falls back to in-memory storage.
+
+**Limitations:**
+- ⚠️ Rate limiting is per-serverless-function (not distributed)
+- ⚠️ Cache is not shared across function instances
+- ⚠️ Data lost on cold starts
+- ⚠️ No persistence between deployments
+
+**When to use:**
+- ✅ Development/testing
+- ✅ Low-traffic deployments
+- ✅ Proof-of-concept
+
+**Not recommended for production** - Distributed rate limiting prevents API abuse and improves performance.
 
 #### Deployment Commands
 
