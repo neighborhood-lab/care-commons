@@ -24,7 +24,7 @@ function verifyToken(token: string, hash: string): boolean {
 
 export const configureCsrfProtection = (app: Express): void => {
   // Enable cookie parser for CSRF cookies
-  app.use(cookieParser() as any);
+  app.use(cookieParser());
 
   // Middleware to set CSRF cookie and attach token generator to request
   app.use((req: Request, res: Response, next: NextFunction) => {
