@@ -57,7 +57,7 @@ export const FamilyDashboard: React.FC = () => {
   const { user } = useAuth();
   const familyMemberId = user?.id as UUID | null;
 
-  const { data: dashboardData, isLoading } = useFamilyDashboard(familyMemberId);
+  const { data: dashboardData, isLoading, error } = useFamilyDashboard(familyMemberId);
 
   // For demo purposes, use hardcoded name if no data
   const clientName = dashboardData?.client?.name || 'Gertrude Stein';
@@ -71,6 +71,36 @@ export const FamilyDashboard: React.FC = () => {
           <div className="h-64 bg-gray-200 rounded-lg" />
           <div className="h-64 bg-gray-200 rounded-lg" />
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome to Family Portal</h1>
+          <p className="text-lg text-gray-600 mt-2">
+            Here's what's happening with your loved one's care
+          </p>
+        </div>
+        <Card padding="lg">
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Unable to Load Dashboard
+            </h3>
+            <p className="text-gray-600 mb-4">
+              We're having trouble loading your dashboard data. Please try refreshing the page.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </Card>
       </div>
     );
   }
