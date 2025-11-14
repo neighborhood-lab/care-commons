@@ -66,6 +66,7 @@ interface UserRecord {
   last_name: string;
   roles: string[];
   permissions: string[];
+  branch_ids: UUID[];
   status: string;
   token_version: number;
   failed_login_attempts: number;
@@ -160,6 +161,7 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       organizationId: user.organization_id,
+      branchIds: user.branch_ids,
       roles: user.roles,
       permissions: mergedPermissions,
       tokenVersion: user.token_version
@@ -268,6 +270,7 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       organizationId: user.organization_id,
+      branchIds: user.branch_ids,
       roles: user.roles,
       permissions: mergedPermissions,
       tokenVersion: user.token_version
@@ -334,6 +337,7 @@ export class AuthService {
           userId: user.id,
           email: user.email,
           organizationId: user.organization_id,
+          branchIds: user.branch_ids,
           roles: user.roles,
           permissions: user.permissions,
           tokenVersion: user.token_version

@@ -19,6 +19,7 @@ export interface TokenPayload {
   userId: UUID;
   email: string;
   organizationId: UUID;
+  branchIds: UUID[];
   roles: string[];
   permissions: string[];
   tokenVersion: number; // For token invalidation
@@ -155,6 +156,7 @@ export class JWTUtils {
         userId: userId as UUID,
         email: email as string,
         organizationId: orgId as UUID,
+        branchIds: Array.isArray(payload.branchIds) ? (payload.branchIds as UUID[]) : [],
         roles: Array.isArray(payload.roles) ? (payload.roles as string[]) : [],
         permissions: Array.isArray(payload.permissions) ? (payload.permissions as string[]) : [],
         tokenVersion: typeof payload.tokenVersion === 'number' ? payload.tokenVersion : 1
