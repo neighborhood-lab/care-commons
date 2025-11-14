@@ -532,8 +532,7 @@ function generateClient(
   const emailLastName = lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const email = faker.internet.email({ firstName: emailFirstName, lastName: emailLastName }).toLowerCase();
 
-  // Emergency contact (often family member with same last name)
-  const emergencyGender = Math.random() < 0.5 ? 'MALE' : 'FEMALE';
+  // Emergency contact (often family member with same last name, opposite gender)
   const emergencyFirstName = randomElement(
     gender === 'MALE'
       ? [...TEXAS_NAMES.anglo.firstNames.female]
@@ -811,7 +810,7 @@ function generateVisit(
             lat: clientCoordinates.lat + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
             lng: clientCoordinates.lng + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
           };
-          evvClockOutGPS = null; // Missing clock-out
+          // evvClockOutGPS stays null (already initialized) - Missing clock-out
           evvVerificationMethod = 'BIOMETRIC';
           notes = 'All ADLs completed. (Note: Missed clock-out - coordinator follow-up required)';
         } else {
@@ -830,7 +829,7 @@ function generateVisit(
       }
 
       // Add standard visit notes if not already set
-      if (!notes || notes === null) {
+      if (!notes) {
         notes = randomElement([
           'Client in good spirits. All ADLs completed as planned.',
           'Assisted with morning routine. Client needed extra help with mobility.',
@@ -2375,12 +2374,12 @@ async function seedDatabase() {
         : '0';
 
       // Calculate geographic distribution
-      const clientsByCity = clients.reduce((acc, c) => {
+      const clientCountsByCity = clients.reduce((acc, c) => {
         acc[c.city] = (acc[c.city] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
-      const caregiversByCity = caregivers.reduce((acc, c) => {
+      const caregiverCountsByCity = caregivers.reduce((acc, c) => {
         acc[c.city] = (acc[c.city] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
@@ -2404,11 +2403,11 @@ async function seedDatabase() {
       console.log('═══════════════════════════════════════════════════════════════');
       console.log('\n🏙️  Geographic Distribution (Texas Cities):');
       console.log('   Clients:');
-      Object.entries(clientsByCity).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
+      Object.entries(clientCountsByCity).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
         console.log(`     - ${city}: ${count} clients`);
       });
       console.log('   Caregivers:');
-      Object.entries(caregiversByCity).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
+      Object.entries(caregiverCountsByCity).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
         console.log(`     - ${city}: ${count} caregivers`);
       });
       console.log('═══════════════════════════════════════════════════════════════');

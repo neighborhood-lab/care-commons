@@ -28,7 +28,8 @@ import type {
   SendNotificationInput,
   CreateMessageThreadInput,
   SendMessageInput,
-  FamilyDashboard
+  FamilyDashboard,
+  CareTeamMember
 } from '../types/family-engagement';
 import {
   FamilyMemberRepository,
@@ -529,6 +530,12 @@ export class FamilyEngagementService {
       throw new Error('Family member not found') as NotFoundError;
     }
 
+    // IMPORTANT: Family members can only view their own dashboard
+    // For FAMILY role, ensure familyMemberId matches userId (they should be the same)
+    if (context.roles.includes('FAMILY') && familyMemberId !== context.userId) {
+      throw new Error('You can only access your own family portal') as PermissionError;
+    }
+
     // Get recent activity
     let recentActivity = await this.activityFeedRepo.getRecentActivity(familyMemberId, 10);
 
@@ -793,6 +800,42 @@ export class FamilyEngagementService {
       console.error('Failed to fetch active care plan:', error);
     }
 
+    // Fetch care team members
+    // For demo purposes, returning mock data based on visits
+    // In production, this would query the caregivers table and visit assignments
+    const careTeam: CareTeamMember[] = [];
+
+    // Get unique caregivers from upcoming visits
+    const uniqueCaregiverIds = new Set<string>();
+    upcomingVisits.forEach(visit => {
+      if (visit.caregiverName) {
+        uniqueCaregiverIds.add(visit.caregiverName);
+      }
+    });
+
+    // For demo: Create care team members based on visit caregivers
+    if (uniqueCaregiverIds.size > 0) {
+      const caregiverNames = Array.from(uniqueCaregiverIds);
+      caregiverNames.forEach((name, index) => {
+        careTeam.push({
+          id: `caregiver-${index}` as UUID,
+          name,
+          role: index === 0 ? 'Primary Caregiver' : 'Caregiver',
+          isPrimary: index === 0,
+          photoUrl: undefined
+        });
+      });
+    } else {
+      // Default care team if no visits scheduled
+      careTeam.push({
+        id: 'caregiver-default' as UUID,
+        name: 'Sarah Chen',
+        role: 'Primary Caregiver',
+        isPrimary: true,
+        photoUrl: undefined
+      });
+    }
+
     return {
       client: {
         id: profile.clientId,
@@ -803,6 +846,7 @@ export class FamilyEngagementService {
       recentActivity,
       unreadNotifications,
       unreadMessages,
+      careTeam,
       activeCarePlan
     };
   }
