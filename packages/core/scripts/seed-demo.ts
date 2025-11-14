@@ -125,7 +125,9 @@ const DEMO_PERSONAS: DemoPersona[] = [
     lastName: 'Johnson',
     roles: ['FAMILY'],
     permissions: [
-      'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read'
+      'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read',
+      'family-portal:view', 'notifications:view', 'messages:view', 'messages:write',
+      'activity-feed:view'
     ],
     description: 'Family Member - Daughter of Margaret Johnson'
   }
