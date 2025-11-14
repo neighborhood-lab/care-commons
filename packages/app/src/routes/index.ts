@@ -151,19 +151,19 @@ export function setupRoutes(app: Express, db: Database): void {
 
   // Authentication routes with rate limiting
   const authRouter = createAuthRouter(db);
-  app.use('/api/auth', authLimiter as any, authRouter);
+  app.use('/api/auth', authLimiter, authRouter);
   console.log('  ✓ Authentication routes registered (with rate limiting)');
 
   // Organization & Invitation routes
   const organizationRouter = createOrganizationRouter(db);
-  app.use('/api', generalApiLimiter as any, organizationRouter);
+  app.use('/api', generalApiLimiter, organizationRouter);
   console.log('  ✓ Organization & Invitation routes registered (with rate limiting)');
 
   // Client Demographics routes
   const clientRepository = new ClientRepository(db);
   const clientService = new ClientService(clientRepository);
   const clientRouter = createClientRouter(clientService);
-  app.use('/api', generalApiLimiter as any, clientRouter);
+  app.use('/api', generalApiLimiter, clientRouter);
   console.log('  ✓ Client Demographics routes registered (with rate limiting)');
 
   // Care Plans & Tasks routes
@@ -173,46 +173,46 @@ export function setupRoutes(app: Express, db: Database): void {
   const carePlanService = new CarePlanService(carePlanRepository, permissionService, userRepository);
   const carePlanHandlers = createCarePlanHandlers(carePlanService);
   const carePlanRouter = createCarePlanRouter(carePlanHandlers, db);
-  app.use('/api', generalApiLimiter as any, carePlanRouter);
+  app.use('/api', generalApiLimiter, carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered (with rate limiting)');
 
   // Caregiver & Staff Management routes
   const caregiverRouter = createCaregiverRouter(db);
-  app.use('/api/caregivers', generalApiLimiter as any, caregiverRouter);
+  app.use('/api/caregivers', generalApiLimiter, caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered (with rate limiting)');
 
   // Visit & Scheduling routes
   const visitRouter = createVisitRouter(db);
-  app.use('/api/visits', generalApiLimiter as any, visitRouter);
+  app.use('/api/visits', generalApiLimiter, visitRouter);
   console.log('  ✓ Visit & Scheduling routes registered (with rate limiting)');
 
   // Demo routes (interactive demo system) - includes EVV clock-in/out
   const demoRouter = createDemoRouter(db);
-  app.use('/api/demo', evvLimiter as any, demoRouter);
+  app.use('/api/demo', evvLimiter, demoRouter);
   console.log('  ✓ Demo routes registered (with EVV rate limiting)');
 
   // Analytics & Reporting routes
   const analyticsRouter = createAnalyticsRouter(db);
-  app.use('/api/analytics', reportLimiter as any, analyticsRouter);
+  app.use('/api/analytics', reportLimiter, analyticsRouter);
   console.log('  ✓ Analytics & Reporting routes registered (with rate limiting)');
 
   // Offline Sync routes
   const syncRouter = createSyncRouter(db);
-  app.use('/api/sync', syncLimiter as any, syncRouter);
+  app.use('/api/sync', syncLimiter, syncRouter);
   console.log('  ✓ Offline Sync routes registered (with rate limiting)');
 
   // Payroll Processing routes
   const payrollRouter = createPayrollRouter(db);
-  app.use('/api', generalApiLimiter as any, payrollRouter);
+  app.use('/api', generalApiLimiter, payrollRouter);
   console.log('  ✓ Payroll Processing routes registered (with rate limiting)');
 
   // Admin routes (cache monitoring, etc.)
-  app.use('/api/admin', generalApiLimiter as any, adminRoutes);
+  app.use('/api/admin', generalApiLimiter, adminRoutes);
   console.log('  ✓ Admin routes registered (with rate limiting)');
 
   // White-label routes (branding, feature flags)
   const whiteLabelRouter = createWhiteLabelRouter(db);
-  app.use('/api/white-label', generalApiLimiter as any, whiteLabelRouter);
+  app.use('/api/white-label', generalApiLimiter, whiteLabelRouter);
   console.log('  ✓ White-label routes registered (with rate limiting)');
 
   // Quality Assurance & Audits routes
@@ -227,30 +227,30 @@ export function setupRoutes(app: Express, db: Database): void {
   );
   const auditRouter = Router();
   createAuditRoutes(auditService, auditRouter);
-  app.use('/api', generalApiLimiter as any, auditRouter);
+  app.use('/api', generalApiLimiter, auditRouter);
   console.log('  ✓ Quality Assurance & Audits routes registered (with rate limiting)');
 
   // Global Search routes
   const searchRouter = createSearchRouter(db);
-  app.use('/api/search', generalApiLimiter as any, searchRouter);
+  app.use('/api/search', generalApiLimiter, searchRouter);
   console.log('  ✓ Global Search routes registered (with rate limiting)');
 
   // Medication Management routes
   const medicationService = new MedicationService(db);
   const medicationHandlers = createMedicationHandlers(medicationService);
   const medicationRouter = createMedicationRouter(medicationHandlers, db);
-  app.use('/api', generalApiLimiter as any, medicationRouter);
+  app.use('/api', generalApiLimiter, medicationRouter);
   console.log('  ✓ Medication Management routes registered (with rate limiting)');
 
   // Incident Reporting routes
   const incidentService = new IncidentService(db);
   const incidentHandlers = createIncidentHandlers(incidentService);
   const incidentRouter = createIncidentRouter(incidentHandlers, db);
-  app.use('/api', generalApiLimiter as any, incidentRouter);
+  app.use('/api', generalApiLimiter, incidentRouter);
   console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
 
   // Push Notifications routes (for mobile device token registration)
-  app.use('/api/push', generalApiLimiter as any, pushNotificationRouter);
+  app.use('/api/push', generalApiLimiter, pushNotificationRouter);
   console.log('  ✓ Push Notifications routes registered (with rate limiting)');
 
   // Additional verticals can be added here as they implement route handlers:
