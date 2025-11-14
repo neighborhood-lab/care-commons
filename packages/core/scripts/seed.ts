@@ -135,14 +135,15 @@ async function seedDatabase() {
         `
         INSERT INTO users (
           id, organization_id, username, email, password_hash,
-          first_name, last_name, roles, branch_ids, status,
+          first_name, last_name, roles, permissions, branch_ids, status,
           created_by, updated_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         ON CONFLICT (email) DO UPDATE SET
           password_hash = EXCLUDED.password_hash,
           first_name = EXCLUDED.first_name,
           last_name = EXCLUDED.last_name,
           roles = EXCLUDED.roles,
+          permissions = EXCLUDED.permissions,
           status = EXCLUDED.status,
           updated_at = NOW()
       `,
@@ -155,6 +156,7 @@ async function seedDatabase() {
           'System',
           'Administrator',
           ['SUPER_ADMIN'],
+          ['organizations:*', 'users:*', 'clients:*', 'caregivers:*', 'visits:*', 'schedules:*', 'care-plans:*', 'tasks:*', 'billing:*', 'reports:*', 'settings:*'],
           [branchId],
           'ACTIVE',
           systemUserId,
@@ -194,7 +196,7 @@ async function seedDatabase() {
           'Stein',
           'Family',
           ['FAMILY'],
-          ['clients:read', 'visits:read', 'care-plans:read', 'schedules:read'],
+          ['clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read'],
           [branchId],
           'ACTIVE',
           systemUserId,

@@ -108,7 +108,7 @@ const ROLES: RoleDefinition[] = [
     roles: ['SUPER_ADMIN'],
     permissions: [
       'organizations:*', 'users:*', 'clients:*', 'caregivers:*',
-      'visits:*', 'schedules:*', 'care-plans:*', 'billing:*',
+      'visits:*', 'schedules:*', 'care-plans:*', 'tasks:*', 'billing:*',
       'reports:*', 'settings:*'
     ]
   },
@@ -122,6 +122,7 @@ const ROLES: RoleDefinition[] = [
       'visits:create', 'visits:read', 'visits:update', 'visits:delete',
       'schedules:create', 'schedules:read', 'schedules:update', 'schedules:delete',
       'care-plans:create', 'care-plans:read', 'care-plans:update',
+      'tasks:create', 'tasks:read', 'tasks:update',
       'reports:read', 'reports:generate'
     ]
   },
@@ -139,7 +140,7 @@ const ROLES: RoleDefinition[] = [
     label: 'Family Member',
     roles: ['FAMILY'],
     permissions: [
-      'clients:read', 'visits:read', 'care-plans:read', 'schedules:read'
+      'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read'
     ]
   },
   {
@@ -149,7 +150,8 @@ const ROLES: RoleDefinition[] = [
     permissions: [
       'clients:read', 'clients:update', 'visits:read', 'visits:create',
       'visits:update', 'care-plans:create', 'care-plans:read',
-      'care-plans:update', 'medications:*', 'clinical:*'
+      'care-plans:update', 'tasks:create', 'tasks:read', 'tasks:update',
+      'medications:*', 'clinical:*'
     ]
   }
 ];
