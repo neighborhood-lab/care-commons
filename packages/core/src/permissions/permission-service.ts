@@ -99,7 +99,9 @@ export class PermissionService {
         'schedules:read',
         'visits:update',
         'care-plans:read',
+        'tasks:read',
         'tasks:update',
+        'tasks:complete',
         'notes:create',
       ])
     );

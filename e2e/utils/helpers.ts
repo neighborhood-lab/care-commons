@@ -47,7 +47,11 @@ export async function login(
       organizationId: 'org-e2e-001',
       branchId: 'branch-e2e-001',
       roles: ['FAMILY_MEMBER'],
-      permissions: ['family-portal:read', 'messages:write'],
+      permissions: [
+        'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read',
+        'family-portal:view', 'notifications:view', 'messages:view', 'messages:write',
+        'activity-feed:view'
+      ],
     },
   };
 

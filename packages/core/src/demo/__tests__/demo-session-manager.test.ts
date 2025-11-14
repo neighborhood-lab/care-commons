@@ -43,7 +43,9 @@ describe('DemoSessionManager', () => {
 
     mockSnapshot = {
       organizationId: 'org-1',
+      organizationName: 'Demo Home Health',
       branchId: 'branch-1',
+      branchName: 'Main Branch',
       baseTime: new Date('2025-01-05T08:00:00Z'),
       caregiverIds: ['cg-1', 'cg-2'],
       clientIds: ['cl-1', 'cl-2'],
