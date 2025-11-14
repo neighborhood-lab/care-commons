@@ -3,13 +3,13 @@
  */
 
 // Pages
-export { VisitList } from './pages';
+export { VisitList, CalendarView } from './pages';
 
 // Components
 export { VisitCard } from './components';
 
 // Hooks
-export { useVisits, useMyVisits, useVisitApi } from './hooks/useVisits';
+export { useVisits, useMyVisits, useVisitApi, useCalendarVisits, useCaregiverAvailability } from './hooks/useVisits';
 
 // Types
 export type {
