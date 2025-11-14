@@ -166,14 +166,14 @@ export const Login: React.FC = () => {
       <div className="max-w-2xl w-full space-y-8">
         {/* Header */}
         <div className="text-center">
+          <div className="inline-block px-3 py-1 mb-3 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+            DEMO MODE
+          </div>
           <h1 className="text-4xl font-bold text-primary-600">
             Care Commons
           </h1>
-          <p className="mt-2 text-lg text-gray-700">
-            Interactive Demo for All 50 States
-          </p>
-          <p className="mt-1 text-sm text-gray-600">
-            Experience state-specific compliance, EVV requirements, and workflows
+          <p className="mt-2 text-sm text-gray-600">
+            Try the platform with sample data • No real PHI
           </p>
         </div>
 
@@ -186,11 +186,9 @@ export const Login: React.FC = () => {
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-blue-900">State-Specific Demo Accounts</h3>
+              <h3 className="text-sm font-medium text-blue-900">Demo Accounts</h3>
               <p className="mt-1 text-xs text-blue-700">
-                Each state has unique regulations for home healthcare. We've created demo accounts for all 50 states and every role 
-                so you can explore state-specific compliance requirements, EVV mandates, background checks, and workflows. 
-                Your credentials will be automatically generated based on your selections.
+                Choose a state and role to try the platform. Your login credentials will be automatically generated.
               </p>
             </div>
           </div>
