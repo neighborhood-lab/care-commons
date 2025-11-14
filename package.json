@@ -56,6 +56,7 @@
     "db:migrate:status": "cd packages/core && npm run db:migrate:status",
     "db:seed": "cd packages/core && npm run db:seed",
     "db:seed:demo": "cd packages/core && npm run db:seed:demo",
+    "db:seed:historical": "cd packages/core && npm run db:seed:historical",
     "db:reset": "npm run db:nuke && npm run db:migrate && npm run db:seed",
     "db:reset:demo": "npm run db:nuke && npm run db:migrate && npm run db:seed && npm run db:seed:demo",
     "db:nuke": "cd packages/core && npm run db:nuke",
