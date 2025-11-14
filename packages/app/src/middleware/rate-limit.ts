@@ -1,7 +1,6 @@
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 import Redis from 'redis';
-import type { Request } from 'express';
 
 // Redis client for distributed rate limiting (optional, fallback to memory)
 let redisClient: ReturnType<typeof Redis.createClient> | null = null;
@@ -102,10 +101,9 @@ export const evvLimiter = rateLimit({
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: any): string => {
+  keyGenerator: (req): string => {
     // Use user ID instead of IP for authenticated endpoints
-    // @ts-expect-error - req.user is added by auth middleware
-    const userId = req.user?.id;
+    const userId = (req as { user?: { id?: string } }).user?.id;
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
   },
   store: getRedisStore('rl:evv:'),
@@ -124,9 +122,8 @@ export const syncLimiter = rateLimit({
   max: 120,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: any): string => {
-    // @ts-expect-error - req.user is added by auth middleware
-    const userId = req.user?.id;
+  keyGenerator: (req): string => {
+    const userId = (req as { user?: { id?: string } }).user?.id;
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
   },
   store: getRedisStore('rl:sync:'),
@@ -145,9 +142,8 @@ export const reportLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: any): string => {
-    // @ts-expect-error - req.user is added by auth middleware
-    const userId = req.user?.id;
+  keyGenerator: (req): string => {
+    const userId = (req as { user?: { id?: string } }).user?.id;
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
   },
   store: getRedisStore('rl:reports:'),
