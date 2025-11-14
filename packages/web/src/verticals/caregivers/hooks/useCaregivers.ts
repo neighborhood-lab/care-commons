@@ -2,20 +2,24 @@
  * React hook for fetching caregivers
  */
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useApiClient } from '@/core/hooks';
 import { createCaregiverApiService } from '../services/index.js';
-import { createApiClient } from '@/core/services/index.js';
 import type { CaregiverSearchFilters } from '../types/index.js';
 
-// Create API client instance
-const apiClient = createApiClient('', () => null);
-const caregiverApi = createCaregiverApiService(apiClient);
+export const useCaregiverApi = () => {
+  const apiClient = useApiClient();
+  return useMemo(() => createCaregiverApiService(apiClient), [apiClient]);
+};
 
 export function useCaregivers(
   filters: CaregiverSearchFilters = {},
   page: number = 1,
   limit: number = 20
 ) {
+  const caregiverApi = useCaregiverApi();
+
   return useQuery({
     queryKey: ['caregivers', filters, page, limit],
     queryFn: () => caregiverApi.searchCaregivers(filters, page, limit),
@@ -24,6 +28,8 @@ export function useCaregivers(
 }
 
 export function useCaregiver(id: string | undefined) {
+  const caregiverApi = useCaregiverApi();
+
   return useQuery({
     queryKey: ['caregiver', id],
     queryFn: () => caregiverApi.getCaregiverById(id!),

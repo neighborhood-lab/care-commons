@@ -98,6 +98,7 @@ const ROLES: RoleDefinition[] = [
       'visits:*',
       'schedules:*',
       'care-plans:*',
+      'tasks:*',
       'billing:*',
       'reports:*',
       'settings:*'
@@ -124,6 +125,9 @@ const ROLES: RoleDefinition[] = [
       'care-plans:create',
       'care-plans:read',
       'care-plans:update',
+      'tasks:create',
+      'tasks:read',
+      'tasks:update',
       'reports:read',
       'reports:generate'
     ]
@@ -151,6 +155,7 @@ const ROLES: RoleDefinition[] = [
       'clients:read',
       'visits:read',
       'care-plans:read',
+      'tasks:read',
       'schedules:read'
     ]
   },
@@ -167,6 +172,9 @@ const ROLES: RoleDefinition[] = [
       'care-plans:create',
       'care-plans:read',
       'care-plans:update',
+      'tasks:create',
+      'tasks:read',
+      'tasks:update',
       'medications:*',
       'clinical:*'
     ]

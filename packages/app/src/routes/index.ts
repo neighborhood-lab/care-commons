@@ -32,16 +32,16 @@ import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveAction
 import { createSearchRouter } from './search.js';
 import { MedicationService, createMedicationHandlers } from '@care-commons/medication-management';
 import { IncidentService, createIncidentHandlers } from '@care-commons/incident-reporting';
-import { createVisitRouter } from './visits.js';
-import pushNotificationRouter from './push-notifications.js';
 import {
   FamilyEngagementService,
   createFamilyEngagementHandlers,
   FamilyMemberRepository,
   NotificationRepository,
   ActivityFeedRepository,
-  MessageRepository,
+  MessageRepository
 } from '@care-commons/family-engagement';
+import { createVisitRouter } from './visits.js';
+import pushNotificationRouter from './push-notifications.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -147,33 +147,33 @@ function createFamilyEngagementRouter(handlers: ReturnType<typeof createFamilyEn
   // All family engagement routes require authentication
   router.use(authMiddleware.requireAuth);
 
-  // Family member management
-  router.post('/family-members/invite', handlers.inviteFamilyMember);
-  router.get('/family-members/:id', handlers.getFamilyMemberProfile);
-  router.get('/family-members/client/:clientId', handlers.getFamilyMembersForClient);
-  router.patch('/family-members/:id/portal-access', handlers.updatePortalAccess);
+  // Family Member Management endpoints
+  router.post('/family-engagement/family-members/invite', handlers.inviteFamilyMember);
+  router.get('/family-engagement/family-members/:id', handlers.getFamilyMemberProfile);
+  router.get('/family-engagement/family-members/client/:clientId', handlers.getFamilyMembersForClient);
+  router.patch('/family-engagement/family-members/:id/portal-access', handlers.updatePortalAccess);
 
-  // Notifications
-  router.post('/notifications', handlers.sendNotification);
-  router.post('/notifications/broadcast', handlers.broadcastNotification);
-  router.get('/notifications/family-member/:familyMemberId/unread', handlers.getUnreadNotifications);
-  router.patch('/notifications/:id/read', handlers.markNotificationAsRead);
+  // Notification endpoints
+  router.post('/family-engagement/notifications', handlers.sendNotification);
+  router.post('/family-engagement/notifications/broadcast', handlers.broadcastNotification);
+  router.get('/family-engagement/notifications/family-member/:familyMemberId/unread', handlers.getUnreadNotifications);
+  router.patch('/family-engagement/notifications/:id/read', handlers.markNotificationAsRead);
 
-  // Activity feed
-  router.get('/activity-feed/family-member/:familyMemberId', handlers.getRecentActivity);
-  router.post('/activity-feed', handlers.createActivityFeedItem);
+  // Activity Feed endpoints
+  router.get('/family-engagement/activity-feed/family-member/:familyMemberId', handlers.getRecentActivity);
+  router.post('/family-engagement/activity-feed', handlers.createActivityFeedItem);
 
-  // Messaging
-  router.post('/messages/threads', handlers.createMessageThread);
-  router.post('/messages/threads/:threadId/messages', handlers.sendMessage);
-  router.get('/messages/family-member/:familyMemberId/threads', handlers.getThreadsForFamilyMember);
-  router.get('/messages/threads/:threadId/messages', handlers.getMessagesInThread);
+  // Messaging endpoints
+  router.post('/family-engagement/messages/threads', handlers.createMessageThread);
+  router.post('/family-engagement/messages/threads/:threadId/messages', handlers.sendMessage);
+  router.get('/family-engagement/messages/family-member/:familyMemberId/threads', handlers.getThreadsForFamilyMember);
+  router.get('/family-engagement/messages/threads/:threadId/messages', handlers.getMessagesInThread);
 
-  // Dashboard
-  router.get('/dashboard/family-member/:familyMemberId', handlers.getFamilyDashboard);
+  // Dashboard endpoint
+  router.get('/family-engagement/dashboard/family-member/:familyMemberId', handlers.getFamilyDashboard);
 
-  // Care event notifications
-  router.post('/events/notify', handlers.notifyFamilyOfCareEvent);
+  // Care Event Notification endpoint
+  router.post('/family-engagement/events/notify', handlers.notifyFamilyOfCareEvent);
 
   return router;
 }
@@ -298,16 +298,11 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api', generalApiLimiter, incidentRouter);
   console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
 
-  // Push Notifications routes (for mobile device token registration)
-  app.use('/api/push', generalApiLimiter, pushNotificationRouter);
-  console.log('  ✓ Push Notifications routes registered (with rate limiting)');
-
   // Family Engagement routes
   const familyMemberRepo = new FamilyMemberRepository(db);
   const notificationRepo = new NotificationRepository(db);
   const activityFeedRepo = new ActivityFeedRepository(db);
   const messageRepo = new MessageRepository(db);
-
   const familyEngagementService = new FamilyEngagementService(
     familyMemberRepo,
     notificationRepo,
@@ -320,8 +315,12 @@ export function setupRoutes(app: Express, db: Database): void {
   );
   const familyEngagementHandlers = createFamilyEngagementHandlers(familyEngagementService);
   const familyEngagementRouter = createFamilyEngagementRouter(familyEngagementHandlers, db);
-  app.use('/api/family-engagement', generalApiLimiter, familyEngagementRouter);
+  app.use('/api', generalApiLimiter, familyEngagementRouter);
   console.log('  ✓ Family Engagement routes registered (with rate limiting)');
+
+  // Push Notifications routes (for mobile device token registration)
+  app.use('/api/push', generalApiLimiter, pushNotificationRouter);
+  console.log('  ✓ Push Notifications routes registered (with rate limiting)');
 
   // Additional verticals can be added here as they implement route handlers:
   // - EVV & Time Tracking
