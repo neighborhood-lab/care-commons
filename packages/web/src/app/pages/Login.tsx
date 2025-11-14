@@ -1,342 +1,309 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useAuthService } from '@/core/hooks';
-import { Button } from '@/core/components';
 import toast from 'react-hot-toast';
-import { Check } from 'lucide-react';
+import { User, Clipboard, ClipboardCheck, Calendar, Users, Stethoscope, Heart } from 'lucide-react';
 
-// All 50 US states
-const US_STATES = [
-  { code: 'AL', name: 'Alabama' },
-  { code: 'AK', name: 'Alaska' },
-  { code: 'AZ', name: 'Arizona' },
-  { code: 'AR', name: 'Arkansas' },
-  { code: 'CA', name: 'California' },
-  { code: 'CO', name: 'Colorado' },
-  { code: 'CT', name: 'Connecticut' },
-  { code: 'DE', name: 'Delaware' },
-  { code: 'FL', name: 'Florida' },
-  { code: 'GA', name: 'Georgia' },
-  { code: 'HI', name: 'Hawaii' },
-  { code: 'ID', name: 'Idaho' },
-  { code: 'IL', name: 'Illinois' },
-  { code: 'IN', name: 'Indiana' },
-  { code: 'IA', name: 'Iowa' },
-  { code: 'KS', name: 'Kansas' },
-  { code: 'KY', name: 'Kentucky' },
-  { code: 'LA', name: 'Louisiana' },
-  { code: 'ME', name: 'Maine' },
-  { code: 'MD', name: 'Maryland' },
-  { code: 'MA', name: 'Massachusetts' },
-  { code: 'MI', name: 'Michigan' },
-  { code: 'MN', name: 'Minnesota' },
-  { code: 'MS', name: 'Mississippi' },
-  { code: 'MO', name: 'Missouri' },
-  { code: 'MT', name: 'Montana' },
-  { code: 'NE', name: 'Nebraska' },
-  { code: 'NV', name: 'Nevada' },
-  { code: 'NH', name: 'New Hampshire' },
-  { code: 'NJ', name: 'New Jersey' },
-  { code: 'NM', name: 'New Mexico' },
-  { code: 'NY', name: 'New York' },
-  { code: 'NC', name: 'North Carolina' },
-  { code: 'ND', name: 'North Dakota' },
-  { code: 'OH', name: 'Ohio' },
-  { code: 'OK', name: 'Oklahoma' },
-  { code: 'OR', name: 'Oregon' },
-  { code: 'PA', name: 'Pennsylvania' },
-  { code: 'RI', name: 'Rhode Island' },
-  { code: 'SC', name: 'South Carolina' },
-  { code: 'SD', name: 'South Dakota' },
-  { code: 'TN', name: 'Tennessee' },
-  { code: 'TX', name: 'Texas' },
-  { code: 'UT', name: 'Utah' },
-  { code: 'VT', name: 'Vermont' },
-  { code: 'VA', name: 'Virginia' },
-  { code: 'WA', name: 'Washington' },
-  { code: 'WV', name: 'West Virginia' },
-  { code: 'WI', name: 'Wisconsin' },
-  { code: 'WY', name: 'Wyoming' },
-] as const;
+// Texas-only demo - hardcoded state
+const DEMO_STATE = 'TX';
 
-// Role definitions with brief explanations
+// Role definitions with icons and descriptions
 const ROLES = [
   {
     value: 'ADMIN',
     label: 'Administrator',
     description: 'Full system access, manage agency operations',
-    icon: '👨‍💼',
+    Icon: User,
+    color: 'from-purple-500 to-purple-600',
+    hoverColor: 'hover:from-purple-600 hover:to-purple-700',
   },
   {
     value: 'COORDINATOR',
     label: 'Care Coordinator',
     description: 'Schedule visits, assign caregivers, manage care plans',
-    icon: '📋',
+    Icon: Calendar,
+    color: 'from-blue-500 to-blue-600',
+    hoverColor: 'hover:from-blue-600 hover:to-blue-700',
   },
   {
     value: 'CAREGIVER',
     label: 'Caregiver',
     description: 'Clock in/out, document visits, view assignments',
-    icon: '🤝',
+    Icon: Heart,
+    color: 'from-green-500 to-green-600',
+    hoverColor: 'hover:from-green-600 hover:to-green-700',
   },
   {
     value: 'FAMILY',
     label: 'Family Member',
     description: 'View care updates, message caregivers, track visits',
-    icon: '👨‍👩‍👧',
+    Icon: Users,
+    color: 'from-orange-500 to-orange-600',
+    hoverColor: 'hover:from-orange-600 hover:to-orange-700',
   },
   {
     value: 'NURSE',
     label: 'Nurse/Clinical',
     description: 'Clinical assessments, medication management, oversight',
-    icon: '⚕️',
+    Icon: Stethoscope,
+    color: 'from-teal-500 to-teal-600',
+    hoverColor: 'hover:from-teal-600 hover:to-teal-700',
   },
 ] as const;
+
+// Custom toast component for credentials with copy button
+const CredentialsToast: React.FC<{
+  email: string;
+  password: string;
+  roleName: string;
+}> = ({ email, password, roleName }) => {
+  const [emailCopied, setEmailCopied] = useState(false);
+  const [passwordCopied, setPasswordCopied] = useState(false);
+
+  const copyToClipboard = async (text: string, field: 'email' | 'password') => {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (field === 'email') {
+        setEmailCopied(true);
+        setTimeout(() => setEmailCopied(false), 2000);
+      } else {
+        setPasswordCopied(true);
+        setTimeout(() => setPasswordCopied(false), 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="font-semibold text-green-900">
+        Welcome, {roleName}!
+      </div>
+      <div className="text-sm text-green-800">
+        You can use these credentials for future logins:
+      </div>
+      <div className="space-y-2 bg-white rounded-md p-3 border border-green-200">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-gray-600 font-medium">Email</div>
+            <div className="text-sm text-gray-900 font-mono truncate">{email}</div>
+          </div>
+          <button
+            onClick={() => copyToClipboard(email, 'email')}
+            className="flex-shrink-0 p-1.5 rounded hover:bg-gray-100 transition-colors"
+            title="Copy email"
+          >
+            {emailCopied ? (
+              <ClipboardCheck className="h-4 w-4 text-green-600" />
+            ) : (
+              <Clipboard className="h-4 w-4 text-gray-600" />
+            )}
+          </button>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-gray-600 font-medium">Password</div>
+            <div className="text-sm text-gray-900 font-mono truncate">{password}</div>
+          </div>
+          <button
+            onClick={() => copyToClipboard(password, 'password')}
+            className="flex-shrink-0 p-1.5 rounded hover:bg-gray-100 transition-colors"
+            title="Copy password"
+          >
+            {passwordCopied ? (
+              <ClipboardCheck className="h-4 w-4 text-green-600" />
+            ) : (
+              <Clipboard className="h-4 w-4 text-gray-600" />
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const authService = useAuthService();
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Demo flow state
-  const [selectedState, setSelectedState] = useState<string>('');
-  const [selectedRole, setSelectedRole] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  // Auto-populated credentials
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
-  // Generate credentials when state and role are selected
-  useEffect(() => {
-    if (selectedState !== '' && selectedRole !== '') {
-      const stateCode = selectedState.toLowerCase();
-      const roleCode = selectedRole.toLowerCase();
-      
-      // Email format: {role}@{state}.carecommons.example
-      const generatedEmail = `${roleCode}@${stateCode}.carecommons.example`;
-      
-      // Password format: Demo{STATE}{ROLE}123!
-      const generatedPassword = `Demo${selectedState}${selectedRole}123!`;
-      
-      setEmail(generatedEmail);
-      setPassword(generatedPassword);
-    }
-  }, [selectedState, selectedRole]);
+  const handleRoleSelect = async (roleValue: string) => {
+    if (isLoading) return;
 
-  // Filter states based on search query
-  const filteredStates = US_STATES.filter((state) =>
-    state.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    state.code.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleLogin = async () => {
-    if (email === '' || password === '') {
-      toast.error('Please select a state and role');
-      return;
-    }
-
+    setSelectedRole(roleValue);
     setIsLoading(true);
+
     try {
+      // Generate credentials for Texas + selected role
+      const stateCode = DEMO_STATE.toLowerCase();
+      const roleCode = roleValue.toLowerCase();
+      const email = `${roleCode}@${stateCode}.carecommons.example`;
+      const password = `Demo${DEMO_STATE}${roleValue}123!`;
+
+      // Auto-login
       const response = await authService.login({ email, password });
       login(response.user, response.token);
-      const stateName = US_STATES.find((s) => s.code === selectedState)?.name ?? selectedState;
-      const roleName = ROLES.find((r) => r.value === selectedRole)?.label ?? selectedRole;
-      toast.success(`Welcome! Viewing ${stateName} as ${roleName}`);
+
+      // Get role name for display
+      const role = ROLES.find((r) => r.value === roleValue);
+      const roleName = role?.label ?? roleValue;
+
+      // Show welcome toast with credentials and copy buttons
+      toast.custom(
+        (t) => (
+          <div
+            className={`${
+              t.visible ? 'animate-enter' : 'animate-leave'
+            } max-w-md w-full bg-green-50 border-2 border-green-500 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+          >
+            <div className="flex-1 w-0 p-4">
+              <CredentialsToast
+                email={email}
+                password={password}
+                roleName={roleName}
+              />
+            </div>
+            <div className="flex border-l border-green-200">
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-green-700 hover:text-green-800 focus:outline-none"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        ),
+        { duration: 10000 }
+      );
 
       // Route based on user role
-      if (response.user.roles.includes('FAMILY')) {
-        navigate('/family-portal');
-      } else {
-        navigate('/');
-      }
+      setTimeout(() => {
+        if (response.user.roles.includes('FAMILY')) {
+          navigate('/family-portal');
+        } else {
+          navigate('/');
+        }
+      }, 500);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       toast.error(errorMessage);
+      setSelectedRole(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const canProceed = selectedState !== '' && selectedRole !== '';
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="inline-block px-3 py-1 mb-3 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-            DEMO MODE
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-semibold text-blue-700 bg-blue-100 rounded-full border-2 border-blue-300">
+            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+            </svg>
+            TEXAS DEMO
           </div>
-          <h1 className="text-4xl font-bold text-primary-600">
+          <h1 className="text-5xl font-bold text-gray-900 mb-3">
             Care Commons
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Try the platform with sample data • No real PHI
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Experience home healthcare management with realistic Texas data
           </p>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-blue-900">Demo Accounts</h3>
-              <p className="mt-1 text-xs text-blue-700">
-                Choose a state and role to try the platform. Your login credentials will be automatically generated.
+              <h3 className="text-base font-semibold text-blue-900">Quick Demo Access</h3>
+              <p className="mt-1 text-sm text-blue-700">
+                Select a role below to instantly explore the platform. Credentials will be provided after login for future reference.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white shadow-xl rounded-lg p-8 space-y-8">
-          {/* Step 1: State Selection */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${selectedState !== '' ? 'bg-green-500' : 'bg-primary-500'} text-white font-semibold`}>
-                {selectedState !== '' ? <Check className="h-5 w-5" /> : '1'}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Select Your State
-              </h3>
-            </div>
-            
-            {/* Search input */}
-            <input
-              type="text"
-              placeholder="Search states..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
+        {/* Role Selection Cards */}
+        <div className="bg-white shadow-2xl rounded-2xl p-8 sm:p-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            Choose Your Role to Get Started
+          </h2>
 
-            {/* State grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3">
-              {filteredStates.map((state) => (
-                <button
-                  key={state.code}
-                  type="button"
-                  onClick={() => setSelectedState(state.code)}
-                  className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                    selectedState === state.code
-                      ? 'bg-primary-600 text-white font-semibold'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {state.code}
-                </button>
-              ))}
-            </div>
-            {selectedState !== '' && (
-              <p className="mt-2 text-sm text-green-600 font-medium">
-                ✓ Selected: {US_STATES.find((s) => s.code === selectedState)?.name}
-              </p>
-            )}
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {ROLES.map((role) => {
+              const isSelected = selectedRole === role.value;
+              const isCurrentlyLoading = isLoading && isSelected;
 
-          {/* Step 2: Role Selection */}
-          <div className={selectedState === '' ? 'opacity-50 pointer-events-none' : ''}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${selectedRole !== '' ? 'bg-green-500' : 'bg-primary-500'} text-white font-semibold`}>
-                {selectedRole !== '' ? <Check className="h-5 w-5" /> : '2'}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Choose Your Role
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {ROLES.map((role) => (
+              return (
                 <button
                   key={role.value}
                   type="button"
-                  onClick={() => setSelectedRole(role.value)}
-                  disabled={selectedState === ''}
-                  className={`p-4 text-left rounded-lg border-2 transition-all ${
-                    selectedRole === role.value
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
-                  }`}
+                  onClick={() => handleRoleSelect(role.value)}
+                  disabled={isLoading}
+                  className={`group relative p-6 rounded-xl border-2 transition-all duration-200 text-left ${
+                    isCurrentlyLoading
+                      ? 'border-gray-300 bg-gray-50 cursor-wait'
+                      : isSelected
+                      ? 'border-primary-600 bg-primary-50 shadow-lg'
+                      : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow-md'
+                  } ${isLoading && !isSelected ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">{role.icon}</span>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900">
-                        {role.label}
-                      </div>
-                      <div className="text-xs text-gray-600 mt-1">
-                        {role.description}
+                  {/* Gradient Icon Background */}
+                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${role.color} text-white mb-4 shadow-md ${!isLoading ? role.hoverColor : ''} transition-all duration-200 ${!isCurrentlyLoading ? 'group-hover:scale-110' : ''}`}>
+                    {isCurrentlyLoading ? (
+                      <svg className="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <role.Icon className="h-7 w-7" />
+                    )}
+                  </div>
+
+                  {/* Role Info */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      {role.label}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {role.description}
+                    </p>
+                  </div>
+
+                  {/* Loading State */}
+                  {isCurrentlyLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-xl">
+                      <div className="text-center">
+                        <svg className="animate-spin h-8 w-8 text-primary-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p className="text-sm font-medium text-gray-700">Signing in...</p>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Step 3: Auto-populated Credentials */}
-          <div className={!canProceed ? 'opacity-50 pointer-events-none' : ''}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white font-semibold">
-                3
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Review & Sign In
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed font-mono"
-                />
-              </div>
-
-              <Button
-                type="button"
-                variant="primary"
-                size="lg"
-                onClick={handleLogin}
-                isLoading={isLoading}
-                disabled={!canProceed}
-                className="w-full"
-              >
-                {isLoading ? 'Signing in...' : 'Sign In to Demo'}
-              </Button>
-            </div>
+              );
+            })}
           </div>
 
           {/* Footer Info */}
-          <div className="pt-6 border-t border-gray-200">
-            <p className="text-xs text-center text-gray-500">
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-sm text-center text-gray-500">
               This is a demonstration environment with sample data.{' '}
-              <a 
-                href="https://neighborhood-lab.github.io/care-commons/" 
-                className="text-primary-600 hover:text-primary-700 underline"
-                target="_blank" 
+              <a
+                href="https://neighborhood-lab.github.io/care-commons/"
+                className="text-primary-600 hover:text-primary-700 underline font-medium"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 View Interactive Showcase
