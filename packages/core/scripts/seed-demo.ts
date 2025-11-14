@@ -935,11 +935,67 @@ async function seedDatabase() {
       }
       
       console.log(`✅ Created ${familyMembers.length} family members\n`);
-      
+
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 8: Generate basic invoices (for completed visits)
+      // STEP 8: Create payers (required for invoices)
       // ═══════════════════════════════════════════════════════════════════════════
-      
+
+      console.log(`💳 Creating payers...`);
+
+      // Create Medicaid payer
+      const medicaidPayerId = uuidv4();
+      await client.query(
+        `
+        INSERT INTO payers (
+          id, organization_id,
+          payer_name, payer_type, payer_code,
+          payment_terms_days, status,
+          created_by, updated_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `,
+        [
+          medicaidPayerId,
+          orgId,
+          'Medicaid',
+          'MEDICAID',
+          'MEDICAID-001',
+          30,
+          'ACTIVE',
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
+      // Create Private Pay payer
+      const privatePayPayerId = uuidv4();
+      await client.query(
+        `
+        INSERT INTO payers (
+          id, organization_id,
+          payer_name, payer_type, payer_code,
+          payment_terms_days, status,
+          created_by, updated_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `,
+        [
+          privatePayPayerId,
+          orgId,
+          'Private Pay',
+          'PRIVATE_PAY',
+          'PRIVATE-001',
+          30,
+          'ACTIVE',
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
+      console.log(`✅ Created 2 payers (Medicaid, Private Pay)\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 9: Generate basic invoices (for completed visits)
+      // ═══════════════════════════════════════════════════════════════════════════
+
       console.log(`💰 Creating invoices for completed visits...`);
       
       const completedVisits = visits.filter(v => v.status === 'COMPLETED');
@@ -1002,7 +1058,7 @@ async function seedDatabase() {
           periodEnd.setDate(0); // Last day of month
           
           const invoiceNumber = `INV-${monthKey}-${String(invoiceCount + 1).padStart(4, '0')}`;
-          const status = randomElement<string>(['DRAFT', 'SENT', 'PAID', 'OVERDUE']);
+          const status = randomElement<string>(['DRAFT', 'SENT', 'PAID', 'PAST_DUE']);
           
           await client.query(
             `
@@ -1024,10 +1080,10 @@ async function seedDatabase() {
               orgId,
               branchId,
               invoiceNumber,
-              'SERVICE',
-              invoiceClient.medicaidNumber ? orgId : invoiceClient.id, // Medicaid or private pay
+              'STANDARD',
+              invoiceClient.medicaidNumber ? medicaidPayerId : privatePayPayerId, // Medicaid or private pay
               invoiceClient.medicaidNumber ? 'MEDICAID' : 'PRIVATE_PAY',
-              invoiceClient.medicaidNumber ? 'Medicaid' : `${invoiceClient.firstName} ${invoiceClient.lastName}`,
+              invoiceClient.medicaidNumber ? 'Medicaid' : 'Private Pay',
               invoiceClient.id,
               `${invoiceClient.firstName} ${invoiceClient.lastName}`,
               periodStart,
