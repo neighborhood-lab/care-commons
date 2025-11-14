@@ -33,6 +33,36 @@ export { EVVService } from './service/evv-service';
 export { VMURService } from './service/vmur-service';
 export type { CreateVMURInput, ApproveVMURInput, DenyVMURInput } from './service/vmur-service';
 
+// Texas-specific EVV compliance services
+export {
+  TexasGeofenceValidator,
+  createTexasGeofenceValidator,
+  type GeofenceValidationResult,
+  type GeofenceValidationType,
+  type LocationCoordinates,
+  type TexasGeofenceConfig,
+} from './service/texas-geofence-validator';
+
+export {
+  SixElementsValidator,
+  createFederalValidator,
+  createTexasValidator,
+  type SixElementsValidationResult,
+  type ElementValidationResult,
+  type EVVElement,
+  type EVVDataInput,
+  type ValidationConfig,
+} from './service/six-elements-validator';
+
+export {
+  TexasEVVComplianceService,
+  createTexasComplianceService,
+  type TexasComplianceResult,
+  type GracePeriodValidationResult,
+  type TexasComplianceFlag,
+  type TexasComplianceConfig,
+} from './service/texas-evv-compliance';
+
 // Utilities
 export { IntegrationService } from './utils/integration-service';
 // Platform-specific: will use crypto-utils.native.ts in React Native
