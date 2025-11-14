@@ -46,7 +46,9 @@ export class DemoSessionManager {
       id: sessionId,
       userId,
       organizationId: snapshot.organizationId,
+      organizationName: snapshot.organizationName,
       branchId: snapshot.branchId,
+      branchName: snapshot.branchName,
       currentPersona: initialPersona,
       availablePersonas: snapshot.personas,
       state: {

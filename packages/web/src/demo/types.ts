@@ -26,12 +26,20 @@ export interface DemoPersona {
 export interface DemoSession {
   id: string;
   userId: string;
+  organizationId: string;
+  organizationName: string;
+  branchId: string;
+  branchName: string;
   currentPersona: DemoPersona;
   availablePersonas: DemoPersona[];
   expiresAt: string;
   state: {
     currentTime: string;
     eventCount: number;
+  };
+  stats: {
+    clientCount: number;
+    caregiverCount: number;
   };
 }
 

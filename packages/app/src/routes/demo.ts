@@ -69,10 +69,10 @@ export function createDemoRouter(db: Database): Router {
    * GET /api/demo/sessions/:sessionId
    * Get current session state
    */
-  router.get('/sessions/:sessionId', (req: Request, res: Response, next: NextFunction) => {
+  router.get('/sessions/:sessionId', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sessionId = String(req.params.sessionId);
-      
+
       // Validate sessionId (frontend sometimes sends 'undefined' string)
       if (sessionId.length === 0 || sessionId === 'undefined') {
         res.status(400).json({
@@ -81,17 +81,31 @@ export function createDemoRouter(db: Database): Router {
         });
         return;
       }
-      
+
       const session = sessionManager.getSession(sessionId);
+
+      // Fetch current data counts for this session
+      const snapshot = await getDemoSnapshot(db);
 
       res.json({
         success: true,
         data: {
-          sessionId: session.id,
+          id: session.id,
+          userId: session.userId,
+          organizationId: session.organizationId,
+          organizationName: session.organizationName,
+          branchId: session.branchId,
+          branchName: session.branchName,
           currentPersona: session.currentPersona,
+          availablePersonas: session.availablePersonas,
+          expiresAt: session.expiresAt,
           state: {
             currentTime: session.state.currentTime,
             eventCount: session.state.events.length
+          },
+          stats: {
+            clientCount: snapshot.clientIds.length,
+            caregiverCount: snapshot.caregiverIds.length
           }
         }
       });
@@ -334,15 +348,17 @@ export function createDemoRouter(db: Database): Router {
 // ============================================================================
 
 async function getDemoSnapshot(db: Database): Promise<DemoSnapshot> {
-  const orgResult = await db.query('SELECT id FROM organizations ORDER BY created_at ASC LIMIT 1');
-  const branchResult = await db.query('SELECT id FROM branches ORDER BY created_at ASC LIMIT 1');
+  const orgResult = await db.query('SELECT id, name FROM organizations ORDER BY created_at ASC LIMIT 1');
+  const branchResult = await db.query('SELECT id, name FROM branches ORDER BY created_at ASC LIMIT 1');
 
   if (orgResult.rows.length === 0 || branchResult.rows.length === 0) {
     throw new Error('Demo data not found. Please run: npm run db:seed:demo-v2');
   }
 
   const orgId = orgResult.rows[0]?.id as string;
+  const orgName = orgResult.rows[0]?.name as string;
   const branchId = branchResult.rows[0]?.id as string;
+  const branchName = branchResult.rows[0]?.name as string;
 
   const caregiversResult = await db.query(
     'SELECT id FROM caregivers WHERE organization_id = $1 AND deleted_at IS NULL',
@@ -528,7 +544,9 @@ async function getDemoSnapshot(db: Database): Promise<DemoSnapshot> {
 
   return {
     organizationId: orgId,
+    organizationName: orgName,
     branchId,
+    branchName,
     baseTime: new Date(),
     caregiverIds,
     clientIds,
