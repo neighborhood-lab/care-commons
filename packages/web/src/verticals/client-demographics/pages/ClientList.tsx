@@ -77,13 +77,15 @@ export const ClientList: React.FC = () => {
           title="No clients found"
           description="Get started by creating your first client."
           action={
-            can('clients:write') ? (
-              <Link to="/clients/new">
-                <Button leftIcon={<Plus className="h-4 w-4" />}>
-                  Create Client
-                </Button>
-              </Link>
-            ) : undefined
+            <Link to="/clients/new">
+              <Button
+                leftIcon={<Plus className="h-4 w-4" />}
+                disabled={!can('clients:write')}
+                title={!can('clients:write') ? 'You do not have permission to create clients' : undefined}
+              >
+                Create Client
+              </Button>
+            </Link>
           }
         />
       ) : (
