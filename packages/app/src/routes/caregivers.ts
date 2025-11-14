@@ -3,16 +3,30 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database } from '@care-commons/core';
-import { requireAuth } from '../middleware/auth-context';
+import { Database, AuthMiddleware, UserContext } from '@care-commons/core';
 import { CaregiverService } from '@care-commons/caregiver-staff';
 import type { CreateCaregiverInput, UpdateCaregiverInput, CaregiverSearchFilters } from '@care-commons/caregiver-staff';
 
+/**
+ * Helper to create UserContext from JWT payload
+ */
+function getUserContext(req: Request): UserContext {
+  const user = req.user!;
+  return {
+    userId: user.userId,
+    organizationId: user.organizationId,
+    branchIds: user.branchIds,
+    roles: user.roles,
+    permissions: user.permissions,
+  };
+}
+
 export function createCaregiverRouter(db: Database): Router {
   const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
 
   // All routes require authentication
-  router.use(requireAuth);
+  router.use(authMiddleware.requireAuth);
 
   /**
    * GET /api/caregivers/me
@@ -20,7 +34,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const caregiver = await service.getCurrentCaregiverProfile(context);
@@ -36,7 +50,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const filters: CaregiverSearchFilters = {
@@ -68,7 +82,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const caregiver = await service.getCaregiverById(req.params['id']!, context);
@@ -84,7 +98,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const input: CreateCaregiverInput = {
@@ -111,7 +125,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const input: UpdateCaregiverInput = req.body;
@@ -129,7 +143,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       await service.deleteCaregiver(req.params['id']!, context);
@@ -145,7 +159,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/:id/service-authorizations', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const authorizations = await service.getServiceAuthorizations(req.params['id']!, context);
@@ -161,7 +175,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.post('/:id/service-authorizations', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const authorizationId = await service.addServiceAuthorization(
@@ -189,7 +203,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.post('/:id/validate-assignment', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const result = await service.validateAssignment(
@@ -211,7 +225,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/:id/state-screenings', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const screenings = await service.getStateScreenings(req.params['id']!, context);
@@ -227,7 +241,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.post('/:id/state-screenings', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const screeningId = await service.initiateBackgroundScreening(
@@ -249,7 +263,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.patch('/:caregiverId/state-screenings/:screeningId', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       await service.updateBackgroundScreening(
@@ -278,7 +292,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.post('/:id/compliance-status', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const caregiver = await service.updateComplianceStatus(req.params['id']!, context);
@@ -294,7 +308,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/employee-number/:employeeNumber', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const caregiver = await service.getCaregiverByEmployeeNumber(
@@ -314,7 +328,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/branch/:branchId', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const activeOnly = req.query['activeOnly'] !== 'false';
@@ -331,7 +345,7 @@ export function createCaregiverRouter(db: Database): Router {
    */
   router.get('/expiring-credentials', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const context = getUserContext(req);
       const service = new CaregiverService(db);
 
       const daysUntilExpiration = parseInt((req.query['days'] as string | undefined) ?? '30', 10);

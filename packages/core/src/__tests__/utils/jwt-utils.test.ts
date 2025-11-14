@@ -25,6 +25,7 @@ describe('JWTUtils', () => {
     userId: '123e4567-e89b-12d3-a456-426614174000',
     email: 'test@example.com',
     organizationId: '123e4567-e89b-12d3-a456-426614174001',
+    branchIds: ['123e4567-e89b-12d3-a456-426614174002'],
     roles: ['COORDINATOR'],
     permissions: ['clients:read', 'clients:write'],
     tokenVersion: 1
