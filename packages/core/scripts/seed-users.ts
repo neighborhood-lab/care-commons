@@ -44,6 +44,7 @@ const USER_ACCOUNTS: UserAccount[] = [
       'visits:*',
       'schedules:*',
       'care-plans:*',
+      'tasks:*',
       'billing:*',
       'reports:*',
       'settings:*'
@@ -60,6 +61,7 @@ const USER_ACCOUNTS: UserAccount[] = [
       'clients:read',
       'visits:read',
       'care-plans:read',
+      'tasks:read',
       'schedules:read'
     ],
     description: 'Family member with read-only access to care information',
@@ -88,6 +90,9 @@ const USER_ACCOUNTS: UserAccount[] = [
       'care-plans:create',
       'care-plans:read',
       'care-plans:update',
+      'tasks:create',
+      'tasks:read',
+      'tasks:update',
       'reports:read',
       'reports:generate'
     ],
