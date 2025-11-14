@@ -562,70 +562,81 @@ export class CarePlanRepository extends Repository<CarePlan> {
     let paramIndex = 1;
 
     if (filters.carePlanId) {
-      conditions.push(`care_plan_id = $${paramIndex++}`);
+      conditions.push(`ti.care_plan_id = $${paramIndex++}`);
       values.push(filters.carePlanId);
     }
 
     if (filters.clientId) {
-      conditions.push(`client_id = $${paramIndex++}`);
+      conditions.push(`ti.client_id = $${paramIndex++}`);
       values.push(filters.clientId);
     }
 
     if (filters.assignedCaregiverId) {
-      conditions.push(`assigned_caregiver_id = $${paramIndex++}`);
+      conditions.push(`ti.assigned_caregiver_id = $${paramIndex++}`);
       values.push(filters.assignedCaregiverId);
     }
 
     if (filters.visitId) {
-      conditions.push(`visit_id = $${paramIndex++}`);
+      conditions.push(`ti.visit_id = $${paramIndex++}`);
       values.push(filters.visitId);
     }
 
     if (filters.status && filters.status.length > 0) {
-      conditions.push(`status = ANY($${paramIndex++})`);
+      conditions.push(`ti.status = ANY($${paramIndex++})`);
       values.push(filters.status);
     }
 
     if (filters.category && filters.category.length > 0) {
-      conditions.push(`category = ANY($${paramIndex++})`);
+      conditions.push(`ti.category = ANY($${paramIndex++})`);
       values.push(filters.category);
     }
 
     if (filters.scheduledDateFrom) {
-      conditions.push(`scheduled_date >= $${paramIndex++}`);
+      conditions.push(`ti.scheduled_date >= $${paramIndex++}`);
       values.push(filters.scheduledDateFrom);
     }
 
     if (filters.scheduledDateTo) {
-      conditions.push(`scheduled_date <= $${paramIndex++}`);
+      conditions.push(`ti.scheduled_date <= $${paramIndex++}`);
       values.push(filters.scheduledDateTo);
     }
 
     if (filters.overdue) {
-      conditions.push(`scheduled_date < NOW() AND status IN ('SCHEDULED', 'IN_PROGRESS')`);
+      conditions.push(`ti.scheduled_date < NOW() AND ti.status IN ('SCHEDULED', 'IN_PROGRESS')`);
     }
 
     if (filters.requiresSignature !== undefined) {
-      conditions.push(`required_signature = $${paramIndex++}`);
+      conditions.push(`ti.required_signature = $${paramIndex++}`);
       values.push(filters.requiresSignature);
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Count total
-    const countQuery = `SELECT COUNT(*) FROM task_instances ${whereClause}`;
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM task_instances ti
+      ${whereClause}
+    `;
     const countResult = await this.database.query(countQuery, values);
     const firstRow = countResult.rows[0] as Record<string, unknown> | undefined;
     if (!firstRow) throw new Error('Count query returned no rows');
     const total = parseInt(firstRow['count'] as string, 10);
 
-    // Get paginated results
-    const sortBy = pagination.sortBy || 'scheduled_date';
+    // Get paginated results with joins to get client and care plan names
+    const sortBy = pagination.sortBy || 'ti.scheduled_date';
     const sortOrder = pagination.sortOrder || 'asc';
     const offset = (pagination.page - 1) * pagination.limit;
 
     const dataQuery = `
-      SELECT * FROM task_instances
+      SELECT
+        ti.*,
+        c.first_name || ' ' || c.last_name AS client_name,
+        cp.name AS care_plan_name,
+        cp.priority AS care_plan_priority
+      FROM task_instances ti
+      INNER JOIN clients c ON ti.client_id = c.id
+      INNER JOIN care_plans cp ON ti.care_plan_id = cp.id
       ${whereClause}
       ORDER BY ${sortBy} ${sortOrder}
       LIMIT $${paramIndex++} OFFSET $${paramIndex}
@@ -633,7 +644,7 @@ export class CarePlanRepository extends Repository<CarePlan> {
     values.push(pagination.limit, offset);
 
     const result = await this.database.query(dataQuery, values);
-    const items = result.rows.map(row => this.mapRowToTaskInstance(row));
+    const items = result.rows.map(row => this.mapRowToTaskInstanceWithDetails(row));
 
     return {
       items,
@@ -845,6 +856,19 @@ export class CarePlanRepository extends Repository<CarePlan> {
       updatedBy: row.updated_by,
       version: row.version,
     }) as TaskInstance;
+  }
+
+  /**
+   * Helper: Map database row to TaskInstance entity with additional details
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private mapRowToTaskInstanceWithDetails(row: any): TaskInstance & { clientName?: string; carePlanName?: string; priority?: string } {
+    return ({
+      ...this.mapRowToTaskInstance(row),
+      clientName: row.client_name,
+      carePlanName: row.care_plan_name,
+      priority: row.care_plan_priority,
+    });
   }
 
   /**

@@ -407,6 +407,11 @@ export class CarePlanService {
       throw new NotFoundError('Task not found', { id });
     }
 
+    // Caregivers can only view tasks assigned to them
+    if (context.roles.includes('CAREGIVER') && task.assignedCaregiverId !== context.userId) {
+      throw new PermissionError('Cannot access tasks assigned to other caregivers');
+    }
+
     return task;
   }
 
@@ -599,11 +604,17 @@ export class CarePlanService {
     // Validate filters
     const validatedFilters = CarePlanValidator.validateTaskInstanceSearchFilters(filters);
 
+    // Auto-filter by caregiver ID if user is a CAREGIVER
+    // Caregivers should only see tasks assigned to them
+    if (context.roles.includes('CAREGIVER') && !validatedFilters.assignedCaregiverId) {
+      validatedFilters.assignedCaregiverId = context.userId;
+    }
+
     // Filter out undefined properties to satisfy exactOptionalPropertyTypes
     const filteredFilters = Object.fromEntries(
       Object.entries(validatedFilters).filter(([_, value]) => value !== undefined)
     );
-    
+
     return await this.repository.searchTaskInstances(filteredFilters, pagination);
   }
 
