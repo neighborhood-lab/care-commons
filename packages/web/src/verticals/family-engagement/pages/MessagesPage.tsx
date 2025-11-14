@@ -11,14 +11,21 @@ import {
   useMessagesInThread,
   useSendMessage,
   useCreateMessageThread,
+  useFamilyMemberProfile,
 } from '../hooks';
+import { useAuth } from '@/core/hooks';
 import { MessageList, MessageThread, MessageComposer } from '../components';
+import type { UUID } from '@care-commons/core/browser';
 
 export const MessagesPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const navigate = useNavigate();
-  const familyMemberId = sessionStorage.getItem('familyMemberId') ?? null;
-  const clientId = sessionStorage.getItem('clientId') ?? null;
+  const { user } = useAuth();
+  const familyMemberId = user?.id as UUID | null;
+
+  // Get family member profile to get clientId
+  const { data: profile } = useFamilyMemberProfile(familyMemberId);
+  const clientId = profile?.clientId ?? null;
 
   const [showNewThread, setShowNewThread] = useState(false);
   const [newThreadSubject, setNewThreadSubject] = useState('');
@@ -35,8 +42,13 @@ export const MessagesPage: React.FC = () => {
   };
 
   const handleCreateThread = () => {
-    if (!familyMemberId || !clientId || !newThreadSubject || !newThreadMessage) {
+    if (!newThreadSubject || !newThreadMessage) {
       alert('Please fill in all fields');
+      return;
+    }
+
+    if (!familyMemberId || !clientId) {
+      alert('Unable to create message. Please try refreshing the page.');
       return;
     }
 
