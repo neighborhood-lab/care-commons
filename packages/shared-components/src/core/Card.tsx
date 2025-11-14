@@ -5,6 +5,7 @@ import type { BaseComponentProps } from '../types/ui.js';
 export interface CardProps extends BaseComponentProps {
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hover?: boolean;
+  onClick?: () => void;
 }
 
 const paddingClasses = {
@@ -21,7 +22,7 @@ interface CardComponent extends React.FC<CardProps> {
 }
 
 export const Card: CardComponent = Object.assign(
-  ({ children, className, padding = 'md', hover = false }: CardProps) => {
+  ({ children, className, padding = 'md', hover = false, onClick }: CardProps) => {
     return (
       <div
         className={cn(
@@ -30,6 +31,15 @@ export const Card: CardComponent = Object.assign(
           hover && 'transition-shadow hover:shadow-md',
           className
         )}
+        onClick={onClick}
+        role={onClick ? 'button' : undefined}
+        tabIndex={onClick ? 0 : undefined}
+        onKeyDown={onClick ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        } : undefined}
       >
         {children}
       </div>
