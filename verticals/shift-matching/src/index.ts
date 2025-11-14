@@ -28,6 +28,8 @@ export { ShiftMatchingHandlers } from './api/shift-matching-handlers';
 // Utilities
 export { MatchingAlgorithm } from './utils/matching-algorithm';
 export type { CaregiverContext } from './utils/matching-algorithm';
+export { EnhancedMatchExplanations } from './utils/enhanced-match-explanations';
+export type { EnhancedMatchExplanation, MatchDetail } from './utils/enhanced-match-explanations';
 
 // Re-export commonly used core types
 export type { UUID, UserContext, PaginationParams, PaginatedResult } from '@care-commons/core';

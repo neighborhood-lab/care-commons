@@ -484,7 +484,7 @@ export class ShiftMatchingHandlers {
   ): Promise<Array<{ category: RejectionCategory; count: number; percentage: number }>> {
     const result = await this.pool.query(
       `
-      SELECT 
+      SELECT
         ap.rejection_category,
         COUNT(*) as count,
         ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) as percentage
@@ -505,5 +505,37 @@ export class ShiftMatchingHandlers {
       count: parseInt(row.count, 10),
       percentage: parseFloat(row.percentage),
     }));
+  }
+
+  /**
+   * GET /shifts/open/:id/match-explanation
+   * Get detailed match explanation for visualization
+   *
+   * Returns enhanced explanations showing why specific caregivers were matched,
+   * with detailed requirement → attribute mappings for coordinator review.
+   */
+  async getEnhancedMatchExplanation(
+    openShiftId: string,
+    caregiverId: string,
+    context: UserContext
+  ): Promise<{
+    candidate: MatchCandidate;
+    explanations: import('../utils/enhanced-match-explanations').EnhancedMatchExplanation[];
+    summary: string[];
+  }> {
+    // This method would call the matching service to re-evaluate the candidate
+    // with enhanced explanations. For now, return a placeholder indicating
+    // this needs to be implemented with the full caregiver context.
+    throw new Error('Enhanced match explanations require full implementation with caregiver context');
+
+    // Full implementation would look like:
+    // const openShift = await this.repository.getOpenShift(openShiftId);
+    // const caregiver = await caregiverService.getCaregiver(caregiverId);
+    // const context = await buildCaregiverContext(caregiver, openShift);
+    // const config = await this.repository.getDefaultConfiguration(...);
+    // const candidate = MatchingAlgorithm.evaluateMatch(openShift, context, config);
+    // const explanations = EnhancedMatchExplanations.generateEnhancedExplanations(openShift, context, candidate.scores);
+    // const summary = EnhancedMatchExplanations.generateSummary(openShift, candidate, context);
+    // return { candidate, explanations, summary };
   }
 }
