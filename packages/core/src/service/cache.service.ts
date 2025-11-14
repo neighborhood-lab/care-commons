@@ -45,17 +45,20 @@ export class CacheService {
         };
       }
 
-      this.redis = createClient(clientOptions);
+      const client = createClient(clientOptions);
 
-      this.redis.on('error', (err) => {
+      client.on('error', (err) => {
         console.error('Redis client error:', err);
         this.isRedisAvailable = false;
       });
 
-      await this.redis.connect();
+      await client.connect();
 
       // Test connection
-      await this.redis.ping();
+      await client.ping();
+
+      // Only assign after successful connection
+      this.redis = client as RedisClientType;
       this.isRedisAvailable = true;
       console.log(`Cache service: Redis connected successfully (TLS: ${useTLS})`);
     } catch (error) {
