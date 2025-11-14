@@ -111,9 +111,9 @@ describe('Swagger Configuration', () => {
     beforeAll(() => {
       // Create minimal Express app with swagger endpoints
       app = express();
-      
+
       // Swagger UI endpoint
-      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+      app.use('/api-docs', swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any);
       
       // Swagger JSON endpoint
       app.get('/api-docs.json', (_req, res) => {

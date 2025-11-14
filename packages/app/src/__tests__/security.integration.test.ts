@@ -39,7 +39,7 @@ describe('Security Middleware Integration Tests', () => {
 
       app = express();
       app.use(express.json());
-      app.use(cookieParser());
+      app.use(cookieParser() as any);
       configureCsrfProtection(app);
 
       // Test routes
@@ -559,7 +559,7 @@ describe('Security Middleware Integration Tests', () => {
           legacyHeaders: false,
         });
 
-        app.use('/api', limiter);
+        app.use('/api', limiter as any);
         app.get('/api/test', (_req, res) => {
           res.json({ message: 'success' });
         });
@@ -582,7 +582,7 @@ describe('Security Middleware Integration Tests', () => {
           message: { error: 'Rate limit exceeded' },
         });
 
-        app.use('/api', limiter);
+        app.use('/api', limiter as any);
         app.get('/api/test', (_req, res) => {
           res.json({ message: 'success' });
         });
@@ -607,7 +607,7 @@ describe('Security Middleware Integration Tests', () => {
           standardHeaders: true,
         });
 
-        app.use('/api', limiter);
+        app.use('/api', limiter as any);
         app.get('/api/test', (_req, res) => {
           res.json({ message: 'success' });
         });
@@ -632,7 +632,7 @@ describe('Security Middleware Integration Tests', () => {
           standardHeaders: true,
         });
 
-        app.use('/api/auth', authLimiter);
+        app.use('/api/auth', authLimiter as any);
         app.post('/api/auth/login', (req, res) => {
           // Simulate failed login
           if (req.body.password !== 'correct') {
@@ -668,7 +668,7 @@ describe('Security Middleware Integration Tests', () => {
           skip: (req) => req.path === '/health',
         });
 
-        app.use(limiter);
+        app.use(limiter as any);
         app.get('/health', (_req, res) => {
           res.json({ status: 'ok' });
         });
@@ -696,7 +696,7 @@ describe('Security Middleware Integration Tests', () => {
           max: 1,
         });
 
-        app.use('/api', limiter);
+        app.use('/api', limiter as any);
         app.get('/api/test', (_req, res) => {
           res.json({ message: 'success' });
         });
@@ -715,7 +715,7 @@ describe('Security Middleware Integration Tests', () => {
           },
         });
 
-        app.use('/api', limiter);
+        app.use('/api', limiter as any);
         app.get('/api/test', (_req, res) => {
           res.json({ message: 'success' });
         });
@@ -1010,7 +1010,7 @@ describe('Security Middleware Integration Tests', () => {
 
       app = express();
       app.use(express.json());
-      app.use(cookieParser());
+      app.use(cookieParser() as any);
 
       // Apply all security middleware
       app.use(securityHeaders);
@@ -1022,7 +1022,7 @@ describe('Security Middleware Integration Tests', () => {
         max: 100,
         standardHeaders: true,
       });
-      app.use('/api', limiter);
+      app.use('/api', limiter as any);
 
       // Test route
       app.post('/api/users', (req, res) => {

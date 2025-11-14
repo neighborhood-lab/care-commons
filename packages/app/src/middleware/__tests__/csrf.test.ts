@@ -15,7 +15,7 @@ describe('CSRF Protection Middleware', () => {
 
     app = express();
     app.use(express.json());
-    app.use(cookieParser());
+    app.use(cookieParser() as any);
 
     // Configure CSRF protection
     configureCsrfProtection(app);

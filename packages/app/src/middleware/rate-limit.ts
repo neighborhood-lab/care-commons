@@ -102,7 +102,7 @@ export const evvLimiter = rateLimit({
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request): string => {
+  keyGenerator: (req: any): string => {
     // Use user ID instead of IP for authenticated endpoints
     // @ts-expect-error - req.user is added by auth middleware
     const userId = req.user?.id;
@@ -124,7 +124,7 @@ export const syncLimiter = rateLimit({
   max: 120,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request): string => {
+  keyGenerator: (req: any): string => {
     // @ts-expect-error - req.user is added by auth middleware
     const userId = req.user?.id;
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
@@ -145,7 +145,7 @@ export const reportLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request): string => {
+  keyGenerator: (req: any): string => {
     // @ts-expect-error - req.user is added by auth middleware
     const userId = req.user?.id;
     return userId ?? ipKeyGenerator(req.ip ?? 'unknown');
