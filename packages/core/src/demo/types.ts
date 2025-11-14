@@ -70,15 +70,17 @@ export interface DemoSession {
   id: string;
   userId: string;
   organizationId: string;
+  organizationName: string;
   branchId: string;
-  
+  branchName: string;
+
   // Current persona
   currentPersona: DemoPersona;
   availablePersonas: DemoPersona[];
-  
+
   // Session state
   state: DemoSessionState;
-  
+
   // Session lifecycle
   createdAt: Date;
   lastAccessedAt: Date;
@@ -151,15 +153,17 @@ export interface Exception {
 // Demo snapshot for base state
 export interface DemoSnapshot {
   organizationId: string;
+  organizationName: string;
   branchId: string;
+  branchName: string;
   baseTime: Date;
-  
+
   // Reference data (IDs of seeded data)
   caregiverIds: string[];
   clientIds: string[];
   coordinatorIds: string[];
   visitIds: string[];
-  
+
   // Personas available in this demo
   personas: DemoPersona[];
 }
