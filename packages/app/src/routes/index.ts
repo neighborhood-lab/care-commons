@@ -12,6 +12,7 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createHealthRouter } from './health';
 import { createMetricsRouter } from './metrics';
 import { createAuthRouter } from './auth';
+import { createUsersRouter } from './users';
 import { createOrganizationRouter } from './organizations';
 import { createCaregiverRouter } from './caregivers';
 import { createDemoRouter } from './demo';
@@ -202,6 +203,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const authRouter = createAuthRouter(db);
   app.use('/api/auth', authLimiter, authRouter);
   console.log('  ✓ Authentication routes registered (with rate limiting)');
+
+  // User Management routes
+  const usersRouter = createUsersRouter(db);
+  app.use('/api/users', generalApiLimiter, usersRouter);
+  console.log('  ✓ User Management routes registered (with rate limiting)');
 
   // Organization & Invitation routes
   const organizationRouter = createOrganizationRouter(db);

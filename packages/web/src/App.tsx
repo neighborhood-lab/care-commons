@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { AppShell } from './app/components';
-import { DashboardSelector, Login, NotFound, AdminDashboard } from './app/pages';
+import { DashboardSelector, Login, NotFound, AdminDashboard, Settings } from './app/pages';
 import { ClientList, ClientDetail, ClientDashboard } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
@@ -492,10 +492,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <Settings />
             </AppShell>
           </ProtectedRoute>
         }
