@@ -32,22 +32,25 @@ export const initRedis = async (): Promise<Redis.RedisClientType | null> => {
       };
     }
 
-    redisClient = Redis.createClient(clientOptions);
+    const client = Redis.createClient(clientOptions);
 
-    redisClient.on('error', (err) => {
+    client.on('error', (err) => {
       console.error('Redis client error:', err);
     });
 
-    redisClient.on('connect', () => {
+    client.on('connect', () => {
       console.log(`Redis connected successfully (TLS: ${useTLS})`);
     });
 
-    redisClient.on('reconnecting', () => {
+    client.on('reconnecting', () => {
       console.log('Redis reconnecting...');
     });
 
-    await redisClient.connect();
+    await client.connect();
     console.log('Redis connection established');
+
+    // Only assign after successful connection
+    redisClient = client as Redis.RedisClientType;
     return redisClient;
   } catch (error) {
     console.error('Failed to connect to Redis:', error);
