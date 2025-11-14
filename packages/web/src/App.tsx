@@ -12,6 +12,7 @@ import { EVVRecordList, EVVRecordDetail } from './verticals/time-tracking-evv';
 import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayrollDashboard, PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
+import { VisitList } from './verticals/scheduling-visits';
 import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
@@ -189,10 +190,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppShell>
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">Scheduling & Visits</h2>
-                <p className="text-gray-600 mt-2">Coming soon...</p>
-              </div>
+              <VisitList />
             </AppShell>
           </ProtectedRoute>
         }
