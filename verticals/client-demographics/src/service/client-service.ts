@@ -266,9 +266,16 @@ export class ClientService {
 
     // Apply organizational scope to filters
     if (!context.roles.includes('SUPER_ADMIN')) {
-      filters.organizationId = context.organizationId;
+      // Only apply organizationId filter if the user has an organization assigned
+      // This allows caregivers without an org assignment to see all clients (useful for demos)
+      // and prevents filtering by empty/undefined organizationId which would return no results
+      if (context.organizationId && context.organizationId !== '') {
+        filters.organizationId = context.organizationId;
+      }
 
-      // Branch-level filtering for branch admins
+      // Branch-level filtering for branch admins only
+      // Caregivers can see clients across all branches in their organization
+      // as they may be assigned to clients in multiple branches
       if (
         context.roles.includes('BRANCH_ADMIN') &&
         context.branchIds.length > 0
