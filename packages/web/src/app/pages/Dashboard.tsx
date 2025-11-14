@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/hooks';
-import { Card, CardHeader, CardContent } from '@/core/components';
-import { Users, Calendar, ClipboardList, AlertCircle } from 'lucide-react';
+import { Card, CardHeader, CardContent, Button, EmptyState } from '@/core/components';
+import { Users, Calendar, ClipboardList, AlertCircle, Activity, CalendarPlus } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const stats = [
     {
@@ -63,34 +65,30 @@ export const Dashboard: React.FC = () => {
         <Card>
           <CardHeader title="Recent Activity" />
           <CardContent>
-            <div id="visit-timeline" className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="h-2 w-2 mt-2 rounded-full bg-green-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Visit completed for John Doe
-                  </p>
-                  <p className="text-xs text-gray-600">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="h-2 w-2 mt-2 rounded-full bg-blue-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    New client intake scheduled
-                  </p>
-                  <p className="text-xs text-gray-600">4 hours ago</p>
-                </div>
-              </div>
-              <div id="messages" className="flex items-start gap-3">
-                <div className="h-2 w-2 mt-2 rounded-full bg-yellow-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Care plan update required
-                  </p>
-                  <p className="text-xs text-gray-600">Yesterday</p>
-                </div>
-              </div>
+            <div id="visit-timeline">
+              <EmptyState
+                title="No recent activity"
+                description="Activity will appear here when visits are completed, care plans are updated, or new clients are added to the system."
+                icon={<Activity className="h-12 w-12" />}
+                action={
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/clients')}
+                    >
+                      View Clients
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/care-plans')}
+                    >
+                      View Care Plans
+                    </Button>
+                  </div>
+                }
+              />
             </div>
           </CardContent>
         </Card>
@@ -98,37 +96,30 @@ export const Dashboard: React.FC = () => {
         <Card>
           <CardHeader title="Upcoming Visits" />
           <CardContent>
-            <div id="today-visits" className="space-y-4">
-              <div id="check-in-btn" className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Sarah Johnson</p>
-                  <p className="text-xs text-gray-600">Personal Care - 2 hours</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">10:00 AM</p>
-                  <p className="text-xs text-gray-600">Jane Smith</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Michael Brown</p>
-                  <p className="text-xs text-gray-600">Companion Care - 3 hours</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">2:00 PM</p>
-                  <p className="text-xs text-gray-600">Bob Williams</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Emily Davis</p>
-                  <p className="text-xs text-gray-600">Skilled Nursing - 1 hour</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">4:30 PM</p>
-                  <p className="text-xs text-gray-600">Mary Johnson</p>
-                </div>
-              </div>
+            <div id="today-visits">
+              <EmptyState
+                title="No upcoming visits"
+                description="Schedule visits for your clients to see them appear here. You can assign caregivers and manage visit details."
+                icon={<CalendarPlus className="h-12 w-12" />}
+                action={
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => navigate('/scheduling')}
+                    >
+                      Schedule New Visit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/clients')}
+                    >
+                      View Clients
+                    </Button>
+                  </div>
+                }
+              />
             </div>
           </CardContent>
         </Card>
