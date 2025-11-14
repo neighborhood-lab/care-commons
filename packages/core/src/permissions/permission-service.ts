@@ -215,6 +215,25 @@ export class PermissionService {
   }
 
   /**
+   * Get all permissions for a set of roles
+   * Merges permissions from multiple roles and returns as array
+   */
+  getPermissionsForRoles(roles: string[]): string[] {
+    const allPermissions = new Set<string>();
+
+    for (const role of roles) {
+      const rolePerms = this.rolePermissions.get(role);
+      if (rolePerms !== undefined) {
+        for (const perm of rolePerms) {
+          allPermissions.add(perm);
+        }
+      }
+    }
+
+    return Array.from(allPermissions);
+  }
+
+  /**
    * Filter entities based on organizational scope
    */
   filterByScope<T extends { organizationId?: string; branchId?: string }>(
