@@ -1357,7 +1357,589 @@ async function seedDatabase() {
       }
       
       console.log(`✅ Created ${invoiceCount} invoices\n`);
-      
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 10: Create specific "Gertrude Stein" client for Family Portal demo
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`👵 Creating Gertrude Stein (family portal demo client)...`);
+
+      const gertrudeId = uuidv4();
+      const gertrudeClientNumber = 'CL-FAMILY-0001';
+
+      await client.query(
+        `
+        INSERT INTO clients (
+          id, organization_id, branch_id, client_number,
+          first_name, last_name, date_of_birth, gender,
+          primary_phone, email, primary_address,
+          emergency_contacts, status, intake_date,
+          insurance, service_eligibility,
+          created_by, updated_by, is_demo_data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
+        `,
+        [
+          gertrudeId,
+          orgId,
+          branchId,
+          gertrudeClientNumber,
+          'Gertrude',
+          'Stein',
+          new Date('1940-05-15'), // 84 years old
+          'FEMALE',
+          JSON.stringify({ number: '555-0199', type: 'MOBILE', canReceiveSMS: true }),
+          'gertrude.stein@example.com',
+          JSON.stringify({
+            type: 'HOME',
+            line1: '456 Oak Avenue',
+            city: 'Springfield',
+            state: 'IL',
+            postalCode: '62702',
+            country: 'US',
+          }),
+          JSON.stringify([{
+            id: uuidv4(),
+            name: 'Stein Family',
+            relationship: 'Daughter',
+            phone: { number: '555-0198', type: 'MOBILE', canReceiveSMS: true },
+            isPrimary: true,
+            canMakeHealthcareDecisions: true,
+          }]),
+          'ACTIVE',
+          daysAgo(180), // Intake 6 months ago
+          JSON.stringify({
+            primary: {
+              type: 'MEDICARE',
+              memberId: 'MCR123456789A',
+              provider: 'Medicare',
+              isActive: true
+            },
+            secondary: null
+          }),
+          JSON.stringify({
+            medicaid: { eligible: false },
+            medicare: {
+              eligible: true,
+              memberId: 'MCR123456789A',
+              partA: true,
+              partB: true
+            }
+          }),
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
+      // Update family user to link to Gertrude
+      await client.query(
+        `UPDATE family_members SET client_id = $1 WHERE email = 'family@carecommons.example'`,
+        [gertrudeId]
+      );
+
+      // Create a family member record for the family portal if it doesn't exist
+      const familyMemberCheck = await client.query(
+        `SELECT id FROM family_members WHERE client_id = $1 LIMIT 1`,
+        [gertrudeId]
+      );
+
+      let familyMemberId;
+      if (familyMemberCheck.rows.length === 0) {
+        familyMemberId = uuidv4();
+        await client.query(
+          `
+          INSERT INTO family_members (
+            id, organization_id, branch_id, client_id,
+            first_name, last_name, email, phone_number,
+            relationship, is_primary_contact,
+            preferred_contact_method, portal_access_level,
+            status, invitation_status, receive_notifications,
+            access_granted_by, created_by, updated_by, is_demo_data
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
+          `,
+          [
+            familyMemberId,
+            orgId,
+            branchId,
+            gertrudeId,
+            'Stein',
+            'Family',
+            'family@carecommons.example',
+            '555-0198',
+            'CHILD',
+            true,
+            'EMAIL',
+            'VIEW_DETAILED',
+            'ACTIVE',
+            'ACCEPTED',
+            true,
+            systemUserId,
+            systemUserId,
+            systemUserId,
+          ]
+        );
+      } else {
+        familyMemberId = familyMemberCheck.rows[0].id;
+      }
+
+      console.log(`✅ Created Gertrude Stein client\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 11: Create care plan for Gertrude
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`📋 Creating care plan for Gertrude...`);
+
+      const gertrudePlanId = uuidv4();
+      const primaryCaregiverId = caregivers[0]?.id; // Sarah Johnson
+
+      await client.query(
+        `
+        INSERT INTO care_plans (
+          id, organization_id, branch_id, client_id,
+          plan_number, name, plan_type, status, priority,
+          effective_date, expiration_date, review_date,
+          primary_caregiver_id,
+          assessment_summary, goals, estimated_hours_per_week,
+          compliance_status, created_by, updated_by, is_demo_data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, true)
+        `,
+        [
+          gertrudePlanId,
+          orgId,
+          branchId,
+          gertrudeId,
+          'CP-FAMILY-0001',
+          'Personal Care Plan for Gertrude Stein',
+          'PERSONAL_CARE',
+          'ACTIVE',
+          'MEDIUM',
+          daysAgo(60), // Effective 2 months ago
+          daysFromNow(120), // Expires in 4 months
+          daysFromNow(15), // Review in 2 weeks
+          primaryCaregiverId,
+          'Comprehensive care plan for Gertrude Stein. Client has mild dementia and requires assistance with ADLs. Lives independently with daily caregiver support.',
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              category: 'MOBILITY',
+              description: 'Maintain safe ambulation with walker',
+              targetDate: daysFromNow(60),
+              status: 'IN_PROGRESS',
+              progress: 75,
+            },
+            {
+              id: uuidv4(),
+              category: 'ADL',
+              description: 'Independent bathing with standby assistance',
+              targetDate: daysFromNow(45),
+              status: 'ON_TRACK',
+              progress: 60,
+            },
+            {
+              id: uuidv4(),
+              category: 'SOCIAL_ENGAGEMENT',
+              description: 'Attend weekly community activities',
+              targetDate: daysFromNow(90),
+              status: 'ACHIEVED',
+              progress: 100,
+            },
+          ]),
+          20, // 20 hours per week
+          'COMPLIANT',
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
+      console.log(`✅ Created care plan for Gertrude\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 12: Create visits for Gertrude (upcoming and recent)
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`📅 Creating visits for Gertrude...`);
+
+      const gertrudeVisits = [];
+
+      // Create 3 visits today
+      for (let i = 0; i < 3; i++) {
+        const visitId = uuidv4();
+        const caregiver = caregivers[i % caregivers.length];
+
+        const scheduledStart = new Date();
+        scheduledStart.setHours(8 + (i * 4), 0, 0, 0); // 8am, 12pm, 4pm
+
+        const scheduledEnd = new Date(scheduledStart);
+        scheduledEnd.setHours(scheduledEnd.getHours() + 2); // 2 hour visits
+
+        await client.query(
+          `
+          INSERT INTO visits (
+            id, organization_id, branch_id, client_id, assigned_caregiver_id,
+            visit_number, visit_type, service_type_id, service_type_name,
+            scheduled_date, scheduled_start_time, scheduled_end_time, scheduled_duration,
+            address, status,
+            created_by, updated_by, is_demo_data
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9,
+            $10::timestamp::date,
+            $11::timestamp::time,
+            $12::timestamp::time,
+            $13, $14, $15, $16, $17, true
+          )
+          `,
+          [
+            visitId,
+            orgId,
+            branchId,
+            gertrudeId,
+            caregiver.id,
+            `VIS-GERT-${String(i + 1).padStart(3, '0')}`,
+            'REGULAR',
+            visitId,
+            'Personal Care',
+            scheduledStart,
+            scheduledStart,
+            scheduledEnd,
+            120, // 2 hours
+            JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: 'Springfield', state: 'IL', postalCode: '62702', country: 'US' }),
+            'SCHEDULED',
+            systemUserId,
+            systemUserId,
+          ]
+        );
+
+        gertrudeVisits.push({ id: visitId, caregiverId: caregiver.id, scheduledStart, scheduledEnd, status: 'SCHEDULED' });
+      }
+
+      // Create 2 completed visits (yesterday)
+      for (let i = 0; i < 2; i++) {
+        const visitId = uuidv4();
+        const caregiver = caregivers[i % caregivers.length];
+
+        const scheduledStart = daysAgo(1);
+        scheduledStart.setHours(8 + (i * 6), 0, 0, 0); // 8am, 2pm yesterday
+
+        const scheduledEnd = new Date(scheduledStart);
+        scheduledEnd.setHours(scheduledEnd.getHours() + 3); // 3 hour visits
+
+        const actualStart = new Date(scheduledStart);
+        actualStart.setMinutes(actualStart.getMinutes() + 5); // Started 5 mins late
+
+        const actualEnd = new Date(scheduledEnd);
+        actualEnd.setMinutes(actualEnd.getMinutes() - 10); // Ended 10 mins early
+
+        await client.query(
+          `
+          INSERT INTO visits (
+            id, organization_id, branch_id, client_id, assigned_caregiver_id,
+            visit_number, visit_type, service_type_id, service_type_name,
+            scheduled_date, scheduled_start_time, scheduled_end_time, scheduled_duration,
+            actual_start_time, actual_end_time, actual_duration,
+            address, status, completion_notes,
+            created_by, updated_by, is_demo_data
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9,
+            $10::timestamp::date,
+            $11::timestamp::time,
+            $12::timestamp::time,
+            $13, $14, $15, $16, $17, $18, $19, $20, $21, true
+          )
+          `,
+          [
+            visitId,
+            orgId,
+            branchId,
+            gertrudeId,
+            caregiver.id,
+            `VIS-GERT-${String(i + 10).padStart(3, '0')}`,
+            'REGULAR',
+            visitId,
+            'Personal Care',
+            scheduledStart,
+            scheduledStart,
+            scheduledEnd,
+            180, // 3 hours
+            actualStart,
+            actualEnd,
+            170, // actual duration
+            JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: 'Springfield', state: 'IL', postalCode: '62702', country: 'US' }),
+            'COMPLETED',
+            i === 0 ? 'Client in good spirits. Assisted with morning routine and medication. All tasks completed.' : 'Helped with afternoon ADLs. Client enjoyed conversation about gardening.',
+            systemUserId,
+            systemUserId,
+          ]
+        );
+
+        gertrudeVisits.push({ id: visitId, caregiverId: caregiver.id, scheduledStart, actualStart, actualEnd, status: 'COMPLETED' });
+
+        // Create visit summary for family
+        await client.query(
+          `
+          INSERT INTO family_visit_summaries (
+            id, visit_id, client_id, family_member_ids,
+            scheduled_start_time, scheduled_end_time,
+            actual_start_time, actual_end_time,
+            caregiver_name, tasks_completed, visit_notes,
+            status, visible_to_family, published_at, viewed_by_family,
+            organization_id, branch_id,
+            created_by, updated_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+          `,
+          [
+            uuidv4(),
+            visitId,
+            gertrudeId,
+            `{${familyMemberId}}`,
+            scheduledStart,
+            scheduledEnd,
+            actualStart,
+            actualEnd,
+            `${caregiver.firstName} ${caregiver.lastName}`,
+            JSON.stringify([
+              { task: 'Morning hygiene assistance', completed: true },
+              { task: 'Medication administration', completed: true },
+              { task: 'Light housekeeping', completed: true },
+              { task: 'Meal preparation', completed: true },
+            ]),
+            i === 0 ? 'Gertrude was in excellent spirits today. We completed all morning routines smoothly.' : 'Great visit today. Gertrude shared stories about her garden.',
+            'COMPLETED',
+            true,
+            actualEnd,
+            false,
+            orgId,
+            branchId,
+            systemUserId,
+            systemUserId,
+          ]
+        );
+      }
+
+      console.log(`✅ Created ${gertrudeVisits.length} visits for Gertrude\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 13: Create task instances for caregivers (7 pending tasks)
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`✅ Creating task instances for caregivers...`);
+
+      const taskCategories = [
+        { category: 'BATHING', name: 'Assist with morning bath', description: 'Help client with bathing, ensure safety', instructions: 'Use walk-in shower, ensure non-slip mat is in place', timeOfDay: 'MORNING' },
+        { category: 'MEDICATION', name: 'Administer morning medications', description: 'Give prescribed medications', instructions: 'Check medication list, verify dosage, document administration', timeOfDay: 'MORNING' },
+        { category: 'MEAL_PREPARATION', name: 'Prepare lunch', description: 'Prepare nutritious lunch', instructions: 'Follow dietary restrictions, ensure proper portion sizes', timeOfDay: 'AFTERNOON' },
+        { category: 'MOBILITY', name: 'Assist with walking exercise', description: 'Help client walk with walker', instructions: 'Use walker, supervise closely, 15-minute walk', timeOfDay: 'AFTERNOON' },
+        { category: 'HOUSEKEEPING', name: 'Light housekeeping', description: 'Tidy living areas', instructions: 'Vacuum living room, dust surfaces, organize items', timeOfDay: 'AFTERNOON' },
+        { category: 'COMPANIONSHIP', name: 'Social engagement activity', description: 'Engage in conversation or activity', instructions: 'Discuss interests, play cards, or watch favorite show', timeOfDay: 'AFTERNOON' },
+        { category: 'DOCUMENTATION', name: 'Complete visit documentation', description: 'Document all care provided', instructions: 'Record all tasks completed, note any changes in condition', timeOfDay: 'ANY' },
+      ];
+
+      let taskCount = 0;
+      for (let i = 0; i < Math.min(7, taskCategories.length); i++) {
+        const task = taskCategories[i];
+        const assignedCaregiver = caregivers[i % caregivers.length];
+        const assignedClient = i < 3 ? gertrudeId : clients[i % clients.length].id;
+        const scheduledDate = i < 4 ? new Date() : daysFromNow(1); // 4 today, 3 tomorrow
+
+        await client.query(
+          `
+          INSERT INTO task_instances (
+            id, care_plan_id, client_id, assigned_caregiver_id,
+            name, description, category, instructions,
+            scheduled_date, time_of_day, estimated_duration,
+            status, required_signature, required_note,
+            created_by, updated_by, is_demo_data
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, true)
+          `,
+          [
+            uuidv4(),
+            gertrudePlanId,
+            assignedClient,
+            assignedCaregiver.id,
+            task.name,
+            task.description,
+            task.category,
+            task.instructions,
+            scheduledDate,
+            task.timeOfDay,
+            30, // 30 minutes
+            'SCHEDULED',
+            task.category === 'MEDICATION',
+            true,
+            systemUserId,
+            systemUserId,
+          ]
+        );
+        taskCount++;
+      }
+
+      console.log(`✅ Created ${taskCount} task instances\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 14: Create message threads and messages for family portal
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`💬 Creating message threads for family portal...`);
+
+      // Get the family user ID for sending messages
+      const familyUserResult = await client.query(
+        `SELECT id FROM users WHERE email = 'family@carecommons.example' LIMIT 1`
+      );
+      const familyUserId = familyUserResult.rows.length > 0 ? familyUserResult.rows[0].id : systemUserId;
+
+      const messageThreads = [
+        {
+          subject: 'Question about medication schedule',
+          messages: [
+            { sender: 'FAMILY', text: 'Hi, I noticed the medication schedule changed. Can you explain the new timing?', hoursAgo: 48 },
+            { sender: 'STAFF', text: 'Hello! The doctor adjusted the timing to optimize effectiveness. Morning meds are now at 9am instead of 8am.', hoursAgo: 46 },
+            { sender: 'FAMILY', text: 'Thank you for clarifying! That makes sense.', hoursAgo: 45 },
+          ]
+        },
+        {
+          subject: 'Update on mom\'s progress',
+          messages: [
+            { sender: 'STAFF', text: 'Wanted to share some good news - Gertrude has been doing wonderfully with her walking exercises!', hoursAgo: 24 },
+            { sender: 'FAMILY', text: 'That\'s wonderful to hear! She mentioned enjoying her time with Sarah.', hoursAgo: 22 },
+            { sender: 'STAFF', text: 'Yes, they have a great rapport. We\'re seeing consistent improvement in her mobility.', hoursAgo: 20 },
+          ]
+        },
+        {
+          subject: 'Upcoming care plan review',
+          messages: [
+            { sender: 'STAFF', text: 'This is a reminder that Gertrude\'s care plan review is scheduled for next week. Would you like to attend?', hoursAgo: 4 },
+          ]
+        },
+      ];
+
+      let threadCount = 0;
+      let messageCount = 0;
+
+      for (const threadData of messageThreads) {
+        const threadId = uuidv4();
+        const lastMessageTime = _hoursAgo(threadData.messages[threadData.messages.length - 1].hoursAgo);
+
+        await client.query(
+          `
+          INSERT INTO message_threads (
+            id, family_member_id, client_id,
+            subject, status, priority,
+            participants, last_message_at, message_count,
+            unread_count_family, unread_count_staff,
+            organization_id, branch_id,
+            created_by, updated_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+          `,
+          [
+            threadId,
+            familyMemberId,
+            gertrudeId,
+            threadData.subject,
+            threadData.messages.length === 1 ? 'OPEN' : 'OPEN',
+            'NORMAL',
+            `{${systemUserId},${familyMemberId}}`,
+            lastMessageTime,
+            threadData.messages.length,
+            threadData.messages[threadData.messages.length - 1].sender === 'STAFF' ? 1 : 0,
+            threadData.messages[threadData.messages.length - 1].sender === 'FAMILY' ? 1 : 0,
+            orgId,
+            branchId,
+            systemUserId,
+            systemUserId,
+          ]
+        );
+
+        threadCount++;
+
+        for (const msg of threadData.messages) {
+          const isStaff = msg.sender === 'STAFF';
+
+          await client.query(
+            `
+            INSERT INTO messages (
+              id, thread_id, family_member_id, client_id,
+              sent_by, sender_type, sender_name,
+              message_text, status,
+              organization_id,
+              created_by, updated_by, is_demo_data
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, true)
+            `,
+            [
+              uuidv4(),
+              threadId,
+              familyMemberId,
+              gertrudeId,
+              isStaff ? systemUserId : familyUserId,
+              msg.sender,
+              isStaff ? 'Care Coordinator' : 'Stein Family',
+              msg.text,
+              'SENT',
+              orgId,
+              systemUserId,
+              systemUserId,
+            ]
+          );
+
+          messageCount++;
+        }
+      }
+
+      console.log(`✅ Created ${threadCount} message threads with ${messageCount} messages\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 15: Create activity feed entries for family portal
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`📰 Creating activity feed entries...`);
+
+      const activities = [
+        { type: 'VISIT_COMPLETED', title: 'Visit completed', description: 'Morning care visit completed by Sarah Johnson', relatedType: 'VISIT', relatedId: gertrudeVisits[3]?.id, hoursAgo: 2, icon: 'check-circle' },
+        { type: 'TASK_COMPLETED', title: 'Medication administered', description: 'Morning medications administered and documented', relatedType: 'TASK', relatedId: uuidv4(), hoursAgo: 4, icon: 'pill' },
+        { type: 'NOTE_ADDED', title: 'Progress note added', description: 'Care coordinator added notes about improved mobility', relatedType: 'NOTE', relatedId: uuidv4(), hoursAgo: 24, icon: 'file-text' },
+        { type: 'VISIT_SCHEDULED', title: 'New visit scheduled', description: 'Visit scheduled for tomorrow at 9:00 AM', relatedType: 'VISIT', relatedId: gertrudeVisits[0]?.id, hoursAgo: 48, icon: 'calendar' },
+        { type: 'CARE_PLAN_UPDATED', title: 'Care plan updated', description: 'Care plan goals updated - walking exercise goal achieved', relatedType: 'CARE_PLAN', relatedId: gertrudePlanId, hoursAgo: 72, icon: 'clipboard' },
+      ];
+
+      let activityCount = 0;
+      for (const activity of activities) {
+        if (!activity.relatedId) continue; // Skip if no related ID
+
+        await client.query(
+          `
+          INSERT INTO family_activity_feed (
+            id, family_member_id, client_id,
+            activity_type, title, description,
+            related_entity_type, related_entity_id,
+            performed_by, performed_by_name, occurred_at,
+            icon_type, viewed_by_family,
+            organization_id, branch_id,
+            created_by, updated_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+          `,
+          [
+            uuidv4(),
+            familyMemberId,
+            gertrudeId,
+            activity.type,
+            activity.title,
+            activity.description,
+            activity.relatedType,
+            activity.relatedId,
+            systemUserId,
+            'Care Team',
+            _hoursAgo(activity.hoursAgo),
+            activity.icon,
+            false,
+            orgId,
+            branchId,
+            systemUserId,
+            systemUserId,
+          ]
+        );
+        activityCount++;
+      }
+
+      console.log(`✅ Created ${activityCount} activity feed entries\n`);
+
       // ═══════════════════════════════════════════════════════════════════════════
       // SUMMARY
       // ═══════════════════════════════════════════════════════════════════════════
@@ -1366,16 +1948,27 @@ async function seedDatabase() {
       console.log('✅ DEMO DATA SEEDED SUCCESSFULLY!');
       console.log('═══════════════════════════════════════════════════════════════');
       console.log(`📊 Summary:`);
-      console.log(`   - ${clients.length} clients (${clients.filter(c => c.state === 'TX').length} TX, ${clients.filter(c => c.state === 'FL').length} FL, ${clients.filter(c => c.state === 'OH').length} OH)`);
+      console.log(`   - ${clients.length + 1} clients (${clients.filter(c => c.state === 'TX').length} TX, ${clients.filter(c => c.state === 'FL').length} FL, ${clients.filter(c => c.state === 'OH').length} OH, 1 Gertrude Stein)`);
       console.log(`   - ${caregivers.length} caregivers`);
-      console.log(`   - ${visits.length} visits`);
-      console.log(`   - ${visits.filter(v => v.status === 'COMPLETED').length} completed visits with EVV data`);
+      console.log(`   - ${visits.length + gertrudeVisits.length} visits (${visits.length} general + ${gertrudeVisits.length} Gertrude)`);
+      console.log(`   - ${visits.filter(v => v.status === 'COMPLETED').length + gertrudeVisits.filter(v => v.status === 'COMPLETED').length} completed visits with EVV data`);
       console.log(`   - ${visits.filter(v => v.status === 'IN_PROGRESS').length} visits in progress`);
-      console.log(`   - ${visits.filter(v => v.status === 'SCHEDULED').length} scheduled future visits`);
-      console.log(`   - ${carePlans.length} care plans with goals`);
-      console.log(`   - ${familyMembers.length} family members with portal access`);
+      console.log(`   - ${visits.filter(v => v.status === 'SCHEDULED').length + gertrudeVisits.filter(v => v.status === 'SCHEDULED').length} scheduled future visits`);
+      console.log(`   - ${carePlans.length + 1} care plans with goals (includes Gertrude's plan)`);
+      console.log(`   - ${familyMembers.length + 1} family members with portal access`);
+      console.log(`   - ${taskCount} task instances for caregivers`);
+      console.log(`   - ${threadCount} message threads with ${messageCount} messages`);
+      console.log(`   - ${activityCount} activity feed entries`);
       console.log(`   - ${invoiceCount} invoices generated`);
-      console.log(`   - Total records created: ${clients.length + caregivers.length + visits.length + carePlans.length + familyMembers.length + invoiceCount + visits.filter(v => v.evvClockInGPS).length}`);
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('\n📋 Special Demo Data:');
+      console.log(`   🎯 Gertrude Stein (Family Portal Demo):`);
+      console.log(`      - Client ID: ${gertrudeId.substring(0, 8)}...`);
+      console.log(`      - ${gertrudeVisits.length} visits (3 today, 2 completed yesterday)`);
+      console.log(`      - ${taskCount} pending tasks for caregivers`);
+      console.log(`      - ${threadCount} message conversations with care team`);
+      console.log(`      - ${activityCount} recent activities logged`);
+      console.log(`      - Family portal: family@carecommons.example / Family123!`);
       console.log('═══════════════════════════════════════════════════════════════\n');
     });
 
