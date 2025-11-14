@@ -365,6 +365,7 @@ export interface Caregiver extends Entity, SoftDeletable {
   // Metadata
   notes?: string;
   customFields?: Record<string, unknown>;
+  isDemoData?: boolean; // Indicates if this is demo/sample data
 }
 
 export type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO_SAY';

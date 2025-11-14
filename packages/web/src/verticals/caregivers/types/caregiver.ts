@@ -27,6 +27,7 @@ export interface Caregiver {
   complianceStatus: 'COMPLIANT' | 'PENDING_VERIFICATION' | 'EXPIRING_SOON' | 'EXPIRED' | 'NON_COMPLIANT';
   credentials: Credential[];
   training: TrainingRecord[];
+  isDemoData?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,6 +61,7 @@ export interface CaregiverListItem {
   status: string;
   complianceStatus: string;
   employmentType: string;
+  isDemoData?: boolean;
 }
 
 export interface CaregiverSearchFilters {

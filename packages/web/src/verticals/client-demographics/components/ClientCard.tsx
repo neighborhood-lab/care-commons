@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Calendar } from 'lucide-react';
-import { Card, StatusBadge } from '@/core/components';
+import { Card, StatusBadge, DemoBadge } from '@/core/components';
 import { formatDate, formatPhone } from '@/core/utils';
 import type { Client } from '../types';
 
@@ -25,7 +25,10 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, compact = false 
             </h3>
             <p className="text-sm text-gray-600">{client.clientNumber}</p>
           </div>
-          <StatusBadge status={client.status} />
+          <div className="flex items-center gap-2">
+            {client.isDemoData && <DemoBadge />}
+            <StatusBadge status={client.status} />
+          </div>
         </div>
 
         {!compact && (

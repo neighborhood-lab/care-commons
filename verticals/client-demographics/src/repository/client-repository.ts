@@ -68,6 +68,7 @@ export class ClientRepository extends Repository<Client> {
       serviceEligibility: this.parseJsonField(row['service_eligibility']) as Client['serviceEligibility'],
       riskFlags: this.parseJsonField(row['risk_flags']) as Client['riskFlags'],
       status: row['status'] as ClientStatus,
+      isDemoData: row['is_demo_data'] as boolean | undefined,
       createdAt: row['created_at'] as Date,
       createdBy: row['created_by'] as string,
       updatedAt: row['updated_at'] as Date,

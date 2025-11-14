@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
-import { Button, LoadingSpinner, EmptyState, ErrorMessage, Card, Badge } from '@/core/components/index.js';
+import { Button, LoadingSpinner, EmptyState, ErrorMessage, Card, Badge, DemoBadge } from '@/core/components/index.js';
 import { usePermissions } from '@/core/hooks/index.js';
 import { useCaregivers } from '../hooks/index.js';
 import type { CaregiverSearchFilters } from '../types/index.js';
@@ -82,7 +82,7 @@ export const CaregiverList: React.FC = () => {
         />
       ) : (
         <div className="space-y-4">
-          {caregivers.map((caregiver: { id: string; firstName: string; lastName: string; employeeNumber: string; role: string; status: string; complianceStatus: string }) => (
+          {caregivers.map((caregiver: { id: string; firstName: string; lastName: string; employeeNumber: string; role: string; status: string; complianceStatus: string; isDemoData?: boolean }) => (
             <Link key={caregiver.id} to={`/caregivers/${caregiver.id}`}>
               <Card className="hover:shadow-md transition-shadow">
                 <div className="px-6 py-4">
@@ -96,6 +96,7 @@ export const CaregiverList: React.FC = () => {
                       </p>
                     </div>
                     <div className="flex gap-2">
+                      {caregiver.isDemoData && <DemoBadge />}
                       <Badge variant={caregiver.status === 'ACTIVE' ? 'success' : 'default'}>
                         {caregiver.status}
                       </Badge>

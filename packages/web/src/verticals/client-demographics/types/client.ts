@@ -50,6 +50,7 @@ export interface Client {
   status: ClientStatus;
   intakeDate?: string;
   dischargeDate?: string;
+  isDemoData?: boolean;
   createdAt: string;
   updatedAt: string;
 }
