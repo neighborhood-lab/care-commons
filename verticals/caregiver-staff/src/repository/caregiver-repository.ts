@@ -16,6 +16,24 @@ export class CaregiverRepository extends Repository<Caregiver> {
   }
 
   /**
+   * Safely parse JSON field - handles both string and already-parsed object cases
+   */
+  private parseJsonField<T>(value: unknown, defaultValue?: T): T {
+    if (value === null || value === undefined) {
+      return defaultValue as T;
+    }
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value) as T;
+      } catch {
+        return defaultValue as T;
+      }
+    }
+    // Already an object - return as-is
+    return value as T;
+  }
+
+  /**
    * Map database row to Caregiver entity
    */
   protected mapRowToEntity(row: Record<string, unknown>): Caregiver {
@@ -28,9 +46,9 @@ export class CaregiverRepository extends Repository<Caregiver> {
       firstName: row['first_name'] as string,
       lastName: row['last_name'] as string,
       dateOfBirth: row['date_of_birth'] as Date,
-      primaryPhone: JSON.parse(row['primary_phone'] as string),
-      primaryAddress: JSON.parse(row['primary_address'] as string),
-      emergencyContacts: JSON.parse((row['emergency_contacts'] as string) || '[]'),
+      primaryPhone: this.parseJsonField(row['primary_phone']),
+      primaryAddress: this.parseJsonField(row['primary_address']),
+      emergencyContacts: this.parseJsonField(row['emergency_contacts'], []),
       email: row['email'] as string,
       preferredContactMethod: row['preferred_contact_method'] as ContactMethod,
       employmentType: row['employment_type'] as EmploymentType,
@@ -38,12 +56,12 @@ export class CaregiverRepository extends Repository<Caregiver> {
       hireDate: row['hire_date'] as Date,
       role: row['role'] as CaregiverRole,
       permissions: (row['permissions'] as string[]) || [],
-      credentials: JSON.parse((row['credentials'] as string) || '[]'),
-      training: JSON.parse((row['training'] as string) || '[]'),
-      skills: JSON.parse((row['skills'] as string) || '[]'),
+      credentials: this.parseJsonField(row['credentials'], []),
+      training: this.parseJsonField(row['training'], []),
+      skills: this.parseJsonField(row['skills'], []),
       specializations: (row['specializations'] as string[]) || [],
-      availability: JSON.parse(row['availability'] as string),
-      payRate: JSON.parse(row['pay_rate'] as string),
+      availability: this.parseJsonField(row['availability']),
+      payRate: this.parseJsonField(row['pay_rate']),
       complianceStatus: row['compliance_status'] as ComplianceStatus,
       preferredClients: (row['preferred_clients'] as string[]) || [],
       restrictedClients: (row['restricted_clients'] as string[]) || [],
@@ -73,14 +91,18 @@ export class CaregiverRepository extends Repository<Caregiver> {
     const pronouns = row['pronouns'] as string | undefined;
     if (pronouns !== undefined) entity.pronouns = pronouns;
 
-    const alternatePhone = row['alternate_phone'] as string | undefined;
-    if (alternatePhone !== undefined) entity.alternatePhone = JSON.parse(alternatePhone);
+    const alternatePhone = row['alternate_phone'];
+    if (alternatePhone !== undefined && alternatePhone !== null) {
+      entity.alternatePhone = this.parseJsonField(alternatePhone);
+    }
 
     const preferredContactMethod = row['preferred_contact_method'] as ContactMethod | undefined;
     if (preferredContactMethod !== undefined) entity.preferredContactMethod = preferredContactMethod;
 
-    const communicationPreferences = row['communication_preferences'] as string | undefined;
-    if (communicationPreferences !== undefined) entity.communicationPreferences = JSON.parse(communicationPreferences);
+    const communicationPreferences = row['communication_preferences'];
+    if (communicationPreferences !== undefined && communicationPreferences !== null) {
+      entity.communicationPreferences = this.parseJsonField(communicationPreferences);
+    }
 
     const language = row['language'] as string | undefined;
     if (language !== undefined) entity.language = language;
@@ -94,8 +116,10 @@ export class CaregiverRepository extends Repository<Caregiver> {
     const race = row['race'] as string[] | undefined;
     if (race !== undefined) entity.race = race;
 
-    const mailingAddress = row['mailing_address'] as string | undefined;
-    if (mailingAddress !== undefined) entity.mailingAddress = JSON.parse(mailingAddress);
+    const mailingAddress = row['mailing_address'];
+    if (mailingAddress !== undefined && mailingAddress !== null) {
+      entity.mailingAddress = this.parseJsonField(mailingAddress);
+    }
 
     const terminationDate = row['termination_date'] as Date | undefined;
     if (terminationDate !== undefined) entity.terminationDate = terminationDate;
@@ -109,17 +133,25 @@ export class CaregiverRepository extends Repository<Caregiver> {
     const supervisorId = row['supervisor_id'] as string | undefined;
     if (supervisorId !== undefined) entity.supervisorId = supervisorId;
 
-    const backgroundCheck = row['background_check'] as string | undefined;
-    if (backgroundCheck !== undefined) entity.backgroundCheck = JSON.parse(backgroundCheck);
+    const backgroundCheck = row['background_check'];
+    if (backgroundCheck !== undefined && backgroundCheck !== null) {
+      entity.backgroundCheck = this.parseJsonField(backgroundCheck);
+    }
 
-    const drugScreening = row['drug_screening'] as string | undefined;
-    if (drugScreening !== undefined) entity.drugScreening = JSON.parse(drugScreening);
+    const drugScreening = row['drug_screening'];
+    if (drugScreening !== undefined && drugScreening !== null) {
+      entity.drugScreening = this.parseJsonField(drugScreening);
+    }
 
-    const healthScreening = row['health_screening'] as string | undefined;
-    if (healthScreening !== undefined) entity.healthScreening = JSON.parse(healthScreening);
+    const healthScreening = row['health_screening'];
+    if (healthScreening !== undefined && healthScreening !== null) {
+      entity.healthScreening = this.parseJsonField(healthScreening);
+    }
 
-    const workPreferences = row['work_preferences'] as string | undefined;
-    if (workPreferences !== undefined) entity.workPreferences = JSON.parse(workPreferences);
+    const workPreferences = row['work_preferences'];
+    if (workPreferences !== undefined && workPreferences !== null) {
+      entity.workPreferences = this.parseJsonField(workPreferences);
+    }
 
     const maxHoursPerWeek = row['max_hours_per_week'] as number | undefined;
     if (maxHoursPerWeek !== undefined) entity.maxHoursPerWeek = maxHoursPerWeek;
@@ -133,11 +165,15 @@ export class CaregiverRepository extends Repository<Caregiver> {
     const maxTravelDistance = row['max_travel_distance'] as number | undefined;
     if (maxTravelDistance !== undefined) entity.maxTravelDistance = maxTravelDistance;
 
-    const alternatePayRates = row['alternate_pay_rates'] as string | undefined;
-    if (alternatePayRates !== undefined) entity.alternatePayRates = JSON.parse(alternatePayRates);
+    const alternatePayRates = row['alternate_pay_rates'];
+    if (alternatePayRates !== undefined && alternatePayRates !== null) {
+      entity.alternatePayRates = this.parseJsonField(alternatePayRates);
+    }
 
-    const payrollInfo = row['payroll_info'] as string | undefined;
-    if (payrollInfo !== undefined) entity.payrollInfo = JSON.parse(payrollInfo);
+    const payrollInfo = row['payroll_info'];
+    if (payrollInfo !== undefined && payrollInfo !== null) {
+      entity.payrollInfo = this.parseJsonField(payrollInfo);
+    }
 
     const performanceRating = row['performance_rating'] as number | undefined;
     if (performanceRating !== undefined) entity.performanceRating = performanceRating;
@@ -157,14 +193,18 @@ export class CaregiverRepository extends Repository<Caregiver> {
     const statusReason = row['status_reason'] as string | undefined;
     if (statusReason !== undefined) entity.statusReason = statusReason;
 
-    const documents = row['documents'] as string | undefined;
-    if (documents !== undefined) entity.documents = JSON.parse(documents);
+    const documents = row['documents'];
+    if (documents !== undefined && documents !== null) {
+      entity.documents = this.parseJsonField(documents);
+    }
 
     const notes = row['notes'] as string | undefined;
     if (notes !== undefined) entity.notes = notes;
 
-    const customFields = row['custom_fields'] as string | undefined;
-    if (customFields !== undefined) entity.customFields = JSON.parse(customFields);
+    const customFields = row['custom_fields'];
+    if (customFields !== undefined && customFields !== null) {
+      entity.customFields = this.parseJsonField(customFields);
+    }
 
     return entity;
   }
@@ -736,7 +776,7 @@ export class CaregiverRepository extends Repository<Caregiver> {
       expirationDate: row['expiration_date'] as Date | null,
       confirmationNumber: row['confirmation_number'] as string | null,
       clearanceNumber: row['clearance_number'] as string | null,
-      results: row['results'] ? JSON.parse(row['results'] as string) : null,
+      results: this.parseJsonField(row['results'], null),
       notes: row['notes'] as string | null,
       createdAt: row['created_at'] as Date,
       updatedAt: row['updated_at'] as Date
