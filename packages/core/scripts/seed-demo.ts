@@ -300,10 +300,17 @@ function generateVisit(
   const scheduledStart = new Date();
   scheduledStart.setDate(scheduledStart.getDate() + dayOffset);
   scheduledStart.setHours(faker.number.int({ min: 7, max: 18 }), faker.number.int({ min: 0, max: 59 }), 0, 0);
-  
+
   const duration = randomElement([2, 3, 4, 6, 8]); // hours
   const scheduledEnd = new Date(scheduledStart);
   scheduledEnd.setHours(scheduledEnd.getHours() + duration);
+
+  // Ensure visit doesn't span midnight (cap at 23:59 same day)
+  const maxEndTime = new Date(scheduledStart);
+  maxEndTime.setHours(23, 59, 0, 0);
+  if (scheduledEnd > maxEndTime) {
+    scheduledEnd.setTime(maxEndTime.getTime());
+  }
   
   let status = 'SCHEDULED';
   let actualStart = null;
@@ -315,7 +322,7 @@ function generateVisit(
   
   // Past visits are completed
   if (dayOffset < 0) {
-    status = randomElement(['COMPLETED', 'COMPLETED', 'COMPLETED', 'NO_SHOW', 'CANCELLED']);
+    status = randomElement(['COMPLETED', 'COMPLETED', 'COMPLETED', 'NO_SHOW_CLIENT', 'CANCELLED']);
     
     if (status === 'COMPLETED') {
       actualStart = new Date(scheduledStart);
@@ -367,7 +374,7 @@ function generateVisit(
     actualStart,
     actualEnd,
     status,
-    visitType: randomElement(['PERSONAL_CARE', 'SKILLED_NURSING', 'COMPANION', 'RESPITE']),
+    visitType: randomElement(['REGULAR', 'INITIAL', 'RESPITE', 'SUPERVISION', 'ASSESSMENT']),
     notes,
     evvClockInGPS,
     evvClockOutGPS,
@@ -604,9 +611,9 @@ async function seedDatabase() {
           `
           INSERT INTO users (
             id, organization_id, email, password_hash,
-            first_name, last_name, role, status,
-            created_by, updated_by, is_demo_data
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true)
+            first_name, last_name, roles, status,
+            created_by, updated_by, is_demo_data, username
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, $11)
           `,
           [
             caregiverUserId,
@@ -615,10 +622,11 @@ async function seedDatabase() {
             '$2b$10$DEMO_HASH', // Demo password hash
             caregiver.firstName,
             caregiver.lastName,
-            'CAREGIVER',
+            '{CAREGIVER}',
             'ACTIVE',
             systemUserId,
             systemUserId,
+            caregiver.email, // username
           ]
         );
         
@@ -626,20 +634,20 @@ async function seedDatabase() {
         await client.query(
           `
           INSERT INTO caregivers (
-            id, organization_id, branch_id, user_id, employee_number,
+            id, organization_id, primary_branch_id, branch_ids, employee_number,
             first_name, last_name, date_of_birth, gender,
-            phone, email, address,
-            hire_date, employment_type, hourly_rate,
-            certifications, specializations, languages,
-            max_drive_distance_miles, status,
+            primary_phone, email, primary_address,
+            hire_date, employment_type, employment_status, pay_rate,
+            credentials, specializations, languages,
+            max_travel_distance, role, availability, preferred_contact_method, status,
             created_by, updated_by, is_demo_data
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, true)
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, true)
           `,
           [
             caregiver.id,
             caregiver.organizationId,
             caregiver.branchId,
-            caregiverUserId,
+            `{${caregiver.branchId}}`, // branch_ids array
             caregiver.employeeNumber,
             caregiver.firstName,
             caregiver.lastName,
@@ -657,12 +665,27 @@ async function seedDatabase() {
             }),
             caregiver.hireDate,
             caregiver.employmentType,
-            caregiver.hourlyRate,
+            'ACTIVE', // employment_status
+            JSON.stringify({
+              amount: caregiver.hourlyRate,
+              currency: 'USD',
+              unit: 'HOUR',
+              effectiveDate: caregiver.hireDate
+            }), // pay_rate
             JSON.stringify(caregiver.certifications),
-            JSON.stringify(caregiver.specializations),
-            JSON.stringify(caregiver.languages),
+            `{${Array.isArray(caregiver.specializations) ? caregiver.specializations.join(',') : ''}}`, // PostgreSQL array
+            `{${Array.isArray(caregiver.languages) ? caregiver.languages.join(',') : ''}}`, // PostgreSQL array
             caregiver.maxDriveDistance,
-            'ACTIVE',
+            'CAREGIVER', // role
+            JSON.stringify({
+              monday: [{ start: '09:00', end: '17:00' }],
+              tuesday: [{ start: '09:00', end: '17:00' }],
+              wednesday: [{ start: '09:00', end: '17:00' }],
+              thursday: [{ start: '09:00', end: '17:00' }],
+              friday: [{ start: '09:00', end: '17:00' }]
+            }), // availability
+            'PHONE', // preferred_contact_method
+            'ACTIVE', // status
             caregiver.createdBy,
             caregiver.createdBy,
           ]
@@ -700,11 +723,19 @@ async function seedDatabase() {
         await client.query(
           `
           INSERT INTO visits (
-            id, organization_id, branch_id, client_id, caregiver_id,
-            scheduled_start, scheduled_end, actual_start, actual_end,
-            status, visit_type, visit_notes,
+            id, organization_id, branch_id, client_id, assigned_caregiver_id,
+            visit_number, visit_type, service_type_id, service_type_name,
+            scheduled_date, scheduled_start_time, scheduled_end_time, scheduled_duration,
+            actual_start_time, actual_end_time, actual_duration,
+            address, status, completion_notes,
             created_by, updated_by, is_demo_data
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, true)
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9,
+            $10::timestamp::date,
+            $11::timestamp::time,
+            $12::timestamp::time,
+            $13, $14, $15, $16, $17, $18, $19, $20, $21, true
+          )
           `,
           [
             visit.id,
@@ -712,12 +743,19 @@ async function seedDatabase() {
             visit.branchId,
             visit.clientId,
             visit.caregiverId,
-            visit.scheduledStart,
-            visit.scheduledEnd,
-            visit.actualStart,
-            visit.actualEnd,
-            visit.status,
+            `VIS-${visit.id.substring(0, 8)}`, // visit_number
             visit.visitType,
+            visit.id, // service_type_id (placeholder)
+            visit.visitType, // service_type_name
+            visit.scheduledStart, // scheduled_date (will be cast to DATE)
+            visit.scheduledStart, // scheduled_start_time (will be cast to TIME)
+            visit.scheduledEnd, // scheduled_end_time (will be cast to TIME)
+            Math.round((new Date(visit.scheduledEnd).getTime() - new Date(visit.scheduledStart).getTime()) / 60000), // scheduled_duration in minutes
+            visit.actualStart, // actual_start_time
+            visit.actualEnd, // actual_end_time
+            visit.actualEnd ? Math.round((new Date(visit.actualEnd).getTime() - new Date(visit.actualStart).getTime()) / 60000) : null, // actual_duration
+            JSON.stringify({ type: 'HOME', line1: '123 Main St', city: 'Anytown', state: 'CA', postalCode: '12345', country: 'US' }), // address (placeholder)
+            visit.status,
             visit.notes,
             visit.createdBy,
             visit.createdBy,
@@ -729,21 +767,41 @@ async function seedDatabase() {
           await client.query(
             `
             INSERT INTO evv_records (
-              id, visit_id, clock_in_time, clock_in_gps_location,
-              clock_out_time, clock_out_gps_location,
-              verification_method, compliance_status,
+              id, visit_id, organization_id, branch_id, client_id, caregiver_id,
+              service_type_code, service_type_name, client_name, caregiver_name, caregiver_employee_id,
+              service_date, service_address,
+              clock_in_time, clock_in_verification,
+              clock_out_time, clock_out_verification,
+              verification_level, record_status,
+              integrity_hash, integrity_checksum,
+              recorded_by, sync_metadata,
               created_by, updated_by, is_demo_data
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, true)
             `,
             [
               uuidv4(),
               visit.id,
-              visit.actualStart,
-              JSON.stringify(visit.evvClockInGPS),
-              visit.actualEnd,
-              visit.evvClockOutGPS ? JSON.stringify(visit.evvClockOutGPS) : null,
-              visit.evvVerificationMethod,
-              visit.status === 'COMPLETED' ? 'COMPLIANT' : 'PENDING',
+              visit.organizationId,
+              visit.branchId,
+              visit.clientId,
+              visit.caregiverId,
+              'SVC-001', // service_type_code (placeholder)
+              visit.visitType, // service_type_name
+              'Client Name', // client_name (placeholder - should be encrypted)
+              'Caregiver Name', // caregiver_name (placeholder)
+              'EMP-001', // caregiver_employee_id (placeholder)
+              visit.scheduledStart, // service_date
+              JSON.stringify({ type: 'HOME', line1: '123 Main St', city: 'Anytown', state: 'CA', postalCode: '12345', country: 'US' }), // service_address
+              visit.actualStart, // clock_in_time
+              JSON.stringify({ method: visit.evvVerificationMethod || 'GPS', location: visit.evvClockInGPS, timestamp: visit.actualStart }), // clock_in_verification
+              visit.actualEnd, // clock_out_time
+              visit.evvClockOutGPS ? JSON.stringify({ method: visit.evvVerificationMethod || 'GPS', location: visit.evvClockOutGPS, timestamp: visit.actualEnd }) : null, // clock_out_verification
+              visit.evvVerificationMethod === 'BIOMETRIC' ? 'FULL' : 'PARTIAL', // verification_level
+              visit.status === 'COMPLETED' ? 'COMPLETE' : 'PENDING', // record_status
+              'placeholder_hash_' + visit.id.substring(0, 16), // integrity_hash (placeholder)
+              'placeholder_checksum_' + visit.id.substring(0, 16), // integrity_checksum (placeholder)
+              visit.createdBy, // recorded_by
+              JSON.stringify({ source: 'demo_seed', timestamp: new Date().toISOString() }), // sync_metadata
               visit.createdBy,
               visit.createdBy,
             ]
