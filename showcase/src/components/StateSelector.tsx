@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 
 interface StateInfo {
   code: string;
@@ -91,6 +91,7 @@ interface StateSelectorProps {
 
 export function StateSelector({ currentState = 'TX', onStateChange }: StateSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedState, setSelectedState] = useState(
     SUPPORTED_STATES.find(s => s.code === currentState) || SUPPORTED_STATES[0]
   );
@@ -98,10 +99,21 @@ export function StateSelector({ currentState = 'TX', onStateChange }: StateSelec
   const handleStateSelect = (state: StateInfo) => {
     setSelectedState(state);
     setIsOpen(false);
+    setSearchQuery(''); // Reset search when selecting a state
     if (onStateChange) {
       onStateChange(state);
     }
   };
+
+  // Filter states based on search query
+  const filteredStates = SUPPORTED_STATES.filter((state) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      state.name.toLowerCase().includes(query) ||
+      state.code.toLowerCase().includes(query) ||
+      state.evvAggregator.toLowerCase().includes(query)
+    );
+  });
 
   const getStrictnessColor = (strictness: string) => {
     switch (strictness) {
@@ -137,14 +149,35 @@ export function StateSelector({ currentState = 'TX', onStateChange }: StateSelec
         <>
           <div
             className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              setSearchQuery(''); // Reset search when closing dropdown
+            }}
           />
           <div className="absolute top-full left-0 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-[600px] overflow-y-auto">
             <div className="p-2">
-              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Select State ({SUPPORTED_STATES.length} Supported)
+              {/* Search Input */}
+              <div className="px-3 py-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search states..."
+                    value={searchQuery}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
-              {SUPPORTED_STATES.map((state) => (
+              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                {filteredStates.length} State{filteredStates.length !== 1 ? 's' : ''} {searchQuery ? 'Found' : 'Supported'}
+              </div>
+              {filteredStates.length === 0 ? (
+                <div className="px-3 py-8 text-center text-sm text-gray-500">
+                  No states found matching "{searchQuery}"
+                </div>
+              ) : (
+                filteredStates.map((state) => (
                 <button
                   key={state.code}
                   onClick={() => handleStateSelect(state)}
@@ -185,7 +218,8 @@ export function StateSelector({ currentState = 'TX', onStateChange }: StateSelec
                     </div>
                   </div>
                 </button>
-              ))}
+                ))
+              )}
             </div>
             <div className="border-t border-gray-200 px-4 py-3 bg-gray-50 rounded-b-lg">
               <p className="text-xs text-gray-600">
