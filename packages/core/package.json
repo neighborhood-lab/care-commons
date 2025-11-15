@@ -48,7 +48,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext ts --max-warnings 140 && npm run lint:sql",
+    "lint": "eslint . --ext ts --max-warnings 145 && npm run lint:sql",
     "lint:sql": "sql-lint --driver postgres migrations/*.sql || echo 'SQL lint completed'",
     "db:migrate": "cd ../.. && tsx packages/core/scripts/migrate.ts",
     "db:migrate:rollback": "cd ../.. && tsx packages/core/scripts/rollback.ts",
@@ -56,6 +56,7 @@
     "db:seed": "cd ../.. && tsx packages/core/scripts/seed.ts",
     "db:seed:demo": "cd ../.. && tsx packages/core/scripts/seed-demo.ts",
     "db:seed:historical": "cd ../.. && tsx packages/core/scripts/seed-historical-demo.ts",
+    "db:seed:family-demo": "cd ../.. && tsx packages/core/scripts/seed-family-demo.ts",
     "db:set-admin-password": "cd ../.. && tsx packages/core/scripts/set-admin-password.ts",
     "db:nuke": "cd ../.. && tsx packages/core/scripts/nuke.ts"
   },

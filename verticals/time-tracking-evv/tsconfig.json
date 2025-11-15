@@ -5,10 +5,7 @@
     "rootDir": "./src",
     "composite": true,
     "declaration": true,
-    "declarationMap": true,
-    "types": [
-      "vitest/globals"
-    ]
+    "declarationMap": true
   },
   "include": [
     "src/**/*"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, User, Pill, AlertTriangle } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage, StatusBadge } from '@/core/components';
+import { Button, Card, CardHeader, CardContent, LoadingSpinner, ErrorMessage, StatusBadge, DemoBadge } from '@/core/components';
 import { usePermissions } from '@/core/hooks';
 import { formatDate, formatPhone } from '@/core/utils';
 import { useClient, useDeleteClient } from '../hooks';
@@ -64,7 +64,8 @@ export const ClientDetail: React.FC = () => {
           </h1>
           <p className="text-gray-600 mt-1">{client.clientNumber}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-start">
+          {client.isDemoData && <DemoBadge size="md" />}
           <StatusBadge status={client.status} />
           {can('clients:write') && (
             <>

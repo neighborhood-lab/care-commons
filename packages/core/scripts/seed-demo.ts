@@ -533,7 +533,6 @@ function generateClient(
   const email = faker.internet.email({ firstName: emailFirstName, lastName: emailLastName }).toLowerCase();
 
   // Emergency contact (often family member with same last name)
-  const emergencyGender = Math.random() < 0.5 ? 'MALE' : 'FEMALE';
   const emergencyFirstName = randomElement(
     emergencyGender === 'MALE'
       ? [...TEXAS_NAMES.anglo.firstNames.male]
@@ -806,12 +805,13 @@ function generateVisit(
           evvVerificationMethod = 'GPS'; // GPS-only (less reliable than biometric)
           notes = 'Completed all tasks. (Note: Geofence variance on clock-in - GPS signal interference)';
         } else if (issueType < 0.7) {
-          // Issue 2: Missed clock-out (caregiver forgot to clock out)
+          // Issue 2: Missed clock-out (caregiver forgot to clock out) - evvClockOutGPS remains null
           evvClockInGPS = {
             lat: clientCoordinates.lat + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
             lng: clientCoordinates.lng + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
           };
-          // evvClockOutGPS remains null - Missing clock-out
+          // eslint-disable-next-line sonarjs/no-redundant-assignments
+          evvClockOutGPS = null; // Missing clock-out (explicit for clarity)
           evvVerificationMethod = 'BIOMETRIC';
           notes = 'All ADLs completed. (Note: Missed clock-out - coordinator follow-up required)';
         } else {

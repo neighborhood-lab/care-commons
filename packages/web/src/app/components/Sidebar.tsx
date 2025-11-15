@@ -52,6 +52,12 @@ const navItems: NavItem[] = [
     permission: 'visits:read',
   },
   {
+    label: 'Calendar View',
+    path: '/scheduling/calendar',
+    icon: <Calendar className="h-5 w-5" />,
+    permission: 'visits:read',
+  },
+  {
     label: 'Care Plans',
     path: '/care-plans',
     icon: <ClipboardList className="h-5 w-5" />,

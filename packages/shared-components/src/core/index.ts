@@ -9,3 +9,9 @@ export type { CardProps, CardHeaderProps } from './Card.js';
 
 export { Badge, StatusBadge } from './Badge.js';
 export type { BadgeProps } from './Badge.js';
+
+export { Tooltip } from './Tooltip.js';
+export type { TooltipProps } from './Tooltip.js';
+
+export { DemoBadge } from './DemoBadge.js';
+export type { DemoBadgeProps } from './DemoBadge.js';

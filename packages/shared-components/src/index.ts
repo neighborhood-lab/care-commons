@@ -8,6 +8,8 @@ export {
   CardFooter,
   Badge,
   StatusBadge,
+  Tooltip,
+  DemoBadge,
 } from './core/index.js';
 
 export type {
@@ -16,6 +18,8 @@ export type {
   CardProps,
   CardHeaderProps,
   BadgeProps,
+  TooltipProps,
+  DemoBadgeProps,
 } from './core/index.js';
 
 // Utilities

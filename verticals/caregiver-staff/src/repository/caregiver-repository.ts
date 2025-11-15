@@ -206,6 +206,9 @@ export class CaregiverRepository extends Repository<Caregiver> {
       entity.customFields = this.parseJsonField(customFields);
     }
 
+    const isDemoData = row['is_demo_data'] as boolean | undefined;
+    if (isDemoData !== undefined) entity.isDemoData = isDemoData;
+
     return entity;
   }
 

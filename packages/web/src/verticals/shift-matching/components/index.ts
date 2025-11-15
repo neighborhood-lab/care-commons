@@ -5,3 +5,4 @@ export * from './MatchSuggestionsPanel';
 export * from './MatchComparisonView';
 export * from './ManualAssignmentModal';
 export * from './MatchHistoryTable';
+export * from './MatchExplanationVisualization';
