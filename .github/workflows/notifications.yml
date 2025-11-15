@@ -168,51 +168,56 @@ jobs:
           COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
           SHORT_SHA="${COMMIT_SHA:0:7}"
           
-          curl -H "Content-Type: application/json" \
-            -d '{
-              "embeds": [{
-                "title": "${{ steps.status.outputs.emoji }} CI - ${{ steps.status.outputs.status_text }}",
-                "description": "Node.js 22 CI build on `develop` branch",
-                "color": ${{ steps.status.outputs.color }},
-                "fields": [
-                  {
-                    "name": "Repository",
-                    "value": "${{ github.repository }}",
-                    "inline": true
-                  },
-                  {
-                    "name": "Branch",
-                    "value": "`${{ github.event.workflow_run.head_branch }}`",
-                    "inline": true
-                  },
-                  {
-                    "name": "Commit",
-                    "value": "[`'"$SHORT_SHA"'`](${{ github.event.workflow_run.repository.html_url }}/commit/${{ github.event.workflow_run.head_sha }})",
-                    "inline": true
-                  },
-                  {
-                    "name": "Triggered by",
-                    "value": "${{ github.event.workflow_run.actor.login }}",
-                    "inline": true
-                  },
-                  {
-                    "name": "Status",
-                    "value": "${{ steps.status.outputs.status_text }}",
-                    "inline": true
-                  },
-                  {
-                    "name": "Node Version",
-                    "value": "22.x",
-                    "inline": true
-                  }
-                ],
-                "timestamp": "${{ github.event.workflow_run.updated_at }}",
-                "footer": {
-                  "text": "Care Commons CI"
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "${{ steps.status.outputs.emoji }} CI - ${{ steps.status.outputs.status_text }}",
+              "description": "Node.js 22 CI build on \`develop\` branch",
+              "color": ${{ steps.status.outputs.color }},
+              "fields": [
+                {
+                  "name": "Repository",
+                  "value": "${{ github.repository }}",
+                  "inline": true
                 },
-                "url": "${{ github.event.workflow_run.html_url }}"
-              }]
-            }' \
+                {
+                  "name": "Branch",
+                  "value": "\`${{ github.event.workflow_run.head_branch }}\`",
+                  "inline": true
+                },
+                {
+                  "name": "Commit",
+                  "value": "[\`${SHORT_SHA}\`](${{ github.event.workflow_run.repository.html_url }}/commit/${{ github.event.workflow_run.head_sha }})",
+                  "inline": true
+                },
+                {
+                  "name": "Triggered by",
+                  "value": "${{ github.event.workflow_run.actor.login }}",
+                  "inline": true
+                },
+                {
+                  "name": "Status",
+                  "value": "${{ steps.status.outputs.status_text }}",
+                  "inline": true
+                },
+                {
+                  "name": "Node Version",
+                  "value": "22.x",
+                  "inline": true
+                }
+              ],
+              "timestamp": "${{ github.event.workflow_run.updated_at }}",
+              "footer": {
+                "text": "Care Commons CI"
+              },
+              "url": "${{ github.event.workflow_run.html_url }}"
+            }]
+          }
+          EOF
+          )
+          
+          curl -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
             "${{ env.DISCORD_WEBHOOK_URL }}"
 
       - name: Discord not configured
