@@ -3,50 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth, useAuthService } from '@/core/hooks';
 import toast from 'react-hot-toast';
 
-// 5 Demo Personas (all Texas-based)
+// 2 Demo Personas (using actual seeded accounts)
 const DEMO_PERSONAS = [
   {
-    email: 'admin@tx.carecommons.example',
-    password: 'Demo123!',
-    name: 'Maria Rodriguez',
+    email: 'admin@carecommons.example',
+    password: 'Admin123!',
+    name: 'System Administrator',
     role: 'Administrator',
     description: 'Full system access, manage agency operations',
     icon: '👨‍💼',
     color: 'bg-purple-50 border-purple-200 hover:border-purple-400',
   },
   {
-    email: 'coordinator@tx.carecommons.example',
-    password: 'Demo123!',
-    name: 'James Thompson',
-    role: 'Care Coordinator',
-    description: 'Schedule visits, assign caregivers, manage care plans',
-    icon: '📋',
-    color: 'bg-blue-50 border-blue-200 hover:border-blue-400',
-  },
-  {
-    email: 'caregiver@tx.carecommons.example',
-    password: 'Demo123!',
-    name: 'Sarah Chen',
-    role: 'Caregiver',
-    description: 'Clock in/out, document visits, view assignments',
-    icon: '🤝',
-    color: 'bg-green-50 border-green-200 hover:border-green-400',
-  },
-  {
-    email: 'nurse@tx.carecommons.example',
-    password: 'Demo123!',
-    name: 'David Williams',
-    role: 'RN Clinical',
-    description: 'Clinical assessments, medication management, oversight',
-    icon: '⚕️',
-    color: 'bg-teal-50 border-teal-200 hover:border-teal-400',
-  },
-  {
-    email: 'family@tx.carecommons.example',
-    password: 'Demo123!',
-    name: 'Emily Johnson',
-    role: 'Family Member',
-    description: 'View care updates, message caregivers, track visits (daughter of Margaret Johnson)',
+    email: 'family@carecommons.example',
+    password: 'Family123!',
+    name: 'Family Member',
+    role: 'Family Portal',
+    description: 'View care updates, message caregivers, track visits',
     icon: '👨‍👩‍👧',
     color: 'bg-pink-50 border-pink-200 hover:border-pink-400',
   },
@@ -172,7 +145,7 @@ export const Login: React.FC = () => {
             <div className="flex-1">
               <h3 className="text-base font-semibold text-blue-900">Demo Accounts</h3>
               <p className="mt-1 text-sm text-blue-700">
-                Choose a persona to explore the platform. All accounts use password: <span className="font-mono font-semibold">Demo123!</span>
+                Choose an account to explore the platform. Admin password: <span className="font-mono font-semibold">Admin123!</span>, Family password: <span className="font-mono font-semibold">Family123!</span>
               </p>
             </div>
           </div>
@@ -255,10 +228,10 @@ export const Login: React.FC = () => {
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="text-center space-y-3">
               <p className="text-xs text-gray-500">
-                <span className="font-semibold">All accounts:</span> Password is <span className="font-mono font-semibold">Demo123!</span>
+                <span className="font-semibold">Passwords:</span> Admin: <span className="font-mono font-semibold">Admin123!</span>, Family: <span className="font-mono font-semibold">Family123!</span>
               </p>
               <p className="text-xs text-gray-500">
-                This is a demonstration environment with sample data from Texas.{' '}
+                This is a demonstration environment. Run <span className="font-mono text-xs">npm run db:seed:demo</span> for sample Texas data.{' '}
                 <a
                   href="https://neighborhood-lab.github.io/care-commons/"
                   className="text-primary-600 hover:text-primary-700 underline"
@@ -269,7 +242,7 @@ export const Login: React.FC = () => {
                 </a>
               </p>
               <p className="text-xs text-gray-400">
-                💡 Try different personas to see different views and permissions
+                💡 Admin has full system access, Family has read-only portal access
               </p>
             </div>
           </div>
