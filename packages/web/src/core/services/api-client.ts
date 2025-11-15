@@ -1,4 +1,5 @@
 import type { ApiError, RequestConfig } from '../types/api';
+import { retryWithBackoff, requestDeduplicator, requestThrottler } from '../utils/request-utils';
 
 export interface ApiClient {
   get<T>(url: string, config?: RequestConfig): Promise<T>;
@@ -22,42 +23,77 @@ class ApiClientImpl implements ApiClient {
     options: RequestInit & { config?: RequestConfig } = {}
   ): Promise<T> {
     const { config, ...fetchOptions } = options;
-    const token = this.getAuthToken();
+    const method = fetchOptions.method ?? 'GET';
 
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...config?.headers,
+    // Create request key for deduplication (method + url + body hash)
+    const bodyHash = fetchOptions.body ? JSON.stringify(fetchOptions.body).substring(0, 50) : '';
+    const requestKey = `${method}:${url}${bodyHash}`;
+
+    // For GET requests, use deduplication to prevent duplicate concurrent requests
+    // For mutations (POST/PUT/PATCH/DELETE), skip deduplication to allow multiple submissions
+    const shouldDeduplicate = method === 'GET';
+
+    const executeRequest = async (): Promise<T> => {
+      // Apply throttling for all requests (max 1 request per endpoint per 500ms)
+      return requestThrottler.throttle(
+        url,
+        async () => {
+          // Apply retry logic with exponential backoff
+          return retryWithBackoff(
+            async () => {
+              const token = this.getAuthToken();
+
+              const headers: HeadersInit = {
+                'Content-Type': 'application/json',
+                ...config?.headers,
+              };
+
+              if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+              }
+
+              const response = await fetch(`${this.baseUrl}${url}`, {
+                ...fetchOptions,
+                headers,
+                ...(config?.signal !== undefined && { signal: config.signal }),
+              });
+
+              if (!response.ok) {
+                const error: ApiError = await response.json().catch(() => ({
+                  message: response.statusText,
+                  code: response.status.toString(),
+                  status: response.status,
+                }));
+                throw error;
+              }
+
+              return response.json();
+            },
+            {
+              maxRetries: 3,
+              initialDelayMs: 1000,
+              maxDelayMs: 10000,
+              maxJitterMs: 1000,
+              retryableStatuses: [429, 500, 502, 503, 504],
+              onRetry: (attempt, delayMs, error) => {
+                console.warn(
+                  `Request to ${url} failed (attempt ${attempt}), retrying in ${delayMs}ms...`,
+                  error
+                );
+              },
+            }
+          );
+        },
+        { minIntervalMs: 500 }
+      );
     };
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    // Apply deduplication for GET requests only
+    if (shouldDeduplicate) {
+      return requestDeduplicator.deduplicate(requestKey, executeRequest);
     }
 
-    try {
-      const response = await fetch(`${this.baseUrl}${url}`, {
-        ...fetchOptions,
-        headers,
-        ...(config?.signal !== undefined && { signal: config.signal }),
-      });
-
-      if (!response.ok) {
-        const error: ApiError = await response.json().catch(() => ({
-          message: response.statusText,
-          code: response.status.toString(),
-        }));
-        throw error;
-      }
-
-      return response.json();
-    } catch (error) {
-      if (error instanceof Error) {
-        throw {
-          message: error.message,
-          code: 'NETWORK_ERROR',
-        } as ApiError;
-      }
-      throw error;
-    }
+    return executeRequest();
   }
 
   async get<T>(url: string, config?: RequestConfig): Promise<T> {
