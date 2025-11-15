@@ -98,10 +98,12 @@ export const generalApiLimiter = rateLimit({
   },
 });
 
-// Strict rate limit for authentication endpoints - 5 requests per 15 minutes per IP
+// Auth rate limit - 10 failed attempts per 5 minutes per IP
+// More reasonable window to prevent lockout while still preventing brute force
+// Only counts failed login attempts (skipSuccessfulRequests: true)
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 login/signup requests per windowMs
+  windowMs: 5 * 60 * 1000, // 5 minutes (reduced from 15 to prevent long lockouts)
+  max: 10, // Increased from 5 to allow legitimate retries with demo accounts
   skipSuccessfulRequests: true, // Don't count successful requests
   standardHeaders: true,
   legacyHeaders: false,
@@ -109,8 +111,23 @@ export const authLimiter = rateLimit({
   // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
   validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
-    error: 'Too many authentication attempts from this IP, please try again after 15 minutes.',
-    retryAfter: 15 * 60,
+    error: 'Too many login attempts. Please wait 5 minutes before trying again.',
+    retryAfter: 5 * 60,
+  },
+  // Custom handler to provide better error messages
+  handler: (_req, res) => {
+    const retryAfter = res.getHeader('Retry-After') as string;
+    const retrySeconds = parseInt(retryAfter, 10);
+    const finalRetrySeconds = !isNaN(retrySeconds) && retrySeconds > 0 ? retrySeconds : 300;
+    res.status(429).json({
+      success: false,
+      error: 'Too many login attempts. Please wait before trying again.',
+      code: 'RATE_LIMIT_EXCEEDED',
+      context: {
+        retryAfter: finalRetrySeconds, // seconds
+        message: `You can try again in ${Math.ceil(finalRetrySeconds / 60)} minutes.`,
+      },
+    });
   },
 });
 

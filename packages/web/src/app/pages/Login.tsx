@@ -58,13 +58,51 @@ export const Login: React.FC = () => {
   const authService = useAuthService();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [rateLimitRetryAfter, setRateLimitRetryAfter] = useState<number | null>(null);
+
+  // Cooldown timer effect
+  React.useEffect(() => {
+    if (cooldownSeconds > 0) {
+      const timer = setTimeout(() => {
+        setCooldownSeconds(cooldownSeconds - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [cooldownSeconds]);
+
+  // Rate limit countdown effect
+  React.useEffect(() => {
+    if (rateLimitRetryAfter !== null && rateLimitRetryAfter > 0) {
+      const timer = setTimeout(() => {
+        setRateLimitRetryAfter(rateLimitRetryAfter - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (rateLimitRetryAfter === 0) {
+      setRateLimitRetryAfter(null);
+    }
+    return undefined;
+  }, [rateLimitRetryAfter]);
 
   const handleLogin = async (personaIndex: number) => {
     const persona = DEMO_PERSONAS[personaIndex];
     if (!persona) return;
+
+    // Prevent multiple rapid clicks (client-side debouncing)
+    if (isLoading || cooldownSeconds > 0) {
+      return;
+    }
+
+    // Prevent login if rate limited
+    if (rateLimitRetryAfter !== null && rateLimitRetryAfter > 0) {
+      toast.error(`Please wait ${rateLimitRetryAfter} seconds before trying again.`);
+      return;
+    }
     
     setSelectedPersona(personaIndex);
     setIsLoading(true);
+    setCooldownSeconds(2); // 2 second cooldown between attempts
 
     try {
       const response = await authService.login({
@@ -81,8 +119,23 @@ export const Login: React.FC = () => {
         navigate('/');
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
-      toast.error(errorMessage);
+      // Enhanced error handling for rate limiting
+      if (error instanceof Error) {
+        const errorObj = error as { message: string; response?: { data?: { code?: string; context?: { retryAfter?: number } } } };
+        
+        if (errorObj.response?.data?.code === 'RATE_LIMIT_EXCEEDED') {
+          const retryAfter = errorObj.response.data.context?.retryAfter || 300;
+          setRateLimitRetryAfter(retryAfter);
+          const minutes = Math.ceil(retryAfter / 60);
+          toast.error(`Too many login attempts. Please wait ${minutes} minute${minutes > 1 ? 's' : ''} before trying again.`, {
+            duration: 6000,
+          });
+        } else {
+          toast.error(errorObj.message || 'Login failed. Please check your credentials.');
+        }
+      } else {
+        toast.error('Login failed. Please check your credentials.');
+      }
     } finally {
       setIsLoading(false);
       setSelectedPersona(null);
@@ -131,47 +184,71 @@ export const Login: React.FC = () => {
             Choose Your Demo Account
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {DEMO_PERSONAS.map((persona, index) => (
-              <button
-                key={persona.email}
-                type="button"
-                onClick={() => handleLogin(index)}
-                disabled={isLoading}
-                className={`p-6 text-left rounded-lg border-2 transition-all ${
-                  persona.color
-                } ${
-                  isLoading && selectedPersona !== index ? 'opacity-50 cursor-not-allowed' : ''
-                } ${
-                  isLoading && selectedPersona === index ? 'opacity-75' : ''
-                }`}
-              >
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-start justify-between">
-                    <span className="text-4xl">{persona.icon}</span>
-                    {isLoading && selectedPersona === index && (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-bold text-gray-900 text-lg">
-                      {persona.name}
-                    </div>
-                    <div className="text-sm font-semibold text-gray-600 mt-1">
-                      {persona.role}
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-600 leading-relaxed">
-                    {persona.description}
-                  </div>
-                  <div className="mt-2 pt-3 border-t border-gray-200">
-                    <div className="text-xs font-mono text-gray-500 truncate">
-                      {persona.email}
-                    </div>
-                  </div>
+          {/* Rate limit warning banner */}
+          {rateLimitRetryAfter !== null && rateLimitRetryAfter > 0 && (
+            <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg className="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
                 </div>
-              </button>
-            ))}
+                <div className="flex-1">
+                  <h3 className="text-base font-semibold text-red-900">Too Many Login Attempts</h3>
+                  <p className="mt-1 text-sm text-red-700">
+                    Please wait <span className="font-mono font-bold">{Math.floor(rateLimitRetryAfter / 60)}:{String(rateLimitRetryAfter % 60).padStart(2, '0')}</span> before trying again.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {DEMO_PERSONAS.map((persona, index) => {
+              const isDisabled = isLoading || cooldownSeconds > 0 || (rateLimitRetryAfter !== null && rateLimitRetryAfter > 0);
+              const isThisPersonaLoading = isLoading && selectedPersona === index;
+              
+              return (
+                <button
+                  key={persona.email}
+                  type="button"
+                  onClick={() => handleLogin(index)}
+                  disabled={isDisabled}
+                  className={`p-6 text-left rounded-lg border-2 transition-all ${
+                    persona.color
+                  } ${
+                    isDisabled && !isThisPersonaLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  } ${
+                    isThisPersonaLoading ? 'opacity-75' : ''
+                  }`}
+                >
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-start justify-between">
+                      <span className="text-4xl">{persona.icon}</span>
+                      {isThisPersonaLoading && (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-900 text-lg">
+                        {persona.name}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-600 mt-1">
+                        {persona.role}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-600 leading-relaxed">
+                      {persona.description}
+                    </div>
+                    <div className="mt-2 pt-3 border-t border-gray-200">
+                      <div className="text-xs font-mono text-gray-500 truncate">
+                        {persona.email}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           {/* Footer Info */}
