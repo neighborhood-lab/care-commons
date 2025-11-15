@@ -1,12 +1,14 @@
 name: Develop Comprehensive Validation
 
 on:
-  push:
-    branches: [develop]
+  schedule:
+    # Run nightly at 3 AM UTC for comprehensive validation
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
-# Run independently from CI workflow
+# Run on schedule only to reduce CI time on every push
 # This provides a comprehensive, cache-free validation of the develop branch
+# For faster feedback on every push, rely on the regular CI workflow with caching
 
 env:
   NODE_VERSION: '22'
