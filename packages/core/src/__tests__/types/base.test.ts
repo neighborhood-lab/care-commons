@@ -27,19 +27,21 @@ describe('Base Types', () => {
     describe('DomainError', () => {
       it('should create a DomainError with message and code', () => {
         const error = new DomainError('Test error', 'TEST_CODE');
-        
+
         expect(error).toBeInstanceOf(Error);
         expect(error).toBeInstanceOf(DomainError);
         expect(error.name).toBe('DomainError');
         expect(error.message).toBe('Test error');
         expect(error.code).toBe('TEST_CODE');
+        expect(error.statusCode).toBe(500); // Default status code
         expect(error.context).toBeUndefined();
       });
 
-      it('should create a DomainError with context', () => {
+      it('should create a DomainError with custom status code and context', () => {
         const context = { field: 'value' };
-        const error = new DomainError('Test error', 'TEST_CODE', context);
-        
+        const error = new DomainError('Test error', 'TEST_CODE', 418, context);
+
+        expect(error.statusCode).toBe(418);
         expect(error.context).toEqual(context);
       });
     });
@@ -47,18 +49,19 @@ describe('Base Types', () => {
     describe('ValidationError', () => {
       it('should create a ValidationError with correct properties', () => {
         const error = new ValidationError('Invalid input');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(ValidationError);
         expect(error.name).toBe('ValidationError');
         expect(error.message).toBe('Invalid input');
         expect(error.code).toBe('VALIDATION_ERROR');
+        expect(error.statusCode).toBe(400);
       });
 
       it('should accept context', () => {
         const context = { field: 'email', value: 'invalid' };
         const error = new ValidationError('Invalid email', context);
-        
+
         expect(error.context).toEqual(context);
       });
     });
@@ -66,36 +69,39 @@ describe('Base Types', () => {
     describe('PermissionError', () => {
       it('should create a PermissionError with correct properties', () => {
         const error = new PermissionError('Access denied');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(PermissionError);
         expect(error.name).toBe('PermissionError');
         expect(error.message).toBe('Access denied');
         expect(error.code).toBe('PERMISSION_DENIED');
+        expect(error.statusCode).toBe(403);
       });
     });
 
     describe('NotFoundError', () => {
       it('should create a NotFoundError with correct properties', () => {
         const error = new NotFoundError('Resource not found');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(NotFoundError);
         expect(error.name).toBe('NotFoundError');
         expect(error.message).toBe('Resource not found');
         expect(error.code).toBe('NOT_FOUND');
+        expect(error.statusCode).toBe(404);
       });
     });
 
     describe('ConflictError', () => {
       it('should create a ConflictError with correct properties', () => {
         const error = new ConflictError('Resource already exists');
-        
+
         expect(error).toBeInstanceOf(DomainError);
         expect(error).toBeInstanceOf(ConflictError);
         expect(error.name).toBe('ConflictError');
         expect(error.message).toBe('Resource already exists');
         expect(error.code).toBe('CONFLICT');
+        expect(error.statusCode).toBe(409);
       });
     });
   });
