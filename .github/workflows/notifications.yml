@@ -169,14 +169,20 @@ jobs:
       - name: Send Discord notification
         if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
         run: |
+          # Validate webhook URL is set
+          if [ -z "${{ env.DISCORD_WEBHOOK_URL }}" ]; then
+            echo "❌ DISCORD_WEBHOOK_URL is empty - skipping notification"
+            exit 0
+          fi
+          
           COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
           SHORT_SHA="${COMMIT_SHA:0:7}"
           
-          PAYLOAD=$(cat <<EOF
+          PAYLOAD=$(cat <<'EOF'
           {
             "embeds": [{
               "title": "${{ steps.status.outputs.emoji }} CI - ${{ steps.status.outputs.status_text }}",
-              "description": "Node.js 22 CI build on \`develop\` branch",
+              "description": "Node.js 22 CI build on `develop` branch",
               "color": ${{ steps.status.outputs.color }},
               "fields": [
                 {
@@ -186,12 +192,12 @@ jobs:
                 },
                 {
                   "name": "Branch",
-                  "value": "\`${{ github.event.workflow_run.head_branch }}\`",
+                  "value": "`${{ github.event.workflow_run.head_branch }}`",
                   "inline": true
                 },
                 {
                   "name": "Commit",
-                  "value": "[\`${SHORT_SHA}\`](${{ github.event.workflow_run.repository.html_url }}/commit/${{ github.event.workflow_run.head_sha }})",
+                  "value": "[`SHORT_SHA_PLACEHOLDER`](${{ github.event.workflow_run.repository.html_url }}/commit/${{ github.event.workflow_run.head_sha }})",
                   "inline": true
                 },
                 {
@@ -217,12 +223,25 @@ jobs:
               "url": "${{ github.event.workflow_run.html_url }}"
             }]
           }
-          EOF
+EOF
           )
           
-          curl -H "Content-Type: application/json" \
+          # Replace placeholder with actual short SHA
+          PAYLOAD="${PAYLOAD//SHORT_SHA_PLACEHOLDER/${SHORT_SHA}}"
+          
+          # Send to Discord with error handling
+          HTTP_CODE=$(curl -s -w "%{http_code}" -o /tmp/discord-response.txt \
+            -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
-            "${{ env.DISCORD_WEBHOOK_URL }}"
+            "${{ env.DISCORD_WEBHOOK_URL }}")
+          
+          if [ "$HTTP_CODE" -eq 204 ] || [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Discord notification sent successfully (HTTP $HTTP_CODE)"
+          else
+            echo "❌ Discord notification failed (HTTP $HTTP_CODE)"
+            cat /tmp/discord-response.txt
+            exit 1
+          fi
 
       - name: Discord not configured
         if: ${{ env.DISCORD_WEBHOOK_URL == '' }}
