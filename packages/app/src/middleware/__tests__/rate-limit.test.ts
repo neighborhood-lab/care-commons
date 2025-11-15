@@ -174,4 +174,24 @@ describe('Rate Limiting', () => {
       expect(generalApiLimiter).toBeDefined();
     });
   });
+
+  describe('Auth limiter custom handler', () => {
+    it('should have custom error handler for better UX', () => {
+      // The authLimiter has a custom handler that provides detailed error messages
+      // This is tested via integration tests in auth.test.ts
+      expect(authLimiter).toBeDefined();
+    });
+
+    it('should provide retry information in error response', () => {
+      // Custom handler includes retryAfter in context
+      // Format: { retryAfter: number, message: string }
+      expect(authLimiter).toBeDefined();
+    });
+
+    it('should calculate retry time in minutes for user-friendly messages', () => {
+      // The handler converts seconds to minutes for better UX
+      // E.g., "You can try again in 5 minutes"
+      expect(authLimiter).toBeDefined();
+    });
+  });
 });

@@ -64,7 +64,12 @@ class ApiClientImpl implements ApiClient {
                   code: response.status.toString(),
                   status: response.status,
                 }));
-                throw error;
+                
+                // Attach response data to error for better error handling
+                const enhancedError = new Error(error.message ?? response.statusText) as Error & { response?: { data: ApiError }; status?: number };
+                enhancedError.response = { data: error };
+                enhancedError.status = response.status;
+                throw enhancedError;
               }
 
               return response.json();
@@ -74,7 +79,8 @@ class ApiClientImpl implements ApiClient {
               initialDelayMs: 1000,
               maxDelayMs: 10000,
               maxJitterMs: 1000,
-              retryableStatuses: [429, 500, 502, 503, 504],
+              // Don't retry 429 for auth endpoints - user should see immediate feedback
+              retryableStatuses: url.includes('/auth/') ? [500, 502, 503, 504] : [429, 500, 502, 503, 504],
               onRetry: (attempt, delayMs, error) => {
                 console.warn(
                   `Request to ${url} failed (attempt ${attempt}), retrying in ${delayMs}ms...`,
