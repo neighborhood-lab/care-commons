@@ -28,6 +28,7 @@ const updatePreferencesSchema = z.object({
   emailNotifications: z.boolean(),
   pushNotifications: z.boolean(),
   theme: z.enum(['light', 'dark', 'system']),
+  language: z.enum(['en', 'es']),
 });
 
 export function createUsersRouter(db: Database): Router {
@@ -291,6 +292,81 @@ export function createUsersRouter(db: Database): Router {
   /**
    * @openapi
    * /api/users/preferences:
+   *   get:
+   *     tags:
+   *       - Users
+   *     summary: Get user preferences
+   *     description: Retrieve preferences for the authenticated user
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Preferences retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     emailNotifications:
+   *                       type: boolean
+   *                     pushNotifications:
+   *                       type: boolean
+   *                     theme:
+   *                       type: string
+   *                       enum: [light, dark, system]
+   *                     language:
+   *                       type: string
+   *                       enum: [en, es]
+   *       401:
+   *         description: Not authenticated
+   *       500:
+   *         description: Server error
+   */
+  router.get('/preferences', authMiddleware.requireAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // Fetch user settings from database
+      const result = await db.query(
+        'SELECT settings FROM users WHERE id = $1 AND deleted_at IS NULL',
+        [req.user!.userId]
+      );
+
+      const user = result.rows[0] as Record<string, unknown> | undefined;
+
+      if (user === undefined) {
+        res.status(404).json({
+          success: false,
+          error: 'User not found',
+          code: 'USER_NOT_FOUND'
+        });
+        return;
+      }
+
+      // Parse settings or use defaults
+      const settings = (user.settings || {}) as Record<string, unknown>;
+      const preferences = {
+        emailNotifications: settings.emailNotifications ?? true,
+        pushNotifications: settings.pushNotifications ?? true,
+        theme: settings.theme ?? 'system',
+        language: settings.language ?? 'en',
+      };
+
+      res.json({
+        success: true,
+        data: preferences
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/users/preferences:
    *   put:
    *     tags:
    *       - Users
@@ -316,6 +392,11 @@ export function createUsersRouter(db: Database): Router {
    *               theme:
    *                 type: string
    *                 enum: [light, dark, system]
+   *               language:
+   *                 type: string
+   *                 enum: [en, es]
+   *                 default: en
+   *                 description: User interface language preference
    *     responses:
    *       200:
    *         description: Preferences updated successfully

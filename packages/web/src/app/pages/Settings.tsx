@@ -8,6 +8,7 @@ import { FormField } from '@/components/forms/FormField';
 import { useApiClient } from '@/core/hooks';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { User, Lock, Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type SettingsTab = 'profile' | 'account' | 'preferences';
 
@@ -39,6 +40,7 @@ const preferencesSchema = z.object({
   emailNotifications: z.boolean(),
   pushNotifications: z.boolean(),
   theme: z.enum(['light', 'dark', 'system']),
+  language: z.enum(['en', 'es']),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -46,6 +48,7 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 type PreferencesFormData = z.infer<typeof preferencesSchema>;
 
 export function Settings() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -60,9 +63,9 @@ export function Settings() {
   });
 
   const tabs = [
-    { id: 'profile' as const, label: 'Profile', icon: User },
-    { id: 'account' as const, label: 'Account', icon: Lock },
-    { id: 'preferences' as const, label: 'Preferences', icon: Bell },
+    { id: 'profile' as const, label: t('settings.profile'), icon: User },
+    { id: 'account' as const, label: t('settings.account'), icon: Lock },
+    { id: 'preferences' as const, label: t('settings.preferences'), icon: Bell },
   ];
 
   const showMessage = (type: 'success' | 'error', message: string) => {
@@ -83,9 +86,9 @@ export function Settings() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">{t('settings.title')}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Manage your account settings and preferences
+          {t('settings.title')} - {t('settings.preferences')}
         </p>
       </div>
 
@@ -375,27 +378,53 @@ function AccountSettings({ onSuccess, onError }: Readonly<Omit<SettingsSectionPr
 
 function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSectionProps, 'userProfile' | 'isLoading'>>) {
   const apiClient = useApiClient();
+  const { t, i18n } = useTranslation();
+
+  // Fetch current preferences
+  const { data: preferencesData, isLoading: isLoadingPreferences } = useQuery({
+    queryKey: ['userPreferences'],
+    queryFn: async () => {
+      return await apiClient.get<PreferencesFormData>('/api/users/preferences');
+    },
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
     defaultValues: {
       emailNotifications: true,
       pushNotifications: false,
       theme: 'system',
+      language: 'en',
     },
   });
+
+  // Update form defaults when preferences are loaded
+  React.useEffect(() => {
+    if (preferencesData) {
+      reset(preferencesData);
+      // Set i18n language
+      void i18n.changeLanguage(preferencesData.language);
+    }
+  }, [preferencesData, reset, i18n]);
+
+  // Watch language changes and update i18n immediately
+  const selectedLanguage = watch('language');
+  React.useEffect(() => {
+    void i18n.changeLanguage(selectedLanguage);
+  }, [selectedLanguage, i18n]);
 
   const updatePreferencesMutation = useMutation({
     mutationFn: async (data: PreferencesFormData) => {
       return await apiClient.put('/api/users/preferences', data);
     },
     onSuccess: () => {
-      onSuccess('Preferences updated successfully');
+      onSuccess(t('settings.changesSaved'));
     },
     onError: (error: Error) => {
       onError(error.message);
@@ -406,16 +435,28 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
     updatePreferencesMutation.mutate(data);
   };
 
+  if (isLoadingPreferences) {
+    return (
+      <Card>
+        <Card.Content>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+        </Card.Content>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <Card.Header
-        title="Preferences"
-        subtitle="Customize your experience"
+        title={t('settings.preferences')}
+        subtitle={t('settings.preferences')}
       />
       <Card.Content>
         <form onSubmit={(e) => { void handleSubmit(onSubmit)(e); }} className="space-y-6">
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+            <h3 className="text-sm font-medium text-gray-900">{t('settings.notifications')}</h3>
 
             <div className="flex items-center gap-3">
               <input
@@ -425,7 +466,7 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
                 className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <label htmlFor="emailNotifications" className="text-sm text-gray-700">
-                Email notifications
+                {t('settings.emailNotifications')}
               </label>
             </div>
 
@@ -437,16 +478,16 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
                 className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <label htmlFor="pushNotifications" className="text-sm text-gray-700">
-                Push notifications
+                {t('settings.pushNotifications')}
               </label>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900">Appearance</h3>
+            <h3 className="text-sm font-medium text-gray-900">{t('settings.preferences')}</h3>
             <FormField
               name="theme"
-              label="Theme"
+              label={t('settings.theme')}
               type="select"
               register={register}
               errors={errors}
@@ -456,6 +497,19 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
                 { value: 'system', label: 'System' },
               ]}
             />
+
+            <FormField
+              name="language"
+              label={t('settings.language')}
+              type="select"
+              register={register}
+              errors={errors}
+              options={[
+                { value: 'en', label: t('languages.english') },
+                { value: 'es', label: t('languages.spanish') },
+              ]}
+              helperText={t('settings.languageDescription')}
+            />
           </div>
 
           <div className="flex items-center gap-4 pt-4">
@@ -464,7 +518,7 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
               variant="primary"
               isLoading={updatePreferencesMutation.isPending}
             >
-              Save Preferences
+              {t('settings.saveChanges')}
             </Button>
             <Button
               type="button"
@@ -472,7 +526,7 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
               onClick={() => reset()}
               disabled={updatePreferencesMutation.isPending}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           </div>
         </form>

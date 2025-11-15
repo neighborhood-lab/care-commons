@@ -1027,13 +1027,23 @@ async function seedDatabase() {
               usersUpdated++;
             } else {
               // User doesn't exist, create new one
+              // Assign language based on name (simple heuristic for demo)
+              const hasSpanishName = firstName.match(/^(José|Juan|Miguel|Carlos|María|Guadalupe|Rosa|Carmen|Ana)/);
+              const userLanguage = hasSpanishName && Math.random() < 0.6 ? 'es' : 'en';
+              const userSettings = JSON.stringify({
+                emailNotifications: true,
+                pushNotifications: true,
+                theme: 'system',
+                language: userLanguage,
+              });
+
               await client.query(
                 `
                 INSERT INTO users (
                   id, organization_id, username, email, password_hash,
                   first_name, last_name, roles, permissions, branch_ids,
-                  status, created_by, updated_by
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                  status, created_by, updated_by, settings
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
                 `,
                 [
                   userId,
@@ -1048,7 +1058,8 @@ async function seedDatabase() {
                   [branchId],
                   'ACTIVE',
                   systemUserId,
-                  systemUserId
+                  systemUserId,
+                  userSettings,
                 ]
               );
               usersCreated++;
@@ -1241,16 +1252,26 @@ async function seedDatabase() {
 
       // Now insert caregivers into database
       for (const caregiver of caregivers) {
-        
+
         // Create user account for caregiver
         const caregiverUserId = uuidv4();
+        // Determine language preference based on ethnicity (Hispanic caregivers get Spanish)
+        const hasSpanishLanguage = caregiver.languages && caregiver.languages.includes('Spanish');
+        const userLanguage = hasSpanishLanguage && Math.random() < 0.7 ? 'es' : 'en'; // 70% of Spanish speakers prefer Spanish UI
+        const userSettings = JSON.stringify({
+          emailNotifications: true,
+          pushNotifications: true,
+          theme: 'system',
+          language: userLanguage,
+        });
+
         await client.query(
           `
           INSERT INTO users (
             id, organization_id, email, password_hash,
             first_name, last_name, roles, status,
-            created_by, updated_by, is_demo_data, username
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, $11)
+            created_by, updated_by, is_demo_data, username, settings
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, $11, $12)
           `,
           [
             caregiverUserId,
@@ -1264,6 +1285,7 @@ async function seedDatabase() {
             systemUserId,
             systemUserId,
             caregiver.email, // username
+            userSettings,
           ]
         );
         

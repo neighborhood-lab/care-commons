@@ -3,6 +3,7 @@ import { X, FileText, Tag } from 'lucide-react';
 import { Button, Card, CardHeader, CardContent, FormField, Select, LoadingSpinner } from '@/core/components';
 import { formatDate } from '@/core/utils';
 import type { ProgressNote, ProgressNoteType } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export interface ProgressNoteFormProps {
   carePlanId: string;
@@ -18,33 +19,6 @@ export interface ProgressNoteFormProps {
   };
 }
 
-const noteTypeOptions = [
-  { value: 'VISIT_NOTE', label: 'Visit Note' },
-  { value: 'WEEKLY_SUMMARY', label: 'Weekly Summary' },
-  { value: 'MONTHLY_SUMMARY', label: 'Monthly Summary' },
-  { value: 'CARE_PLAN_REVIEW', label: 'Care Plan Review' },
-  { value: 'INCIDENT', label: 'Incident Report' },
-  { value: 'CHANGE_IN_CONDITION', label: 'Change in Condition' },
-  { value: 'COMMUNICATION', label: 'Communication' },
-  { value: 'OTHER', label: 'Other' },
-];
-
-const commonTags = [
-  'Positive Progress',
-  'Concern',
-  'Medication',
-  'Mobility',
-  'Nutrition',
-  'Hygiene',
-  'Social',
-  'Emotional',
-  'Cognitive',
-  'Pain',
-  'Safety',
-  'Family',
-  'Follow-up Required',
-];
-
 export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
   carePlanId,
   clientId,
@@ -54,11 +28,39 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
   isLoading = false,
   authorInfo,
 }) => {
+  const { t } = useTranslation();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
   const [noteType, setNoteType] = useState<ProgressNoteType>('VISIT_NOTE');
   const [content, setContent] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+
+  const noteTypeOptions = [
+    { value: 'VISIT_NOTE', label: t('carePlans.visitNote') },
+    { value: 'WEEKLY_SUMMARY', label: t('carePlans.weeklySummary') },
+    { value: 'MONTHLY_SUMMARY', label: t('carePlans.monthlySummary') },
+    { value: 'CARE_PLAN_REVIEW', label: t('carePlans.carePlanReview') },
+    { value: 'INCIDENT', label: t('carePlans.incident') },
+    { value: 'CHANGE_IN_CONDITION', label: t('carePlans.changeInCondition') },
+    { value: 'COMMUNICATION', label: t('carePlans.communication') },
+    { value: 'OTHER', label: t('carePlans.other') },
+  ];
+
+  const commonTags = [
+    'Positive Progress',
+    'Concern',
+    'Medication',
+    'Mobility',
+    'Nutrition',
+    'Hygiene',
+    'Social',
+    'Emotional',
+    'Cognitive',
+    'Pain',
+    'Safety',
+    'Family',
+    'Follow-up Required',
+  ];
 
   const handleFormSubmit = () => {
     if (!content.trim()) return;
@@ -94,7 +96,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Add Progress Note</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('progressNotes.addNote')}</h2>
           <Button
             variant="ghost"
             size="sm"
@@ -106,19 +108,19 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
         <div className="p-6 space-y-6">
           {/* Author Information */}
           <Card>
-            <CardHeader title="Author Information" />
+            <CardHeader title={t('progressNotes.authorInformation')} />
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Name</span>
+                  <span className="text-sm font-medium text-gray-500">{t('progressNotes.authorName')}</span>
                   <p className="mt-1 text-sm text-gray-900">{authorInfo.name}</p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Role</span>
+                  <span className="text-sm font-medium text-gray-500">{t('progressNotes.authorRole')}</span>
                   <p className="mt-1 text-sm text-gray-900">{authorInfo.role}</p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Date</span>
+                  <span className="text-sm font-medium text-gray-500">{t('carePlans.noteDate')}</span>
                   <p className="mt-1 text-sm text-gray-900">{formatDate(new Date())}</p>
                 </div>
               </div>
@@ -127,7 +129,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
 
           {/* Note Type */}
           <FormField
-            label="Note Type"
+            label={t('carePlans.noteType')}
             required
           >
             <Select
@@ -139,13 +141,13 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
 
           {/* Content */}
           <FormField
-            label="Note Content"
+            label={t('carePlans.noteContent')}
             required
           >
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Enter detailed progress note..."
+              placeholder={t('progressNotes.enterNoteContent')}
               rows={8}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -153,12 +155,12 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
 
           {/* Tags */}
           <Card>
-            <CardHeader title="Tags" />
+            <CardHeader title={t('carePlans.tags')} />
             <CardContent>
               <div className="space-y-4">
                 {/* Common Tags */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Common Tags</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('progressNotes.commonTags')}</label>
                   <div className="flex flex-wrap gap-2">
                     {commonTags.map((tag) => (
                       <button
@@ -179,7 +181,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
 
                 {/* Custom Tag */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Custom Tag</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('progressNotes.customTags')}</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -191,7 +193,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
                           addCustomTag();
                         }
                       }}
-                      placeholder="Enter custom tag..."
+                      placeholder={t('progressNotes.addTags')}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <Button
@@ -200,7 +202,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
                       onClick={addCustomTag}
                       leftIcon={<Tag className="h-4 w-4" />}
                     >
-                      Add
+                      {t('common.create')}
                     </Button>
                   </div>
                 </div>
@@ -208,7 +210,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
                 {/* Selected Tags */}
                 {selectedTags.length > 0 && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Selected Tags</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('carePlans.tags')}</label>
                     <div className="flex flex-wrap gap-2">
                       {selectedTags.map((tag) => (
                         <span
@@ -234,7 +236,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
 
           {/* Privacy Settings */}
           <FormField
-            label="Privacy Settings"
+            label={t('progressNotes.privateNote')}
           >
             <div className="space-y-2">
               <label className="flex items-center gap-2">
@@ -245,7 +247,7 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm text-gray-700">
-                  Mark as private note (only visible to authorized staff)
+                  {t('progressNotes.markAsPrivate')}
                 </span>
               </label>
             </div>
@@ -253,15 +255,15 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
 
           {/* Context Information */}
           <Card>
-            <CardHeader title="Context" />
+            <CardHeader title={t('common.info')} />
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-gray-500">Care Plan ID:</span>
+                  <span className="font-medium text-gray-500">{t('carePlans.carePlan')} ID:</span>
                   <p className="mt-1 text-gray-900">{carePlanId}</p>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-500">Client ID:</span>
+                  <span className="font-medium text-gray-500">{t('clients.client')} ID:</span>
                   <p className="mt-1 text-gray-900">{clientId}</p>
                 </div>
               </div>
@@ -272,14 +274,14 @@ export const ProgressNoteForm: React.FC<ProgressNoteFormProps> = ({
         {/* Actions */}
         <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={handleFormSubmit}
             disabled={isLoading || !content.trim()}
             leftIcon={isLoading ? <LoadingSpinner size="sm" /> : <FileText className="h-4 w-4" />}
           >
-            Save Note
+            {t('progressNotes.saveNote')}
           </Button>
         </div>
       </div>
