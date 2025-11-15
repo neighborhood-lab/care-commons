@@ -13,7 +13,6 @@ import {
   StyleSheet,
   RefreshControl,
   Pressable,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -30,6 +29,7 @@ export function TodayVisitsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [syncPending, setSyncPending] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadVisits();
@@ -37,106 +37,122 @@ export function TodayVisitsScreen() {
 
   const loadVisits = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       // TODO: Load from WatermelonDB and sync with API
       // const db = await getDatabase();
       // const visits = await db.collections.get('visits').query().fetch();
       
-      // Mock data for now
-      const mockVisits: MobileVisit[] = [
-        {
-          id: '1',
-          organizationId: 'org-1',
-          branchId: 'branch-1',
-          clientId: 'client-1',
-          caregiverId: 'caregiver-1',
-          scheduledStartTime: new Date('2025-11-05T14:00:00'),
-          scheduledEndTime: new Date('2025-11-05T15:00:00'),
-          scheduledDuration: 60,
-          clientName: 'Dorothy Chen',
-          clientAddress: {
-            line1: '123 Main St',
-            city: 'Austin',
-            state: 'TX',
-            postalCode: '78701',
-            country: 'US',
-            latitude: 30.2672,
-            longitude: -97.7431,
-            geofenceRadius: 100,
-            addressVerified: true,
-          },
-          serviceTypeCode: 'PERSONAL_CARE',
-          serviceTypeName: 'Personal Care',
-          status: 'IN_PROGRESS',
-          evvRecordId: 'evv-1',
-          isSynced: true,
-          lastModifiedAt: new Date(),
-          syncPending: false,
-        },
-        {
-          id: '2',
-          organizationId: 'org-1',
-          branchId: 'branch-1',
-          clientId: 'client-2',
-          caregiverId: 'caregiver-1',
-          scheduledStartTime: new Date('2025-11-05T16:00:00'),
-          scheduledEndTime: new Date('2025-11-05T17:30:00'),
-          scheduledDuration: 90,
-          clientName: 'Robert Martinez',
-          clientAddress: {
-            line1: '456 Oak Ave',
-            city: 'Austin',
-            state: 'TX',
-            postalCode: '78702',
-            country: 'US',
-            latitude: 30.2672,
-            longitude: -97.7431,
-            geofenceRadius: 100,
-            addressVerified: true,
-          },
-          serviceTypeCode: 'COMPANION',
-          serviceTypeName: 'Companionship',
-          status: 'SCHEDULED',
-          evvRecordId: null,
-          isSynced: true,
-          lastModifiedAt: new Date(),
-          syncPending: false,
-        },
-        {
-          id: '3',
-          organizationId: 'org-1',
-          branchId: 'branch-1',
-          clientId: 'client-3',
-          caregiverId: 'caregiver-1',
-          scheduledStartTime: new Date('2025-11-05T18:00:00'),
-          scheduledEndTime: new Date('2025-11-05T19:00:00'),
-          scheduledDuration: 60,
-          clientName: 'Margaret Thompson',
-          clientAddress: {
-            line1: '789 Pine Rd',
-            city: 'Austin',
-            state: 'TX',
-            postalCode: '78703',
-            country: 'US',
-            latitude: 30.2672,
-            longitude: -97.7431,
-            geofenceRadius: 100,
-            addressVerified: true,
-          },
-          serviceTypeCode: 'PERSONAL_CARE',
-          serviceTypeName: 'Personal Care',
-          status: 'SCHEDULED',
-          evvRecordId: null,
-          isSynced: true,
-          lastModifiedAt: new Date(),
-          syncPending: false,
-        },
-      ];
+      // Simulate API call with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       
-      setVisits(mockVisits);
-      setSyncPending(mockVisits.filter(v => v.syncPending).length);
-    } catch {
-      Alert.alert('Error', 'Failed to load visits');
+      try {
+        // Mock data for now
+        const mockVisits: MobileVisit[] = [
+          {
+            id: '1',
+            organizationId: 'org-1',
+            branchId: 'branch-1',
+            clientId: 'client-1',
+            caregiverId: 'caregiver-1',
+            scheduledStartTime: new Date('2025-11-05T14:00:00'),
+            scheduledEndTime: new Date('2025-11-05T15:00:00'),
+            scheduledDuration: 60,
+            clientName: 'Dorothy Chen',
+            clientAddress: {
+              line1: '123 Main St',
+              city: 'Austin',
+              state: 'TX',
+              postalCode: '78701',
+              country: 'US',
+              latitude: 30.2672,
+              longitude: -97.7431,
+              geofenceRadius: 100,
+              addressVerified: true,
+            },
+            serviceTypeCode: 'PERSONAL_CARE',
+            serviceTypeName: 'Personal Care',
+            status: 'IN_PROGRESS',
+            evvRecordId: 'evv-1',
+            isSynced: true,
+            lastModifiedAt: new Date(),
+            syncPending: false,
+          },
+          {
+            id: '2',
+            organizationId: 'org-1',
+            branchId: 'branch-1',
+            clientId: 'client-2',
+            caregiverId: 'caregiver-1',
+            scheduledStartTime: new Date('2025-11-05T16:00:00'),
+            scheduledEndTime: new Date('2025-11-05T17:30:00'),
+            scheduledDuration: 90,
+            clientName: 'Robert Martinez',
+            clientAddress: {
+              line1: '456 Oak Ave',
+              city: 'Austin',
+              state: 'TX',
+              postalCode: '78702',
+              country: 'US',
+              latitude: 30.2672,
+              longitude: -97.7431,
+              geofenceRadius: 100,
+              addressVerified: true,
+            },
+            serviceTypeCode: 'COMPANION',
+            serviceTypeName: 'Companionship',
+            status: 'SCHEDULED',
+            evvRecordId: null,
+            isSynced: true,
+            lastModifiedAt: new Date(),
+            syncPending: false,
+          },
+          {
+            id: '3',
+            organizationId: 'org-1',
+            branchId: 'branch-1',
+            clientId: 'client-3',
+            caregiverId: 'caregiver-1',
+            scheduledStartTime: new Date('2025-11-05T18:00:00'),
+            scheduledEndTime: new Date('2025-11-05T19:00:00'),
+            scheduledDuration: 60,
+            clientName: 'Margaret Thompson',
+            clientAddress: {
+              line1: '789 Pine Rd',
+              city: 'Austin',
+              state: 'TX',
+              postalCode: '78703',
+              country: 'US',
+              latitude: 30.2672,
+              longitude: -97.7431,
+              geofenceRadius: 100,
+              addressVerified: true,
+            },
+            serviceTypeCode: 'PERSONAL_CARE',
+            serviceTypeName: 'Personal Care',
+            status: 'SCHEDULED',
+            evvRecordId: null,
+            isSynced: true,
+            lastModifiedAt: new Date(),
+            syncPending: false,
+          },
+        ];
+        
+        clearTimeout(timeoutId);
+        setVisits(mockVisits);
+        setSyncPending(mockVisits.filter(v => v.syncPending).length);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err instanceof Error && err.name === 'AbortError') {
+          setError('Connection timeout. Please check your internet connection and try again.');
+        } else {
+          throw err;
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load visits. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -247,6 +263,19 @@ export function TodayVisitsScreen() {
         )}
       </View>
 
+      {error && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>⚠️ {error}</Text>
+          <Button
+            variant="secondary"
+            size="sm"
+            onPress={onRefresh}
+          >
+            Retry
+          </Button>
+        </View>
+      )}
+
       <FlatList
         data={visits}
         renderItem={renderVisit}
@@ -256,11 +285,31 @@ export function TodayVisitsScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>
-              {isLoading ? 'Loading visits...' : 'No visits scheduled for today'}
-            </Text>
-          </View>
+          isLoading ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyIcon}>⏳</Text>
+              <Text style={styles.emptyTitle}>Loading visits...</Text>
+              <Text style={styles.emptySubtext}>Please wait</Text>
+            </View>
+          ) : (
+            <View style={styles.empty}>
+              <Text style={styles.emptyIcon}>📅</Text>
+              <Text style={styles.emptyTitle}>No visits scheduled</Text>
+              <Text style={styles.emptySubtext}>
+                {format(new Date(), 'EEEE, MMMM d, yyyy')}
+              </Text>
+              {error && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onPress={onRefresh}
+                  style={styles.retryButton}
+                >
+                  Try Again
+                </Button>
+              )}
+            </View>
+          )
         }
       />
     </View>
@@ -362,8 +411,45 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
     alignItems: 'center',
   },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    marginBottom: 4,
+  },
   emptyText: {
     fontSize: 16,
     color: '#9CA3AF',
+  },
+  retryButton: {
+    marginTop: 16,
+  },
+  errorBanner: {
+    backgroundColor: '#FEF2F2',
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#991B1B',
+    flex: 1,
+    marginRight: 12,
   },
 });

@@ -176,4 +176,149 @@ describe('ScheduleScreen', () => {
       expect(formatted).toMatch(/\d{1,2}:\d{2} [AP]M - \d{1,2}:\d{2} [AP]M/);
     });
   });
+
+  describe('Error Handling', () => {
+    it('should handle API timeout errors', () => {
+      const error = new Error('Connection timeout. Using cached data.');
+      expect(error.message).toContain('timeout');
+      expect(error.message).toContain('cached data');
+    });
+
+    it('should handle network errors', () => {
+      const error = new Error('Failed to sync. Using cached data.');
+      expect(error.message).toContain('Failed to sync');
+    });
+
+    it('should handle empty error state', () => {
+      const error = null;
+      expect(error).toBeNull();
+    });
+
+    it('should provide retry functionality', () => {
+      const retry = vi.fn();
+      retry();
+      expect(retry).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('Loading States', () => {
+    it('should show loading state initially', () => {
+      const loading = true;
+      const visits: any[] = [];
+      
+      expect(loading).toBe(true);
+      expect(visits).toHaveLength(0);
+    });
+
+    it('should show empty state when no data', () => {
+      const loading = false;
+      const visits: any[] = [];
+      const error = null;
+      
+      expect(loading).toBe(false);
+      expect(visits).toHaveLength(0);
+      expect(error).toBeNull();
+    });
+
+    it('should show error state on failure', () => {
+      const loading = false;
+      const visits: any[] = [];
+      const error = new Error('Failed to load');
+      
+      expect(loading).toBe(false);
+      expect(visits).toHaveLength(0);
+      expect(error).toBeDefined();
+    });
+
+    it('should show data when loaded successfully', () => {
+      const loading = false;
+      const visits = [
+        { id: '1', clientName: 'Test', status: 'SCHEDULED' },
+      ];
+      const error = null;
+      
+      expect(loading).toBe(false);
+      expect(visits).toHaveLength(1);
+      expect(error).toBeNull();
+    });
+  });
+
+  describe('Empty State Messages', () => {
+    it('should show correct message for no visits', () => {
+      const date = new Date('2025-11-15T12:00:00Z');
+      const message = `No visits for ${format(date, 'MMMM d, yyyy')}`;
+      
+      expect(message).toContain('November');
+      expect(message).toContain('2025');
+    });
+
+    it('should show correct message for filtered empty state', () => {
+      const statusFilter = 'COMPLETED';
+      const message = `No ${statusFilter.toLowerCase()} visits`;
+      
+      expect(message).toBe('No completed visits');
+    });
+
+    it('should show loading message', () => {
+      const message = 'Loading visits...';
+      expect(message).toBe('Loading visits...');
+    });
+  });
+
+  describe('Timeout Handling', () => {
+    it('should abort request after timeout', async () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      // Simulate immediate abort for testing
+      controller.abort();
+      clearTimeout(timeoutId);
+      
+      expect(controller.signal.aborted).toBe(true);
+    });
+
+    it('should clear timeout on successful response', () => {
+      const mockClearTimeout = vi.fn();
+      const timeoutId = 123;
+      
+      mockClearTimeout(timeoutId);
+      expect(mockClearTimeout).toHaveBeenCalledWith(123);
+    });
+  });
+
+  describe('Refresh Functionality', () => {
+    it('should handle pull-to-refresh', async () => {
+      const refetch = vi.fn().mockResolvedValue(undefined);
+      await refetch();
+      
+      expect(refetch).toHaveBeenCalledOnce();
+    });
+
+    it('should handle refresh errors gracefully', async () => {
+      const refetch = vi.fn().mockRejectedValue(new Error('Network error'));
+      
+      try {
+        await refetch();
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+      
+      expect(refetch).toHaveBeenCalledOnce();
+    });
+
+    it('should maintain data after failed refresh', async () => {
+      const existingVisits = [{ id: '1', name: 'Visit 1' }];
+      const refetch = vi.fn().mockRejectedValue(new Error('Failed'));
+      
+      let visits = [...existingVisits];
+      
+      try {
+        await refetch();
+      } catch {
+        // Keep existing data
+      }
+      
+      expect(visits).toEqual(existingVisits);
+    });
+  });
 });

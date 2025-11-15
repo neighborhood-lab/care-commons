@@ -51,7 +51,7 @@ export class ApiClient {
 
   constructor(config: ApiConfig) {
     this.config = {
-      timeout: 30000, // 30 seconds default
+      timeout: 10000, // 10 seconds default for mobile
       ...config,
     };
   }
