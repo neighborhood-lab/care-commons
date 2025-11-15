@@ -47,6 +47,10 @@ export const useCalendarVisits = (startDate: Date, endDate: Date, branchIds?: st
     queryKey: ['visits', 'calendar', startDate.toISOString(), endDate.toISOString(), branchIds],
     queryFn: () => visitApi.getCalendarVisits(startDate, endDate, branchIds),
     staleTime: 1 * 60 * 1000, // 1 minute
+    retry: 3, // Retry failed requests up to 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnReconnect: true, // Refetch when network reconnects
   });
 };
 
@@ -60,5 +64,9 @@ export const useCaregiverAvailability = (date: Date, branchIds?: string[]) => {
     queryKey: ['visits', 'caregiver-availability', date.toISOString(), branchIds],
     queryFn: () => visitApi.getCaregiverAvailability(date, branchIds),
     staleTime: 1 * 60 * 1000, // 1 minute
+    retry: 3, // Retry failed requests up to 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnReconnect: true, // Refetch when network reconnects
   });
 };
