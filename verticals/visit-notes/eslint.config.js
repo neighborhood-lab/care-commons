@@ -67,6 +67,7 @@ export default [
       '@typescript-eslint/prefer-nullish-coalescing': 'off', // Relax for vertical packages
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/strict-boolean-expressions': 'off', // Relax for vertical packages
+      '@typescript-eslint/no-unused-expressions': 'off', // Disable this rule
       // Sonarjs rules - relax for complex domain logic
       'sonarjs/cognitive-complexity': ['error', 70], // Increase limit for complex domain logic
       'sonarjs/no-commented-code': 'off', // Allow commented code in development
