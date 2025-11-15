@@ -41,7 +41,7 @@ export function ScheduleScreen() {
   const [checkingInOut, setCheckingInOut] = useState<string | null>(null);
 
   // Use the schedule hook for offline-first data
-  const { visits, refetch } = useSchedule({
+  const { visits, loading, error, refetch } = useSchedule({
     caregiverId: MOCK_CAREGIVER_ID,
     selectedDate,
   });
@@ -76,8 +76,6 @@ export function ScheduleScreen() {
     setRefreshing(true);
     try {
       await refetch();
-    } catch {
-      Alert.alert('Error', 'Failed to refresh schedule. Using cached data.');
     } finally {
       setRefreshing(false);
     }
@@ -275,6 +273,21 @@ export function ScheduleScreen() {
         </Pressable>
       </View>
 
+      {/* Error Banner */}
+      {error && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>⚠️ {error.message}</Text>
+          <Button
+            variant="secondary"
+            size="sm"
+            onPress={onRefresh}
+            style={styles.retryButton}
+          >
+            Retry
+          </Button>
+        </View>
+      )}
+
       {/* Visit List */}
       <FlatList
         data={filteredVisits}
@@ -352,12 +365,32 @@ export function ScheduleScreen() {
           </Card>
         )}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>
-              No {statusFilter !== 'all' ? statusFilter.toLowerCase() : ''} visits for{' '}
-              {format(selectedDate, 'MMMM d')}
-            </Text>
-          </View>
+          loading ? (
+            <View style={styles.emptyState}>
+              <ActivityIndicator size="large" color="#2563EB" />
+              <Text style={styles.emptyText}>Loading visits...</Text>
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>📅</Text>
+              <Text style={styles.emptyTitle}>
+                No {statusFilter !== 'all' ? statusFilter.toLowerCase() + ' ' : ''}visits
+              </Text>
+              <Text style={styles.emptyText}>
+                {format(selectedDate, 'MMMM d, yyyy')}
+              </Text>
+              {error && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onPress={onRefresh}
+                  style={styles.emptyRetryButton}
+                >
+                  Retry Connection
+                </Button>
+              )}
+            </View>
+          )
         }
       />
     </View>
@@ -523,9 +556,44 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
     alignItems: 'center',
   },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
   emptyText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#9CA3AF',
     textAlign: 'center',
+  },
+  emptyRetryButton: {
+    marginTop: 16,
+  },
+  errorBanner: {
+    backgroundColor: '#FEF2F2',
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#991B1B',
+    flex: 1,
+    marginRight: 12,
+  },
+  retryButton: {
+    minWidth: 80,
   },
 });

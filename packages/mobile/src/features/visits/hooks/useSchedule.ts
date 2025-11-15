@@ -38,69 +38,89 @@ export function useSchedule({
    */
   const refetch = useCallback(async () => {
     setLoading(true);
+    setError(null);
     
-    // Fetch from API
+    // Fetch from API with timeout
     try {
       const apiClient = getApiClient();
       const weekStart = startOfWeek(selectedDate, { weekStartsOn: 0 });
       const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 0 });
 
-      const response = await apiClient.get<{ visits: any[] }>(
-        `/api/visits/my-visits?start_date=${weekStart.toISOString()}&end_date=${weekEnd.toISOString()}`
-      );
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-      // Sync to local database
-      await database.write(async () => {
-        const visitsCollection = database.get<Visit>('visits');
-        
-        for (const apiVisit of response.data.visits) {
-          try {
-            // Try to find existing visit
-            const existingVisit = await visitsCollection.find(apiVisit.id);
-            await existingVisit.update((visit: any) => {
-              visit.organizationId = apiVisit.organizationId;
-              visit.branchId = apiVisit.branchId;
-              visit.clientId = apiVisit.clientId;
-              visit.caregiverId = apiVisit.caregiverId;
-              visit.scheduledStartTime = new Date(apiVisit.scheduledStartTime);
-              visit.scheduledEndTime = new Date(apiVisit.scheduledEndTime);
-              visit.scheduledDuration = apiVisit.scheduledDuration;
-              visit.clientName = apiVisit.clientName;
-              visit.clientAddress = apiVisit.clientAddress;
-              visit.serviceTypeCode = apiVisit.serviceTypeCode;
-              visit.serviceTypeName = apiVisit.serviceTypeName;
-              visit.status = apiVisit.status;
-              visit.evvRecordId = apiVisit.evvRecordId;
-              visit.isSynced = true;
-              visit.syncPending = false;
-            });
-          } catch {
-            // Create new visit if not found
-            await visitsCollection.create((visit: any) => {
-              visit._raw.id = apiVisit.id;
-              visit.organizationId = apiVisit.organizationId;
-              visit.branchId = apiVisit.branchId;
-              visit.clientId = apiVisit.clientId;
-              visit.caregiverId = apiVisit.caregiverId;
-              visit.scheduledStartTime = new Date(apiVisit.scheduledStartTime);
-              visit.scheduledEndTime = new Date(apiVisit.scheduledEndTime);
-              visit.scheduledDuration = apiVisit.scheduledDuration;
-              visit.clientName = apiVisit.clientName;
-              visit.clientAddress = apiVisit.clientAddress;
-              visit.serviceTypeCode = apiVisit.serviceTypeCode;
-              visit.serviceTypeName = apiVisit.serviceTypeName;
-              visit.status = apiVisit.status;
-              visit.evvRecordId = apiVisit.evvRecordId;
-              visit.isSynced = true;
-              visit.syncPending = false;
-              visit.lastModifiedAt = new Date();
-              visit.serverVersion = 1;
-            });
+      try {
+        const response = await apiClient.get<{ visits: any[] }>(
+          `/api/visits/my-visits?start_date=${weekStart.toISOString()}&end_date=${weekEnd.toISOString()}`,
+          { signal: controller.signal }
+        );
+
+        clearTimeout(timeoutId);
+
+        // Sync to local database
+        await database.write(async () => {
+          const visitsCollection = database.get<Visit>('visits');
+          
+          for (const apiVisit of response.data.visits) {
+            try {
+              // Try to find existing visit
+              const existingVisit = await visitsCollection.find(apiVisit.id);
+              await existingVisit.update((visit: any) => {
+                visit.organizationId = apiVisit.organizationId;
+                visit.branchId = apiVisit.branchId;
+                visit.clientId = apiVisit.clientId;
+                visit.caregiverId = apiVisit.caregiverId;
+                visit.scheduledStartTime = new Date(apiVisit.scheduledStartTime);
+                visit.scheduledEndTime = new Date(apiVisit.scheduledEndTime);
+                visit.scheduledDuration = apiVisit.scheduledDuration;
+                visit.clientName = apiVisit.clientName;
+                visit.clientAddress = apiVisit.clientAddress;
+                visit.serviceTypeCode = apiVisit.serviceTypeCode;
+                visit.serviceTypeName = apiVisit.serviceTypeName;
+                visit.status = apiVisit.status;
+                visit.evvRecordId = apiVisit.evvRecordId;
+                visit.isSynced = true;
+                visit.syncPending = false;
+              });
+            } catch {
+              // Create new visit if not found
+              await visitsCollection.create((visit: any) => {
+                visit._raw.id = apiVisit.id;
+                visit.organizationId = apiVisit.organizationId;
+                visit.branchId = apiVisit.branchId;
+                visit.clientId = apiVisit.clientId;
+                visit.caregiverId = apiVisit.caregiverId;
+                visit.scheduledStartTime = new Date(apiVisit.scheduledStartTime);
+                visit.scheduledEndTime = new Date(apiVisit.scheduledEndTime);
+                visit.scheduledDuration = apiVisit.scheduledDuration;
+                visit.clientName = apiVisit.clientName;
+                visit.clientAddress = apiVisit.clientAddress;
+                visit.serviceTypeCode = apiVisit.serviceTypeCode;
+                visit.serviceTypeName = apiVisit.serviceTypeName;
+                visit.status = apiVisit.status;
+                visit.evvRecordId = apiVisit.evvRecordId;
+                visit.isSynced = true;
+                visit.syncPending = false;
+                visit.lastModifiedAt = new Date();
+                visit.serverVersion = 1;
+              });
+            }
           }
+        });
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err instanceof Error && err.name === 'AbortError') {
+          console.warn('API request timeout, using cached data');
+          setError(new Error('Connection timeout. Using cached data.'));
+        } else {
+          console.warn('Failed to fetch visits from API, using cached data:', err);
+          setError(err instanceof Error ? err : new Error('Failed to sync. Using cached data.'));
         }
-      });
+      }
     } catch (err) {
-      console.warn('Failed to fetch visits from API, using cached data:', err);
+      console.warn('API client initialization error:', err);
+      setError(err instanceof Error ? err : new Error('Unable to connect to server'));
     }
     
     // Load from database
@@ -118,13 +138,15 @@ export function useSchedule({
       const visitRecords = await query.fetch();
       const mappedVisits = visitRecords.map(mapVisitToMobileVisit);
       setVisits(mappedVisits);
-      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load visits'));
+      // Only set error if we don't have one from API fetch
+      if (!error) {
+        setError(err instanceof Error ? err : new Error('Failed to load visits from local storage'));
+      }
     } finally {
       setLoading(false);
     }
-  }, [caregiverId, selectedDate]);
+  }, [caregiverId, selectedDate, error]);
 
   /**
    * Initial load and subscription
