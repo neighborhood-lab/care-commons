@@ -533,6 +533,7 @@ function generateClient(
   const email = faker.internet.email({ firstName: emailFirstName, lastName: emailLastName }).toLowerCase();
 
   // Emergency contact (often family member with same last name)
+  const emergencyGender = Math.random() < 0.5 ? 'MALE' : 'FEMALE';
   const emergencyFirstName = randomElement(
     emergencyGender === 'MALE'
       ? [...TEXAS_NAMES.anglo.firstNames.male]
