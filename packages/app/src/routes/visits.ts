@@ -616,8 +616,8 @@ export function createVisitRouter(db: Database): Router {
         }
 
         // Ensure user has access to requested branches
-        const userBranchIds = context.branchIds ?? [];
-        const unauthorizedBranches = branchIds.filter(id => !userBranchIds.includes(id));
+        const userBranchIds: string[] = context.branchIds ?? [];
+        const unauthorizedBranches = branchIds.filter(id => userBranchIds.includes(id) === false);
         if (unauthorizedBranches.length > 0) {
           res.status(403).json({
             success: false,
