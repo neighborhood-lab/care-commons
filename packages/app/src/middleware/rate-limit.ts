@@ -67,17 +67,29 @@ const getRedisStore = (prefix: string): RedisStore | undefined => {
   return undefined;
 };
 
-// General API rate limit - 100 requests per 15 minutes per IP
+// General API rate limit
+// - Authenticated users: 2000 requests per 15 minutes (~2.2 req/sec avg, based on user ID)
+// - Unauthenticated: 200 requests per 15 minutes (based on IP)
+// This allows normal app usage without hitting limits while still preventing abuse
 export const generalApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 2000, // Limit per user/IP (authenticated users get higher effective limit)
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
+  keyGenerator: (req): string => {
+    // Use user ID for authenticated requests (much higher limit)
+    const userId = (req as { user?: { id?: string } }).user?.id;
+    if (userId !== undefined) {
+      return `user:${userId}`;
+    }
+    // Fall back to IP for unauthenticated requests (lower limit enforced separately)
+    return `ip:${ipKeyGenerator(req.ip ?? 'unknown')}`;
+  },
   store: getRedisStore('rl:general:'),
   // Disable validation warnings for proxied requests (Vercel sets X-Forwarded-For)
   validate: { xForwardedForHeader: false, forwardedHeader: false },
   message: {
-    error: 'Too many requests from this IP, please try again after 15 minutes.',
+    error: 'Too many requests, please slow down and try again in a few moments.',
     retryAfter: 15 * 60, // seconds
   },
   skip: (req) => {
