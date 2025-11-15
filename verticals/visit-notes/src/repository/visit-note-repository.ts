@@ -531,6 +531,7 @@ export class VisitNoteRepository {
       createdBy: row.created_by,
       updatedAt: row.updated_at,
       updatedBy: row.updated_by,
+      version: row.version,
       deletedAt: row.deleted_at,
       deletedBy: row.deleted_by,
     };

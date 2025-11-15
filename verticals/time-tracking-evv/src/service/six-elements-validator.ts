@@ -224,16 +224,19 @@ export class SixElementsValidator {
    */
   private validateServiceType(data: EVVDataInput): ElementValidationResult {
     const isPresent = Boolean(data.serviceTypeCode);
-    const isValid = isPresent && data.serviceTypeCode!.length > 0;
+    const isValid = isPresent && Boolean(data.serviceTypeName);
+
+    const serviceTypeSuffix = data.serviceTypeName ? ` (${data.serviceTypeName})` : '';
+    const validationMessage = isValid
+      ? `Service type code: ${data.serviceTypeCode}${serviceTypeSuffix}`
+      : 'Service type code is required';
 
     return {
       element: 'SERVICE_TYPE',
       isPresent,
       isValid,
       value: data.serviceTypeCode,
-      validationMessage: isValid
-        ? `Service type code: ${data.serviceTypeCode}${data.serviceTypeName ? ` (${data.serviceTypeName})` : ''}`
-        : 'Service type code is required',
+      validationMessage,
       required: true,
     };
   }
@@ -291,7 +294,8 @@ export class SixElementsValidator {
     } else if (this.config.requireNPI && !hasNPI) {
       message = 'Caregiver NPI (National Provider Identifier) is required for Texas compliance';
     } else {
-      message = `Caregiver: ${data.caregiverName || data.caregiverId} (Employee ID: ${data.caregiverEmployeeId})${hasNPI ? ` (NPI: ${data.caregiverNPI})` : ''}`;
+      const npiSuffix = hasNPI ? ` (NPI: ${data.caregiverNPI})` : '';
+      message = `Caregiver: ${data.caregiverName || data.caregiverId} (Employee ID: ${data.caregiverEmployeeId})${npiSuffix}`;
     }
 
     return {
@@ -351,7 +355,8 @@ export class SixElementsValidator {
       const location = hasAddress
         ? data.serviceLocationAddress
         : `${data.serviceLocationLatitude}, ${data.serviceLocationLongitude}`;
-      message = `Service location: ${location}${hasGPSVerification ? ` (Verified: ${data.locationVerificationMethod})` : ''}`;
+      const verificationSuffix = hasGPSVerification ? ` (Verified: ${data.locationVerificationMethod})` : '';
+      message = `Service location: ${location}${verificationSuffix}`;
     }
 
     return {
@@ -386,7 +391,8 @@ export class SixElementsValidator {
     } else if (this.config.requireCompletedVisit && !hasClockOut) {
       message = 'Clock-out time is required for completed visits';
     } else if (hasClockOut) {
-      message = `Service time: ${data.clockInTime!.toISOString()} to ${data.clockOutTime!.toISOString()}${hasDuration ? ` (${data.totalDuration} minutes)` : ''}`;
+      const durationSuffix = hasDuration ? ` (${data.totalDuration} minutes)` : '';
+      message = `Service time: ${data.clockInTime!.toISOString()} to ${data.clockOutTime!.toISOString()}${durationSuffix}`;
     } else {
       message = `Service started: ${data.clockInTime!.toISOString()} (in progress)`;
     }

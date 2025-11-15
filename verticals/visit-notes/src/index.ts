@@ -42,13 +42,6 @@ export {
   updateNoteTemplateSchema,
   visitNoteSearchFiltersSchema,
   templateSearchFiltersSchema,
-  type CreateVisitNoteInput,
-  type UpdateVisitNoteInput,
-  type AddSignatureInput,
-  type CreateNoteTemplateInput,
-  type UpdateNoteTemplateInput,
-  type VisitNoteSearchFilters,
-  type TemplateSearchFilters,
 } from './validation/index.js';
 
 // Repositories

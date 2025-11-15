@@ -49,7 +49,6 @@ const DEFAULT_CONFIG: SubmissionWorkerConfig = {
  * Automatically retries failed EVV aggregator submissions.
  */
 export class SubmissionWorker {
-  // eslint-disable-next-line no-undef
   private intervalId: NodeJS.Timeout | null = null;
   private isRunning = false;
   private config: SubmissionWorkerConfig;
