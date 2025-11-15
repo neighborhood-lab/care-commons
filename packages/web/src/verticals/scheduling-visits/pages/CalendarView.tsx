@@ -46,7 +46,7 @@ export const CalendarView: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<View>('week');
   const [showAvailability, setShowAvailability] = useState(false);
-  const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
+  const [selectedBranches, _setSelectedBranches] = useState<string[]>([]);
 
   // Calculate date range for calendar based on current view
   const { startDate, endDate } = useMemo(() => {
@@ -128,9 +128,9 @@ export const CalendarView: React.FC = () => {
   }, [visits, caregiverColorMap]);
 
   // Handle event drop (drag and drop reassignment)
-  const handleEventDrop = useCallback(async ({ event, start, end }: { event: CalendarEvent; start: Date; end: Date }) => {
+  const handleEventDrop = useCallback(async ({ event, start: _start, end: _end }: { event: CalendarEvent; start: Date; end: Date }) => {
     try {
-      const visit = event.resource;
+      const _visit = event.resource;
 
       // Note: Time adjustment via drag-and-drop not yet implemented
       // In a full implementation, we'd update the visit time
@@ -157,7 +157,7 @@ export const CalendarView: React.FC = () => {
 
   // Handle event selection
   const handleSelectEvent = useCallback((event: CalendarEvent) => {
-    const visit = event.resource;
+    const _visit = event.resource;
     // Note: Visit detail modal to be implemented in future iteration
     toast(`Visit: ${event.title}`, {
       duration: 2000,
@@ -165,7 +165,7 @@ export const CalendarView: React.FC = () => {
   }, []);
 
   // Handle slot selection (creating new visit)
-  const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
+  const handleSelectSlot = useCallback((_slotInfo: SlotInfo) => {
     // Note: Create visit modal to be implemented in future iteration
     toast('Create visit not yet implemented', { duration: 2000 });
   }, []);
@@ -185,7 +185,7 @@ export const CalendarView: React.FC = () => {
   }, []);
 
   // Check for conflicts when assigning
-  const checkAndAssignCaregiver = useCallback(async (visitId: string, caregiverId: string) => {
+  const _checkAndAssignCaregiver = useCallback(async (visitId: string, caregiverId: string) => {
     try {
       // Check for conflicts
       const conflictResult = await visitApi.checkConflicts(visitId, caregiverId);
@@ -339,7 +339,7 @@ export const CalendarView: React.FC = () => {
             eventPropGetter={eventStyleGetter}
             selectable
             resizable
-            draggableAccessor={(event) => {
+            draggableAccessor={(_event) => {
               // Only allow dragging for coordinators and admins
               return user?.roles.some(role => ['COORDINATOR', 'ORG_ADMIN', 'SUPER_ADMIN'].includes(role)) ?? false;
             }}
