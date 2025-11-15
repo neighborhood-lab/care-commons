@@ -23,20 +23,24 @@ fi
 
 echo "✅ Using Node.js $(node --version)"
 
+echo "🧹 Clearing turbo cache..."
+npx turbo daemon clean
+rm -rf .turbo node_modules/.cache
+
 echo "🧹 Clean install..."
 npm ci
 
 echo "🔍 Running linting..."
-npx turbo run lint
+npx turbo run lint --force
 
 echo "🔎 Running type checks..."
-npx turbo run typecheck
+npx turbo run typecheck --force
 
 echo "🧪 Running tests with coverage..."
-npx turbo run test:coverage --concurrency=4
+npx turbo run test:coverage --force --concurrency=4
 
 echo "🏗️  Building project..."
-npx turbo run build
+npx turbo run build --force
 
 echo "🗄️  Setting up database with comprehensive demo data..."
 npm run db:nuke
