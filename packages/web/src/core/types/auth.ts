@@ -1,4 +1,21 @@
-export type Role = 'ADMIN' | 'COORDINATOR' | 'CAREGIVER' | 'BILLING' | 'FAMILY';
+export type Role =
+  | 'SUPER_ADMIN'
+  | 'ORG_ADMIN'
+  | 'BRANCH_ADMIN'
+  | 'ADMIN'
+  | 'COORDINATOR'
+  | 'SCHEDULER'
+  | 'CAREGIVER'
+  | 'FAMILY'
+  | 'CLIENT'
+  | 'BILLING'
+  | 'HR'
+  | 'AUDITOR'
+  | 'READ_ONLY'
+  | 'NURSE'
+  | 'CLINICAL'
+  | 'NURSE_RN'
+  | 'NURSE_LPN';
 
 export interface User {
   id: string;

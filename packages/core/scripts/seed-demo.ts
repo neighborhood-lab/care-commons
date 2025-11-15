@@ -440,7 +440,7 @@ function selectMedicalCondition(age: number) {
 }
 
 // Helper to generate realistic Texas address
-function generateTexasAddress(location: typeof TEXAS_LOCATIONS[0]): {
+function generateTexasAddress(location: typeof TEXAS_LOCATIONS[number]): {
   street: string;
   city: string;
   zipCode: string;
@@ -750,12 +750,12 @@ function generateVisit(
   }
 
   let status = 'SCHEDULED';
-  let actualStart = null;
-  let actualEnd = null;
-  let evvClockInGPS = null;
-  let evvClockOutGPS = null;
-  let evvVerificationMethod = null;
-  let notes = null;
+  let actualStart: Date | null = null;
+  let actualEnd: Date | null = null;
+  let evvClockInGPS: { lat: number; lng: number } | null = null;
+  let evvClockOutGPS: { lat: number; lng: number } | null = null;
+  let evvVerificationMethod: 'BIOMETRIC' | 'GPS' | 'PHONE' | null = null;
+  let notes: string | null = null;
 
   // Past visits are completed
   if (dayOffset < 0) {
@@ -810,7 +810,8 @@ function generateVisit(
             lat: clientCoordinates.lat + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
             lng: clientCoordinates.lng + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
           };
-          // evvClockOutGPS remains null (Missing clock-out)
+          // eslint-disable-next-line sonarjs/no-redundant-assignments
+          evvClockOutGPS = null; // Missing clock-out (explicit for clarity)
           evvVerificationMethod = 'BIOMETRIC';
           notes = 'All ADLs completed. (Note: Missed clock-out - coordinator follow-up required)';
         } else {
@@ -1420,7 +1421,7 @@ async function seedDatabase() {
             Math.round((new Date(visit.scheduledEnd).getTime() - new Date(visit.scheduledStart).getTime()) / 60000), // scheduled_duration in minutes
             visit.actualStart, // actual_start_time
             visit.actualEnd, // actual_end_time
-            visit.actualEnd ? Math.round((new Date(visit.actualEnd).getTime() - new Date(visit.actualStart).getTime()) / 60000) : null, // actual_duration
+            visit.actualEnd && visit.actualStart ? Math.round((new Date(visit.actualEnd).getTime() - new Date(visit.actualStart).getTime()) / 60000) : null, // actual_duration
             JSON.stringify({ type: 'HOME', line1: '123 Main St', city: 'Anytown', state: 'CA', postalCode: '12345', country: 'US' }), // address (placeholder)
             visit.status,
             visit.notes,
@@ -1981,7 +1982,7 @@ async function seedDatabase() {
 
       console.log(`📅 Creating visits for Gertrude...`);
 
-      const gertrudeVisits = [];
+      const gertrudeVisits: Array<{ id: string; caregiverId: string; scheduledStart: Date; scheduledEnd?: Date; actualStart?: Date; actualEnd?: Date; status: string }> = [];
 
       // Create 3 visits today
       for (let i = 0; i < 3; i++) {
