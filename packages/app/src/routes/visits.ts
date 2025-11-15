@@ -18,17 +18,17 @@ export function createVisitRouter(db: Database): Router {
   /**
    * GET /api/visits/my-visits
    * Get visits assigned to the authenticated caregiver within a date range
-   * 
+   *
    * Query params:
    * - start_date: Start date (YYYY-MM-DD format)
    * - end_date: End date (YYYY-MM-DD format)
-   * 
+   *
    * Returns: Array of visits with client information
    */
   router.get('/my-visits', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const context = req.userContext!;
-      
+
       // Validate query parameters
       const startDateStr = req.query['start_date'] as string | undefined;
       const endDateStr = req.query['end_date'] as string | undefined;
@@ -72,10 +72,45 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      // Get caregiver ID from user context
-      // For now, we'll use the userId directly. In production, we'd look up the caregiver
-      // record linked to this user (via email or user_id field when added)
-      const caregiverId = context.userId;
+      // Look up the user's email to find their caregiver record
+      const userResult = await db.query(
+        `SELECT email FROM users WHERE id = $1`,
+        [context.userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        res.status(404).json({
+          success: false,
+          error: 'User not found',
+        });
+        return;
+      }
+
+      const userEmail = (userResult.rows[0] as { email: string }).email;
+
+      // Find caregiver record by email
+      const caregiverResult = await db.query(
+        `SELECT id FROM caregivers WHERE email = $1 AND deleted_at IS NULL`,
+        [userEmail]
+      );
+
+      if (caregiverResult.rows.length === 0) {
+        // User doesn't have a caregiver record - return empty array
+        // This is valid for coordinators, admins, etc.
+        res.json({
+          success: true,
+          data: [],
+          meta: {
+            startDate: startDateStr,
+            endDate: endDateStr,
+            count: 0,
+            message: 'No caregiver record found for this user',
+          },
+        });
+        return;
+      }
+
+      const caregiverId = (caregiverResult.rows[0] as { id: string }).id;
 
       // Fetch visits
       const repository = new ScheduleRepository(db.getPool());
@@ -155,7 +190,7 @@ export function createVisitRouter(db: Database): Router {
 
       // Verify visit exists and user has access
       const visitCheck = await db.query(
-        `SELECT id, caregiver_id, organization_id, status
+        `SELECT id, assigned_caregiver_id, organization_id, status
          FROM visits
          WHERE id = $1 AND deleted_at IS NULL`,
         [visitId]
@@ -169,14 +204,22 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      const visit = visitCheck.rows[0] as { id: string; caregiver_id: string; organization_id: string; status: string };
+      const visit = visitCheck.rows[0] as { id: string; assigned_caregiver_id: string | null; organization_id: string; status: string };
 
       // Verify user is the assigned caregiver or has admin access
       // For now, we'll allow if user is the caregiver
       // NOTE: Future enhancement - add organization-level access control
+      if (visit.assigned_caregiver_id == null) {
+        res.status(400).json({
+          success: false,
+          error: 'Visit is not assigned to a caregiver',
+        });
+        return;
+      }
+
       const caregiverCheck = await db.query(
         `SELECT id FROM caregivers WHERE id = $1 AND deleted_at IS NULL`,
-        [visit.caregiver_id]
+        [visit.assigned_caregiver_id]
       );
 
       if (caregiverCheck.rows.length === 0) {
@@ -672,7 +715,7 @@ export function createVisitRouter(db: Database): Router {
         const conflicts = await db.query(
           `SELECT id, scheduled_start_time, scheduled_end_time, client_id
            FROM visits
-           WHERE caregiver_id = $1
+           WHERE assigned_caregiver_id = $1
              AND scheduled_date = $2
              AND deleted_at IS NULL
              AND status NOT IN ('CANCELLED', 'COMPLETED', 'NO_SHOW_CAREGIVER')
@@ -697,7 +740,7 @@ export function createVisitRouter(db: Database): Router {
       // Assign caregiver to visit
       const result = await db.query(
         `UPDATE visits
-         SET caregiver_id = $1,
+         SET assigned_caregiver_id = $1,
              assigned_at = NOW(),
              assignment_method = 'MANUAL',
              status = CASE
@@ -784,7 +827,7 @@ export function createVisitRouter(db: Database): Router {
                 v.address
          FROM visits v
          LEFT JOIN clients c ON v.client_id = c.id
-         WHERE v.caregiver_id = $1
+         WHERE v.assigned_caregiver_id = $1
            AND v.scheduled_date = $2
            AND v.deleted_at IS NULL
            AND v.status NOT IN ('CANCELLED', 'COMPLETED', 'NO_SHOW_CAREGIVER')
@@ -867,7 +910,7 @@ export function createVisitRouter(db: Database): Router {
              '[]'
            ) as visits
          FROM caregivers cg
-         LEFT JOIN visits v ON cg.id = v.caregiver_id
+         LEFT JOIN visits v ON cg.id = v.assigned_caregiver_id
            AND v.scheduled_date = $1
            AND v.deleted_at IS NULL
            AND v.status NOT IN ('CANCELLED', 'COMPLETED', 'NO_SHOW_CAREGIVER')
@@ -875,7 +918,7 @@ export function createVisitRouter(db: Database): Router {
          WHERE cg.organization_id = $2
            AND cg.deleted_at IS NULL
            AND cg.status = 'ACTIVE'
-           AND ($3::uuid[] IS NULL OR cg.branch_id = ANY($3::uuid[]))
+           AND ($3::uuid[] IS NULL OR cg.branch_ids && $3::uuid[])
          GROUP BY cg.id, cg.first_name, cg.last_name, cg.status
          ORDER BY cg.last_name, cg.first_name`,
         [date, context.organizationId, branchIds.length > 0 ? branchIds : null]
