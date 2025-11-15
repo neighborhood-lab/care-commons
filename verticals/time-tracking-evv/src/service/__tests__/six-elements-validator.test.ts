@@ -275,6 +275,7 @@ describe('SixElementsValidator', () => {
 
     it('should identify multiple missing elements', () => {
       const data: EVVDataInput = {
+        ...validEVVData,
         serviceTypeCode: undefined,
         clientId: undefined,
         caregiverId: undefined,

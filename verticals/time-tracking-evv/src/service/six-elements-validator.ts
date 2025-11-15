@@ -224,7 +224,7 @@ export class SixElementsValidator {
    */
   private validateServiceType(data: EVVDataInput): ElementValidationResult {
     const isPresent = Boolean(data.serviceTypeCode);
-    const isValid = isPresent && Boolean(data.serviceTypeName);
+    const isValid = isPresent; // Federal requirement: only code is required, name is optional
 
     const serviceTypeSuffix = data.serviceTypeName ? ` (${data.serviceTypeName})` : '';
     const validationMessage = isValid
@@ -392,9 +392,18 @@ export class SixElementsValidator {
       message = 'Clock-out time is required for completed visits';
     } else if (hasClockOut) {
       const durationSuffix = hasDuration ? ` (${data.totalDuration} minutes)` : '';
-      message = `Service time: ${data.clockInTime!.toISOString()} to ${data.clockOutTime!.toISOString()}${durationSuffix}`;
+      const clockInStr = data.clockInTime instanceof Date && !isNaN(data.clockInTime.getTime())
+        ? data.clockInTime.toISOString()
+        : 'Invalid date';
+      const clockOutStr = data.clockOutTime instanceof Date && !isNaN(data.clockOutTime.getTime())
+        ? data.clockOutTime.toISOString()
+        : 'Invalid date';
+      message = `Service time: ${clockInStr} to ${clockOutStr}${durationSuffix}`;
     } else {
-      message = `Service started: ${data.clockInTime!.toISOString()} (in progress)`;
+      const clockInStr = data.clockInTime instanceof Date && !isNaN(data.clockInTime.getTime())
+        ? data.clockInTime.toISOString()
+        : 'Invalid date';
+      message = `Service started: ${clockInStr} (in progress)`;
     }
 
     return {
@@ -418,7 +427,7 @@ export class SixElementsValidator {
     texasCompliant: boolean
   ): string {
     if (isValid) {
-      return `All six required EVV elements are present and valid. ${federalCompliant ? 'Federal compliant.' : ''} ${texasCompliant ? 'Texas HHSC compliant.' : ''}`;
+      return `all six required EVV elements are present and valid. ${federalCompliant ? 'Federal compliant.' : ''} ${texasCompliant ? 'Texas HHSC compliant.' : ''}`;
     }
 
     const parts: string[] = [];

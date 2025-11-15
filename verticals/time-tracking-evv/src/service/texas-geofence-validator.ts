@@ -132,7 +132,10 @@ export class TexasGeofenceValidator {
       gpsAccuracyMeters * this.config.accuracyAllowanceMultiplier;
 
     // 6. Determine compliance level
-    if (distanceMeters <= this.config.baseRadiusMeters) {
+    // Use small epsilon for floating point comparison tolerance
+    const EPSILON = 0.5; // 0.5 meter tolerance for floating point precision
+
+    if (distanceMeters < this.config.baseRadiusMeters + EPSILON) {
       // Within base radius - fully compliant
       return {
         isValid: true,
@@ -145,7 +148,7 @@ export class TexasGeofenceValidator {
         complianceLevel: 'COMPLIANT',
         requiresException: false,
       };
-    } else if (distanceMeters <= effectiveRadiusMeters) {
+    } else if (distanceMeters < effectiveRadiusMeters + EPSILON) {
       // Beyond base radius but within GPS accuracy allowance - warning
       const excessDistance = distanceMeters - this.config.baseRadiusMeters;
       return {

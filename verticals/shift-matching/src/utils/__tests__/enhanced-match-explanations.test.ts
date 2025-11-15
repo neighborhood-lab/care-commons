@@ -16,6 +16,8 @@ describe('EnhancedMatchExplanations', () => {
     id: 'caregiver-1',
     organizationId: 'org-1',
     branchIds: ['branch-1'],
+    primaryBranchId: 'branch-1',
+    employeeNumber: 'EMP-001',
     firstName: 'Sarah',
     lastName: 'Johnson',
     gender: 'FEMALE',
@@ -23,60 +25,97 @@ describe('EnhancedMatchExplanations', () => {
     primaryPhone: {
       number: '555-0123',
       type: 'MOBILE',
+      canReceiveSMS: true,
       isPrimary: true,
     },
-    primaryEmail: {
-      email: 'sarah.johnson@example.com',
-      type: 'PERSONAL',
-      isPrimary: true,
+    email: 'sarah.johnson@example.com',
+    preferredContactMethod: 'SMS',
+    primaryAddress: {
+      type: 'HOME',
+      line1: '123 Main St',
+      city: 'Austin',
+      state: 'TX',
+      postalCode: '78701',
+      country: 'US',
     },
-    employmentType: 'W2_FULL_TIME',
+    emergencyContacts: [],
+    employmentType: 'FULL_TIME',
     employmentStatus: 'ACTIVE',
     hireDate: new Date('2020-01-15'),
+    role: 'HOME_HEALTH_AIDE',
+    permissions: [],
     maxHoursPerWeek: 40,
-    skills: [
-      {
-        name: 'Dementia Care',
-        proficiencyLevel: 'EXPERT',
-        yearsExperience: 5,
-        certified: true,
-      },
-      {
-        name: 'Medication Management',
-        proficiencyLevel: 'INTERMEDIATE',
-        yearsExperience: 3,
-        certified: false,
-      },
-    ],
     credentials: [
       {
         id: 'cred-1',
         type: 'HHA',
+        name: 'Home Health Aide',
         status: 'ACTIVE',
         number: 'HHA-123456',
-        issuedBy: 'State Board',
-        issuedAt: new Date('2020-01-01'),
-        expiresAt: new Date('2026-01-01'),
-        verifiedAt: new Date('2020-01-01'),
-        document: { url: '', name: '' },
+        issuingAuthority: 'State Board',
+        issueDate: new Date('2020-01-01'),
+        expirationDate: new Date('2026-01-01'),
+        verifiedDate: new Date('2020-01-01'),
       },
       {
         id: 'cred-2',
         type: 'CPR',
+        name: 'CPR Certification',
         status: 'ACTIVE',
         number: 'CPR-789',
-        issuedBy: 'Red Cross',
-        issuedAt: new Date('2024-01-01'),
-        expiresAt: new Date('2026-01-01'),
-        verifiedAt: new Date('2024-01-01'),
-        document: { url: '', name: '' },
+        issuingAuthority: 'Red Cross',
+        issueDate: new Date('2024-01-01'),
+        expirationDate: new Date('2026-01-01'),
+        verifiedDate: new Date('2024-01-01'),
       },
     ],
+    training: [],
+    skills: [
+      {
+        id: 'skill-1',
+        name: 'Dementia Care',
+        category: 'Clinical',
+        proficiencyLevel: 'EXPERT',
+        certifiedDate: new Date('2020-01-01'),
+      },
+      {
+        id: 'skill-2',
+        name: 'Medication Management',
+        category: 'Clinical',
+        proficiencyLevel: 'INTERMEDIATE',
+        certifiedDate: new Date('2021-01-01'),
+      },
+    ],
+    specializations: [],
+    availability: {
+      schedule: {
+        monday: { available: true },
+        tuesday: { available: true },
+        wednesday: { available: true },
+        thursday: { available: true },
+        friday: { available: true },
+        saturday: { available: false },
+        sunday: { available: false },
+      },
+      lastUpdated: new Date('2024-01-01'),
+    },
+    workPreferences: {
+      preferredDays: ['MONDAY', 'TUESDAY', 'WEDNESDAY'],
+    },
+    payRate: {
+      id: 'pay-1',
+      rateType: 'BASE',
+      amount: 18.50,
+      unit: 'HOURLY',
+      effectiveDate: new Date('2020-01-01'),
+    },
     languages: ['English', 'Spanish'],
     complianceStatus: 'COMPLIANT',
-    preferredDays: ['MONDAY', 'TUESDAY', 'WEDNESDAY'],
+    status: 'ACTIVE',
     createdAt: new Date('2020-01-01'),
+    createdBy: 'admin-1',
     updatedAt: new Date('2024-01-01'),
+    updatedBy: 'admin-1',
     version: 1,
   };
 
@@ -111,7 +150,9 @@ describe('EnhancedMatchExplanations', () => {
     matchingStatus: 'NEW',
     matchAttempts: 0,
     createdAt: new Date('2025-11-14'),
+    createdBy: 'admin-1',
     updatedAt: new Date('2025-11-14'),
+    updatedBy: 'admin-1',
     version: 1,
   };
 
@@ -191,8 +232,9 @@ describe('EnhancedMatchExplanations', () => {
       expect(proximityExplanation!.details.length).toBeGreaterThan(0);
 
       const distanceDetail = proximityExplanation!.details[0];
-      expect(distanceDetail.caregiverAttribute).toContain('12.3 miles');
-      expect(distanceDetail.explanation).toContain('minute drive');
+      expect(distanceDetail).toBeDefined();
+      expect(distanceDetail!.caregiverAttribute).toContain('12.3 miles');
+      expect(distanceDetail!.explanation).toContain('minute drive');
     });
 
     it('should include availability explanation with schedule info', () => {
@@ -208,8 +250,9 @@ describe('EnhancedMatchExplanations', () => {
       expect(availabilityExplanation!.overallImpact).toBe('POSITIVE');
 
       const availabilityDetail = availabilityExplanation!.details[0];
-      expect(availabilityDetail.match).toBe('PERFECT');
-      expect(availabilityDetail.explanation).toContain('clear');
+      expect(availabilityDetail).toBeDefined();
+      expect(availabilityDetail!.match).toBe('PERFECT');
+      expect(availabilityDetail!.explanation).toContain('clear');
     });
 
     it('should include preference explanation with language match', () => {
