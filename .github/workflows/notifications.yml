@@ -133,3 +133,92 @@ jobs:
           echo "  - EMAIL_FROM (optional)"
           echo "  - EMAIL_PORT (optional, defaults to 587)"
           exit 0
+
+  notify-discord:
+    name: Send Discord Notification
+    runs-on: ubuntu-latest
+    if: always() && github.event.workflow_run.name == 'CI' && github.event.workflow_run.head_branch == 'develop' && github.event.workflow_run.conclusion != 'skipped'
+    env:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    steps:
+      - name: Determine status emoji and color
+        id: status
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+            echo "color=3066993" >> $GITHUB_OUTPUT
+            echo "status_text=SUCCESS" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.conclusion }}" == "failure" ]; then
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+            echo "color=15158332" >> $GITHUB_OUTPUT
+            echo "status_text=FAILED" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.conclusion }}" == "cancelled" ]; then
+            echo "emoji=⚠️" >> $GITHUB_OUTPUT
+            echo "color=16776960" >> $GITHUB_OUTPUT
+            echo "status_text=CANCELLED" >> $GITHUB_OUTPUT
+          else
+            echo "emoji=⚠️" >> $GITHUB_OUTPUT
+            echo "color=16776960" >> $GITHUB_OUTPUT
+            echo "status_text=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Discord notification
+        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
+        run: |
+          COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          
+          curl -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "${{ steps.status.outputs.emoji }} CI - ${{ steps.status.outputs.status_text }}",
+                "description": "Node.js 22 CI build on `develop` branch",
+                "color": ${{ steps.status.outputs.color }},
+                "fields": [
+                  {
+                    "name": "Repository",
+                    "value": "${{ github.repository }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Branch",
+                    "value": "`${{ github.event.workflow_run.head_branch }}`",
+                    "inline": true
+                  },
+                  {
+                    "name": "Commit",
+                    "value": "[`'"$SHORT_SHA"'`](${{ github.event.workflow_run.repository.html_url }}/commit/${{ github.event.workflow_run.head_sha }})",
+                    "inline": true
+                  },
+                  {
+                    "name": "Triggered by",
+                    "value": "${{ github.event.workflow_run.actor.login }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Status",
+                    "value": "${{ steps.status.outputs.status_text }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Node Version",
+                    "value": "22.x",
+                    "inline": true
+                  }
+                ],
+                "timestamp": "${{ github.event.workflow_run.updated_at }}",
+                "footer": {
+                  "text": "Care Commons CI"
+                },
+                "url": "${{ github.event.workflow_run.html_url }}"
+              }]
+            }' \
+            "${{ env.DISCORD_WEBHOOK_URL }}"
+
+      - name: Discord not configured
+        if: ${{ env.DISCORD_WEBHOOK_URL == '' }}
+        run: |
+          echo "ℹ️ Discord notifications not configured (this is expected)"
+          echo "To enable Discord notifications, add DISCORD_WEBHOOK_URL to GitHub Secrets"
+          echo "Get a webhook URL from: Discord Server Settings → Integrations → Webhooks"
+          exit 0
