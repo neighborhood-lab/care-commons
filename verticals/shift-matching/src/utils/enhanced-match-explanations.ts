@@ -13,8 +13,7 @@
  * - "Sarah has 98% on-time rate, 4.8/5 average rating"
  */
 
-import type { OpenShift, MatchCandidate, MatchScores, MatchReason } from '../types/shift-matching';
-import type { Caregiver } from '@care-commons/caregiver-staff';
+import type { OpenShift, MatchCandidate, MatchScores } from '../types/shift-matching';
 import type { CaregiverContext } from './matching-algorithm';
 
 export interface EnhancedMatchExplanation {
@@ -87,12 +86,12 @@ export class EnhancedMatchExplanations {
 
       if (hasSkill) {
         const skillInfo = caregiver.skills?.find(s => s.name === requiredSkill);
-        const yearsExp = skillInfo?.yearsExperience;
+        const proficiency = skillInfo?.proficiencyLevel;
 
         details.push({
           requirement: `Client needs ${requiredSkill}`,
-          caregiverAttribute: yearsExp
-            ? `${caregiver.firstName} has ${requiredSkill} (${yearsExp} years experience)`
+          caregiverAttribute: proficiency
+            ? `${caregiver.firstName} has ${requiredSkill} (${proficiency.toLowerCase()} level)`
             : `${caregiver.firstName} has ${requiredSkill} certification`,
           match: 'PERFECT',
           explanation: `Perfect match for required skill`,
@@ -116,8 +115,8 @@ export class EnhancedMatchExplanations {
       );
 
       if (cert) {
-        const expiresIn = cert.expiresAt
-          ? Math.ceil((new Date(cert.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+        const expiresIn = cert.expirationDate
+          ? Math.ceil((new Date(cert.expirationDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
           : null;
 
         details.push({
@@ -180,7 +179,7 @@ export class EnhancedMatchExplanations {
         details.push({
           requirement: `Travel compensation`,
           caregiverAttribute: `Estimated round-trip: ${(distanceFromShift * 2).toFixed(1)} miles`,
-          match: 'NEUTRAL',
+          match: 'GOOD',
           explanation: `Approximate fuel cost: $${gasEstimate}`,
           icon: '⛽',
         });
@@ -220,7 +219,7 @@ export class EnhancedMatchExplanations {
       });
 
       // Check if it's a preferred day
-      const caregiverPreferredDays = caregiver.preferredDays || [];
+      const caregiverPreferredDays = caregiver.workPreferences?.preferredDays || [];
       if (caregiverPreferredDays.includes(shiftDay.toUpperCase())) {
         details.push({
           requirement: `Preferred scheduling`,
@@ -364,7 +363,7 @@ export class EnhancedMatchExplanations {
       details.push({
         requirement: `New client relationship`,
         caregiverAttribute: `${caregiver.firstName} has not worked with this client before`,
-        match: 'NEUTRAL',
+        match: 'GOOD',
         explanation: `First-time assignment - opportunity to build new relationship`,
         icon: '🆕',
       });
@@ -375,12 +374,13 @@ export class EnhancedMatchExplanations {
       s.name.toLowerCase().includes(shift.serviceTypeName.toLowerCase())
     );
 
-    if (serviceTypeExperience && serviceTypeExperience.yearsExperience) {
+    if (serviceTypeExperience) {
+      const proficiency = serviceTypeExperience.proficiencyLevel;
       details.push({
         requirement: `${shift.serviceTypeName} expertise`,
-        caregiverAttribute: `${caregiver.firstName} has ${serviceTypeExperience.yearsExperience} years of ${shift.serviceTypeName} experience`,
-        match: 'PERFECT',
-        explanation: `Extensive experience in this service type`,
+        caregiverAttribute: `${caregiver.firstName} has ${proficiency.toLowerCase()} level ${shift.serviceTypeName} experience`,
+        match: proficiency === 'EXPERT' || proficiency === 'ADVANCED' ? 'PERFECT' : 'GOOD',
+        explanation: `${proficiency === 'EXPERT' ? 'Extensive' : 'Good'} experience in this service type`,
         icon: '📚',
       });
     }
@@ -483,7 +483,7 @@ export class EnhancedMatchExplanations {
    * Generate a concise summary for display
    */
   static generateSummary(
-    shift: OpenShift,
+    _shift: OpenShift,
     candidate: MatchCandidate,
     context: CaregiverContext
   ): string[] {
