@@ -57,17 +57,21 @@ export const CalendarView: React.FC = () => {
 
   // Fetch visits for calendar
   const branchIds = selectedBranches.length > 0 ? selectedBranches : undefined;
-  const { data: visits = [], isLoading, error, refetch } = useCalendarVisits(
-    startDate,
-    endDate,
-    branchIds
-  );
+  const {
+    data: visits = [],
+    isLoading,
+    error,
+    refetch,
+    isRefetching,
+    failureCount,
+  } = useCalendarVisits(startDate, endDate, branchIds);
 
-  // Fetch caregiver availability
-  const { data: caregiverAvailability = [] } = useCaregiverAvailability(
-    currentDate,
-    branchIds
-  );
+  // Fetch caregiver availability (gracefully handle failures)
+  const {
+    data: caregiverAvailability = [],
+    isLoading: isLoadingAvailability,
+    error: availabilityError,
+  } = useCaregiverAvailability(currentDate, branchIds);
 
   // Create a color map for caregivers
   const caregiverColorMap = useMemo(() => {
@@ -219,18 +223,74 @@ export const CalendarView: React.FC = () => {
   // Expose for future use
   console.log('checkAndAssignCaregiver available', checkAndAssignCaregiver);
 
-  if (error != null) {
+  // Enhanced error handling with more details
+  if (error != null && visits.length === 0) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const isNetworkError = errorMessage.toLowerCase().includes('network') ||
+                           errorMessage.toLowerCase().includes('fetch');
+
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Calendar</h3>
-          <p className="text-red-600">Failed to load visits. Please try again.</p>
-          <button
-            onClick={() => refetch()}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-          >
-            Retry
-          </button>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-6 w-6 text-red-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-lg font-semibold text-red-800 mb-2">
+                Error Loading Calendar
+              </h3>
+              <div className="text-sm text-red-700 mb-4">
+                <p className="mb-2">
+                  {isNetworkError
+                    ? 'Network connection issue. Please check your internet connection.'
+                    : 'Failed to load calendar data.'}
+                </p>
+                {failureCount > 0 && (
+                  <p className="text-xs text-red-600">
+                    Attempted {failureCount} time{failureCount > 1 ? 's' : ''} to reconnect.
+                  </p>
+                )}
+                {errorMessage && (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-xs text-red-600 hover:text-red-800">
+                      Technical details
+                    </summary>
+                    <pre className="mt-1 text-xs bg-red-100 p-2 rounded overflow-auto">
+                      {errorMessage}
+                    </pre>
+                  </details>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => refetch()}
+                  disabled={isRefetching}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  {isRefetching ? 'Retrying...' : 'Retry'}
+                </button>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-white border border-red-300 text-red-700 rounded-md hover:bg-red-50 text-sm font-medium"
+                >
+                  Reload Page
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -240,6 +300,58 @@ export const CalendarView: React.FC = () => {
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="bg-white border-b px-6 py-4">
+        {/* Loading indicator */}
+        {(isLoading || isRefetching) && (
+          <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-3">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+            <span className="text-sm text-blue-800">
+              {isLoading ? 'Loading calendar data...' : 'Refreshing calendar...'}
+            </span>
+          </div>
+        )}
+
+        {/* Partial data warning */}
+        {error != null && visits.length > 0 && (
+          <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <svg
+                className="h-5 w-5 text-yellow-600 mt-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm text-yellow-800">
+                  Some calendar data may be incomplete. Showing cached data.
+                </p>
+              </div>
+              <button
+                onClick={() => refetch()}
+                disabled={isRefetching}
+                className="text-xs text-yellow-700 hover:text-yellow-900 underline"
+              >
+                {isRefetching ? 'Retrying...' : 'Retry'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Availability error notice */}
+        {availabilityError != null && showAvailability && (
+          <div className="mb-4 bg-orange-50 border border-orange-200 rounded-lg p-3">
+            <p className="text-sm text-orange-800">
+              Unable to load caregiver availability. Calendar view is still functional.
+            </p>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Scheduling Calendar</h1>
@@ -297,10 +409,13 @@ export const CalendarView: React.FC = () => {
             {/* Refresh Button */}
             <button
               onClick={() => refetch()}
-              disabled={isLoading}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              disabled={isLoading || isRefetching}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {isLoading ? 'Loading...' : 'Refresh'}
+              {(isLoading || isRefetching) && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+              )}
+              {isLoading || isRefetching ? 'Loading...' : 'Refresh'}
             </button>
           </div>
         </div>
@@ -373,8 +488,27 @@ export const CalendarView: React.FC = () => {
               {moment(currentDate).format('MMMM D, YYYY')}
             </p>
 
-            <div className="space-y-3">
-              {caregiverAvailability.map(caregiver => {
+            {isLoadingAvailability && (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            )}
+
+            {availabilityError != null && !isLoadingAvailability && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-800">Failed to load availability data</p>
+              </div>
+            )}
+
+            {!isLoadingAvailability && availabilityError == null && caregiverAvailability.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500">No caregivers available</p>
+              </div>
+            )}
+
+            {!isLoadingAvailability && availabilityError == null && caregiverAvailability.length > 0 && (
+              <div className="space-y-3">
+                {caregiverAvailability.map(caregiver => {
                 const color = caregiverColorMap.get(caregiver.caregiver_id) ?? '#6B7280';
                 const totalHours = caregiver.visits.reduce((acc, visit) => {
                   const start = moment(visit.scheduled_start_time, 'HH:mm');
@@ -420,7 +554,8 @@ export const CalendarView: React.FC = () => {
                   </div>
                 );
               })}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}

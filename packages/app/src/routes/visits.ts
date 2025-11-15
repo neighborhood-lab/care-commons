@@ -537,7 +537,7 @@ export function createVisitRouter(db: Database): Router {
    * - end_date: End date (YYYY-MM-DD format)
    * - branch_ids: Optional comma-separated branch IDs to filter
    *
-   * Returns: Array of visits with caregiver information
+   * Returns: Array of visits with client and caregiver information
    */
   router.get('/calendar', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -556,15 +556,25 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      // Parse dates
-      const startDate = new Date(startDateStr);
-      const endDate = new Date(endDateStr);
+      // Validate date string format (YYYY-MM-DD)
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(startDateStr) || !dateRegex.test(endDateStr)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid date format. Use YYYY-MM-DD format (e.g., 2025-01-15)',
+        });
+        return;
+      }
 
-      // Validate date format
+      // Parse dates - use UTC to avoid timezone issues
+      const startDate = new Date(startDateStr + 'T00:00:00Z');
+      const endDate = new Date(endDateStr + 'T23:59:59Z');
+
+      // Validate date parsing
       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
         res.status(400).json({
           success: false,
-          error: 'Invalid date format. Use YYYY-MM-DD format',
+          error: 'Invalid date values. Dates must be valid calendar dates',
         });
         return;
       }
@@ -582,23 +592,47 @@ export function createVisitRouter(db: Database): Router {
       if (daysDiff < 0) {
         res.status(400).json({
           success: false,
-          error: 'End date must be after start date',
+          error: 'End date must be on or after start date',
         });
         return;
       }
 
-      // Parse branch IDs if provided
-      const branchIds = branchIdsStr != null && branchIdsStr !== ''
-        ? branchIdsStr.split(',').filter(id => id.trim() !== '')
-        : context.branchIds;
+      // Parse and validate branch IDs if provided
+      let branchIds: string[] = context.branchIds;
+      if (branchIdsStr != null && branchIdsStr !== '') {
+        branchIds = branchIdsStr.split(',')
+          .map(id => id.trim())
+          .filter(id => id !== '');
 
-      // Fetch visits with caregiver information
+        // Validate UUID format for branch IDs
+        const uuidRegex = /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i;
+        const invalidBranchIds = branchIds.filter(id => !uuidRegex.test(id));
+        if (invalidBranchIds.length > 0) {
+          res.status(400).json({
+            success: false,
+            error: `Invalid branch IDs: ${invalidBranchIds.join(', ')}`,
+          });
+          return;
+        }
+
+        // Ensure user has access to requested branches
+        const unauthorizedBranches = branchIds.filter(id => !context.branchIds.includes(id));
+        if (unauthorizedBranches.length > 0) {
+          res.status(403).json({
+            success: false,
+            error: 'Access denied to requested branches',
+          });
+          return;
+        }
+      }
+
+      // Fetch visits with client information
       const repository = new ScheduleRepository(db.getPool());
       const visits = await repository.getVisitsByDateRange(
         context.organizationId,
         startDate,
         endDate,
-        branchIds
+        branchIds.length > 0 ? branchIds : undefined
       );
 
       res.json({
@@ -608,6 +642,7 @@ export function createVisitRouter(db: Database): Router {
           startDate: startDateStr,
           endDate: endDateStr,
           count: visits.length,
+          branchesFilter: branchIds.length > 0 ? branchIds : 'all',
         },
       });
     } catch (error) {

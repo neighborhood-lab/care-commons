@@ -456,25 +456,36 @@ export class ScheduleRepository {
     startDate: Date,
     endDate: Date,
     branchIds?: UUID[]
-  ): Promise<Visit[]> {
+  ): Promise<VisitWithClient[]> {
     let query = `
-      SELECT * FROM visits
-      WHERE organization_id = $1
-        AND scheduled_date >= $2
-        AND scheduled_date <= $3
-        AND deleted_at IS NULL
+      SELECT
+        v.*,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name,
+        c.primary_phone as client_phone
+      FROM visits v
+      LEFT JOIN clients c ON v.client_id = c.id
+      WHERE v.organization_id = $1
+        AND v.scheduled_date >= $2
+        AND v.scheduled_date <= $3
+        AND v.deleted_at IS NULL
     `;
     const values: unknown[] = [organizationId, startDate, endDate];
 
     if (branchIds != null && branchIds.length > 0) {
-      query += ` AND branch_id = ANY($4)`;
+      query += ` AND v.branch_id = ANY($4)`;
       values.push(branchIds);
     }
 
-    query += ` ORDER BY scheduled_date ASC, scheduled_start_time ASC`;
+    query += ` ORDER BY v.scheduled_date ASC, v.scheduled_start_time ASC`;
 
     const result = await this.pool.query(query, values);
-    return result.rows.map(row => this.mapRowToVisit(row));
+    return result.rows.map(row => ({
+      ...this.mapRowToVisit(row),
+      clientFirstName: row.client_first_name,
+      clientLastName: row.client_last_name,
+      clientPhone: row.client_phone ? JSON.parse(row.client_phone) : undefined,
+    }));
   }
 
   async getUnassignedVisits(
