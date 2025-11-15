@@ -40,7 +40,7 @@ export const ShowcaseRouter: React.FC = () => {
         return stored;
       }
     }
-    return;
+    return undefined;
   });
 
   const handleRoleSelect = (roleId: string) => {
