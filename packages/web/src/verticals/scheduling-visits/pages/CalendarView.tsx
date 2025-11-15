@@ -223,19 +223,56 @@ export const CalendarView: React.FC = () => {
   // Expose for future use
   console.log('checkAndAssignCaregiver available', checkAndAssignCaregiver);
 
-  // Enhanced error handling with more details
-  if (error != null && visits.length === 0) {
+  // Enhanced error handling with differentiated error types and better UX
+  if (error != null && !isLoading && visits.length === 0) {
+    // Detect error types
+    const isRateLimitError =
+      typeof error === 'object' &&
+      error != null &&
+      ('status' in error
+        ? error.status === 429
+        : 'code' in error && (error.code === '429' || error.code === 429));
+
+    const isAuthError =
+      typeof error === 'object' &&
+      error != null &&
+      'status' in error &&
+      (error.status === 401 || error.status === 403);
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     const isNetworkError = errorMessage.toLowerCase().includes('network') ||
                            errorMessage.toLowerCase().includes('fetch');
 
+    // Determine error title and message based on type
+    let errorTitle = 'Error Loading Calendar';
+    let errorDescription = 'Failed to load calendar data. This might be a temporary issue.';
+
+    if (isRateLimitError) {
+      errorTitle = 'Rate Limit Exceeded';
+      errorDescription = 'Too many requests. Please wait a moment and try again. The system is automatically retrying...';
+    } else if (isAuthError) {
+      errorTitle = 'Authentication Error';
+      errorDescription = 'You are not authorized to view this calendar. Please check your permissions or log in again.';
+    } else if (isNetworkError) {
+      errorTitle = 'Network Connection Issue';
+      errorDescription = 'Unable to connect to the server. Please check your internet connection.';
+    }
+
+    // Color scheme based on error type
+    const errorBgClass = isRateLimitError ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200';
+    const errorTextClass = isRateLimitError ? 'text-yellow-800' : 'text-red-800';
+    const errorDescClass = isRateLimitError ? 'text-yellow-700' : 'text-red-700';
+    const iconColorClass = isRateLimitError ? 'text-yellow-400' : 'text-red-400';
+    const buttonClass = isRateLimitError ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-red-600 hover:bg-red-700';
+    const borderClass = isRateLimitError ? 'border-yellow-300 text-yellow-700 hover:bg-yellow-50' : 'border-red-300 text-red-700 hover:bg-red-50';
+
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className={`border rounded-lg p-6 ${errorBgClass}`}>
           <div className="flex items-start">
             <div className="flex-shrink-0">
               <svg
-                className="h-6 w-6 text-red-400"
+                className={`h-6 w-6 ${iconColorClass}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -249,45 +286,78 @@ export const CalendarView: React.FC = () => {
               </svg>
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-lg font-semibold text-red-800 mb-2">
-                Error Loading Calendar
+              <h3 className={`text-lg font-semibold mb-2 ${errorTextClass}`}>
+                {errorTitle}
               </h3>
-              <div className="text-sm text-red-700 mb-4">
-                <p className="mb-2">
-                  {isNetworkError
-                    ? 'Network connection issue. Please check your internet connection.'
-                    : 'Failed to load calendar data.'}
-                </p>
+              <div className={`text-sm mb-4 ${errorDescClass}`}>
+                <p className="mb-2">{errorDescription}</p>
                 {failureCount > 0 && (
-                  <p className="text-xs text-red-600">
+                  <p className={`text-xs ${errorTextClass}`}>
                     Attempted {failureCount} time{failureCount > 1 ? 's' : ''} to reconnect.
                   </p>
                 )}
                 {errorMessage && (
                   <details className="mt-2">
-                    <summary className="cursor-pointer text-xs text-red-600 hover:text-red-800">
+                    <summary className={`cursor-pointer text-xs ${errorTextClass} hover:opacity-80`}>
                       Technical details
                     </summary>
-                    <pre className="mt-1 text-xs bg-red-100 p-2 rounded overflow-auto">
+                    <pre className={`mt-1 text-xs ${isRateLimitError ? 'bg-yellow-100' : 'bg-red-100'} p-2 rounded overflow-auto`}>
                       {errorMessage}
                     </pre>
                   </details>
                 )}
               </div>
               <div className="flex gap-3">
-                <button
-                  onClick={() => refetch()}
-                  disabled={isRefetching}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                >
-                  {isRefetching ? 'Retrying...' : 'Retry'}
-                </button>
+                {!isAuthError && (
+                  <button
+                    onClick={() => refetch()}
+                    disabled={isRefetching}
+                    className={`px-4 py-2 text-white rounded-md ${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium`}
+                  >
+                    {isRefetching ? 'Retrying...' : 'Retry Now'}
+                  </button>
+                )}
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-white border border-red-300 text-red-700 rounded-md hover:bg-red-50 text-sm font-medium"
+                  className={`px-4 py-2 bg-white border rounded-md text-sm font-medium ${borderClass}`}
                 >
                   Reload Page
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading skeleton for initial load
+  if (isLoading && visits.length === 0) {
+    return (
+      <div className="h-full flex flex-col">
+        {/* Header Skeleton */}
+        <div className="bg-white border-b px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-4 w-96 bg-gray-100 rounded animate-pulse"></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-40 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-10 w-40 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Calendar Skeleton */}
+        <div className="flex-1 p-6 bg-gray-50">
+          <div className="bg-white rounded-lg shadow-sm h-full p-4">
+            <div className="h-full flex flex-col gap-4">
+              <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+              <div className="flex-1 grid grid-cols-7 gap-2">
+                {Array.from({ length: 35 }).map((_, i) => (
+                  <div key={i} className="bg-gray-100 rounded animate-pulse"></div>
+                ))}
               </div>
             </div>
           </div>
