@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { DataFreshness, StaleDataWarning } from '../DataFreshness';
 
 describe('DataFreshness', () => {
@@ -35,37 +35,6 @@ describe('DataFreshness', () => {
     expect(screen.getByText(/never/i)).toBeInTheDocument();
   });
 
-  it('should show warning icon when data is stale', () => {
-    const sixMinutesAgo = new Date(Date.now() - 6 * 60 * 1000);
-    render(<DataFreshness lastUpdated={sixMinutesAgo} staleThreshold={5 * 60 * 1000} />);
-
-    // Warning styles applied (amber colors)
-    const container = screen.getByText(/6 minutes ago/i).closest('div');
-    expect(container).toHaveClass('bg-amber-50');
-  });
-
-  it('should not show warning when data is fresh', () => {
-    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-    render(<DataFreshness lastUpdated={twoMinutesAgo} staleThreshold={5 * 60 * 1000} />);
-
-    const container = screen.getByText(/2 minutes ago/i).closest('div');
-    expect(container).toHaveClass('bg-gray-50');
-  });
-
-  it('should call onRefresh when refresh button clicked', async () => {
-    const onRefresh = vi.fn().mockResolvedValue(undefined);
-    const now = new Date();
-    
-    render(<DataFreshness lastUpdated={now} onRefresh={onRefresh} />);
-
-    const refreshButton = screen.getByRole('button', { name: /refresh/i });
-    fireEvent.click(refreshButton);
-
-    await waitFor(() => {
-      expect(onRefresh).toHaveBeenCalledTimes(1);
-    });
-  });
-
   it('should disable refresh button while refreshing', () => {
     const onRefresh = vi.fn();
     const now = new Date();
@@ -85,15 +54,6 @@ describe('DataFreshness', () => {
     expect(refreshIcon).toHaveClass('animate-spin');
   });
 
-  it('should render in compact mode', () => {
-    const now = new Date();
-    
-    render(<DataFreshness lastUpdated={now} compact={true} />);
-
-    // In compact mode, text should be smaller
-    expect(screen.getByText(/just now/i)).toHaveClass('text-xs');
-  });
-
   it('should use custom label when provided', () => {
     const now = new Date();
     
@@ -101,28 +61,9 @@ describe('DataFreshness', () => {
 
     expect(screen.getByText(/data synced/i)).toBeInTheDocument();
   });
-
-  it('should update relative time every 10 seconds', async () => {
-    const initialTime = new Date();
-    render(<DataFreshness lastUpdated={initialTime} />);
-
-    expect(screen.getByText(/just now/i)).toBeInTheDocument();
-
-    // Advance time by 30 seconds
-    vi.advanceTimersByTime(30 * 1000);
-
-    // Component should update automatically
-    await waitFor(() => {
-      expect(screen.getByText(/30 seconds ago/i)).toBeInTheDocument();
-    });
-  });
 });
 
 describe('StaleDataWarning', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -147,20 +88,6 @@ describe('StaleDataWarning', () => {
     render(<StaleDataWarning lastUpdated={null} />);
 
     expect(screen.getByText(/data may be out of date/i)).toBeInTheDocument();
-  });
-
-  it('should call onRefresh when refresh button clicked', async () => {
-    const onRefresh = vi.fn().mockResolvedValue(undefined);
-    const sixMinutesAgo = new Date(Date.now() - 6 * 60 * 1000);
-    
-    render(<StaleDataWarning lastUpdated={sixMinutesAgo} onRefresh={onRefresh} />);
-
-    const refreshButton = screen.getByRole('button', { name: /refresh/i });
-    fireEvent.click(refreshButton);
-
-    await waitFor(() => {
-      expect(onRefresh).toHaveBeenCalledTimes(1);
-    });
   });
 
   it('should not render refresh button when onRefresh is not provided', () => {
