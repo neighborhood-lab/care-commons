@@ -35,3 +35,30 @@ export const useVisits = (filters?: VisitSearchFilters) => {
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 };
+
+/**
+ * Hook to fetch calendar visits within a date range
+ * Used for coordinator calendar view
+ */
+export const useCalendarVisits = (startDate: Date, endDate: Date, branchIds?: string[]) => {
+  const visitApi = useVisitApi();
+
+  return useQuery({
+    queryKey: ['visits', 'calendar', startDate.toISOString(), endDate.toISOString(), branchIds],
+    queryFn: () => visitApi.getCalendarVisits(startDate, endDate, branchIds),
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+};
+
+/**
+ * Hook to fetch caregiver availability for a specific date
+ */
+export const useCaregiverAvailability = (date: Date, branchIds?: string[]) => {
+  const visitApi = useVisitApi();
+
+  return useQuery({
+    queryKey: ['visits', 'caregiver-availability', date.toISOString(), branchIds],
+    queryFn: () => visitApi.getCaregiverAvailability(date, branchIds),
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+};
