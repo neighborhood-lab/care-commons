@@ -178,22 +178,15 @@ jobs:
           COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
           SHORT_SHA="${COMMIT_SHA:0:7}"
           
-          # Build simple text message
-          MESSAGE="${{ steps.status.outputs.emoji }} **CI Build ${{ steps.status.outputs.status_text }}**
-Repository: ${{ github.repository }}
-Branch: \`${{ github.event.workflow_run.head_branch }}\`
-Commit: ${SHORT_SHA}
-Triggered by: ${{ github.event.workflow_run.actor.login }}
-Node: 22.x
-View: ${{ github.event.workflow_run.html_url }}"
-          
-          # Send to Discord with error handling
-          HTTP_CODE=$(curl -s -w "%{http_code}" -o /tmp/discord-response.txt \
+          # Build simple text message with proper escaping
+          curl -s -w "\nHTTP Status: %{http_code}\n" \
             -H "Content-Type: application/json" \
-            -d "{\"content\":$(echo "$MESSAGE" | jq -Rs .)}" \
-            "${{ env.DISCORD_WEBHOOK_URL }}")
+            -d "{\"content\":\"${{ steps.status.outputs.emoji }} **CI Build ${{ steps.status.outputs.status_text }}**\\nRepository: ${{ github.repository }}\\nBranch: \`${{ github.event.workflow_run.head_branch }}\`\\nCommit: ${SHORT_SHA}\\nTriggered by: ${{ github.event.workflow_run.actor.login }}\\nNode: 22.x\\nView: ${{ github.event.workflow_run.html_url }}\"}" \
+            "${{ env.DISCORD_WEBHOOK_URL }}" > /tmp/discord-response.txt
           
-          if [ "$HTTP_CODE" -eq 204 ] || [ "$HTTP_CODE" -eq 200 ]; then
+          HTTP_CODE=$(tail -n1 /tmp/discord-response.txt | grep -o '[0-9]*$')
+          
+          if [ "$HTTP_CODE" = "204" ] || [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Discord notification sent successfully (HTTP $HTTP_CODE)"
           else
             echo "❌ Discord notification failed (HTTP $HTTP_CODE)"
