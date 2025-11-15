@@ -93,7 +93,8 @@ describe('Login Page', () => {
         password: 'Demo123!',
       });
       expect(mockLogin).toHaveBeenCalledWith(mockUser, 'test-token');
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      // Admin users should be redirected to /admin dashboard
+      expect(mockNavigate).toHaveBeenCalledWith('/admin');
     });
   });
 
