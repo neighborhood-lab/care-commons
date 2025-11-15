@@ -4,8 +4,11 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { CalendarDays, Plus, List, Layout } from 'lucide-react';
 import { useCalendarVisits, useVisitApi, useCaregiverAvailability } from '../hooks/useVisits';
 import { useAuth } from '@/core/hooks';
+import { EmptyState } from '@/core/components/feedback/EmptyState';
+import { MiniCalendar, VisitStatusLegend } from '../components';
 import type { Visit } from '../types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
@@ -46,6 +49,8 @@ export const CalendarView: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<View>('week');
   const [showAvailability, setShowAvailability] = useState(false);
+  const [showMiniCalendar, setShowMiniCalendar] = useState(true);
+  const [showLegend, setShowLegend] = useState(true);
   const [selectedBranches] = useState<string[]>([]);
 
   // Calculate date range for calendar based on current view
@@ -72,6 +77,27 @@ export const CalendarView: React.FC = () => {
     isLoading: isLoadingAvailability,
     error: availabilityError,
   } = useCaregiverAvailability(currentDate, branchIds);
+
+  // Calculate days with visits for mini calendar
+  const daysWithVisits = useMemo(() => {
+    const days = new Set<string>();
+    for (const visit of visits) {
+      const dateKey = moment(visit.scheduledDate).format('YYYY-MM-DD');
+      days.add(dateKey);
+    }
+    return days;
+  }, [visits]);
+
+  // Calculate weekly visit count
+  const weeklyVisitCount = useMemo(() => {
+    const weekStart = moment(currentDate).startOf('week');
+    const weekEnd = moment(currentDate).endOf('week');
+    
+    return visits.filter(visit => {
+      const visitDate = moment(visit.scheduledDate);
+      return visitDate.isSameOrAfter(weekStart) && visitDate.isSameOrBefore(weekEnd);
+    }).length;
+  }, [visits, currentDate]);
 
   // Create a color map for caregivers
   const caregiverColorMap = useMemo(() => {
@@ -424,23 +450,55 @@ export const CalendarView: React.FC = () => {
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Scheduling Calendar</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-gray-900">Scheduling Calendar</h1>
+              {view === 'week' && (
+                <span className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                  {weeklyVisitCount} {weeklyVisitCount === 1 ? 'visit' : 'visits'} this week
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-600 mt-1">
-              Drag and drop visits to reassign caregivers
+              {visits.length === 0 ? 'No visits scheduled' : 'Drag and drop visits to reassign caregivers'}
             </p>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Availability Toggle */}
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showAvailability}
-                onChange={(e) => setShowAvailability(e.target.checked)}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <span className="text-sm text-gray-700">Show Availability</span>
-            </label>
+            {/* Toggle Controls */}
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showMiniCalendar}
+                  onChange={(e) => setShowMiniCalendar(e.target.checked)}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <CalendarDays className="h-4 w-4 text-gray-600" />
+                <span className="text-sm text-gray-700">Mini Calendar</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showLegend}
+                  onChange={(e) => setShowLegend(e.target.checked)}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <Layout className="h-4 w-4 text-gray-600" />
+                <span className="text-sm text-gray-700">Legend</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showAvailability}
+                  onChange={(e) => setShowAvailability(e.target.checked)}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <List className="h-4 w-4 text-gray-600" />
+                <span className="text-sm text-gray-700">Availability</span>
+              </label>
+            </div>
 
             {/* View Selector */}
             <div className="flex gap-2">
@@ -490,60 +548,122 @@ export const CalendarView: React.FC = () => {
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="mt-4 flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-amber-500 border-2 border-dashed border-amber-600"></div>
-            <span className="text-xs text-gray-600">Unassigned</span>
+        {/* Compact Legend */}
+        {showLegend && (
+          <div className="mt-4 flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-amber-500 border-2 border-dashed border-amber-600"></div>
+              <span className="text-xs text-gray-600">Unassigned</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-blue-500"></div>
+              <span className="text-xs text-gray-600">Assigned (Color per caregiver)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gray-400 opacity-50"></div>
+              <span className="text-xs text-gray-600">Cancelled</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-blue-500"></div>
-            <span className="text-xs text-gray-600">Assigned (Color per caregiver)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-gray-400 opacity-50"></div>
-            <span className="text-xs text-gray-600">Cancelled</span>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Calendar */}
-      <div className="flex-1 p-6 bg-gray-50">
-        <div className="bg-white rounded-lg shadow-sm h-full p-4">
-          <DragAndDropCalendar
-            localizer={localizer}
-            events={events}
-            view={view}
-            onView={setView}
-            date={currentDate}
-            onNavigate={setCurrentDate}
-            onEventDrop={handleEventDrop}
-            onEventResize={handleEventResize}
-            onSelectEvent={handleSelectEvent}
-            onSelectSlot={handleSelectSlot}
-            eventPropGetter={eventStyleGetter}
-            selectable
-            resizable
-            draggableAccessor={(_event) => {
-              // Only allow dragging for coordinators and admins
-              return user?.roles.some(role => ['COORDINATOR', 'ORG_ADMIN', 'SUPER_ADMIN'].includes(role)) ?? false;
-            }}
-            style={{ height: '100%' }}
-            step={15}
-            timeslots={4}
-            defaultView="week"
-            views={['month', 'week', 'day']}
-            min={new Date(2025, 0, 1, 6, 0)} // Start at 6 AM
-            max={new Date(2025, 0, 1, 22, 0)} // End at 10 PM
-            messages={{
-              next: 'Next',
-              previous: 'Previous',
-              today: 'Today',
-              month: 'Month',
-              week: 'Week',
-              day: 'Day',
-            }}
-          />
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Sidebar with Mini Calendar and Legend */}
+        {(showMiniCalendar || showLegend) && (
+          <div className="w-80 bg-gray-50 border-r p-4 overflow-y-auto space-y-4">
+            {showMiniCalendar && (
+              <MiniCalendar
+                currentDate={currentDate}
+                daysWithVisits={daysWithVisits}
+                onDateSelect={(date) => {
+                  setCurrentDate(date);
+                  setView('day');
+                }}
+                onMonthChange={setCurrentDate}
+              />
+            )}
+            {showLegend && <VisitStatusLegend />}
+          </div>
+        )}
+
+        {/* Calendar */}
+        <div className="flex-1 p-6 bg-gray-50 overflow-auto">
+          {!isLoading && visits.length === 0 ? (
+            <EmptyState
+              icon={<CalendarDays className="h-16 w-16" />}
+              title="No visits scheduled for this period"
+              description={
+                view === 'day'
+                  ? `No visits are scheduled for ${moment(currentDate).format('MMMM D, YYYY')}. Add a new visit or select a different date.`
+                  : view === 'week'
+                  ? `No visits are scheduled for the week of ${moment(currentDate).startOf('week').format('MMMM D')} - ${moment(currentDate).endOf('week').format('MMMM D, YYYY')}.`
+                  : `No visits are scheduled for ${moment(currentDate).format('MMMM YYYY')}.`
+              }
+              metadata={
+                weeklyVisitCount > 0 && view !== 'week' ? (
+                  <div className="text-sm text-gray-500">
+                    You have <span className="font-semibold text-gray-700">{weeklyVisitCount}</span> {weeklyVisitCount === 1 ? 'visit' : 'visits'} scheduled this week
+                  </div>
+                ) : undefined
+              }
+              action={
+                <button
+                  onClick={() => toast('Create visit not yet implemented', { duration: 2000 })}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors font-medium"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Visit
+                </button>
+              }
+              secondaryAction={
+                <button
+                  onClick={() => setCurrentDate(new Date())}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Go to Today
+                </button>
+              }
+              size="lg"
+            />
+          ) : (
+            <div className="bg-white rounded-lg shadow-sm h-full p-4">
+              <DragAndDropCalendar
+                localizer={localizer}
+                events={events}
+                view={view}
+                onView={setView}
+                date={currentDate}
+                onNavigate={setCurrentDate}
+                onEventDrop={handleEventDrop}
+                onEventResize={handleEventResize}
+                onSelectEvent={handleSelectEvent}
+                onSelectSlot={handleSelectSlot}
+                eventPropGetter={eventStyleGetter}
+                selectable
+                resizable
+                draggableAccessor={(_event) => {
+                  // Only allow dragging for coordinators and admins
+                  return user?.roles.some(role => ['COORDINATOR', 'ORG_ADMIN', 'SUPER_ADMIN'].includes(role)) ?? false;
+                }}
+                style={{ height: '100%' }}
+                step={15}
+                timeslots={4}
+                defaultView="week"
+                views={['month', 'week', 'day']}
+                min={new Date(2025, 0, 1, 6, 0)} // Start at 6 AM
+                max={new Date(2025, 0, 1, 22, 0)} // End at 10 PM
+                messages={{
+                  next: 'Next',
+                  previous: 'Previous',
+                  today: 'Today',
+                  month: 'Month',
+                  week: 'Week',
+                  day: 'Day',
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
