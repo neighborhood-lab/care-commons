@@ -534,9 +534,9 @@ function generateClient(
 
   // Emergency contact (often family member with same last name)
   const emergencyFirstName = randomElement(
-    gender === 'MALE'
-      ? [...TEXAS_NAMES.anglo.firstNames.female]
-      : [...TEXAS_NAMES.anglo.firstNames.male]
+    emergencyGender === 'MALE'
+      ? [...TEXAS_NAMES.anglo.firstNames.male]
+      : [...TEXAS_NAMES.anglo.firstNames.female]
   );
   const emergencyContactName = `${emergencyFirstName} ${lastName}`;
   const emergencyContactPhone = `${location.areaCode}-555-${faker.string.numeric(4)}`;

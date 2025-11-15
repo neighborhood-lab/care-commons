@@ -132,7 +132,7 @@ export const CalendarView: React.FC = () => {
     try {
       const visit = event.resource;
 
-      // TODO: For now, we'll just show a toast
+      // Note: Time adjustment via drag-and-drop not yet implemented
       // In a full implementation, we'd update the visit time
       toast.error('Time adjustment not yet implemented. Use drag between caregivers for reassignment.');
 
@@ -147,7 +147,7 @@ export const CalendarView: React.FC = () => {
   // Handle event resize
   const handleEventResize = useCallback(async ({ event, start, end }: { event: CalendarEvent; start: Date; end: Date }) => {
     try {
-      // TODO: Implement time adjustment
+      // Note: Implement time adjustment in future iteration
       toast.error('Time adjustment not yet implemented');
     } catch (error) {
       console.error('Error resizing event:', error);
@@ -158,7 +158,7 @@ export const CalendarView: React.FC = () => {
   // Handle event selection
   const handleSelectEvent = useCallback((event: CalendarEvent) => {
     const visit = event.resource;
-    // TODO: Open visit detail modal or sidebar
+    // Note: Visit detail modal to be implemented in future iteration
     toast(`Visit: ${event.title}`, {
       duration: 2000,
     });
@@ -166,7 +166,7 @@ export const CalendarView: React.FC = () => {
 
   // Handle slot selection (creating new visit)
   const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
-    // TODO: Open create visit modal
+    // Note: Create visit modal to be implemented in future iteration
     toast('Create visit not yet implemented', { duration: 2000 });
   }, []);
 
