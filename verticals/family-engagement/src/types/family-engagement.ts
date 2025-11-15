@@ -540,6 +540,17 @@ export interface GenerateProgressReportInput {
 // ============================================================================
 
 /**
+ * Care team member for family dashboard
+ */
+export interface CareTeamMember {
+  id: UUID;
+  name: string;
+  role: string;
+  photoUrl?: string;
+  isPrimary: boolean;
+}
+
+/**
  * Family dashboard data
  */
 export interface FamilyDashboard {
@@ -552,6 +563,7 @@ export interface FamilyDashboard {
   recentActivity: ActivityFeedItem[];
   unreadNotifications: number;
   unreadMessages: number;
+  careTeam: CareTeamMember[];
   activeCarePlan?: {
     id: UUID;
     name: string;
