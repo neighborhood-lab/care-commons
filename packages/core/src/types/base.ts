@@ -101,47 +101,51 @@ export type Permission = string; // e.g., "clients:read", "clients:write", "clie
  * Standard error types
  */
 export class DomainError extends Error {
+  public statusCode: number;
+
   constructor(
     message: string,
     public code: string,
+    statusCode: number = 500,
     public context?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'DomainError';
+    this.statusCode = statusCode;
   }
 }
 
 export class ValidationError extends DomainError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, 'VALIDATION_ERROR', context);
+    super(message, 'VALIDATION_ERROR', 400, context);
     this.name = 'ValidationError';
   }
 }
 
 export class PermissionError extends DomainError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, 'PERMISSION_DENIED', context);
+    super(message, 'PERMISSION_DENIED', 403, context);
     this.name = 'PermissionError';
   }
 }
 
 export class NotFoundError extends DomainError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, 'NOT_FOUND', context);
+    super(message, 'NOT_FOUND', 404, context);
     this.name = 'NotFoundError';
   }
 }
 
 export class ConflictError extends DomainError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, 'CONFLICT', context);
+    super(message, 'CONFLICT', 409, context);
     this.name = 'ConflictError';
   }
 }
 
 export class AuthenticationError extends DomainError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, 'AUTHENTICATION_FAILED', context);
+    super(message, 'AUTHENTICATION_FAILED', 401, context);
     this.name = 'AuthenticationError';
   }
 }

@@ -4,98 +4,112 @@ set -e
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Ensure we're using the correct Node.js version via NVM
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  # shellcheck disable=SC1091
-  source "$NVM_DIR/nvm.sh"
-  if [ -f .nvmrc ]; then
-    nvm use
-  else
-    nvm use 22 2>/dev/null || nvm install 22
-  fi
-fi
+# Check Node.js version
+REQUIRED_NODE_VERSION="22"
+CURRENT_NODE_VERSION=$(node --version | cut -d'.' -f1 | sed 's/v//')
 
-# Verify Node.js version
-NODE_VERSION=$(node --version | cut -d'.' -f1 | tr -d 'v')
-if [ "$NODE_VERSION" -lt 22 ]; then
-  echo -e "${RED}❌ Error: Node.js 22.x or higher is required. Current version: $(node --version)${NC}"
-  echo "   Please run: nvm install 22 && nvm use 22"
+if [ "$CURRENT_NODE_VERSION" -lt "$REQUIRED_NODE_VERSION" ]; then
+  echo -e "${RED}❌ Node.js ${REQUIRED_NODE_VERSION}.x or higher is required. Current: v${CURRENT_NODE_VERSION}${NC}"
   exit 1
 fi
 
-echo -e "${GREEN}✅ Using Node.js $(node --version)${NC}"
+echo -e "${GREEN}✅ Using Node.js v$(node --version)${NC}"
 echo ""
+
 echo -e "${BLUE}🔍 Pre-commit Validation${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Track overall timing
-OVERALL_START=$(date +%s)
+total_checks=4
+failed_checks=0
+start_time=$(date +%s)
 
-# Function to run check with timing and error capture
-run_check() {
-  local name=$1
-  local emoji=$2
-  local command=$3
-
-  echo -e "${YELLOW}▶ $emoji $name${NC}"
-  local step_start=$(date +%s)
-
-  if eval "$command" > /tmp/check-output.log 2>&1; then
-    local step_end=$(date +%s)
-    local duration=$((step_end - step_start))
-    echo -e "${GREEN}✅ $name passed${NC} (${duration}s)"
-    echo ""
-    return 0
-  else
-    local step_end=$(date +%s)
-    local duration=$((step_end - step_start))
-    echo -e "${RED}❌ $name failed${NC} (${duration}s)"
-    echo ""
-    echo -e "${RED}Error output:${NC}"
-    cat /tmp/check-output.log
-    echo ""
-    return 1
-  fi
-}
-
-# Track failures
-FAILED_CHECKS=()
-
-# Use turbo cache for speed (pre-commit hook should be fast)
-# Turbo will automatically detect changed files and only re-run affected tasks
 echo -e "${YELLOW}▶ ⚡ Using turbo cache for fast incremental checks${NC}"
 echo ""
 
-# Run checks (use turbo cache for speed)
-# Limit concurrency to avoid resource contention with vitest
-run_check "Lint" "🔍" "npx turbo run lint" || FAILED_CHECKS+=("Lint")
-run_check "TypeCheck" "🔎" "npx turbo run typecheck" || FAILED_CHECKS+=("TypeCheck")
-run_check "Tests" "🧪" "npx turbo run test --concurrency=4" || FAILED_CHECKS+=("Tests")
+# 1. Lint
+echo -e "${YELLOW}▶ 🔍 Lint${NC}"
+lint_start=$(date +%s)
+if npx turbo run lint --cache-dir=.turbo 2>&1 | tee /tmp/lint.log | tail -20; then
+  lint_end=$(date +%s)
+  echo -e "${GREEN}✅ Lint passed${NC} ($((lint_end - lint_start))s)"
+else
+  lint_end=$(date +%s)
+  echo -e "${RED}❌ Lint failed${NC} ($((lint_end - lint_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/lint.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
 
-# Calculate total duration
-OVERALL_END=$(date +%s)
-TOTAL_DURATION=$((OVERALL_END - OVERALL_START))
+# 2. TypeCheck
+echo -e "${YELLOW}▶ 🔍 TypeCheck${NC}"
+typecheck_start=$(date +%s)
+if npx turbo run typecheck --cache-dir=.turbo 2>&1 | tee /tmp/typecheck.log | tail -20; then
+  typecheck_end=$(date +%s)
+  echo -e "${GREEN}✅ TypeCheck passed${NC} ($((typecheck_end - typecheck_start))s)"
+else
+  typecheck_end=$(date +%s)
+  echo -e "${RED}❌ TypeCheck failed${NC} ($((typecheck_end - typecheck_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/typecheck.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
+
+# 3. Tests
+echo -e "${YELLOW}▶ 🧪 Tests${NC}"
+test_start=$(date +%s)
+if npx turbo run test --cache-dir=.turbo 2>&1 | tee /tmp/test.log | tail -20; then
+  test_end=$(date +%s)
+  echo -e "${GREEN}✅ Tests passed${NC} ($((test_end - test_start))s)"
+else
+  test_end=$(date +%s)
+  echo -e "${RED}❌ Tests failed${NC} ($((test_end - test_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/test.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
+
+# 4. Build
+echo -e "${YELLOW}▶ 🏗️  Build${NC}"
+build_start=$(date +%s)
+if npx turbo run build --cache-dir=.turbo 2>&1 | tee /tmp/build.log | tail -20; then
+  build_end=$(date +%s)
+  echo -e "${GREEN}✅ Build passed${NC} ($((build_end - build_start))s)"
+else
+  build_end=$(date +%s)
+  echo -e "${RED}❌ Build failed${NC} ($((build_end - build_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/build.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
+
+# Summary
+end_time=$(date +%s)
+total_time=$((end_time - start_time))
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-# Report results
-if [ ${#FAILED_CHECKS[@]} -eq 0 ]; then
-  echo -e "${GREEN}✅ All checks passed${NC} (total: ${TOTAL_DURATION}s)"
+if [ $failed_checks -eq 0 ]; then
+  echo -e "${GREEN}✅ $total_checks check(s) passed${NC} (total: ${total_time}s)"
   echo ""
   exit 0
 else
-  echo -e "${RED}❌ ${#FAILED_CHECKS[@]} check(s) failed${NC} (total: ${TOTAL_DURATION}s)"
+  echo -e "${RED}❌ $failed_checks check(s) failed${NC} (total: ${total_time}s)"
   echo ""
   echo -e "${RED}Failed checks:${NC}"
-  for check in "${FAILED_CHECKS[@]}"; do
-    echo "  • $check"
-  done
-  echo ""
+  echo "  • Lint"
+  echo "  • TypeCheck"
+  echo "  • Tests"
   exit 1
 fi

@@ -45,6 +45,64 @@ export function createCaregiverRouter(db: Database): Router {
   });
 
   /**
+   * GET /api/caregivers/expiring-credentials
+   * Get caregivers with expiring credentials
+   */
+  router.get('/expiring-credentials', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const service = new CaregiverService(db);
+
+      const daysUntilExpiration = parseInt((req.query['days'] as string | undefined) ?? '30', 10);
+      const caregivers = await service.getCaregiversWithExpiringCredentials(
+        context.organizationId,
+        daysUntilExpiration,
+        context
+      );
+      res.json(caregivers);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * GET /api/caregivers/employee-number/:employeeNumber
+   * Get caregiver by employee number
+   */
+  router.get('/employee-number/:employeeNumber', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const service = new CaregiverService(db);
+
+      const caregiver = await service.getCaregiverByEmployeeNumber(
+        req.params['employeeNumber']!,
+        context.organizationId,
+        context
+      );
+      res.json(caregiver);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * GET /api/caregivers/branch/:branchId
+   * Get caregivers by branch
+   */
+  router.get('/branch/:branchId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const service = new CaregiverService(db);
+
+      const activeOnly = req.query['activeOnly'] !== 'false';
+      const caregivers = await service.getCaregiversByBranch(req.params['branchId']!, activeOnly, context);
+      res.json(caregivers);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
    * GET /api/caregivers
    * Search/list caregivers with filters
    */
@@ -297,64 +355,6 @@ export function createCaregiverRouter(db: Database): Router {
 
       const caregiver = await service.updateComplianceStatus(req.params['id']!, context);
       res.json(caregiver);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  /**
-   * GET /api/caregivers/employee-number/:employeeNumber
-   * Get caregiver by employee number
-   */
-  router.get('/employee-number/:employeeNumber', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const context = getUserContext(req);
-      const service = new CaregiverService(db);
-
-      const caregiver = await service.getCaregiverByEmployeeNumber(
-        req.params['employeeNumber']!,
-        context.organizationId,
-        context
-      );
-      res.json(caregiver);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  /**
-   * GET /api/caregivers/branch/:branchId
-   * Get caregivers by branch
-   */
-  router.get('/branch/:branchId', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const context = getUserContext(req);
-      const service = new CaregiverService(db);
-
-      const activeOnly = req.query['activeOnly'] !== 'false';
-      const caregivers = await service.getCaregiversByBranch(req.params['branchId']!, activeOnly, context);
-      res.json(caregivers);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  /**
-   * GET /api/caregivers/expiring-credentials
-   * Get caregivers with expiring credentials
-   */
-  router.get('/expiring-credentials', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const context = getUserContext(req);
-      const service = new CaregiverService(db);
-
-      const daysUntilExpiration = parseInt((req.query['days'] as string | undefined) ?? '30', 10);
-      const caregivers = await service.getCaregiversWithExpiringCredentials(
-        context.organizationId,
-        daysUntilExpiration,
-        context
-      );
-      res.json(caregivers);
     } catch (error) {
       next(error);
     }

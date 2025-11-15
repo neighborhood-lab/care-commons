@@ -1,51 +1,115 @@
 #!/bin/bash
 set -e
 
-# Ensure we're using the correct Node.js version via NVM
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  # shellcheck disable=SC1091
-  source "$NVM_DIR/nvm.sh"
-  if [ -f .nvmrc ]; then
-    nvm use
-  else
-    nvm use 22 2>/dev/null || nvm install 22
-  fi
-fi
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-# Verify Node.js version
-NODE_VERSION=$(node --version | cut -d'.' -f1 | tr -d 'v')
-if [ "$NODE_VERSION" -lt 22 ]; then
-  echo "❌ Error: Node.js 22.x or higher is required. Current version: $(node --version)"
-  echo "   Please run: nvm install 22 && nvm use 22"
+# Check Node.js version
+REQUIRED_NODE_VERSION="22"
+CURRENT_NODE_VERSION=$(node --version | cut -d'.' -f1 | sed 's/v//')
+
+if [ "$CURRENT_NODE_VERSION" -lt "$REQUIRED_NODE_VERSION" ]; then
+  echo -e "${RED}❌ Node.js ${REQUIRED_NODE_VERSION}.x or higher is required. Current: v${CURRENT_NODE_VERSION}${NC}"
   exit 1
 fi
 
-echo "✅ Using Node.js $(node --version)"
+echo -e "${GREEN}✅ Using Node.js v$(node --version)${NC}"
+echo ""
 
-echo "🧹 Clearing turbo cache..."
-npx turbo daemon clean
-rm -rf .turbo node_modules/.cache
+echo -e "${BLUE}🔍 Full Validation (No Cache)${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
 
-echo "🧹 Clean install..."
-npm ci
+total_checks=4
+failed_checks=0
+start_time=$(date +%s)
 
-echo "🔍 Running linting..."
-npx turbo run lint --force
+echo -e "${YELLOW}▶ ⚠️  Running fresh checks without cache${NC}"
+echo ""
 
-echo "🔎 Running type checks..."
-npx turbo run typecheck --force
+# 1. Lint
+echo -e "${YELLOW}▶ 🔍 Lint${NC}"
+lint_start=$(date +%s)
+if npx turbo run lint --force 2>&1 | tee /tmp/lint.log | tail -20; then
+  lint_end=$(date +%s)
+  echo -e "${GREEN}✅ Lint passed${NC} ($((lint_end - lint_start))s)"
+else
+  lint_end=$(date +%s)
+  echo -e "${RED}❌ Lint failed${NC} ($((lint_end - lint_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/lint.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
 
-echo "🧪 Running tests with coverage..."
-npx turbo run test:coverage --force --concurrency=4
+# 2. TypeCheck
+echo -e "${YELLOW}▶ 🔍 TypeCheck${NC}"
+typecheck_start=$(date +%s)
+if npx turbo run typecheck --force 2>&1 | tee /tmp/typecheck.log | tail -20; then
+  typecheck_end=$(date +%s)
+  echo -e "${GREEN}✅ TypeCheck passed${NC} ($((typecheck_end - typecheck_start))s)"
+else
+  typecheck_end=$(date +%s)
+  echo -e "${RED}❌ TypeCheck failed${NC} ($((typecheck_end - typecheck_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/typecheck.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
 
-echo "🏗️  Building project..."
-npx turbo run build --force
+# 3. Tests
+echo -e "${YELLOW}▶ 🧪 Tests${NC}"
+test_start=$(date +%s)
+if npx turbo run test --force 2>&1 | tee /tmp/test.log | tail -20; then
+  test_end=$(date +%s)
+  echo -e "${GREEN}✅ Tests passed${NC} ($((test_end - test_start))s)"
+else
+  test_end=$(date +%s)
+  echo -e "${RED}❌ Tests failed${NC} ($((test_end - test_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/test.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
 
-echo "🗄️  Setting up database with comprehensive demo data..."
-npm run db:nuke
-npm run db:migrate
-npm run db:seed
-npm run db:seed:demo
+# 4. Build
+echo -e "${YELLOW}▶ 🏗️  Build${NC}"
+build_start=$(date +%s)
+if npx turbo run build --force 2>&1 | tee /tmp/build.log | tail -20; then
+  build_end=$(date +%s)
+  echo -e "${GREEN}✅ Build passed${NC} ($((build_end - build_start))s)"
+else
+  build_end=$(date +%s)
+  echo -e "${RED}❌ Build failed${NC} ($((build_end - build_start))s)"
+  echo ""
+  echo -e "${RED}Error output:${NC}"
+  tail -50 /tmp/build.log
+  failed_checks=$((failed_checks + 1))
+fi
+echo ""
 
-echo "✅ All checks completed successfully!"
+# Summary
+end_time=$(date +%s)
+total_time=$((end_time - start_time))
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ $failed_checks -eq 0 ]; then
+  echo -e "${GREEN}✅ All $total_checks check(s) passed${NC} (total: ${total_time}s)"
+  echo ""
+  exit 0
+else
+  echo -e "${RED}❌ $failed_checks check(s) failed${NC} (total: ${total_time}s)"
+  echo ""
+  echo -e "${RED}Failed checks:${NC}"
+  echo "  • Lint"
+  echo "  • TypeCheck"
+  echo "  • Tests"
+  exit 1
+fi
