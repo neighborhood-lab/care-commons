@@ -141,12 +141,47 @@ jobs:
   notify-discord:
     name: Send Discord Notification
     runs-on: ubuntu-latest
-    if: always() && ((github.event.workflow_run.name == 'CI' && github.event.workflow_run.head_branch == 'develop' && github.event.workflow_run.conclusion == 'failure') || (github.event.workflow_run.name == 'Deploy'))
+    if: always() && ((github.event.workflow_run.name == 'CI' && github.event.workflow_run.head_branch == 'develop') || (github.event.workflow_run.name == 'Deploy'))
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
     steps:
+      - name: Check previous run status
+        id: check_previous
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: context.payload.workflow_run.workflow_id,
+              branch: context.payload.workflow_run.head_branch,
+              per_page: 5
+            });
+            
+            const currentRun = context.payload.workflow_run;
+            const previousRuns = runs.data.workflow_runs.filter(r => 
+              r.id !== currentRun.id && 
+              r.created_at < currentRun.created_at &&
+              r.conclusion !== 'skipped' &&
+              r.conclusion !== 'cancelled'
+            );
+            
+            const previousRun = previousRuns[0];
+            const wasRed = previousRun && previousRun.conclusion === 'failure';
+            const isGreen = currentRun.conclusion === 'success';
+            const isRed = currentRun.conclusion === 'failure';
+            const isRecovery = wasRed && isGreen;
+            
+            core.setOutput('was_red', wasRed);
+            core.setOutput('is_green', isGreen);
+            core.setOutput('is_red', isRed);
+            core.setOutput('is_recovery', isRecovery);
+            
+            console.log(`Previous: ${previousRun?.conclusion || 'none'}, Current: ${currentRun.conclusion}`);
+            console.log(`Recovery: ${isRecovery}, Red: ${isRed}`);
+
       - name: Send Discord notification
-        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
+        if: ${{ env.DISCORD_WEBHOOK_URL != '' && (steps.check_previous.outputs.is_recovery == 'true' || steps.check_previous.outputs.is_red == 'true' || github.event.workflow_run.name == 'Deploy') }}
         run: |
           if [ -z "${{ env.DISCORD_WEBHOOK_URL }}" ]; then
             echo "❌ DISCORD_WEBHOOK_URL is empty - skipping notification"
@@ -156,13 +191,15 @@ jobs:
           COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
           SHORT_SHA="${COMMIT_SHA:0:7}"
           
-          # Determine message based on workflow type
+          # Determine message based on workflow type and status
           if [ "${{ github.event.workflow_run.name }}" == "Deploy" ]; then
             if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
               MESSAGE="🚀 **Deployed to ${{ github.event.workflow_run.head_branch }}** (${SHORT_SHA})"
             else
               MESSAGE="❌ **Deploy FAILED** on \`${{ github.event.workflow_run.head_branch }}\` (${SHORT_SHA}) - <${{ github.event.workflow_run.html_url }}>"
             fi
+          elif [ "${{ steps.check_previous.outputs.is_recovery }}" == "true" ]; then
+            MESSAGE="✅ **Build RECOVERED** on \`develop\` (${SHORT_SHA})"
           else
             MESSAGE="❌ **CI FAILED** on \`develop\` (${SHORT_SHA}) - <${{ github.event.workflow_run.html_url }}>"
           fi
