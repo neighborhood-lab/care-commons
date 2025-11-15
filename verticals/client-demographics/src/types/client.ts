@@ -288,6 +288,7 @@ export interface Client extends Entity, SoftDeletable {
   referralSource?: string;
   notes?: string;
   customFields?: Record<string, unknown>;
+  isDemoData?: boolean; // Indicates if this is demo/sample data
 }
 
 export type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO_SAY';
