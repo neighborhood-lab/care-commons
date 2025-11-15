@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/core/hooks';
+import { useAuth, useIsMobile } from '@/core/hooks';
 import { Card, CardHeader, CardContent, Button, EmptyState } from '@/core/components';
 import {
   Calendar,
@@ -23,6 +23,7 @@ import {
   FileText,
   AlertTriangle,
   Users,
+  Phone,
 } from 'lucide-react';
 
 interface VisitCardProps {
@@ -31,12 +32,14 @@ interface VisitCardProps {
   time: string;
   duration: string;
   address: string;
+  clientPhone?: string;
   status: 'upcoming' | 'in-progress' | 'completed';
   tasks: string[];
   onNavigate?: () => void;
   onCheckIn?: () => void;
   onCheckOut?: () => void;
   onViewDetails?: () => void;
+  onCall?: () => void;
 }
 
 const VisitCard: React.FC<VisitCardProps> = ({
@@ -45,13 +48,16 @@ const VisitCard: React.FC<VisitCardProps> = ({
   time,
   duration,
   address,
+  clientPhone,
   status,
   tasks,
   onNavigate,
   onCheckIn,
   onCheckOut,
   onViewDetails,
+  onCall,
 }) => {
+  const isMobile = useIsMobile();
   const getStatusStyles = () => {
     switch (status) {
       case 'upcoming':
@@ -114,6 +120,19 @@ const VisitCard: React.FC<VisitCardProps> = ({
           <span>{address}</span>
         </div>
 
+        {/* Client Phone (Mobile) */}
+        {clientPhone && isMobile && onCall && (
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4 text-gray-400" />
+            <button
+              onClick={onCall}
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium underline"
+            >
+              {clientPhone}
+            </button>
+          </div>
+        )}
+
         {/* Tasks */}
         {tasks.length > 0 && (
           <div>
@@ -130,45 +149,63 @@ const VisitCard: React.FC<VisitCardProps> = ({
         )}
 
         {/* Actions */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
-          {onNavigate && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNavigate}
-              className="flex items-center gap-1"
-            >
-              <Navigation className="h-4 w-4" />
-              Directions
-            </Button>
-          )}
+        <div className={`flex ${isMobile ? 'flex-col' : 'flex-wrap'} gap-2 pt-2 border-t border-gray-200`}>
           {onCheckIn && status === 'upcoming' && (
             <Button
               variant="primary"
-              size="sm"
+              size={isMobile ? 'lg' : 'sm'}
               onClick={onCheckIn}
+              className={isMobile ? 'w-full min-h-[44px] text-base font-semibold' : ''}
             >
+              <CheckCircle className={isMobile ? 'h-5 w-5' : 'h-4 w-4'} />
               Check In
             </Button>
           )}
           {onCheckOut && status === 'in-progress' && (
             <Button
               variant="primary"
-              size="sm"
+              size={isMobile ? 'lg' : 'sm'}
               onClick={onCheckOut}
+              className={isMobile ? 'w-full min-h-[44px] text-base font-semibold' : ''}
             >
+              <CheckCircle className={isMobile ? 'h-5 w-5' : 'h-4 w-4'} />
               Check Out
             </Button>
           )}
-          {onViewDetails && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onViewDetails}
-            >
-              View Details
-            </Button>
-          )}
+          <div className={`flex ${isMobile ? 'flex-col' : 'flex-wrap'} gap-2 ${isMobile ? 'w-full' : ''}`}>
+            {onNavigate && (
+              <Button
+                variant="outline"
+                size={isMobile ? 'lg' : 'sm'}
+                onClick={onNavigate}
+                className={`flex items-center gap-1 ${isMobile ? 'w-full min-h-[44px]' : ''}`}
+              >
+                <Navigation className={isMobile ? 'h-5 w-5' : 'h-4 w-4'} />
+                Directions
+              </Button>
+            )}
+            {onCall && clientPhone && isMobile && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={onCall}
+                className="w-full min-h-[44px] flex items-center gap-2"
+              >
+                <Phone className="h-5 w-5" />
+                Call Client
+              </Button>
+            )}
+            {onViewDetails && (
+              <Button
+                variant="outline"
+                size={isMobile ? 'lg' : 'sm'}
+                onClick={onViewDetails}
+                className={isMobile ? 'w-full min-h-[44px]' : ''}
+              >
+                View Details
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Card>
@@ -288,6 +325,7 @@ const CredentialAlert: React.FC<CredentialAlertProps> = ({ title, expiresIn, sev
 export const CaregiverDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Note: Using mock data for demonstration - API integration in progress
   const todayVisits = [
@@ -297,6 +335,7 @@ export const CaregiverDashboard: React.FC = () => {
       time: '8:00 AM',
       duration: '2 hours',
       address: '123 Main St, Austin, TX 78701',
+      clientPhone: '(512) 555-0101',
       status: 'upcoming' as const,
       tasks: [
         'Morning routine assistance',
@@ -304,8 +343,9 @@ export const CaregiverDashboard: React.FC = () => {
         'Light housekeeping',
       ],
       onNavigate: () => window.open('https://maps.google.com/?q=123+Main+St+Austin+TX', '_blank', 'noopener,noreferrer'),
-      onCheckIn: () => navigate('/visits/checkin/visit-1'),
+      onCheckIn: () => navigate('/caregiver/checkin/visit-1'),
       onViewDetails: () => navigate('/visits/visit-1'),
+      onCall: () => window.location.href = 'tel:+15125550101',
     },
     {
       clientName: 'Mary Johnson',
@@ -313,6 +353,7 @@ export const CaregiverDashboard: React.FC = () => {
       time: '10:30 AM',
       duration: '1 hour',
       address: '456 Oak Ave, Austin, TX 78702',
+      clientPhone: '(512) 555-0102',
       status: 'upcoming' as const,
       tasks: [
         'Medication administration',
@@ -320,8 +361,9 @@ export const CaregiverDashboard: React.FC = () => {
         'Document observations',
       ],
       onNavigate: () => window.open('https://maps.google.com/?q=456+Oak+Ave+Austin+TX', '_blank', 'noopener,noreferrer'),
-      onCheckIn: () => navigate('/visits/checkin/visit-2'),
+      onCheckIn: () => navigate('/caregiver/checkin/visit-2'),
       onViewDetails: () => navigate('/visits/visit-2'),
+      onCall: () => window.location.href = 'tel:+15125550102',
     },
     {
       clientName: 'Robert Davis',
@@ -329,6 +371,7 @@ export const CaregiverDashboard: React.FC = () => {
       time: '2:00 PM',
       duration: '3 hours',
       address: '789 Elm St, Austin, TX 78703',
+      clientPhone: '(512) 555-0103',
       status: 'upcoming' as const,
       tasks: [
         'Social engagement',
@@ -336,8 +379,9 @@ export const CaregiverDashboard: React.FC = () => {
         'Meal preparation',
       ],
       onNavigate: () => window.open('https://maps.google.com/?q=789+Elm+St+Austin+TX', '_blank', 'noopener,noreferrer'),
-      onCheckIn: () => navigate('/visits/checkin/visit-3'),
+      onCheckIn: () => navigate('/caregiver/checkin/visit-3'),
       onViewDetails: () => navigate('/visits/visit-3'),
+      onCall: () => window.location.href = 'tel:+15125550103',
     },
   ];
 
@@ -396,7 +440,7 @@ export const CaregiverDashboard: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <Card padding="md">
           <div className="flex items-center justify-between">
             <div>
@@ -435,12 +479,12 @@ export const CaregiverDashboard: React.FC = () => {
       {credentials.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="h-5 w-5 text-yellow-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <AlertTriangle className={`${isMobile ? 'h-6 w-6' : 'h-5 w-5'} text-yellow-600`} />
+            <h2 className={`${isMobile ? 'text-xl' : 'text-lg'} font-semibold text-gray-900`}>
               Training & Credential Reminders
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             {credentials.map((credential, index) => (
               <CredentialAlert key={index} {...credential} />
             ))}
@@ -451,7 +495,7 @@ export const CaregiverDashboard: React.FC = () => {
       {/* Today's Schedule */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Today's Schedule</h2>
+          <h2 className={`${isMobile ? 'text-xl' : 'text-lg'} font-semibold text-gray-900`}>Today's Schedule</h2>
           <Button
             variant="outline"
             size="sm"
@@ -482,7 +526,7 @@ export const CaregiverDashboard: React.FC = () => {
       {/* Timesheet Status */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Timesheet Status</h2>
+          <h2 className={`${isMobile ? 'text-xl' : 'text-lg'} font-semibold text-gray-900`}>Timesheet Status</h2>
           <Button
             variant="outline"
             size="sm"
@@ -491,7 +535,7 @@ export const CaregiverDashboard: React.FC = () => {
             View All
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {timesheets.map((timesheet, index) => (
             <TimesheetStatus key={index} {...timesheet} />
           ))}
