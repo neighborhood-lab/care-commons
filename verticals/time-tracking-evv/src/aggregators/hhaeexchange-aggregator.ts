@@ -391,6 +391,7 @@ export class HHAeXchangeAggregator implements IAggregator {
             'X-API-Version': '1.0',
           },
           body: JSON.stringify(payload),
+          // @ts-expect-error - AbortSignal type mismatch between Node and DOM types
           signal: controller.signal,
         });
 

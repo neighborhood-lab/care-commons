@@ -91,7 +91,7 @@ export class SubmissionWorker {
       this.processRetries().catch(error => {
         log.error({ error }, 'Error in submission retry processing');
       });
-    }, this.config.checkIntervalMs);
+    }, this.config.checkIntervalMs) as unknown as NodeJS.Timeout;
   }
 
   /**

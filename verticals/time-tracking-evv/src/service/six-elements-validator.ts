@@ -20,8 +20,6 @@
  * - 26 TAC § 558.453 (Texas EVV Requirements)
  */
 
-import { ValidationError } from '@care-commons/core';
-
 /**
  * Six elements validation result
  */
