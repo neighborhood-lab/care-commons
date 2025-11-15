@@ -24,9 +24,6 @@ export function useMediaQuery(query: string): boolean {
       setMatches(event.matches);
     };
 
-    // Set initial value
-    setMatches(mediaQuery.matches);
-
     // Listen for changes
     mediaQuery.addEventListener('change', handleChange);
 
@@ -63,13 +60,12 @@ export function useIsDesktop(): boolean {
  * Hook for detecting touch devices
  */
 export function useIsTouchDevice(): boolean {
-  const [isTouch, setIsTouch] = useState<boolean>(false);
-
-  useEffect(() => {
+  const [isTouch] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     }
-  }, []);
+    return false;
+  });
 
   return isTouch;
 }

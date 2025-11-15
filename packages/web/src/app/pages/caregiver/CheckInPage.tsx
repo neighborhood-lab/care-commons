@@ -10,8 +10,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth, useIsMobile } from '@/core/hooks';
-import { Card, Button, EmptyState } from '@/core/components';
+import { useIsMobile } from '@/core/hooks';
+import { Card, Button } from '@/core/components';
 import {
   MapPin,
   CheckCircle,
@@ -34,7 +34,6 @@ interface GeolocationState {
 export const CheckInPage: React.FC = () => {
   const { visitId } = useParams<{ visitId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const isMobile = useIsMobile();
 
   const [isCheckingIn, setIsCheckingIn] = useState(false);
@@ -117,7 +116,7 @@ export const CheckInPage: React.FC = () => {
     }
   };
 
-  const handleCheckOut = async () => {
+  const handleCheckOut = async (): Promise<void> => {
     setIsCheckingIn(true);
     try {
       // API call would go here
@@ -129,6 +128,9 @@ export const CheckInPage: React.FC = () => {
       setIsCheckingIn(false);
     }
   };
+
+  // Use visitId to prevent unused warning - will be used with API integration
+  const _visitId = visitId;
 
   const getGPSStatusIcon = () => {
     if (location.loading) {

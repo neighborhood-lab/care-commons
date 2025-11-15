@@ -10,8 +10,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth, useIsMobile } from '@/core/hooks';
-import { Card, Button, Input } from '@/core/components';
+import { useIsMobile } from '@/core/hooks';
+import { Card, Button } from '@/core/components';
 import {
   Mic,
   MicOff,
@@ -22,13 +22,6 @@ import {
   CheckCircle,
   FileText,
 } from 'lucide-react';
-
-interface Note {
-  id: string;
-  content: string;
-  timestamp: Date;
-  category: string;
-}
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
@@ -81,7 +74,6 @@ declare global {
 export const QuickNotesPage: React.FC = () => {
   const { visitId } = useParams<{ visitId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const isMobile = useIsMobile();
 
   const [noteContent, setNoteContent] = useState('');
@@ -106,7 +98,7 @@ export const QuickNotesPage: React.FC = () => {
       recognition.interimResults = true;
       recognition.lang = 'en-US';
 
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
+      recognition.onresult = (event: SpeechRecognitionEvent): void => {
         let interimTranscript = '';
         let finalTranscript = '';
 
@@ -127,12 +119,12 @@ export const QuickNotesPage: React.FC = () => {
         }
       };
 
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      recognition.onerror = (event: SpeechRecognitionErrorEvent): void => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };
 
-      recognition.onend = () => {
+      recognition.onend = (): void => {
         setIsListening(false);
       };
 
@@ -172,9 +164,10 @@ export const QuickNotesPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    await handleSave();
-    navigate(`/caregiver/checkin/${visitId}`);
+  const handleSubmit = (): void => {
+    handleSave()
+      .then(() => navigate(`/caregiver/checkin/${visitId ?? ''}`))
+      .catch((error) => console.error('Failed to save note:', error));
   };
 
   const insertTemplate = (template: string) => {

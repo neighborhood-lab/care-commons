@@ -9,16 +9,13 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth, useIsMobile } from '@/core/hooks';
+import { useParams } from 'react-router-dom';
+import { useIsMobile } from '@/core/hooks';
 import { Card, Button } from '@/core/components';
 import {
   CheckCircle,
   Circle,
-  Clock,
-  AlertCircle,
   ChevronRight,
-  Filter,
 } from 'lucide-react';
 
 interface Task {
@@ -39,8 +36,10 @@ interface SwipeState {
 
 export const TaskChecklistPage: React.FC = () => {
   const { visitId } = useParams<{ visitId: string }>();
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
+
+  // Use visitId to prevent unused warning - will be used with API integration
+  const _visitId = visitId;
 
   const [tasks, setTasks] = useState<Task[]>([
     {
@@ -245,7 +244,6 @@ export const TaskChecklistPage: React.FC = () => {
       <div className="space-y-3">
         {filteredTasks.map((task) => {
           const swipeOffset = getSwipeOffset(task.id);
-          const isBeingSwiped = swipeState.isSwiping && swipeState.taskId === task.id;
 
           return (
             <div

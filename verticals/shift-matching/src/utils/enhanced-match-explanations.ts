@@ -13,8 +13,7 @@
  * - "Sarah has 98% on-time rate, 4.8/5 average rating"
  */
 
-import type { OpenShift, MatchCandidate, MatchScores, MatchReason } from '../types/shift-matching';
-import type { Caregiver } from '@care-commons/caregiver-staff';
+import type { OpenShift, MatchCandidate, MatchScores } from '../types/shift-matching';
 import type { CaregiverContext } from './matching-algorithm';
 
 export interface EnhancedMatchExplanation {
@@ -375,7 +374,7 @@ export class EnhancedMatchExplanations {
       s.name.toLowerCase().includes(shift.serviceTypeName.toLowerCase())
     );
 
-    if (serviceTypeExperience && serviceTypeExperience.yearsExperience) {
+    if (serviceTypeExperience?.yearsExperience) {
       details.push({
         requirement: `${shift.serviceTypeName} expertise`,
         caregiverAttribute: `${caregiver.firstName} has ${serviceTypeExperience.yearsExperience} years of ${shift.serviceTypeName} experience`,
