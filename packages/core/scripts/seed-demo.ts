@@ -990,8 +990,8 @@ async function seedDatabase() {
           const firstName = role.label;
           const lastName = `(${state.code})`;
 
-          // Password format: Demo{State}{Role}123!
-          const password = `Demo${state.code}${role.value}123!`;
+          // Password format: Demo123! (simple, easy to remember)
+          const password = `Demo123!`;
           const passwordHash = PasswordUtils.hashPassword(password);
 
           const userId = uuidv4();
@@ -1092,8 +1092,8 @@ async function seedDatabase() {
       }
 
       console.log(`✅ State-specific users: ${usersCreated} created, ${usersUpdated} updated (${usersCreated + usersUpdated} total)\n`);
-      console.log(`📝 Login format: {role}@{state}.carecommons.example / Demo{STATE}{ROLE}123!`);
-      console.log(`   Example: admin@al.carecommons.example / DemoALADMIN123!\n`);
+      console.log(`📝 Login format: {role}@{state}.carecommons.example / Demo123!`);
+      console.log(`   Example: admin@al.carecommons.example / Demo123!\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 2: Clear existing demo data (optional, based on IS_DEMO flag)
@@ -1257,6 +1257,7 @@ async function seedDatabase() {
             first_name, last_name, roles, status,
             created_by, updated_by, is_demo_data, username
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, $11)
+          ON CONFLICT (email) DO NOTHING
           `,
           [
             caregiverUserId,
@@ -1269,7 +1270,7 @@ async function seedDatabase() {
             'ACTIVE',
             systemUserId,
             systemUserId,
-            caregiver.email, // username
+            caregiver.employeeNumber, // Use employee number as username (guaranteed unique)
           ]
         );
         
@@ -2441,8 +2442,8 @@ async function seedDatabase() {
       console.log('   📧 Admin: admin@carecommons.example / Admin123!');
       console.log('   📧 Family: family@carecommons.example / Family123!');
       console.log('   📧 Caregivers: (any caregiver email from demo data) / Caregiver123!');
-      console.log('   📧 State Users: {role}@{state}.carecommons.example / Demo{STATE}{ROLE}123!');
-      console.log('      Example: admin@tx.carecommons.example / DemoTXADMIN123!');
+      console.log('   📧 State Users: {role}@{state}.carecommons.example / Demo123!');
+      console.log('      Example: admin@tx.carecommons.example / Demo123!');
       console.log('═══════════════════════════════════════════════════════════════\n');
     });
 
