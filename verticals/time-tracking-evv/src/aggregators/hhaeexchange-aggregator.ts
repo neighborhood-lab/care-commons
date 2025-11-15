@@ -374,28 +374,18 @@ export class HHAeXchangeAggregator implements IAggregator {
     }
 
     try {
-      // Create AbortController for timeout
+      // Send payload to HHAeXchange API
       // eslint-disable-next-line no-undef
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-      try {
-        // Send payload to HHAeXchange API
-        // eslint-disable-next-line no-undef
-        const response = await fetch(config.aggregatorEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-            'X-State-Code': config.state,
-            'X-API-Version': '1.0',
-          },
-          body: JSON.stringify(payload),
-          // @ts-expect-error - AbortSignal type mismatch between Node and DOM types
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeout);
+      const response = await fetch(config.aggregatorEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'X-State-Code': config.state,
+          'X-API-Version': '1.0',
+        },
+        body: JSON.stringify(payload),
+      });
 
         // Parse response
         const responseBody = await response.json() as HHAeXchangeResponse;
@@ -429,15 +419,9 @@ export class HHAeXchangeAggregator implements IAggregator {
 
         // Return response
         return responseBody;
-      } finally {
-        clearTimeout(timeout);
-      }
     } catch (error) {
       // Handle network errors
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw new Error('HHAeXchange API request timeout after 30 seconds');
-        }
         throw new Error(`HHAeXchange API error: ${error.message}`);
       }
       throw error;

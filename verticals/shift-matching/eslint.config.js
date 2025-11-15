@@ -78,6 +78,7 @@ export default [
       'sonarjs/deprecation': 'off', // Ignore Zod deprecations
       'sonarjs/different-types-comparison': 'off', // Allow loose type comparisons
       'sonarjs/no-nested-functions': 'off', // Allow nested functions
+      'sonarjs/no-nested-conditional': 'off', // Allow nested ternaries for match explanations
       '@typescript-eslint/no-explicit-any': 'warn', // Warn on any instead of error
       // Unicorn rules (battle-tested quality improvements)
       'unicorn/prevent-abbreviations': 'off', // Too aggressive for domain models

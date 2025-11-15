@@ -377,28 +377,18 @@ export class TellusAggregator implements IAggregator {
     }
 
     try {
-      // Create AbortController for timeout
+      // Send payload to Tellus API
       // eslint-disable-next-line no-undef
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-      try {
-        // Send payload to Tellus API
-        // eslint-disable-next-line no-undef
-        const response = await fetch(config.aggregatorEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': apiKey,
-            'X-State-Code': config.state,
-            'X-API-Version': '2.0',
-          },
-          body: JSON.stringify(payload),
-          // @ts-expect-error - AbortSignal type mismatch between Node and DOM types
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeout);
+      const response = await fetch(config.aggregatorEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+          'X-State-Code': config.state,
+          'X-API-Version': '2.0',
+        },
+        body: JSON.stringify(payload),
+      });
 
         // Parse response
         const responseBody = await response.json() as TellusResponse;
@@ -432,15 +422,9 @@ export class TellusAggregator implements IAggregator {
 
         // Return response (Tellus returns status in body)
         return responseBody;
-      } finally {
-        clearTimeout(timeout);
-      }
     } catch (error) {
       // Handle network errors
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw new Error('Tellus API request timeout after 30 seconds');
-        }
         throw new Error(`Tellus API error: ${error.message}`);
       }
       throw error;

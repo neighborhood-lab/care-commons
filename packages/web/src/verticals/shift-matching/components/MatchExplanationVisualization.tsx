@@ -302,16 +302,15 @@ export const MatchExplanationCompact: React.FC<{
   // Show only top positive details
   const topDetails: Array<{ category: string; detail: MatchDetail }> = [];
 
-  explanations.forEach(explanation => {
+  for (const explanation of explanations) {
     if (explanation.overallImpact === 'POSITIVE') {
-      explanation.details
+      for (const detail of explanation.details
         .filter(d => d.match === 'PERFECT' || d.match === 'GOOD')
-        .slice(0, 2)
-        .forEach(detail => {
+        .slice(0, 2)) {
           topDetails.push({ category: explanation.category, detail });
-        });
+        }
     }
-  });
+  }
 
   return (
     <div className="space-y-2">

@@ -23,10 +23,10 @@ export const ClientSearch: React.FC<ClientSearchProps> = ({ filters, onFiltersCh
   // Count active filters
   const activeFilterCount = React.useMemo(() => {
     let count = 0;
-    if (filters.query && filters.query.trim()) count++;
+    if (filters.query?.trim()) count++;
     if (filters.status && filters.status.length > 0) count++;
-    if (filters.city && filters.city.trim()) count++;
-    if (filters.state && filters.state.trim()) count++;
+    if (filters.city?.trim()) count++;
+    if (filters.state?.trim()) count++;
     return count;
   }, [filters]);
 
@@ -110,7 +110,7 @@ export const ClientSearch: React.FC<ClientSearchProps> = ({ filters, onFiltersCh
       {/* Active filters indicator */}
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap gap-2">
-          {filters.query && filters.query.trim() && (
+          {filters.query?.trim() && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
               Search: {filters.query}
               <button
@@ -132,7 +132,7 @@ export const ClientSearch: React.FC<ClientSearchProps> = ({ filters, onFiltersCh
               </button>
             </span>
           )}
-          {filters.city && filters.city.trim() && (
+          {filters.city?.trim() && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
               City: {filters.city}
               <button
@@ -143,7 +143,7 @@ export const ClientSearch: React.FC<ClientSearchProps> = ({ filters, onFiltersCh
               </button>
             </span>
           )}
-          {filters.state && filters.state.trim() && (
+          {filters.state?.trim() && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
               State: {filters.state}
               <button
