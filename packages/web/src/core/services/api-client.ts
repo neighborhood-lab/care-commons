@@ -26,7 +26,7 @@ class ApiClientImpl implements ApiClient {
     const method = fetchOptions.method ?? 'GET';
 
     // Create request key for deduplication (method + url + body hash)
-    const bodyHash = fetchOptions.body ? JSON.stringify(fetchOptions.body).substring(0, 50) : '';
+    const bodyHash = fetchOptions.body ? JSON.stringify(fetchOptions.body).slice(0, 50) : '';
     const requestKey = `${method}:${url}${bodyHash}`;
 
     // For GET requests, use deduplication to prevent duplicate concurrent requests

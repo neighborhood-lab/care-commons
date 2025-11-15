@@ -175,7 +175,7 @@ describe('Login Page', () => {
     fireEvent.click(adminButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Too Many Login Attempts/i)).toBeInTheDocument();
+      expect(screen.getByText(/too many login attempts/i)).toBeInTheDocument();
       // Should show countdown
       expect(screen.getByText(/5:00/)).toBeInTheDocument();
     });
@@ -365,7 +365,7 @@ describe('Login Page', () => {
     fireEvent.click(adminButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Too Many Login Attempts/i)).toBeInTheDocument();
+      expect(screen.getByText(/too many login attempts/i)).toBeInTheDocument();
     });
 
     // Clear mock to track new calls
@@ -445,7 +445,7 @@ describe('Login Page', () => {
     fireEvent.click(adminButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Too Many Login Attempts/i)).toBeInTheDocument();
+      expect(screen.getByText(/too many login attempts/i)).toBeInTheDocument();
     });
 
     // Should show time in MM:SS format

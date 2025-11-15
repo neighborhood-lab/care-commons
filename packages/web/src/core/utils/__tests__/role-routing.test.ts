@@ -263,11 +263,11 @@ describe('role-routing utilities', () => {
         'NURSE_LPN',
       ];
 
-      allRoles.forEach((role) => {
+      for (const role of allRoles) {
         expect(ROLE_DASHBOARDS[role]).toBeDefined();
         expect(typeof ROLE_DASHBOARDS[role]).toBe('string');
         expect(ROLE_DASHBOARDS[role].startsWith('/')).toBe(true);
-      });
+      }
     });
   });
 });

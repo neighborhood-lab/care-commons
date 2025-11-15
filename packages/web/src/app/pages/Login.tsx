@@ -70,7 +70,7 @@ export const Login: React.FC = () => {
       }, 1000);
       return () => clearTimeout(timer);
     }
-    return undefined;
+    return;
   }, [cooldownSeconds]);
 
   // Rate limit countdown effect
@@ -83,7 +83,7 @@ export const Login: React.FC = () => {
     } else if (rateLimitRetryAfter === 0) {
       setRateLimitRetryAfter(null);
     }
-    return undefined;
+    return;
   }, [rateLimitRetryAfter]);
 
   const handleLogin = async (personaIndex: number) => {
