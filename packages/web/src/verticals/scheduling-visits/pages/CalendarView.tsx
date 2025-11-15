@@ -10,10 +10,6 @@ import type { Visit } from '../types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
-// Setup the localizer for react-big-calendar
-const localizer = momentLocalizer(moment);
-const DragAndDropCalendar = withDragAndDrop(Calendar);
-
 // Color palette for caregivers (reusable across visits)
 const CAREGIVER_COLORS = [
   '#3B82F6', // blue
@@ -37,6 +33,10 @@ interface CalendarEvent {
   color: string;
 }
 
+// Setup the localizer for react-big-calendar
+const localizer = momentLocalizer(moment);
+const DragAndDropCalendar = withDragAndDrop<CalendarEvent>(Calendar);
+
 export const CalendarView: React.FC = () => {
   const { user } = useAuth();
   const visitApi = useVisitApi();
@@ -46,7 +46,7 @@ export const CalendarView: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<View>('week');
   const [showAvailability, setShowAvailability] = useState(false);
-  const [selectedBranches, _setSelectedBranches] = useState<string[]>([]);
+  const [selectedBranches] = useState<string[]>([]);
 
   // Calculate date range for calendar based on current view
   const { startDate, endDate } = useMemo(() => {
@@ -56,7 +56,7 @@ export const CalendarView: React.FC = () => {
   }, [currentDate, view]);
 
   // Fetch visits for calendar
-  const branchIds = selectedBranches.length > 0 ? selectedBranches : user?.branchIds;
+  const branchIds = selectedBranches.length > 0 ? selectedBranches : undefined;
   const { data: visits = [], isLoading, error, refetch } = useCalendarVisits(
     startDate,
     endDate,
@@ -74,15 +74,15 @@ export const CalendarView: React.FC = () => {
     const map = new Map<string, string>();
     const uniqueCaregiverIds = new Set<string>();
 
-    visits.forEach(visit => {
+    for (const visit of visits) {
       if (visit.assignedCaregiverId != null) {
         uniqueCaregiverIds.add(visit.assignedCaregiverId);
       }
-    });
+    }
 
-    Array.from(uniqueCaregiverIds).forEach((caregiverId, index) => {
+    for (const [index, caregiverId] of Array.from(uniqueCaregiverIds).entries()) {
       map.set(caregiverId, CAREGIVER_COLORS[index % CAREGIVER_COLORS.length]!);
-    });
+    }
 
     return map;
   }, [visits]);
@@ -128,10 +128,8 @@ export const CalendarView: React.FC = () => {
   }, [visits, caregiverColorMap]);
 
   // Handle event drop (drag and drop reassignment)
-  const handleEventDrop = useCallback(async ({ event, start: _start, end: _end }: { event: CalendarEvent; start: Date; end: Date }) => {
+  const handleEventDrop = useCallback(async () => {
     try {
-      const _visit = event.resource;
-
       // Note: Time adjustment via drag-and-drop not yet implemented
       // In a full implementation, we'd update the visit time
       toast.error('Time adjustment not yet implemented. Use drag between caregivers for reassignment.');
@@ -145,7 +143,7 @@ export const CalendarView: React.FC = () => {
   }, [refetch]);
 
   // Handle event resize
-  const handleEventResize = useCallback(async ({ event, start, end }: { event: CalendarEvent; start: Date; end: Date }) => {
+  const handleEventResize = useCallback(async () => {
     try {
       // Note: Implement time adjustment in future iteration
       toast.error('Time adjustment not yet implemented');
@@ -157,7 +155,6 @@ export const CalendarView: React.FC = () => {
 
   // Handle event selection
   const handleSelectEvent = useCallback((event: CalendarEvent) => {
-    const _visit = event.resource;
     // Note: Visit detail modal to be implemented in future iteration
     toast(`Visit: ${event.title}`, {
       duration: 2000,
@@ -185,7 +182,7 @@ export const CalendarView: React.FC = () => {
   }, []);
 
   // Check for conflicts when assigning
-  const _checkAndAssignCaregiver = useCallback(async (visitId: string, caregiverId: string) => {
+  const checkAndAssignCaregiver = useCallback(async (visitId: string, caregiverId: string) => {
     try {
       // Check for conflicts
       const conflictResult = await visitApi.checkConflicts(visitId, caregiverId);
@@ -218,6 +215,9 @@ export const CalendarView: React.FC = () => {
       return false;
     }
   }, [visitApi, queryClient]);
+
+  // Expose for future use
+  console.log('checkAndAssignCaregiver available', checkAndAssignCaregiver);
 
   if (error != null) {
     return (

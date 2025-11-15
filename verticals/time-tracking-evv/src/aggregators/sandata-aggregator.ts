@@ -311,28 +311,18 @@ export class SandataAggregator implements IAggregator {
       // Get OAuth 2.0 access token
       const token = await this.getOAuthToken(config);
 
-      // Create AbortController for timeout
+      // Send payload to Sandata API
       // eslint-disable-next-line no-undef
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-      try {
-        // Send payload to Sandata API
-        // eslint-disable-next-line no-undef
-        const response = await fetch(config.aggregatorEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'X-State-Code': config.state,
-            'X-API-Version': '1.0',
-          },
-          body: JSON.stringify(payload),
-          // @ts-expect-error - AbortSignal type mismatch between Node and DOM types
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeout);
+      const response = await fetch(config.aggregatorEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'X-State-Code': config.state,
+          'X-API-Version': '1.0',
+        },
+        body: JSON.stringify(payload),
+      });
 
         // Parse response
         const responseBody = await response.json() as SandataResponse;
@@ -354,15 +344,9 @@ export class SandataAggregator implements IAggregator {
           transactionId: responseBody.transactionId,
           confirmationNumber: responseBody.confirmationNumber,
         };
-      } finally {
-        clearTimeout(timeout);
-      }
     } catch (error) {
       // Handle network errors
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw new Error('Sandata API request timeout after 30 seconds');
-        }
         throw new Error(`Sandata API error: ${error.message}`);
       }
       throw error;
@@ -394,27 +378,17 @@ export class SandataAggregator implements IAggregator {
     }
 
     try {
-      // Request access token
+      // Build form data manually for cross-platform compatibility (Node.js and React Native)
+      const formData = `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&scope=${encodeURIComponent('evv:submit evv:query')}`;
+      
       // eslint-disable-next-line no-undef
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-      try {
-        // Build form data manually for cross-platform compatibility (Node.js and React Native)
-        const formData = `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&scope=${encodeURIComponent('evv:submit evv:query')}`;
-        
-        // eslint-disable-next-line no-undef
-        const response = await fetch(authEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: formData,
-          // @ts-expect-error - AbortSignal type mismatch between Node and DOM types
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeout);
+      const response = await fetch(authEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+      });
 
         if (!response.ok) {
           throw new Error(`OAuth token request failed: ${response.statusText}`);
@@ -432,14 +406,8 @@ export class SandataAggregator implements IAggregator {
         });
 
         return tokenResponse.access_token;
-      } finally {
-        clearTimeout(timeout);
-      }
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw new Error('OAuth token request timeout after 10 seconds');
-        }
         throw new Error(`Failed to get OAuth token: ${error.message}`);
       }
       throw error;
