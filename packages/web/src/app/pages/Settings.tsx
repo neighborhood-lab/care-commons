@@ -414,6 +414,7 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
   }, [preferencesData, reset, i18n]);
 
   // Watch language changes and update i18n immediately
+  // eslint-disable-next-line react-hooks/incompatible-library
   const selectedLanguage = watch('language');
   React.useEffect(() => {
     void i18n.changeLanguage(selectedLanguage);
