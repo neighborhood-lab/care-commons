@@ -6,11 +6,15 @@ on:
     types:
       - completed
 
+concurrency:
+  group: notifications-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
 jobs:
   notify-slack:
     name: Send Slack Notification
     runs-on: ubuntu-latest
-    if: always() && github.event.workflow_run.conclusion != 'skipped'
+    if: always() && github.event.workflow_run.conclusion != 'skipped' && github.event.workflow_run.name != 'Notifications'
     env:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     steps:
