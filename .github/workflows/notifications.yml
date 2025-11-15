@@ -141,35 +141,13 @@ jobs:
   notify-discord:
     name: Send Discord Notification
     runs-on: ubuntu-latest
-    if: always() && github.event.workflow_run.name == 'CI' && github.event.workflow_run.head_branch == 'develop' && github.event.workflow_run.conclusion != 'skipped'
+    if: always() && ((github.event.workflow_run.name == 'CI' && github.event.workflow_run.head_branch == 'develop' && github.event.workflow_run.conclusion == 'failure') || (github.event.workflow_run.name == 'Deploy'))
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
     steps:
-      - name: Determine status emoji and color
-        id: status
-        run: |
-          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
-            echo "emoji=✅" >> $GITHUB_OUTPUT
-            echo "color=3066993" >> $GITHUB_OUTPUT
-            echo "status_text=SUCCESS" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.workflow_run.conclusion }}" == "failure" ]; then
-            echo "emoji=❌" >> $GITHUB_OUTPUT
-            echo "color=15158332" >> $GITHUB_OUTPUT
-            echo "status_text=FAILED" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.workflow_run.conclusion }}" == "cancelled" ]; then
-            echo "emoji=⚠️" >> $GITHUB_OUTPUT
-            echo "color=16776960" >> $GITHUB_OUTPUT
-            echo "status_text=CANCELLED" >> $GITHUB_OUTPUT
-          else
-            echo "emoji=⚠️" >> $GITHUB_OUTPUT
-            echo "color=16776960" >> $GITHUB_OUTPUT
-            echo "status_text=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Send Discord notification
         if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
         run: |
-          # Validate webhook URL is set
           if [ -z "${{ env.DISCORD_WEBHOOK_URL }}" ]; then
             echo "❌ DISCORD_WEBHOOK_URL is empty - skipping notification"
             exit 0
@@ -178,10 +156,20 @@ jobs:
           COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
           SHORT_SHA="${COMMIT_SHA:0:7}"
           
-          # Build simple text message with proper escaping
+          # Determine message based on workflow type
+          if [ "${{ github.event.workflow_run.name }}" == "Deploy" ]; then
+            if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
+              MESSAGE="🚀 **Deployed to ${{ github.event.workflow_run.head_branch }}** (${SHORT_SHA})"
+            else
+              MESSAGE="❌ **Deploy FAILED** on \`${{ github.event.workflow_run.head_branch }}\` (${SHORT_SHA}) - <${{ github.event.workflow_run.html_url }}>"
+            fi
+          else
+            MESSAGE="❌ **CI FAILED** on \`develop\` (${SHORT_SHA}) - <${{ github.event.workflow_run.html_url }}>"
+          fi
+          
           curl -s -w "\nHTTP Status: %{http_code}\n" \
             -H "Content-Type: application/json" \
-            -d "{\"content\":\"${{ steps.status.outputs.emoji }} **CI Build ${{ steps.status.outputs.status_text }}**\\nRepository: ${{ github.repository }}\\nBranch: \`${{ github.event.workflow_run.head_branch }}\`\\nCommit: ${SHORT_SHA}\\nTriggered by: ${{ github.event.workflow_run.actor.login }}\\nNode: 22.x\\nView: ${{ github.event.workflow_run.html_url }}\"}" \
+            -d "{\"content\":\"${MESSAGE}\"}" \
             "${{ env.DISCORD_WEBHOOK_URL }}" > /tmp/discord-response.txt
           
           HTTP_CODE=$(tail -n1 /tmp/discord-response.txt | grep -o '[0-9]*$')
@@ -198,6 +186,4 @@ jobs:
         if: ${{ env.DISCORD_WEBHOOK_URL == '' }}
         run: |
           echo "ℹ️ Discord notifications not configured (this is expected)"
-          echo "To enable Discord notifications, add DISCORD_WEBHOOK_URL to GitHub Secrets"
-          echo "Get a webhook URL from: Discord Server Settings → Integrations → Webhooks"
           exit 0
