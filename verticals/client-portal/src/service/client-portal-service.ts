@@ -35,7 +35,6 @@ import type {
   UpdateNotificationPreferencesInput,
   VisitRatingFilters,
   ScheduleChangeRequestFilters,
-  VideoCallSessionFilters,
   CarePlanAccessLog,
 } from '../types/index';
 import {
@@ -45,7 +44,7 @@ import {
   VideoCallSessionRepository,
   CarePlanAccessLogRepository,
 } from '../repository/client-portal-repository';
-import { randomBytes, createHash } from 'crypto';
+import { randomBytes } from 'crypto';
 
 export class ClientPortalService {
   constructor(
