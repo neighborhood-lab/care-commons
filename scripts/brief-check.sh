@@ -67,17 +67,16 @@ run_check() {
 # Track failures
 FAILED_CHECKS=()
 
-# Clear turbo cache before running checks
-echo -e "${YELLOW}▶ 🧹 Clearing turbo cache${NC}"
-npx turbo daemon clean > /dev/null 2>&1 || true
-rm -rf .turbo node_modules/.cache > /dev/null 2>&1 || true
+# Use turbo cache for speed (pre-commit hook should be fast)
+# Turbo will automatically detect changed files and only re-run affected tasks
+echo -e "${YELLOW}▶ ⚡ Using turbo cache for fast incremental checks${NC}"
 echo ""
 
-# Run checks (always force to ensure fresh results)
+# Run checks (use turbo cache for speed)
 # Limit concurrency to avoid resource contention with vitest
-run_check "Lint" "🔍" "npx turbo run lint --force" || FAILED_CHECKS+=("Lint")
-run_check "TypeCheck" "🔎" "npx turbo run typecheck --force" || FAILED_CHECKS+=("TypeCheck")
-run_check "Tests" "🧪" "npx turbo run test --force --concurrency=4" || FAILED_CHECKS+=("Tests")
+run_check "Lint" "🔍" "npx turbo run lint" || FAILED_CHECKS+=("Lint")
+run_check "TypeCheck" "🔎" "npx turbo run typecheck" || FAILED_CHECKS+=("TypeCheck")
+run_check "Tests" "🧪" "npx turbo run test --concurrency=4" || FAILED_CHECKS+=("Tests")
 
 # Calculate total duration
 OVERALL_END=$(date +%s)

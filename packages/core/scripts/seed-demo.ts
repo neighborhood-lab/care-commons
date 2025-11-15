@@ -1241,8 +1241,13 @@ async function seedDatabase() {
       }
 
       // Now insert caregivers into database
+      // Password for all demo caregivers: Caregiver123!
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- Demo data only
+      const caregiverPassword = 'Caregiver123!';
+      const caregiverPasswordHash = PasswordUtils.hashPassword(caregiverPassword);
+
       for (const caregiver of caregivers) {
-        
+
         // Create user account for caregiver
         const caregiverUserId = uuidv4();
         await client.query(
@@ -1257,7 +1262,7 @@ async function seedDatabase() {
             caregiverUserId,
             orgId,
             caregiver.email,
-            '$2b$10$DEMO_HASH', // Demo password hash
+            caregiverPasswordHash,
             caregiver.firstName,
             caregiver.lastName,
             '{CAREGIVER}',
@@ -2431,6 +2436,13 @@ async function seedDatabase() {
       console.log(`      - ${threadCount} message conversations with care team`);
       console.log(`      - ${activityCount} recent activities logged`);
       console.log(`      - Family portal: family@carecommons.example / Family123!`);
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('\n🔐 Demo Login Credentials:');
+      console.log('   📧 Admin: admin@carecommons.example / Admin123!');
+      console.log('   📧 Family: family@carecommons.example / Family123!');
+      console.log('   📧 Caregivers: (any caregiver email from demo data) / Caregiver123!');
+      console.log('   📧 State Users: {role}@{state}.carecommons.example / Demo{STATE}{ROLE}123!');
+      console.log('      Example: admin@tx.carecommons.example / DemoTXADMIN123!');
       console.log('═══════════════════════════════════════════════════════════════\n');
     });
 
