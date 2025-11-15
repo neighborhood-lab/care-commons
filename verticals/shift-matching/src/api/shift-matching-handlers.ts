@@ -515,9 +515,9 @@ export class ShiftMatchingHandlers {
    * with detailed requirement → attribute mappings for coordinator review.
    */
   async getEnhancedMatchExplanation(
-    openShiftId: string,
-    caregiverId: string,
-    context: UserContext
+    _openShiftId: string,
+    _caregiverId: string,
+    _context: UserContext
   ): Promise<{
     candidate: MatchCandidate;
     explanations: import('../utils/enhanced-match-explanations').EnhancedMatchExplanation[];
