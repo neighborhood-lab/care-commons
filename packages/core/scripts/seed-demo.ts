@@ -810,7 +810,8 @@ function generateVisit(
             lat: clientCoordinates.lat + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
             lng: clientCoordinates.lng + faker.number.float({ min: -0.0001, max: 0.0001, fractionDigits: 6 }),
           };
-          // evvClockOutGPS intentionally left as null (already initialized to null)
+          // eslint-disable-next-line sonarjs/no-redundant-assignments
+          evvClockOutGPS = null; // Missing clock-out (explicit for clarity)
           evvVerificationMethod = 'BIOMETRIC';
           notes = 'All ADLs completed. (Note: Missed clock-out - coordinator follow-up required)';
         } else {
@@ -2374,12 +2375,12 @@ async function seedDatabase() {
         : '0';
 
       // Calculate geographic distribution
-      const clientCityDistribution = clients.reduce((acc, c) => {
+      const clientsByCityCount = clients.reduce((acc, c) => {
         acc[c.city] = (acc[c.city] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
-      const caregiverCityDistribution = caregivers.reduce((acc, c) => {
+      const caregiversByCityCount = caregivers.reduce((acc, c) => {
         acc[c.city] = (acc[c.city] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
@@ -2403,11 +2404,11 @@ async function seedDatabase() {
       console.log('═══════════════════════════════════════════════════════════════');
       console.log('\n🏙️  Geographic Distribution (Texas Cities):');
       console.log('   Clients:');
-      Object.entries(clientCityDistribution).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
+      Object.entries(clientsByCityCount).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
         console.log(`     - ${city}: ${count} clients`);
       });
       console.log('   Caregivers:');
-      Object.entries(caregiverCityDistribution).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
+      Object.entries(caregiversByCityCount).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
         console.log(`     - ${city}: ${count} caregivers`);
       });
       console.log('═══════════════════════════════════════════════════════════════');

@@ -106,10 +106,23 @@ export class PermissionService {
       ])
     );
 
-    // Family - limited client access
+    // Family - limited client access + family portal features
     this.rolePermissions.set(
       'FAMILY',
-      new Set(['clients:read', 'care-plans:read', 'notes:read', 'visits:read'])
+      new Set([
+        'clients:read',
+        'care-plans:read',
+        'notes:read',
+        'visits:read',
+        'family-portal:view',
+        'family-portal:invite',
+        'activity-feed:view',
+        'notifications:view',
+        'notifications:send',
+        'messages:view',
+        'messages:send',
+        'messages:create',
+      ])
     );
 
     // Billing - financial access
