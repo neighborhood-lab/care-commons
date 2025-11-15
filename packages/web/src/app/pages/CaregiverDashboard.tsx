@@ -18,10 +18,8 @@ import {
   MapPin,
   Navigation,
   CheckCircle,
-  ClipboardList,
   AlertCircle,
   Award,
-  DollarSign,
   FileText,
   AlertTriangle,
   Users,
@@ -291,7 +289,7 @@ export const CaregiverDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // TODO: Replace with actual API calls
+  // Note: Using mock data for demonstration - API integration in progress
   const todayVisits = [
     {
       clientName: 'John Smith',
@@ -305,7 +303,7 @@ export const CaregiverDashboard: React.FC = () => {
         'Medication reminder',
         'Light housekeeping',
       ],
-      onNavigate: () => window.open('https://maps.google.com/?q=123+Main+St+Austin+TX', '_blank'),
+      onNavigate: () => window.open('https://maps.google.com/?q=123+Main+St+Austin+TX', '_blank', 'noopener,noreferrer'),
       onCheckIn: () => navigate('/visits/checkin/visit-1'),
       onViewDetails: () => navigate('/visits/visit-1'),
     },
@@ -321,7 +319,7 @@ export const CaregiverDashboard: React.FC = () => {
         'Vital signs check',
         'Document observations',
       ],
-      onNavigate: () => window.open('https://maps.google.com/?q=456+Oak+Ave+Austin+TX', '_blank'),
+      onNavigate: () => window.open('https://maps.google.com/?q=456+Oak+Ave+Austin+TX', '_blank', 'noopener,noreferrer'),
       onCheckIn: () => navigate('/visits/checkin/visit-2'),
       onViewDetails: () => navigate('/visits/visit-2'),
     },
@@ -337,7 +335,7 @@ export const CaregiverDashboard: React.FC = () => {
         'Light exercise/walk',
         'Meal preparation',
       ],
-      onNavigate: () => window.open('https://maps.google.com/?q=789+Elm+St+Austin+TX', '_blank'),
+      onNavigate: () => window.open('https://maps.google.com/?q=789+Elm+St+Austin+TX', '_blank', 'noopener,noreferrer'),
       onCheckIn: () => navigate('/visits/checkin/visit-3'),
       onViewDetails: () => navigate('/visits/visit-3'),
     },

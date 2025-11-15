@@ -16,22 +16,48 @@ import {
   Calendar,
   ClipboardList,
   Pill,
-  Activity,
   AlertCircle,
   CheckCircle,
-  Clock,
-  TrendingUp,
   FileText,
   Users,
   Award,
-  AlertTriangle,
 } from 'lucide-react';
+
+// Type for visit/review status
+type StatusType = 'overdue' | 'due-soon' | 'upcoming';
+
+// Shared helper for status styling
+const getStatusStyles = (status: StatusType) => {
+  switch (status) {
+    case 'overdue':
+      return {
+        bg: 'bg-red-50',
+        border: 'border-red-200',
+        badge: 'bg-red-500',
+        text: 'Overdue',
+      };
+    case 'due-soon':
+      return {
+        bg: 'bg-yellow-50',
+        border: 'border-yellow-200',
+        badge: 'bg-yellow-500',
+        text: 'Due Soon',
+      };
+    case 'upcoming':
+      return {
+        bg: 'bg-blue-50',
+        border: 'border-blue-200',
+        badge: 'bg-blue-500',
+        text: 'Upcoming',
+      };
+  }
+};
 
 interface SupervisionVisitProps {
   clientName: string;
   lastVisit: string;
   dueDate: string;
-  status: 'overdue' | 'due-soon' | 'upcoming';
+  status: StatusType;
   visitType: string;
   onClick?: () => void;
 }
@@ -44,33 +70,7 @@ const SupervisionVisit: React.FC<SupervisionVisitProps> = ({
   visitType,
   onClick,
 }) => {
-  const getStatusStyles = () => {
-    switch (status) {
-      case 'overdue':
-        return {
-          bg: 'bg-red-50',
-          border: 'border-red-200',
-          badge: 'bg-red-500',
-          text: 'Overdue',
-        };
-      case 'due-soon':
-        return {
-          bg: 'bg-yellow-50',
-          border: 'border-yellow-200',
-          badge: 'bg-yellow-500',
-          text: 'Due Soon',
-        };
-      case 'upcoming':
-        return {
-          bg: 'bg-blue-50',
-          border: 'border-blue-200',
-          badge: 'bg-blue-500',
-          text: 'Upcoming',
-        };
-    }
-  };
-
-  const styles = getStatusStyles();
+  const styles = getStatusStyles(status);
 
   return (
     <div
@@ -104,7 +104,7 @@ interface CarePlanReviewProps {
   planName: string;
   lastReview: string;
   reviewDue: string;
-  status: 'overdue' | 'due-soon' | 'upcoming';
+  status: StatusType;
   onClick?: () => void;
 }
 
@@ -116,33 +116,7 @@ const CarePlanReview: React.FC<CarePlanReviewProps> = ({
   status,
   onClick,
 }) => {
-  const getStatusStyles = () => {
-    switch (status) {
-      case 'overdue':
-        return {
-          bg: 'bg-red-50',
-          border: 'border-red-200',
-          badge: 'bg-red-500',
-          text: 'Overdue',
-        };
-      case 'due-soon':
-        return {
-          bg: 'bg-yellow-50',
-          border: 'border-yellow-200',
-          badge: 'bg-yellow-500',
-          text: 'Due Soon',
-        };
-      case 'upcoming':
-        return {
-          bg: 'bg-blue-50',
-          border: 'border-blue-200',
-          badge: 'bg-blue-500',
-          text: 'Upcoming',
-        };
-    }
-  };
-
-  const styles = getStatusStyles();
+  const styles = getStatusStyles(status);
 
   return (
     <div
@@ -263,10 +237,10 @@ const MetricCard: React.FC<MetricCardProps> = ({ label, value, icon, change, tre
 };
 
 export const NurseDashboard: React.FC = () => {
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
 
-  // TODO: Replace with actual API calls
+  // Note: Using mock data for demonstration - API integration in progress
   const metrics = [
     {
       label: 'Active Clients',

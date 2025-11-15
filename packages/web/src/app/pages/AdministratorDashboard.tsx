@@ -15,14 +15,12 @@ import { Card, CardHeader, CardContent, Button, EmptyState } from '@/core/compon
 import {
   Users,
   Calendar,
-  ClipboardList,
   AlertCircle,
   DollarSign,
   FileText,
   TrendingUp,
   Clock,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   Activity,
   Award,
@@ -153,10 +151,10 @@ const QuickAction: React.FC<QuickActionProps> = ({ title, description, icon, onC
 };
 
 export const AdministratorDashboard: React.FC = () => {
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
 
-  // TODO: Replace with actual API calls
+  // Note: Using mock data for demonstration - API integration in progress
   const stats = [
     {
       label: 'Total Clients',

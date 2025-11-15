@@ -11,9 +11,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/hooks';
-import { Card, CardHeader, CardContent, Button, EmptyState } from '@/core/components';
+import { Card, CardContent, Button, EmptyState } from '@/core/components';
 import {
-  Calendar,
   Users,
   AlertCircle,
   UserPlus,
@@ -21,9 +20,7 @@ import {
   MapPin,
   CalendarX,
   CheckCircle,
-  XCircle,
   AlertTriangle,
-  ClipboardList,
 } from 'lucide-react';
 
 interface UrgentItemProps {
@@ -202,10 +199,10 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, badge, onClick 
 };
 
 export const CoordinatorDashboard: React.FC = () => {
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
 
-  // TODO: Replace with actual API calls
+  // Note: Using mock data for demonstration - API integration in progress
   const stats = [
     {
       label: 'Unassigned Visits',

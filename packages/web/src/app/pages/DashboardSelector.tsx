@@ -26,17 +26,18 @@ export const DashboardSelector: React.FC = () => {
   if (
     roles.includes('SUPER_ADMIN') ||
     roles.includes('ORG_ADMIN') ||
-    roles.includes('BRANCH_ADMIN')
+    roles.includes('BRANCH_ADMIN') ||
+    (roles as readonly string[]).includes('ADMIN')
   ) {
     return <AdministratorDashboard />;
   }
 
   // 3. Nurse/Clinical roles
   if (
-    roles.includes('NURSE') ||
-    roles.includes('CLINICAL') ||
-    roles.includes('NURSE_RN') ||
-    roles.includes('NURSE_LPN')
+    (roles as readonly string[]).includes('NURSE') ||
+    (roles as readonly string[]).includes('CLINICAL') ||
+    (roles as readonly string[]).includes('NURSE_RN') ||
+    (roles as readonly string[]).includes('NURSE_LPN')
   ) {
     return <NurseDashboard />;
   }
