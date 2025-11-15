@@ -3,3 +3,4 @@
  */
 
 export * from './useFormValidation';
+export * from './useConnectionStatus';
