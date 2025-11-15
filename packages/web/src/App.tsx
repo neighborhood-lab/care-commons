@@ -1,8 +1,8 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
+import { ProtectedRoute, FamilyProtectedRoute, PublicRoute } from './core/components';
 import { AppShell } from './app/components';
 import { DashboardSelector, Login, NotFound, AdminDashboard, Settings } from './app/pages';
 import { ClientList, ClientDetail, ClientDashboard } from './verticals/client-demographics';
@@ -44,46 +44,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Redirect family users to family portal
-  if (user?.roles.includes('FAMILY')) {
-    return <Navigate to="/family-portal" replace />;
-  }
-
-  return <>{children}</>;
-};
-
-const FamilyProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Redirect non-family users to admin dashboard
-  if (!user?.roles.includes('FAMILY')) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-};
-
-const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-
-  // If already authenticated, redirect to home (which will handle role-based routing)
-  if (isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-};
 
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
@@ -106,19 +67,21 @@ function AppRoutes() {
         element={
           !isAuthenticated ? (
             <Navigate to="/login" replace />
-          ) : user?.roles.includes('FAMILY') ? (
+          ) : user?.roles.includes('FAMILY') || user?.roles.includes('CLIENT') ? (
             <Navigate to="/family-portal" replace />
           ) : (
-            <AppShell>
-              <DashboardSelector />
-            </AppShell>
+            <ProtectedRoute>
+              <AppShell>
+                <DashboardSelector />
+              </AppShell>
+            </ProtectedRoute>
           )
         }
       />
       <Route
         path="/clients"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute permission="clients:read">
             <AppShell>
               <ClientList />
             </AppShell>
@@ -178,7 +141,7 @@ function AppRoutes() {
       <Route
         path="/caregivers"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute permission="caregivers:read">
             <AppShell>
               <CaregiverList />
             </AppShell>
@@ -288,7 +251,7 @@ function AppRoutes() {
       <Route
         path="/tasks"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute permission="tasks:read">
             <AppShell>
               <TaskList />
             </AppShell>
@@ -318,7 +281,7 @@ function AppRoutes() {
       <Route
         path="/billing"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute permission="billing:read">
             <AppShell>
               <InvoiceList />
             </AppShell>
@@ -418,7 +381,9 @@ function AppRoutes() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute
+            requiredRoles={['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'ADMIN']}
+          >
             <AppShell>
               <AdminDashboard />
             </AppShell>
@@ -428,7 +393,9 @@ function AppRoutes() {
       <Route
         path="/analytics/admin"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute
+            requiredRoles={['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'ADMIN']}
+          >
             <AppShell>
               <AnalyticsAdminDashboard />
             </AppShell>
@@ -438,7 +405,9 @@ function AppRoutes() {
       <Route
         path="/analytics/coordinator"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute
+            requiredRoles={['COORDINATOR', 'SUPER_ADMIN', 'ORG_ADMIN']}
+          >
             <AppShell>
               <CoordinatorDashboard />
             </AppShell>
@@ -458,7 +427,7 @@ function AppRoutes() {
       <Route
         path="/quality-assurance"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute permission="audits:view">
             <AppShell>
               <QADashboard />
             </AppShell>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useAuthService } from '@/core/hooks';
+import { getDashboardRoute } from '@/core/utils';
 import toast from 'react-hot-toast';
 
 // 5 Demo Personas (all Texas-based)
@@ -112,12 +113,9 @@ export const Login: React.FC = () => {
       login(response.user, response.token);
       toast.success(`Welcome, ${persona.name}!`);
 
-      // Route based on user role
-      if (response.user.roles.includes('FAMILY')) {
-        navigate('/family-portal');
-      } else {
-        navigate('/');
-      }
+      // Route based on user role using centralized routing logic
+      const dashboardRoute = getDashboardRoute(response.user.roles);
+      navigate(dashboardRoute);
     } catch (error: unknown) {
       // Enhanced error handling for rate limiting
       if (error instanceof Error) {

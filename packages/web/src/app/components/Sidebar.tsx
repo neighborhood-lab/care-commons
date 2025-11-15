@@ -108,12 +108,25 @@ const navItems: NavItem[] = [
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { can } = usePermissions();
 
-  const filteredNavItems = navItems.filter(
-    (item) => !item.permission || can(item.permission)
-  );
+  // Filter navigation items based on permissions and roles
+  const filteredNavItems = navItems.filter((item) => {
+    // Always show dashboard
+    if (item.path === '/') return true;
+    
+    // Check permission if specified
+    if (item.permission && !can(item.permission)) return false;
+    
+    // Hide admin section from non-admin users
+    if (item.path === '/admin' && user) {
+      const adminRoles = ['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'ADMIN'];
+      return user.roles.some((role) => adminRoles.includes(role));
+    }
+    
+    return true;
+  });
 
   return (
     <>
