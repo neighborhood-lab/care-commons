@@ -63,18 +63,17 @@ export const Login: React.FC = () => {
   const [rateLimitRetryAfter, setRateLimitRetryAfter] = useState<number | null>(null);
 
   // Cooldown timer effect
-  React.useEffect(() => {
+  React.useEffect((): void | (() => void) => {
     if (cooldownSeconds > 0) {
       const timer = setTimeout(() => {
         setCooldownSeconds(cooldownSeconds - 1);
       }, 1000);
       return () => clearTimeout(timer);
     }
-    return undefined;
   }, [cooldownSeconds]);
 
   // Rate limit countdown effect
-  React.useEffect(() => {
+  React.useEffect((): void | (() => void) => {
     if (rateLimitRetryAfter !== null && rateLimitRetryAfter > 0) {
       const timer = setTimeout(() => {
         setRateLimitRetryAfter(rateLimitRetryAfter - 1);
@@ -83,7 +82,6 @@ export const Login: React.FC = () => {
     } else if (rateLimitRetryAfter === 0) {
       setRateLimitRetryAfter(null);
     }
-    return undefined;
   }, [rateLimitRetryAfter]);
 
   const handleLogin = async (personaIndex: number) => {
