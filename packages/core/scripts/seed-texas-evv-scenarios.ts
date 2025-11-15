@@ -15,7 +15,6 @@
  */
 
 import { Database, getDatabase } from '../src/db/connection.js';
-import { v4 as uuidv4 } from 'uuid';
 
 interface TexasEVVScenarioIds {
   organizationId: string;
@@ -42,7 +41,7 @@ interface TexasEVVScenarioIds {
 }
 
 export async function seedTexasEVVScenarios(): Promise<TexasEVVScenarioIds> {
-  const db = await getDatabase();
+  const db = getDatabase();
 
   console.log('🔵 Seeding Texas EVV Compliance Demo Scenarios...');
 
@@ -625,7 +624,7 @@ async function createScenario3VMURRequired(
   visitId: string,
   evvRecordId: string,
   vmurId: string,
-  adminUserId: string
+  _adminUserId: string
 ): Promise<void> {
   // Client
   await db.query(

@@ -634,7 +634,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Check branch access
-      if (!context.branchIds.includes(visit.branch_id)) {
+      if (context.branchIds.includes(visit.branch_id) === false) {
         res.status(403).json({
           success: false,
           error: 'No access to this branch',

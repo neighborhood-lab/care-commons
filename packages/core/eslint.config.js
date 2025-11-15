@@ -195,6 +195,7 @@ export default [
       'scripts/**/*.js',
       'scripts/**/*.d.ts',
       'scripts/**/*.js.map',
+      'seeds/**/*', // Seed data files not in TypeScript project
     ],
   },
 ]
