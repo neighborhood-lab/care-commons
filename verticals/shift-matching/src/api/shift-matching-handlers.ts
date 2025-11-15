@@ -529,13 +529,13 @@ export class ShiftMatchingHandlers {
     throw new Error('Enhanced match explanations require full implementation with caregiver context');
 
     // Full implementation would look like:
-    // const openShift = await this.repository.getOpenShift(openShiftId);
-    // const caregiver = await caregiverService.getCaregiver(caregiverId);
-    // const context = await buildCaregiverContext(caregiver, openShift);
+    // const openShift = await this.repository.getOpenShift(_openShiftId);
+    // const caregiver = await caregiverService.getCaregiver(_caregiverId);
+    // const caregiverContext = await buildCaregiverContext(caregiver, openShift);
     // const config = await this.repository.getDefaultConfiguration(...);
-    // const candidate = MatchingAlgorithm.evaluateMatch(openShift, context, config);
-    // const explanations = EnhancedMatchExplanations.generateEnhancedExplanations(openShift, context, candidate.scores);
-    // const summary = EnhancedMatchExplanations.generateSummary(openShift, candidate, context);
+    // const candidate = MatchingAlgorithm.evaluateMatch(openShift, caregiverContext, config);
+    // const explanations = EnhancedMatchExplanations.generateEnhancedExplanations(openShift, caregiverContext, candidate.scores);
+    // const summary = EnhancedMatchExplanations.generateSummary(openShift, candidate, caregiverContext);
     // return { candidate, explanations, summary };
   }
 }
