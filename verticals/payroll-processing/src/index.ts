@@ -1,6 +1,6 @@
 /**
  * Payroll Processing vertical - Main exports
- * 
+ *
  * Transforms time tracking data into accurate compensation for caregivers.
  */
 
@@ -25,3 +25,10 @@ export type { PayStubPDFData } from './service/pay-stub-generator.service';
 export * from './utils/pay-calculations';
 export * from './utils/tax-calculations';
 export * from './utils/deduction-calculations';
+export * from './utils/payroll-export';
+
+// Validation
+export * from './validation/payroll-validator';
+
+// API Handlers
+export { PayrollHandlers, createPayrollRouter } from './api/payroll-handlers';

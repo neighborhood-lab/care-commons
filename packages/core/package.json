@@ -57,6 +57,7 @@
     "db:seed:demo": "cd ../.. && tsx packages/core/scripts/seed-demo.ts",
     "db:seed:historical": "cd ../.. && tsx packages/core/scripts/seed-historical-demo.ts",
     "db:seed:family-demo": "cd ../.. && tsx packages/core/scripts/seed-family-demo.ts",
+    "db:seed:payroll-demo": "cd ../.. && tsx packages/core/scripts/seed-payroll-demo.ts",
     "db:set-admin-password": "cd ../.. && tsx packages/core/scripts/set-admin-password.ts",
     "db:nuke": "cd ../.. && tsx packages/core/scripts/nuke.ts"
   },
