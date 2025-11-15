@@ -2374,6 +2374,17 @@ async function seedDatabase() {
         ? ((evvCompliantVisits.length / completedVisitsWithEvv.length) * 100).toFixed(1)
         : '0';
 
+      // Calculate geographic distribution
+      const clientsByCityCount = clients.reduce((acc, c) => {
+        acc[c.city] = (acc[c.city] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const caregiversByCityCount = caregivers.reduce((acc, c) => {
+        acc[c.city] = (acc[c.city] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
       console.log('\n═══════════════════════════════════════════════════════════════');
       console.log('✅ TEXAS DEMO DATA SEEDED SUCCESSFULLY!');
       console.log('═══════════════════════════════════════════════════════════════');
@@ -2393,11 +2404,11 @@ async function seedDatabase() {
       console.log('═══════════════════════════════════════════════════════════════');
       console.log('\n🏙️  Geographic Distribution (Texas Cities):');
       console.log('   Clients:');
-      Object.entries(clientsByCity).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
+      Object.entries(clientsByCityCount).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
         console.log(`     - ${city}: ${count} clients`);
       });
       console.log('   Caregivers:');
-      Object.entries(caregiversByCity).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
+      Object.entries(caregiversByCityCount).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
         console.log(`     - ${city}: ${count} caregivers`);
       });
       console.log('═══════════════════════════════════════════════════════════════');
