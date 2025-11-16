@@ -626,7 +626,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       const organizationId = context.organizationId;
-      if (!isValidUUID(organizationId)) {
+      if (isValidUUID(organizationId) === false) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -724,7 +724,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       const organizationId = context.organizationId;
-      if (!isValidUUID(organizationId)) {
+      if (isValidUUID(organizationId) === false) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -888,7 +888,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       const organizationId = context.organizationId;
-      if (!isValidUUID(organizationId)) {
+      if (isValidUUID(organizationId) === false) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -1003,7 +1003,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       const organizationId = context.organizationId;
-      if (!isValidUUID(organizationId)) {
+      if (isValidUUID(organizationId) === false) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
