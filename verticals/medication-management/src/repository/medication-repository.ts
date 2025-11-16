@@ -145,7 +145,7 @@ export class MedicationRepository extends Repository<Medication> {
       ORDER BY m.created_at DESC
     `;
 
-    const result = await this.database.query(query, [clientId, context.organizationId, 'ACTIVE']);
+    const result = await this.database.query(query, [clientId, context.organizationId!, 'ACTIVE']);
     return result.rows.map((row: Record<string, unknown>) => {
       const medication = this.mapRowToEntity(row) as MedicationWithStatus;
       
@@ -222,7 +222,7 @@ export class MedicationAdministrationRepository {
     const now = new Date().toISOString();
 
     const row = {
-      organization_id: context.organizationId,
+      organization_id: context.organizationId!,
       medication_id: input.medicationId,
       client_id: input.clientId,
       administered_by: context.userId,
@@ -286,7 +286,7 @@ export class MedicationAdministrationRepository {
       LIMIT $3
     `;
 
-    const result = await this.database.query(query, [medicationId, context.organizationId, limit]);
+    const result = await this.database.query(query, [medicationId, context.organizationId!, limit]);
     return result.rows.map((row: Record<string, unknown>) => this.mapRowToEntity(row));
   }
 
@@ -306,7 +306,7 @@ export class MedicationAdministrationRepository {
       ORDER BY administered_at DESC
     `;
 
-    const result = await this.database.query(query, [clientId, context.organizationId, startDate, endDate]);
+    const result = await this.database.query(query, [clientId, context.organizationId!, startDate, endDate]);
     return result.rows.map((row: Record<string, unknown>) => this.mapRowToEntity(row));
   }
 

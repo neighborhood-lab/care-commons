@@ -266,6 +266,60 @@ describe('Visit Routes', () => {
         })
       );
     });
+
+    it('should return 400 when organization_id is missing', async () => {
+      mockRequest.userContext = {
+        userId: 'user-123',
+        organizationId: undefined,
+        branchIds: ['branch-123'],
+        roles: ['COORDINATOR'],
+        permissions: ['visits:read'],
+      };
+
+      const router = createVisitRouter(mockDb);
+      const handler = router.stack.find((layer: any) => layer.route?.path === '/calendar')?.route?.stack[0]?.handle;
+
+      if (!handler) {
+        throw new Error('Handler not found');
+      }
+
+      await handler(mockRequest as Request, mockResponse as Response, nextMock);
+
+      expect(statusMock).toHaveBeenCalledWith(400);
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: 'Organization ID is required for this endpoint',
+        })
+      );
+    });
+
+    it('should return 400 when organization_id is invalid UUID', async () => {
+      mockRequest.userContext = {
+        userId: 'user-123',
+        organizationId: 'invalid-uuid',
+        branchIds: ['branch-123'],
+        roles: ['COORDINATOR'],
+        permissions: ['visits:read'],
+      };
+
+      const router = createVisitRouter(mockDb);
+      const handler = router.stack.find((layer: any) => layer.route?.path === '/calendar')?.route?.stack[0]?.handle;
+
+      if (!handler) {
+        throw new Error('Handler not found');
+      }
+
+      await handler(mockRequest as Request, mockResponse as Response, nextMock);
+
+      expect(statusMock).toHaveBeenCalledWith(400);
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: 'Invalid organization ID format',
+        })
+      );
+    });
   });
 
   describe('PUT /:id/assign', () => {

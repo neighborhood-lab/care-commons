@@ -25,7 +25,11 @@ export function authContextMiddleware(
 ): void {
   // Extract from headers (set by frontend or API gateway)
   const userId = req.header('X-User-Id') ?? 'system';
-  const organizationId = req.header('X-Organization-Id') ?? '';
+  const organizationIdHeader = req.header('X-Organization-Id');
+  // Convert empty string to undefined to prevent UUID validation errors in PostgreSQL
+  const organizationId = organizationIdHeader && organizationIdHeader.trim() !== '' 
+    ? organizationIdHeader.trim() 
+    : undefined;
   const branchId = req.header('X-Branch-Id');
   const roles = (req.header('X-User-Roles') ?? 'CAREGIVER').split(',') as Role[];
   const permissions = (req.header('X-User-Permissions') ?? '').split(',').filter(Boolean);

@@ -32,14 +32,14 @@ export class AuditTemplateService {
     }
 
     return [
-      this.getHIPAAComplianceTemplate(context.organizationId),
-      this.getEVVComplianceTemplate(context.organizationId),
-      this.getCarePlanAuditTemplate(context.organizationId),
-      this.getMedicationAdministrationTemplate(context.organizationId),
-      this.getInfectionControlTemplate(context.organizationId),
-      this.getVisitQualityTemplate(context.organizationId),
-      this.getCaregiverPerformanceTemplate(context.organizationId),
-      this.getDocumentationAuditTemplate(context.organizationId)
+      this.getHIPAAComplianceTemplate(context.organizationId!),
+      this.getEVVComplianceTemplate(context.organizationId!),
+      this.getCarePlanAuditTemplate(context.organizationId!),
+      this.getMedicationAdministrationTemplate(context.organizationId!),
+      this.getInfectionControlTemplate(context.organizationId!),
+      this.getVisitQualityTemplate(context.organizationId!),
+      this.getCaregiverPerformanceTemplate(context.organizationId!),
+      this.getDocumentationAuditTemplate(context.organizationId!)
     ];
   }
 
@@ -1011,7 +1011,7 @@ export class AuditTemplateService {
       isActive: true,
       usageCount: 0,
       lastUsedAt: null,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       createdAt: new Date(),
       createdBy: context.userId,
       updatedAt: new Date(),

@@ -466,7 +466,7 @@ export class ShiftMatchingRepository {
     `;
 
     const values = [
-      context.organizationId,
+      context.organizationId!,
       branch_id,
       input.openShiftId,
       visit_id,

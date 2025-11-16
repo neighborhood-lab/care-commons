@@ -52,7 +52,7 @@ export class MedicationService {
     }
 
     const medication: Partial<Medication> = {
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       clientId: input.clientId,
       medicationName: input.medicationName,
       genericName: input.genericName,

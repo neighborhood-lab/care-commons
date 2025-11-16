@@ -20,7 +20,7 @@ export class IncidentService {
 
   async createIncident(input: CreateIncidentInput, context: UserContext): Promise<Incident> {
     const incident: Partial<Incident> = {
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       clientId: input.clientId,
       reportedBy: context.userId,
       incidentType: input.incidentType,

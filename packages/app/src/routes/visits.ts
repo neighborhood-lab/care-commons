@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database } from '@care-commons/core';
+import { Database, isValidUUID } from '@care-commons/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@care-commons/scheduling-visits';
 
@@ -597,6 +597,23 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
+      // Validate organization_id is present and valid
+      if (!context.organizationId) {
+        res.status(400).json({
+          success: false,
+          error: 'Organization ID is required for this endpoint',
+        });
+        return;
+      }
+
+      if (!isValidUUID(context.organizationId)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid organization ID format',
+        });
+        return;
+      }
+
       // Parse and validate branch IDs if provided
       let branchIds: string[] = context.branchIds;
       if (branchIdsStr != null && branchIdsStr !== '') {
@@ -673,6 +690,23 @@ export function createVisitRouter(db: Database): Router {
         res.status(400).json({
           success: false,
           error: 'caregiverId is required',
+        });
+        return;
+      }
+
+      // Validate organization_id is present
+      if (!context.organizationId) {
+        res.status(400).json({
+          success: false,
+          error: 'Organization ID is required for this endpoint',
+        });
+        return;
+      }
+
+      if (!isValidUUID(context.organizationId)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid organization ID format',
         });
         return;
       }
@@ -823,6 +857,23 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
+      // Validate organization_id is present
+      if (!context.organizationId) {
+        res.status(400).json({
+          success: false,
+          error: 'Organization ID is required for this endpoint',
+        });
+        return;
+      }
+
+      if (!isValidUUID(context.organizationId)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid organization ID format',
+        });
+        return;
+      }
+
       // Verify visit exists
       const visitCheck = await db.query(
         `SELECT id, organization_id, scheduled_date, scheduled_start_time, scheduled_end_time
@@ -916,6 +967,23 @@ export function createVisitRouter(db: Database): Router {
         res.status(400).json({
           success: false,
           error: 'Invalid date format. Use YYYY-MM-DD format',
+        });
+        return;
+      }
+
+      // Validate organization_id is present and valid
+      if (!context.organizationId) {
+        res.status(400).json({
+          success: false,
+          error: 'Organization ID is required for this endpoint',
+        });
+        return;
+      }
+
+      if (!isValidUUID(context.organizationId)) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid organization ID format',
         });
         return;
       }

@@ -367,7 +367,7 @@ export class ScheduleService {
     // Enforce organization filtering
     const orgFilters = {
       ...validated,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
     };
 
     // Enforce branch filtering if user has limited access
@@ -785,7 +785,7 @@ export class ScheduleService {
   private checkOrganizationAccess(context: UserContext, organizationId: UUID): void {
     if (context.organizationId !== organizationId && !context.roles?.includes('SUPER_ADMIN')) {
       throw new PermissionError('Access denied to this organization', {
-        userOrg: context.organizationId,
+        userOrg: context.organizationId!,
         requestedOrg: organizationId,
       });
     }

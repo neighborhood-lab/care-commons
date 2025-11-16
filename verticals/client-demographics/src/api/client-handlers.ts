@@ -927,7 +927,7 @@ export class ClientHandlers {
 
     // Get clients for the branch or organization
     const filters: ClientSearchFilters = {
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
     };
 
     if (typeof branchIdParam === 'string') {
