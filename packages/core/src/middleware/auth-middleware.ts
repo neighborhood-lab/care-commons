@@ -361,6 +361,34 @@ export class AuthMiddleware {
       }
 
       if (orgIdFromParam !== req.user.organizationId) {
+        // Log unauthorized cross-org access attempt
+        void this.auditService.logEvent(
+          {
+            userId: req.user.userId,
+            organizationId: req.user.organizationId,
+            roles: req.user.roles,
+            permissions: req.user.permissions,
+            branchIds: []
+          },
+          {
+            eventType: 'AUTHORIZATION',
+            resource: req.path,
+            resourceId: orgIdFromParam,
+            action: 'CROSS_ORG_ACCESS_ATTEMPT',
+            result: 'FAILURE',
+            metadata: {
+              requestedOrganizationId: orgIdFromParam,
+              userOrganizationId: req.user.organizationId,
+              method: req.method,
+              path: req.path
+            },
+            ipAddress: req.ip ?? req.socket.remoteAddress,
+            userAgent: req.headers['user-agent']
+          }
+        ).catch((error: unknown) => {
+          console.error('Failed to log cross-org access attempt:', error);
+        });
+
         res.status(403).json({
           success: false,
           error: 'Access denied to resources from different organization',
@@ -371,5 +399,126 @@ export class AuthMiddleware {
 
       next();
     };
+  };
+
+  /**
+   * Enforce organization scoping on all requests
+   * Sets organization context from JWT and validates query/body parameters
+   * Must be used after requireAuth middleware
+   * 
+   * This middleware ensures that:
+   * - All database queries are scoped to user's organization
+   * - Query parameters cannot override organization_id
+   * - Request body cannot specify different organization_id
+   * 
+   * Usage:
+   *   router.use(authMiddleware.requireAuth);
+   *   router.use(authMiddleware.enforceOrganizationScoping);
+   */
+  enforceOrganizationScoping = (req: Request, res: Response, next: NextFunction): void => {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+        code: 'NOT_AUTHENTICATED'
+      });
+      return;
+    }
+
+    const userOrgId = req.user.organizationId;
+
+    // Check query parameters for organization_id
+    if (req.query['organizationId'] !== undefined) {
+      const queryOrgId = req.query['organizationId'] as string;
+      if (queryOrgId !== userOrgId) {
+        // Log unauthorized attempt
+        void this.auditService.logEvent(
+          {
+            userId: req.user.userId,
+            organizationId: userOrgId,
+            roles: req.user.roles,
+            permissions: req.user.permissions,
+            branchIds: []
+          },
+          {
+            eventType: 'AUTHORIZATION',
+            resource: req.path,
+            resourceId: queryOrgId,
+            action: 'ORG_ID_OVERRIDE_ATTEMPT_QUERY',
+            result: 'FAILURE',
+            metadata: {
+              requestedOrganizationId: queryOrgId,
+              userOrganizationId: userOrgId,
+              method: req.method,
+              path: req.path
+            },
+            ipAddress: req.ip ?? req.socket.remoteAddress,
+            userAgent: req.headers['user-agent']
+          }
+        ).catch((error: unknown) => {
+          console.error('Failed to log org override attempt:', error);
+        });
+
+        res.status(403).json({
+          success: false,
+          error: 'Cannot access resources from different organization',
+          code: 'ORGANIZATION_MISMATCH'
+        });
+        return;
+      }
+    }
+
+    // Check request body for organization_id (for POST/PUT/PATCH)
+    if (req.body !== null && typeof req.body === 'object' && 'organizationId' in req.body) {
+      const bodyOrgId = req.body['organizationId'] as string;
+      if (bodyOrgId !== userOrgId) {
+        // Log unauthorized attempt
+        void this.auditService.logEvent(
+          {
+            userId: req.user.userId,
+            organizationId: userOrgId,
+            roles: req.user.roles,
+            permissions: req.user.permissions,
+            branchIds: []
+          },
+          {
+            eventType: 'AUTHORIZATION',
+            resource: req.path,
+            resourceId: bodyOrgId,
+            action: 'ORG_ID_OVERRIDE_ATTEMPT_BODY',
+            result: 'FAILURE',
+            metadata: {
+              requestedOrganizationId: bodyOrgId,
+              userOrganizationId: userOrgId,
+              method: req.method,
+              path: req.path
+            },
+            ipAddress: req.ip ?? req.socket.remoteAddress,
+            userAgent: req.headers['user-agent']
+          }
+        ).catch((error: unknown) => {
+          console.error('Failed to log org override attempt:', error);
+        });
+
+        res.status(403).json({
+          success: false,
+          error: 'Cannot create/update resources for different organization',
+          code: 'ORGANIZATION_MISMATCH'
+        });
+        return;
+      }
+    }
+
+    // Ensure organizationId is set on body for create/update operations
+    // This prevents accidental omission of org scoping
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+      if (req.body !== null && typeof req.body === 'object') {
+        // Force the organization ID to match the authenticated user
+        req.body['organizationId'] = userOrgId;
+      }
+    }
+
+    next();
   };
 }

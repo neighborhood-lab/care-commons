@@ -111,9 +111,11 @@ export function createCaregiverRouter(db: Database): Router {
       const context = getUserContext(req);
       const service = new CaregiverService(db);
 
+      // CRITICAL SECURITY: Force organization ID to match authenticated user
+      // Never allow query parameters to override organization scoping
       const filters: CaregiverSearchFilters = {
         query: req.query['query'] as string | undefined,
-        organizationId: (req.query['organizationId'] as string | undefined) ?? context.organizationId!,
+        organizationId: context.organizationId!, // ALWAYS use context, never from query
         branchId: req.query['branchId'] as string | undefined,
         status: req.query['status'] !== undefined ? (req.query['status'] as string).split(',') as CaregiverSearchFilters['status'] : undefined,
         role: req.query['role'] !== undefined ? (req.query['role'] as string).split(',') as CaregiverSearchFilters['role'] : undefined,

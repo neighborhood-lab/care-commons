@@ -13,6 +13,8 @@ export * from './types/email-templates';
 export * from './db/connection';
 export * from './db/repository';
 export * from './db/query-logger';
+export * from './db/scoped-queries';
+export * from './db/scoped-database';
 export * from './permissions/permission-service';
 export * from './audit/audit-service';
 export * from './repository/user-repository';

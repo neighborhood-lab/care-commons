@@ -601,6 +601,7 @@ export function createVisitRouter(db: Database): Router {
    *
    * Returns: Array of visits with client and caregiver information
    */
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   router.get('/calendar', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const context = req.userContext!;
