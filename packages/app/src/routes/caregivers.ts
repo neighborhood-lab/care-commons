@@ -55,7 +55,7 @@ export function createCaregiverRouter(db: Database): Router {
 
       const daysUntilExpiration = parseInt((req.query['days'] as string | undefined) ?? '30', 10);
       const caregivers = await service.getCaregiversWithExpiringCredentials(
-        context.organizationId,
+        context.organizationId!,
         daysUntilExpiration,
         context
       );
@@ -76,7 +76,7 @@ export function createCaregiverRouter(db: Database): Router {
 
       const caregiver = await service.getCaregiverByEmployeeNumber(
         req.params['employeeNumber']!,
-        context.organizationId,
+        context.organizationId!,
         context
       );
       res.json(caregiver);
@@ -113,7 +113,7 @@ export function createCaregiverRouter(db: Database): Router {
 
       const filters: CaregiverSearchFilters = {
         query: req.query['query'] as string | undefined,
-        organizationId: (req.query['organizationId'] as string | undefined) ?? context.organizationId,
+        organizationId: (req.query['organizationId'] as string | undefined) ?? context.organizationId!,
         branchId: req.query['branchId'] as string | undefined,
         status: req.query['status'] !== undefined ? (req.query['status'] as string).split(',') as CaregiverSearchFilters['status'] : undefined,
         role: req.query['role'] !== undefined ? (req.query['role'] as string).split(',') as CaregiverSearchFilters['role'] : undefined,
@@ -161,7 +161,7 @@ export function createCaregiverRouter(db: Database): Router {
 
       const input: CreateCaregiverInput = {
         ...req.body,
-        organizationId: context.organizationId,
+        organizationId: context.organizationId!,
         dateOfBirth: new Date(req.body['dateOfBirth']),
         hireDate: new Date(req.body['hireDate']),
         payRate: {

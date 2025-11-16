@@ -598,7 +598,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present and valid
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
@@ -606,7 +606,7 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId)) {
+      if (!isValidUUID(context.organizationId!)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -647,7 +647,7 @@ export function createVisitRouter(db: Database): Router {
       // Fetch visits with client information
       const repository = new ScheduleRepository(db.getPool());
       const visits = await repository.getVisitsByDateRange(
-        context.organizationId,
+        context.organizationId!,
         startDate,
         endDate,
         branchIds.length > 0 ? branchIds : undefined
@@ -695,7 +695,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
@@ -703,7 +703,7 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId)) {
+      if (!isValidUUID(context.organizationId!)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -858,7 +858,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
@@ -866,7 +866,7 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId)) {
+      if (!isValidUUID(context.organizationId!)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -972,7 +972,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present and valid
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
@@ -980,7 +980,7 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId)) {
+      if (!isValidUUID(context.organizationId!)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -1025,7 +1025,7 @@ export function createVisitRouter(db: Database): Router {
            AND ($3::uuid[] IS NULL OR cg.branch_ids && $3::uuid[])
          GROUP BY cg.id, cg.first_name, cg.last_name, cg.status
          ORDER BY cg.last_name, cg.first_name`,
-        [date, context.organizationId, branchIds.length > 0 ? branchIds : null]
+        [date, context.organizationId!, branchIds.length > 0 ? branchIds : null]
       );
 
       res.json({

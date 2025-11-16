@@ -118,7 +118,7 @@ export class FamilyEngagementService {
       actionUrl: '/portal/accept-invitation',
       actionLabel: 'Accept Invitation',
       createdBy: context.userId,
-      organizationId: context.organizationId
+      organizationId: context.organizationId!
     });
 
     return familyMember;
@@ -209,7 +209,7 @@ export class FamilyEngagementService {
     const notification = await this.notificationRepo.createNotification({
       ...input,
       createdBy: context.userId,
-      organizationId: context.organizationId
+      organizationId: context.organizationId!
     });
 
     // Trigger actual notification delivery
@@ -327,7 +327,7 @@ export class FamilyEngagementService {
         clientId,
         ...input,
         createdBy: context.userId,
-        organizationId: context.organizationId
+        organizationId: context.organizationId!
       });
       notifications.push(notification);
     }
@@ -404,7 +404,7 @@ export class FamilyEngagementService {
       ...input,
       createdBy: context.userId,
       organizationId: context.organizationId!,
-      branchId: context.branchIds[0] || context.organizationId // Fallback to orgId if no branchId
+      branchId: context.branchIds[0] || context.organizationId! // Fallback to orgId if no branchId
     });
 
     // Send initial message if provided
@@ -472,7 +472,7 @@ export class FamilyEngagementService {
         relatedEntityType: 'MESSAGE',
         relatedEntityId: message.id,
         createdBy: context.userId,
-        organizationId: context.organizationId
+        organizationId: context.organizationId!
       });
     }
 
