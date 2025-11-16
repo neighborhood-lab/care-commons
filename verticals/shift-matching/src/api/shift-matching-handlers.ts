@@ -127,7 +127,7 @@ export class ShiftMatchingHandlers {
 
     // Validate configuration exists
     const config = await this.repository.getDefaultConfiguration(
-      context.organizationId,
+      context.organizationId!,
       openShift.branchId
     );
     if (config === null) {
@@ -290,7 +290,7 @@ export class ShiftMatchingHandlers {
   ): Promise<CaregiverPreferenceProfile> {
     return this.repository.upsertCaregiverPreferences(
       caregiverId,
-      context.organizationId,
+      context.organizationId!,
       input,
       context
     );

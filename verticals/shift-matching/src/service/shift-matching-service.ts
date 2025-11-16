@@ -89,7 +89,7 @@ export class ShiftMatchingService {
       const config = input.configurationId
         ? await this.repository.getMatchingConfiguration(input.configurationId)
         : await this.repository.getDefaultConfiguration(
-            context.organizationId,
+            context.organizationId!,
             openShift.branchId
           );
 
@@ -100,7 +100,7 @@ export class ShiftMatchingService {
       // Get all active caregivers in the organization
       const allCaregivers = await this.caregiverService.searchCaregivers(
         {
-          organizationId: context.organizationId,
+          organizationId: context.organizationId!,
           status: ['ACTIVE'],
           branchId: openShift.branchId,
         },
@@ -365,7 +365,7 @@ export class ShiftMatchingService {
 
     const openShifts = await this.repository.searchOpenShifts(
       {
-        organizationId: context.organizationId,
+        organizationId: context.organizationId!,
         branchIds: [caregiver.primaryBranchId],
         dateFrom,
         dateTo,
@@ -376,7 +376,7 @@ export class ShiftMatchingService {
 
     // Get default config
     const config = await this.repository.getDefaultConfiguration(
-      context.organizationId,
+      context.organizationId!,
       caregiver.primaryBranchId
     );
 
@@ -437,7 +437,7 @@ export class ShiftMatchingService {
     );
 
     const config = await this.repository.getDefaultConfiguration(
-      context.organizationId,
+      context.organizationId!,
       openShift.branchId
     );
 
@@ -586,7 +586,7 @@ export class ShiftMatchingService {
     // Context for getting caregiver details
     const systemContext: UserContext = {
       userId: _context.userId,
-      organizationId: _context.organizationId,
+      organizationId: _context.organizationId!,
       branchIds: [],
       roles: ['SUPER_ADMIN'],
       permissions: ['caregivers:read'],
@@ -597,7 +597,7 @@ export class ShiftMatchingService {
     // Batch fetch full caregiver details
     const fullCaregivers = await this.caregiverService.searchCaregivers(
       {
-        organizationId: _context.organizationId,
+        organizationId: _context.organizationId!,
         branchId: shift.branchId,
       },
       { page: 1, limit: 1000 },
@@ -857,7 +857,7 @@ export class ShiftMatchingService {
     // Context for getting caregiver
     const systemContext: UserContext = {
       userId: _context.userId,
-      organizationId: _context.organizationId,
+      organizationId: _context.organizationId!,
       branchIds: [],
       roles: ['SUPER_ADMIN'],
       permissions: ['caregivers:read'],

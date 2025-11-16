@@ -591,7 +591,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
     async getCarePlanAnalytics(req: Request, res: Response) {
       try {
         const context = getUserContext(req);
-        const analytics = await service.getCarePlanAnalytics(context.organizationId, context);
+        const analytics = await service.getCarePlanAnalytics(context.organizationId!, context);
         res.json(analytics);
       } catch (error: unknown) {
         handleError(error, res, 'fetching analytics');
@@ -610,7 +610,7 @@ export function createCarePlanHandlers(service: CarePlanService) {
         const metrics = await service.getTaskCompletionMetrics({
           dateFrom,
           dateTo,
-          organizationId: context.organizationId,
+          organizationId: context.organizationId!,
         }, context);
         res.json(metrics);
       } catch (error: unknown) {

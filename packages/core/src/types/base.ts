@@ -70,7 +70,7 @@ export interface UserContext {
   userId: UUID;
   roles: string[];  // Accepting string[] instead of Role[] for flexibility
   permissions: string[];  // Accepting string[] instead of Permission[] for flexibility
-  organizationId: UUID;
+  organizationId?: UUID; // Optional - system users and super admins may not have an organization
   branchIds: UUID[];
 }
 
@@ -198,3 +198,25 @@ export type StateCode =
   | 'NM' | 'NY' | 'NC' | 'ND' | 'OH' | 'OK' | 'OR' | 'PA' | 'RI' | 'SC'
   | 'SD' | 'TN' | 'TX' | 'UT' | 'VT' | 'VA' | 'WA' | 'WV' | 'WI' | 'WY'
   | 'DC' | 'PR' | 'VI' | 'GU' | 'AS' | 'MP';
+
+/**
+ * UUID validation utilities
+ */
+export const UUID_REGEX = /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i;
+
+/**
+ * Validates if a string is a valid UUID v4
+ */
+export function isValidUUID(value: unknown): value is UUID {
+  return typeof value === 'string' && UUID_REGEX.test(value);
+}
+
+/**
+ * Validates and returns a UUID, throwing ValidationError if invalid
+ */
+export function requireValidUUID(value: unknown, fieldName: string): UUID {
+  if (!isValidUUID(value)) {
+    throw new ValidationError(`${fieldName} must be a valid UUID`, { value });
+  }
+  return value;
+}

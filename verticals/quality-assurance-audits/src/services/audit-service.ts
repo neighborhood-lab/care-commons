@@ -8,11 +8,13 @@
 import type {
   UserContext,
   UUID,
+} from '@care-commons/core';
+import { 
+  PermissionService,
   ValidationError,
   PermissionError,
   NotFoundError
 } from '@care-commons/core';
-import { PermissionService } from '@care-commons/core';
 import type {
   Audit,
   AuditFinding,
@@ -44,6 +46,15 @@ export class AuditService {
     private permissions: PermissionService
   ) {}
 
+  /**
+   * Validate that context has organization_id (required for all audit operations)
+   */
+  private validateOrganizationContext(context: UserContext): asserts context is UserContext & { organizationId: string } {
+    if (!context.organizationId) {
+      throw new ValidationError('Organization context is required for audit operations');
+    }
+  }
+
   // ============================================================================
   // Audit Management
   // ============================================================================
@@ -55,6 +66,9 @@ export class AuditService {
     input: CreateAuditInput,
     context: UserContext
   ): Promise<Audit> {
+    // Validate organization context
+    this.validateOrganizationContext(context);
+
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'audits:create')) {
       throw new Error('Insufficient permissions to create audits') as PermissionError;
@@ -69,7 +83,7 @@ export class AuditService {
     const audit = await this.auditRepo.createAudit({
       ...input,
       createdBy: context.userId,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       branchId: context.branchIds[0]
     });
 
@@ -208,12 +222,15 @@ export class AuditService {
     filters: { status?: string; auditType?: string; branchId?: UUID },
     context: UserContext
   ): Promise<AuditSummary[]> {
+    // Validate organization context
+    this.validateOrganizationContext(context);
+
     // Validate permissions
     if (!this.permissions.hasPermission(context, 'audits:view')) {
       throw new Error('Insufficient permissions to view audits') as PermissionError;
     }
 
-    return await this.auditRepo.getAuditSummaries(context.organizationId, filters);
+    return await this.auditRepo.getAuditSummaries(context.organizationId!, filters);
   }
 
   /**
@@ -290,7 +307,7 @@ export class AuditService {
       ...input,
       observedBy: context.userId,
       createdBy: context.userId,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       branchId: context.branchIds[0]
     });
 
@@ -382,7 +399,7 @@ export class AuditService {
       throw new Error('Insufficient permissions to view findings') as PermissionError;
     }
 
-    return await this.findingRepo.getCriticalFindings(context.organizationId, limit);
+    return await this.findingRepo.getCriticalFindings(context.organizationId!, limit);
   }
 
   // ============================================================================
@@ -411,7 +428,7 @@ export class AuditService {
     const action = await this.correctiveActionRepo.createCorrectiveAction({
       ...input,
       createdBy: context.userId,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       branchId: context.branchIds[0]
     });
 
@@ -560,7 +577,7 @@ export class AuditService {
       throw new Error('Insufficient permissions to view corrective actions') as PermissionError;
     }
 
-    return await this.correctiveActionRepo.getOverdueActions(context.organizationId, limit);
+    return await this.correctiveActionRepo.getOverdueActions(context.organizationId!, limit);
   }
 
   // ============================================================================
@@ -577,25 +594,25 @@ export class AuditService {
     }
 
     // Get upcoming audits
-    const upcomingAudits = await this.auditRepo.getAuditSummaries(context.organizationId, {
+    const upcomingAudits = await this.auditRepo.getAuditSummaries(context.organizationId!, {
       status: 'SCHEDULED'
     });
 
     // Get in-progress audits
-    const inProgressAudits = await this.auditRepo.getAuditSummaries(context.organizationId, {
+    const inProgressAudits = await this.auditRepo.getAuditSummaries(context.organizationId!, {
       status: 'IN_PROGRESS'
     });
 
     // Get recently completed
-    const recentlyCompleted = await this.auditRepo.getAuditSummaries(context.organizationId, {
+    const recentlyCompleted = await this.auditRepo.getAuditSummaries(context.organizationId!, {
       status: 'COMPLETED'
     });
 
     // Get critical findings
-    const criticalFindings = await this.findingRepo.getCriticalFindings(context.organizationId, 10);
+    const criticalFindings = await this.findingRepo.getCriticalFindings(context.organizationId!, 10);
 
     // Get overdue corrective actions
-    const overdueCorrectiveActions = await this.correctiveActionRepo.getOverdueActions(context.organizationId, 10);
+    const overdueCorrectiveActions = await this.correctiveActionRepo.getOverdueActions(context.organizationId!, 10);
 
     // Calculate statistics from all audits
     const allAudits = [...upcomingAudits, ...inProgressAudits, ...recentlyCompleted];

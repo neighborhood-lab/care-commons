@@ -19,6 +19,9 @@ import {
   LifecycleStatus,
   Role,
   SyncMetadata,
+  isValidUUID,
+  requireValidUUID,
+  UUID_REGEX,
 } from '../../types/base';
 import { describe, it, expect } from 'vitest';
 
@@ -303,6 +306,75 @@ describe('Base Types', () => {
       expect(sync.syncStatus).toBe('CONFLICT');
       expect(sync.lastSyncedAt).toBeNull();
       expect(sync.conflictData).toEqual({ field: 'conflicting value' });
+    });
+  });
+
+  describe('UUID Validation', () => {
+    describe('UUID_REGEX', () => {
+      it('should match valid UUIDs', () => {
+        expect(UUID_REGEX.test('550e8400-e29b-41d4-a716-446655440000')).toBe(true);
+        expect(UUID_REGEX.test('123e4567-e89b-12d3-a456-426614174000')).toBe(true);
+        expect(UUID_REGEX.test('ABCDEFAB-1234-5678-9ABC-DEF012345678')).toBe(true);
+      });
+
+      it('should not match invalid UUIDs', () => {
+        expect(UUID_REGEX.test('')).toBe(false);
+        expect(UUID_REGEX.test('invalid-uuid')).toBe(false);
+        expect(UUID_REGEX.test('550e8400-e29b-41d4-a716')).toBe(false);
+        expect(UUID_REGEX.test('550e8400e29b41d4a716446655440000')).toBe(false);
+        expect(UUID_REGEX.test('550e8400-e29b-41d4-a716-446655440000-extra')).toBe(false);
+      });
+    });
+
+    describe('isValidUUID', () => {
+      it('should return true for valid UUIDs', () => {
+        expect(isValidUUID('550e8400-e29b-41d4-a716-446655440000')).toBe(true);
+        expect(isValidUUID('123e4567-e89b-12d3-a456-426614174000')).toBe(true);
+      });
+
+      it('should return false for invalid UUIDs', () => {
+        expect(isValidUUID('')).toBe(false);
+        expect(isValidUUID('invalid-uuid')).toBe(false);
+        expect(isValidUUID('550e8400-e29b-41d4-a716')).toBe(false);
+      });
+
+      it('should return false for non-string values', () => {
+        expect(isValidUUID(null)).toBe(false);
+        expect(isValidUUID(undefined)).toBe(false);
+        expect(isValidUUID(123)).toBe(false);
+        expect(isValidUUID({})).toBe(false);
+        expect(isValidUUID([])).toBe(false);
+      });
+    });
+
+    describe('requireValidUUID', () => {
+      it('should return UUID for valid values', () => {
+        const validUuid = '550e8400-e29b-41d4-a716-446655440000';
+        expect(requireValidUUID(validUuid, 'testField')).toBe(validUuid);
+      });
+
+      it('should throw ValidationError for invalid UUIDs', () => {
+        expect(() => requireValidUUID('invalid-uuid', 'testField')).toThrow(ValidationError);
+        expect(() => requireValidUUID('', 'testField')).toThrow(ValidationError);
+        expect(() => requireValidUUID('550e8400-e29b-41d4-a716', 'testField')).toThrow(ValidationError);
+      });
+
+      it('should throw ValidationError for non-string values', () => {
+        expect(() => requireValidUUID(null, 'testField')).toThrow(ValidationError);
+        expect(() => requireValidUUID(undefined, 'testField')).toThrow(ValidationError);
+        expect(() => requireValidUUID(123, 'testField')).toThrow(ValidationError);
+      });
+
+      it('should include field name in error message', () => {
+        try {
+          requireValidUUID('invalid', 'organizationId');
+          expect.fail('Should have thrown ValidationError');
+        } catch (error) {
+          expect(error).toBeInstanceOf(ValidationError);
+          expect((error as ValidationError).message).toContain('organizationId');
+          expect((error as ValidationError).message).toContain('UUID');
+        }
+      });
     });
   });
 });

@@ -157,7 +157,7 @@ describe('CarePlanService', () => {
     beforeEach(() => {
       validInput = {
         clientId: uuid(),
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         name: 'Test Care Plan',
         planType: 'PERSONAL_CARE',
         effectiveDate: new Date(),
@@ -254,7 +254,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-001',
         name: 'Personal Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'ACTIVE',
         priority: 'MEDIUM',
@@ -343,7 +343,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-001',
         name: 'Personal Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'ACTIVE',
         priority: 'MEDIUM',
@@ -392,7 +392,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-001',
         name: 'Personal Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'COMPLETED',
         priority: 'MEDIUM',
@@ -434,7 +434,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-001',
         name: 'Personal Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'DRAFT',
         priority: 'MEDIUM',
@@ -505,7 +505,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-002',
         name: 'New Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'DRAFT',
         priority: 'MEDIUM',
@@ -552,7 +552,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-001',
         name: 'Personal Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'ACTIVE',
         priority: 'MEDIUM',
@@ -1018,7 +1018,7 @@ describe('CarePlanService', () => {
       vi.spyOn(service as any, 'getTaskCompletionMetrics').mockResolvedValue(mockTaskMetrics);
 
       // Act
-      const result = await service.getCarePlanAnalytics(organizationId, mockContext);
+      const result = await service.getCarePlanAnalytics(organizationId!, mockContext);
 
       // Assert
       expect(mockPermissions.hasPermission).toHaveBeenCalledWith(mockContext, 'analytics:read');
@@ -1049,7 +1049,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-001',
         name: 'Personal Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'DRAFT',
         priority: 'MEDIUM',
@@ -1087,7 +1087,7 @@ describe('CarePlanService', () => {
         planNumber: 'CP-001',
         name: 'Personal Care Plan',
         clientId: 'client-1',
-        organizationId: mockContext.organizationId,
+        organizationId: mockContext.organizationId!,
         planType: 'PERSONAL_CARE',
         status: 'ACTIVE',
         priority: 'MEDIUM',

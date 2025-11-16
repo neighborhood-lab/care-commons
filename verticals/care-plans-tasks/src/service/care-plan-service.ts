@@ -234,7 +234,7 @@ export class CarePlanService {
     // Enforce organization filter
     const orgFilters: CarePlanSearchFilters = {
       ...validatedFilters,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
     };
 
     return await this.repository.searchCarePlans(orgFilters, pagination);
@@ -293,7 +293,7 @@ export class CarePlanService {
     }
 
     return await this.repository.getExpiringCarePlans(
-      context.organizationId,
+      context.organizationId!,
       daysUntilExpiration
     );
   }

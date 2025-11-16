@@ -257,7 +257,7 @@ export class FamilyEngagementService {
             actionUrl: input.actionUrl,
             actionLabel: input.actionLabel
           },
-          organizationId: context.organizationId,
+          organizationId: context.organizationId!,
           relatedEntityType: 'visit',
           relatedEntityId: input.relatedEntityId
         });
@@ -373,7 +373,7 @@ export class FamilyEngagementService {
         clientId,
         ...activity,
         viewedByFamily: false,
-        organizationId: context.organizationId,
+        organizationId: context.organizationId!,
         branchId: context.branchIds[0],
         occurredAt: new Date()
       }, context);
@@ -403,7 +403,7 @@ export class FamilyEngagementService {
     const thread = await this.messageRepo.createThread({
       ...input,
       createdBy: context.userId,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       branchId: context.branchIds[0] || context.organizationId // Fallback to orgId if no branchId
     });
 
@@ -418,7 +418,7 @@ export class FamilyEngagementService {
         sentBy: context.userId,
         senderType: 'STAFF',
         senderName,
-        organizationId: context.organizationId,
+        organizationId: context.organizationId!,
         createdBy: context.userId
       });
     }
@@ -453,7 +453,7 @@ export class FamilyEngagementService {
       sentBy: context.userId,
       senderType,
       senderName,
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       createdBy: context.userId
     });
 
@@ -561,8 +561,8 @@ export class FamilyEngagementService {
           createdBy: context.userId,
           updatedBy: context.userId,
           version: 1,
-          organizationId: context.organizationId,
-          branchId: context.branchIds[0] || context.organizationId,
+          organizationId: context.organizationId!,
+          branchId: context.branchIds[0] || context.organizationId!,
         },
         {
           id: 'activity-2' as UUID,
@@ -582,8 +582,8 @@ export class FamilyEngagementService {
           createdBy: context.userId,
           updatedBy: context.userId,
           version: 1,
-          organizationId: context.organizationId,
-          branchId: context.branchIds[0] || context.organizationId,
+          organizationId: context.organizationId!,
+          branchId: context.branchIds[0] || context.organizationId!,
         },
         {
           id: 'activity-3' as UUID,
@@ -603,8 +603,8 @@ export class FamilyEngagementService {
           createdBy: context.userId,
           updatedBy: context.userId,
           version: 1,
-          organizationId: context.organizationId,
-          branchId: context.branchIds[0] || context.organizationId,
+          organizationId: context.organizationId!,
+          branchId: context.branchIds[0] || context.organizationId!,
         },
       ];
     }
@@ -628,8 +628,8 @@ export class FamilyEngagementService {
         tasksCompleted: [],
         visibleToFamily: true,
         viewedByFamily: false,
-        organizationId: context.organizationId,
-        branchId: context.branchIds[0] || context.organizationId,
+        organizationId: context.organizationId!,
+        branchId: context.branchIds[0] || context.organizationId!,
         createdBy: context.userId,
         updatedBy: context.userId,
         createdAt: new Date(),
@@ -649,8 +649,8 @@ export class FamilyEngagementService {
         tasksCompleted: [],
         visibleToFamily: true,
         viewedByFamily: false,
-        organizationId: context.organizationId,
-        branchId: context.branchIds[0] || context.organizationId,
+        organizationId: context.organizationId!,
+        branchId: context.branchIds[0] || context.organizationId!,
         createdBy: context.userId,
         updatedBy: context.userId,
         createdAt: new Date(),
@@ -670,8 +670,8 @@ export class FamilyEngagementService {
         tasksCompleted: [],
         visibleToFamily: true,
         viewedByFamily: false,
-        organizationId: context.organizationId,
-        branchId: context.branchIds[0] || context.organizationId,
+        organizationId: context.organizationId!,
+        branchId: context.branchIds[0] || context.organizationId!,
         createdBy: context.userId,
         updatedBy: context.userId,
         createdAt: new Date(),
@@ -710,8 +710,8 @@ export class FamilyEngagementService {
         visibleToFamily: true,
         viewedByFamily: false,
         publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-        organizationId: context.organizationId,
-        branchId: context.branchIds[0] || context.organizationId,
+        organizationId: context.organizationId!,
+        branchId: context.branchIds[0] || context.organizationId!,
         createdBy: context.userId,
         updatedBy: context.userId,
         createdAt: new Date(),
@@ -757,8 +757,8 @@ export class FamilyEngagementService {
         visibleToFamily: true,
         viewedByFamily: false,
         publishedAt: new Date(Date.now() - 28 * 60 * 60 * 1000),
-        organizationId: context.organizationId,
-        branchId: context.branchIds[0] || context.organizationId,
+        organizationId: context.organizationId!,
+        branchId: context.branchIds[0] || context.organizationId!,
         createdBy: context.userId,
         updatedBy: context.userId,
         createdAt: new Date(),
