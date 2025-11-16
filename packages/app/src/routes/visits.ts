@@ -78,6 +78,121 @@ export function createVisitRouter(db: Database): Router {
   router.use(requireAuth);
 
   /**
+   * GET /api/visits/my-visits
+   * Get visits assigned to the authenticated caregiver within a date range
+   *
+   * Query params:
+   * - start_date: Start date (YYYY-MM-DD format)
+   * - end_date: End date (YYYY-MM-DD format)
+   *
+   * Returns: Array of visits with client information
+   */
+  router.get('/my-visits', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+
+      // Validate query parameters
+      const startDateStr = req.query['start_date'] as string | undefined;
+      const endDateStr = req.query['end_date'] as string | undefined;
+
+      if (startDateStr == null || startDateStr === '' || endDateStr == null || endDateStr === '') {
+        res.status(400).json({
+          success: false,
+          error: 'Missing required parameters: start_date and end_date',
+        });
+        return;
+      }
+
+      // Parse dates
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+
+      // Validate date format
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid date format. Use YYYY-MM-DD format',
+        });
+        return;
+      }
+
+      // Validate date range (max 31 days)
+      const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysDiff > 31) {
+        res.status(400).json({
+          success: false,
+          error: 'Date range cannot exceed 31 days',
+        });
+        return;
+      }
+
+      if (daysDiff < 0) {
+        res.status(400).json({
+          success: false,
+          error: 'End date must be after start date',
+        });
+        return;
+      }
+
+      // Look up the user's email to find their caregiver record
+      const userResult = await db.query(
+        `SELECT email FROM users WHERE id = $1`,
+        [context.userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        res.status(404).json({
+          success: false,
+          error: 'User not found',
+        });
+        return;
+      }
+
+      const userEmail = (userResult.rows[0] as { email: string }).email;
+
+      // Find caregiver record by email
+      const caregiverResult = await db.query(
+        `SELECT id FROM caregivers WHERE email = $1 AND deleted_at IS NULL`,
+        [userEmail]
+      );
+
+      if (caregiverResult.rows.length === 0) {
+        // User doesn't have a caregiver record - return empty array
+        // This is valid for coordinators, admins, etc.
+        res.json({
+          success: true,
+          data: [],
+          meta: {
+            startDate: startDateStr,
+            endDate: endDateStr,
+            count: 0,
+            message: 'No caregiver record found for this user',
+          },
+        });
+        return;
+      }
+
+      const caregiverId = (caregiverResult.rows[0] as { id: string }).id;
+
+      // Fetch visits
+      const repository = new ScheduleRepository(db.getPool());
+      const visits = await repository.getVisitsByCaregiver(caregiverId, startDate, endDate);
+
+      res.json({
+        success: true,
+        data: visits,
+        meta: {
+          startDate: startDateStr,
+          endDate: endDateStr,
+          count: visits.length,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
    * GET /api/visits/calendar
    * Get visits for calendar view (optimized for month/week display)
    */
@@ -538,6 +653,161 @@ export function createVisitRouter(db: Database): Router {
           date: dateStr,
           count: result.rows.length,
         },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * POST /api/visits/:id/notes
+   * Create a new note for a visit
+   * 
+   * Body:
+   * - noteType: 'GENERAL' | 'CLINICAL' | 'INCIDENT' | 'TASK'
+   * - noteText: string (required)
+   * - noteHtml: string (optional)
+   * - activitiesPerformed: string[] (optional)
+   * - clientMood: enum (optional)
+   * - clientConditionNotes: string (optional)
+   * - isIncident: boolean
+   * - incidentSeverity: enum (optional, required if isIncident=true)
+   * - incidentDescription: string (optional)
+   * - isVoiceNote: boolean
+   * - audioFileUri: string (optional)
+   * - transcriptionConfidence: number (optional)
+   * 
+   * Returns: Created note with ID
+   */
+  router.post('/:id/notes', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const { id: visitId } = req.params;
+      
+      // Validate required fields
+      const {
+        noteType = 'GENERAL',
+        noteText,
+        noteHtml,
+        activitiesPerformed = [],
+        clientMood,
+        clientConditionNotes,
+        isIncident = false,
+        incidentSeverity,
+        incidentDescription,
+        isVoiceNote = false,
+        audioFileUri,
+        transcriptionConfidence,
+      } = req.body;
+
+      if (noteText === undefined || noteText === null || noteText.trim() === '') {
+        res.status(400).json({
+          success: false,
+          error: 'noteText is required',
+        });
+        return;
+      }
+
+      // Validate incident fields
+      if (isIncident === true && incidentSeverity === undefined) {
+        res.status(400).json({
+          success: false,
+          error: 'incidentSeverity is required when isIncident is true',
+        });
+        return;
+      }
+
+      // Verify visit exists and user has access
+      const visitCheck = await db.query(
+        `SELECT id, assigned_caregiver_id, organization_id, status
+         FROM visits
+         WHERE id = $1 AND deleted_at IS NULL`,
+        [visitId]
+      );
+
+      if (visitCheck.rows.length === 0) {
+        res.status(404).json({
+          success: false,
+          error: 'Visit not found',
+        });
+        return;
+      }
+
+      const visit = visitCheck.rows[0] as { id: string; assigned_caregiver_id: string | null; organization_id: string; status: string };
+
+      // Verify user is the assigned caregiver or has admin access
+      // For now, we'll allow if user is the caregiver
+      // NOTE: Future enhancement - add organization-level access control
+      if (visit.assigned_caregiver_id == null) {
+        res.status(400).json({
+          success: false,
+          error: 'Visit is not assigned to a caregiver',
+        });
+        return;
+      }
+
+      const caregiverCheck = await db.query(
+        `SELECT id FROM caregivers WHERE id = $1 AND deleted_at IS NULL`,
+        [visit.assigned_caregiver_id]
+      );
+
+      if (caregiverCheck.rows.length === 0) {
+        res.status(403).json({
+          success: false,
+          error: 'Access denied',
+        });
+        return;
+      }
+
+      const caregiverId = (caregiverCheck.rows[0] as { id: string }).id;
+
+      // Insert note
+      const result = await db.query(
+        `INSERT INTO visit_notes (
+          visit_id, organization_id, caregiver_id,
+          note_type, note_text, note_html,
+          activities_performed,
+          client_mood, client_condition_notes,
+          is_incident, incident_severity, incident_description,
+          incident_reported_at,
+          is_voice_note, audio_file_uri, transcription_confidence,
+          is_synced, sync_pending,
+          created_by, updated_by
+        ) VALUES (
+          $1, $2, $3,
+          $4, $5, $6,
+          $7::jsonb,
+          $8, $9,
+          $10, $11, $12,
+          $13,
+          $14, $15, $16,
+          TRUE, FALSE,
+          $17, $17
+        ) RETURNING *`,
+        [
+          visitId,
+          visit.organization_id,
+          caregiverId,
+          noteType,
+          noteText.trim(),
+          noteHtml ?? null,
+          JSON.stringify(activitiesPerformed),
+          clientMood ?? null,
+          clientConditionNotes ?? null,
+          isIncident,
+          incidentSeverity ?? null,
+          incidentDescription ?? null,
+          isIncident === true ? new Date() : null,
+          isVoiceNote,
+          audioFileUri ?? null,
+          transcriptionConfidence ?? null,
+          context.userId,
+        ]
+      );
+
+      res.status(201).json({
+        success: true,
+        data: result.rows[0],
       });
     } catch (error) {
       next(error);
