@@ -29,13 +29,31 @@ export class AnalyticsApiService {
   constructor(private baseUrl: string) {}
 
   /**
+   * Build query string from filters
+   */
+  private buildQueryString(filters: Partial<AnalyticsFilters>): string {
+    const params = new URLSearchParams();
+    
+    if (filters.dateRange?.startDate) {
+      params.append('startDate', filters.dateRange.startDate.toISOString());
+    }
+    if (filters.dateRange?.endDate) {
+      params.append('endDate', filters.dateRange.endDate.toISOString());
+    }
+    if (filters.branchId) {
+      params.append('branchId', filters.branchId);
+    }
+    
+    return params.toString();
+  }
+
+  /**
    * Get operational KPIs for dashboards
    */
   async getOperationalKPIs(filters: AnalyticsFilters): Promise<OperationalKPIs> {
-    const response = await fetch(`${this.baseUrl}/analytics/kpis`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const queryString = this.buildQueryString(filters);
+    const response = await fetch(`${this.baseUrl}/analytics/kpis?${queryString}`, {
+      method: 'GET',
       credentials: 'include',
     });
 
@@ -50,10 +68,9 @@ export class AnalyticsApiService {
    * Get compliance alerts requiring attention
    */
   async getComplianceAlerts(filters: AnalyticsFilters): Promise<ComplianceAlert[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/compliance-alerts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const queryString = this.buildQueryString(filters);
+    const response = await fetch(`${this.baseUrl}/analytics/compliance-alerts?${queryString}`, {
+      method: 'GET',
       credentials: 'include',
     });
 
@@ -68,10 +85,15 @@ export class AnalyticsApiService {
    * Get revenue trends over time
    */
   async getRevenueTrends(filters: AnalyticsFilters): Promise<RevenueTrendDataPoint[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/revenue-trends`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const params = new URLSearchParams();
+    if (filters.branchId) {
+      params.append('branchId', filters.branchId);
+    }
+    // Default to 6 months if no date range specified
+    params.append('months', '6');
+    
+    const response = await fetch(`${this.baseUrl}/analytics/revenue-trends?${params.toString()}`, {
+      method: 'GET',
       credentials: 'include',
     });
 
@@ -89,12 +111,11 @@ export class AnalyticsApiService {
     caregiverId: string,
     filters: AnalyticsFilters
   ): Promise<CaregiverPerformance> {
+    const queryString = this.buildQueryString(filters);
     const response = await fetch(
-      `${this.baseUrl}/analytics/caregiver-performance/${caregiverId}`,
+      `${this.baseUrl}/analytics/caregiver-performance/${caregiverId}?${queryString}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filters),
+        method: 'GET',
         credentials: 'include',
       }
     );
@@ -112,10 +133,9 @@ export class AnalyticsApiService {
   async getAllCaregiverPerformance(
     filters: AnalyticsFilters
   ): Promise<CaregiverPerformance[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/caregivers/performance`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const queryString = this.buildQueryString(filters);
+    const response = await fetch(`${this.baseUrl}/analytics/caregiver-performance?${queryString}`, {
+      method: 'GET',
       credentials: 'include',
     });
 
@@ -130,10 +150,9 @@ export class AnalyticsApiService {
    * Get EVV exceptions
    */
   async getEVVExceptions(filters: AnalyticsFilters): Promise<VisitException[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/evv-exceptions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const queryString = this.buildQueryString(filters);
+    const response = await fetch(`${this.baseUrl}/analytics/evv-exceptions?${queryString}`, {
+      method: 'GET',
       credentials: 'include',
     });
 

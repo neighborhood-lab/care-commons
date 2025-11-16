@@ -60,7 +60,7 @@ export function CoordinatorDashboard() {
     { refetchInterval: REAL_TIME_REFRESH_INTERVAL }
   );
 
-  const isLoading = statsLoading ?? alertsLoading ?? exceptionsLoading;
+  const isLoading = statsLoading || alertsLoading || exceptionsLoading;
   const error = statsError ?? alertsError ?? exceptionsError;
 
   if (error) {
