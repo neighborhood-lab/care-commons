@@ -12,7 +12,7 @@ import type {
   PushChangesResponse,
 } from '@care-commons/core/browser';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
 /**
  * Pull changes from server since last sync

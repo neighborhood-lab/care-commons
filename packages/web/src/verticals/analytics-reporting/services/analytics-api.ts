@@ -29,13 +29,44 @@ export class AnalyticsApiService {
   constructor(private baseUrl: string) {}
 
   /**
+   * Get auth headers with token
+   */
+  private getAuthHeaders(): HeadersInit {
+    // Zustand persists auth under 'auth-storage' key
+    const authStorage = globalThis.localStorage?.getItem('auth-storage');
+    let token: string | null = null;
+    
+    if (authStorage) {
+      try {
+        const parsed = JSON.parse(authStorage);
+        token = parsed.state?.token || null;
+      } catch (e) {
+        console.error('Failed to parse auth storage:', e);
+      }
+    }
+    
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+  }
+
+  /**
    * Get operational KPIs for dashboards
    */
   async getOperationalKPIs(filters: AnalyticsFilters): Promise<OperationalKPIs> {
-    const response = await fetch(`${this.baseUrl}/analytics/kpis`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const params = new URLSearchParams({
+      startDate: filters.dateRange.startDate.toISOString(),
+      endDate: filters.dateRange.endDate.toISOString(),
+    });
+    
+    if (filters.branchId) {
+      params.append('branchId', filters.branchId);
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/analytics/kpis?${params.toString()}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -50,10 +81,20 @@ export class AnalyticsApiService {
    * Get compliance alerts requiring attention
    */
   async getComplianceAlerts(filters: AnalyticsFilters): Promise<ComplianceAlert[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/compliance-alerts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const params = new URLSearchParams();
+    
+    if (filters.branchId) {
+      params.append('branchId', filters.branchId);
+    }
+
+    const queryString = params.toString();
+    const url = queryString 
+      ? `${this.baseUrl}/api/analytics/compliance-alerts?${queryString}`
+      : `${this.baseUrl}/api/analytics/compliance-alerts`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -68,10 +109,20 @@ export class AnalyticsApiService {
    * Get revenue trends over time
    */
   async getRevenueTrends(filters: AnalyticsFilters): Promise<RevenueTrendDataPoint[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/revenue-trends`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const params = new URLSearchParams();
+    
+    if (filters.branchId) {
+      params.append('branchId', filters.branchId);
+    }
+
+    const queryString = params.toString();
+    const url = queryString 
+      ? `${this.baseUrl}/api/analytics/revenue-trends?${queryString}`
+      : `${this.baseUrl}/api/analytics/revenue-trends`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -89,12 +140,16 @@ export class AnalyticsApiService {
     caregiverId: string,
     filters: AnalyticsFilters
   ): Promise<CaregiverPerformance> {
+    const params = new URLSearchParams({
+      startDate: filters.dateRange.startDate.toISOString(),
+      endDate: filters.dateRange.endDate.toISOString(),
+    });
+
     const response = await fetch(
-      `${this.baseUrl}/analytics/caregiver-performance/${caregiverId}`,
+      `${this.baseUrl}/api/analytics/caregiver-performance/${caregiverId}?${params.toString()}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filters),
+        method: 'GET',
+        headers: this.getAuthHeaders(),
         credentials: 'include',
       }
     );
@@ -112,10 +167,18 @@ export class AnalyticsApiService {
   async getAllCaregiverPerformance(
     filters: AnalyticsFilters
   ): Promise<CaregiverPerformance[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/caregivers/performance`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const params = new URLSearchParams({
+      startDate: filters.dateRange.startDate.toISOString(),
+      endDate: filters.dateRange.endDate.toISOString(),
+    });
+    
+    if (filters.branchId) {
+      params.append('branchId', filters.branchId);
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/analytics/caregiver-performance?${params.toString()}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -130,10 +193,20 @@ export class AnalyticsApiService {
    * Get EVV exceptions
    */
   async getEVVExceptions(filters: AnalyticsFilters): Promise<VisitException[]> {
-    const response = await fetch(`${this.baseUrl}/analytics/evv-exceptions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+    const params = new URLSearchParams();
+    
+    if (filters.branchId) {
+      params.append('branchId', filters.branchId);
+    }
+
+    const queryString = params.toString();
+    const url = queryString 
+      ? `${this.baseUrl}/api/analytics/evv-exceptions?${queryString}`
+      : `${this.baseUrl}/api/analytics/evv-exceptions`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -148,8 +221,9 @@ export class AnalyticsApiService {
    * Get dashboard statistics
    */
   async getDashboardStats(): Promise<DashboardStats> {
-    const response = await fetch(`${this.baseUrl}/analytics/dashboard-stats`, {
+    const response = await fetch(`${this.baseUrl}/api/analytics/dashboard-stats`, {
       method: 'GET',
+      headers: this.getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -167,9 +241,9 @@ export class AnalyticsApiService {
     reportType: ReportType,
     filters: AnalyticsFilters
   ): Promise<Report> {
-    const response = await fetch(`${this.baseUrl}/analytics/reports/generate`, {
+    const response = await fetch(`${this.baseUrl}/api/analytics/reports/generate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify({ reportType, ...filters }),
       credentials: 'include',
     });
@@ -186,8 +260,9 @@ export class AnalyticsApiService {
    */
   async getReports(filters?: Partial<AnalyticsFilters>): Promise<Report[]> {
     const queryParams = filters ? `?${new URLSearchParams(filters as any)}` : '';
-    const response = await fetch(`${this.baseUrl}/analytics/reports${queryParams}`, {
+    const response = await fetch(`${this.baseUrl}/api/analytics/reports${queryParams}`, {
       method: 'GET',
+      headers: this.getAuthHeaders(),
       credentials: 'include',
     });
 
@@ -206,9 +281,10 @@ export class AnalyticsApiService {
     format: ExportFormat
   ): Promise<Blob> {
     const response = await fetch(
-      `${this.baseUrl}/analytics/reports/${reportId}/export?format=${format}`,
+      `${this.baseUrl}/api/analytics/reports/${reportId}/export?format=${format}`,
       {
         method: 'GET',
+        headers: this.getAuthHeaders(),
         credentials: 'include',
       }
     );
