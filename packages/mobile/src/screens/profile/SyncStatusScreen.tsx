@@ -20,9 +20,10 @@ import {
   RefreshControl,
   StyleSheet,
 } from 'react-native';
-import { useSyncStatus } from '../../hooks/useSyncStatus';
-import { OfflineQueue } from '../../database/sync/offline-queue';
-import { syncManager } from '../../database/sync/sync-manager';
+import { useSyncStatus } from '../../hooks/useSyncStatus.js';
+import { OfflineQueue, type QueuedAction } from '../../database/sync/offline-queue.js';
+import { syncManager } from '../../database/sync/sync-manager.js';
+import { OptimisticUpdateManager, type OptimisticUpdate } from '../../database/sync/optimistic-update-manager.js';
 
 interface SyncHistoryEntry {
   timestamp: Date;
@@ -31,18 +32,11 @@ interface SyncHistoryEntry {
   changesCount?: number;
 }
 
-interface QueuedItem {
-  id: string;
-  type: 'visit-check-in' | 'visit-check-out' | 'task-complete' | 'care-note';
-  payload: any;
-  timestamp: number;
-  retries: number;
-}
-
 export function SyncStatusScreen() {
   const { isOnline, isSyncing, lastSyncTime, manualSync } = useSyncStatus();
   const [queueSize, setQueueSize] = useState(0);
-  const [queueItems, setQueueItems] = useState<QueuedItem[]>([]);
+  const [queueItems, setQueueItems] = useState<QueuedAction[]>([]);
+  const [optimisticUpdates, setOptimisticUpdates] = useState<OptimisticUpdate[]>([]);
   const [syncHistory, setSyncHistory] = useState<SyncHistoryEntry[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isManualSyncing, setIsManualSyncing] = useState(false);
@@ -55,6 +49,10 @@ export function SyncStatusScreen() {
     // Get queue items for detailed view
     const items = await OfflineQueue.getQueueItems();
     setQueueItems(items);
+    
+    // Get optimistic updates
+    const pending = await OptimisticUpdateManager.getPendingUpdates();
+    setOptimisticUpdates(pending);
     
     // Get sync history from manager
     const history = syncManager.getSyncHistory();
@@ -311,6 +309,36 @@ export function SyncStatusScreen() {
           ))}
         </View>
       )}
+      
+      {/* Optimistic Updates */}
+      {optimisticUpdates.length > 0 && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Optimistic Updates ({optimisticUpdates.length})</Text>
+          <Text style={styles.helpText}>
+            These changes are already visible on your device and will be synced when online.
+          </Text>
+          {optimisticUpdates.map((update) => (
+            <View key={update.id} style={styles.queueItem}>
+              <View style={styles.queueItemHeader}>
+                <Text style={styles.queueItemIcon}>
+                  {update.operation === 'create' ? '➕' : update.operation === 'update' ? '✏️' : '🗑️'}
+                </Text>
+                <View style={styles.queueItemContent}>
+                  <Text style={styles.queueItemLabel}>
+                    {update.operation.charAt(0).toUpperCase() + update.operation.slice(1)} {update.recordType}
+                  </Text>
+                  <Text style={styles.queueItemTime}>
+                    {formatTimestamp(new Date(update.createdAt))}
+                  </Text>
+                </View>
+                <View style={styles.optimisticBadge}>
+                  <Text style={styles.optimisticBadgeText}>⚡ Local</Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
 
       {/* Sync History */}
       {syncHistory.length > 0 && (
@@ -503,6 +531,17 @@ const styles = StyleSheet.create({
   retryBadgeText: {
     fontSize: 11,
     color: '#DC2626',
+    fontWeight: '600',
+  },
+  optimisticBadge: {
+    backgroundColor: '#E0E7FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  optimisticBadgeText: {
+    fontSize: 11,
+    color: '#4338CA',
     fontWeight: '600',
   },
   historyItem: {

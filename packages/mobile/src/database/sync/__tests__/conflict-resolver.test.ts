@@ -219,7 +219,7 @@ describe('ConflictResolver', () => {
       expect(result.resolvedRecord).toEqual(serverRecord);
     });
 
-    it('should choose server when server completed but client did not', () => {
+    it('should require manual review when server completed but client did not', () => {
       const clientRecord = {
         id: 'task-1',
         updatedAt: timestamp,
@@ -235,8 +235,9 @@ describe('ConflictResolver', () => {
 
       const result = resolver.resolve(clientRecord as any, serverRecord as any, 'task');
 
-      expect(result.strategy).toBe('server-wins');
-      expect(result.resolvedRecord).toEqual(serverRecord);
+      // When server shows completion but client doesn't, requires manual review for compliance
+      expect(result.strategy).toBe('manual');
+      expect(result.requiresManualReview).toBe(true);
     });
   });
 
