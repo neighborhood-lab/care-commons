@@ -46,9 +46,7 @@ describe('authContextMiddleware', () => {
     const mockHeader = vi.fn()
       .mockReturnValueOnce('user-123')
       .mockReturnValueOnce('')
-      .mockReturnValueOnce(undefined)
-      .mockReturnValueOnce('COORDINATOR')
-      .mockReturnValueOnce('');
+      .mockReturnValue('');
 
     mockRequest.header = mockHeader;
 
@@ -67,9 +65,7 @@ describe('authContextMiddleware', () => {
     const mockHeader = vi.fn()
       .mockReturnValueOnce('user-123')
       .mockReturnValueOnce('   ')
-      .mockReturnValueOnce(undefined)
-      .mockReturnValueOnce('COORDINATOR')
-      .mockReturnValueOnce('');
+      .mockReturnValue('');
 
     mockRequest.header = mockHeader;
 
@@ -88,9 +84,7 @@ describe('authContextMiddleware', () => {
     const mockHeader = vi.fn()
       .mockReturnValueOnce('user-123')
       .mockReturnValueOnce('  550e8400-e29b-41d4-a716-446655440000  ')
-      .mockReturnValueOnce(undefined)
-      .mockReturnValueOnce('COORDINATOR')
-      .mockReturnValueOnce('');
+      .mockReturnValue('');
 
     mockRequest.header = mockHeader;
 
@@ -108,12 +102,9 @@ describe('authContextMiddleware', () => {
   it('should handle missing organization_id header', () => {
     const mockHeader = vi.fn()
       .mockReturnValueOnce('user-123')
-      .mockReturnValueOnce(undefined)
-      .mockReturnValueOnce(undefined)
-      .mockReturnValueOnce('COORDINATOR')
-      .mockReturnValueOnce('');
+      .mockReturnValue('');
 
-    mockRequest.header = mockHeader;
+    mockRequest.header = mockHeader as any;
 
     authContextMiddleware(
       mockRequest as Request,

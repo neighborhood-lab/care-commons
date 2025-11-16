@@ -9,6 +9,68 @@ import { Database, isValidUUID } from '@care-commons/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@care-commons/scheduling-visits';
 
+/**
+ * Validates date range parameters for calendar/list endpoints
+ * Returns error response or null if valid
+ */
+function validateDateRangeParams(
+  startDateStr: string | undefined,
+  endDateStr: string | undefined,
+  res: Response
+): { startDate: Date; endDate: Date } | null {
+  // Check required parameters
+  if (startDateStr == null || startDateStr === '' || endDateStr == null || endDateStr === '') {
+    res.status(400).json({
+      success: false,
+      error: 'Missing required parameters: start_date and end_date',
+    });
+    return null;
+  }
+
+  // Validate date string format (YYYY-MM-DD)
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(startDateStr) || !dateRegex.test(endDateStr)) {
+    res.status(400).json({
+      success: false,
+      error: 'Invalid date format. Use YYYY-MM-DD format (e.g., 2025-01-15)',
+    });
+    return null;
+  }
+
+  // Parse dates - use UTC to avoid timezone issues
+  const startDate = new Date(startDateStr + 'T00:00:00Z');
+  const endDate = new Date(endDateStr + 'T23:59:59Z');
+
+  // Validate date parsing
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    res.status(400).json({
+      success: false,
+      error: 'Invalid date values. Dates must be valid calendar dates',
+    });
+    return null;
+  }
+
+  // Validate date range (max 60 days for calendar view)
+  const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  if (daysDiff > 60) {
+    res.status(400).json({
+      success: false,
+      error: 'Date range cannot exceed 60 days',
+    });
+    return null;
+  }
+
+  if (daysDiff < 0) {
+    res.status(400).json({
+      success: false,
+      error: 'End date must be on or after start date',
+    });
+    return null;
+  }
+
+  return { startDate, endDate };
+}
+
 export function createVisitRouter(db: Database): Router {
   const router = Router();
 
@@ -548,54 +610,11 @@ export function createVisitRouter(db: Database): Router {
       const endDateStr = req.query['end_date'] as string | undefined;
       const branchIdsStr = req.query['branch_ids'] as string | undefined;
 
-      if (startDateStr == null || startDateStr === '' || endDateStr == null || endDateStr === '') {
-        res.status(400).json({
-          success: false,
-          error: 'Missing required parameters: start_date and end_date',
-        });
-        return;
+      const dateRange = validateDateRangeParams(startDateStr, endDateStr, res);
+      if (dateRange === null) {
+        return; // Response already sent by validator
       }
-
-      // Validate date string format (YYYY-MM-DD)
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(startDateStr) || !dateRegex.test(endDateStr)) {
-        res.status(400).json({
-          success: false,
-          error: 'Invalid date format. Use YYYY-MM-DD format (e.g., 2025-01-15)',
-        });
-        return;
-      }
-
-      // Parse dates - use UTC to avoid timezone issues
-      const startDate = new Date(startDateStr + 'T00:00:00Z');
-      const endDate = new Date(endDateStr + 'T23:59:59Z');
-
-      // Validate date parsing
-      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        res.status(400).json({
-          success: false,
-          error: 'Invalid date values. Dates must be valid calendar dates',
-        });
-        return;
-      }
-
-      // Validate date range (max 60 days for calendar view)
-      const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysDiff > 60) {
-        res.status(400).json({
-          success: false,
-          error: 'Date range cannot exceed 60 days',
-        });
-        return;
-      }
-
-      if (daysDiff < 0) {
-        res.status(400).json({
-          success: false,
-          error: 'End date must be on or after start date',
-        });
-        return;
-      }
+      const { startDate, endDate } = dateRange;
 
       // Validate organization_id is present and valid
       if (context.organizationId === undefined) {

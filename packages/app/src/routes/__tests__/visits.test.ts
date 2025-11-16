@@ -332,7 +332,7 @@ describe('Visit Routes', () => {
         },
         userContext: {
           userId: 'user-123',
-          organizationId: 'org-123',
+          organizationId: '550e8400-e29b-41d4-a716-446655440000',
           branchIds: ['branch-123'],
           roles: ['COORDINATOR'],
           permissions: ['visits:update'],
@@ -346,7 +346,7 @@ describe('Visit Routes', () => {
         .mockResolvedValueOnce({
           rows: [{
             id: 'visit-123',
-            organization_id: 'org-123',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000',
             branch_id: 'branch-123',
             scheduled_date: new Date('2025-01-15'),
             scheduled_start_time: '09:00:00',
@@ -443,7 +443,7 @@ describe('Visit Routes', () => {
         .mockResolvedValueOnce({
           rows: [{
             id: 'visit-123',
-            organization_id: 'org-123',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000',
             branch_id: 'branch-123',
             scheduled_date: new Date('2025-01-15'),
             scheduled_start_time: '09:00:00',
@@ -513,7 +513,7 @@ describe('Visit Routes', () => {
           rows: [{
             id: 'visit-123',
             assigned_caregiver_id: 'caregiver-456',
-            organization_id: 'org-123',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000',
             status: 'COMPLETED',
           }],
         } as any)
