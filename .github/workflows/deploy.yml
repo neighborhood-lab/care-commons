@@ -216,6 +216,48 @@ jobs:
           ./scripts/validate-deployment.sh "${{ steps.deploy.outputs.url }}" preview
           echo "::endgroup::"
 
+      - name: Reset Database (Preview)
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "::group::Resetting database (preview demo reset)"
+          echo "⚠️  WARNING: Resetting preview database for comprehensive demo"
+          echo "This will:"
+          echo "  1. Drop all tables and data"
+          echo "  2. Recreate database structure"
+          echo "  3. Seed with comprehensive demo data"
+          echo ""
+          START_TIME=$(date +%s)
+          npm run db:nuke
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Database reset completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Re-run Database Migrations (Preview)
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "::group::Running database migrations after reset"
+          START_TIME=$(date +%s)
+          npm run db:migrate
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Migrations completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Seed Base Data (Preview)
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "::group::Seeding base operational data"
+          START_TIME=$(date +%s)
+          npm run db:seed
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Base seed completed in ${DURATION}s"
+          echo "::endgroup::"
+
       - name: Seed Comprehensive Demo Data (Preview)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
