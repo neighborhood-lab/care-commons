@@ -106,7 +106,7 @@ export function createAuthRouter(db: Database): Router {
 
       const result = await authService.authenticateWithGoogle(
         idToken,
-        organizationId as string | undefined
+        organizationId as string
       );
 
       return res.json({

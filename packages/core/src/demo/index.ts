@@ -6,16 +6,25 @@
  * @packageDocumentation
  */
 
-export * from './types';
-export * from './demo-state-store';
-export * from './demo-session-manager';
+export * from './types.js';
+export * from './demo-state-store.js';
+export * from './demo-session-manager.js';
+export * from './state-credentials.js';
 
 export {
   getDemoStateStore,
   resetDemoStateStore
-} from './demo-state-store';
+} from './demo-state-store.js';
 
 export {
   getDemoSessionManager,
   resetDemoSessionManager
-} from './demo-session-manager';
+} from './demo-session-manager.js';
+
+export {
+  getStateCredentials,
+  getSupportedDemoStates,
+  compareStateCredentials,
+  TEXAS_CREDENTIALS,
+  FLORIDA_CREDENTIALS
+} from './state-credentials.js';
