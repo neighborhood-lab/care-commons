@@ -625,7 +625,8 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId!)) {
+      const organizationId = context.organizationId;
+      if (!isValidUUID(organizationId)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -666,7 +667,7 @@ export function createVisitRouter(db: Database): Router {
       // Fetch visits with client information
       const repository = new ScheduleRepository(db.getPool());
       const visits = await repository.getVisitsByDateRange(
-        context.organizationId!,
+        organizationId,
         startDate,
         endDate,
         branchIds.length > 0 ? branchIds : undefined
@@ -722,7 +723,8 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId!)) {
+      const organizationId = context.organizationId;
+      if (!isValidUUID(organizationId)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -885,7 +887,8 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId!)) {
+      const organizationId = context.organizationId;
+      if (!isValidUUID(organizationId)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -999,7 +1002,8 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      if (!isValidUUID(context.organizationId!)) {
+      const organizationId = context.organizationId;
+      if (!isValidUUID(organizationId)) {
         res.status(400).json({
           success: false,
           error: 'Invalid organization ID format',
@@ -1044,7 +1048,7 @@ export function createVisitRouter(db: Database): Router {
            AND ($3::uuid[] IS NULL OR cg.branch_ids && $3::uuid[])
          GROUP BY cg.id, cg.first_name, cg.last_name, cg.status
          ORDER BY cg.last_name, cg.first_name`,
-        [date, context.organizationId!, branchIds.length > 0 ? branchIds : null]
+        [date, organizationId, branchIds.length > 0 ? branchIds : null]
       );
 
       res.json({
