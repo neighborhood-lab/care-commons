@@ -5,6 +5,10 @@
  */
 
 import React from 'react';
+
+// Export conflict resolution modal
+export { ConflictResolutionModal } from './ConflictResolutionModal.js';
+export { OfflineIndicator } from './OfflineIndicator.js';
 import {
   Pressable,
   Text,
