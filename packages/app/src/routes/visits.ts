@@ -598,7 +598,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present and valid
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
@@ -695,7 +695,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
@@ -858,7 +858,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
@@ -972,7 +972,7 @@ export function createVisitRouter(db: Database): Router {
       }
 
       // Validate organization_id is present and valid
-      if (!context.organizationId) {
+      if (context.organizationId === undefined) {
         res.status(400).json({
           success: false,
           error: 'Organization ID is required for this endpoint',
