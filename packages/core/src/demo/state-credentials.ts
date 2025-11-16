@@ -372,14 +372,14 @@ export function compareStateCredentials(
   const creds1 = getStateCredentials(stateCode1);
   const creds2 = getStateCredentials(stateCode2);
   
-  if (!creds1 || !creds2) {
+  if (creds1 === null || creds2 === null) {
     return null;
   }
   
   const differences: { category: string; difference: string }[] = [];
   
   // Compare background screening levels
-  if (creds1.backgroundScreening && creds2.backgroundScreening) {
+  if (creds1.backgroundScreening !== undefined && creds2.backgroundScreening !== undefined) {
     if (creds1.backgroundScreening.level !== creds2.backgroundScreening.level) {
       differences.push({
         category: 'Background Screening',
@@ -407,8 +407,8 @@ export function compareStateCredentials(
   }
   
   // Compare RN supervision requirements
-  const rn1 = creds1.rnSupervisionVisits?.required || false;
-  const rn2 = creds2.rnSupervisionVisits?.required || false;
+  const rn1 = creds1.rnSupervisionVisits?.required ?? false;
+  const rn2 = creds2.rnSupervisionVisits?.required ?? false;
   if (rn1 !== rn2) {
     differences.push({
       category: 'RN Supervision',

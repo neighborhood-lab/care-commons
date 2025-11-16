@@ -151,15 +151,11 @@ export function DemoModeProvider({
 
   const isFeatureAvailable = useCallback(
     (_feature: string): boolean => {
-      if (!state.isActive) {
-        return true; // All features available in non-demo mode
-      }
-
       // Demo mode feature restrictions can be added here
-      // For now, all features are available in demo mode
+      // For now, all features are available in both demo and non-demo mode
       return true;
     },
-    [state.isActive]
+    []
   );
 
   const contextValue: DemoModeContextValue = useMemo(

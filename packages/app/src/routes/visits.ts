@@ -81,7 +81,6 @@ export function createVisitRouter(db: Database): Router {
    * GET /api/visits/calendar
    * Get visits for calendar view (optimized for month/week display)
    */
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   router.get('/calendar', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const context = req.userContext!;
