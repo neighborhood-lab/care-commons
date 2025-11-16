@@ -32,6 +32,12 @@ export { EVVValidator } from './validation/evv-validator';
 export { EVVService } from './service/evv-service';
 export { VMURService } from './service/vmur-service';
 export type { CreateVMURInput, ApproveVMURInput, DenyVMURInput } from './service/vmur-service';
+export {
+  EVVComplianceOrchestrator,
+  type RealTimeValidationFeedback,
+  type AggregatorSubmissionStatus,
+  type StateComplianceDashboard,
+} from './service/evv-compliance-orchestrator';
 
 // Texas-specific EVV compliance services
 export {
