@@ -25,7 +25,7 @@ export function createAnalyticsRouter(db: Database): Router {
       const service = new AnalyticsService(db);
 
       const options: AnalyticsQueryOptions = {
-        organizationId: context.organizationId,
+        organizationId: context.organizationId!,
         branchId: req.query['branchId'] as string | undefined,
         dateRange: {
           startDate: req.query['startDate'] !== undefined ? new Date(req.query['startDate'] as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -50,7 +50,7 @@ export function createAnalyticsRouter(db: Database): Router {
       const service = new AnalyticsService(db);
 
       const branchId = req.query['branchId'] as string | undefined;
-      const alerts = await service.getComplianceAlerts(context.organizationId, branchId, context);
+      const alerts = await service.getComplianceAlerts(context.organizationId!, branchId, context);
       res.json(alerts);
     } catch (error) {
       next(error);
@@ -69,7 +69,7 @@ export function createAnalyticsRouter(db: Database): Router {
       const months = parseInt((req.query['months'] as string | undefined) ?? '6', 10);
       const branchId = req.query['branchId'] as string | undefined;
 
-      const trends = await service.getRevenueTrends(context.organizationId, months, branchId, context);
+      const trends = await service.getRevenueTrends(context.organizationId!, months, branchId, context);
       res.json(trends);
     } catch (error) {
       next(error);
@@ -86,7 +86,7 @@ export function createAnalyticsRouter(db: Database): Router {
       const service = new AnalyticsService(db);
 
       const branchId = req.query['branchId'] as string | undefined;
-      const exceptions = await service.getEVVExceptions(context.organizationId, branchId, context);
+      const exceptions = await service.getEVVExceptions(context.organizationId!, branchId, context);
       res.json(exceptions);
     } catch (error) {
       next(error);
@@ -103,7 +103,7 @@ export function createAnalyticsRouter(db: Database): Router {
       const service = new AnalyticsService(db);
 
       const branchId = req.query['branchId'] as string | undefined;
-      const stats = await service.getDashboardStats(context.organizationId, branchId, context);
+      const stats = await service.getDashboardStats(context.organizationId!, branchId, context);
       res.json(stats);
     } catch (error) {
       next(error);
@@ -145,7 +145,7 @@ export function createAnalyticsRouter(db: Database): Router {
       const service = new AnalyticsService(db);
 
       const options: AnalyticsQueryOptions = {
-        organizationId: context.organizationId,
+        organizationId: context.organizationId!,
         branchId: req.query['branchId'] as string | undefined,
         dateRange: {
           startDate: req.query['startDate'] !== undefined ? new Date(req.query['startDate'] as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),

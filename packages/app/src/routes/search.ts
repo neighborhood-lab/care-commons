@@ -92,7 +92,7 @@ async function searchClients(
        END,
        last_name, first_name
      LIMIT $4 OFFSET $5`,
-    [context.organizationId, searchPattern, query, limit, offset]
+    [context.organizationId!, searchPattern, query, limit, offset]
   );
 
   return result.rows.map((row, index) => ({
@@ -150,7 +150,7 @@ async function searchCaregivers(
        END,
        last_name, first_name
      LIMIT $4 OFFSET $5`,
-    [context.organizationId, searchPattern, query, limit, offset]
+    [context.organizationId!, searchPattern, query, limit, offset]
   );
 
   return result.rows.map((row, index) => ({
@@ -213,7 +213,7 @@ async function searchVisits(
        )
      ORDER BY v.scheduled_start DESC
      LIMIT $3 OFFSET $4`,
-    [context.organizationId, searchPattern, limit, offset]
+    [context.organizationId!, searchPattern, limit, offset]
   );
 
   return result.rows.map((row, index) => ({
@@ -273,7 +273,7 @@ async function searchCarePlans(
        )
      ORDER BY cp.start_date DESC
      LIMIT $3 OFFSET $4`,
-    [context.organizationId, searchPattern, limit, offset]
+    [context.organizationId!, searchPattern, limit, offset]
   );
 
   return result.rows.map((row, index) => ({
@@ -381,7 +381,7 @@ async function searchUsers(
        END,
        last_name, first_name
      LIMIT $4 OFFSET $5`,
-    [context.organizationId, searchPattern, query, limit, offset]
+    [context.organizationId!, searchPattern, query, limit, offset]
   );
 
   return result.rows.map((row, index) => ({
