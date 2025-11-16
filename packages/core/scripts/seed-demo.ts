@@ -638,10 +638,11 @@ function generateCaregiver(
   // Phone number with correct area code
   const phone = `${location.areaCode}-${faker.string.numeric(3)}-${faker.string.numeric(4)}`;
 
-  // Email
+  // Email (add random number to ensure uniqueness)
   const emailFirstName = firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const emailLastName = lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const email = faker.internet.email({ firstName: emailFirstName, lastName: emailLastName }).toLowerCase();
+  const uniqueSuffix = faker.string.numeric(4);
+  const email = `${emailFirstName.toLowerCase()}.${emailLastName.toLowerCase()}${uniqueSuffix}@gmail.com`;
 
   // Certifications (CNAs, HHAs are common in Texas)
   const allCertifications = ['CNA', 'HHA', 'PCA', 'CPR', 'FIRST_AID', 'MEDICATION_AIDE'];

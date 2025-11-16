@@ -17,7 +17,9 @@ import type {
 import { AnalyticsApiService, type AnalyticsFilters } from '../services/analytics-api';
 
 // Initialize API service
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+// Use relative /api path which will be proxied by Vite in development
+// and served by the same origin in production
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 const analyticsApi = new AnalyticsApiService(API_BASE_URL);
 
 /**

@@ -12,7 +12,9 @@ import type {
   PushChangesResponse,
 } from '@care-commons/core/browser';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+// Use relative /api path which will be proxied by Vite in development
+// and served by the same origin in production
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 /**
  * Pull changes from server since last sync
