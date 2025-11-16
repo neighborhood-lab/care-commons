@@ -10,6 +10,8 @@
 
 import { UserContext } from '@care-commons/core';
 import { EVVService } from '../service/evv-service';
+import { EVVComplianceOrchestrator } from '../service/evv-compliance-orchestrator.js';
+import { StateCode } from '../types/state-specific.js';
 import {
   ClockInInput,
   ClockOutInput,
@@ -40,7 +42,11 @@ export interface APIResponse {
 }
 
 export class EVVHandlers {
-  constructor(private evvService: EVVService) {}
+  private orchestrator: EVVComplianceOrchestrator;
+  
+  constructor(private evvService: EVVService) {
+    this.orchestrator = new EVVComplianceOrchestrator();
+  }
 
   /**
    * @openapi
@@ -446,6 +452,196 @@ export class EVVHandlers {
     }
   }
 
+  /**
+   * POST /api/evv/validate-realtime
+   * Validate EVV record with real-time feedback
+   */
+  async validateRealtime(req: APIRequest<{ evvRecordId: string; state: string }>): Promise<APIResponse> {
+    try {
+      const { evvRecordId, state } = req.body;
+      
+      if (!evvRecordId || !state) {
+        return {
+          status: 400,
+          error: {
+            message: 'evvRecordId and state are required',
+            code: 'MISSING_REQUIRED_FIELDS',
+          },
+        };
+      }
+      
+      // Get EVV record
+      const evvRecord = await this.evvService.getEVVRecordByVisit(evvRecordId, req.user);
+      if (!evvRecord) {
+        return {
+          status: 404,
+          error: {
+            message: 'EVV record not found',
+            code: 'EVV_RECORD_NOT_FOUND',
+          },
+        };
+      }
+      
+      // Validate with real-time feedback
+      const feedback = await this.orchestrator.validateWithFeedback(
+        evvRecord,
+        state as StateCode
+      );
+      
+      return {
+        status: 200,
+        data: feedback,
+      };
+    } catch (error: unknown) {
+      return this.handleError(error);
+    }
+  }
+  
+  /**
+   * POST /api/evv/submit-aggregators
+   * Submit EVV record to state aggregators
+   */
+  async submitToAggregators(req: APIRequest<{ evvRecordId: string; state: string }>): Promise<APIResponse> {
+    try {
+      const { evvRecordId, state } = req.body;
+      
+      if (!evvRecordId || !state) {
+        return {
+          status: 400,
+          error: {
+            message: 'evvRecordId and state are required',
+            code: 'MISSING_REQUIRED_FIELDS',
+          },
+        };
+      }
+      
+      // Get EVV record
+      const evvRecord = await this.evvService.getEVVRecordByVisit(evvRecordId, req.user);
+      if (!evvRecord) {
+        return {
+          status: 404,
+          error: {
+            message: 'EVV record not found',
+            code: 'EVV_RECORD_NOT_FOUND',
+          },
+        };
+      }
+      
+      // Submit to aggregators
+      const submissions = await this.orchestrator.submitToAggregators(
+        evvRecord,
+        state as StateCode
+      );
+      
+      return {
+        status: 200,
+        data: {
+          evvRecordId,
+          state,
+          submissions,
+          allSuccessful: submissions.every(s => s.success),
+        },
+      };
+    } catch (error: unknown) {
+      return this.handleError(error);
+    }
+  }
+  
+  /**
+   * POST /api/evv/validate-and-submit
+   * Validate and submit EVV record in one operation
+   */
+  async validateAndSubmit(req: APIRequest<{ evvRecordId: string; state: string }>): Promise<APIResponse> {
+    try {
+      const { evvRecordId, state } = req.body;
+      
+      if (!evvRecordId || !state) {
+        return {
+          status: 400,
+          error: {
+            message: 'evvRecordId and state are required',
+            code: 'MISSING_REQUIRED_FIELDS',
+          },
+        };
+      }
+      
+      // Get EVV record
+      const evvRecord = await this.evvService.getEVVRecordByVisit(evvRecordId, req.user);
+      if (!evvRecord) {
+        return {
+          status: 404,
+          error: {
+            message: 'EVV record not found',
+            code: 'EVV_RECORD_NOT_FOUND',
+          },
+        };
+      }
+      
+      // Validate and submit
+      const feedback = await this.orchestrator.validateAndSubmit(
+        evvRecord,
+        state as StateCode
+      );
+      
+      return {
+        status: 200,
+        data: feedback,
+      };
+    } catch (error: unknown) {
+      return this.handleError(error);
+    }
+  }
+  
+  /**
+   * GET /api/evv/compliance-dashboard/:state
+   * Get state-specific compliance dashboard
+   */
+  async getComplianceDashboard(req: APIRequest): Promise<APIResponse> {
+    try {
+      const { state } = req.params;
+      const { startDate, endDate, organizationId } = req.query;
+      
+      if (!state || !startDate || !endDate || !organizationId) {
+        return {
+          status: 400,
+          error: {
+            message: 'state, startDate, endDate, and organizationId are required',
+            code: 'MISSING_REQUIRED_PARAMETERS',
+          },
+        };
+      }
+      
+      // Get all records for the date range
+      const filters: EVVRecordSearchFilters = {
+        organizationId: organizationId as string,
+        startDate: new Date(startDate as string),
+        endDate: new Date(endDate as string),
+      };
+      
+      const allRecords = await this.evvService.searchEVVRecords(filters, {
+        page: 1,
+        limit: 10000,
+        sortBy: 'serviceDate',
+        sortOrder: 'desc',
+      }, req.user);
+      
+      // Generate dashboard
+      const dashboard = this.orchestrator.generateComplianceDashboard(
+        state as StateCode,
+        new Date(startDate as string),
+        new Date(endDate as string),
+        allRecords.items
+      );
+      
+      return {
+        status: 200,
+        data: dashboard,
+      };
+    } catch (error: unknown) {
+      return this.handleError(error);
+    }
+  }
+  
   /**
    * GET /api/evv/compliance-summary
    * Get compliance summary statistics
