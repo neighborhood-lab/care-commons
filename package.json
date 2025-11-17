@@ -32,7 +32,6 @@
     "docker:logs": "docker-compose logs -f",
     "docker:ps": "docker-compose ps",
     "docker:restart": "docker-compose restart",
-    "dev:reset": "npm run db:nuke && npm run db:migrate && npm run db:seed && npm run db:seed:demo",
     "dev:clean": "turbo run clean && rm -rf node_modules",
     "build": "turbo run build --filter=!@care-commons/showcase && npm run build:copy-web",
     "build:web": "cd packages/web && npm run build",
