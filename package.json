@@ -19,7 +19,8 @@
   ],
   "scripts": {
     "dev:setup": "tsx scripts/dev-setup.ts",
-    "dev": "tsx scripts/dev-server.ts",
+    "dev": "concurrently --names \"TURBO,API,WEB\" --prefix-colors \"yellow,blue,magenta\" \"turbo watch build --filter='!@care-commons/web' --filter='!@care-commons/app'\" \"cd packages/app && npx tsx watch src/server.ts\" \"cd packages/web && npx vite\"",
+    "dev:old": "tsx scripts/dev-server.ts",
     "dev:kill": "./scripts/dev-kill.sh",
     "dev:test": "./scripts/test-dev-workflow.sh",
     "dev:server": "cd packages/app && npm run dev",

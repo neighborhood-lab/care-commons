@@ -144,8 +144,17 @@ async function main(): Promise<void> {
   // Setup signal handlers
   setupSignalHandlers();
 
-  // Start servers (run tsx directly, not nested npm)
+  // Start servers with Turbo watch mode for automatic rebuilds
   const rootDir = process.cwd();
+  
+  // Start Turbo watch to rebuild packages on changes
+  startServer(
+    'Turbo Watch',
+    'npx',
+    ['turbo', 'watch', 'build', '--filter=!@care-commons/web', '--filter=!@care-commons/app'],
+    rootDir,
+    'yellow'
+  );
   
   startServer(
     'API',
