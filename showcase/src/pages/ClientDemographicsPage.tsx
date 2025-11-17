@@ -87,7 +87,7 @@ export const ClientDemographicsPage: React.FC = () => {
           <p className="text-sm font-medium text-gray-600">Cities</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">
             {data?.items.length
-              ? new Set(data.items.map(c => c.primaryAddress.city)).size
+              ? new Set(data.items.filter(c => c.primaryAddress?.city).map(c => c.primaryAddress.city)).size
               : 0}
           </p>
         </div>
@@ -151,12 +151,14 @@ export const ClientDemographicsPage: React.FC = () => {
                     <span>{client.phone}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span className="truncate">
-                    {client.primaryAddress.city}, {client.primaryAddress.stateCode}
-                  </span>
-                </div>
+                {client.primaryAddress && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span className="truncate">
+                      {client.primaryAddress.city}, {client.primaryAddress.stateCode}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {(client.medicaidNumber || client.medicareNumber) && (
