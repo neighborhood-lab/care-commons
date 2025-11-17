@@ -170,7 +170,7 @@ export class BillingRepository implements IBillingRepository {
 
     const statusHistory = [
       {
-        status: request.trialEnd ? 'trialing' : 'active',
+        status: request.trialEnd !== undefined ? 'trialing' : 'active',
         timestamp: now.toISOString(),
         reason: 'Subscription created',
       },
@@ -188,11 +188,11 @@ export class BillingRepository implements IBillingRepository {
       request.clientLimit, // $9
       request.caregiverLimit, // $10
       request.visitLimit ?? null, // $11
-      request.trialEnd ? 'trialing' : 'active', // $12
+      request.trialEnd !== undefined ? 'trialing' : 'active', // $12
       JSON.stringify(statusHistory), // $13
       now, // $14
       currentPeriodEnd, // $15
-      request.trialEnd ? now : null, // $16
+      request.trialEnd !== undefined ? now : null, // $16
       request.trialEnd ?? null, // $17
       false, // $18
       request.createdBy, // $19
@@ -200,7 +200,7 @@ export class BillingRepository implements IBillingRepository {
     ];
 
     const result = await this.db.query<Record<string, unknown>>(query, values);
-    if (!result.rows[0]) {
+    if (result.rows[0] === undefined) {
       throw new Error('Failed to create subscription');
     }
     return this.mapSubscription(result.rows[0]);
@@ -213,7 +213,7 @@ export class BillingRepository implements IBillingRepository {
     `;
 
     const result = await this.db.query<Record<string, unknown>>(query, [id]);
-    return result.rows[0] ? this.mapSubscription(result.rows[0]) : null;
+    return result.rows[0] !== undefined ? this.mapSubscription(result.rows[0]) : null;
   }
 
   async getSubscriptionByOrganization(organizationId: UUID): Promise<Subscription | null> {
@@ -225,7 +225,7 @@ export class BillingRepository implements IBillingRepository {
     `;
 
     const result = await this.db.query<Record<string, unknown>>(query, [organizationId]);
-    return result.rows[0] ? this.mapSubscription(result.rows[0]) : null;
+    return result.rows[0] !== undefined ? this.mapSubscription(result.rows[0]) : null;
   }
 
   async getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<Subscription | null> {
@@ -235,7 +235,7 @@ export class BillingRepository implements IBillingRepository {
     `;
 
     const result = await this.db.query<Record<string, unknown>>(query, [stripeSubscriptionId]);
-    return result.rows[0] ? this.mapSubscription(result.rows[0]) : null;
+    return result.rows[0] !== undefined ? this.mapSubscription(result.rows[0]) : null;
   }
 
   async updateSubscriptionStatus(
@@ -246,7 +246,7 @@ export class BillingRepository implements IBillingRepository {
   ): Promise<void> {
     // First get current subscription to append to status history
     const current = await this.getSubscriptionById(id);
-    if (!current) {
+    if (current === null) {
       throw new NotFoundError('Subscription not found', { id });
     }
 
@@ -289,7 +289,7 @@ export class BillingRepository implements IBillingRepository {
 
   async cancelSubscription(id: UUID, canceledBy: UUID, reason?: string): Promise<void> {
     const current = await this.getSubscriptionById(id);
-    if (!current) {
+    if (current === null) {
       throw new NotFoundError('Subscription not found', { id });
     }
 
@@ -325,7 +325,7 @@ export class BillingRepository implements IBillingRepository {
   async getCurrentUsage(organizationId: UUID): Promise<BillingUsage | null> {
     // First try to get the subscription to find the current period
     const subscription = await this.getSubscriptionByOrganization(organizationId);
-    if (!subscription) {
+    if (subscription === null) {
       return null;
     }
 
