@@ -170,6 +170,9 @@ export class CacheService {
 
   /**
    * Get or compute a value
+   * 
+   * NOTE: Does NOT cache null values to prevent cache poisoning
+   * (e.g., looking up a user before they're created shouldn't cache "not found")
    */
   async getOrSet<T>(
     key: string,
@@ -182,7 +185,12 @@ export class CacheService {
     }
 
     const value = await factory();
-    await this.set(key, value, ttl);
+    
+    // Don't cache null values to prevent cache poisoning
+    if (value !== null) {
+      await this.set(key, value, ttl);
+    }
+    
     return value;
   }
 
