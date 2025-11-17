@@ -1,9 +1,11 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './core/hooks';
 import { ProtectedRoute, FamilyProtectedRoute, PublicRoute } from './core/components';
 import { AppShell } from './app/components';
+import { initAuthStorage } from './core/utils/auth-storage';
 import { DashboardSelector, Login, NotFound, AdminDashboard, Settings } from './app/pages';
 import { ClientList, ClientDetail, ClientDashboard } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
@@ -500,6 +502,11 @@ function AppRoutes() {
 }
 
 function App() {
+  // Initialize auth storage checks (demo mode: detect stale data from DB resets)
+  React.useEffect(() => {
+    initAuthStorage();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>

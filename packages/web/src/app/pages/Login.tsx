@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useAuthService } from '@/core/hooks';
 import { getDashboardRoute } from '@/core/utils';
+import { handleSmartLogin } from '@/core/utils/auth-storage';
 import toast from 'react-hot-toast';
 
 // 5 Demo Personas (all Texas-based)
@@ -108,6 +109,13 @@ export const Login: React.FC = () => {
         email: persona.email,
         password: persona.password,
       });
+
+      // Smart demo mode: Auto-clear stale auth data if database was reset
+      const wasStale = handleSmartLogin(persona.email, response.user);
+      if (wasStale) {
+        console.log('🔄 Database was reset - cleared stale auth data');
+      }
+
       login(response.user, response.token);
       toast.success(`Welcome, ${persona.name}!`);
 
