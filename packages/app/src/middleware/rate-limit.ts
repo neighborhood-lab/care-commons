@@ -98,12 +98,12 @@ export const generalApiLimiter = rateLimit({
   },
 });
 
-// Auth rate limit - 10 failed attempts per 5 minutes per IP
-// More reasonable window to prevent lockout while still preventing brute force
+// Auth rate limit - 50 failed attempts per 5 minutes per IP
+// Generous limit for demo environment with frequent role-switching and testing
 // Only counts failed login attempts (skipSuccessfulRequests: true)
 export const authLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes (reduced from 15 to prevent long lockouts)
-  max: 10, // Increased from 5 to allow legitimate retries with demo accounts
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 50, // High limit for demo testing and role switching
   skipSuccessfulRequests: true, // Don't count successful requests
   standardHeaders: true,
   legacyHeaders: false,
