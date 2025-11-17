@@ -1248,8 +1248,25 @@ async function seedDatabase() {
 
       for (const caregiver of caregivers) {
 
-        // Create user account for caregiver
-        const caregiverUserId = uuidv4();
+        // IMPORTANT: Use the SAME ID for both user and caregiver records
+        // This allows the backend to directly use user ID to query caregiver-assigned tasks/visits
+        // For the first Texas caregiver (Sarah Chen), check if user already exists from state-specific users
+        let caregiverUserId = caregiver.id;
+        
+        // Check if this is Sarah Chen's email (matches the TX caregiver demo user)
+        if (caregiver.email === 'caregiver@tx.carecommons.example') {
+          const existingUser = await client.query(
+            'SELECT id FROM users WHERE email = $1',
+            [caregiver.email]
+          );
+          if (existingUser.rows.length > 0) {
+            // Use the existing user ID so tasks/visits work
+            caregiverUserId = existingUser.rows[0].id;
+            console.log(`   ♻️  Reusing existing user ID for Sarah Chen: ${caregiverUserId}`);
+          }
+        }
+
+        // Create user account for caregiver (or update if exists)
         await client.query(
           `
           INSERT INTO users (
@@ -1257,10 +1274,15 @@ async function seedDatabase() {
             first_name, last_name, roles, status,
             created_by, updated_by, is_demo_data, username
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, $11)
-          ON CONFLICT (email) DO NOTHING
+          ON CONFLICT (email) DO UPDATE SET
+            password_hash = EXCLUDED.password_hash,
+            first_name = EXCLUDED.first_name,
+            last_name = EXCLUDED.last_name,
+            roles = EXCLUDED.roles,
+            updated_at = NOW()
           `,
           [
-            caregiverUserId,
+            caregiverUserId, // Use the SAME ID as caregiver record
             orgId,
             caregiver.email,
             caregiverPasswordHash,
@@ -1274,7 +1296,7 @@ async function seedDatabase() {
           ]
         );
         
-        // Create caregiver record
+        // Create caregiver record with THE SAME ID as user
         await client.query(
           `
           INSERT INTO caregivers (
@@ -1288,7 +1310,7 @@ async function seedDatabase() {
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, true)
           `,
           [
-            caregiver.id,
+            caregiverUserId, // Use THE SAME ID as user record
             caregiver.organizationId,
             caregiver.branchId,
             `{${caregiver.branchId}}`, // branch_ids array
