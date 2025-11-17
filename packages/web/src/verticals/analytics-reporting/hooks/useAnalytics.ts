@@ -17,7 +17,10 @@ import type {
 import { AnalyticsApiService, type AnalyticsFilters } from '../services/analytics-api';
 
 // Initialize API service
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+// In production (Vercel), API is served on same domain via rewrites, so use relative path ('')
+// In development, use localhost
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3000');
 const analyticsApi = new AnalyticsApiService(API_BASE_URL);
 
 /**
