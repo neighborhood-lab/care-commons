@@ -47,6 +47,7 @@ export function useComplianceAlerts(
     queryFn: () => analyticsApi.getComplianceAlerts(filters),
     refetchInterval: options?.refetchInterval,
     refetchIntervalInBackground: false,
+    retry: false, // Don't retry on error - polling will refetch anyway
   });
 }
 
@@ -96,6 +97,7 @@ export function useEVVExceptions(
     queryFn: () => analyticsApi.getEVVExceptions(filters),
     refetchInterval: options?.refetchInterval,
     refetchIntervalInBackground: false,
+    retry: false, // Don't retry on error - polling will refetch anyway
   });
 }
 
@@ -108,6 +110,7 @@ export function useDashboardStats(options?: { refetchInterval?: number }) {
     queryFn: () => analyticsApi.getDashboardStats(),
     refetchInterval: options?.refetchInterval,
     refetchIntervalInBackground: false,
+    retry: false, // Don't retry on error - polling will refetch anyway
   });
 }
 
