@@ -168,7 +168,7 @@ export const Login: React.FC = () => {
             <div className="flex-1">
               <h3 className="text-base font-semibold text-blue-900">Demo Accounts</h3>
               <p className="mt-1 text-sm text-blue-700">
-                Choose a persona to explore the platform. All accounts use password: <span className="font-mono font-semibold">Demo123!</span>
+                Choose a persona to explore the platform.
               </p>
             </div>
           </div>
@@ -250,9 +250,6 @@ export const Login: React.FC = () => {
           {/* Footer Info */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="text-center space-y-3">
-              <p className="text-xs text-gray-500">
-                <span className="font-semibold">All accounts:</span> Password is <span className="font-mono font-semibold">Demo123!</span>
-              </p>
               <p className="text-xs text-gray-500">
                 This is a demonstration environment with sample data from Texas.{' '}
                 <a
