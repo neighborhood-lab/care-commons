@@ -979,8 +979,15 @@ async function seedDatabase() {
       let usersUpdated = 0;
 
       // Create users for each state × role combination
+      // IMPORTANT: Skip CAREGIVER role here - caregivers are created in the dedicated caregivers section
+      // with matching user.id === caregiver.id to support task assignment queries
       for (const state of US_STATES) {
         for (const role of ROLES) {
+          // Skip CAREGIVER - handled separately to ensure user.id === caregiver.id
+          if (role.value === 'CAREGIVER') {
+            continue;
+          }
+          
           const stateCode = state.code.toLowerCase();
           const roleCode = role.value.toLowerCase();
 
@@ -1250,23 +1257,10 @@ async function seedDatabase() {
 
         // IMPORTANT: Use the SAME ID for both user and caregiver records
         // This allows the backend to directly use user ID to query caregiver-assigned tasks/visits
-        // For the first Texas caregiver (Sarah Chen), check if user already exists from state-specific users
-        let caregiverUserId = caregiver.id;
-        
-        // Check if this is Sarah Chen's email (matches the TX caregiver demo user)
-        if (caregiver.email === 'caregiver@tx.carecommons.example') {
-          const existingUser = await client.query(
-            'SELECT id FROM users WHERE email = $1',
-            [caregiver.email]
-          );
-          if (existingUser.rows.length > 0) {
-            // Use the existing user ID so tasks/visits work
-            caregiverUserId = existingUser.rows[0].id;
-            console.log(`   ♻️  Reusing existing user ID for Sarah Chen: ${caregiverUserId}`);
-          }
-        }
+        // (No need to check for existing users - we skip CAREGIVER in state-specific users loop)
+        const caregiverUserId = caregiver.id;
 
-        // Create user account for caregiver (or update if exists)
+        // Create user account for caregiver
         await client.query(
           `
           INSERT INTO users (
