@@ -8,9 +8,6 @@ main = "api/cloudflare-worker.ts"  # Production: cloudflare-worker.ts, Developme
 compatibility_date = "2024-11-12"
 compatibility_flags = ["nodejs_compat"]
 
-# Node.js compatibility for Express, pg, and other Node APIs
-node_compat = true
-
 # ════════════════════════════════════════════════════════════════
 # Environment Variables (Non-Sensitive)
 # ════════════════════════════════════════════════════════════════
