@@ -6,7 +6,7 @@ on:
       - main
       - develop
     paths:
-      - 'packages/web/**'
+      - 'showcase/**'
       - '.github/workflows/deploy-showcase.yml'
   workflow_dispatch:
 
@@ -37,18 +37,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build dependencies
-        run: npm run build
+      - name: Build core dependencies
+        run: npx turbo run build --filter=@care-commons/core --filter=@care-commons/shared-components
 
       - name: Build showcase
         run: |
-          cd packages/web
-          npm run build:showcase
-
-      - name: Rename index file for GitHub Pages
-        run: |
-          cd packages/web/dist-showcase
-          mv index-showcase.html index.html
+          cd showcase
+          npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -56,7 +51,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'packages/web/dist-showcase'
+          path: 'showcase/dist'
 
   deploy:
     environment:
