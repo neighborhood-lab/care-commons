@@ -484,7 +484,9 @@ export class ScheduleRepository {
       ...this.mapRowToVisit(row),
       clientFirstName: row.client_first_name,
       clientLastName: row.client_last_name,
-      clientPhone: row.client_phone ? JSON.parse(row.client_phone) : undefined,
+      clientPhone: row.client_phone 
+        ? (typeof row.client_phone === 'string' ? JSON.parse(row.client_phone) : row.client_phone)
+        : undefined,
     }));
   }
 
