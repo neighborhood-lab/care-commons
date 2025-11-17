@@ -157,22 +157,30 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    let query = `
-      SELECT COALESCE(SUM(ili.total_amount), 0) as total
-      FROM invoice_line_items ili
-      JOIN invoices i ON ili.invoice_id = i.id
-      WHERE i.organization_id = $1
-        AND i.invoice_date BETWEEN $2 AND $3
-    `;
-    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
+    try {
+      let query = `
+        SELECT COALESCE(SUM(ili.total_amount), 0) as total
+        FROM invoice_line_items ili
+        JOIN invoices i ON ili.invoice_id = i.id
+        WHERE i.organization_id = $1
+          AND i.invoice_date BETWEEN $2 AND $3
+      `;
+      const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
-    if (branchId) {
-      query += ' AND i.branch_id = $4';
-      params.push(branchId);
+      if (branchId) {
+        query += ' AND i.branch_id = $4';
+        params.push(branchId);
+      }
+
+      const result = await this.database.query(query, params);
+      return parseFloat(result.rows[0]?.total as string) || 0;
+    } catch (error) {
+      // Table doesn't exist yet - return 0
+      if (error && typeof error === 'object' && 'code' in error && error.code === '42P01') {
+        return 0;
+      }
+      throw error;
     }
-
-    const result = await this.database.query(query, params);
-    return parseFloat(result.rows[0]?.total as string) || 0;
   }
 
   /**
@@ -183,22 +191,30 @@ export class AnalyticsRepository {
     dateRange: DateRange,
     branchId?: string
   ): Promise<number> {
-    let query = `
-      SELECT COALESCE(SUM(p.amount), 0) as total
-      FROM payments p
-      JOIN invoices i ON p.invoice_id = i.id
-      WHERE i.organization_id = $1
-        AND p.payment_date BETWEEN $2 AND $3
-    `;
-    const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
+    try {
+      let query = `
+        SELECT COALESCE(SUM(p.amount), 0) as total
+        FROM payments p
+        JOIN invoices i ON p.invoice_id = i.id
+        WHERE i.organization_id = $1
+          AND p.payment_date BETWEEN $2 AND $3
+      `;
+      const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
-    if (branchId) {
-      query += ' AND i.branch_id = $4';
-      params.push(branchId);
+      if (branchId) {
+        query += ' AND i.branch_id = $4';
+        params.push(branchId);
+      }
+
+      const result = await this.database.query(query, params);
+      return parseFloat(result.rows[0]?.total as string) || 0;
+    } catch (error) {
+      // Table/column doesn't exist yet - return 0
+      if (error && typeof error === 'object' && 'code' in error && (error.code === '42P01' || error.code === '42703')) {
+        return 0;
+      }
+      throw error;
     }
-
-    const result = await this.database.query(query, params);
-    return parseFloat(result.rows[0]?.total as string) || 0;
   }
 
   /**
