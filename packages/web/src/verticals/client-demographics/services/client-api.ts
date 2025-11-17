@@ -53,9 +53,10 @@ export const createClientApiService = (apiClient: ApiClient): ClientApiService =
       if (filters?.sortDirection) params.append('sortDirection', filters.sortDirection);
 
       const queryString = params.toString();
-      return apiClient.get<PaginatedResult<Client>>(
+      const response = await apiClient.get<{ success: boolean; data: PaginatedResult<Client> }>(
         `/api/clients${queryString ? `?${queryString}` : ''}`
       );
+      return response.data;
     },
 
     async getClientsDashboard(filters?: ClientSearchFilters & SearchParams): Promise<PaginatedResult<DashboardClient>> {
