@@ -1160,8 +1160,8 @@ async function seedDatabase() {
               issueDate: '2020-01-01',
               expirationDate: '2026-01-01'
             }]),
-            JSON.stringify(['Personal Care', 'Companionship']),
-            JSON.stringify(['English', 'Spanish']),
+            '{Personal Care,Companionship}', // PostgreSQL array format
+            '{English,Spanish}', // PostgreSQL array format
             25,
             'HHA',
             JSON.stringify({ monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }),
