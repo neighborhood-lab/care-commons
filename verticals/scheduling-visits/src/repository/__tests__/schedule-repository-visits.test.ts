@@ -92,11 +92,11 @@ describe('ScheduleRepository - getVisitsByCaregiver', () => {
         deleted_by: null,
         client_first_name: 'John',
         client_last_name: 'Doe',
-        client_phone: JSON.stringify({
+        client_phone: {
           number: '555-0100',
           type: 'MOBILE',
           canReceiveSMS: true,
-        }),
+        },
       },
     ];
 
@@ -260,11 +260,11 @@ describe('ScheduleRepository - getVisitsByDateRange', () => {
         deleted_by: null,
         client_first_name: 'Jane',
         client_last_name: 'Smith',
-        client_phone: JSON.stringify({
+        client_phone: {
           number: '555-0200',
           type: 'HOME',
           canReceiveSMS: false,
-        }),
+        },
       },
     ];
 
@@ -428,7 +428,7 @@ describe('ScheduleRepository - getVisitsByDateRange', () => {
       id: 'visit-orphan',
       clientFirstName: null,
       clientLastName: null,
-      clientPhone: undefined,
+      clientPhone: null,
     });
   });
 
@@ -500,11 +500,11 @@ describe('ScheduleRepository - getVisitsByDateRange', () => {
         deleted_by: null,
         client_first_name: 'Jane',
         client_last_name: 'Smith',
-        client_phone: JSON.stringify({
+        client_phone: {
           number: '555-0300',
           type: 'MOBILE',
           canReceiveSMS: true,
-        }),
+        },
       },
     ];
 
