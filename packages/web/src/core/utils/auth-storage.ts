@@ -43,8 +43,16 @@ function getStoredAuth(): { user: User; token: string } | null {
     if (!stored) return null;
 
     const parsed = JSON.parse(stored);
-    return parsed?.state || null;
-  } catch {
+    const state = parsed?.state;
+    
+    // Validate we have the minimum required data
+    if (!state || !state.user || typeof state.user !== 'object') {
+      return null;
+    }
+
+    return state;
+  } catch (error) {
+    console.warn('Failed to parse auth storage:', error);
     return null;
   }
 }
@@ -67,8 +75,8 @@ export function detectStaleAuthData(
   }
 
   const stored = getStoredAuth();
-  if (!stored) {
-    // No stored data, nothing to detect
+  if (!stored || !stored.user) {
+    // No stored data or invalid data, nothing to detect
     return false;
   }
 
@@ -113,11 +121,17 @@ export function handleSmartLogin(
   loginEmail: string,
   returnedUser: User
 ): boolean {
-  if (detectStaleAuthData(loginEmail, returnedUser)) {
-    clearAuthStorage();
-    return true;
+  try {
+    if (detectStaleAuthData(loginEmail, returnedUser)) {
+      clearAuthStorage();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error in handleSmartLogin:', error);
+    // On error, don't clear - better to be safe
+    return false;
   }
-  return false;
 }
 
 /**
@@ -128,7 +142,7 @@ export function handleSmartLogin(
  */
 export function initAuthStorage(): void {
   const stored = getStoredAuth();
-  if (!stored) return;
+  if (!stored || !stored.user) return;
 
   // In demo mode, if the stored user ID looks like a UUID but the
   // organizationId is invalid, clear it
