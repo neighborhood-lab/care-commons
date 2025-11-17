@@ -158,16 +158,15 @@ export class AnalyticsRepository {
     branchId?: string
   ): Promise<number> {
     let query = `
-      SELECT COALESCE(SUM(ili.total_amount), 0) as total
-      FROM invoice_line_items ili
-      JOIN invoices i ON ili.invoice_id = i.id
-      WHERE i.organization_id = $1
-        AND i.invoice_date BETWEEN $2 AND $3
+      SELECT COALESCE(SUM(subtotal), 0) as total
+      FROM invoices
+      WHERE organization_id = $1
+        AND invoice_date BETWEEN $2 AND $3
     `;
     const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query += ' AND i.branch_id = $4';
+      query += ' AND branch_id = $4';
       params.push(branchId);
     }
 
@@ -184,16 +183,15 @@ export class AnalyticsRepository {
     branchId?: string
   ): Promise<number> {
     let query = `
-      SELECT COALESCE(SUM(p.amount), 0) as total
-      FROM payments p
-      JOIN invoices i ON p.invoice_id = i.id
-      WHERE i.organization_id = $1
-        AND p.payment_date BETWEEN $2 AND $3
+      SELECT COALESCE(SUM(amount), 0) as total
+      FROM payments
+      WHERE organization_id = $1
+        AND payment_date BETWEEN $2 AND $3
     `;
     const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 
     if (branchId) {
-      query += ' AND i.branch_id = $4';
+      query += ' AND branch_id = $4';
       params.push(branchId);
     }
 

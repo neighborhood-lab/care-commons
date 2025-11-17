@@ -43,6 +43,7 @@ import {
 } from '@care-commons/family-engagement';
 import { createVisitRouter } from './visits.js';
 import pushNotificationRouter from './push-notifications.js';
+import { createEVVRouter } from './evv.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -328,8 +329,12 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/push', generalApiLimiter, pushNotificationRouter);
   console.log('  ✓ Push Notifications routes registered (with rate limiting)');
 
+  // EVV & Time Tracking routes
+  const evvRouter = createEVVRouter(db);
+  app.use('/api/evv', evvLimiter, evvRouter);
+  console.log('  ✓ EVV & Time Tracking routes registered (with rate limiting)');
+
   // Additional verticals can be added here as they implement route handlers:
-  // - EVV & Time Tracking
   // - Shift Matching
   // - Billing & Invoicing
 
