@@ -70,13 +70,17 @@ export const RoleSwitcher: React.FC = () => {
 
               return (
                 <Menu.Item key={role}>
-                  {({ active }) => (
+                  {({ active, close }) => (
                     <button
-                      onClick={() => setRole(role)}
+                      onClick={() => {
+                        setRole(role);
+                        close(); // Close the menu after selection
+                      }}
+                      disabled={isActive}
                       className={`
                         w-full text-left rounded-md px-3 py-2.5 transition-colors
-                        ${active ? 'bg-gray-50' : ''}
-                        ${isActive ? 'bg-blue-50 ring-1 ring-blue-200' : ''}
+                        ${active && !isActive ? 'bg-gray-50' : ''}
+                        ${isActive ? 'bg-blue-50 ring-1 ring-blue-200 cursor-default' : 'cursor-pointer'}
                       `}
                     >
                       <div className="flex items-start gap-3">

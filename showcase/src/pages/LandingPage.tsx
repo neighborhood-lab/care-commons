@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShowcaseLayout } from '../components/ShowcaseLayout';
 import { useRole, type UserRole, rolePersonas } from '../contexts/RoleContext';
 import { WelcomeTourBanner } from '../components/tours/WelcomeTourBanner';
@@ -160,9 +160,12 @@ const roleColors: Record<UserRole, string> = {
 
 export const LandingPage: React.FC = () => {
   const { setRole } = useRole();
+  const navigate = useNavigate();
 
   const handleRoleSelect = (role: UserRole) => {
     setRole(role);
+    // Navigate to dashboard (will happen after Link's onClick)
+    navigate('/dashboard');
   };
 
   return (

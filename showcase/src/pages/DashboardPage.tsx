@@ -29,8 +29,9 @@ export const DashboardPage: React.FC = () => {
   const provider = useDataProvider();
 
   // Fetch relevant data based on role
+  // Include currentRole in queryKey to force refetch when role changes
   const { data: tasks } = useQuery({
-    queryKey: ['tasks', currentPersona.relatedDataId],
+    queryKey: ['tasks', currentRole, currentPersona.relatedDataId],
     queryFn: () => {
       if (currentRole === 'patient' || currentRole === 'family') {
         return provider.getTasks({ clientId: currentPersona.relatedDataId, status: ['SCHEDULED'] });
@@ -42,7 +43,7 @@ export const DashboardPage: React.FC = () => {
   });
 
   const { data: carePlans } = useQuery({
-    queryKey: ['carePlans', currentPersona.relatedDataId],
+    queryKey: ['carePlans', currentRole, currentPersona.relatedDataId],
     queryFn: () => {
       if (currentRole === 'patient' || currentRole === 'family') {
         return provider.getCarePlans({ clientId: currentPersona.relatedDataId, status: ['ACTIVE'] });
@@ -52,19 +53,19 @@ export const DashboardPage: React.FC = () => {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['clients'],
+    queryKey: ['clients', currentRole],
     queryFn: () => provider.getClients({ status: ['ACTIVE'] }),
     enabled: currentRole === 'coordinator' || currentRole === 'admin',
   });
 
   const { data: caregivers } = useQuery({
-    queryKey: ['caregivers'],
+    queryKey: ['caregivers', currentRole],
     queryFn: () => provider.getCaregivers({ status: ['ACTIVE'] }),
     enabled: currentRole === 'coordinator' || currentRole === 'admin',
   });
 
   const { data: shifts } = useQuery({
-    queryKey: ['shifts'],
+    queryKey: ['shifts', currentRole],
     queryFn: () => provider.getShiftListings({ status: ['OPEN'] }),
     enabled: currentRole === 'caregiver' || currentRole === 'coordinator' || currentRole === 'admin',
   });
