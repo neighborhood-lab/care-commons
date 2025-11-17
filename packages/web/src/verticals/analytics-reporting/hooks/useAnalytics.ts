@@ -45,9 +45,16 @@ export function useComplianceAlerts(
   return useQuery<ComplianceAlert[]>({
     queryKey: ['analytics', 'compliance-alerts', filters],
     queryFn: () => analyticsApi.getComplianceAlerts(filters),
-    refetchInterval: options?.refetchInterval,
+    refetchInterval: (query) => {
+      // Stop polling if we get an error (especially rate limit)
+      if (query.state.error) {
+        return false;
+      }
+      return options?.refetchInterval ?? false;
+    },
     refetchIntervalInBackground: false,
     retry: false, // Don't retry on error - polling will refetch anyway
+    staleTime: 30000, // Consider data fresh for 30s to prevent over-fetching
   });
 }
 
@@ -95,9 +102,16 @@ export function useEVVExceptions(
   return useQuery<VisitException[]>({
     queryKey: ['analytics', 'evv-exceptions', filters],
     queryFn: () => analyticsApi.getEVVExceptions(filters),
-    refetchInterval: options?.refetchInterval,
+    refetchInterval: (query) => {
+      // Stop polling if we get an error (especially rate limit)
+      if (query.state.error) {
+        return false;
+      }
+      return options?.refetchInterval ?? false;
+    },
     refetchIntervalInBackground: false,
     retry: false, // Don't retry on error - polling will refetch anyway
+    staleTime: 30000, // Consider data fresh for 30s to prevent over-fetching
   });
 }
 
@@ -108,9 +122,16 @@ export function useDashboardStats(options?: { refetchInterval?: number }) {
   return useQuery<DashboardStats>({
     queryKey: ['analytics', 'dashboard-stats'],
     queryFn: () => analyticsApi.getDashboardStats(),
-    refetchInterval: options?.refetchInterval,
+    refetchInterval: (query) => {
+      // Stop polling if we get an error (especially rate limit)
+      if (query.state.error) {
+        return false;
+      }
+      return options?.refetchInterval ?? false;
+    },
     refetchIntervalInBackground: false,
     retry: false, // Don't retry on error - polling will refetch anyway
+    staleTime: 30000, // Consider data fresh for 30s to prevent over-fetching
   });
 }
 
