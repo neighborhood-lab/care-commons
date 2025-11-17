@@ -979,15 +979,8 @@ async function seedDatabase() {
       let usersUpdated = 0;
 
       // Create users for each state × role combination
-      // IMPORTANT: Skip CAREGIVER role here - caregivers are created in the dedicated caregivers section
-      // with matching user.id === caregiver.id to support task assignment queries
       for (const state of US_STATES) {
         for (const role of ROLES) {
-          // Skip CAREGIVER - handled separately to ensure user.id === caregiver.id
-          if (role.value === 'CAREGIVER') {
-            continue;
-          }
-          
           const stateCode = state.code.toLowerCase();
           const roleCode = role.value.toLowerCase();
 
