@@ -41,9 +41,10 @@ export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiServi
       if (filters?.sortDirection) params.append('sortDirection', filters.sortDirection);
 
       const queryString = params.toString();
-      return apiClient.get<PaginatedResult<CarePlan>>(
+      const response = await apiClient.get<{ success: boolean; data: PaginatedResult<CarePlan> }>(
         `/api/care-plans${queryString ? `?${queryString}` : ''}`
       );
+      return response.data;
     },
 
     async getCarePlanById(id: string): Promise<CarePlan> {
@@ -80,9 +81,10 @@ export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiServi
       if (filters?.sortDirection) params.append('sortDirection', filters.sortDirection);
 
       const queryString = params.toString();
-      return apiClient.get<PaginatedResult<TaskInstance>>(
+      const response = await apiClient.get<{ success: boolean; data: PaginatedResult<TaskInstance> }>(
         `/api/tasks${queryString ? `?${queryString}` : ''}`
       );
+      return response.data;
     },
 
     async getTaskById(id: string): Promise<TaskInstance> {
