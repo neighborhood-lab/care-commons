@@ -41,7 +41,17 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
-      retry: 1,
+      refetchOnWindowFocus: false, // Prevent aggressive refetching
+      retry: (failureCount, error) => {
+        // Don't retry on 429 (rate limit) or 4xx client errors
+        const status = (error as any)?.response?.status;
+        if (status === 429 || (status >= 400 && status < 500)) {
+          return false;
+        }
+        // Retry once for 5xx server errors or network issues
+        return failureCount < 1;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff, max 30s
     },
   },
 });
