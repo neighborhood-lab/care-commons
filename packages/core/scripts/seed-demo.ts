@@ -2239,6 +2239,13 @@ async function seedDatabase() {
 
       console.log(`✅ Creating task instances for caregivers...`);
 
+      // Get the TX caregiver ID to assign some tasks to them
+      const txCaregiverResult = await client.query(
+        'SELECT id FROM caregivers WHERE email = $1',
+        ['caregiver@tx.carecommons.example']
+      );
+      const txCaregiverId = txCaregiverResult.rows.length > 0 ? txCaregiverResult.rows[0].id : null;
+
       const taskCategories = [
         { category: 'BATHING', name: 'Assist with morning bath', description: 'Help client with bathing, ensure safety', instructions: 'Use walk-in shower, ensure non-slip mat is in place', timeOfDay: 'MORNING' },
         { category: 'MEDICATION', name: 'Administer morning medications', description: 'Give prescribed medications', instructions: 'Check medication list, verify dosage, document administration', timeOfDay: 'MORNING' },
@@ -2252,7 +2259,8 @@ async function seedDatabase() {
       let taskCount = 0;
       for (let i = 0; i < Math.min(7, taskCategories.length); i++) {
         const task = taskCategories[i];
-        const assignedCaregiver = caregivers[i % caregivers.length];
+        // Assign first 3 tasks to TX caregiver if they exist, rest to demo caregivers
+        const assignedCaregiver = (i < 3 && txCaregiverId) ? { id: txCaregiverId } : caregivers[i % caregivers.length];
         const assignedClient = i < 3 ? gertrudeId : clients[i % clients.length].id;
         const scheduledDate = i < 4 ? new Date() : daysFromNow(1); // 4 today, 3 tomorrow
 
