@@ -1,5 +1,30 @@
 # Development Workflow
 
+## First Time Setup
+
+**IMPORTANT**: Before running the dev servers for the first time, you need to seed the database with demo data:
+
+```bash
+# Reset database and seed with comprehensive Texas demo data
+npm run db:reset:demo
+```
+
+This creates:
+- **61 clients** (all Texas-based)
+- **35 caregivers** (geographically distributed across TX cities)
+- **605 visits** with realistic EVV data
+- **51 care plans** with goals and interventions
+- **41 family members** with portal access
+- **87 invoices** for billing
+- **Demo users** for all roles (Admin, Coordinator, Caregiver, Nurse, Family)
+
+**Login credentials**: All demo accounts use password `Demo123!`
+- Admin: `admin@tx.carecommons.example`
+- Coordinator: `coordinator@tx.carecommons.example`
+- Caregiver: `caregiver@tx.carecommons.example`
+- Nurse: `nurse@tx.carecommons.example`
+- Family: `family@tx.carecommons.example`
+
 ## Starting Development Servers
 
 Run a single command to start both API and Web servers:
@@ -26,7 +51,44 @@ Press **CTRL-C** in the terminal where `npm run dev` is running.
 
 All child processes will be killed automatically.
 
+## Database Management
+
+### Reseed database with fresh demo data
+
+```bash
+npm run db:reset:demo
+```
+
+This will:
+1. Drop all tables (nuke)
+2. Run migrations to recreate schema
+3. Seed base data (organization, branch, admin user)
+4. Seed comprehensive Texas demo data
+
+### Other database commands
+
+```bash
+# Seed only (no reset)
+npm run db:seed:demo
+
+# Run migrations only
+npm run db:migrate
+
+# Check migration status
+npm run db:migrate:status
+```
+
 ## Troubleshooting
+
+### "No clients found" or empty data
+
+You need to seed the database:
+
+```bash
+npm run db:reset:demo
+```
+
+Then restart the dev server.
 
 ### "Port already in use" error
 

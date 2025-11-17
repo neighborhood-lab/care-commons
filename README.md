@@ -122,26 +122,27 @@ npm install
 cp .env.example .env
 # Edit .env with your database credentials
 
-# Run database migrations (DDL only - creates schema)
-npm run db:migrate
+# Run database migrations and seed with demo data
+npm run db:reset:demo
 
-# Seed minimal operational data (org, branch, admin user)
-npm run db:seed
+# This creates 61 clients, 35 caregivers, 605 visits, and more Texas demo data
+# Login with: admin@tx.carecommons.example / Demo123!
 
-# Optional: Seed comprehensive demo data (900+ records - recommended for showcase)
-npm run db:seed:showcase-comprehensive
-
-# Or: Seed small demo dataset for quick development
-npm run db:seed:demo
-
-# Build all packages
-npm run build
-
-# Start development
+# Start development servers
 npm run dev
 ```
 
 **📖 See [DEV_WORKFLOW.md](./DEV_WORKFLOW.md) for detailed development workflow documentation.**
+
+### Quick Start (TL;DR)
+
+```bash
+npm install
+cp .env.example .env
+npm run db:reset:demo
+npm run dev
+# Navigate to http://localhost:5173 and login with admin@tx.carecommons.example / Demo123!
+```
 
 ### Environment Variables
 
