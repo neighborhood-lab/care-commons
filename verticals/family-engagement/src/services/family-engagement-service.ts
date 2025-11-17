@@ -530,14 +530,11 @@ export class FamilyEngagementService {
       // Return demo data
       return {
         client: { id: 'demo-client' as UUID, name: 'Margaret Johnson' },
-        stats: { 
-          unreadNotifications: 0, 
-          totalNotifications: 0, 
-          unreadMessages: 0,
-          totalMessageThreads: 0 
-        },
+        unreadNotifications: 0,
+        unreadMessages: 0,
         upcomingVisits: [],
-        recentActivity: []
+        recentActivity: [],
+        careTeam: []
       };
     }
 
