@@ -60,7 +60,7 @@ export const FamilyDashboard: React.FC = () => {
   const { data: dashboardData, isLoading, error } = useFamilyDashboard(familyMemberId);
 
   // For demo purposes, use hardcoded name if no data
-  const clientName = dashboardData?.client?.name || 'Gertrude Stein';
+  const clientName = dashboardData?.client?.name || 'Margaret Johnson';
   const firstName = clientName.split(' ')[0];
 
   if (isLoading) {

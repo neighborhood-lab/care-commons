@@ -31,7 +31,7 @@ export class AnalyticsApiService {
   /**
    * Get auth headers with token
    */
-  private getAuthHeaders(): HeadersInit {
+  private getAuthHeaders(): Record<string, string> {
     // Zustand persists auth under 'auth-storage' key
     const authStorage = globalThis.localStorage?.getItem('auth-storage');
     let token: string | null = null;
@@ -45,10 +45,15 @@ export class AnalyticsApiService {
       }
     }
     
-    return {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
   }
 
   /**
