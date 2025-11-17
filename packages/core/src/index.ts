@@ -24,6 +24,7 @@ export * from './repository/feature-flag-repository';
 export * from './repository/billing-repository';
 export * from './service/organization-service';
 export * from './service/auth-service';
+export * from './service/signup-service';
 export * from './service/white-label.service';
 export * from './service/security-logger.service';
 export * from './service/password-reset.service';

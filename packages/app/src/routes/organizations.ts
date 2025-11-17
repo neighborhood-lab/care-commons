@@ -7,6 +7,7 @@
 import { Router, Request, Response } from 'express';
 import {
   OrganizationService,
+  SignupService,
   Database,
   CreateOrganizationRequest,
   CreateInviteRequest,
@@ -20,7 +21,137 @@ import {
 export function createOrganizationRouter(db: Database): Router {
   const router = Router();
   const organizationService = new OrganizationService(db);
+  const signupService = new SignupService(db);
   const authMiddleware = new AuthMiddleware(db);
+
+  /**
+   * @openapi
+   * /api/signup:
+   *   post:
+   *     tags:
+   *       - Signup
+   *     summary: Public organization signup
+   *     description: Register a new organization with trial subscription
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - organizationName
+   *               - organizationEmail
+   *               - stateCode
+   *               - adminFirstName
+   *               - adminLastName
+   *               - adminEmail
+   *               - adminPassword
+   *             properties:
+   *               organizationName:
+   *                 type: string
+   *                 example: "Acme Home Care"
+   *               organizationEmail:
+   *                 type: string
+   *                 format: email
+   *                 example: "contact@acmehomecare.com"
+   *               organizationPhone:
+   *                 type: string
+   *                 example: "+1-555-123-4567"
+   *               stateCode:
+   *                 type: string
+   *                 example: "TX"
+   *               adminFirstName:
+   *                 type: string
+   *                 example: "John"
+   *               adminLastName:
+   *                 type: string
+   *                 example: "Doe"
+   *               adminEmail:
+   *                 type: string
+   *                 format: email
+   *                 example: "john@acmehomecare.com"
+   *               adminPassword:
+   *                 type: string
+   *                 format: password
+   *                 minLength: 8
+   *               adminPhone:
+   *                 type: string
+   *                 example: "+1-555-987-6543"
+   *               planName:
+   *                 type: string
+   *                 enum: [STARTER, PROFESSIONAL, ENTERPRISE]
+   *                 default: STARTER
+   *     responses:
+   *       201:
+   *         description: Organization created successfully with trial subscription
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     organizationId:
+   *                       type: string
+   *                       format: uuid
+   *                     adminUserId:
+   *                       type: string
+   *                       format: uuid
+   *                     subscriptionId:
+   *                       type: string
+   *                       format: uuid
+   *                     message:
+   *                       type: string
+   *       400:
+   *         description: Invalid input
+   *       409:
+   *         description: Organization or email already exists
+   *       500:
+   *         description: Server error
+   */
+  router.post('/signup', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await signupService.registerOrganization(req.body);
+      
+      res.status(201).json({
+        success: true,
+        data: {
+          organizationId: result.organizationId,
+          adminUserId: result.adminUserId,
+          subscriptionId: result.subscriptionId,
+          message: result.message,
+        },
+      });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        res.status(400).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+        });
+        return;
+      }
+
+      if (error instanceof ConflictError) {
+        res.status(409).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+        });
+        return;
+      }
+
+      console.error('[Signup] Registration error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to register organization',
+      });
+    }
+  });
 
   /**
    * @openapi
