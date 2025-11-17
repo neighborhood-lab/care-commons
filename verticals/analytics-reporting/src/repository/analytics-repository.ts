@@ -399,7 +399,7 @@ export class AnalyticsRepository {
       FROM care_plans
       WHERE organization_id = $1
         AND status = 'ACTIVE'
-        AND effective_to < $2
+        AND effective_date < $2
     `;
     const params: unknown[] = [orgId, new Date()];
 
