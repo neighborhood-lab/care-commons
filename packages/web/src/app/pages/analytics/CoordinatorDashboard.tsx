@@ -4,6 +4,7 @@
  */
 
 
+import { useMemo } from 'react';
 import {
   Calendar,
   Users,
@@ -25,6 +26,18 @@ import {
 const REAL_TIME_REFRESH_INTERVAL = 60000; // 60 seconds
 
 export function CoordinatorDashboard() {
+  // Memoize filter to prevent infinite re-renders
+  const todayFilter = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      dateRange: {
+        startDate: today,
+        endDate: today,
+      },
+    };
+  }, []);
+
   // Fetch data with real-time polling
   const {
     data: dashboardStats,
@@ -36,29 +49,13 @@ export function CoordinatorDashboard() {
     data: alerts,
     isLoading: alertsLoading,
     error: alertsError,
-  } = useComplianceAlerts(
-    {
-      dateRange: {
-        startDate: new Date(),
-        endDate: new Date(),
-      },
-    },
-    { refetchInterval: REAL_TIME_REFRESH_INTERVAL }
-  );
+  } = useComplianceAlerts(todayFilter, { refetchInterval: REAL_TIME_REFRESH_INTERVAL });
 
   const {
     data: evvExceptions,
     isLoading: exceptionsLoading,
     error: exceptionsError,
-  } = useEVVExceptions(
-    {
-      dateRange: {
-        startDate: new Date(),
-        endDate: new Date(),
-      },
-    },
-    { refetchInterval: REAL_TIME_REFRESH_INTERVAL }
-  );
+  } = useEVVExceptions(todayFilter, { refetchInterval: REAL_TIME_REFRESH_INTERVAL });
 
   const isLoading = statsLoading ?? alertsLoading ?? exceptionsLoading;
   const error = statsError ?? alertsError ?? exceptionsError;
