@@ -186,8 +186,8 @@ export class CacheService {
 
     const value = await factory();
     
-    // Don't cache null values to prevent cache poisoning
-    if (value !== null) {
+    // Don't cache null/undefined values to prevent cache poisoning
+    if (value != null) {
       await this.set(key, value, ttl);
     }
     
