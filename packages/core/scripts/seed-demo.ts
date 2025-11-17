@@ -2410,6 +2410,149 @@ async function seedDatabase() {
       console.log(`✅ Created ${threadCount} message threads with ${messageCount} messages\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 14B: Create message threads for Texas family portal user
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`💬 Creating message threads for Texas family portal...`);
+
+      // Check if Texas family user exists (from seed-family-demo.ts)
+      const texasFamilyUserResult = await client.query(
+        `SELECT id FROM users WHERE email = 'family@tx.carecommons.example' LIMIT 1`
+      );
+
+      if (texasFamilyUserResult.rows.length > 0) {
+        const texasFamilyUserId = texasFamilyUserResult.rows[0].id;
+
+        // Get the family member record (should have same ID as user)
+        const texasFamilyMemberResult = await client.query(
+          `SELECT id, client_id FROM family_members WHERE id = $1 LIMIT 1`,
+          [texasFamilyUserId]
+        );
+
+        if (texasFamilyMemberResult.rows.length > 0) {
+          const texasFamilyMemberId = texasFamilyMemberResult.rows[0].id;
+          const texasClientId = texasFamilyMemberResult.rows[0].client_id;
+
+          // Get client name for personalization
+          const texasClientResult = await client.query(
+            `SELECT first_name, last_name FROM clients WHERE id = $1 LIMIT 1`,
+            [texasClientId]
+          );
+          const clientFirstName = texasClientResult.rows.length > 0 ? texasClientResult.rows[0].first_name : 'Margaret';
+
+          const texasMessageThreads = [
+            {
+              subject: 'Question about new medication schedule',
+              messages: [
+                { sender: 'FAMILY', text: `Hi, I noticed ${clientFirstName}'s medication schedule was updated. The evening dose is now at 7pm instead of 8pm. Can you explain why this change was made?`, hoursAgo: 36 },
+                { sender: 'STAFF', text: `Hello Emily! The physician adjusted the timing based on ${clientFirstName}'s recent lab results. The earlier dose helps maintain more consistent blood levels overnight.`, hoursAgo: 34 },
+                { sender: 'FAMILY', text: 'That makes perfect sense. Thank you for the quick response! I appreciate you keeping me informed.', hoursAgo: 33 },
+              ]
+            },
+            {
+              subject: 'Update on physical therapy progress',
+              messages: [
+                { sender: 'STAFF', text: `Great news! ${clientFirstName} has been doing wonderfully with her walking exercises this week. She's now able to walk 50 feet with her walker independently!`, hoursAgo: 18 },
+                { sender: 'FAMILY', text: `That's amazing to hear! She mentioned feeling stronger during our phone call yesterday. Thank you for all your encouragement.`, hoursAgo: 16 },
+                { sender: 'STAFF', text: `We're so proud of her progress. The physical therapist will be increasing the exercise duration next week. ${clientFirstName} is very motivated!`, hoursAgo: 15 },
+              ]
+            },
+            {
+              subject: 'Schedule change request for next week',
+              messages: [
+                { sender: 'FAMILY', text: 'Hi team, I have a doctor appointment next Tuesday at 10am. Would it be possible to have the morning visit start at 8:30am instead of 9am?', hoursAgo: 6 },
+                { sender: 'STAFF', text: `We can definitely accommodate that! I've adjusted the schedule - Sarah will arrive at 8:30am on Tuesday. You should see the update in the schedule shortly.`, hoursAgo: 4 },
+              ]
+            },
+            {
+              subject: 'Recent visit notes - fall prevention',
+              messages: [
+                { sender: 'STAFF', text: `This is a quick update about our fall prevention assessment. We've placed non-slip mats in the bathroom and hallway as recommended. ${clientFirstName} is doing well with using her walker consistently.`, hoursAgo: 2 },
+              ]
+            },
+          ];
+
+          let texasThreadCount = 0;
+          let texasMessageCount = 0;
+
+          for (const threadData of texasMessageThreads) {
+            const threadId = uuidv4();
+            const lastMessageTime = _hoursAgo(threadData.messages[threadData.messages.length - 1].hoursAgo);
+
+            await client.query(
+              `
+              INSERT INTO message_threads (
+                id, family_member_id, client_id,
+                subject, status, priority,
+                participants, last_message_at, message_count,
+                unread_count_family, unread_count_staff,
+                organization_id, branch_id,
+                created_by, updated_by
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+              `,
+              [
+                threadId,
+                texasFamilyMemberId,
+                texasClientId,
+                threadData.subject,
+                threadData.messages.length === 1 || threadData.messages[threadData.messages.length - 1].sender === 'STAFF' ? 'OPEN' : 'OPEN',
+                'NORMAL',
+                `{${systemUserId},${texasFamilyMemberId}}`,
+                lastMessageTime,
+                threadData.messages.length,
+                threadData.messages[threadData.messages.length - 1].sender === 'STAFF' ? 1 : 0,
+                threadData.messages[threadData.messages.length - 1].sender === 'FAMILY' ? 1 : 0,
+                orgId,
+                branchId,
+                systemUserId,
+                systemUserId,
+              ]
+            );
+
+            texasThreadCount++;
+
+            for (const msg of threadData.messages) {
+              const isStaff = msg.sender === 'STAFF';
+
+              await client.query(
+                `
+                INSERT INTO messages (
+                  id, thread_id, family_member_id, client_id,
+                  sent_by, sender_type, sender_name,
+                  message_text, status,
+                  organization_id,
+                  created_by, updated_by, is_demo_data
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, true)
+                `,
+                [
+                  uuidv4(),
+                  threadId,
+                  texasFamilyMemberId,
+                  texasClientId,
+                  isStaff ? systemUserId : texasFamilyUserId,
+                  msg.sender,
+                  isStaff ? 'Care Coordinator' : 'Johnson Family',
+                  msg.text,
+                  'SENT',
+                  orgId,
+                  systemUserId,
+                  systemUserId,
+                ]
+              );
+
+              texasMessageCount++;
+            }
+          }
+
+          console.log(`✅ Created ${texasThreadCount} Texas message threads with ${texasMessageCount} messages\n`);
+        } else {
+          console.log(`ℹ️  Texas family member record not found - skipping Texas messages\n`);
+        }
+      } else {
+        console.log(`ℹ️  Texas family user not found - skipping Texas messages (run db:seed:family-demo to create)\n`);
+      }
+
+      // ═══════════════════════════════════════════════════════════════════════════
       // STEP 15: Create activity feed entries for family portal
       // ═══════════════════════════════════════════════════════════════════════════
 

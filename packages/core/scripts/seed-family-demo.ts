@@ -12,9 +12,12 @@
  *   npm run db:seed:family-demo
  */
 
+import { config as dotenvConfig } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
-import { getDatabase } from '../src/db/connection.js';
-import { hashPassword } from '../src/utils/password-utils.js';
+import { Database, DatabaseConfig } from '../src/db/connection.js';
+import { PasswordUtils } from '../src/utils/password-utils.js';
+
+dotenvConfig({ path: '.env', quiet: true });
 
 interface SeedResult {
   margaretId: string;
@@ -26,31 +29,41 @@ interface SeedResult {
 }
 
 async function seedFamilyDemo(): Promise<void> {
-  const db = getDatabase();
+  // Initialize database connection directly (like seed-demo.ts)
+  const config: DatabaseConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    database: process.env.DB_NAME || 'care_commons',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+    ssl: process.env.DB_SSL === 'true',
+  };
+  
+  const db = new Database(config);
 
   try {
     console.log('\n🏥 Care Commons - Family Portal Demo Seed');
     console.log('==========================================\n');
 
     await db.transaction(async (trx) => {
-      // Get Texas organization and branch
+      // Get organization and branch (use first available)
       const orgResult = await trx.query(
-        `SELECT id FROM organizations WHERE state = 'TX' LIMIT 1`
+        `SELECT id FROM organizations ORDER BY created_at ASC LIMIT 1`
       );
 
       if (orgResult.rows.length === 0) {
-        throw new Error('Texas organization not found. Please run base seed first.');
+        throw new Error('No organization found. Please run base seed first.');
       }
 
       const organizationId = orgResult.rows[0].id as string;
 
       const branchResult = await trx.query(
-        `SELECT id FROM branches WHERE organization_id = $1 LIMIT 1`,
+        `SELECT id FROM branches WHERE organization_id = $1 ORDER BY created_at ASC LIMIT 1`,
         [organizationId]
       );
 
       if (branchResult.rows.length === 0) {
-        throw new Error('Texas branch not found. Please run base seed first.');
+        throw new Error('No branch found. Please run base seed first.');
       }
 
       const branchId = branchResult.rows[0].id as string;
@@ -143,7 +156,7 @@ async function seedFamilyDemo(): Promise<void> {
         console.log(`   ℹ️  Sarah Chen already exists (ID: ${sarahUserId})`);
       } else {
         sarahUserId = uuidv4();
-        const sarahPasswordHash = await hashPassword('DemoTXCAREGIVER123!');
+        const sarahPasswordHash = PasswordUtils.hashPassword('DemoTXCAREGIVER123!');
 
         await trx.query(
           `
@@ -238,7 +251,7 @@ async function seedFamilyDemo(): Promise<void> {
 
       // IMPORTANT: Use a specific UUID that will be shared between users and family_members tables
       const emilyUserId = uuidv4();
-      const emilyPasswordHash = await hashPassword('DemoTXFAMILY123!');
+      const emilyPasswordHash = PasswordUtils.hashPassword('DemoTXFAMILY123!');
 
       // Check if Emily already exists
       const existingEmily = await trx.query(
@@ -548,6 +561,274 @@ async function seedFamilyDemo(): Promise<void> {
 
         console.log(`   ✅ Created ${visit.status.toLowerCase()} visit`);
       }
+
+      console.log('');
+
+      // ====================================================================
+      // STEP 7: Create Message Threads and Messages
+      // ====================================================================
+
+      console.log('💬 Creating message threads and messages...');
+
+      // Thread 1: Medication Question
+      const thread1Id = uuidv4();
+      const thread1CreatedAt = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
+
+      await trx.query(
+        `
+        INSERT INTO message_threads (
+          id, organization_id, branch_id, client_id, family_member_id,
+          subject, status, last_message_at,
+          unread_count_family, unread_count_staff,
+          created_by, updated_by, is_demo_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, true
+        )
+        `,
+        [
+          thread1Id,
+          organizationId,
+          branchId,
+          margaretId,
+          finalEmilyUserId,
+          'Question about Mom\'s Blood Pressure Medication',
+          'ACTIVE',
+          thread1CreatedAt,
+          0, // Family has read all
+          0, // Staff has read all
+          finalEmilyUserId,
+          finalEmilyUserId
+        ]
+      );
+
+      // Messages for Thread 1
+      const msg1_1 = {
+        id: uuidv4(),
+        sentAt: new Date(thread1CreatedAt.getTime()),
+        sender: 'family',
+        senderId: finalEmilyUserId,
+        body: 'Hi Sarah! I noticed Mom mentioned feeling dizzy this morning. She said it started after taking her blood pressure medication. Should I be concerned? Her BP reading was 118/72 when I checked.'
+      };
+
+      const msg1_2 = {
+        id: uuidv4(),
+        sentAt: new Date(thread1CreatedAt.getTime() + 45 * 60 * 1000), // 45 mins later
+        sender: 'staff',
+        senderId: sarahUserId,
+        body: 'Hi Emily! Thanks for letting me know. Those are good vitals - her BP is actually in a healthy range. Light dizziness can sometimes happen when adjusting to medication, but let\'s keep an eye on it. I\'ll make a note to check her BP when I arrive for today\'s visit at 2pm. If the dizziness gets worse or she has other symptoms, please call the office right away.'
+      };
+
+      const msg1_3 = {
+        id: uuidv4(),
+        sentAt: new Date(thread1CreatedAt.getTime() + 5 * 60 * 60 * 1000), // 5 hours later
+        sender: 'family',
+        senderId: finalEmilyUserId,
+        body: 'Thank you Sarah! The dizziness passed after about an hour. Mom is feeling much better now. I appreciate you checking on her during the visit today!'
+      };
+
+      for (const msg of [msg1_1, msg1_2, msg1_3]) {
+        await trx.query(
+          `
+          INSERT INTO messages (
+            id, thread_id, sender_type, sender_id,
+            message_body, sent_at, read_by_family, read_by_staff,
+            created_by, is_demo_data
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, true
+          )
+          `,
+          [
+            msg.id,
+            thread1Id,
+            msg.sender,
+            msg.senderId,
+            msg.body,
+            msg.sentAt,
+            true, // All read
+            true,
+            msg.senderId
+          ]
+        );
+      }
+
+      console.log(`   ✅ Created thread: Medication question (3 messages)`);
+
+      // Thread 2: Schedule Change Request
+      const thread2Id = uuidv4();
+      const thread2CreatedAt = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000); // Yesterday
+
+      await trx.query(
+        `
+        INSERT INTO message_threads (
+          id, organization_id, branch_id, client_id, family_member_id,
+          subject, status, last_message_at,
+          unread_count_family, unread_count_staff,
+          created_by, updated_by, is_demo_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, true
+        )
+        `,
+        [
+          thread2Id,
+          organizationId,
+          branchId,
+          margaretId,
+          finalEmilyUserId,
+          'Next Week\'s Schedule - Doctor Appointment',
+          'ACTIVE',
+          thread2CreatedAt,
+          0,
+          0,
+          finalEmilyUserId,
+          finalEmilyUserId
+        ]
+      );
+
+      const msg2_1 = {
+        id: uuidv4(),
+        sentAt: thread2CreatedAt,
+        sender: 'family',
+        senderId: finalEmilyUserId,
+        body: 'Hi Sarah! Mom has a doctor appointment next Wednesday at 10:30am. Would it be possible to adjust your morning visit to 8am that day so we can get her ready and have breakfast before the appointment?'
+      };
+
+      const msg2_2 = {
+        id: uuidv4(),
+        sentAt: new Date(thread2CreatedAt.getTime() + 2 * 60 * 60 * 1000),
+        sender: 'staff',
+        senderId: sarahUserId,
+        body: 'Hi Emily! Yes, I can definitely do that. I\'ll adjust Wednesday\'s visit to 8am-10am. That should give us plenty of time for breakfast and to get Margaret ready. I\'ll also help her remember to bring her current medication list for the doctor. Is there anything specific you\'d like me to focus on during that visit?'
+      };
+
+      const msg2_3 = {
+        id: uuidv4(),
+        sentAt: new Date(thread2CreatedAt.getTime() + 2.5 * 60 * 60 * 1000),
+        sender: 'family',
+        senderId: finalEmilyUserId,
+        body: 'Perfect, thank you so much! If you could help her write down any questions or concerns she wants to mention to the doctor, that would be great. She mentioned her knee has been bothering her more lately.'
+      };
+
+      for (const msg of [msg2_1, msg2_2, msg2_3]) {
+        await trx.query(
+          `
+          INSERT INTO messages (
+            id, thread_id, sender_type, sender_id,
+            message_body, sent_at, read_by_family, read_by_staff,
+            created_by, is_demo_data
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, true
+          )
+          `,
+          [
+            msg.id,
+            thread2Id,
+            msg.sender,
+            msg.senderId,
+            msg.body,
+            msg.sentAt,
+            true,
+            true,
+            msg.senderId
+          ]
+        );
+      }
+
+      console.log(`   ✅ Created thread: Schedule change (3 messages)`);
+
+      // Thread 3: Recent Unread Message
+      const thread3Id = uuidv4();
+      const thread3CreatedAt = new Date(now.getTime() - 3 * 60 * 60 * 1000); // 3 hours ago
+
+      await trx.query(
+        `
+        INSERT INTO message_threads (
+          id, organization_id, branch_id, client_id, family_member_id,
+          subject, status, last_message_at,
+          unread_count_family, unread_count_staff,
+          created_by, updated_by, is_demo_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, true
+        )
+        `,
+        [
+          thread3Id,
+          organizationId,
+          branchId,
+          margaretId,
+          finalEmilyUserId,
+          'Today\'s Visit Update',
+          'ACTIVE',
+          new Date(now.getTime() - 30 * 60 * 1000), // 30 mins ago (last message)
+          1, // 1 unread for family
+          0,
+          sarahUserId,
+          sarahUserId
+        ]
+      );
+
+      const msg3_1 = {
+        id: uuidv4(),
+        sentAt: thread3CreatedAt,
+        sender: 'staff',
+        senderId: sarahUserId,
+        body: 'Good morning Emily! I just finished my visit with Margaret. Everything went great today! We had a nice breakfast together and took a short walk around the backyard. Her spirits are really good. '
+      };
+
+      const msg3_2 = {
+        id: uuidv4(),
+        sentAt: new Date(thread3CreatedAt.getTime() + 15 * 60 * 1000),
+        sender: 'staff',
+        senderId: sarahUserId,
+        body: 'Also wanted to let you know - Margaret mentioned she\'d love to try making her famous chocolate chip cookies this weekend. I can help her with that during Saturday\'s visit if you\'d like! We can make a batch for you to take home too 😊'
+      };
+
+      await trx.query(
+        `
+        INSERT INTO messages (
+          id, thread_id, sender_type, sender_id,
+          message_body, sent_at, read_by_family, read_by_staff,
+          created_by, is_demo_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, true
+        )
+        `,
+        [
+          msg3_1.id,
+          thread3Id,
+          msg3_1.sender,
+          msg3_1.senderId,
+          msg3_1.body,
+          msg3_1.sentAt,
+          true, // Read
+          true,
+          msg3_1.senderId
+        ]
+      );
+
+      await trx.query(
+        `
+        INSERT INTO messages (
+          id, thread_id, sender_type, sender_id,
+          message_body, sent_at, read_by_family, read_by_staff,
+          created_by, is_demo_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, true
+        )
+        `,
+        [
+          msg3_2.id,
+          thread3Id,
+          msg3_2.sender,
+          msg3_2.senderId,
+          msg3_2.body,
+          msg3_2.sentAt,
+          false, // UNREAD for family
+          true,
+          msg3_2.senderId
+        ]
+      );
+
+      console.log(`   ✅ Created thread: Today's update (2 messages, 1 unread)`);
 
       console.log('');
 
