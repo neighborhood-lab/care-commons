@@ -25,7 +25,18 @@ export function createApiProvider(config: ApiProviderConfig): ApiProvider {
     return state.token;
   };
 
-  return new ProductionApiProvider(baseUrl, getAuthToken);
+  const getUserContext = () => {
+    const state = useAuthStore.getState();
+    if (!state.user) return null;
+    return {
+      userId: state.user.id,
+      organizationId: state.user.organizationId,
+      roles: state.user.roles,
+      permissions: state.user.permissions,
+    };
+  };
+
+  return new ProductionApiProvider(baseUrl, getAuthToken, getUserContext);
 }
 
 /**

@@ -15,11 +15,17 @@ export class ProductionApiProvider implements ApiProvider {
   private apiClient: ApiClient;
   private baseUrl: string;
   private getAuthToken: () => string | null;
+  private getUserContext: () => { userId?: string; organizationId?: string; roles?: string[]; permissions?: string[] } | null;
 
-  constructor(baseUrl: string, getAuthToken: () => string | null) {
+  constructor(
+    baseUrl: string, 
+    getAuthToken: () => string | null,
+    getUserContext: () => { userId?: string; organizationId?: string; roles?: string[]; permissions?: string[] } | null
+  ) {
     this.baseUrl = baseUrl;
     this.getAuthToken = getAuthToken;
-    this.apiClient = createApiClient(baseUrl, getAuthToken);
+    this.getUserContext = getUserContext;
+    this.apiClient = createApiClient(baseUrl, getAuthToken, getUserContext);
   }
 
   async initialize(): Promise<void> {

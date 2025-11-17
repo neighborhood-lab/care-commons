@@ -12,13 +12,19 @@ export const useApiClient = () => {
     return provider.getApiClient();
   } catch (_error) {
     // Fallback to legacy implementation for backward compatibility
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     return useMemo(() => {
       return createApiClient(
         import.meta.env.VITE_API_BASE_URL || '',
-        () => token
+        () => token,
+        () => user ? {
+          userId: user.id,
+          organizationId: user.organizationId,
+          roles: user.roles,
+          permissions: user.permissions,
+        } : null
       );
-    }, [token]);
+    }, [token, user]);
   }
 };
 /* eslint-enable react-hooks/rules-of-hooks */

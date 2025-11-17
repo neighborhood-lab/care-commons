@@ -1,6 +1,13 @@
 import type { ApiError, RequestConfig } from '../types/api';
 import { retryWithBackoff, requestDeduplicator, requestThrottler } from '../utils/request-utils';
 
+export interface UserContextHeaders {
+  userId?: string;
+  organizationId?: string;
+  roles?: string[];
+  permissions?: string[];
+}
+
 export interface ApiClient {
   get<T>(url: string, config?: RequestConfig): Promise<T>;
   post<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T>;
@@ -12,10 +19,16 @@ export interface ApiClient {
 class ApiClientImpl implements ApiClient {
   private baseUrl: string;
   private getAuthToken: () => string | null;
+  private getUserContext: () => UserContextHeaders | null;
 
-  constructor(baseUrl: string, getAuthToken: () => string | null) {
+  constructor(
+    baseUrl: string, 
+    getAuthToken: () => string | null,
+    getUserContext: () => UserContextHeaders | null
+  ) {
     this.baseUrl = baseUrl;
     this.getAuthToken = getAuthToken;
+    this.getUserContext = getUserContext;
   }
 
   private async request<T>(
@@ -42,6 +55,7 @@ class ApiClientImpl implements ApiClient {
           return retryWithBackoff(
             async () => {
               const token = this.getAuthToken();
+              const userContext = this.getUserContext();
 
               const headers: HeadersInit = {
                 'Content-Type': 'application/json',
@@ -50,6 +64,22 @@ class ApiClientImpl implements ApiClient {
 
               if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
+              }
+
+              // Add user context headers for backend filtering
+              if (userContext) {
+                if (userContext.userId) {
+                  headers['X-User-Id'] = userContext.userId;
+                }
+                if (userContext.organizationId) {
+                  headers['X-Organization-Id'] = userContext.organizationId;
+                }
+                if (userContext.roles && userContext.roles.length > 0) {
+                  headers['X-User-Roles'] = userContext.roles.join(',');
+                }
+                if (userContext.permissions && userContext.permissions.length > 0) {
+                  headers['X-User-Permissions'] = userContext.permissions.join(',');
+                }
               }
 
               const response = await fetch(`${this.baseUrl}${url}`, {
@@ -143,7 +173,8 @@ class ApiClientImpl implements ApiClient {
 
 export const createApiClient = (
   baseUrl: string,
-  getAuthToken: () => string | null
+  getAuthToken: () => string | null,
+  getUserContext?: () => UserContextHeaders | null
 ): ApiClient => {
-  return new ApiClientImpl(baseUrl, getAuthToken);
+  return new ApiClientImpl(baseUrl, getAuthToken, getUserContext || (() => null));
 };
