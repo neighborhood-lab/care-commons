@@ -52,7 +52,7 @@ jobs:
         run: |
           echo "::group::Deployment Information"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'preview') }}"
+          echo "Environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/production' && 'production' || 'preview') }}"
           echo "Deploy Type: ${{ github.event.inputs.deploy_type || 'standard' }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"

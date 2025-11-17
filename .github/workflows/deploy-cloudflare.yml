@@ -7,9 +7,9 @@ name: Deploy to Cloudflare + Supabase
 
 on:
   push:
-    branches: [main, preview]
+    branches: [production, preview]
   pull_request:
-    branches: [main]
+    branches: [production]
   workflow_dispatch:
     inputs:
       environment:
@@ -62,7 +62,7 @@ jobs:
     name: Run Database Migrations
     needs: quality-checks
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/preview'
+    if: github.ref == 'refs/heads/production' || github.ref == 'refs/heads/preview'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -146,9 +146,9 @@ jobs:
     name: Deploy Cloudflare Workers
     needs: [migrate-database, build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/preview'
+    if: github.ref == 'refs/heads/production' || github.ref == 'refs/heads/preview'
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      name: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Checkout code
@@ -177,7 +177,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          command: deploy --env ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
           workingDirectory: .
           packageManager: npm
         env:
@@ -196,9 +196,9 @@ jobs:
     name: Deploy Cloudflare Pages
     needs: [migrate-database, build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/preview'
+    if: github.ref == 'refs/heads/production' || github.ref == 'refs/heads/preview'
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      name: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Checkout code
@@ -215,7 +215,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy public --project-name=care-commons-web --branch=${{ github.ref == 'refs/heads/main' && 'main' || 'preview' }}
+          command: pages deploy public --project-name=care-commons-web --branch=${{ github.ref == 'refs/heads/production' && 'main' || 'preview' }}
           workingDirectory: .
           packageManager: npm
 
@@ -268,7 +268,7 @@ jobs:
         run: |
           if [ "${{ needs.verify-deployment.result }}" == "success" ]; then
             echo "✅ Cloudflare deployment successful"
-            echo "Environment: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}"
+            echo "Environment: ${{ github.ref == 'refs/heads/production' && 'Production' || 'Staging' }}"
           else
             echo "❌ Cloudflare deployment failed"
             exit 1

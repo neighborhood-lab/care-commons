@@ -4,9 +4,9 @@ name: E2E Tests
 # Skipped on develop to reduce CI time - rely on nightly runs for comprehensive testing
 on:
   pull_request:
-    branches: [main, preview]
+    branches: [production, preview]
   push:
-    branches: [main, preview]
+    branches: [production, preview]
   schedule:
     # Run nightly at 2 AM UTC
     - cron: '0 2 * * *'
