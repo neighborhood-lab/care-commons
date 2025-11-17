@@ -1952,6 +1952,12 @@ async function seedDatabase() {
         [gertrudeId]
       );
 
+      // Get the family user ID (CRITICAL: family_member.id must match user.id)
+      const gertrudeFamilyUserResult = await client.query(
+        `SELECT id FROM users WHERE email = 'family@carecommons.example' LIMIT 1`
+      );
+      const gertrudeFamilyUserId = gertrudeFamilyUserResult.rows.length > 0 ? gertrudeFamilyUserResult.rows[0].id : null;
+
       // Create a family member record for the family portal if it doesn't exist
       const familyMemberCheck = await client.query(
         `SELECT id FROM family_members WHERE client_id = $1 LIMIT 1`,
@@ -1960,7 +1966,8 @@ async function seedDatabase() {
 
       let familyMemberId;
       if (familyMemberCheck.rows.length === 0) {
-        familyMemberId = uuidv4();
+        // CRITICAL: Use the same ID as the user record for family portal to work
+        familyMemberId = gertrudeFamilyUserId || uuidv4();
         await client.query(
           `
           INSERT INTO family_members (
