@@ -141,6 +141,8 @@ npm run build
 npm run dev
 ```
 
+**📖 See [DEV_WORKFLOW.md](./DEV_WORKFLOW.md) for detailed development workflow documentation.**
+
 ### Environment Variables
 
 Create a `.env` file in the root directory:

@@ -20,6 +20,8 @@
   "scripts": {
     "dev:setup": "tsx scripts/dev-setup.ts",
     "dev": "tsx scripts/dev-server.ts",
+    "dev:kill": "./scripts/dev-kill.sh",
+    "dev:test": "./scripts/test-dev-workflow.sh",
     "dev:server": "cd packages/app && npm run dev",
     "dev:web": "cd packages/web && npm run dev",
     "dev:showcase": "cd showcase && npm run dev",
