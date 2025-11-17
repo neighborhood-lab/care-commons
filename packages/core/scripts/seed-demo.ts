@@ -2020,9 +2020,10 @@ async function seedDatabase() {
         `
         INSERT INTO clients (
           id, organization_id, branch_id, client_number,
-          first_name, last_name, date_of_birth, gender, phone, email,
-          primary_address, emergency_contacts, status, intake_date,
-          insurance_info, service_eligibility,
+          first_name, last_name, date_of_birth, gender,
+          primary_phone, email, primary_address,
+          emergency_contacts, status, intake_date,
+          insurance, service_eligibility,
           created_by, updated_by, is_demo_data
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
         `,
