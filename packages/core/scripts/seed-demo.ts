@@ -1095,86 +1095,6 @@ async function seedDatabase() {
       console.log(`📝 Login format: {role}@{state}.carecommons.example / Demo123!`);
       console.log(`   Example: admin@al.carecommons.example / Demo123!\n`);
 
-      // Create caregiver records for state-specific caregiver users
-      // This ensures user.id === caregiver.id for task assignment to work
-      console.log('👨‍⚕️ Creating caregiver records for state-specific caregiver users...\n');
-      
-      const txCaregiverUser = await client.query(
-        'SELECT id FROM users WHERE email = $1',
-        ['caregiver@tx.carecommons.example']
-      );
-      
-      if (txCaregiverUser.rows.length > 0) {
-        const caregiverUserId = txCaregiverUser.rows[0].id;
-        
-        await client.query(
-          `
-          INSERT INTO caregivers (
-            id, organization_id, primary_branch_id, branch_ids, employee_number,
-            first_name, last_name, date_of_birth, gender,
-            primary_phone, email, primary_address,
-            hire_date, employment_type, employment_status, pay_rate,
-            credentials, specializations, languages,
-            max_travel_distance, role, availability, preferred_contact_method, status,
-            created_by, updated_by, is_demo_data
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, true)
-          ON CONFLICT (id) DO UPDATE SET
-            email = EXCLUDED.email,
-            first_name = EXCLUDED.first_name,
-            last_name = EXCLUDED.last_name,
-            updated_at = NOW()
-          `,
-          [
-            caregiverUserId,
-            orgId,
-            branchId,
-            `{${branchId}}`,
-            'CG-TX-DEMO-001',
-            'Caregiver',
-            '(TX)',
-            '1985-01-01',
-            'OTHER',
-            JSON.stringify({ number: '512-555-0100', type: 'MOBILE', canReceiveSMS: true }),
-            'caregiver@tx.carecommons.example',
-            JSON.stringify({
-              type: 'HOME',
-              line1: '123 Demo Street',
-              city: 'Austin',
-              state: 'TX',
-              postalCode: '78701',
-              country: 'US',
-            }),
-            '2020-01-01',
-            'FULL_TIME',
-            'ACTIVE',
-            JSON.stringify({
-              amount: 18.00,
-              currency: 'USD',
-              unit: 'HOUR',
-              effectiveDate: '2020-01-01'
-            }),
-            JSON.stringify([{
-              type: 'CNA',
-              number: 'TX-CNA-DEMO-001',
-              state: 'TX',
-              issueDate: '2020-01-01',
-              expirationDate: '2026-01-01'
-            }]),
-            '{Personal Care,Companionship}', // PostgreSQL array format
-            '{English,Spanish}', // PostgreSQL array format
-            25,
-            'HHA',
-            JSON.stringify({ monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }),
-            'SMS',
-            'ACTIVE',
-            systemUserId,
-            systemUserId,
-          ]
-        );
-        
-        console.log(`✅ Created caregiver record for caregiver@tx.carecommons.example (ID: ${caregiverUserId})\n`);
-      }
-
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 2: Clear existing demo data (optional, based on IS_DEMO flag)
       // ═══════════════════════════════════════════════════════════════════════════
@@ -1320,7 +1240,84 @@ async function seedDatabase() {
         }
       }
 
-      // Now insert caregivers into database
+      // First, check if state-specific caregiver users exist and create matching caregiver records
+      // This ensures user.id === caregiver.id for task assignment to work
+      console.log('\n👨‍⚕️ Creating caregiver records for state-specific caregiver users...');
+      
+      const txCaregiverUser = await client.query(
+        'SELECT id FROM users WHERE email = $1',
+        ['caregiver@tx.carecommons.example']
+      );
+      
+      if (txCaregiverUser.rows.length > 0) {
+        const caregiverUserId = txCaregiverUser.rows[0].id;
+        
+        await client.query(
+          `
+          INSERT INTO caregivers (
+            id, organization_id, primary_branch_id, branch_ids, employee_number,
+            first_name, last_name, date_of_birth, gender,
+            primary_phone, email, primary_address,
+            hire_date, employment_type, employment_status, pay_rate,
+            credentials, specializations, languages,
+            max_travel_distance, role, availability, preferred_contact_method, status,
+            created_by, updated_by, is_demo_data
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, true)
+          `,
+          [
+            caregiverUserId, // Use THE SAME ID as user record
+            orgId,
+            branchId,
+            `{${branchId}}`,
+            'CG-TX-DEMO-001',
+            'Caregiver',
+            '(TX)',
+            '1985-01-01',
+            'OTHER',
+            JSON.stringify({ number: '512-555-0100', type: 'MOBILE', canReceiveSMS: true }),
+            'caregiver@tx.carecommons.example',
+            JSON.stringify({
+              type: 'HOME',
+              line1: '123 Demo Street',
+              city: 'Austin',
+              state: 'TX',
+              postalCode: '78701',
+              country: 'US',
+            }),
+            '2020-01-01',
+            'FULL_TIME',
+            'ACTIVE',
+            JSON.stringify({
+              amount: 18.00,
+              currency: 'USD',
+              unit: 'HOUR',
+              effectiveDate: '2020-01-01'
+            }),
+            JSON.stringify([{
+              type: 'CNA',
+              number: 'TX-CNA-DEMO-001',
+              state: 'TX',
+              issueDate: '2020-01-01',
+              expirationDate: '2026-01-01'
+            }]),
+            '{Personal Care,Companionship}',
+            '{English,Spanish}',
+            25,
+            'HOME_HEALTH_AIDE',
+            JSON.stringify({ monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }),
+            'SMS',
+            'ACTIVE',
+            systemUserId,
+            systemUserId,
+          ]
+        );
+        
+        console.log(`✅ Created caregiver record for caregiver@tx.carecommons.example (ID: ${caregiverUserId})`);
+      }
+      
+      console.log('');
+
+      // Now insert demo caregivers into database
       // Password for all demo caregivers: Caregiver123!
       // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- Demo data only
       const caregiverPassword = 'Caregiver123!';
