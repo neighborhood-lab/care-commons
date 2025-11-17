@@ -65,6 +65,18 @@ This will:
 3. Seed base data (organization, branch, admin user)
 4. Seed comprehensive Texas demo data
 
+**⚠️ IMPORTANT**: After resetting the database, you MUST clear your browser's localStorage:
+
+```javascript
+// Run this in browser console (F12):
+localStorage.clear();
+location.reload();
+```
+
+**Why?** The database reset creates new user IDs and organization IDs, but your browser still has the old auth data cached. This causes the backend to filter by the wrong organization ID, resulting in "No clients found" even though the database has data.
+
+**Alternative**: Use an incognito/private browsing window after database reset.
+
 ### Other database commands
 
 ```bash
@@ -82,13 +94,24 @@ npm run db:migrate:status
 
 ### "No clients found" or empty data
 
-You need to seed the database:
+**Cause 1**: Database needs seeding
 
 ```bash
 npm run db:reset:demo
 ```
 
-Then restart the dev server.
+**Cause 2**: Browser has stale auth data (MOST COMMON after database reset)
+
+After resetting the database, your browser localStorage contains OLD user data with the wrong organization ID. Clear it:
+
+```javascript
+// Run in browser console (F12):
+localStorage.clear();
+location.reload();
+// Then login again
+```
+
+Or use incognito/private mode.
 
 ### "Port already in use" error
 
