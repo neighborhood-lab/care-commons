@@ -12,6 +12,7 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createHealthRouter } from './health';
 import { createMetricsRouter } from './metrics';
 import { createAuthRouter } from './auth';
+import webhooksRouter from './webhooks.js';
 import { createUsersRouter } from './users';
 import { createOrganizationRouter } from './organizations';
 import { createCaregiverRouter } from './caregivers';
@@ -190,6 +191,10 @@ export function setupRoutes(app: Express, db: Database): void {
   const healthRouter = createHealthRouter(db);
   app.use('/health', healthRouter);
   console.log('  ✓ Health check route registered');
+
+  // Webhooks route (no authentication required, external services)
+  app.use('/webhooks', webhooksRouter);
+  console.log('  ✓ Webhooks route registered');
 
   // Metrics route (no authentication required)
   const metricsRouter = createMetricsRouter();
