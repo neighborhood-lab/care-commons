@@ -2007,6 +2007,322 @@ async function seedDatabase() {
       console.log(`✅ Created Gertrude Stein client\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 10B: Create Texas Family Portal Demo User (Margaret Johnson + Emily)
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`👵 Creating Texas family portal demo (Margaret Johnson + Emily)...`);
+
+      // Create Margaret Johnson (Texas client)
+      const margaretId = uuidv4();
+      const margaretClientNumber = 'TX-CLIENT-FAM-001';
+      
+      await client.query(
+        `
+        INSERT INTO clients (
+          id, organization_id, branch_id, client_number,
+          first_name, last_name, date_of_birth, gender, phone, email,
+          primary_address, emergency_contacts, status, intake_date,
+          insurance_info, service_eligibility,
+          created_by, updated_by, is_demo_data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, true)
+        `,
+        [
+          margaretId,
+          orgId,
+          branchId,
+          margaretClientNumber,
+          'Margaret',
+          'Johnson',
+          new Date('1945-03-15'), // 79 years old
+          'FEMALE',
+          JSON.stringify({ number: '512-555-0100', type: 'HOME', canReceiveSMS: false }),
+          'margaret.johnson@example.com',
+          JSON.stringify({
+            type: 'HOME',
+            line1: '456 Oak Avenue',
+            city: 'Austin',
+            state: 'TX',
+            postalCode: '78701',
+            country: 'US',
+          }),
+          JSON.stringify([{
+            id: uuidv4(),
+            name: 'Emily Johnson',
+            relationship: 'Daughter',
+            phone: { number: '512-555-0123', type: 'MOBILE', canReceiveSMS: true },
+            isPrimary: true,
+            canMakeHealthcareDecisions: true,
+          }]),
+          'ACTIVE',
+          daysAgo(120), // Intake 4 months ago
+          JSON.stringify({
+            primary: {
+              type: 'MEDICAID',
+              memberId: 'TX-MCD-78945612',
+              provider: 'Texas Medicaid',
+              isActive: true
+            },
+            secondary: null
+          }),
+          JSON.stringify({
+            medicaid: { eligible: true, memberId: 'TX-MCD-78945612' },
+            medicare: { eligible: false }
+          }),
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
+      // Create or update Texas family user (Emily Johnson)
+      const texasFamilyUserCheck = await client.query(
+        `SELECT id FROM users WHERE email = 'family@tx.carecommons.example' LIMIT 1`
+      );
+
+      let emilyUserId;
+      if (texasFamilyUserCheck.rows.length === 0) {
+        emilyUserId = uuidv4();
+        const emilyPasswordHash = PasswordUtils.hashPassword('DemoTXFAMILY123!');
+        
+        await client.query(
+          `
+          INSERT INTO users (
+            id, organization_id, email, username, password_hash,
+            first_name, last_name, roles, permissions, status,
+            branch_ids, created_by, updated_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          `,
+          [
+            emilyUserId,
+            orgId,
+            'family@tx.carecommons.example',
+            'emily.johnson',
+            emilyPasswordHash,
+            'Emily',
+            'Johnson',
+            ['FAMILY'],
+            [
+              'clients:read',
+              'care-plans:read',
+              'notes:read',
+              'visits:read',
+              'family-portal:view',
+              'activity-feed:view',
+              'notifications:view',
+              'messages:view',
+              'messages:send',
+              'messages:create'
+            ],
+            'ACTIVE',
+            [branchId],
+            systemUserId,
+            systemUserId
+          ]
+        );
+      } else {
+        emilyUserId = texasFamilyUserCheck.rows[0].id;
+      }
+
+      // Create family member record with SAME ID as user (critical for portal)
+      await client.query(
+        `
+        INSERT INTO family_members (
+          id, organization_id, branch_id, client_id,
+          first_name, last_name, email, phone_number,
+          relationship, is_primary_contact,
+          preferred_contact_method, portal_access_level,
+          status, invitation_status, receive_notifications,
+          notification_preferences,
+          access_granted_by, created_by, updated_by, is_demo_data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, true)
+        ON CONFLICT (id) DO UPDATE SET
+          client_id = EXCLUDED.client_id,
+          updated_at = NOW()
+        `,
+        [
+          emilyUserId, // CRITICAL: Same ID as user!
+          orgId,
+          branchId,
+          margaretId,
+          'Emily',
+          'Johnson',
+          'family@tx.carecommons.example',
+          '512-555-0123',
+          'CHILD',
+          true,
+          'EMAIL',
+          'VIEW_DETAILED',
+          'ACTIVE',
+          'ACCEPTED',
+          true,
+          JSON.stringify({
+            visitReminders: true,
+            medicationReminders: true,
+            emergencyAlerts: true,
+            progressUpdates: true,
+            billingNotifications: false,
+          }),
+          systemUserId,
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
+      // Create a simple care plan for Margaret
+      const margaretPlanId = uuidv4();
+      const margaretCaregiverId = caregivers[0]?.id; // Assign first caregiver
+      
+      await client.query(
+        `
+        INSERT INTO care_plans (
+          id, organization_id, branch_id, client_id,
+          plan_number, name, plan_type, status, priority,
+          effective_date, expiration_date, review_date,
+          primary_caregiver_id,
+          assessment_summary, goals, estimated_hours_per_week,
+          compliance_status, created_by, updated_by, is_demo_data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, true)
+        `,
+        [
+          margaretPlanId,
+          orgId,
+          branchId,
+          margaretId,
+          'CP-TX-001',
+          'Personal Care Plan for Margaret Johnson',
+          'PERSONAL_CARE',
+          'ACTIVE',
+          'MEDIUM',
+          daysAgo(90),
+          daysFromNow(90),
+          daysFromNow(30),
+          margaretCaregiverId,
+          'Comprehensive personal care for Margaret Johnson. Client requires assistance with ADLs and mobility support.',
+          JSON.stringify([
+            {
+              id: uuidv4(),
+              category: 'MOBILITY',
+              description: 'Safe ambulation with walker',
+              targetDate: daysFromNow(60),
+              status: 'IN_PROGRESS',
+              progress: 70,
+            },
+            {
+              id: uuidv4(),
+              category: 'ADL',
+              description: 'Independent bathing with assistance',
+              targetDate: daysFromNow(45),
+              status: 'ON_TRACK',
+              progress: 55,
+            },
+          ]),
+          15, // 15 hours per week
+          'COMPLIANT',
+          systemUserId,
+          systemUserId,
+        ]
+      );
+
+      // Create a couple of recent visits for Margaret
+      const margaretVisitIds = [];
+      
+      // Yesterday's completed visit
+      const margaretVisit1Id = uuidv4();
+      const visit1Start = daysAgo(1);
+      visit1Start.setHours(9, 0, 0, 0);
+      const visit1End = new Date(visit1Start);
+      visit1End.setHours(11, 0, 0, 0);
+      
+      await client.query(
+        `
+        INSERT INTO visits (
+          id, organization_id, branch_id, client_id, assigned_caregiver_id,
+          visit_number, visit_type, service_type_id, service_type_name,
+          scheduled_date, scheduled_start_time, scheduled_end_time, scheduled_duration,
+          actual_start_time, actual_end_time, actual_duration,
+          address, status, completion_notes,
+          created_by, updated_by, is_demo_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9,
+          $10::timestamp::date,
+          $11::timestamp::time,
+          $12::timestamp::time,
+          $13, $14, $15, $16, $17, $18, $19, $20, $21, true
+        )
+        `,
+        [
+          margaretVisit1Id,
+          orgId,
+          branchId,
+          margaretId,
+          margaretCaregiverId,
+          'VIS-TX-MAG-001',
+          'REGULAR',
+          margaretVisit1Id,
+          'Personal Care',
+          visit1Start,
+          visit1Start,
+          visit1End,
+          120,
+          visit1Start,
+          visit1End,
+          120,
+          JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: 'Austin', state: 'TX', postalCode: '78701', country: 'US' }),
+          'COMPLETED',
+          'Margaret was in good spirits. Completed morning routine including bathing and meal prep.',
+          systemUserId,
+          systemUserId,
+        ]
+      );
+      margaretVisitIds.push(margaretVisit1Id);
+
+      // Today's scheduled visit
+      const margaretVisit2Id = uuidv4();
+      const visit2Start = new Date();
+      visit2Start.setHours(14, 0, 0, 0);
+      const visit2End = new Date(visit2Start);
+      visit2End.setHours(16, 0, 0, 0);
+      
+      await client.query(
+        `
+        INSERT INTO visits (
+          id, organization_id, branch_id, client_id, assigned_caregiver_id,
+          visit_number, visit_type, service_type_id, service_type_name,
+          scheduled_date, scheduled_start_time, scheduled_end_time, scheduled_duration,
+          address, status,
+          created_by, updated_by, is_demo_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9,
+          $10::timestamp::date,
+          $11::timestamp::time,
+          $12::timestamp::time,
+          $13, $14, $15, $16, $17, true
+        )
+        `,
+        [
+          margaretVisit2Id,
+          orgId,
+          branchId,
+          margaretId,
+          margaretCaregiverId,
+          'VIS-TX-MAG-002',
+          'REGULAR',
+          margaretVisit2Id,
+          'Personal Care',
+          visit2Start,
+          visit2Start,
+          visit2End,
+          120,
+          JSON.stringify({ type: 'HOME', line1: '456 Oak Avenue', city: 'Austin', state: 'TX', postalCode: '78701', country: 'US' }),
+          'SCHEDULED',
+          systemUserId,
+          systemUserId,
+        ]
+      );
+      margaretVisitIds.push(margaretVisit2Id);
+
+      console.log(`✅ Created Margaret Johnson (TX) with care plan, 2 visits, and Emily Johnson (family user)\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
       // STEP 11: Create care plan for Gertrude
       // ═══════════════════════════════════════════════════════════════════════════
 
