@@ -81,10 +81,9 @@ export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiServi
       if (filters?.sortDirection) params.append('sortDirection', filters.sortDirection);
 
       const queryString = params.toString();
-      const response = await apiClient.get<{ success: boolean; data: PaginatedResult<TaskInstance> }>(
+      return apiClient.get<PaginatedResult<TaskInstance>>(
         `/api/tasks${queryString ? `?${queryString}` : ''}`
       );
-      return response.data;
     },
 
     async getTaskById(id: string): Promise<TaskInstance> {
