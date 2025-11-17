@@ -2224,7 +2224,6 @@ async function seedDatabase() {
       );
 
       // Create a couple of recent visits for Margaret
-      const margaretVisitIds = [];
       
       // Yesterday's completed visit
       const margaretVisit1Id = uuidv4();
@@ -2274,7 +2273,6 @@ async function seedDatabase() {
           systemUserId,
         ]
       );
-      margaretVisitIds.push(margaretVisit1Id);
 
       // Today's scheduled visit
       const margaretVisit2Id = uuidv4();
@@ -2319,7 +2317,6 @@ async function seedDatabase() {
           systemUserId,
         ]
       );
-      margaretVisitIds.push(margaretVisit2Id);
 
       console.log(`✅ Created Margaret Johnson (TX) with care plan, 2 visits, and Emily Johnson (family user)\n`);
 
