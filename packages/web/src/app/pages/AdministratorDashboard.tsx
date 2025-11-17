@@ -243,34 +243,37 @@ export const AdministratorDashboard: React.FC = () => {
     },
   ];
 
+  // Map real financial data from revenue metrics
   const financialStats = [
     {
-      label: 'Outstanding Invoices',
-      value: '$47,892',
+      label: 'Outstanding A/R',
+      value: `$${(kpis?.revenueMetrics.outstandingAR ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: <DollarSign className="h-6 w-6 text-yellow-600" />,
-      change: '23 invoices pending',
+      change: 'Accounts receivable',
       onClick: () => navigate('/billing'),
     },
     {
-      label: 'Payroll Pending',
-      value: '$124,567',
-      icon: <CreditCard className="h-6 w-6 text-purple-600" />,
-      change: 'Due in 3 days',
-      onClick: () => navigate('/payroll'),
-    },
-    {
-      label: 'Monthly Revenue',
-      value: '$542,180',
-      icon: <TrendingUp className="h-6 w-6 text-green-600" />,
-      change: '+8.3% vs last month',
-      trend: 'up' as const,
-    },
-    {
-      label: 'Collection Rate',
-      value: '87.5%',
+      label: 'Total Billed',
+      value: `$${(kpis?.revenueMetrics.billedAmount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: <FileText className="h-6 w-6 text-blue-600" />,
-      change: '-1.2% vs last month',
-      trend: 'down' as const,
+      change: `${kpis?.revenueMetrics.billableHours ?? 0} billable hours`,
+      trend: 'neutral' as const,
+      onClick: () => navigate('/billing'),
+    },
+    {
+      label: 'Collected',
+      value: `$${(kpis?.revenueMetrics.paidAmount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      icon: <TrendingUp className="h-6 w-6 text-green-600" />,
+      change: 'Paid invoices',
+      trend: 'up' as const,
+      onClick: () => navigate('/billing'),
+    },
+    {
+      label: 'Avg Reimbursement',
+      value: `$${(kpis?.revenueMetrics.averageReimbursementRate ?? 0).toFixed(2)}/hr`,
+      icon: <CreditCard className="h-6 w-6 text-purple-600" />,
+      change: 'Per billable hour',
+      trend: 'neutral' as const,
     },
   ];
 
