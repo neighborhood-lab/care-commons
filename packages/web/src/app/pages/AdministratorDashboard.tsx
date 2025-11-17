@@ -8,10 +8,10 @@
  * - Quick actions
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/hooks';
-import { Card, CardHeader, CardContent, Button, EmptyState } from '@/core/components';
+import { Card, CardHeader, CardContent, Button, EmptyState, LoadingSpinner, ErrorMessage } from '@/core/components';
 import {
   Users,
   Calendar,
@@ -26,6 +26,10 @@ import {
   Award,
   CreditCard,
 } from 'lucide-react';
+import {
+  useOperationalKPIs,
+  useComplianceAlerts,
+} from '@/verticals/analytics-reporting/hooks/useAnalytics';
 
 interface StatCardProps {
   label: string;
@@ -154,38 +158,88 @@ export const AdministratorDashboard: React.FC = () => {
   useAuth();
   const navigate = useNavigate();
 
-  // Note: Using mock data for demonstration - API integration in progress
+  // Memoize filters to prevent infinite re-renders
+  const kpiFilters = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+    return {
+      dateRange: { startDate, endDate },
+    };
+  }, []);
+
+  const alertFilters = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      dateRange: { startDate: today, endDate: today },
+    };
+  }, []);
+
+  // Fetch real data from APIs
+  const {
+    data: kpis,
+    isLoading: kpisLoading,
+    error: kpisError,
+  } = useOperationalKPIs(kpiFilters);
+
+  const {
+    data: alerts,
+    isLoading: alertsLoading,
+    error: alertsError,
+  } = useComplianceAlerts(alertFilters);
+
+  const isLoading = kpisLoading || alertsLoading;
+  const error = kpisError || alertsError;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <ErrorMessage message="Failed to load dashboard data. Please try again." />
+      </div>
+    );
+  }
+
+  // Map real data to stat cards
   const stats = [
     {
       label: 'Total Clients',
-      value: '247',
+      value: kpis?.clientMetrics.activeClients.toString() ?? '0',
       icon: <Users className="h-6 w-6 text-primary-600" />,
-      change: '+12 this month',
-      trend: 'up' as const,
+      change: `${kpis?.clientMetrics.newClients ?? 0} new this month`,
+      trend: (kpis?.clientMetrics.newClients ?? 0) > 0 ? ('up' as const) : ('neutral' as const),
       onClick: () => navigate('/clients'),
     },
     {
       label: 'Active Caregivers',
-      value: '89',
+      value: kpis?.staffing.activeCaregivers.toString() ?? '0',
       icon: <Award className="h-6 w-6 text-green-600" />,
-      change: '+5 this month',
-      trend: 'up' as const,
+      change: `${Math.round(kpis?.staffing.utilizationRate ?? 0)}% utilization`,
+      trend: 'neutral' as const,
       onClick: () => navigate('/caregivers'),
     },
     {
       label: 'Visits This Week',
-      value: '1,247',
+      value: (kpis?.visits.scheduled ?? 0).toString(),
       icon: <Calendar className="h-6 w-6 text-blue-600" />,
-      change: '+3.2% vs last week',
-      trend: 'up' as const,
+      change: `${kpis?.visits.completed ?? 0} completed`,
+      trend: 'neutral' as const,
       onClick: () => navigate('/scheduling'),
     },
     {
-      label: 'Compliance Rate',
-      value: '94.2%',
+      label: 'EVV Compliance',
+      value: `${Math.round(kpis?.evvCompliance.complianceRate ?? 0)}%`,
       icon: <CheckCircle className="h-6 w-6 text-green-600" />,
-      change: '+2.1% improvement',
-      trend: 'up' as const,
+      change: `${kpis?.evvCompliance.compliantVisits ?? 0} of ${kpis?.evvCompliance.totalVisits ?? 0} compliant`,
+      trend: (kpis?.evvCompliance.complianceRate ?? 0) >= 95 ? ('up' as const) : ((kpis?.evvCompliance.complianceRate ?? 0) >= 85 ? ('neutral' as const) : ('down' as const)),
     },
   ];
 
@@ -220,36 +274,48 @@ export const AdministratorDashboard: React.FC = () => {
     },
   ];
 
-  const complianceAlerts = [
-    {
-      title: 'Expiring Credentials',
-      description: '12 caregivers have certifications expiring within 30 days',
-      severity: 'warning' as const,
-      count: 12,
-      onClick: () => navigate('/caregivers?filter=expiring-credentials'),
-    },
-    {
-      title: 'Missing Documentation',
-      description: '8 clients missing required intake forms',
-      severity: 'critical' as const,
-      count: 8,
-      onClick: () => navigate('/clients?filter=missing-docs'),
-    },
-    {
-      title: 'Supervision Visits Overdue',
-      description: '5 clients require nurse supervision visits',
-      severity: 'critical' as const,
-      count: 5,
-      onClick: () => navigate('/scheduling?filter=supervision-overdue'),
-    },
-    {
-      title: 'EVV Exceptions',
-      description: '18 visits with Electronic Visit Verification issues',
-      severity: 'warning' as const,
-      count: 18,
-      onClick: () => navigate('/evv?filter=exceptions'),
-    },
-  ];
+  // Map real compliance alerts
+  const complianceAlerts = (alerts ?? [])
+    .slice(0, 4) // Show top 4 alerts
+    .map((alert) => {
+      const severityMap: Record<string, 'critical' | 'warning' | 'info'> = {
+        CRITICAL: 'critical',
+        HIGH: 'critical',
+        MEDIUM: 'warning',
+        WARNING: 'warning',
+        INFO: 'info',
+      };
+      
+      const titleMap: Record<string, string> = {
+        CREDENTIAL_EXPIRING: 'Expiring Credentials',
+        AUTHORIZATION_EXPIRING: 'Authorization Expiring',
+        SUPERVISORY_VISIT_OVERDUE: 'Supervision Visits Overdue',
+        EVV_SUBMISSION_DELAYED: 'EVV Submission Delayed',
+        CARE_PLAN_EXPIRING: 'Care Plans Expiring',
+        ASSESSMENT_OVERDUE: 'Assessments Overdue',
+        TRAINING_EXPIRING: 'Training Expiring',
+        BACKGROUND_CHECK_EXPIRING: 'Background Checks Expiring',
+      };
+
+      return {
+        title: titleMap[alert.type] ?? alert.type,
+        description: alert.message,
+        severity: severityMap[alert.severity] ?? 'info',
+        count: alert.count,
+        onClick: () => {
+          // Navigate to appropriate page based on alert type
+          if (alert.type.includes('CREDENTIAL') || alert.type.includes('TRAINING') || alert.type.includes('BACKGROUND')) {
+            navigate('/caregivers');
+          } else if (alert.type.includes('AUTHORIZATION') || alert.type.includes('ASSESSMENT')) {
+            navigate('/clients');
+          } else if (alert.type.includes('VISIT') || alert.type.includes('CARE_PLAN')) {
+            navigate('/scheduling');
+          } else if (alert.type.includes('EVV')) {
+            navigate('/time-tracking');
+          }
+        },
+      };
+    });
 
   const quickActions = [
     {
