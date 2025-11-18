@@ -5,7 +5,7 @@
  */
 
 import express, { Request, Response } from 'express';
-import { getDatabase, BillingRepository, createEmailService } from '@care-commons/core';
+import { getDatabase, BillingRepository, createEmailService, createStripeService } from '@care-commons/core';
 
 const router = express.Router();
 
@@ -47,9 +47,19 @@ router.post('/stripe', express.raw({ type: 'application/json' }), async (req: Re
   }
 
   try {
-    // For production: verify webhook signature using Stripe SDK
-    // For now: parse the JSON body directly
-    const event = JSON.parse(req.body.toString());
+    const payload = req.body.toString();
+    
+    // Verify webhook signature
+    const stripeService = createStripeService();
+    const isValid = stripeService.verifyWebhookSignature(payload, signature);
+    
+    if (!isValid) {
+      console.error('[Webhook] Invalid Stripe signature');
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+    
+    // Parse the JSON body
+    const event = JSON.parse(payload);
     
     console.log(`[Webhook] Received Stripe event: ${event.type}`);
 
