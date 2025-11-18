@@ -1,5 +1,10 @@
 screenshots/
 
+# UI Visibility Tooling outputs
+ui-screenshots/
+ui-reports/
+e2e/baselines/
+
 __pycache__/
 
 .turbo/
