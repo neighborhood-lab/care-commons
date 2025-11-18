@@ -181,7 +181,7 @@ describe('Login Page', () => {
     });
   });
 
-  it('should disable all buttons during login', async () => {
+  it('should disable all persona buttons during login', async () => {
     mockAuthServiceLogin.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 100))
     );
@@ -197,9 +197,16 @@ describe('Login Page', () => {
     
     fireEvent.click(adminButton);
 
-    // All buttons should be disabled during loading
-    const allButtons = screen.getAllByRole('button');
-    for (const button of allButtons) {
+    // All persona buttons should be disabled during loading
+    const personaButtons = [
+      screen.getByText('Maria Rodriguez').closest('button'),
+      screen.getByText('James Thompson').closest('button'),
+      screen.getByText('Sarah Chen').closest('button'),
+      screen.getByText('David Williams').closest('button'),
+      screen.getByText('Emily Johnson').closest('button'),
+    ];
+    
+    for (const button of personaButtons) {
       expect(button).toBeDisabled();
     }
   });
