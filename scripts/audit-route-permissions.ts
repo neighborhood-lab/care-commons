@@ -52,6 +52,9 @@ const PATTERNS = {
   // Health check endpoints
   healthCheck: /\/health/,
 
+  // Webhook endpoints (use signature verification instead of auth)
+  webhookEndpoint: /\/webhook/i,
+
   // Logout endpoints (don't need permission checks beyond authentication)
   logoutEndpoint: /\/logout$/,
 
@@ -98,6 +101,11 @@ function analyzeRouteFile(filePath: string): SecurityIssue[] {
     return issues;
   }
 
+  // Skip webhook route files - they use signature verification instead of auth middleware
+  if (filePath.includes('/webhooks.ts') || filePath.includes('/webhooks.js')) {
+    return issues;
+  }
+
   // Check if file uses authentication middleware
   const hasRequireAuth = PATTERNS.requireAuth.test(content);
   const hasOptionalAuth = PATTERNS.optionalAuth.test(content);
@@ -115,6 +123,11 @@ function analyzeRouteFile(filePath: string): SecurityIssue[] {
 
     // Skip health check and metrics endpoints
     if (PATTERNS.healthCheck.test(routePath)) {
+      continue;
+    }
+
+    // Skip webhook endpoints (they use signature verification)
+    if (PATTERNS.webhookEndpoint.test(routePath) || filePath.includes('/webhooks.ts')) {
       continue;
     }
 
