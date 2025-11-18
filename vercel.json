@@ -17,6 +17,14 @@
       "destination": "/api"
     },
     {
+      "source": "/metrics",
+      "destination": "/api"
+    },
+    {
+      "source": "/webhooks/:path*",
+      "destination": "/api"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
