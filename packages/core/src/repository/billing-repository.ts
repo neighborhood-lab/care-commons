@@ -344,7 +344,7 @@ export class BillingRepository implements IBillingRepository {
       subscription.currentPeriodEnd,
     ]);
 
-    return result.rows[0] ? this.mapBillingUsage(result.rows[0]) : null;
+    return result.rows[0] !== undefined ? this.mapBillingUsage(result.rows[0]) : null;
   }
 
   async recordUsageSnapshot(
@@ -353,7 +353,7 @@ export class BillingRepository implements IBillingRepository {
     recordedBy: UUID
   ): Promise<void> {
     const subscription = await this.getSubscriptionByOrganization(organizationId);
-    if (!subscription) {
+    if (subscription === null) {
       throw new NotFoundError('Subscription not found for organization', { organizationId });
     }
 
@@ -363,7 +363,7 @@ export class BillingRepository implements IBillingRepository {
     // Try to get existing usage record for this period
     const existing = await this.getCurrentUsage(organizationId);
 
-    if (existing) {
+    if (existing !== null) {
       // Update existing record
       const dailySnapshots = [
         ...existing.dailySnapshots,
@@ -454,7 +454,7 @@ export class BillingRepository implements IBillingRepository {
         counts.clients, // $6
         counts.caregivers, // $7
         counts.visits, // $8
-        0, // $9 - user_count (TODO)
+        0, // $9 - user_count (FUTURE)
         counts.clients, // $10 - peak_client_count
         counts.caregivers, // $11 - peak_caregiver_count
         today, // $12 - peak_recorded_date
@@ -463,8 +463,8 @@ export class BillingRepository implements IBillingRepository {
         subscription.visitLimit, // $15
         Math.max(0, counts.clients - subscription.clientLimit), // $16
         Math.max(0, counts.caregivers - subscription.caregiverLimit), // $17
-        subscription.visitLimit ? Math.max(0, counts.visits - subscription.visitLimit) : 0, // $18
-        0, // $19 - overage_charges (TODO: calculate based on pricing)
+        (subscription.visitLimit !== null && subscription.visitLimit !== undefined) ? Math.max(0, counts.visits - subscription.visitLimit) : 0, // $18
+        0, // $19 - overage_charges (FUTURE: calculate based on pricing)
         subscription.planAmount, // $20 - total_charges
         'ACTIVE', // $21
         false, // $22
@@ -495,14 +495,14 @@ export class BillingRepository implements IBillingRepository {
         : row.status_history as Array<{ status: SubscriptionStatus; timestamp: string; reason?: string }>,
       currentPeriodStart: new Date(row.current_period_start as string),
       currentPeriodEnd: new Date(row.current_period_end as string),
-      trialStart: row.trial_start ? new Date(row.trial_start as string) : null,
-      trialEnd: row.trial_end ? new Date(row.trial_end as string) : null,
+      trialStart: (row.trial_start !== null && row.trial_start !== undefined) ? new Date(row.trial_start as string) : null,
+      trialEnd: (row.trial_end !== null && row.trial_end !== undefined) ? new Date(row.trial_end as string) : null,
       cancelAtPeriodEnd: row.cancel_at_period_end as boolean,
-      canceledAt: row.canceled_at ? new Date(row.canceled_at as string) : null,
-      endedAt: row.ended_at ? new Date(row.ended_at as string) : null,
+      canceledAt: (row.canceled_at !== null && row.canceled_at !== undefined) ? new Date(row.canceled_at as string) : null,
+      endedAt: (row.ended_at !== null && row.ended_at !== undefined) ? new Date(row.ended_at as string) : null,
       paymentMethodId: row.payment_method_id as string | null,
       paymentMethodDetails: row.payment_method_details as Record<string, unknown> | null,
-      lastInvoiceDate: row.last_invoice_date ? new Date(row.last_invoice_date as string) : null,
+      lastInvoiceDate: (row.last_invoice_date !== null && row.last_invoice_date !== undefined) ? new Date(row.last_invoice_date as string) : null,
       lastInvoiceStatus: row.last_invoice_status as string | null,
       metadata: row.metadata as Record<string, unknown> | null,
       cancellationReason: row.cancellation_reason as string | null,
@@ -529,7 +529,7 @@ export class BillingRepository implements IBillingRepository {
       userCount: row.user_count as number,
       peakClientCount: row.peak_client_count as number,
       peakCaregiverCount: row.peak_caregiver_count as number,
-      peakRecordedDate: row.peak_recorded_date ? new Date(row.peak_recorded_date as string) : null,
+      peakRecordedDate: (row.peak_recorded_date !== null && row.peak_recorded_date !== undefined) ? new Date(row.peak_recorded_date as string) : null,
       clientLimit: row.client_limit as number,
       caregiverLimit: row.caregiver_limit as number,
       visitLimit: row.visit_limit as number | null,
@@ -540,7 +540,7 @@ export class BillingRepository implements IBillingRepository {
       totalCharges: Number(row.total_charges),
       status: row.status as 'ACTIVE' | 'BILLED' | 'ARCHIVED',
       isBilled: row.is_billed as boolean,
-      billedDate: row.billed_date ? new Date(row.billed_date as string) : null,
+      billedDate: (row.billed_date !== null && row.billed_date !== undefined) ? new Date(row.billed_date as string) : null,
       dailySnapshots: typeof row.daily_snapshots === 'string'
         ? JSON.parse(row.daily_snapshots)
         : row.daily_snapshots as Array<{ date: string; clientCount: number; caregiverCount: number; visitCount: number }>,
