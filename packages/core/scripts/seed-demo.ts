@@ -37,6 +37,41 @@ import { PasswordUtils } from '../src/utils/password-utils.js';
 dotenvConfig({ path: '.env', quiet: true });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// DATE HELPERS - Make demo data relative to current date
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Returns a date N days ago from today (at midnight).
+ * @param days Number of days in the past
+ */
+function daysAgo(days: number): Date {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+/**
+ * Returns a date N days from today (at midnight).
+ * @param days Number of days in the future
+ */
+function daysFromNow(days: number): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+/**
+ * Returns today's date at midnight.
+ */
+function today(): Date {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -367,18 +402,6 @@ function randomElements<T>(array: T[], count: number): T[] {
   return shuffled.slice(0, count);
 }
 
-function daysAgo(days: number): Date {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date;
-}
-
-function daysFromNow(days: number): Date {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date;
-}
-
 function _hoursAgo(hours: number): Date {
   const date = new Date();
   date.setHours(date.getHours() - hours);
@@ -440,7 +463,7 @@ function selectMedicalCondition(age: number) {
 }
 
 // Helper to generate realistic Texas address
-function generateTexasAddress(location: typeof TEXAS_LOCATIONS[0]): {
+function generateTexasAddress(location: typeof TEXAS_LOCATIONS[number]): {
   street: string;
   city: string;
   zipCode: string;
@@ -751,12 +774,12 @@ function generateVisit(
   }
 
   let status = 'SCHEDULED';
-  let actualStart = null;
-  let actualEnd = null;
-  let evvClockInGPS = null;
-  let evvClockOutGPS = null;
-  let evvVerificationMethod = null;
-  let notes = null;
+  let actualStart: Date | null = null;
+  let actualEnd: Date | null = null;
+  let evvClockInGPS: { lat: number; lng: number } | null = null;
+  let evvClockOutGPS: { lat: number; lng: number } | null = null;
+  let evvVerificationMethod: string | null = null;
+  let notes: string | null = null;
 
   // Past visits are completed
   if (dayOffset < 0) {
@@ -1466,8 +1489,9 @@ async function seedDatabase() {
           caregiver = randomElement(caregivers);
         }
 
-        // Distribute visits across -30 days to +30 days
-        const dayOffset = faker.number.int({ min: -30, max: 30 });
+        // Distribute visits across -90 days (past completed visits) to +30 days (future scheduled)
+        // This ensures analytics always show data regardless of when demo is seeded
+        const dayOffset = faker.number.int({ min: -90, max: 30 });
 
         const visit = generateVisit(
           orgId,
@@ -1514,7 +1538,7 @@ async function seedDatabase() {
             Math.round((new Date(visit.scheduledEnd).getTime() - new Date(visit.scheduledStart).getTime()) / 60000), // scheduled_duration in minutes
             visit.actualStart, // actual_start_time
             visit.actualEnd, // actual_end_time
-            visit.actualEnd ? Math.round((new Date(visit.actualEnd).getTime() - new Date(visit.actualStart).getTime()) / 60000) : null, // actual_duration
+            visit.actualEnd && visit.actualStart ? Math.round((new Date(visit.actualEnd).getTime() - new Date(visit.actualStart).getTime()) / 60000) : null, // actual_duration
             JSON.stringify({ type: 'HOME', line1: '123 Main St', city: 'Anytown', state: 'CA', postalCode: '12345', country: 'US' }), // address (placeholder)
             visit.status,
             visit.notes,
@@ -2466,7 +2490,15 @@ async function seedDatabase() {
 
       console.log(`📅 Creating visits for Gertrude...`);
 
-      const gertrudeVisits = [];
+      const gertrudeVisits: Array<{
+        id: string;
+        caregiverId: string;
+        scheduledStart: Date;
+        scheduledEnd?: Date;
+        actualStart?: Date;
+        actualEnd?: Date;
+        status: string;
+      }> = [];
 
       // Create 3 visits today
       for (let i = 0; i < 3; i++) {

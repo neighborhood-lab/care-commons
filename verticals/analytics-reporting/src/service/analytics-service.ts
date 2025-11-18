@@ -67,9 +67,9 @@ export class AnalyticsService {
     branchId?: string
   ) {
     const [scheduled, completed, missed, inProgress] = await Promise.all([
-      this.repository.countVisits(orgId, dateRange, ['SCHEDULED', 'CONFIRMED'], branchId),
+      this.repository.countVisits(orgId, dateRange, ['SCHEDULED'], branchId),
       this.repository.countVisits(orgId, dateRange, ['COMPLETED'], branchId),
-      this.repository.countVisits(orgId, dateRange, ['NO_SHOW', 'CANCELLED'], branchId),
+      this.repository.countVisits(orgId, dateRange, ['NO_SHOW_CLIENT', 'CANCELLED'], branchId),
       this.repository.countVisits(orgId, dateRange, ['IN_PROGRESS'], branchId),
     ]);
 

@@ -26,10 +26,10 @@ export class AnalyticsRepository {
   ): Promise<number> {
     let query = `
       SELECT COUNT(*) as count
-      FROM schedules
+      FROM visits
       WHERE organization_id = $1
         AND status = ANY($2)
-        AND start_date BETWEEN $3 AND $4
+        AND scheduled_date BETWEEN $3 AND $4
     `;
     const params: unknown[] = [orgId, statuses, dateRange.startDate, dateRange.endDate];
 
