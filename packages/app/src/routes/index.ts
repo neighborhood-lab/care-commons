@@ -45,6 +45,7 @@ import {
 import { createVisitRouter } from './visits.js';
 import pushNotificationRouter from './push-notifications.js';
 import { createEVVRouter } from './evv.js';
+import { createUsageRouter } from './usage.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -338,6 +339,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const evvRouter = createEVVRouter(db);
   app.use('/api/evv', evvLimiter, evvRouter);
   console.log('  ✓ EVV & Time Tracking routes registered (with rate limiting)');
+
+  // Usage Statistics routes
+  const usageRouter = createUsageRouter(db);
+  app.use('/api', generalApiLimiter, usageRouter);
+  console.log('  ✓ Usage Statistics routes registered (with rate limiting)');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Shift Matching
