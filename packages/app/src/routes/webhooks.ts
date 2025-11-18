@@ -51,9 +51,9 @@ router.post('/stripe', express.raw({ type: 'application/json' }), async (req: Re
     
     // Verify webhook signature
     const stripeService = createStripeService();
-    const isValid = stripeService.verifyWebhookSignature(payload, signature);
+    const isValid: boolean = stripeService.verifyWebhookSignature(payload, signature);
     
-    if (!isValid) {
+    if (isValid === false) {
       console.error('[Webhook] Invalid Stripe signature');
       return res.status(401).json({ error: 'Invalid signature' });
     }
@@ -68,8 +68,8 @@ router.post('/stripe', express.raw({ type: 'application/json' }), async (req: Re
     const emailService = createEmailService();
 
     // Check if billing tables exist
-    const tablesExist = await billingRepo.checkTableExists();
-    if (!tablesExist) {
+    const tablesExist: boolean = await billingRepo.checkTableExists();
+    if (tablesExist === false) {
       console.log('[Webhook] Billing tables not yet created, skipping webhook processing');
       return res.status(200).json({ received: true, skipped: true });
     }
