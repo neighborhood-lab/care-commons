@@ -80,7 +80,7 @@ export class EmailService implements IEmailService {
 
   constructor(config: EmailServiceConfig) {
     // Initialize Resend client if API key is provided
-    this.resend = (config.apiKey !== undefined && config.apiKey !== '') ? new Resend(config.apiKey) : null;
+    this.resend = (config.apiKey != null && config.apiKey !== '') ? new Resend(config.apiKey) : null;
     this.fromAddress = config.fromAddress ?? 'noreply@care-commons.com';
     this.fromName = config.fromName ?? 'Care Commons';
     this.replyTo = config.replyTo ?? 'support@care-commons.com';

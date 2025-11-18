@@ -254,31 +254,31 @@ export class SignupService {
   private validateSignupRequest(request: SignupRequest): void {
     const errors: string[] = [];
     
-    if (request.organizationName === undefined || request.organizationName === '' || request.organizationName.trim().length === 0) {
+    if (request.organizationName === '' || request.organizationName.trim().length === 0) {
       errors.push('Organization name is required');
     }
     
-    if (request.organizationEmail === undefined || request.organizationEmail === '' || !this.isValidEmail(request.organizationEmail)) {
+    if (request.organizationEmail === '' || !this.isValidEmail(request.organizationEmail)) {
       errors.push('Valid organization email is required');
     }
     
-    if (request.stateCode === undefined || request.stateCode.length !== 2) {
+    if (request.stateCode.length !== 2) {
       errors.push('Valid 2-letter state code is required');
     }
     
-    if (request.adminFirstName === undefined || request.adminFirstName === '' || request.adminFirstName.trim().length === 0) {
+    if (request.adminFirstName === '' || request.adminFirstName.trim().length === 0) {
       errors.push('Admin first name is required');
     }
     
-    if (request.adminLastName === undefined || request.adminLastName === '' || request.adminLastName.trim().length === 0) {
+    if (request.adminLastName === '' || request.adminLastName.trim().length === 0) {
       errors.push('Admin last name is required');
     }
     
-    if (request.adminEmail === undefined || request.adminEmail === '' || !this.isValidEmail(request.adminEmail)) {
+    if (request.adminEmail === '' || !this.isValidEmail(request.adminEmail)) {
       errors.push('Valid admin email is required');
     }
     
-    if (request.adminPassword === undefined || request.adminPassword === '' || request.adminPassword.length < 8) {
+    if (request.adminPassword === '' || request.adminPassword.length < 8) {
       errors.push('Admin password must be at least 8 characters');
     }
     

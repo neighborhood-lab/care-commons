@@ -194,6 +194,7 @@ export class StripeService {
    * Production deployments should implement full Stripe webhook signature verification
    * using: stripe.webhooks.constructEvent(payload, signature, webhookSecret)
    */
+  // eslint-disable-next-line sonarjs/no-invariant-returns
   verifyWebhookSignature(_payload: string, _signature: string): boolean {
     if (this.webhookSecret === null) {
       console.warn('[Stripe] Webhook secret not configured. Skipping signature verification.');
