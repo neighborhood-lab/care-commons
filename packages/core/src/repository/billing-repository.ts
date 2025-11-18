@@ -463,7 +463,7 @@ export class BillingRepository implements IBillingRepository {
         subscription.visitLimit, // $15
         Math.max(0, counts.clients - subscription.clientLimit), // $16
         Math.max(0, counts.caregivers - subscription.caregiverLimit), // $17
-        (subscription.visitLimit !== null && subscription.visitLimit !== undefined) ? Math.max(0, counts.visits - subscription.visitLimit) : 0, // $18
+        (subscription.visitLimit != null) ? Math.max(0, counts.visits - subscription.visitLimit) : 0, // $18
         0, // $19 - overage_charges (FUTURE: calculate based on pricing)
         subscription.planAmount, // $20 - total_charges
         'ACTIVE', // $21

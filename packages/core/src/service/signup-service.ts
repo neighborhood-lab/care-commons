@@ -292,6 +292,7 @@ export class SignupService {
    */
   private isValidEmail(email: string): boolean {
     // Simple email validation - not vulnerable to ReDoS
+    // eslint-disable-next-line sonarjs/slow-regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
     return emailRegex.test(email);
   }
