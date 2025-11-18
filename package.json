@@ -75,7 +75,12 @@
     "test:e2e:server": "tsx scripts/e2e-server.ts",
     "test:smoke": "playwright test e2e/tests/smoke.spec.ts",
     "vercel:build": "npm run build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "ui:capture": "tsx scripts/capture-ui-screenshots.ts",
+    "ui:capture:web": "tsx scripts/capture-ui-screenshots.ts -- --web",
+    "ui:capture:showcase": "tsx scripts/capture-ui-screenshots.ts -- --showcase",
+    "ui:capture:mobile": "tsx scripts/capture-ui-screenshots.ts -- --mobile",
+    "ui:report": "tsx scripts/generate-ui-state-report.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
