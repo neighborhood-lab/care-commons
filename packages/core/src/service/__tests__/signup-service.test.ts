@@ -34,6 +34,7 @@ describe('SignupService', () => {
         adminFirstName: 'John',
         adminLastName: 'Doe',
         adminEmail: 'john@example.com',
+        // eslint-disable-next-line sonarjs/no-hardcoded-passwords
         adminPassword: 'SecurePass123!',
       };
 
@@ -48,6 +49,7 @@ describe('SignupService', () => {
         adminFirstName: 'John',
         adminLastName: 'Doe',
         adminEmail: 'john@example.com',
+        // eslint-disable-next-line sonarjs/no-hardcoded-passwords
         adminPassword: 'SecurePass123!',
       };
 
@@ -62,6 +64,7 @@ describe('SignupService', () => {
         adminFirstName: 'John',
         adminLastName: 'Doe',
         adminEmail: 'john@example.com',
+        // eslint-disable-next-line sonarjs/no-hardcoded-passwords
         adminPassword: 'short',
       };
 
@@ -76,6 +79,7 @@ describe('SignupService', () => {
         adminFirstName: 'John',
         adminLastName: 'Doe',
         adminEmail: 'john@example.com',
+        // eslint-disable-next-line sonarjs/no-hardcoded-passwords
         adminPassword: 'SecurePass123!',
       };
 

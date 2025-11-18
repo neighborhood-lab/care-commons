@@ -8,7 +8,7 @@
  * - Mark emails as verified
  */
 
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { Database } from '../db/connection.js';
 import { createEmailService } from './email-service.js';
 import { UUID, ValidationError, NotFoundError } from '../types/base.js';

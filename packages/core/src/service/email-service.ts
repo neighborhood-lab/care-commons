@@ -80,13 +80,13 @@ export class EmailService implements IEmailService {
 
   constructor(config: EmailServiceConfig) {
     // Initialize Resend client if API key is provided
-    this.resend = config.apiKey ? new Resend(config.apiKey) : null;
+    this.resend = (config.apiKey !== undefined && config.apiKey !== '') ? new Resend(config.apiKey) : null;
     this.fromAddress = config.fromAddress ?? 'noreply@care-commons.com';
     this.fromName = config.fromName ?? 'Care Commons';
     this.replyTo = config.replyTo ?? 'support@care-commons.com';
     this.baseUrl = config.baseUrl ?? 'https://care-commons.com';
 
-    if (!this.resend) {
+    if (this.resend === null) {
       console.warn('[EmailService] No RESEND_API_KEY provided. Emails will be logged but not sent.');
     }
   }
@@ -230,7 +230,7 @@ export class EmailService implements IEmailService {
   }
 
   private async sendEmail(params: { to: string; subject: string; html: string }): Promise<void> {
-    if (!this.resend) {
+    if (this.resend === null) {
       console.log('[EmailService] Email would be sent:', {
         to: params.to,
         subject: params.subject,
