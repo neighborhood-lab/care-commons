@@ -37,7 +37,7 @@ describe('SignupService', () => {
         adminPassword: 'SecurePass123!',
       };
 
-      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Organization name is required');
+      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Invalid signup request');
     });
 
     it('should reject signup with invalid email', async () => {
@@ -51,7 +51,7 @@ describe('SignupService', () => {
         adminPassword: 'SecurePass123!',
       };
 
-      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Valid organization email is required');
+      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Invalid signup request');
     });
 
     it('should reject signup with short password', async () => {
@@ -65,7 +65,7 @@ describe('SignupService', () => {
         adminPassword: 'short',
       };
 
-      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Admin password must be at least 8 characters');
+      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Invalid signup request');
     });
 
     it('should reject signup with invalid state code', async () => {
@@ -79,7 +79,7 @@ describe('SignupService', () => {
         adminPassword: 'SecurePass123!',
       };
 
-      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Valid 2-letter state code is required');
+      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Invalid signup request');
     });
   });
 

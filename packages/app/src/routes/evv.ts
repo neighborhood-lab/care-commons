@@ -26,7 +26,7 @@ export function createEVVRouter(db: Database): Router {
   router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const orgId = req.user?.organizationId;
-      if (!orgId) {
+      if (orgId === undefined) {
         res.status(400).json({ error: 'Organization ID required' });
         return;
       }
@@ -35,14 +35,22 @@ export function createEVVRouter(db: Database): Router {
         organizationId: orgId,
       };
       
-      if (req.query.branchId) filters.branchId = req.query.branchId;
-      if (req.query.caregiverId) filters.caregiverId = req.query.caregiverId;
-      if (req.query.clientId) filters.clientId = req.query.clientId;
-      if (req.query.status) filters.status = [req.query.status];
+      if (typeof req.query.branchId === 'string' && req.query.branchId !== '') {
+        filters.branchId = req.query.branchId;
+      }
+      if (typeof req.query.caregiverId === 'string' && req.query.caregiverId !== '') {
+        filters.caregiverId = req.query.caregiverId;
+      }
+      if (typeof req.query.clientId === 'string' && req.query.clientId !== '') {
+        filters.clientId = req.query.clientId;
+      }
+      if (typeof req.query.status === 'string' && req.query.status !== '') {
+        filters.status = [req.query.status];
+      }
 
       const pagination = {
-        page: parseInt(req.query.page as string || '1', 10),
-        limit: parseInt(req.query.limit as string || '25', 10),
+        page: parseInt((typeof req.query.page === 'string' && req.query.page !== '') ? req.query.page : '1', 10),
+        limit: parseInt((typeof req.query.limit === 'string' && req.query.limit !== '') ? req.query.limit : '25', 10),
       };
 
       const records = await evvRepository.searchEVVRecords(filters, pagination);
@@ -65,14 +73,14 @@ export function createEVVRouter(db: Database): Router {
   router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
-      if (!id) {
+      if (id === undefined || id === '') {
         res.status(400).json({ error: 'ID required' });
         return;
       }
 
       const record = await evvRepository.getEVVRecordById(id);
       
-      if (!record) {
+      if (record === null) {
         res.status(404).json({ error: 'EVV record not found' });
         return;
       }

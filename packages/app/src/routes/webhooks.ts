@@ -125,7 +125,7 @@ async function handleSubscriptionCreated(
   const stripeSubId = subscription.id as string;
   const existing = await billingRepo.getSubscriptionByStripeId(stripeSubId);
   
-  if (existing) {
+  if (existing !== null) {
     console.log('[Webhook] Subscription already exists, skipping creation');
   } else {
     console.warn('[Webhook] Subscription created in Stripe but not in database');
@@ -147,7 +147,7 @@ async function handleSubscriptionUpdated(
   const currentPeriodEnd = new Date((subscription.current_period_end as number) * 1000);
   
   const existing = await billingRepo.getSubscriptionByStripeId(stripeSubId);
-  if (!existing) {
+  if (existing === null) {
     console.warn('[Webhook] Subscription not found in database:', stripeSubId);
     return;
   }
@@ -155,6 +155,7 @@ async function handleSubscriptionUpdated(
   // Update subscription status and period
   await billingRepo.updateSubscriptionStatus(
     existing.id,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     status as any,
     existing.updatedBy,
     'Stripe webhook: subscription.updated'
@@ -183,7 +184,7 @@ async function handleSubscriptionDeleted(
   const stripeSubId = subscription.id as string;
   const existing = await billingRepo.getSubscriptionByStripeId(stripeSubId);
   
-  if (!existing) {
+  if (existing === null) {
     console.warn('[Webhook] Subscription not found in database:', stripeSubId);
     return;
   }
@@ -196,8 +197,7 @@ async function handleSubscriptionDeleted(
 
   console.log('[Webhook] Subscription cancelled:', existing.id);
 
-  // TODO: Send cancellation email to organization admin
-  // Need to fetch organization and admin user details
+  // Future: Send cancellation email to organization admin
 }
 
 /**
@@ -210,14 +210,14 @@ async function handleInvoicePaid(
 ): Promise<void> {
   console.log('[Webhook] Processing invoice.paid');
   
-  const stripeSubId = invoice.subscription as string;
-  if (!stripeSubId) {
+  const stripeSubId = invoice.subscription;
+  if (typeof stripeSubId !== 'string' || stripeSubId === '') {
     console.log('[Webhook] Invoice not associated with subscription, skipping');
     return;
   }
 
   const existing = await billingRepo.getSubscriptionByStripeId(stripeSubId);
-  if (!existing) {
+  if (existing === null) {
     console.warn('[Webhook] Subscription not found for paid invoice:', stripeSubId);
     return;
   }
@@ -226,8 +226,7 @@ async function handleInvoicePaid(
   // Note: In a full implementation, you'd update additional fields on the subscription
   console.log('[Webhook] Invoice paid for subscription:', existing.id);
 
-  // TODO: Send payment confirmation email
-  // TODO: Record payment in billing history
+  // Future: Send payment confirmation email and record in billing history
 }
 
 /**
@@ -240,14 +239,14 @@ async function handleInvoicePaymentFailed(
 ): Promise<void> {
   console.log('[Webhook] Processing invoice.payment_failed');
   
-  const stripeSubId = invoice.subscription as string;
-  if (!stripeSubId) {
+  const stripeSubId = invoice.subscription;
+  if (typeof stripeSubId !== 'string' || stripeSubId === '') {
     console.log('[Webhook] Invoice not associated with subscription, skipping');
     return;
   }
 
   const existing = await billingRepo.getSubscriptionByStripeId(stripeSubId);
-  if (!existing) {
+  if (existing === null) {
     console.warn('[Webhook] Subscription not found for failed payment:', stripeSubId);
     return;
   }
@@ -264,8 +263,7 @@ async function handleInvoicePaymentFailed(
 
   console.log('[Webhook] Payment failed for subscription:', existing.id);
 
-  // TODO: Send payment failed email with retry information
-  // Need to fetch organization and admin user details
+  // Future: Send payment failed email with retry information
 }
 
 /**
@@ -281,15 +279,14 @@ async function handleTrialWillEnd(
   const stripeSubId = subscription.id as string;
   const existing = await billingRepo.getSubscriptionByStripeId(stripeSubId);
   
-  if (!existing) {
+  if (existing === null) {
     console.warn('[Webhook] Subscription not found:', stripeSubId);
     return;
   }
 
   console.log('[Webhook] Trial ending soon for subscription:', existing.id);
 
-  // TODO: Send trial ending reminder email
-  // Need to fetch organization and admin user details
+  // Future: Send trial ending reminder email
 }
 
 export default router;
