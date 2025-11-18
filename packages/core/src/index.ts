@@ -34,6 +34,7 @@ export * from './service/cache-warmer.service';
 export * from './service/reference-data.service';
 export * from './service/geocoding.service';
 export * from './service/email-service';
+export * from './service/stripe.service';
 export * from './constants/cache-keys';
 export * from './middleware/auth-middleware';
 export * from './middleware/request-logger';

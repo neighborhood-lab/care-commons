@@ -14,6 +14,7 @@ import { OrganizationService } from './organization-service.js';
 import { BillingRepository } from '../repository/billing-repository.js';
 import { EmailVerificationService } from './email-verification.service.js';
 import { createEmailService } from './email-service.js';
+import { createStripeService } from './stripe.service.js';
 import { UUID, ValidationError } from '../types/base.js';
 import { CreateOrganizationRequest, USStateCode } from '../types/organization.js';
 
@@ -81,12 +82,14 @@ export class SignupService {
   private billingRepo: BillingRepository;
   private emailService: ReturnType<typeof createEmailService>;
   private verificationService: EmailVerificationService;
+  private stripeService: ReturnType<typeof createStripeService>;
   
   constructor(private db: Database) {
     this.orgService = new OrganizationService(db);
     this.billingRepo = new BillingRepository(db);
     this.emailService = createEmailService();
     this.verificationService = new EmailVerificationService(db);
+    this.stripeService = createStripeService();
   }
   
   /**
@@ -138,16 +141,68 @@ export class SignupService {
       let subscriptionId: UUID;
       
       if (tablesExist) {
-        // Step 3: Create trial subscription
+        // Step 3: Create Stripe customer and subscription (if configured)
         const now = new Date();
         const trialEnd = new Date(now);
         trialEnd.setDate(trialEnd.getDate() + 14); // 14-day trial
         
+        let stripeCustomerId: string;
+        let stripeSubscriptionId: string;
+        let stripePriceId: string;
+        
+        if (this.stripeService.isConfigured()) {
+          try {
+            // Create Stripe customer
+            const stripeCustomer = await this.stripeService.createCustomer({
+              email: request.organizationEmail,
+              name: request.organizationName,
+              organizationId: orgResult.organization.id,
+              metadata: {
+                admin_user_id: orgResult.adminUserId,
+                state_code: request.stateCode,
+              },
+            });
+            
+            stripeCustomerId = stripeCustomer.id;
+            
+            // Get price ID for plan
+            stripePriceId = this.stripeService.getPriceId(planName, 'month');
+            
+            // Create Stripe subscription with trial
+            const stripeSubscription = await this.stripeService.createSubscription({
+              customerId: stripeCustomerId,
+              priceId: stripePriceId,
+              trialDays: 14,
+              metadata: {
+                organization_id: orgResult.organization.id,
+                plan_name: planName,
+              },
+            });
+            
+            stripeSubscriptionId = stripeSubscription.id;
+            
+            console.log(`[Signup] Created Stripe customer ${stripeCustomerId} and subscription ${stripeSubscriptionId}`);
+          } catch (error) {
+            console.error('[Signup] Failed to create Stripe customer/subscription:', error);
+            // Fall back to temp IDs
+            stripeCustomerId = `temp_customer_${orgResult.organization.id}`;
+            stripeSubscriptionId = `temp_sub_${orgResult.organization.id}`;
+            stripePriceId = this.stripeService.getPriceId(planName, 'month');
+          }
+        } else {
+          // Stripe not configured, use temp IDs
+          console.warn('[Signup] Stripe not configured, using temporary IDs');
+          stripeCustomerId = `temp_customer_${orgResult.organization.id}`;
+          stripeSubscriptionId = `temp_sub_${orgResult.organization.id}`;
+          stripePriceId = this.stripeService.getPriceId(planName, 'month');
+        }
+        
+        // Create subscription record in database
         const subscription = await this.billingRepo.createSubscription({
           organizationId: orgResult.organization.id,
-          stripeCustomerId: `temp_customer_${orgResult.organization.id}`, // Temporary, will be replaced when Stripe customer is created
-          stripeSubscriptionId: `temp_sub_${orgResult.organization.id}`, // Temporary
-          stripePriceId: '', // Will be set when Stripe price is created
+          stripeCustomerId,
+          stripeSubscriptionId,
+          stripePriceId,
           planName,
           billingInterval: 'month',
           planAmount: planLimits.amount,
