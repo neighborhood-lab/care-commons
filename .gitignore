@@ -229,3 +229,4 @@ packages/mobile/.metro-health-check*
 packages/mobile/tmp/
 packages/mobile/temp/
 packages/web/dist-showcase
+.stripe-keys-temp.txt
