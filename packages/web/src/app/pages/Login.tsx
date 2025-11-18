@@ -275,6 +275,37 @@ export const Login: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Sign Up for Production Section */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-8 shadow-xl">
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-green-700 bg-green-100 rounded-full border-2 border-green-300">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+              </svg>
+              START YOUR AGENCY
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Ready to Get Started?
+            </h2>
+            <p className="text-gray-600 max-w-lg mx-auto">
+              Create your own home healthcare agency account with subscription billing, email verification, and full access to all features.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/signup')}
+              className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              Create Account
+            </button>
+            <p className="text-xs text-gray-500">
+              Free trial • No credit card required to start
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
