@@ -1875,6 +1875,76 @@ async function seedDatabase() {
       console.log(`✅ Created ${invoiceCount} invoices\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 9B: Create payments for PAID invoices
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`💵 Creating payments for paid invoices...`);
+
+      // Get all PAID invoices
+      const paidInvoicesResult = await client.query(
+        `SELECT id, organization_id, branch_id, payer_id, payer_type, payer_name, 
+                total_amount, invoice_date, invoice_number
+         FROM invoices 
+         WHERE status = 'PAID' AND is_demo_data = true`
+      );
+
+      let paymentCount = 0;
+      for (const invoice of paidInvoicesResult.rows) {
+        const paymentNumber = `PMT-${invoice.invoice_number.replace('INV-', '')}`;
+        const paymentDate = new Date(invoice.invoice_date);
+        paymentDate.setDate(paymentDate.getDate() + Math.floor(Math.random() * 25) + 5); // Paid 5-30 days after invoice
+
+        await client.query(
+          `
+          INSERT INTO payments (
+            id, organization_id, branch_id,
+            payment_number, payment_type,
+            payer_id, payer_type, payer_name,
+            amount, currency,
+            payment_date, received_date, deposited_date,
+            payment_method, reference_number,
+            allocations, unapplied_amount,
+            status, status_history,
+            is_reconciled, reconciled_date,
+            created_by, updated_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+          `,
+          [
+            uuidv4(),
+            invoice.organization_id,
+            invoice.branch_id,
+            paymentNumber,
+            'FULL',
+            invoice.payer_id,
+            invoice.payer_type,
+            invoice.payer_name,
+            invoice.total_amount,
+            'USD',
+            paymentDate,
+            paymentDate,
+            new Date(paymentDate.getTime() + 2 * 24 * 60 * 60 * 1000), // Deposited 2 days later
+            invoice.payer_type === 'MEDICAID' ? 'EFT' : randomElement(['CHECK', 'ACH', 'CREDIT_CARD']),
+            invoice.payer_type === 'MEDICAID' ? `ERA-${Date.now()}` : `REF-${Math.floor(Math.random() * 100000)}`,
+            JSON.stringify([{ invoiceId: invoice.id, amount: invoice.total_amount }]),
+            0, // All applied
+            'CLEARED',
+            JSON.stringify([
+              { status: 'PENDING', date: paymentDate, notes: 'Payment received' },
+              { status: 'CLEARED', date: new Date(paymentDate.getTime() + 2 * 24 * 60 * 60 * 1000), notes: 'Payment cleared' },
+            ]),
+            true,
+            new Date(paymentDate.getTime() + 5 * 24 * 60 * 60 * 1000), // Reconciled 5 days later
+            systemUserId,
+            systemUserId,
+          ]
+        );
+
+        paymentCount++;
+      }
+
+      console.log(`✅ Created ${paymentCount} payments\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
       // STEP 10: Create specific "Gertrude Stein" client for Family Portal demo
       // ═══════════════════════════════════════════════════════════════════════════
 
