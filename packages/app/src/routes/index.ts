@@ -46,6 +46,7 @@ import { createVisitRouter } from './visits.js';
 import pushNotificationRouter from './push-notifications.js';
 import { createEVVRouter } from './evv.js';
 import { createUsageRouter } from './usage.js';
+import { createVerificationRouter } from './verification.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -344,6 +345,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const usageRouter = createUsageRouter(db);
   app.use('/api', generalApiLimiter, usageRouter);
   console.log('  ✓ Usage Statistics routes registered (with rate limiting)');
+
+  // Email Verification routes (no auth required for verification)
+  const verificationRouter = createVerificationRouter(db);
+  app.use('/api', generalApiLimiter, verificationRouter);
+  console.log('  ✓ Email Verification routes registered (with rate limiting)');
 
   // Additional verticals can be added here as they implement route handlers:
   // - Shift Matching

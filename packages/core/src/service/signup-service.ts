@@ -9,10 +9,10 @@
  * - Welcome email sending
  */
 
-import { randomBytes } from 'crypto';
 import { Database } from '../db/connection.js';
 import { OrganizationService } from './organization-service.js';
 import { BillingRepository } from '../repository/billing-repository.js';
+import { EmailVerificationService } from './email-verification.service.js';
 import { createEmailService } from './email-service.js';
 import { UUID, ValidationError } from '../types/base.js';
 import { CreateOrganizationRequest, USStateCode } from '../types/organization.js';
@@ -80,11 +80,13 @@ export class SignupService {
   private orgService: OrganizationService;
   private billingRepo: BillingRepository;
   private emailService: ReturnType<typeof createEmailService>;
+  private verificationService: EmailVerificationService;
   
   constructor(private db: Database) {
     this.orgService = new OrganizationService(db);
     this.billingRepo = new BillingRepository(db);
     this.emailService = createEmailService();
+    this.verificationService = new EmailVerificationService(db);
   }
   
   /**
@@ -163,11 +165,11 @@ export class SignupService {
         console.warn('[SignupService] Subscription tables do not exist yet, skipping subscription creation');
       }
       
-      // Step 4: Generate email verification token
-      const verificationToken = this.generateVerificationToken();
-      
-      // Store verification token in user metadata (we'll add this field in a future migration)
-      // For now, we'll return it to the caller to handle
+      // Step 4: Generate email verification token and send verification email
+      const { token: verificationToken } = await this.verificationService.generateVerificationToken(
+        orgResult.adminUserId,
+        true // Send verification email
+      );
       
       // Step 5: Send welcome email
       try {
@@ -238,10 +240,4 @@ export class SignupService {
     return emailRegex.test(email);
   }
   
-  /**
-   * Generate secure verification token
-   */
-  private generateVerificationToken(): string {
-    return randomBytes(32).toString('hex');
-  }
 }
