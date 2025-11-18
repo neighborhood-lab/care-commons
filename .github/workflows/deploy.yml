@@ -395,7 +395,12 @@ jobs:
       - name: Deploy to Vercel Production
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --env DATABASE_URL="${{ secrets.DATABASE_URL }}" --env ENVIRONMENT="production")
+          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} \
+            --env DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+            --env STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+            --env STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}" \
+            --env RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}" \
+            --env ENVIRONMENT="production")
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "✅ Production deployment complete: $DEPLOYMENT_URL"
         env:
