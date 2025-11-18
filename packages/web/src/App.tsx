@@ -6,7 +6,7 @@ import { useAuth } from './core/hooks';
 import { ProtectedRoute, FamilyProtectedRoute, PublicRoute } from './core/components';
 import { AppShell } from './app/components';
 import { initAuthStorage } from './core/utils/auth-storage';
-import { DashboardSelector, Login, NotFound, AdministratorDashboard, Settings } from './app/pages';
+import { DashboardSelector, Login, Signup, NotFound, AdministratorDashboard, Settings } from './app/pages';
 import { ClientList, ClientDetail, ClientDashboard } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
@@ -71,6 +71,14 @@ function AppRoutes() {
         element={
           <PublicRoute>
             <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <Signup />
           </PublicRoute>
         }
       />

@@ -12,6 +12,7 @@ import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
 import { createHealthRouter } from './health';
 import { createMetricsRouter } from './metrics';
 import { createAuthRouter } from './auth';
+import webhooksRouter from './webhooks.js';
 import { createUsersRouter } from './users';
 import { createOrganizationRouter } from './organizations';
 import { createCaregiverRouter } from './caregivers';
@@ -43,6 +44,9 @@ import {
 } from '@care-commons/family-engagement';
 import { createVisitRouter } from './visits.js';
 import pushNotificationRouter from './push-notifications.js';
+import { createEVVRouter } from './evv.js';
+import { createUsageRouter } from './usage.js';
+import { createVerificationRouter } from './verification.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -190,6 +194,10 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/health', healthRouter);
   console.log('  ✓ Health check route registered');
 
+  // Webhooks route (no authentication required, external services)
+  app.use('/webhooks', webhooksRouter);
+  console.log('  ✓ Webhooks route registered');
+
   // Metrics route (no authentication required)
   const metricsRouter = createMetricsRouter();
   app.use('/metrics', metricsRouter);
@@ -328,8 +336,22 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/push', generalApiLimiter, pushNotificationRouter);
   console.log('  ✓ Push Notifications routes registered (with rate limiting)');
 
+  // EVV & Time Tracking routes
+  const evvRouter = createEVVRouter(db);
+  app.use('/api/evv', evvLimiter, evvRouter);
+  console.log('  ✓ EVV & Time Tracking routes registered (with rate limiting)');
+
+  // Usage Statistics routes
+  const usageRouter = createUsageRouter(db);
+  app.use('/api', generalApiLimiter, usageRouter);
+  console.log('  ✓ Usage Statistics routes registered (with rate limiting)');
+
+  // Email Verification routes (no auth required for verification)
+  const verificationRouter = createVerificationRouter(db);
+  app.use('/api', generalApiLimiter, verificationRouter);
+  console.log('  ✓ Email Verification routes registered (with rate limiting)');
+
   // Additional verticals can be added here as they implement route handlers:
-  // - EVV & Time Tracking
   // - Shift Matching
   // - Billing & Invoicing
 

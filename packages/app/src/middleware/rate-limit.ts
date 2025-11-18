@@ -68,12 +68,12 @@ const getRedisStore = (prefix: string): RedisStore | undefined => {
 };
 
 // General API rate limit
-// - Authenticated users: 2000 requests per 15 minutes (~2.2 req/sec avg, based on user ID)
+// - Authenticated users: 5000 requests per 15 minutes (~5.5 req/sec avg, based on user ID)
 // - Unauthenticated: 200 requests per 15 minutes (based on IP)
-// This allows normal app usage without hitting limits while still preventing abuse
+// This allows normal app usage and rapid testing while still preventing abuse
 export const generalApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 2000, // Limit per user/IP (authenticated users get higher effective limit)
+  max: 5000, // Increased for demo testing (was 2000)
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
   keyGenerator: (req): string => {
@@ -146,11 +146,11 @@ export const passwordResetLimiter = rateLimit({
   },
 });
 
-// EVV check-in/check-out rate limit - 60 requests per hour per user
-// (Caregivers typically have 4-8 visits per day, so 60/hour is generous)
+// EVV check-in/check-out rate limit - 200 requests per hour per user
+// (Increased for demo testing while preventing automated abuse)
 export const evvLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 60,
+  max: 200, // Increased for demo testing (was 60)
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req): string => {
@@ -187,11 +187,11 @@ export const syncLimiter = rateLimit({
   },
 });
 
-// Report generation rate limit - 10 per hour per user
-// (Reports can be expensive to generate)
+// Report generation rate limit - 100 per hour per user
+// (Increased for demo testing - reports can be expensive but need testing)
 export const reportLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10,
+  max: 100, // Increased for demo testing (was 10)
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req): string => {
