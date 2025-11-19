@@ -31,7 +31,7 @@ export class AnalyticsService {
   ): Promise<OperationalKPIs> {
     const { organizationId, branchId, dateRange } = options;
 
-    // Verify user has access to this organization
+// Verify user has access to this organization
     this.validateAccess(context, organizationId, branchId);
 
     // Fetch all metrics in parallel for performance

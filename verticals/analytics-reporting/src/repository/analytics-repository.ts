@@ -24,6 +24,7 @@ export class AnalyticsRepository {
     statuses: string[],
     branchId?: string
   ): Promise<number> {
+
     let query = `
       SELECT COUNT(*) as count
       FROM visits
