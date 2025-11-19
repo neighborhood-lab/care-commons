@@ -3,10 +3,19 @@
  * 
  * Initializes Sentry for error monitoring and performance tracking
  * in the React Native mobile application.
+ * 
+ * Gracefully handles Sentry load failures to prevent app crashes.
  */
 
-import * as Sentry from '@sentry/react-native';
 import Constants from 'expo-constants';
+
+// Dynamically import Sentry with error handling for compatibility issues
+let SentryModule: typeof import('@sentry/react-native') | undefined;
+try {
+  SentryModule = require('@sentry/react-native');
+} catch (error) {
+  console.warn('Sentry module failed to load - error tracking disabled:', error);
+}
 
 /**
  * Initialize Sentry error tracking for mobile app
@@ -20,8 +29,15 @@ import Constants from 'expo-constants';
  * - Native crash reporting
  */
 export function initializeSentry(): void {
+  // Skip if Sentry failed to load
+  if (!SentryModule) {
+    console.log('Sentry not available - skipping initialization');
+    return;
+  }
+
   // Only initialize in production or staging
   if (__DEV__) {
+    console.log('DEV mode - Sentry disabled');
     return;
   }
 
@@ -32,7 +48,7 @@ export function initializeSentry(): void {
     return;
   }
 
-  Sentry.init({
+  SentryModule.init({
     dsn,
     environment: Constants.expoConfig?.extra?.environment ?? 'production',
     
@@ -107,8 +123,10 @@ export function initializeSentry(): void {
  * @param user - User information (id, email, role)
  */
 export function setUser(user: { id: string; email?: string; role?: string; organization_id?: string } | null): void {
+  if (!SentryModule) return;
+  
   if (user) {
-    Sentry.setUser({
+    SentryModule.setUser({
       id: user.id,
       email: user.email,
       // Custom tags for filtering
@@ -116,7 +134,7 @@ export function setUser(user: { id: string; email?: string; role?: string; organ
       organization_id: user.organization_id,
     });
   } else {
-    Sentry.setUser(null);
+    SentryModule.setUser(null);
   }
 }
 
@@ -126,7 +144,8 @@ export function setUser(user: { id: string; email?: string; role?: string; organ
  * @param context - Key-value pairs of context data
  */
 export function setContext(key: string, context: Record<string, unknown>): void {
-  Sentry.setContext(key, context);
+  if (!SentryModule) return;
+  SentryModule.setContext(key, context);
 }
 
 /**
@@ -136,10 +155,11 @@ export function setContext(key: string, context: Record<string, unknown>): void 
  * @param context - Additional context
  */
 export function captureException(error: Error, context?: Record<string, unknown>): void {
+  if (!SentryModule) return;
   if (context) {
-    Sentry.captureException(error, { extra: context });
+    SentryModule.captureException(error, { extra: context });
   } else {
-    Sentry.captureException(error);
+    SentryModule.captureException(error);
   }
 }
 
@@ -150,7 +170,8 @@ export function captureException(error: Error, context?: Record<string, unknown>
  * @param data - Additional data
  */
 export function addBreadcrumb(message: string, data?: Record<string, unknown>): void {
-  Sentry.addBreadcrumb({
+  if (!SentryModule) return;
+  SentryModule.addBreadcrumb({
     message,
     data,
     timestamp: Date.now() / 1000,
@@ -163,4 +184,4 @@ export function addBreadcrumb(message: string, data?: Record<string, unknown>): 
  * Usage:
  * export default wrapWithSentry(App);
  */
-export const wrapWithSentry = Sentry.wrap;
+export const wrapWithSentry = SentryModule?.wrap ?? ((component: any) => component);

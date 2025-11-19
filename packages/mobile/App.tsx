@@ -10,14 +10,19 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { initializeSentry } from './src/utils/sentry.js';
-import { RootNavigator } from './src/navigation/RootNavigator.js';
-import { AppLockProvider, useAppLock } from './src/contexts/AppLockContext.js';
-import { BiometricLockScreen } from './src/screens/auth/BiometricLockScreen.js';
-import { createAuthService } from './src/services/auth.js';
+import { initializeSentry } from './src/utils/sentry';
+import { RootNavigator } from './src/navigation/RootNavigator';
+import { AppLockProvider, useAppLock } from './src/contexts/AppLockContext';
+import { BiometricLockScreen } from './src/screens/auth/BiometricLockScreen';
+import { createAuthService } from './src/services/auth';
 
-// Initialize error tracking
-initializeSentry();
+// Initialize error tracking (wrapped in try-catch to prevent startup crashes)
+try {
+  initializeSentry();
+} catch (error) {
+  console.warn('Failed to initialize Sentry:', error);
+  // Non-critical - app can continue without error tracking
+}
 
 /**
  * App content with lock screen handling

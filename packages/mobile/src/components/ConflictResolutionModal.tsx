@@ -26,7 +26,7 @@ import {
 import type {
   ConflictResolution,
   ManualResolution,
-} from '../database/sync/conflict-resolver.js';
+} from '../database/sync/conflict-resolver';
 
 interface ConflictResolutionModalProps {
   visible: boolean;

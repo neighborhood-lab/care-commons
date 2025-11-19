@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import { syncManager } from '../database/sync/sync-manager.js';
-import { OfflineQueue, QueuePriority } from '../database/sync/offline-queue.js';
-import { OptimisticUpdateManager } from '../database/sync/optimistic-update-manager.js';
+import { syncManager } from '../database/sync/sync-manager';
+import { OfflineQueue, QueuePriority } from '../database/sync/offline-queue';
+import { OptimisticUpdateManager } from '../database/sync/optimistic-update-manager';
 
 export function OfflineIndicator() {
   const [isConnected, setIsConnected] = useState(true);
