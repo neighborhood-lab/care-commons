@@ -225,7 +225,7 @@ export function setupRoutes(app: Express, db: Database): void {
   // Client Demographics routes
   const clientRepository = new ClientRepository(db);
   const clientService = new ClientService(clientRepository);
-  const clientRouter = createClientRouter(clientService);
+  const clientRouter = createClientRouter(clientService, db);
   app.use('/api', generalApiLimiter, clientRouter);
   console.log('  ✓ Client Demographics routes registered (with rate limiting)');
 

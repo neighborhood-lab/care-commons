@@ -5,7 +5,7 @@
  */
 
 import { Request, Response, NextFunction, Router } from 'express';
-import { UserContext } from '@care-commons/core';
+import { UserContext, Database, AuthMiddleware } from '@care-commons/core';
 import { ClientService } from '../service/client-service';
 import { CreateClientInput, UpdateClientInput, ClientSearchFilters, ClientStatus, RiskType } from '../types/client';
 
@@ -1028,10 +1028,16 @@ export class ClientHandlers {
 
 /**
  * Create router with all client endpoints
+ * 
+ * SECURITY: All client endpoints require authentication to protect PHI
  */
-export function createClientRouter(clientService: ClientService): Router {
+export function createClientRouter(clientService: ClientService, db: Database): Router {
   const router = Router();
   const handlers = new ClientHandlers(clientService);
+  const authMiddleware = new AuthMiddleware(db);
+
+  // CRITICAL: All client routes require authentication (HIPAA compliance)
+  router.use(authMiddleware.requireAuth);
 
   // Main CRUD endpoints
   router.get('/clients', handlers.listClients);
