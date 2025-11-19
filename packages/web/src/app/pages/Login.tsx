@@ -218,12 +218,12 @@ export const Login: React.FC = () => {
                   type="button"
                   onClick={() => handleLogin(index)}
                   disabled={isDisabled}
-                  className={`p-6 text-left rounded-lg border-2 transition-all ${
+                  className={`p-6 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:ring-4 focus:ring-offset-2 focus:ring-blue-500 focus:outline-none ${
                     persona.color
                   } ${
-                    isDisabled && !isThisPersonaLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    isDisabled && !isThisPersonaLoading ? 'opacity-50 cursor-not-allowed hover:scale-100 hover:shadow-none' : ''
                   } ${
-                    isThisPersonaLoading ? 'opacity-75' : ''
+                    isThisPersonaLoading ? 'opacity-75 scale-95' : ''
                   }`}
                 >
                   <div className="flex flex-col gap-3">

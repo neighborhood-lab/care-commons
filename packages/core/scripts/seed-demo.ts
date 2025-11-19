@@ -37,6 +37,41 @@ import { PasswordUtils } from '../src/utils/password-utils.js';
 dotenvConfig({ path: '.env', quiet: true });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// DATE HELPERS - Make demo data relative to current date
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Returns a date N days ago from today (at midnight).
+ * @param days Number of days in the past
+ */
+function daysAgo(days: number): Date {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+/**
+ * Returns a date N days from today (at midnight).
+ * @param days Number of days in the future
+ */
+function daysFromNow(days: number): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+/**
+ * Returns today's date at midnight.
+ */
+function today(): Date {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -367,18 +402,6 @@ function randomElements<T>(array: T[], count: number): T[] {
   return shuffled.slice(0, count);
 }
 
-function daysAgo(days: number): Date {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date;
-}
-
-function daysFromNow(days: number): Date {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date;
-}
-
 function _hoursAgo(hours: number): Date {
   const date = new Date();
   date.setHours(date.getHours() - hours);
@@ -440,7 +463,7 @@ function selectMedicalCondition(age: number) {
 }
 
 // Helper to generate realistic Texas address
-function generateTexasAddress(location: typeof TEXAS_LOCATIONS[0]): {
+function generateTexasAddress(location: typeof TEXAS_LOCATIONS[number]): {
   street: string;
   city: string;
   zipCode: string;
@@ -751,12 +774,12 @@ function generateVisit(
   }
 
   let status = 'SCHEDULED';
-  let actualStart = null;
-  let actualEnd = null;
-  let evvClockInGPS = null;
-  let evvClockOutGPS = null;
-  let evvVerificationMethod = null;
-  let notes = null;
+  let actualStart: Date | null = null;
+  let actualEnd: Date | null = null;
+  let evvClockInGPS: { lat: number; lng: number } | null = null;
+  let evvClockOutGPS: { lat: number; lng: number } | null = null;
+  let evvVerificationMethod: string | null = null;
+  let notes: string | null = null;
 
   // Past visits are completed
   if (dayOffset < 0) {
@@ -1466,8 +1489,9 @@ async function seedDatabase() {
           caregiver = randomElement(caregivers);
         }
 
-        // Distribute visits across -30 days to +30 days
-        const dayOffset = faker.number.int({ min: -30, max: 30 });
+        // Distribute visits across -90 days (past completed visits) to +30 days (future scheduled)
+        // This ensures analytics always show data regardless of when demo is seeded
+        const dayOffset = faker.number.int({ min: -90, max: 30 });
 
         const visit = generateVisit(
           orgId,
@@ -1514,7 +1538,7 @@ async function seedDatabase() {
             Math.round((new Date(visit.scheduledEnd).getTime() - new Date(visit.scheduledStart).getTime()) / 60000), // scheduled_duration in minutes
             visit.actualStart, // actual_start_time
             visit.actualEnd, // actual_end_time
-            visit.actualEnd ? Math.round((new Date(visit.actualEnd).getTime() - new Date(visit.actualStart).getTime()) / 60000) : null, // actual_duration
+            visit.actualEnd && visit.actualStart ? Math.round((new Date(visit.actualEnd).getTime() - new Date(visit.actualStart).getTime()) / 60000) : null, // actual_duration
             JSON.stringify({ type: 'HOME', line1: '123 Main St', city: 'Anytown', state: 'CA', postalCode: '12345', country: 'US' }), // address (placeholder)
             visit.status,
             visit.notes,
@@ -1533,11 +1557,12 @@ async function seedDatabase() {
               service_date, service_address,
               clock_in_time, clock_in_verification,
               clock_out_time, clock_out_verification,
+              total_duration,
               verification_level, record_status,
               integrity_hash, integrity_checksum,
               recorded_by, sync_metadata,
               created_by, updated_by, is_demo_data
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, true)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, true)
             `,
             [
               uuidv4(),
@@ -1557,6 +1582,7 @@ async function seedDatabase() {
               JSON.stringify({ method: visit.evvVerificationMethod || 'GPS', location: visit.evvClockInGPS, timestamp: visit.actualStart }), // clock_in_verification
               visit.actualEnd, // clock_out_time
               visit.evvClockOutGPS ? JSON.stringify({ method: visit.evvVerificationMethod || 'GPS', location: visit.evvClockOutGPS, timestamp: visit.actualEnd }) : null, // clock_out_verification
+              visit.actualStart && visit.actualEnd ? Math.round((visit.actualEnd.getTime() - visit.actualStart.getTime()) / (1000 * 60)) : null, // total_duration in minutes
               visit.evvVerificationMethod === 'BIOMETRIC' ? 'FULL' : 'PARTIAL', // verification_level
               visit.status === 'COMPLETED' ? 'COMPLETE' : 'PENDING', // record_status
               'placeholder_hash_' + visit.id.substring(0, 16), // integrity_hash (placeholder)
@@ -1818,6 +1844,13 @@ async function seedDatabase() {
           periodEnd.setMonth(periodEnd.getMonth() + 1);
           periodEnd.setDate(0); // Last day of month
           
+          // Use the latest visit date in the month as invoice date (not calendar month end)
+          // This ensures invoices don't have future dates when visits are current/past
+          const latestVisitDate = monthVisits.reduce((latest, v) => {
+            return v.scheduledStart > latest ? v.scheduledStart : latest;
+          }, monthVisits[0].scheduledStart);
+          const invoiceDate = new Date(Math.min(latestVisitDate.getTime(), periodEnd.getTime()));
+          
           const invoiceNumber = `INV-${monthKey}-${String(invoiceCount + 1).padStart(4, '0')}`;
           const status = randomElement<string>(['DRAFT', 'SENT', 'PAID', 'PAST_DUE']);
           
@@ -1849,8 +1882,8 @@ async function seedDatabase() {
               `${invoiceClient.firstName} ${invoiceClient.lastName}`,
               periodStart,
               periodEnd,
-              periodEnd, // Invoice date is end of period
-              new Date(periodEnd.getTime() + 30 * 24 * 60 * 60 * 1000), // Due 30 days later
+              invoiceDate, // Invoice date is latest visit date (not future)
+              new Date(invoiceDate.getTime() + 30 * 24 * 60 * 60 * 1000), // Due 30 days later
               JSON.stringify([]), // billable_item_ids
               JSON.stringify(lineItems),
               subtotal,
@@ -1861,7 +1894,7 @@ async function seedDatabase() {
               status === 'PAID' ? totalAmount : 0,
               status === 'PAID' ? 0 : totalAmount,
               status,
-              JSON.stringify([{ status, date: periodEnd, notes: 'Initial invoice' }]),
+              JSON.stringify([{ status, date: invoiceDate, notes: 'Initial invoice' }]),
               'Net 30',
               systemUserId,
               systemUserId,
@@ -1873,6 +1906,76 @@ async function seedDatabase() {
       }
       
       console.log(`✅ Created ${invoiceCount} invoices\n`);
+
+      // ═══════════════════════════════════════════════════════════════════════════
+      // STEP 9B: Create payments for PAID invoices
+      // ═══════════════════════════════════════════════════════════════════════════
+
+      console.log(`💵 Creating payments for paid invoices...`);
+
+      // Get all PAID invoices
+      const paidInvoicesResult = await client.query(
+        `SELECT id, organization_id, branch_id, payer_id, payer_type, payer_name, 
+                total_amount, invoice_date, invoice_number
+         FROM invoices 
+         WHERE status = 'PAID' AND is_demo_data = true`
+      );
+
+      let paymentCount = 0;
+      for (const invoice of paidInvoicesResult.rows) {
+        const paymentNumber = `PMT-${invoice.invoice_number.replace('INV-', '')}`;
+        const paymentDate = new Date(invoice.invoice_date);
+        paymentDate.setDate(paymentDate.getDate() + Math.floor(Math.random() * 25) + 5); // Paid 5-30 days after invoice
+
+        await client.query(
+          `
+          INSERT INTO payments (
+            id, organization_id, branch_id,
+            payment_number, payment_type,
+            payer_id, payer_type, payer_name,
+            amount, currency,
+            payment_date, received_date, deposited_date,
+            payment_method, reference_number,
+            allocations, unapplied_amount,
+            status, status_history,
+            is_reconciled, reconciled_date,
+            created_by, updated_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+          `,
+          [
+            uuidv4(),
+            invoice.organization_id,
+            invoice.branch_id,
+            paymentNumber,
+            'FULL',
+            invoice.payer_id,
+            invoice.payer_type,
+            invoice.payer_name,
+            invoice.total_amount,
+            'USD',
+            paymentDate,
+            paymentDate,
+            new Date(paymentDate.getTime() + 2 * 24 * 60 * 60 * 1000), // Deposited 2 days later
+            invoice.payer_type === 'MEDICAID' ? 'EFT' : randomElement(['CHECK', 'ACH', 'CREDIT_CARD']),
+            invoice.payer_type === 'MEDICAID' ? `ERA-${Date.now()}` : `REF-${Math.floor(Math.random() * 100000)}`,
+            JSON.stringify([{ invoiceId: invoice.id, amount: invoice.total_amount }]),
+            0, // All applied
+            'CLEARED',
+            JSON.stringify([
+              { status: 'PENDING', date: paymentDate, notes: 'Payment received' },
+              { status: 'CLEARED', date: new Date(paymentDate.getTime() + 2 * 24 * 60 * 60 * 1000), notes: 'Payment cleared' },
+            ]),
+            true,
+            new Date(paymentDate.getTime() + 5 * 24 * 60 * 60 * 1000), // Reconciled 5 days later
+            systemUserId,
+            systemUserId,
+          ]
+        );
+
+        paymentCount++;
+      }
+
+      console.log(`✅ Created ${paymentCount} payments\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 10: Create specific "Gertrude Stein" client for Family Portal demo
@@ -2396,7 +2499,15 @@ async function seedDatabase() {
 
       console.log(`📅 Creating visits for Gertrude...`);
 
-      const gertrudeVisits = [];
+      const gertrudeVisits: Array<{
+        id: string;
+        caregiverId: string;
+        scheduledStart: Date;
+        scheduledEnd?: Date;
+        actualStart?: Date;
+        actualEnd?: Date;
+        status: string;
+      }> = [];
 
       // Create 3 visits today
       for (let i = 0; i < 3; i++) {

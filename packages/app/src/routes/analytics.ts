@@ -3,17 +3,17 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database } from '@care-commons/core';
-import { requireAuth } from '../middleware/auth-context';
+import { Database, AuthMiddleware } from '@care-commons/core';
 import { AnalyticsService } from '@care-commons/analytics-reporting';
 import { ExportService } from '@care-commons/analytics-reporting';
 import type { AnalyticsQueryOptions, ExportFormat, Report } from '@care-commons/analytics-reporting';
 
 export function createAnalyticsRouter(db: Database): Router {
   const router = Router();
+  const authMiddleware = new AuthMiddleware(db);
 
-  // All routes require authentication
-  router.use(requireAuth);
+  // All routes require authentication with proper JWT verification
+  router.use(authMiddleware.requireAuth);
 
   /**
    * GET /api/analytics/kpis
@@ -21,16 +21,26 @@ export function createAnalyticsRouter(db: Database): Router {
    */
   router.get('/kpis', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      // Get user from JWT token (set by AuthMiddleware)
+      const user = req.user!;
       const service = new AnalyticsService(db);
 
       const options: AnalyticsQueryOptions = {
-        organizationId: context.organizationId!,
+        organizationId: user.organizationId!,
         branchId: req.query['branchId'] as string | undefined,
         dateRange: {
           startDate: req.query['startDate'] !== undefined ? new Date(req.query['startDate'] as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
           endDate: req.query['endDate'] !== undefined ? new Date(req.query['endDate'] as string) : new Date(),
         },
+      };
+
+      // Create context for the service (compatibility with existing code)
+      const context = {
+        userId: user.userId,
+        organizationId: user.organizationId,
+        branchIds: [],
+        roles: user.roles,
+        permissions: user.permissions,
       };
 
       const kpis = await service.getOperationalKPIs(options, context);
@@ -46,11 +56,19 @@ export function createAnalyticsRouter(db: Database): Router {
    */
   router.get('/compliance-alerts', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const user = req.user!;
       const service = new AnalyticsService(db);
 
+      const context = {
+        userId: user.userId,
+        organizationId: user.organizationId,
+        branchIds: [],
+        roles: user.roles,
+        permissions: user.permissions,
+      };
+
       const branchId = req.query['branchId'] as string | undefined;
-      const alerts = await service.getComplianceAlerts(context.organizationId!, branchId, context);
+      const alerts = await service.getComplianceAlerts(user.organizationId!, branchId, context);
       res.json(alerts);
     } catch (error) {
       next(error);
@@ -63,7 +81,14 @@ export function createAnalyticsRouter(db: Database): Router {
    */
   router.get('/revenue-trends', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const user = req.user!;
+      const context = {
+        userId: user.userId,
+        organizationId: user.organizationId,
+        branchIds: [],
+        roles: user.roles,
+        permissions: user.permissions,
+      };
       const service = new AnalyticsService(db);
 
       const months = parseInt((req.query['months'] as string | undefined) ?? '6', 10);
@@ -82,7 +107,14 @@ export function createAnalyticsRouter(db: Database): Router {
    */
   router.get('/evv-exceptions', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const user = req.user!;
+      const context = {
+        userId: user.userId,
+        organizationId: user.organizationId,
+        branchIds: [],
+        roles: user.roles,
+        permissions: user.permissions,
+      };
       const service = new AnalyticsService(db);
 
       const branchId = req.query['branchId'] as string | undefined;
@@ -99,7 +131,14 @@ export function createAnalyticsRouter(db: Database): Router {
    */
   router.get('/dashboard-stats', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const user = req.user!;
+      const context = {
+        userId: user.userId,
+        organizationId: user.organizationId,
+        branchIds: [],
+        roles: user.roles,
+        permissions: user.permissions,
+      };
       const service = new AnalyticsService(db);
 
       const branchId = req.query['branchId'] as string | undefined;
@@ -116,7 +155,14 @@ export function createAnalyticsRouter(db: Database): Router {
    */
   router.get('/caregiver-performance/:caregiverId', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const user = req.user!;
+      const context = {
+        userId: user.userId,
+        organizationId: user.organizationId,
+        branchIds: [],
+        roles: user.roles,
+        permissions: user.permissions,
+      };
       const service = new AnalyticsService(db);
 
       const dateRange = {
@@ -141,7 +187,14 @@ export function createAnalyticsRouter(db: Database): Router {
    */
   router.get('/caregiver-performance', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const context = req.userContext!;
+      const user = req.user!;
+      const context = {
+        userId: user.userId,
+        organizationId: user.organizationId,
+        branchIds: [],
+        roles: user.roles,
+        permissions: user.permissions,
+      };
       const service = new AnalyticsService(db);
 
       const options: AnalyticsQueryOptions = {
