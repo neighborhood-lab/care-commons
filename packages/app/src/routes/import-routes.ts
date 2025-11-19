@@ -70,8 +70,8 @@ export function createImportRoutes(db: Database): Router {
       const parseResult = await importService.parseFile(file.buffer, file.originalname);
       
       // If parsing failed, return errors immediately
-      const hasErrors = parseResult.errors.some((e) => e.severity === 'ERROR');
-      if (parseResult.errors.length > 0 && hasErrors) {
+      const hasErrors: boolean = parseResult.errors.some((e) => e.severity === 'ERROR');
+      if (parseResult.errors.length > 0 && hasErrors === true) {
         res.status(400).json({
           success: false,
           error: 'File parsing failed',
