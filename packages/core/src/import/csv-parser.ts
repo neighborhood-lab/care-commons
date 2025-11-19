@@ -43,6 +43,7 @@ const DEFAULT_OPTIONS: CsvParserOptions = {
 /**
  * Parse CSV file buffer to typed records
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity, max-lines-per-function, complexity
 export function parseCsv<T>(
   fileBuffer: Buffer,
   _fileName: string,
@@ -52,7 +53,7 @@ export function parseCsv<T>(
   const errors: ImportError[] = [];
 
   // Validate file size
-  if (opts.maxFileSize && fileBuffer.length > opts.maxFileSize) {
+  if (opts.maxFileSize !== undefined && fileBuffer.length > opts.maxFileSize) {
     return {
       records: [],
       errors: [
@@ -71,8 +72,8 @@ export function parseCsv<T>(
   const csvContent = fileBuffer.toString('utf-8');
   const parseResult = Papa.parse<T>(csvContent, {
     header: true,
-    skipEmptyLines: opts.skipEmptyRows ? 'greedy' : false,
-    transformHeader: opts.headerTransform || ((h: string) => h),
+    skipEmptyLines: opts.skipEmptyRows === true ? 'greedy' : false,
+    transformHeader: opts.headerTransform ?? ((h: string) => h),
     dynamicTyping: false, // Keep all values as strings for custom parsing
   });
 
@@ -88,16 +89,16 @@ export function parseCsv<T>(
     }
   }
 
-  const headers = parseResult.meta.fields || [];
+  const headers = parseResult.meta.fields !== undefined ? parseResult.meta.fields : [];
   const records = parseResult.data as T[];
 
   // Validate headers if expectedHeaders provided
-  if (opts.expectedHeaders && opts.expectedHeaders.length > 0) {
+  if (opts.expectedHeaders !== undefined && opts.expectedHeaders.length > 0) {
     const normalizedExpected = opts.expectedHeaders.map((h: string) =>
-      opts.headerTransform ? opts.headerTransform(h) : h
+      opts.headerTransform !== undefined ? opts.headerTransform(h) : h
     );
     const normalizedActual = headers.map((h: string) =>
-      opts.headerTransform ? opts.headerTransform(h) : h
+      opts.headerTransform !== undefined ? opts.headerTransform(h) : h
     );
 
     // Check for missing required headers
@@ -111,7 +112,7 @@ export function parseCsv<T>(
     }
 
     // Check for unexpected headers (if not allowed)
-    if (!opts.allowExtraColumns) {
+    if (opts.allowExtraColumns !== true) {
       const extraHeaders = normalizedActual.filter((h) => !normalizedExpected.includes(h));
       if (extraHeaders.length > 0) {
         errors.push({
@@ -139,11 +140,11 @@ export function toCsv<T extends Record<string, unknown>>(
   headers?: string[]
 ): string {
   if (records.length === 0) {
-    return headers ? headers.join(',') + '\n' : '';
+    return headers !== undefined ? headers.join(',') + '\n' : '';
   }
 
   const firstRecord = records[0];
-  const actualHeaders = headers || (firstRecord ? Object.keys(firstRecord) : []);
+  const actualHeaders = headers ?? (firstRecord !== undefined ? Object.keys(firstRecord) : []);
 
   const csvContent = Papa.unparse(records, {
     columns: actualHeaders,
