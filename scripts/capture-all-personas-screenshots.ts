@@ -5,56 +5,103 @@ import { mkdir } from 'node:fs/promises';
 
 const screenshotsDir = join(process.cwd(), 'ui-screenshots-personas');
 
-// All 5 demo personas from Login.tsx
+// All 5 demo personas from Login.tsx with their accessible routes
 const PERSONAS = [
   {
     name: 'Maria Rodriguez',
     role: 'Administrator',
     selector: 'text=Maria Rodriguez',
     folder: '01-administrator',
+    routes: [
+      { path: '/', name: 'home' },
+      { path: '/admin', name: 'admin-dashboard' },
+      { path: '/dashboard', name: 'dashboard' },
+      { path: '/clients', name: 'clients' },
+      { path: '/caregivers', name: 'caregivers' },
+      { path: '/visits', name: 'visits' },
+      { path: '/scheduling', name: 'scheduling' },
+      { path: '/scheduling/calendar', name: 'calendar' },
+      { path: '/care-plans', name: 'care-plans' },
+      { path: '/tasks', name: 'tasks' },
+      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/billing', name: 'billing' },
+      // Skip payroll and incidents for now - they timeout (needs investigation)
+      { path: '/quality-assurance', name: 'quality-assurance' },
+      { path: '/analytics/admin', name: 'analytics' },
+      { path: '/settings', name: 'settings' },
+    ],
   },
   {
     name: 'James Thompson',
     role: 'Care Coordinator',
     selector: 'text=James Thompson',
     folder: '02-coordinator',
+    routes: [
+      { path: '/', name: 'home' },
+      { path: '/dashboard', name: 'dashboard' },
+      { path: '/clients', name: 'clients' },
+      { path: '/caregivers', name: 'caregivers' },
+      { path: '/visits', name: 'visits' },
+      { path: '/scheduling', name: 'scheduling' },
+      { path: '/scheduling/calendar', name: 'calendar' },
+      { path: '/care-plans', name: 'care-plans' },
+      { path: '/tasks', name: 'tasks' },
+      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/analytics/coordinator', name: 'analytics' },
+      { path: '/settings', name: 'settings' },
+    ],
   },
   {
     name: 'Sarah Chen',
     role: 'Caregiver',
     selector: 'text=Sarah Chen',
     folder: '03-caregiver',
+    routes: [
+      { path: '/', name: 'home' },
+      { path: '/dashboard', name: 'dashboard' },
+      { path: '/clients', name: 'clients' },
+      // Caregivers don't have access to full caregiver list
+      { path: '/visits', name: 'visits' },
+      { path: '/scheduling', name: 'scheduling' },
+      { path: '/tasks', name: 'tasks' },
+      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/settings', name: 'settings' },
+    ],
   },
   {
     name: 'David Williams',
     role: 'RN Clinical',
     selector: 'text=David Williams',
     folder: '04-nurse',
+    routes: [
+      { path: '/', name: 'home' },
+      { path: '/dashboard', name: 'dashboard' },
+      { path: '/clients', name: 'clients' },
+      { path: '/caregivers', name: 'caregivers' },
+      { path: '/visits', name: 'visits' },
+      { path: '/care-plans', name: 'care-plans' },
+      { path: '/tasks', name: 'tasks' },
+      { path: '/quality-assurance', name: 'quality-assurance' },
+      { path: '/settings', name: 'settings' },
+    ],
   },
   {
     name: 'Emily Johnson',
     role: 'Family Member',
     selector: 'text=Emily Johnson',
     folder: '05-family',
+    routes: [
+      { path: '/', name: 'home' },
+      { path: '/family-portal', name: 'family-dashboard' },
+      { path: '/family-portal/activity', name: 'activity' },
+      { path: '/family-portal/messages', name: 'messages' },
+      { path: '/family-portal/notifications', name: 'notifications' },
+      { path: '/family-portal/schedule', name: 'schedule' },
+      { path: '/family-portal/care-plan', name: 'care-plan' },
+      { path: '/family-portal/health-updates', name: 'health-updates' },
+      { path: '/family-portal/settings', name: 'settings' },
+    ],
   },
-] as const;
-
-// Common routes to test
-const ROUTES = [
-  { path: '/', name: 'home' },
-  { path: '/dashboard', name: 'dashboard' },
-  { path: '/clients', name: 'clients' },
-  { path: '/caregivers', name: 'caregivers' },
-  { path: '/visits', name: 'visits' },
-  { path: '/care-plans', name: 'care-plans' },
-  { path: '/tasks', name: 'tasks' },
-  { path: '/schedule', name: 'schedule' },
-  { path: '/medications', name: 'medications' },
-  { path: '/incidents', name: 'incidents' },
-  { path: '/quality', name: 'quality' },
-  { path: '/billing', name: 'billing' },
-  { path: '/payroll', name: 'payroll' },
-  { path: '/reports', name: 'reports' },
 ] as const;
 
 async function capturePersonaScreenshots(
@@ -79,12 +126,15 @@ async function capturePersonaScreenshots(
   const afterLoginUrl = page.url();
   console.log(`   ✓ Logged in, redirected to: ${afterLoginUrl}`);
 
-  // Capture each route
-  for (const route of ROUTES) {
+  // Capture each route accessible to this persona
+  for (const route of persona.routes) {
     try {
       console.log(`   📸 ${route.path}`);
       await page.goto(`http://localhost:5173${route.path}`);
-      await page.waitForLoadState('networkidle');
+      
+      // Analytics pages make multiple API calls, need longer timeout
+      const timeout = route.path.includes('/analytics') ? 20000 : 10000;
+      await page.waitForLoadState('networkidle', { timeout });
       await page.waitForTimeout(1000);
 
       await page.screenshot({
