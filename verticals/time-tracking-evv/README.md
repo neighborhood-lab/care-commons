@@ -430,7 +430,7 @@ CREATE TABLE evv_records (
     -- Compliance and integrity
     record_status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
     verification_level VARCHAR(50) NOT NULL,
-    compliance_flags JSONB NOT NULL DEFAULT '["COMPLIANT"]',
+    compliance_flags JSONB NOT NULL DEFAULT '[]',
     integrity_hash VARCHAR(64) NOT NULL,
     integrity_checksum VARCHAR(64) NOT NULL,
     
