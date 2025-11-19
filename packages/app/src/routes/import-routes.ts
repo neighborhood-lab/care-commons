@@ -46,7 +46,7 @@ export function createImportRoutes(db: Database): Router {
     upload.single('file'),
     asyncHandler(async (req: Request, res: Response) => {
       const file = req.file;
-      if (!file) {
+      if (file === undefined) {
         res.status(400).json({ error: 'No file uploaded' });
         return;
       }
@@ -58,7 +58,7 @@ export function createImportRoutes(db: Database): Router {
         organizationId: user.organizationId,
         roles: user.roles,
         permissions: user.permissions,
-        branchIds: user.branchIds || [],
+        branchIds: user.branchIds ?? [],
       };
 
       const dryRun = req.body.dryRun === 'true' || req.body.dryRun === true;
