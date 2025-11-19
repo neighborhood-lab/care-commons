@@ -15,11 +15,12 @@ export function ComplianceGauge({ value, label, className = '' }: ComplianceGaug
   // Ensure value is between 0 and 100
   const normalizedValue = Math.max(0, Math.min(100, value));
 
-  // Determine color based on value
+  // Determine color based on regulatory compliance thresholds
+  // ≥95% = compliant (green), 85-94% = warning (yellow), <85% = critical (red)
   const getColor = (val: number) => {
-    if (val >= 90) return '#10b981'; // green
-    if (val >= 75) return '#f59e0b'; // yellow
-    return '#ef4444'; // red
+    if (val >= 95) return '#10b981'; // green - meets regulatory standards
+    if (val >= 85) return '#f59e0b'; // yellow - below target, needs attention
+    return '#ef4444'; // red - critical non-compliance risk
   };
 
   const color = getColor(normalizedValue);

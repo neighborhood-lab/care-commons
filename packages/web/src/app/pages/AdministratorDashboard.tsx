@@ -236,10 +236,14 @@ export const AdministratorDashboard: React.FC = () => {
     },
     {
       label: 'EVV Compliance',
-      value: `${Math.round(kpis?.evvCompliance.complianceRate ?? 0)}%`,
-      icon: <CheckCircle className="h-6 w-6 text-green-600" />,
+      value: `${Math.round((kpis?.evvCompliance.complianceRate ?? 0) * 100)}%`,
+      icon: (kpis?.evvCompliance.complianceRate ?? 0) >= 0.95 
+        ? <CheckCircle className="h-6 w-6 text-green-600" />
+        : (kpis?.evvCompliance.complianceRate ?? 0) >= 0.85
+        ? <AlertCircle className="h-6 w-6 text-yellow-600" />
+        : <AlertCircle className="h-6 w-6 text-red-600" />,
       change: `${kpis?.evvCompliance.compliantVisits ?? 0} of ${kpis?.evvCompliance.totalVisits ?? 0} compliant`,
-      trend: (kpis?.evvCompliance.complianceRate ?? 0) >= 95 ? ('up' as const) : ((kpis?.evvCompliance.complianceRate ?? 0) >= 85 ? ('neutral' as const) : ('down' as const)),
+      trend: (kpis?.evvCompliance.complianceRate ?? 0) >= 0.95 ? ('up' as const) : ((kpis?.evvCompliance.complianceRate ?? 0) >= 0.85 ? ('neutral' as const) : ('down' as const)),
     },
   ];
 
