@@ -1557,11 +1557,12 @@ async function seedDatabase() {
               service_date, service_address,
               clock_in_time, clock_in_verification,
               clock_out_time, clock_out_verification,
+              total_duration,
               verification_level, record_status,
               integrity_hash, integrity_checksum,
               recorded_by, sync_metadata,
               created_by, updated_by, is_demo_data
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, true)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, true)
             `,
             [
               uuidv4(),
@@ -1581,6 +1582,7 @@ async function seedDatabase() {
               JSON.stringify({ method: visit.evvVerificationMethod || 'GPS', location: visit.evvClockInGPS, timestamp: visit.actualStart }), // clock_in_verification
               visit.actualEnd, // clock_out_time
               visit.evvClockOutGPS ? JSON.stringify({ method: visit.evvVerificationMethod || 'GPS', location: visit.evvClockOutGPS, timestamp: visit.actualEnd }) : null, // clock_out_verification
+              visit.actualStart && visit.actualEnd ? Math.round((visit.actualEnd.getTime() - visit.actualStart.getTime()) / (1000 * 60)) : null, // total_duration in minutes
               visit.evvVerificationMethod === 'BIOMETRIC' ? 'FULL' : 'PARTIAL', // verification_level
               visit.status === 'COMPLETED' ? 'COMPLETE' : 'PENDING', // record_status
               'placeholder_hash_' + visit.id.substring(0, 16), // integrity_hash (placeholder)
