@@ -57,13 +57,6 @@ const features = [
     color: 'bg-orange-500',
   },
   {
-    name: 'Shift Matching',
-    description: 'Smart shift matching system connecting caregivers with client needs.',
-    icon: Calendar,
-    href: '/shifts',
-    color: 'bg-pink-500',
-  },
-  {
     name: 'Scheduling & Visits',
     description: 'Manage client visits and caregiver schedules with intelligent routing and conflict detection.',
     icon: Calendar,
@@ -370,7 +363,7 @@ export const LandingPage: React.FC = () => {
       </div>
 
       {/* Showcase vs Full Demo */}
-      <div className="bg-white rounded-lg border border-gray-200 p-8">
+      <div className="bg-white rounded-lg border border-gray-200 p-8 mb-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           Showcase vs. Full Demo
         </h2>
@@ -435,6 +428,46 @@ export const LandingPage: React.FC = () => {
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* Strong Conversion CTA */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-12 text-center">
+        <div className="relative z-10">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Ready for the Full Experience?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Experience Care Commons with real backend integration, live data sync, 
+            authentication, and production-grade infrastructure.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a
+              href="https://care-commons.vercel.app/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all shadow-xl"
+            >
+              Try Full Demo
+              <ArrowRight className="h-6 w-6" />
+            </a>
+            <a
+              href="https://github.com/neighborhood-lab/care-commons"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white/20 transition-all border-2 border-white/20"
+            >
+              View on GitHub
+              <ArrowRight className="h-6 w-6" />
+            </a>
+          </div>
+          <p className="mt-6 text-sm text-blue-200">
+            Open source • Community driven • Built for scale
+          </p>
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
       </div>
     </ShowcaseLayout>
   );
