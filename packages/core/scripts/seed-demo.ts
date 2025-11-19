@@ -1844,6 +1844,13 @@ async function seedDatabase() {
           periodEnd.setMonth(periodEnd.getMonth() + 1);
           periodEnd.setDate(0); // Last day of month
           
+          // Use the latest visit date in the month as invoice date (not calendar month end)
+          // This ensures invoices don't have future dates when visits are current/past
+          const latestVisitDate = monthVisits.reduce((latest, v) => {
+            return v.scheduledStart > latest ? v.scheduledStart : latest;
+          }, monthVisits[0].scheduledStart);
+          const invoiceDate = new Date(Math.min(latestVisitDate.getTime(), periodEnd.getTime()));
+          
           const invoiceNumber = `INV-${monthKey}-${String(invoiceCount + 1).padStart(4, '0')}`;
           const status = randomElement<string>(['DRAFT', 'SENT', 'PAID', 'PAST_DUE']);
           
@@ -1875,8 +1882,8 @@ async function seedDatabase() {
               `${invoiceClient.firstName} ${invoiceClient.lastName}`,
               periodStart,
               periodEnd,
-              periodEnd, // Invoice date is end of period
-              new Date(periodEnd.getTime() + 30 * 24 * 60 * 60 * 1000), // Due 30 days later
+              invoiceDate, // Invoice date is latest visit date (not future)
+              new Date(invoiceDate.getTime() + 30 * 24 * 60 * 60 * 1000), // Due 30 days later
               JSON.stringify([]), // billable_item_ids
               JSON.stringify(lineItems),
               subtotal,
@@ -1887,7 +1894,7 @@ async function seedDatabase() {
               status === 'PAID' ? totalAmount : 0,
               status === 'PAID' ? 0 : totalAmount,
               status,
-              JSON.stringify([{ status, date: periodEnd, notes: 'Initial invoice' }]),
+              JSON.stringify([{ status, date: invoiceDate, notes: 'Initial invoice' }]),
               'Net 30',
               systemUserId,
               systemUserId,
