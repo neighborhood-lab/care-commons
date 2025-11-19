@@ -103,3 +103,5 @@ export {
 // Notification system
 export { getNotificationService, NotificationService } from './notifications/notification-service';
 export * from './notifications/types';
+// Import infrastructure
+export * from './import/index';
