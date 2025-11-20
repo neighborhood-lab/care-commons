@@ -216,34 +216,42 @@ jobs:
           ./scripts/validate-deployment.sh "${{ steps.deploy.outputs.url }}" preview
           echo "::endgroup::"
 
-      - name: Reset Database (Preview)
+      - name: Run Database Migrations (Preview)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
-          echo "::group::Resetting database (preview demo reset)"
-          echo "⚠️  WARNING: Resetting preview database for comprehensive demo"
-          echo "This will:"
-          echo "  1. Drop all tables and data"
-          echo "  2. Recreate database structure"
-          echo "  3. Seed with comprehensive demo data"
-          echo ""
-          START_TIME=$(date +%s)
-          npm run db:nuke
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Database reset completed in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Re-run Database Migrations (Preview)
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "::group::Running database migrations after reset"
+          echo "::group::Running database migrations"
           START_TIME=$(date +%s)
           npm run db:migrate
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           echo "✅ Migrations completed in ${DURATION}s"
+          echo "::endgroup::"
+
+      - name: Clear Demo Data (Preview)
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "::group::Clearing demo data"
+          echo "🧹 Deleting rows where is_demo_data = true..."
+          START_TIME=$(date +%s)
+          
+          # Use psql to delete demo data
+          psql "$DATABASE_URL" << 'EOF'
+          DELETE FROM visit_notes WHERE is_demo_data = true;
+          DELETE FROM evv_records WHERE is_demo_data = true;
+          DELETE FROM visits WHERE is_demo_data = true;
+          DELETE FROM care_plan_tasks WHERE is_demo_data = true;
+          DELETE FROM care_plans WHERE is_demo_data = true;
+          DELETE FROM family_members WHERE is_demo_data = true;
+          DELETE FROM caregivers WHERE is_demo_data = true;
+          DELETE FROM clients WHERE is_demo_data = true;
+          DELETE FROM users WHERE is_demo_data = true;
+          EOF
+          
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Demo data cleared in ${DURATION}s"
           echo "::endgroup::"
 
       - name: Seed Base Data (Preview)
@@ -333,24 +341,6 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
-      - name: Reset Database (Production)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "::group::Resetting database (production demo reset)"
-          echo "⚠️  WARNING: Resetting production database for comprehensive demo"
-          echo "This will:"
-          echo "  1. Drop all tables and data"
-          echo "  2. Recreate database structure"
-          echo "  3. Seed with comprehensive demo data"
-          echo ""
-          START_TIME=$(date +%s)
-          npm run db:nuke
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Database reset completed in ${DURATION}s"
-          echo "::endgroup::"
-
       - name: Run Database Migrations (Production)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -363,11 +353,37 @@ jobs:
           echo "✅ Migrations completed in ${DURATION}s"
           echo "::endgroup::"
 
+      - name: Clear Demo Data (Production)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Clearing demo data"
+          echo "🧹 Deleting rows where is_demo_data = true..."
+          START_TIME=$(date +%s)
+          
+          # Use psql to delete demo data
+          psql "$DATABASE_URL" << 'EOF'
+          DELETE FROM visit_notes WHERE is_demo_data = true;
+          DELETE FROM evv_records WHERE is_demo_data = true;
+          DELETE FROM visits WHERE is_demo_data = true;
+          DELETE FROM care_plan_tasks WHERE is_demo_data = true;
+          DELETE FROM care_plans WHERE is_demo_data = true;
+          DELETE FROM family_members WHERE is_demo_data = true;
+          DELETE FROM caregivers WHERE is_demo_data = true;
+          DELETE FROM clients WHERE is_demo_data = true;
+          DELETE FROM users WHERE is_demo_data = true;
+          EOF
+          
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Demo data cleared in ${DURATION}s"
+          echo "::endgroup::"
+
       - name: Seed Base Operational Data (Production)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          echo "::group::Seeding base operational data"
+          echo "::group::Seeding base operational data (if needed)"
           START_TIME=$(date +%s)
           npm run db:seed
           END_TIME=$(date +%s)
