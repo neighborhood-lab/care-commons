@@ -36,7 +36,6 @@
   },
   "scripts": {
     "build": "tsc && tsc-alias -p tsconfig.json",
-    "prepare": "npm run build",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

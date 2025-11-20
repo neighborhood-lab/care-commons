@@ -1519,7 +1519,7 @@ async function seedDatabase() {
             visit.branchId,
             visit.clientId,
             visit.caregiverId,
-            `VIS-${visit.id.substring(0, 8)}`, // visit_number
+            `VIS-${Date.now()}-${i.toString().padStart(4, '0')}`, // Unique visit_number with timestamp and counter
             visit.visitType,
             visit.id, // service_type_id (placeholder)
             visit.visitType, // service_type_name
@@ -2349,7 +2349,7 @@ async function seedDatabase() {
           branchId,
           margaretId,
           margaretCaregiverId,
-          'VIS-TX-MAG-001',
+          `VIS-TX-MAG-001-${Date.now()}`,
           'REGULAR',
           margaretVisit1Id,
           'Personal Care',
@@ -2397,7 +2397,7 @@ async function seedDatabase() {
           branchId,
           margaretId,
           margaretCaregiverId,
-          'VIS-TX-MAG-002',
+          `VIS-TX-MAG-002-${Date.now()}`,
           'REGULAR',
           margaretVisit2Id,
           'Personal Care',
@@ -2533,7 +2533,7 @@ async function seedDatabase() {
             branchId,
             gertrudeId,
             caregiver.id,
-            `VIS-GERT-${String(i + 1).padStart(3, '0')}`,
+            `VIS-GERT-${Date.now()}-${String(i + 1).padStart(3, '0')}`,
             'REGULAR',
             visitId,
             'Personal Care',
@@ -2591,7 +2591,7 @@ async function seedDatabase() {
             branchId,
             gertrudeId,
             caregiver.id,
-            `VIS-GERT-${String(i + 10).padStart(3, '0')}`,
+            `VIS-GERT-${Date.now()}-${String(i + 10).padStart(3, '0')}`,
             'REGULAR',
             visitId,
             'Personal Care',
