@@ -32,7 +32,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/core": "file:../../packages/core",
+    "@care-commons/core": "^0.1.0",
     "axios": "^1.13.2",
     "uuid": "^13.0.0"
   },

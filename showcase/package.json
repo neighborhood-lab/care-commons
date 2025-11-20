@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/shared-components": "file:../packages/shared-components",
+    "@care-commons/shared-components": "^0.1.0",
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.90.8",

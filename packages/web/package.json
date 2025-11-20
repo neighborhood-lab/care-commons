@@ -24,9 +24,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/care-plans-tasks": "file:../../verticals/care-plans-tasks",
-    "@care-commons/family-engagement": "file:../../verticals/family-engagement",
-    "@care-commons/shared-components": "file:../shared-components",
+    "@care-commons/care-plans-tasks": "^0.1.0",
+    "@care-commons/family-engagement": "^0.1.0",
+    "@care-commons/shared-components": "^0.1.0",
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@nozbe/watermelondb": "^0.25.5",

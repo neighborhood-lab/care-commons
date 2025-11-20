@@ -20,9 +20,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/caregiver-staff": "file:../caregiver-staff",
-    "@care-commons/core": "file:../../packages/core",
-    "@care-commons/time-tracking-evv": "file:../time-tracking-evv",
+    "@care-commons/caregiver-staff": "^0.1.0",
+    "@care-commons/core": "^0.1.0",
+    "@care-commons/time-tracking-evv": "^0.1.0",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "uuid": "^13.0.0"

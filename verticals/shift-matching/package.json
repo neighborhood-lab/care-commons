@@ -20,9 +20,9 @@
     "lint": "eslint . --ext ts --max-warnings 200"
   },
   "dependencies": {
-    "@care-commons/caregiver-staff": "file:../caregiver-staff",
-    "@care-commons/core": "file:../../packages/core",
-    "@care-commons/scheduling-visits": "file:../scheduling-visits",
+    "@care-commons/caregiver-staff": "^0.1.0",
+    "@care-commons/core": "^0.1.0",
+    "@care-commons/scheduling-visits": "^0.1.0",
     "date-fns": "^4.1.0",
     "knex": "^3.1.0",
     "uuid": "^13.0.0",

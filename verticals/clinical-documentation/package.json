@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/core": "file:../../packages/core",
+    "@care-commons/core": "^0.1.0",
     "date-fns": "^4.1.0",
     "pg": "^8.16.3",
     "uuid": "^13.0.0",
