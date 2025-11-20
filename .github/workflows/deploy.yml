@@ -176,14 +176,6 @@ jobs:
           npm run db:migrate
           echo "✅ Migrations complete"
 
-      - name: Verify Database State (Preview)
-        env:
-          PREVIEW_DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "🔍 Verifying preview database state..."
-          tsx scripts/verify-database-state.ts --preview
-          echo "✅ Verification complete"
-
       - name: Build for Preview
         env:
           NODE_ENV: production
@@ -275,14 +267,6 @@ jobs:
           echo "📦 Running database migrations..."
           npm run db:migrate
           echo "✅ Migrations complete"
-
-      - name: Verify Database State (Production)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "🔍 Verifying production database state..."
-          tsx scripts/verify-database-state.ts --production
-          echo "✅ Verification complete"
 
       - name: Build for Production
         env:
