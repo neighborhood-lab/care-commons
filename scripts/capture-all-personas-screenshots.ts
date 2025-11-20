@@ -3,6 +3,8 @@ import { chromium } from '@playwright/test';
 import { join } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
+// Environment variable to switch between local and production
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 const screenshotsDir = join(process.cwd(), 'ui-screenshots-personas');
 
 // All 5 demo personas from Login.tsx with their accessible routes
@@ -114,7 +116,7 @@ async function capturePersonaScreenshots(
   console.log(`\n🔐 Testing persona: ${persona.name} (${persona.role})`);
 
   // Go to login and click persona card
-  await page.goto('http://localhost:5173/login');
+  await page.goto(`${BASE_URL}/login`);
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(500);
   
@@ -130,7 +132,7 @@ async function capturePersonaScreenshots(
   for (const route of persona.routes) {
     try {
       console.log(`   📸 ${route.path}`);
-      await page.goto(`http://localhost:5173${route.path}`);
+      await page.goto(`${BASE_URL}${route.path}`);
       
       // Analytics pages make multiple API calls, need longer timeout
       const timeout = route.path.includes('/analytics') ? 20000 : 10000;
@@ -148,7 +150,7 @@ async function capturePersonaScreenshots(
 
   // Logout for next persona
   try {
-    await page.goto('http://localhost:5173/logout');
+    await page.goto(`${BASE_URL}/logout`);
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
   } catch (error) {
@@ -163,6 +165,7 @@ async function main() {
 
   try {
     console.log('🎭 Capturing screenshots for all personas...\n');
+    console.log(`Base URL: ${BASE_URL}`);
     console.log(`Screenshots will be saved to: ${screenshotsDir}\n`);
 
     for (const persona of PERSONAS) {
