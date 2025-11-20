@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ApiClient, ApiClientError } from '../api-client.js';
+import { ApiClient, ApiClientError } from '../api-client';
 
 describe('ApiClient', () => {
   let apiClient: ApiClient;

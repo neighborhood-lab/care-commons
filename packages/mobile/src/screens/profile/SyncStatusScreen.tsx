@@ -20,10 +20,10 @@ import {
   RefreshControl,
   StyleSheet,
 } from 'react-native';
-import { useSyncStatus } from '../../hooks/useSyncStatus.js';
-import { OfflineQueue, type QueuedAction } from '../../database/sync/offline-queue.js';
-import { syncManager } from '../../database/sync/sync-manager.js';
-import { OptimisticUpdateManager, type OptimisticUpdate } from '../../database/sync/optimistic-update-manager.js';
+import { useSyncStatus } from '../../hooks/useSyncStatus';
+import { OfflineQueue, type QueuedAction } from '../../database/sync/offline-queue';
+import { syncManager } from '../../database/sync/sync-manager';
+import { OptimisticUpdateManager, type OptimisticUpdate } from '../../database/sync/optimistic-update-manager';
 
 interface SyncHistoryEntry {
   timestamp: Date;
