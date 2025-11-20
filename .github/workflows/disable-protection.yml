@@ -1,0 +1,30 @@
+name: Disable Deployment Protection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  disable-protection:
+    name: Disable Preview Deployment Protection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disable Deployment Protection for Preview Deployments
+        run: |
+          echo "Disabling deployment protection for preview deployments..."
+          
+          RESPONSE=$(curl -s -X PATCH \
+            "https://api.vercel.com/v9/projects/${{ secrets.VERCEL_PROJECT_ID }}" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "ssoProtection": {
+                "deploymentType": "preview"
+              }
+            }')
+          
+          echo "API Response:"
+          echo "$RESPONSE" | jq '.' || echo "$RESPONSE"
+          
+          echo ""
+          echo "✅ Deployment protection should now be disabled for preview deployments"
+          echo "🔗 Verify at: https://vercel.com/brian-edwards-projects-0d190d6b/care-commons/settings/deployment-protection"
