@@ -362,6 +362,75 @@ export const LandingPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile App Showcase */}
+      <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl p-8 mb-16 text-white">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+                <Smartphone className="h-8 w-8" />
+              </div>
+              <h2 className="text-3xl font-bold">
+                Mobile App for Caregivers
+              </h2>
+            </div>
+            <p className="text-xl text-blue-100 mb-6">
+              Offline-first mobile experience with EVV compliance, GPS verification, 
+              and real-time sync. Built with React Native and Expo.
+            </p>
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-start gap-3">
+                <div className="bg-white/20 rounded-full p-1 mt-0.5">
+                  <CheckSquare className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-semibold">GPS-Verified Clock In/Out</div>
+                  <div className="text-sm text-blue-100">21st Century Cures Act EVV compliance</div>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="bg-white/20 rounded-full p-1 mt-0.5">
+                  <CheckSquare className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-semibold">Offline-First Architecture</div>
+                  <div className="text-sm text-blue-100">Works without internet, syncs automatically</div>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="bg-white/20 rounded-full p-1 mt-0.5">
+                  <CheckSquare className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-semibold">Photo & Signature Capture</div>
+                  <div className="text-sm text-blue-100">Client verification and documentation</div>
+                </div>
+              </li>
+            </ul>
+            <Link
+              to="/mobile"
+              className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+            >
+              <Smartphone className="h-5 w-5" />
+              Explore Mobile App
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+          </div>
+          <div className="relative">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="aspect-[9/16] bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl overflow-hidden">
+                <div className="h-full flex items-center justify-center text-white/60">
+                  <div className="text-center">
+                    <Smartphone className="h-16 w-16 mx-auto mb-4 opacity-40" />
+                    <div className="text-sm">Mobile simulator preview</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Showcase vs Full Demo */}
       <div className="bg-white rounded-lg border border-gray-200 p-8 mb-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
