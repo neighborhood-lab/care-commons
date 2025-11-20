@@ -175,7 +175,7 @@ jobs:
           echo "🔥 TEMPORARY NUKE - Establishing clean migration state"
           
           # 1. NUKE everything
-          npx tsx scripts/nuke-database.ts
+          npm run db:nuke
           
           # 2. Run migrations fresh
           npm run db:migrate
@@ -279,7 +279,7 @@ jobs:
           echo "🔥 TEMPORARY NUKE - Establishing clean migration state"
           
           # 1. NUKE everything
-          npx tsx scripts/nuke-database.ts
+          npm run db:nuke
           
           # 2. Run migrations fresh
           npm run db:migrate
