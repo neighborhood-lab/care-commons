@@ -26,8 +26,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/core": "file:../core",
-    "@care-commons/time-tracking-evv": "file:../../verticals/time-tracking-evv",
+    "@care-commons/core": "^0.1.0",
+    "@care-commons/time-tracking-evv": "^0.1.0",
     "@nozbe/watermelondb": "^0.25.5",
     "@react-native-async-storage/async-storage": "~2.2.0",
     "@react-native-community/netinfo": "^11.4.1",

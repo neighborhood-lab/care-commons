@@ -20,7 +20,7 @@
     "lint": "eslint . --ext ts --max-warnings 10"
   },
   "dependencies": {
-    "@care-commons/core": "file:../../packages/core",
+    "@care-commons/core": "^0.1.0",
     "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
     "zod": "^4.1.12"
