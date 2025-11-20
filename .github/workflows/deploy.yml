@@ -238,14 +238,22 @@ jobs:
           echo "🧹 Deleting rows where is_demo_data = true..."
           START_TIME=$(date +%s)
           
-          # Use psql to delete demo data
+          # Use psql to delete demo data (order matters for foreign keys)
           psql "$DATABASE_URL" << 'EOF'
-          DELETE FROM visit_notes WHERE is_demo_data = true;
+          -- Delete payments for demo invoices (payments table doesn't have is_demo_data)
+          DELETE FROM payments WHERE invoice_id IN (SELECT id FROM invoices WHERE is_demo_data = true);
+          -- Now delete demo data from tables with is_demo_data column
+          DELETE FROM assignment_proposals WHERE is_demo_data = true;
+          DELETE FROM open_shifts WHERE is_demo_data = true;
+          DELETE FROM family_notifications WHERE is_demo_data = true;
+          DELETE FROM messages WHERE is_demo_data = true;
+          DELETE FROM progress_notes WHERE is_demo_data = true;
+          DELETE FROM task_instances WHERE is_demo_data = true;
           DELETE FROM evv_records WHERE is_demo_data = true;
           DELETE FROM visits WHERE is_demo_data = true;
-          DELETE FROM care_plan_tasks WHERE is_demo_data = true;
           DELETE FROM care_plans WHERE is_demo_data = true;
           DELETE FROM family_members WHERE is_demo_data = true;
+          DELETE FROM invoices WHERE is_demo_data = true;
           DELETE FROM caregivers WHERE is_demo_data = true;
           DELETE FROM clients WHERE is_demo_data = true;
           DELETE FROM users WHERE is_demo_data = true;
@@ -364,14 +372,22 @@ jobs:
           echo "🧹 Deleting rows where is_demo_data = true..."
           START_TIME=$(date +%s)
           
-          # Use psql to delete demo data
+          # Use psql to delete demo data (order matters for foreign keys)
           psql "$DATABASE_URL" << 'EOF'
-          DELETE FROM visit_notes WHERE is_demo_data = true;
+          -- Delete payments for demo invoices (payments table doesn't have is_demo_data)
+          DELETE FROM payments WHERE invoice_id IN (SELECT id FROM invoices WHERE is_demo_data = true);
+          -- Now delete demo data from tables with is_demo_data column
+          DELETE FROM assignment_proposals WHERE is_demo_data = true;
+          DELETE FROM open_shifts WHERE is_demo_data = true;
+          DELETE FROM family_notifications WHERE is_demo_data = true;
+          DELETE FROM messages WHERE is_demo_data = true;
+          DELETE FROM progress_notes WHERE is_demo_data = true;
+          DELETE FROM task_instances WHERE is_demo_data = true;
           DELETE FROM evv_records WHERE is_demo_data = true;
           DELETE FROM visits WHERE is_demo_data = true;
-          DELETE FROM care_plan_tasks WHERE is_demo_data = true;
           DELETE FROM care_plans WHERE is_demo_data = true;
           DELETE FROM family_members WHERE is_demo_data = true;
+          DELETE FROM invoices WHERE is_demo_data = true;
           DELETE FROM caregivers WHERE is_demo_data = true;
           DELETE FROM clients WHERE is_demo_data = true;
           DELETE FROM users WHERE is_demo_data = true;
