@@ -168,11 +168,11 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
-      - name: TEMPORARY - Complete Database Reset (Preview)
+      - name: TEMPORARY - NUKE and Migrate (NO seeding - will be migration later)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
-          echo "🔥 TEMPORARY NUKE - Establishing clean migration state"
+          echo "🔥 TEMPORARY NUKE - Clean slate for migration-based demo seeding"
           
           # 1. NUKE everything
           npm run db:nuke
@@ -180,13 +180,7 @@ jobs:
           # 2. Run migrations fresh
           npm run db:migrate
           
-          # 3. Seed base data
-          npm run db:seed
-          
-          # 4. Seed demo data
-          npm run db:seed:demo
-          
-          echo "✅ Database reset complete - THIS IS TEMPORARY"
+          echo "✅ Database nuked and migrated - NO demo seeding (will be migration)"
 
       - name: Build for Preview
         env:
@@ -272,11 +266,11 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
-      - name: TEMPORARY - Complete Database Reset (Production)
+      - name: TEMPORARY - NUKE and Migrate (NO seeding - will be migration later)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          echo "🔥 TEMPORARY NUKE - Establishing clean migration state"
+          echo "🔥 TEMPORARY NUKE - Clean slate for migration-based demo seeding"
           
           # 1. NUKE everything
           npm run db:nuke
@@ -284,13 +278,7 @@ jobs:
           # 2. Run migrations fresh
           npm run db:migrate
           
-          # 3. Seed base data
-          npm run db:seed
-          
-          # 4. Seed demo data
-          npm run db:seed:demo
-          
-          echo "✅ Database reset complete - THIS IS TEMPORARY"
+          echo "✅ Database nuked and migrated - NO demo seeding (will be migration)"
 
       - name: Build for Production
         env:
