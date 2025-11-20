@@ -45,6 +45,13 @@ export class AnalyticsRepository {
 
   /**
    * Count compliant EVV visits
+   * 
+   * A visit is compliant if:
+   * - Record status is COMPLETE
+   * - Compliance flags do NOT contain any violation flags
+   * 
+   * Violation flags include: GEOFENCE_VIOLATION, TIME_GAP, DEVICE_SUSPICIOUS,
+   * LOCATION_SUSPICIOUS, DUPLICATE_ENTRY, MISSING_SIGNATURE, LATE_SUBMISSION
    */
   async countCompliantVisits(
     orgId: string,
@@ -56,9 +63,16 @@ export class AnalyticsRepository {
       FROM evv_records
       WHERE organization_id = $1
         AND record_status = 'COMPLETE'
-        AND verification_level = 'FULL'
-        AND compliance_flags = '[]'::jsonb
         AND service_date BETWEEN $2 AND $3
+        AND NOT (
+          compliance_flags ? 'GEOFENCE_VIOLATION'
+          OR compliance_flags ? 'TIME_GAP'
+          OR compliance_flags ? 'DEVICE_SUSPICIOUS'
+          OR compliance_flags ? 'LOCATION_SUSPICIOUS'
+          OR compliance_flags ? 'DUPLICATE_ENTRY'
+          OR compliance_flags ? 'MISSING_SIGNATURE'
+          OR compliance_flags ? 'LATE_SUBMISSION'
+        )
     `;
     const params: unknown[] = [orgId, dateRange.startDate, dateRange.endDate];
 

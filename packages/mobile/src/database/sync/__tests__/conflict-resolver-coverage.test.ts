@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ConflictResolver,
   type ManualResolution,
-} from '../conflict-resolver.js';
+} from '../conflict-resolver';
 
 describe('ConflictResolver - Comprehensive Coverage', () => {
   const resolver = new ConflictResolver();

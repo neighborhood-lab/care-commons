@@ -188,7 +188,7 @@ export function AdminDashboard() {
               <Card.Content>
                 {kpis?.evvCompliance ? (
                   <ComplianceGauge
-                    value={kpis.evvCompliance.complianceRate}
+                    value={kpis.evvCompliance.complianceRate * 100}
                     label="EVV Compliance Rate"
                   />
                 ) : (

@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ConflictResolver } from '../conflict-resolver.js';
+import { ConflictResolver } from '../conflict-resolver';
 
 describe('ConflictResolver', () => {
   let resolver: ConflictResolver;

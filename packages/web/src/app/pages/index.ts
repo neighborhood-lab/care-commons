@@ -11,5 +11,6 @@ export * from './Signup';
 export * from './NotFound';
 export * from './Settings';
 export * from './Reports';
+export * from './MobileDemoPage';
 export * from './admin/index.js';
 export * from './caregiver/index.js';

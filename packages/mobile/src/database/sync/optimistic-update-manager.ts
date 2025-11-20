@@ -12,7 +12,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { database } from '../index.js';
+import { database } from '../index';
 
 /**
  * Status of an optimistic update
