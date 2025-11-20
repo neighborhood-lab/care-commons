@@ -2,6 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "regions": ["iad1"],
+  "installCommand": "npm --version && node --version && npm install -g npm@10.9.4 && npm --version && npm ci",
+  "buildCommand": "npm run build",
   "functions": {
     "api/index.ts": {
       "includeFiles": "{packages,verticals}/**/dist/**"
