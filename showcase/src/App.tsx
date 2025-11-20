@@ -28,6 +28,7 @@ import { VideosPage } from './pages/VideosPage';
 import { StateDemoPage } from './pages/StateDemoPage';
 
 // Mobile Pages
+import { MobileDemoPage } from './pages/MobileDemoPage';
 import { MobileHomePage } from './pages/mobile/MobileHomePage';
 import { MobileVisitsPage } from './pages/mobile/MobileVisitsPage';
 import { MobileTasksPage } from './pages/mobile/MobileTasksPage';
@@ -78,7 +79,8 @@ export const App: React.FC = () => {
                 <Route path="/states" element={<StateDemoPage />} />
 
                 {/* Mobile Routes */}
-                <Route path="/mobile" element={<MobileHomePage />} />
+                <Route path="/mobile" element={<MobileDemoPage />} />
+                <Route path="/mobile-old" element={<MobileHomePage />} />
                 <Route path="/mobile/visits" element={<MobileVisitsPage />} />
                 <Route path="/mobile/tasks" element={<MobileTasksPage />} />
                 <Route path="/mobile/profile" element={<MobileProfilePage />} />

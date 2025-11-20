@@ -10,6 +10,7 @@ export {
   StatusBadge,
   Tooltip,
   DemoBadge,
+  MobileSimulator,
 } from './core/index.js';
 
 export type {
@@ -20,6 +21,7 @@ export type {
   BadgeProps,
   TooltipProps,
   DemoBadgeProps,
+  MobileSimulatorProps,
 } from './core/index.js';
 
 // Utilities
