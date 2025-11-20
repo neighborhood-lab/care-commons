@@ -1,5 +1,8 @@
 # Care Commons
 
+> **Document Date:** November 2025  
+> **Status:** Production SaaS + Open Source
+
 [![CI](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/neighborhood-lab/care-commons/branch/develop/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/care-commons/tree/develop)
 
@@ -7,15 +10,27 @@
 
 **Care Commons** is a modular, self-hostable software platform designed to support the administration and daily operations of home-based care services. Built by the people at **Neighborhood Lab**.
 
-**[🎮 Interactive Showcase](https://neighborhood-lab.github.io/care-commons/)** - Experience the platform through realistic scenarios  
-[Care Commons Web App](https://care-commons.vercel.app/) (full application demo)
+## 🌐 Live Demos
 
-[Discord](https://discord.gg/EkeXQZFq)
-[Substack](https://neighborhoodlab.substack.com/) (updates, news and commentary)  
-[Patreon](https://www.patreon.com/cw/neighborhood_lab) (give your financial support for continued development)
+- **[Production SaaS](https://care-commons.vercel.app/)** - Full application (requires login)
+- **[Interactive Showcase](https://neighborhood-lab.github.io/care-commons/)** - Explore through realistic scenarios
+- **[Health Check](https://care-commons.vercel.app/health)** - System status
 
-[Care Commons](https://neighborhood-lab.github.io/product/) (product marketing website)  
-[Neighborhood Lab](https://neighborhood-lab.github.io/) (organization website)
+**Demo Logins:**
+```
+Coordinator: coordinator@tx.demo / demo1234
+Administrator: admin@carecommons.example / Care2024!
+Caregiver: caregiver@tx.demo / demo1234  
+Family: family@tx.demo / demo1234
+```
+
+## 🔗 Community
+
+- [Discord](https://discord.gg/EkeXQZFq) - Chat with the community
+- [Substack](https://neighborhoodlab.substack.com/) - Updates, news and commentary  
+- [Patreon](https://www.patreon.com/cw/neighborhood_lab) - Support continued development
+- [Product Site](https://neighborhood-lab.github.io/product/) - Marketing site
+- [Neighborhood Lab](https://neighborhood-lab.github.io/) - Organization site
 
 ## Vision
 

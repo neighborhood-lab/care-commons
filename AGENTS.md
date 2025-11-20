@@ -525,6 +525,33 @@ The following critical issues were resolved to achieve successful production dep
    - **Implementation**: Organizations table requires `primary_address`, `created_by`, `updated_by`
    - **Test**: All database operations must succeed without schema errors
 
+5. **Demo Data Seeding Strategy** (November 2025)
+   - **Problem**: Demo data seeding failed with duplicate key errors after clearing tables
+   - **Root Causes**:
+     - Migrations use `IF NOT EXISTS` which is idempotent but can fail if run immediately after `db:nuke`
+     - Neon connection pooler caches schema state - race condition when dropping/recreating
+     - Some tables (e.g., `payments`) lack `is_demo_data` column requiring `TRUNCATE` instead of `DELETE`
+     - Demo data dependencies require specific deletion order
+   - **Solution**: Changed deployment workflow to avoid `db:nuke`
+     - Step 1: Run migrations (with `continue-on-error: true` - expected to fail if schema exists)
+     - Step 2: Delete demo data with `DELETE WHERE is_demo_data = true` for most tables
+     - Step 3: Use `TRUNCATE TABLE payments` for tables without `is_demo_data` column
+     - Step 4: Seed base data (organizations, users, permissions)
+     - Step 5: Seed demo data
+   - **Implementation**: See `.github/workflows/deploy.yml`
+   - **Test**: Demo data seeding must succeed without duplicate key errors
+
+6. **Shared Components `prepare` Script** (November 2025)
+   - **Problem**: Vercel builds failed with `npm error: "from" argument undefined`
+   - **Root Cause**: Corrupted `package-lock.json` from PR #399 (mobile EVV integration)
+   - **Critical Requirement**: `packages/shared-components/package.json` MUST have `"prepare": "npm run build"`
+   - **Why**: When using `file:` dependencies in npm workspaces, the `prepare` script runs after install
+   - **Warning**: Removing this script will break Vercel deployments
+   - **Solution**: 
+     - Restored `prepare` script with warning comments
+     - Regenerated `package-lock.json` cleanly (removed `file:` references)
+   - **Test**: Vercel build must succeed with proper shared-components compilation
+
 ### Branching & PR Strategy
 
 **Workflow**: `feature/*` → `develop` → `preview` → `main`
