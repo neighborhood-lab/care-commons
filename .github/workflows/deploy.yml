@@ -168,33 +168,25 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
-      - name: Validate Migration Safety (Preview)
-        if: ${{ github.event.inputs.run_migrations != 'false' }}
+      - name: TEMPORARY - Complete Database Reset (Preview)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
-          echo "::group::Validating migration safety"
-          ./scripts/validate-migrations-safety.sh preview
-          echo "::endgroup::"
-
-      - name: Run Database Migrations (Preview)
-        if: ${{ github.event.inputs.run_migrations != 'false' }}
-        continue-on-error: true
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "::group::Running database migrations"
-          START_TIME=$(date +%s)
-          npm run db:migrate || echo "⚠️  Migrations failed (schema may already be up-to-date)"
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Migration step completed in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Skip migrations notice
-        if: ${{ github.event.inputs.run_migrations == 'false' }}
-        run: |
-          echo "::notice::Database migrations skipped by manual trigger"
+          echo "🔥 TEMPORARY NUKE - Establishing clean migration state"
+          
+          # 1. NUKE everything
+          npx tsx scripts/nuke-database.ts
+          
+          # 2. Run migrations fresh
+          npm run db:migrate
+          
+          # 3. Seed base data
+          npm run db:seed
+          
+          # 4. Seed demo data
+          npm run db:seed:demo
+          
+          echo "✅ Database reset complete - THIS IS TEMPORARY"
 
       - name: Build for Preview
         env:
@@ -215,77 +207,6 @@ jobs:
         run: |
           echo "::group::Validating preview deployment"
           ./scripts/validate-deployment.sh "${{ steps.deploy.outputs.url }}" preview
-          echo "::endgroup::"
-
-      - name: Run Database Migrations (Preview)
-        continue-on-error: true
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "::group::Running database migrations"
-          START_TIME=$(date +%s)
-          npm run db:migrate || echo "⚠️  Migrations failed (schema may already be up-to-date)"
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Migration step completed in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Clear Demo Data (Preview)
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "::group::Clearing demo data"
-          echo "🧹 Deleting rows where is_demo_data = true..."
-          START_TIME=$(date +%s)
-          
-          # Use psql to delete demo data (order matters for foreign keys)
-          psql "$DATABASE_URL" << 'EOF'
-          -- Delete ALL payments (no is_demo_data column, always regenerated from invoices)
-          TRUNCATE TABLE payments;
-          -- Now delete demo data from tables with is_demo_data column
-          DELETE FROM assignment_proposals WHERE is_demo_data = true;
-          DELETE FROM open_shifts WHERE is_demo_data = true;
-          DELETE FROM family_notifications WHERE is_demo_data = true;
-          DELETE FROM messages WHERE is_demo_data = true;
-          DELETE FROM progress_notes WHERE is_demo_data = true;
-          DELETE FROM task_instances WHERE is_demo_data = true;
-          DELETE FROM evv_records WHERE is_demo_data = true;
-          DELETE FROM visits WHERE is_demo_data = true;
-          DELETE FROM care_plans WHERE is_demo_data = true;
-          DELETE FROM family_members WHERE is_demo_data = true;
-          DELETE FROM invoices WHERE is_demo_data = true;
-          DELETE FROM caregivers WHERE is_demo_data = true;
-          DELETE FROM clients WHERE is_demo_data = true;
-          DELETE FROM users WHERE is_demo_data = true;
-          EOF
-          
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Demo data cleared in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Seed Base Data (Preview)
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "::group::Seeding base operational data"
-          START_TIME=$(date +%s)
-          npm run db:seed
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Base seed completed in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Seed Comprehensive Demo Data (Preview)
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "::group::Seeding comprehensive demo data"
-          START_TIME=$(date +%s)
-          npm run db:seed:demo
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Demo data seeded in ${DURATION}s"
           echo "::endgroup::"
 
       - name: Deployment Summary
@@ -351,76 +272,25 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
-      - name: Run Database Migrations (Production)
-        continue-on-error: true
+      - name: TEMPORARY - Complete Database Reset (Production)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          echo "::group::Running database migrations"
-          START_TIME=$(date +%s)
-          npm run db:migrate || echo "⚠️  Migrations failed (schema may already be up-to-date)"
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Migration step completed in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Clear Demo Data (Production)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "::group::Clearing demo data"
-          echo "🧹 Deleting rows where is_demo_data = true..."
-          START_TIME=$(date +%s)
+          echo "🔥 TEMPORARY NUKE - Establishing clean migration state"
           
-          # Use psql to delete demo data (order matters for foreign keys)
-          psql "$DATABASE_URL" << 'EOF'
-          -- Delete ALL payments (no is_demo_data column, always regenerated from invoices)
-          TRUNCATE TABLE payments;
-          -- Now delete demo data from tables with is_demo_data column
-          DELETE FROM assignment_proposals WHERE is_demo_data = true;
-          DELETE FROM open_shifts WHERE is_demo_data = true;
-          DELETE FROM family_notifications WHERE is_demo_data = true;
-          DELETE FROM messages WHERE is_demo_data = true;
-          DELETE FROM progress_notes WHERE is_demo_data = true;
-          DELETE FROM task_instances WHERE is_demo_data = true;
-          DELETE FROM evv_records WHERE is_demo_data = true;
-          DELETE FROM visits WHERE is_demo_data = true;
-          DELETE FROM care_plans WHERE is_demo_data = true;
-          DELETE FROM family_members WHERE is_demo_data = true;
-          DELETE FROM invoices WHERE is_demo_data = true;
-          DELETE FROM caregivers WHERE is_demo_data = true;
-          DELETE FROM clients WHERE is_demo_data = true;
-          DELETE FROM users WHERE is_demo_data = true;
-          EOF
+          # 1. NUKE everything
+          npx tsx scripts/nuke-database.ts
           
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Demo data cleared in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Seed Base Operational Data (Production)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "::group::Seeding base operational data (if needed)"
-          START_TIME=$(date +%s)
+          # 2. Run migrations fresh
+          npm run db:migrate
+          
+          # 3. Seed base data
           npm run db:seed
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Base seed completed in ${DURATION}s"
-          echo "::endgroup::"
-
-      - name: Seed Comprehensive Demo Data (Production)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "::group::Seeding comprehensive demo data"
-          START_TIME=$(date +%s)
+          
+          # 4. Seed demo data
           npm run db:seed:demo
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "✅ Demo data seeded in ${DURATION}s"
-          echo "::endgroup::"
+          
+          echo "✅ Database reset complete - THIS IS TEMPORARY"
 
       - name: Build for Production
         env:
