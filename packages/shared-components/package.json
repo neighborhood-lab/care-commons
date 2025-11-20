@@ -5,6 +5,10 @@
   "//2": "⚠️  SHARED ESM PACKAGE - Platform-agnostic React components",
   "//3": "Used by both web (Vite) and mobile (React Native) apps",
   "//4": "════════════════════════════════════════════════════════════════",
+  "//5": "⚠️  CRITICAL: The 'prepare' script MUST remain to build dist/",
+  "//6": "before npm workspace linking (file: dependencies require it)",
+  "//7": "DO NOT REMOVE - Vercel deployment will fail without it!",
+  "//8": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -36,6 +40,7 @@
   },
   "scripts": {
     "build": "tsc && tsc-alias -p tsconfig.json",
+    "prepare": "npm run build",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
