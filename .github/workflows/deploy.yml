@@ -240,8 +240,8 @@ jobs:
           
           # Use psql to delete demo data (order matters for foreign keys)
           psql "$DATABASE_URL" << 'EOF'
-          -- Delete payments for demo invoices (payments table doesn't have is_demo_data)
-          DELETE FROM payments WHERE invoice_id IN (SELECT id FROM invoices WHERE is_demo_data = true);
+          -- Delete ALL payments (no is_demo_data column, always regenerated from invoices)
+          TRUNCATE TABLE payments;
           -- Now delete demo data from tables with is_demo_data column
           DELETE FROM assignment_proposals WHERE is_demo_data = true;
           DELETE FROM open_shifts WHERE is_demo_data = true;
@@ -374,8 +374,8 @@ jobs:
           
           # Use psql to delete demo data (order matters for foreign keys)
           psql "$DATABASE_URL" << 'EOF'
-          -- Delete payments for demo invoices (payments table doesn't have is_demo_data)
-          DELETE FROM payments WHERE invoice_id IN (SELECT id FROM invoices WHERE is_demo_data = true);
+          -- Delete ALL payments (no is_demo_data column, always regenerated from invoices)
+          TRUNCATE TABLE payments;
           -- Now delete demo data from tables with is_demo_data column
           DELETE FROM assignment_proposals WHERE is_demo_data = true;
           DELETE FROM open_shifts WHERE is_demo_data = true;
