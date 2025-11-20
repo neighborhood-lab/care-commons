@@ -78,6 +78,7 @@
     "vercel:build": "npm run build",
     "prepare": "husky",
     "ui:capture": "tsx scripts/capture-ui-screenshots.ts",
+    "capture": "tsx scripts/capture-screenshots.ts",
     "ui:capture:web": "tsx scripts/capture-ui-screenshots.ts -- --web",
     "ui:capture:showcase": "tsx scripts/capture-ui-screenshots.ts -- --showcase",
     "ui:capture:mobile": "tsx scripts/capture-ui-screenshots.ts -- --mobile",
