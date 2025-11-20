@@ -57,13 +57,6 @@ const features = [
     color: 'bg-orange-500',
   },
   {
-    name: 'Shift Matching',
-    description: 'Smart shift matching system connecting caregivers with client needs.',
-    icon: Calendar,
-    href: '/shifts',
-    color: 'bg-pink-500',
-  },
-  {
     name: 'Scheduling & Visits',
     description: 'Manage client visits and caregiver schedules with intelligent routing and conflict detection.',
     icon: Calendar,
@@ -369,8 +362,77 @@ export const LandingPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile App Showcase */}
+      <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl p-8 mb-16 text-white">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+                <Smartphone className="h-8 w-8" />
+              </div>
+              <h2 className="text-3xl font-bold">
+                Mobile App for Caregivers
+              </h2>
+            </div>
+            <p className="text-xl text-blue-100 mb-6">
+              Offline-first mobile experience with EVV compliance, GPS verification, 
+              and real-time sync. Built with React Native and Expo.
+            </p>
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-start gap-3">
+                <div className="bg-white/20 rounded-full p-1 mt-0.5">
+                  <CheckSquare className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-semibold">GPS-Verified Clock In/Out</div>
+                  <div className="text-sm text-blue-100">21st Century Cures Act EVV compliance</div>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="bg-white/20 rounded-full p-1 mt-0.5">
+                  <CheckSquare className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-semibold">Offline-First Architecture</div>
+                  <div className="text-sm text-blue-100">Works without internet, syncs automatically</div>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="bg-white/20 rounded-full p-1 mt-0.5">
+                  <CheckSquare className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-semibold">Photo & Signature Capture</div>
+                  <div className="text-sm text-blue-100">Client verification and documentation</div>
+                </div>
+              </li>
+            </ul>
+            <Link
+              to="/mobile"
+              className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+            >
+              <Smartphone className="h-5 w-5" />
+              Explore Mobile App
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+          </div>
+          <div className="relative">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="aspect-[9/16] bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl overflow-hidden">
+                <div className="h-full flex items-center justify-center text-white/60">
+                  <div className="text-center">
+                    <Smartphone className="h-16 w-16 mx-auto mb-4 opacity-40" />
+                    <div className="text-sm">Mobile simulator preview</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Showcase vs Full Demo */}
-      <div className="bg-white rounded-lg border border-gray-200 p-8">
+      <div className="bg-white rounded-lg border border-gray-200 p-8 mb-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           Showcase vs. Full Demo
         </h2>
@@ -435,6 +497,46 @@ export const LandingPage: React.FC = () => {
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* Strong Conversion CTA */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-12 text-center">
+        <div className="relative z-10">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Ready for the Full Experience?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Experience Care Commons with real backend integration, live data sync, 
+            authentication, and production-grade infrastructure.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a
+              href="https://care-commons.vercel.app/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all shadow-xl"
+            >
+              Try Full Demo
+              <ArrowRight className="h-6 w-6" />
+            </a>
+            <a
+              href="https://github.com/neighborhood-lab/care-commons"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white/20 transition-all border-2 border-white/20"
+            >
+              View on GitHub
+              <ArrowRight className="h-6 w-6" />
+            </a>
+          </div>
+          <p className="mt-6 text-sm text-blue-200">
+            Open source • Community driven • Built for scale
+          </p>
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
       </div>
     </ShowcaseLayout>
   );

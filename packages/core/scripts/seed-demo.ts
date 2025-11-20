@@ -62,15 +62,6 @@ function daysFromNow(days: number): Date {
   return date;
 }
 
-/**
- * Returns today's date at midnight.
- */
-function today(): Date {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  return date;
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════

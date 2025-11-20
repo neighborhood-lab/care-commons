@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ApiClient, ApiClientError, createApiClient, getApiClient } from '../api-client.js';
+import { ApiClient, ApiClientError, createApiClient, getApiClient } from '../api-client';
 
 describe('ApiClient - Additional Coverage', () => {
   let client: ApiClient;

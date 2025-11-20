@@ -125,6 +125,8 @@
     "js-yaml": "^4.1.1",
     "rate-limit-redis": "^4.2.3",
     "react-joyride": "^3.0.0-7",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-worklets": "^0.6.1",
     "redis": "^5.9.0",
     "resend": "^6.4.2",
     "swagger-jsdoc": "^6.2.8",

@@ -7,8 +7,8 @@
 import React from 'react';
 
 // Export conflict resolution modal
-export { ConflictResolutionModal } from './ConflictResolutionModal.js';
-export { OfflineIndicator } from './OfflineIndicator.js';
+export { ConflictResolutionModal } from './ConflictResolutionModal';
+export { OfflineIndicator } from './OfflineIndicator';
 import {
   Pressable,
   Text,
