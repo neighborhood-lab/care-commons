@@ -168,14 +168,6 @@ jobs:
           fi
           echo "✅ Database URL is configured"
 
-      - name: NUKE Database (Preview) - TEMPORARY STEP 1
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-        run: |
-          echo "💥 NUKING preview database (TEMPORARY - will be removed after this deploy)..."
-          npm run db:nuke
-          echo "✅ Database nuked"
-
       - name: Run Database Migrations (Preview)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
@@ -267,14 +259,6 @@ jobs:
             exit 1
           fi
           echo "✅ Database URL is configured"
-
-      - name: NUKE Database (Production) - TEMPORARY STEP 1
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          echo "💥 NUKING production database (TEMPORARY - will be removed after this deploy)..."
-          npm run db:nuke
-          echo "✅ Database nuked"
 
       - name: Run Database Migrations (Production)
         env:
