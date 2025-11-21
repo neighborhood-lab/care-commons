@@ -524,7 +524,7 @@ export class AnalyticsRepository {
         EXTRACT(YEAR FROM invoice_date)::int as year,
         EXTRACT(MONTH FROM invoice_date)::int as month,
         SUM(total_amount) as billed,
-        SUM(amount_paid) as paid,
+        SUM(paid_amount) as paid,
         SUM(balance_due) as outstanding
       FROM invoices
       WHERE organization_id = $1
@@ -676,7 +676,7 @@ export class AnalyticsRepository {
         payer_name,
         COUNT(*) as visit_count,
         SUM(total_amount) as billed_amount,
-        SUM(amount_paid) as paid_amount,
+        SUM(paid_amount) as paid_amount,
         SUM(balance_due) as outstanding_amount
       FROM invoices
       WHERE organization_id = $1

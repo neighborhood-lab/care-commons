@@ -1120,9 +1120,10 @@ async function seedDatabase() {
       
       console.log('🧹 Clearing previous demo data (WHERE is_demo_data = true)...');
       console.log('⚠️  SAFETY: This ONLY deletes records marked is_demo_data = true');
-      console.log('⚠️  SAFETY: Production data is NEVER touched\n');
+      console.log('');
 
       // Delete in reverse dependency order (all WHERE is_demo_data = true)
+      await client.query('DELETE FROM payments WHERE is_demo_data = true');
       await client.query('DELETE FROM evv_records WHERE is_demo_data = true');
       await client.query('DELETE FROM visits WHERE is_demo_data = true');
       await client.query('DELETE FROM task_instances WHERE is_demo_data = true');
@@ -1938,8 +1939,8 @@ async function seedDatabase() {
             allocations, unapplied_amount,
             status, status_history,
             is_reconciled, reconciled_date,
-            created_by, updated_by
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+            created_by, updated_by, is_demo_data
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
           `,
           [
             uuidv4(),
@@ -1968,6 +1969,7 @@ async function seedDatabase() {
             new Date(paymentDate.getTime() + 5 * 24 * 60 * 60 * 1000), // Reconciled 5 days later
             systemUserId,
             systemUserId,
+            true, // is_demo_data
           ]
         );
 

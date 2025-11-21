@@ -649,6 +649,17 @@ export class EVVRepository {
   }
 
   /**
+   * Helper: Safely parse JSON field (handles both string and already-parsed object)
+   * PostgreSQL JSONB columns are returned as objects by node-postgres
+   */
+  private parseJsonField<T>(value: string | T): T {
+    if (typeof value === 'string') {
+      return JSON.parse(value) as T;
+    }
+    return value;
+  }
+
+  /**
    * Helper: Map database row to EVVRecord
    */
   private mapEVVRecord(row: EVVRecordRow): EVVRecord {
@@ -665,17 +676,17 @@ export class EVVRepository {
       caregiverName: row.caregiver_name,
       caregiverEmployeeId: row.caregiver_employee_id,
       serviceDate: row.service_date,
-      serviceAddress: JSON.parse(row.service_address),
+      serviceAddress: this.parseJsonField(row.service_address),
       clockInTime: row.clock_in_time!,
-      clockInVerification: JSON.parse(row.clock_in_verification),
+      clockInVerification: this.parseJsonField(row.clock_in_verification),
       recordStatus: row.record_status as EVVRecordStatus,
       verificationLevel: row.verification_level as VerificationLevel,
-      complianceFlags: JSON.parse(row.compliance_flags),
+      complianceFlags: this.parseJsonField(row.compliance_flags),
       integrityHash: row.integrity_hash,
       integrityChecksum: row.integrity_checksum,
       recordedAt: row.recorded_at,
       recordedBy: row.recorded_by,
-      syncMetadata: JSON.parse(row.sync_metadata),
+      syncMetadata: this.parseJsonField(row.sync_metadata),
       createdAt: row.created_at,
       createdBy: row.created_by,
       updatedAt: row.updated_at,
@@ -688,23 +699,23 @@ export class EVVRepository {
       caregiverNationalProviderId: row.caregiver_npi,
       clockOutTime: row.clock_out_time,
       totalDuration: row.total_duration,
-      clockOutVerification: row.clock_out_verification ? JSON.parse(row.clock_out_verification) : undefined,
-      midVisitChecks: row.mid_visit_checks ? JSON.parse(row.mid_visit_checks) : undefined,
-      pauseEvents: row.pause_events ? JSON.parse(row.pause_events) : undefined,
-      exceptionEvents: row.exception_events ? JSON.parse(row.exception_events) : undefined,
+      clockOutVerification: row.clock_out_verification ? this.parseJsonField(row.clock_out_verification) : undefined,
+      midVisitChecks: row.mid_visit_checks ? this.parseJsonField(row.mid_visit_checks) : undefined,
+      pauseEvents: row.pause_events ? this.parseJsonField(row.pause_events) : undefined,
+      exceptionEvents: row.exception_events ? this.parseJsonField(row.exception_events) : undefined,
       submittedToPayor: row.submitted_to_payor,
       payorApprovalStatus: row.payor_approval_status as PayorApprovalStatus,
       stateSpecificData: row.state_specific_data ? JSON.parse(row.state_specific_data) : undefined,
       caregiverAttestation: row.caregiver_attestation ? JSON.parse(row.caregiver_attestation) : undefined,
       clientAttestation: row.client_attestation ? JSON.parse(row.client_attestation) : undefined,
-      supervisorReview: row.supervisor_review ? JSON.parse(row.supervisor_review) : undefined,
+      supervisorReview: row.supervisor_review ? this.parseJsonField(row.supervisor_review) : undefined,
     };
 
     const filteredOptional = Object.fromEntries(
       Object.entries(optionalFields).filter(([_, value]) => value !== undefined && value !== null)
     );
 
-    return { ...baseRecord, ...filteredOptional } as EVVRecord;
+    return { ...baseRecord, ...filteredOptional } as unknown as EVVRecord;
   }
 
   /**

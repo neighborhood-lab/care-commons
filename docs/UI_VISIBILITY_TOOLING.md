@@ -71,10 +71,11 @@ ui-screenshots/
 - ✅ Automatic navigation and interaction
 - ✅ Metadata tracking (timestamp, URLs, captured states)
 - ✅ Error handling and graceful failures
+- ✅ Automatic image resize to 2000px width using ImageMagick `mogrify` (install with: `brew install imagemagick`)
 
 **Configuration**:
 
-Screenshots are configured in `scripts/capture-ui-screenshots.ts`. Key configurations:
+Screenshots are configured in `scripts/capture-screenshots.ts`. Key configurations:
 
 ```typescript
 // Web application states
@@ -98,8 +99,8 @@ const webUIStates: UIState[] = [
 
 **Adding New Screenshots**:
 
-1. Edit `scripts/capture-ui-screenshots.ts`
-2. Add new UI state to appropriate array (`webUIStates`, `showcaseUIStates`, `mobileUIStates`)
+1. Edit `scripts/capture-screenshots.ts`
+2. Add new route to the appropriate persona's routes array in the `PERSONAS` configuration
 3. Define screenshot configuration:
    ```typescript
    {
@@ -529,7 +530,7 @@ jobs:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  capture-ui-screenshots.ts                          │
+│  capture-screenshots.ts                             │
 │  ┌───────────────────────────────────────────────┐  │
 │  │ 1. Launch Playwright browser                  │  │
 │  └───────────────────────────────────────────────┘  │

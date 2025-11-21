@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-11-21T01:53:44.295Z",
+  "environment": {
+    "webUrl": "http://localhost:5173",
+    "showcaseUrl": "http://localhost:5174"
+  },
+  "settings": {
+    "resize": true,
+    "maxWidth": 2000
+  },
+  "personas": [
+    {
+      "id": "admin",
+      "name": "Maria Rodriguez",
+      "role": "Administrator",
+      "email": "admin@tx.carecommons.example",
+      "routesCaptured": 15
+    },
+    {
+      "id": "coordinator",
+      "name": "James Thompson",
+      "role": "Care Coordinator",
+      "email": "coordinator@tx.carecommons.example",
+      "routesCaptured": 12
+    },
+    {
+      "id": "caregiver",
+      "name": "Sarah Chen",
+      "role": "Caregiver",
+      "email": "caregiver@tx.carecommons.example",
+      "routesCaptured": 8
+    },
+    {
+      "id": "nurse",
+      "name": "David Williams",
+      "role": "RN Clinical",
+      "email": "nurse@tx.carecommons.example",
+      "routesCaptured": 9
+    },
+    {
+      "id": "family",
+      "name": "Emily Johnson",
+      "role": "Family Member",
+      "email": "family@tx.carecommons.example",
+      "routesCaptured": 9
+    }
+  ],
+  "stats": {
+    "total": 53,
+    "success": 53,
+    "failed": 0,
+    "failedRoutes": []
+  }
+}
