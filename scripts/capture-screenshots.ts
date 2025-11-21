@@ -69,7 +69,7 @@ const PERSONAS: Persona[] = [
       { path: '/scheduling/calendar', name: 'calendar' },
       { path: '/care-plans', name: 'care-plans' },
       { path: '/tasks', name: 'tasks' },
-      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/time-tracking', name: 'time-tracking', waitMs: 3000 }, // Extra wait for 255 EVV records
       { path: '/billing', name: 'billing' },
       { path: '/quality-assurance', name: 'quality-assurance' },
       { path: '/analytics/admin', name: 'analytics', waitMs: 3000 },
@@ -93,7 +93,7 @@ const PERSONAS: Persona[] = [
       { path: '/scheduling/calendar', name: 'calendar' },
       { path: '/care-plans', name: 'care-plans' },
       { path: '/tasks', name: 'tasks' },
-      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/time-tracking', name: 'time-tracking', waitMs: 3000 }, // Extra wait for 255 EVV records
       { path: '/analytics/coordinator', name: 'analytics', waitMs: 3000 },
       { path: '/settings', name: 'settings' },
     ],
@@ -112,7 +112,7 @@ const PERSONAS: Persona[] = [
       { path: '/visits', name: 'visits' },
       { path: '/scheduling', name: 'scheduling' },
       { path: '/tasks', name: 'tasks' },
-      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/time-tracking', name: 'time-tracking', waitMs: 3000 }, // Extra wait for 255 EVV records
       { path: '/settings', name: 'settings' },
     ],
   },
