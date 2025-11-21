@@ -190,7 +190,8 @@ function checkImageMagick(): boolean {
 
 function resizeImage(imagePath: string): void {
   try {
-    execSync(`mogrify -resize 2000x\\> "${imagePath}"`, { stdio: 'ignore' });
+    // Resize to max 2000px width AND max 8000px height (Claude's image limit)
+    execSync(`mogrify -resize 2000x8000\\> "${imagePath}"`, { stdio: 'ignore' });
   } catch (error) {
     console.warn(`   ⚠️  Failed to resize ${imagePath}`);
   }
@@ -276,7 +277,7 @@ async function captureRoute(
 
     await page.screenshot({
       path: outputPath,
-      fullPage: true,
+      fullPage: false, // Fixed: Use viewport-only screenshots to avoid 16,647px tall images
       animations: 'disabled',
     });
 
