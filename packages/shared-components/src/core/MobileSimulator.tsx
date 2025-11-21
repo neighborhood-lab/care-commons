@@ -44,6 +44,24 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(false);
 
+  // Detect localhost connection failures (iframe doesn't fire onError for network issues)
+  React.useEffect(() => {
+    if (!src) return undefined;
+
+    // If localhost and not loaded after 5 seconds, assume it's not running
+    if (src.includes('localhost') || src.includes('127.0.0.1')) {
+      const timeout = setTimeout(() => {
+        if (!iframeLoaded) {
+          setIframeError(true);
+        }
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+
+    return undefined;
+  }, [src, iframeLoaded]);
+
   // iPhone 14 Pro dimensions (in logical pixels)
   const width = 393;
   const height = 852;
@@ -117,18 +135,22 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
 
           {/* Error State */}
           {iframeError && src && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
-              <div className="text-center p-6">
-                <div className="text-4xl mb-4">📱</div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                  Mobile App Not Running
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10 p-4">
+              <div className="text-center max-w-xs">
+                <div className="text-5xl mb-4">📱</div>
+                <h4 className="text-base font-semibold text-gray-900 mb-2">
+                  Mobile Dev Server Not Running
                 </h4>
-                <p className="text-sm text-gray-600 mb-4">
-                  Start the mobile dev server:
+                <p className="text-xs text-gray-600 mb-3">
+                  To view the live mobile app, start the dev server:
                 </p>
-                <code className="block bg-gray-800 text-white px-4 py-2 rounded text-xs">
-                  cd packages/mobile && npm run web
+                <code className="block bg-gray-800 text-white px-3 py-2 rounded text-xs mb-3 font-mono">
+                  cd packages/mobile<br/>npm run web
                 </code>
+                <p className="text-xs text-gray-500">
+                  Trying to connect to:<br/>
+                  <span className="font-mono text-gray-700">{src}</span>
+                </p>
               </div>
             </div>
           )}
