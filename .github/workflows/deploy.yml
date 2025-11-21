@@ -176,6 +176,14 @@ jobs:
           npm run db:migrate
           echo "✅ Migrations complete"
 
+      - name: Hotfix - Add is_demo_data Column (Preview)
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "🔧 Running hotfix to add is_demo_data column..."
+          tsx scripts/hotfix-add-is-demo-data-column.ts
+          echo "✅ Hotfix complete"
+
       - name: Seed Demo Data (Preview)
         env:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
@@ -276,6 +284,14 @@ jobs:
           echo "📦 Running database migrations..."
           npm run db:migrate
           echo "✅ Migrations complete"
+
+      - name: Hotfix - Add is_demo_data Column (Production)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "🔧 Running hotfix to add is_demo_data column..."
+          tsx scripts/hotfix-add-is-demo-data-column.ts
+          echo "✅ Hotfix complete"
 
       - name: Seed Demo Data (Production)
         env:
