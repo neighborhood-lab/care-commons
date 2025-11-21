@@ -12,7 +12,8 @@ const PERSONAS = [
   {
     name: 'Maria Rodriguez',
     role: 'Administrator',
-    selector: 'text=Maria Rodriguez',
+    email: 'admin@tx.carecommons.example',
+    selector: 'button:has-text("Maria Rodriguez")',
     folder: '01-administrator',
     routes: [
       { path: '/', name: 'home' },
@@ -36,7 +37,8 @@ const PERSONAS = [
   {
     name: 'James Thompson',
     role: 'Care Coordinator',
-    selector: 'text=James Thompson',
+    email: 'coordinator@tx.carecommons.example',
+    selector: 'button:has-text("James Thompson")',
     folder: '02-coordinator',
     routes: [
       { path: '/', name: 'home' },
