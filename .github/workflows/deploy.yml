@@ -181,7 +181,7 @@ jobs:
           DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
         run: |
           echo "🔧 Running hotfix to add is_demo_data column..."
-          tsx scripts/hotfix-add-is-demo-data-column.ts
+          npx tsx scripts/hotfix-add-is-demo-data-column.ts
           echo "✅ Hotfix complete"
 
       - name: Seed Demo Data (Preview)
@@ -290,7 +290,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           echo "🔧 Running hotfix to add is_demo_data column..."
-          tsx scripts/hotfix-add-is-demo-data-column.ts
+          npx tsx scripts/hotfix-add-is-demo-data-column.ts
           echo "✅ Hotfix complete"
 
       - name: Seed Demo Data (Production)
