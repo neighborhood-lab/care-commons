@@ -2,20 +2,25 @@
 /**
  * Unified Screenshot Capture Tool
  * 
- * Captures comprehensive screenshots for:
- * - Web Application (all personas: admin, coordinator, caregiver, nurse, family)
- * - Showcase (public demo)
- * - Mobile (iOS Simulator screenshots)
+ * Captures comprehensive screenshots showing ALL seed data:
+ * - Web Application (all 5 personas: admin, coordinator, caregiver, nurse, family)
+ * - Showcase (public marketing site)
+ * - Mobile (responsive mobile views)
  * 
- * Works locally AND on production/preview deployments
+ * Features:
+ * - Works locally AND on production/preview deployments
+ * - Auto-resizes images to 2000px width using ImageMagick mogrify
+ * - Proper login/logout between personas
+ * - Detailed stats and error reporting
+ * - Metadata generation for AI agents
  * 
  * Usage:
- *   npm run capture                          # All personas, all routes, local
- *   npm run capture -- --url https://...     # Capture from production
+ *   npm run capture                          # Local, all personas, web only
+ *   npm run capture -- --production          # Production environment
+ *   npm run capture -- --showcase            # Include showcase
+ *   npm run capture -- --mobile              # Include mobile views
+ *   npm run capture -- --all                 # Web + Showcase + Mobile
  *   npm run capture -- --persona admin       # Single persona only
- *   npm run capture -- --web                 # Web only (skip showcase/mobile)
- *   npm run capture -- --showcase            # Showcase only
- *   npm run capture -- --mobile              # Mobile only (requires simulator)
  */
 
 import { chromium, type Browser, type Page } from '@playwright/test';
@@ -27,32 +32,32 @@ import { execSync } from 'node:child_process';
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5173/care-commons';
-const SHOWCASE_URL = process.env.SHOWCASE_URL || 'http://localhost:5174/care-commons';
-const OUTPUT_DIR = join(process.cwd(), 'screenshots');
-
 interface Route {
   path: string;
   name: string;
-  waitMs?: number; // Extra wait time if needed
-  skipOnError?: boolean; // Continue if this route fails
+  waitMs?: number;
+  skipOnError?: boolean;
 }
 
 interface Persona {
   id: string;
   name: string;
   role: string;
-  selector: string; // How to click persona on login page
+  email: string;
+  password: string;
+  folder: string;
   routes: Route[];
 }
 
-// All 5 personas with their accessible routes
+// All 5 personas with Texas demo credentials (from seed-demo.ts)
 const PERSONAS: Persona[] = [
   {
     id: 'admin',
     name: 'Maria Rodriguez',
     role: 'Administrator',
-    selector: 'text=Maria Rodriguez',
+    email: 'admin@tx.carecommons.example',
+    password: 'Demo123!',
+    folder: '01-administrator',
     routes: [
       { path: '/', name: 'home' },
       { path: '/admin', name: 'admin-dashboard' },
@@ -64,10 +69,8 @@ const PERSONAS: Persona[] = [
       { path: '/scheduling/calendar', name: 'calendar' },
       { path: '/care-plans', name: 'care-plans' },
       { path: '/tasks', name: 'tasks' },
-      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/time-tracking', name: 'time-tracking', waitMs: 3000 }, // Extra wait for 255 EVV records
       { path: '/billing', name: 'billing' },
-      { path: '/payroll', name: 'payroll', skipOnError: true },
-      { path: '/incidents', name: 'incidents', skipOnError: true },
       { path: '/quality-assurance', name: 'quality-assurance' },
       { path: '/analytics/admin', name: 'analytics', waitMs: 3000 },
       { path: '/settings', name: 'settings' },
@@ -77,7 +80,9 @@ const PERSONAS: Persona[] = [
     id: 'coordinator',
     name: 'James Thompson',
     role: 'Care Coordinator',
-    selector: 'text=James Thompson',
+    email: 'coordinator@tx.carecommons.example',
+    password: 'Demo123!',
+    folder: '02-coordinator',
     routes: [
       { path: '/', name: 'home' },
       { path: '/dashboard', name: 'dashboard' },
@@ -88,7 +93,7 @@ const PERSONAS: Persona[] = [
       { path: '/scheduling/calendar', name: 'calendar' },
       { path: '/care-plans', name: 'care-plans' },
       { path: '/tasks', name: 'tasks' },
-      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/time-tracking', name: 'time-tracking', waitMs: 3000 }, // Extra wait for 255 EVV records
       { path: '/analytics/coordinator', name: 'analytics', waitMs: 3000 },
       { path: '/settings', name: 'settings' },
     ],
@@ -97,7 +102,9 @@ const PERSONAS: Persona[] = [
     id: 'caregiver',
     name: 'Sarah Chen',
     role: 'Caregiver',
-    selector: 'text=Sarah Chen',
+    email: 'caregiver@tx.carecommons.example',
+    password: 'Demo123!',
+    folder: '03-caregiver',
     routes: [
       { path: '/', name: 'home' },
       { path: '/dashboard', name: 'dashboard' },
@@ -105,7 +112,7 @@ const PERSONAS: Persona[] = [
       { path: '/visits', name: 'visits' },
       { path: '/scheduling', name: 'scheduling' },
       { path: '/tasks', name: 'tasks' },
-      { path: '/time-tracking', name: 'time-tracking' },
+      { path: '/time-tracking', name: 'time-tracking', waitMs: 3000 }, // Extra wait for 255 EVV records
       { path: '/settings', name: 'settings' },
     ],
   },
@@ -113,7 +120,9 @@ const PERSONAS: Persona[] = [
     id: 'nurse',
     name: 'David Williams',
     role: 'RN Clinical',
-    selector: 'text=David Williams',
+    email: 'nurse@tx.carecommons.example',
+    password: 'Demo123!',
+    folder: '04-nurse',
     routes: [
       { path: '/', name: 'home' },
       { path: '/dashboard', name: 'dashboard' },
@@ -130,7 +139,9 @@ const PERSONAS: Persona[] = [
     id: 'family',
     name: 'Emily Johnson',
     role: 'Family Member',
-    selector: 'text=Emily Johnson',
+    email: 'family@tx.carecommons.example',
+    password: 'Demo123!',
+    folder: '05-family',
     routes: [
       { path: '/', name: 'home' },
       { path: '/family-portal', name: 'family-dashboard' },
@@ -146,14 +157,12 @@ const PERSONAS: Persona[] = [
 ];
 
 const SHOWCASE_ROUTES: Route[] = [
-  { path: '/', name: 'home' },
+  { path: '/', name: 'landing-page' },
   { path: '/demo', name: 'demo' },
-  { path: '/features', name: 'features', skipOnError: true },
-  { path: '/states', name: 'states', skipOnError: true },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SCREENSHOT CAPTURE
+// UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface CaptureStats {
@@ -170,20 +179,96 @@ const stats: CaptureStats = {
   failedRoutes: [],
 };
 
+function checkImageMagick(): boolean {
+  try {
+    execSync('which mogrify', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resizeImage(imagePath: string): void {
+  try {
+    // Resize to max 2000px width AND max 8000px height (Claude's image limit)
+    execSync(`mogrify -resize 2000x8000\\> "${imagePath}"`, { stdio: 'ignore' });
+  } catch (error) {
+    console.warn(`   ⚠️  Failed to resize ${imagePath}`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AUTHENTICATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function loginWithPersona(
+  page: Page,
+  persona: Persona,
+  baseUrl: string
+): Promise<void> {
+  console.log(`   🔐 Logging in as ${persona.email}...`);
+  
+  await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.waitForLoadState('networkidle', { timeout: 15000 });
+  await page.waitForTimeout(1000);
+  
+  // Try persona card first (faster for demo mode)
+  const personaButton = page.locator(`button:has-text("${persona.name}")`).first();
+  const hasPersonaButton = await personaButton.count() > 0;
+  
+  if (hasPersonaButton) {
+    console.log(`   ✓ Using persona card`);
+    await personaButton.click();
+    await page.waitForLoadState('networkidle', { timeout: 15000 });
+    await page.waitForTimeout(2000);
+  } else {
+    // Fallback to email/password form
+    console.log(`   ✓ Using email/password form`);
+    const emailInput = page.locator('input[type="email"], input[name="email"]').first();
+    const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
+    
+    await emailInput.fill(persona.email);
+    await passwordInput.fill(persona.password);
+    await page.click('button[type="submit"]');
+    await page.waitForLoadState('networkidle', { timeout: 15000 });
+    await page.waitForTimeout(2000);
+  }
+  
+  const currentUrl = page.url();
+  console.log(`   ✓ Logged in → ${currentUrl}`);
+}
+
+async function logout(page: Page, baseUrl: string): Promise<void> {
+  try {
+    await page.goto(`${baseUrl}/logout`, { timeout: 10000 });
+    await page.waitForLoadState('networkidle', { timeout: 5000 });
+    await page.waitForTimeout(1000);
+    console.log(`   🚪 Logged out`);
+  } catch (error) {
+    // Logout might not exist or fail - that's OK
+    console.log(`   ⚠️  Logout failed (continuing...)`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SCREENSHOT CAPTURE
+// ═══════════════════════════════════════════════════════════════════════════
+
 async function captureRoute(
   page: Page,
   route: Route,
   baseUrl: string,
-  outputPath: string
+  outputPath: string,
+  useResize: boolean
 ): Promise<boolean> {
   try {
     const url = `${baseUrl}${route.path}`;
-    console.log(`   📸 ${route.path.padEnd(30)} → ${route.name}`);
+    console.log(`   📸 ${route.path.padEnd(35)} → ${route.name}`);
 
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForLoadState('networkidle', { timeout: 15000 });
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
     
-    // Extra wait if specified
+    // Extra wait if specified (for analytics pages with multiple API calls)
     if (route.waitMs) {
       await page.waitForTimeout(route.waitMs);
     } else {
@@ -192,9 +277,14 @@ async function captureRoute(
 
     await page.screenshot({
       path: outputPath,
-      fullPage: true,
+      fullPage: false, // Fixed: Use viewport-only screenshots to avoid 16,647px tall images
       animations: 'disabled',
     });
+
+    // Resize image using mogrify
+    if (useResize) {
+      resizeImage(outputPath);
+    }
 
     stats.success++;
     return true;
@@ -214,36 +304,31 @@ async function capturePersona(
   browser: Browser,
   persona: Persona,
   baseUrl: string,
-  outputDir: string
+  outputDir: string,
+  useResize: boolean
 ): Promise<void> {
-  const personaDir = join(outputDir, 'web', persona.id);
+  const personaDir = join(outputDir, 'web', persona.folder);
   await mkdir(personaDir, { recursive: true });
 
   console.log(`\n🎭 ${persona.name} (${persona.role})`);
+  console.log(`   Email: ${persona.email}`);
   console.log(`   Output: ${personaDir}`);
 
-  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+  const context = await browser.newContext({ 
+    viewport: { width: 1920, height: 1080 },
+    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+  });
   const page = await context.newPage();
 
   try {
-    // Login via persona selector
-    console.log(`   🔐 Logging in...`);
-    await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle', { timeout: 10000 });
-    await page.waitForTimeout(500);
-    
-    await page.click(persona.selector, { timeout: 10000 });
-    await page.waitForLoadState('networkidle', { timeout: 10000 });
-    await page.waitForTimeout(2000);
-
-    const afterLoginUrl = page.url();
-    console.log(`   ✓ Logged in → ${afterLoginUrl}`);
+    // Login
+    await loginWithPersona(page, persona, baseUrl);
 
     // Capture all routes
     for (const route of persona.routes) {
       stats.total++;
       const outputPath = join(personaDir, `${route.name}.png`);
-      const success = await captureRoute(page, route, baseUrl, outputPath);
+      const success = await captureRoute(page, route, baseUrl, outputPath, useResize);
       
       if (!success && !route.skipOnError) {
         stats.failedRoutes.push({
@@ -254,15 +339,10 @@ async function capturePersona(
       }
     }
 
-    // Logout for next persona
-    try {
-      await page.goto(`${baseUrl}/logout`, { timeout: 5000 });
-      await page.waitForTimeout(500);
-    } catch {
-      // Logout failure is non-critical
-    }
+    // Logout
+    await logout(page, baseUrl);
   } catch (error) {
-    console.error(`   ❌ Persona capture failed:`, error instanceof Error ? error.message : String(error));
+    console.error(`   ❌ Error:`, error instanceof Error ? error.message : String(error));
   } finally {
     await context.close();
   }
@@ -271,7 +351,8 @@ async function capturePersona(
 async function captureShowcase(
   browser: Browser,
   showcaseUrl: string,
-  outputDir: string
+  outputDir: string,
+  useResize: boolean
 ): Promise<void> {
   const showcaseDir = join(outputDir, 'showcase');
   await mkdir(showcaseDir, { recursive: true });
@@ -280,47 +361,54 @@ async function captureShowcase(
   console.log(`   URL: ${showcaseUrl}`);
   console.log(`   Output: ${showcaseDir}`);
 
-  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+  const context = await browser.newContext({ 
+    viewport: { width: 1920, height: 1080 } 
+  });
   const page = await context.newPage();
 
   try {
     for (const route of SHOWCASE_ROUTES) {
       stats.total++;
       const outputPath = join(showcaseDir, `${route.name}.png`);
-      await captureRoute(page, route, showcaseUrl, outputPath);
+      await captureRoute(page, route, showcaseUrl, outputPath, useResize);
     }
   } finally {
     await context.close();
   }
 }
 
-async function captureMobile(outputDir: string): Promise<void> {
-  console.log(`\n📱 Mobile Application (iOS Simulator)`);
-  
+async function captureMobile(
+  browser: Browser,
+  baseUrl: string,
+  outputDir: string,
+  useResize: boolean
+): Promise<void> {
   const mobileDir = join(outputDir, 'mobile');
   await mkdir(mobileDir, { recursive: true });
 
+  console.log(`\n📱 Mobile Views`);
+  console.log(`   URL: ${baseUrl}`);
+  console.log(`   Output: ${mobileDir}`);
+
+  const context = await browser.newContext({
+    viewport: { width: 375, height: 812 }, // iPhone dimensions
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
+  });
+  const page = await context.newPage();
+
+  const mobileRoutes: Route[] = [
+    { path: '/login', name: 'login' },
+    { path: '/dashboard', name: 'dashboard' },
+  ];
+
   try {
-    // Check if xcrun is available (macOS only)
-    execSync('which xcrun', { stdio: 'ignore' });
-    
-    console.log(`   📸 Capturing iOS Simulator screenshots...`);
-    console.log(`   ℹ️  Make sure the simulator is running and the app is open`);
-    
-    // Use xcrun simctl io to capture screenshots
-    const timestamp = Date.now();
-    const outputPath = join(mobileDir, `ios-simulator-${timestamp}.png`);
-    
-    execSync(`xcrun simctl io booted screenshot "${outputPath}"`, { stdio: 'inherit' });
-    
-    console.log(`   ✓ Screenshot saved: ${outputPath}`);
-    console.log(`   💡 Tip: Navigate through the app and run this command again for more screenshots`);
-  } catch (error) {
-    console.error(`   ❌ Failed to capture mobile screenshots`);
-    console.error(`   ℹ️  Mobile capture requires:`)
-    console.error(`      - macOS with Xcode installed`);
-    console.error(`      - iOS Simulator running`);
-    console.error(`      - Mobile app open in simulator`);
+    for (const route of mobileRoutes) {
+      stats.total++;
+      const outputPath = join(mobileDir, `${route.name}.png`);
+      await captureRoute(page, route, baseUrl, outputPath, useResize);
+    }
+  } finally {
+    await context.close();
   }
 }
 
@@ -328,37 +416,26 @@ async function captureMobile(outputDir: string): Promise<void> {
 // METADATA AND REPORTING
 // ═══════════════════════════════════════════════════════════════════════════
 
-interface Metadata {
-  timestamp: string;
-  environment: {
-    webUrl: string;
-    showcaseUrl: string;
-  };
-  personas: {
-    id: string;
-    name: string;
-    role: string;
-    routesCaptured: number;
-  }[];
-  stats: CaptureStats;
-}
-
 async function generateMetadata(
   outputDir: string,
   capturedPersonas: Persona[],
-  webUrl: string,
-  showcaseUrl: string
+  config: { webUrl: string; showcaseUrl: string; resize: boolean }
 ): Promise<void> {
-  const metadata: Metadata = {
+  const metadata = {
     timestamp: new Date().toISOString(),
     environment: {
-      webUrl,
-      showcaseUrl,
+      webUrl: config.webUrl,
+      showcaseUrl: config.showcaseUrl,
+    },
+    settings: {
+      resize: config.resize,
+      maxWidth: 2000,
     },
     personas: capturedPersonas.map((p) => ({
       id: p.id,
       name: p.name,
       role: p.role,
+      email: p.email,
       routesCaptured: p.routes.length,
     })),
     stats,
@@ -369,60 +446,9 @@ async function generateMetadata(
   console.log(`\n📋 Metadata: ${metadataPath}`);
 }
 
-async function generateIndex(outputDir: string): Promise<void> {
-  const indexPath = join(outputDir, 'INDEX.md');
-  
-  let content = `# Screenshots Index\n\n`;
-  content += `Generated: ${new Date().toISOString()}\n\n`;
-  content += `## Summary\n\n`;
-  content += `- **Total Screenshots**: ${stats.total}\n`;
-  content += `- **Successful**: ${stats.success}\n`;
-  content += `- **Failed**: ${stats.failed}\n\n`;
-
-  if (stats.failedRoutes.length > 0) {
-    content += `## Failed Routes\n\n`;
-    for (const failed of stats.failedRoutes) {
-      content += `- **${failed.persona}** → ${failed.route}: ${failed.error}\n`;
-    }
-    content += `\n`;
-  }
-
-  content += `## Directory Structure\n\n`;
-  content += `\`\`\`\n`;
-  content += `screenshots/\n`;
-  content += `├── web/                    # Web application (all personas)\n`;
-  content += `│   ├── admin/              # Administrator\n`;
-  content += `│   ├── coordinator/        # Care Coordinator\n`;
-  content += `│   ├── caregiver/          # Caregiver\n`;
-  content += `│   ├── nurse/              # RN Clinical\n`;
-  content += `│   └── family/             # Family Member\n`;
-  content += `├── showcase/               # Showcase application\n`;
-  content += `├── mobile/                 # Mobile app (iOS Simulator)\n`;
-  content += `├── metadata.json           # Capture metadata\n`;
-  content += `└── INDEX.md                # This file\n`;
-  content += `\`\`\`\n\n`;
-
-  content += `## Usage\n\n`;
-  content += `These screenshots are for:\n`;
-  content += `- Visual regression testing\n`;
-  content += `- LLM agents to understand UI state\n`;
-  content += `- Documentation and demos\n`;
-  content += `- Design reviews\n\n`;
-
-  content += `## Regenerating\n\n`;
-  content += `\`\`\`bash\n`;
-  content += `npm run capture                    # All personas, local\n`;
-  content += `npm run capture -- --url https://... # Production\n`;
-  content += `npm run capture -- --persona admin # Single persona\n`;
-  content += `\`\`\`\n`;
-
-  await writeFile(indexPath, content);
-  console.log(`📄 Index: ${indexPath}`);
-}
-
-function printSummary(): void {
+function printSummary(outputDir: string): void {
   console.log(`\n${'═'.repeat(70)}`);
-  console.log(`📊 Capture Summary`);
+  console.log(`📊 Screenshot Capture Summary`);
   console.log(`${'═'.repeat(70)}`);
   console.log(`Total Screenshots:  ${stats.total}`);
   console.log(`Successful:         ${stats.success} (${((stats.success / stats.total) * 100).toFixed(1)}%)`);
@@ -436,8 +462,8 @@ function printSummary(): void {
   }
   
   console.log(`${'═'.repeat(70)}`);
-  console.log(`\n✨ Screenshots saved to: ${OUTPUT_DIR}`);
-  console.log(`📋 See INDEX.md for details\n`);
+  console.log(`\n✅ Screenshots saved to: ${outputDir}`);
+  console.log(`📁 View screenshots to verify seed data is visible\n`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -448,27 +474,40 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   
   // Parse arguments
-  const customUrl = args.find((arg) => arg.startsWith('--url='))?.split('=')[1];
+  const isProduction = args.includes('--production');
+  const includeShowcase = args.includes('--showcase') || args.includes('--all');
+  const includeMobile = args.includes('--mobile') || args.includes('--all');
   const targetPersona = args.find((arg) => arg.startsWith('--persona='))?.split('=')[1];
-  const webOnly = args.includes('--web');
-  const showcaseOnly = args.includes('--showcase');
-  const mobileOnly = args.includes('--mobile');
+  const noResize = args.includes('--no-resize');
 
-  const webUrl = customUrl || BASE_URL;
-  const showcaseUrl = customUrl || SHOWCASE_URL;
+  const webUrl = isProduction 
+    ? 'https://care-commons.vercel.app' 
+    : process.env.BASE_URL || 'http://localhost:5173';
+  
+  const showcaseUrl = isProduction
+    ? 'https://care-commons.vercel.app'
+    : 'http://localhost:5174';
 
+  const outputDir = join(process.cwd(), isProduction ? 'ui-screenshots-production-comprehensive' : 'ui-screenshots-personas');
+
+  // Check for ImageMagick
+  const hasImageMagick = checkImageMagick();
+  const useResize = !noResize && hasImageMagick;
+  
   console.log(`🚀 Care Commons Screenshot Capture Tool\n`);
   console.log(`Configuration:`);
+  console.log(`  Environment:  ${isProduction ? 'Production' : 'Local'}`);
   console.log(`  Web URL:      ${webUrl}`);
   console.log(`  Showcase URL: ${showcaseUrl}`);
-  console.log(`  Output:       ${OUTPUT_DIR}`);
+  console.log(`  Output:       ${outputDir}`);
+  console.log(`  ImageMagick:  ${hasImageMagick ? '✓ Available (will resize to 2000px)' : '✗ Not found (install with: brew install imagemagick)'}`);
   if (targetPersona) {
     console.log(`  Target:       ${targetPersona} only`);
   }
   console.log();
 
   // Create output directory
-  await mkdir(OUTPUT_DIR, { recursive: true });
+  await mkdir(outputDir, { recursive: true });
 
   // Launch browser
   const browser = await chromium.launch({
@@ -480,36 +519,37 @@ async function main(): Promise<void> {
     const capturedPersonas: Persona[] = [];
 
     // Capture web personas
-    if (!showcaseOnly && !mobileOnly) {
-      const personasToCapture = targetPersona
-        ? PERSONAS.filter((p) => p.id === targetPersona)
-        : PERSONAS;
+    const personasToCapture = targetPersona
+      ? PERSONAS.filter((p) => p.id === targetPersona)
+      : PERSONAS;
 
-      if (personasToCapture.length === 0) {
-        throw new Error(`Unknown persona: ${targetPersona}`);
-      }
+    if (personasToCapture.length === 0) {
+      throw new Error(`Unknown persona: ${targetPersona}. Valid: ${PERSONAS.map(p => p.id).join(', ')}`);
+    }
 
-      for (const persona of personasToCapture) {
-        await capturePersona(browser, persona, webUrl, OUTPUT_DIR);
-        capturedPersonas.push(persona);
-      }
+    for (const persona of personasToCapture) {
+      await capturePersona(browser, persona, webUrl, outputDir, useResize);
+      capturedPersonas.push(persona);
     }
 
     // Capture showcase
-    if (!webOnly && !mobileOnly && !targetPersona) {
-      await captureShowcase(browser, showcaseUrl, OUTPUT_DIR);
+    if (includeShowcase && !targetPersona) {
+      await captureShowcase(browser, showcaseUrl, outputDir, useResize);
     }
 
-    // Capture mobile (if requested)
-    if (mobileOnly || (!webOnly && !showcaseOnly && !targetPersona)) {
-      await captureMobile(OUTPUT_DIR);
+    // Capture mobile
+    if (includeMobile && !targetPersona) {
+      await captureMobile(browser, webUrl, outputDir, useResize);
     }
 
-    // Generate metadata and index
-    await generateMetadata(OUTPUT_DIR, capturedPersonas, webUrl, showcaseUrl);
-    await generateIndex(OUTPUT_DIR);
+    // Generate metadata
+    await generateMetadata(outputDir, capturedPersonas, {
+      webUrl,
+      showcaseUrl,
+      resize: useResize,
+    });
     
-    printSummary();
+    printSummary(outputDir);
   } catch (error) {
     console.error(`\n❌ Fatal error:`, error);
     process.exit(1);
