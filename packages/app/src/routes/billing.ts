@@ -5,8 +5,20 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, AuthMiddleware } from '@care-commons/core';
-import { BillingRepository } from '@care-commons/billing-invoicing';
+import { Database, AuthMiddleware, UUID } from '@care-commons/core';
+import { BillingRepository, InvoiceSearchFilters, InvoiceStatus } from '@care-commons/billing-invoicing';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: UUID;
+    organizationId: UUID;
+  };
+}
+
+function isInvoiceStatus(value: string): value is InvoiceStatus {
+  return ['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'SENT', 'SUBMITTED', 
+          'PARTIALLY_PAID', 'PAID', 'PAST_DUE', 'DISPUTED', 'CANCELLED', 'VOIDED'].includes(value);
+}
 
 export function createBillingRouter(db: Database): Router {
   const router = Router();
@@ -22,19 +34,26 @@ export function createBillingRouter(db: Database): Router {
    */
   router.get('/invoices', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = (req as any).user;
-      const organizationId = user.organizationId;
+      const authReq = req as AuthenticatedRequest;
+      const organizationId = authReq.user?.organizationId;
 
-      const filters: any = {
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const filters: InvoiceSearchFilters = {
         organizationId
       };
 
       // Apply query filters
-      if (req.query.clientId) filters.clientId = req.query.clientId as string;
-      if (req.query.payerId) filters.payerId = req.query.payerId as string;
-      if (req.query.status) filters.status = [req.query.status as string];
-      if (req.query.startDate) filters.startDate = new Date(req.query.startDate as string);
-      if (req.query.endDate) filters.endDate = new Date(req.query.endDate as string);
+      if (typeof req.query.clientId === 'string') filters.clientId = req.query.clientId;
+      if (typeof req.query.payerId === 'string') filters.payerId = req.query.payerId;
+      if (typeof req.query.status === 'string' && isInvoiceStatus(req.query.status)) {
+        filters.status = [req.query.status];
+      }
+      if (typeof req.query.startDate === 'string') filters.startDate = new Date(req.query.startDate);
+      if (typeof req.query.endDate === 'string') filters.endDate = new Date(req.query.endDate);
       if (req.query.isPastDue === 'true') filters.isPastDue = true;
       if (req.query.hasBalance === 'true') filters.hasBalance = true;
 
@@ -56,8 +75,13 @@ export function createBillingRouter(db: Database): Router {
    */
   router.get('/summary', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = (req as any).user;
-      const organizationId = user.organizationId;
+      const authReq = req as AuthenticatedRequest;
+      const organizationId = authReq.user?.organizationId;
+
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
 
       // Get all invoices for organization
       const allInvoices = await billingRepo.searchInvoices({ organizationId });
@@ -99,14 +123,14 @@ export function createBillingRouter(db: Database): Router {
     try {
       const { id } = req.params;
       
-      if (!id) {
+      if (typeof id !== 'string' || id.length === 0) {
         res.status(400).json({ error: 'Invoice ID is required' });
         return;
       }
 
       const invoice = await billingRepo.findInvoiceById(id);
       
-      if (!invoice) {
+      if (invoice === null) {
         res.status(404).json({
           error: 'Invoice not found'
         });
@@ -127,14 +151,14 @@ export function createBillingRouter(db: Database): Router {
     try {
       const { id } = req.params;
       
-      if (!id) {
+      if (typeof id !== 'string' || id.length === 0) {
         res.status(400).json({ error: 'Invoice ID is required' });
         return;
       }
 
       const invoice = await billingRepo.findInvoiceById(id);
       
-      if (!invoice) {
+      if (invoice === null) {
         res.status(404).json({
           error: 'Invoice not found'
         });
@@ -142,7 +166,7 @@ export function createBillingRouter(db: Database): Router {
       }
 
       // Return payments array from invoice
-      res.json(invoice.payments || []);
+      res.json(invoice.payments);
     } catch (error) {
       next(error);
     }
