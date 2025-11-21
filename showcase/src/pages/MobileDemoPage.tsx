@@ -24,7 +24,11 @@ import {
 } from 'lucide-react';
 
 export const MobileDemoPage: React.FC = () => {
-  const [mobileServerUrl, setMobileServerUrl] = useState('http://localhost:8081');
+  // Use environment variable for deployed mobile app, fallback to localhost
+  const defaultUrl = import.meta.env.VITE_MOBILE_APP_URL || 'http://localhost:8081';
+  const isProduction = !defaultUrl.includes('localhost');
+  
+  const [mobileServerUrl, setMobileServerUrl] = useState(defaultUrl);
   const [isCustomUrl, setIsCustomUrl] = useState(false);
 
   const features = [
@@ -311,20 +315,37 @@ export const MobileDemoPage: React.FC = () => {
                 showChrome={true}
               />
 
-              <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex gap-3">
-                  <Bell className="h-5 w-5 text-yellow-600 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">
-                      Interactive Demo
-                    </h4>
-                    <p className="text-sm text-gray-700">
-                      This is the actual mobile app running in your browser. 
-                      Any changes you make to the mobile code will appear here instantly.
-                    </p>
+              {isProduction ? (
+                <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <Bell className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">
+                        Production Demo
+                      </h4>
+                      <p className="text-sm text-gray-700">
+                        The mobile app demo is deployed and ready to explore! 
+                        This is a web version of our React Native mobile app.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <Bell className="h-5 w-5 text-yellow-600 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">
+                        Interactive Demo
+                      </h4>
+                      <p className="text-sm text-gray-700">
+                        This is the actual mobile app running in your browser. 
+                        Any changes you make to the mobile code will appear here instantly.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
