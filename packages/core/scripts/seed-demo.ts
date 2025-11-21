@@ -1,7 +1,7 @@
 /**
- * Demo Database Seeding Script - TEXAS EDITION
+ * Demo Database Seeding Script - TEXAS EDITION (EVERGREEN)
  *
- * Seeds comprehensive realistic Texas-specific demo data:
+ * Seeds comprehensive realistic Texas-specific demo data with dates relative to TODAY:
  * - 60 clients across 5 Texas cities (Austin, Houston, Dallas, San Antonio, Fort Worth)
  * - Culturally diverse names reflecting Texas demographics (Hispanic, Anglo, African American, Asian)
  * - Age-appropriate medical conditions (65-95 years old) with realistic medications
@@ -22,9 +22,14 @@
  * - Age-appropriate diagnoses (Alzheimer's, Diabetes, CHF, COPD, Stroke, etc.)
  * - Realistic EVV data with GPS coordinates
  *
+ * ⚠️  SAFETY GUARANTEES:
+ * - ONLY deletes records with is_demo_data = true
+ * - NEVER touches production data
+ * - Re-generates demo data with fresh dates on each run (evergreen)
+ *
  * Usage: npm run db:seed:demo
  *
- * PREREQUISITE: Run `npm run db:seed` first to create org, branch, and admin user.
+ * PREREQUISITE: Database migrations must be run first (creates org, branch, admin, family users).
  */
 
 import { config as dotenvConfig } from "dotenv";
@@ -1110,12 +1115,14 @@ async function seedDatabase() {
       console.log(`   Example: admin@al.carecommons.example / Demo123!\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 2: Clear existing demo data (optional, based on IS_DEMO flag)
+      // STEP 2: Clear existing demo data to refresh with evergreen dates
       // ═══════════════════════════════════════════════════════════════════════════
       
-      console.log('🧹 Clearing previous demo data (if any)...');
+      console.log('🧹 Clearing previous demo data (WHERE is_demo_data = true)...');
+      console.log('⚠️  SAFETY: This ONLY deletes records marked is_demo_data = true');
+      console.log('⚠️  SAFETY: Production data is NEVER touched\n');
 
-      // Delete in reverse dependency order
+      // Delete in reverse dependency order (all WHERE is_demo_data = true)
       await client.query('DELETE FROM evv_records WHERE is_demo_data = true');
       await client.query('DELETE FROM visits WHERE is_demo_data = true');
       await client.query('DELETE FROM task_instances WHERE is_demo_data = true');
@@ -1129,8 +1136,9 @@ async function seedDatabase() {
       await client.query('DELETE FROM open_shifts WHERE is_demo_data = true');
       await client.query('DELETE FROM caregivers WHERE is_demo_data = true');
       await client.query('DELETE FROM clients WHERE is_demo_data = true');
+      await client.query('DELETE FROM users WHERE is_demo_data = true'); // Demo caregiver users
 
-      console.log('✅ Previous demo data cleared\n');
+      console.log('✅ Previous demo data cleared (production data untouched)\n');
       
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 3: Generate and insert clients (60 total: distributed across Texas cities)
