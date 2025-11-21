@@ -36,15 +36,15 @@ export const createCarePlanApiService = (apiClient: ApiClient): CarePlanApiServi
       if (filters?.needsReview) params.append('needsReview', filters.needsReview.toString());
       if (filters?.complianceStatus) for (const c of filters.complianceStatus) params.append('complianceStatus', c);
       if (filters?.page) params.append('page', filters.page.toString());
-      if (filters?.pageSize) params.append('pageSize', filters.pageSize.toString());
+      if (filters?.pageSize) params.append('limit', filters.pageSize.toString()); // Backend uses 'limit' not 'pageSize'
       if (filters?.sortBy) params.append('sortBy', filters.sortBy);
-      if (filters?.sortDirection) params.append('sortDirection', filters.sortDirection);
+      if (filters?.sortDirection) params.append('sortOrder', filters.sortDirection); // Backend uses 'sortOrder' not 'sortDirection'
 
       const queryString = params.toString();
-      const response = await apiClient.get<{ success: boolean; data: PaginatedResult<CarePlan> }>(
+      // Backend returns data directly, not wrapped in {success, data}
+      return await apiClient.get<PaginatedResult<CarePlan>>(
         `/api/care-plans${queryString ? `?${queryString}` : ''}`
       );
-      return response.data;
     },
 
     async getCarePlanById(id: string): Promise<CarePlan> {

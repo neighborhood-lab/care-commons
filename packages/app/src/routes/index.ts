@@ -48,6 +48,7 @@ import { createEVVRouter } from './evv.js';
 import { createUsageRouter } from './usage.js';
 import { createVerificationRouter } from './verification.js';
 import { createImportRoutes } from './import-routes.js';
+import { createBillingRouter } from './billing.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -340,6 +341,8 @@ export function setupRoutes(app: Express, db: Database): void {
   // EVV & Time Tracking routes
   const evvRouter = createEVVRouter(db);
   app.use('/api/evv', evvLimiter, evvRouter);
+  // Alias for backwards compatibility with frontend
+  app.use('/api/time-tracking', evvLimiter, evvRouter);
   console.log('  ✓ EVV & Time Tracking routes registered (with rate limiting)');
 
   // Usage Statistics routes
@@ -357,9 +360,10 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/import', generalApiLimiter, importRouter);
   console.log('  ✓ Import & Data Migration routes registered (with rate limiting)');
 
-  // Additional verticals can be added here as they implement route handlers:
-  // - Shift Matching
-  // - Billing & Invoicing
+  // Billing & Invoicing routes
+  const billingRouter = createBillingRouter(db);
+  app.use('/api/billing', generalApiLimiter, billingRouter);
+  console.log('  ✓ Billing & Invoicing routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }

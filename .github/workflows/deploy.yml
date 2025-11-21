@@ -176,6 +176,15 @@ jobs:
           npm run db:migrate
           echo "✅ Migrations complete"
 
+      - name: Seed Demo Data (Preview)
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+        run: |
+          echo "🎭 Seeding evergreen demo data..."
+          echo "⚠️  SAFETY: Only deletes records with is_demo_data = true"
+          npm run db:seed:demo
+          echo "✅ Demo data seeded with fresh dates"
+
       - name: Build for Preview
         env:
           NODE_ENV: production
@@ -267,6 +276,15 @@ jobs:
           echo "📦 Running database migrations..."
           npm run db:migrate
           echo "✅ Migrations complete"
+
+      - name: Seed Demo Data (Production)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "🎭 Seeding evergreen demo data..."
+          echo "⚠️  SAFETY: Only deletes records with is_demo_data = true"
+          npm run db:seed:demo
+          echo "✅ Demo data seeded with fresh dates"
 
       - name: Build for Production
         env:
