@@ -308,12 +308,41 @@ export const MobileDemoPage: React.FC = () => {
 
             {/* Right Column - Mobile Simulator */}
             <div className="lg:sticky lg:top-8 lg:self-start">
-              <MobileSimulator
-                src={mobileServerUrl}
-                title="Live Mobile App"
-                device="iphone"
-                showChrome={true}
-              />
+              {!isProduction ? (
+                <MobileSimulator
+                  title="Live Mobile App"
+                  device="iphone"
+                  showChrome={true}
+                >
+                  {/* Fallback content for localhost - no server running */}
+                  <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+                    <div className="text-center max-w-xs">
+                      <div className="text-6xl mb-4">📱</div>
+                      <h4 className="text-lg font-bold text-gray-900 mb-3">
+                        Mobile Dev Server
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Start the mobile dev server to see the live app:
+                      </p>
+                      <code className="block bg-gray-900 text-green-400 px-4 py-3 rounded-lg text-xs font-mono mb-4">
+                        cd packages/mobile<br/>
+                        npm run web
+                      </code>
+                      <div className="text-xs text-gray-500 bg-white border border-gray-200 rounded p-2">
+                        <div className="font-semibold mb-1">Server URL:</div>
+                        <div className="font-mono text-gray-700 break-all">{mobileServerUrl}</div>
+                      </div>
+                    </div>
+                  </div>
+                </MobileSimulator>
+              ) : (
+                <MobileSimulator
+                  src={mobileServerUrl}
+                  title="Live Mobile App"
+                  device="iphone"
+                  showChrome={true}
+                />
+              )}
 
               {isProduction ? (
                 <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">

@@ -48,13 +48,13 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
   React.useEffect(() => {
     if (!src) return undefined;
 
-    // If localhost and not loaded after 5 seconds, assume it's not running
+    // If localhost and not loaded after 2 seconds, assume it's not running
     if (src.includes('localhost') || src.includes('127.0.0.1')) {
       const timeout = setTimeout(() => {
         if (!iframeLoaded) {
           setIframeError(true);
         }
-      }, 5000);
+      }, 2000);
 
       return () => clearTimeout(timeout);
     }
@@ -123,17 +123,7 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
             height: showChrome ? `${height - 24}px` : `${height}px`,
           }}
         >
-          {/* Loading State */}
-          {(isLoading || (!iframeLoaded && src && !iframeError)) && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
-              <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mb-4" />
-                <p className="text-sm text-gray-600">Loading mobile app...</p>
-              </div>
-            </div>
-          )}
-
-          {/* Error State */}
+          {/* Error State - Higher priority than loading */}
           {iframeError && src && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10 p-4">
               <div className="text-center max-w-xs">
@@ -151,6 +141,16 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
                   Trying to connect to:<br/>
                   <span className="font-mono text-gray-700">{src}</span>
                 </p>
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {!iframeError && (isLoading || (!iframeLoaded && src)) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mb-4" />
+                <p className="text-sm text-gray-600">Loading mobile app...</p>
               </div>
             </div>
           )}
