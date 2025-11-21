@@ -5,15 +5,8 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, AuthMiddleware, UUID } from '@care-commons/core';
+import { Database, AuthMiddleware } from '@care-commons/core';
 import { BillingRepository, InvoiceSearchFilters, InvoiceStatus } from '@care-commons/billing-invoicing';
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: UUID;
-    organizationId: UUID;
-  };
-}
 
 function isInvoiceStatus(value: string): value is InvoiceStatus {
   return ['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'SENT', 'SUBMITTED', 
@@ -34,8 +27,7 @@ export function createBillingRouter(db: Database): Router {
    */
   router.get('/invoices', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authReq = req as AuthenticatedRequest;
-      const organizationId = authReq.user?.organizationId;
+      const organizationId = req.user?.organizationId;
 
       if (typeof organizationId !== 'string') {
         res.status(401).json({ error: 'Unauthorized' });
@@ -75,8 +67,7 @@ export function createBillingRouter(db: Database): Router {
    */
   router.get('/summary', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authReq = req as AuthenticatedRequest;
-      const organizationId = authReq.user?.organizationId;
+      const organizationId = req.user?.organizationId;
 
       if (typeof organizationId !== 'string') {
         res.status(401).json({ error: 'Unauthorized' });
