@@ -11,7 +11,7 @@ export const PayrollPage: React.FC = () => {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6" data-tour="timesheet-review">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <DollarSign className="w-8 h-8 text-green-600 mb-2" />
             <p className="text-sm text-gray-600">This Period</p>
@@ -33,7 +33,7 @@ export const PayrollPage: React.FC = () => {
             <p className="text-2xl font-bold">14</p>
           </div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-6">
+        <div className="bg-blue-50 rounded-lg p-6" data-tour="payroll-export">
           <h3 className="font-semibold mb-4">Features</h3>
           <ul className="space-y-2 text-sm">
             <li>• Automated calculation of wages, overtime, and deductions</li>
