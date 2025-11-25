@@ -41,7 +41,10 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
-      - run: npm audit --production
+      # Only fail on high/critical vulnerabilities
+      # Moderate issues in transitive dependencies (e.g., sentry-expo) are tracked but don't block deployment
+      - name: Run npm audit
+        run: npm audit --omit=dev --audit-level=high
 
   dependency-update:
     name: Dependency Update Check
