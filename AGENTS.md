@@ -501,6 +501,33 @@ When implementing features, consider:
 
 ## Agent Workflow Preferences
 
+### Human-Agent Communication Protocol
+
+**HUMAN Label for Issues**: Use the `HUMAN` label on GitHub issues that require Brian's action.
+
+**When to Create Issues**:
+- **Non-blocking tasks for Brian** → Create issue with `HUMAN` label
+- **Tasks for agent to do later** → Create issue (no special label)
+- **Blocking issues that need Brian now** → Prompt inline immediately
+
+**Brian's Contact Info** (for external communications on his behalf):
+- Name: Brian Edwards
+- Phone: 512-584-6841
+- Email: brian.mabry.edwards@gmail.com
+- Always CC Brian on external emails
+- Never use placeholders or inaccurate info
+
+**Inline Communication Rules**:
+- Do NOT put tasks for Brian inline unless you are blocked and need something NOW
+- If something can wait and you're not blocked, create a `HUMAN` issue
+- Keep the agent working - don't wait on non-blocking items
+
+**Issue Prioritization**: 
+- Create GitHub issues for anything that surfaces during work
+- Use labels to categorize (bug, enhancement, documentation, etc.)
+- Prioritize based on: blocking issues first, then bugs, then enhancements
+- Quick wins build momentum - tackle small fixes to keep progress visible
+
 ### Work Style
 
 **Serial Execution**: Work on issues one at a time through the complete cycle:
@@ -534,7 +561,13 @@ npx tsx scripts/capture-screenshots.ts --showcase-only --production
 
 ### Handling Async Operations
 
-**Parallel Work While Waiting**: When GitHub Actions is running (3-5 min), don't sit idle:
+**GitHub Actions Timing Expectations**:
+- **Target**: ~3 minutes per workflow job (lint, typecheck, test, build)
+- **Total CI**: Should complete in 6-10 minutes for a typical PR
+- **If slower**: There should be a clear reason (e.g., cache miss, large test suite)
+- **Red flag**: Any single job taking >5 minutes warrants investigation
+
+**Parallel Work While Waiting**: When GitHub Actions is running, don't sit idle:
 - Start investigating the next issue
 - Read related code
 - Update documentation

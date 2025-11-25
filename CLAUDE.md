@@ -616,6 +616,24 @@ cd packages/mobile && npm run test:e2e
 
 ---
 
+## Agent-Human Communication
+
+**Issue Labels**:
+- `HUMAN` - Tasks requiring Brian's action (non-blocking for agent)
+- No special label - Tasks for agent to work on later
+
+**When Blocked**: Prompt Brian inline immediately.
+
+**When NOT Blocked**: Create GitHub issue instead of inline prompts.
+
+**Brian's Contact** (for external communications):
+- Brian Edwards, 512-584-6841, brian.mabry.edwards@gmail.com
+- Always CC Brian, never use placeholders
+
+**GitHub Actions Timing**: Each job should take ~3 minutes. If >5 minutes, investigate.
+
+---
+
 ## See Also
 
 - **[AGENTS.md](./AGENTS.md)** - Comprehensive agent implementation directives
