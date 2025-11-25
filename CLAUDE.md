@@ -65,7 +65,7 @@ npm run test         # Run all tests
 | **Backend** | TypeScript/Node.js + Express | REST API server |
 | **Database** | PostgreSQL 14+ | Relational data with JSONB |
 | **Frontend** | React 19 + Vite | Web application |
-| **Mobile** | React Native (Expo) | Mobile application |
+| **Mobile** | React Native (Expo) | Mobile EVV app (caregiver-first) |
 | **Validation** | Zod | Runtime type safety |
 | **Testing** | Vitest | ESM-native testing |
 | **Build** | Turborepo | Monorepo orchestration |
@@ -123,6 +123,7 @@ care-commons/
 │   ├── billing-invoicing/     # Billing
 │   ├── family-engagement/     # Family portal
 │   └── [others]/              # Additional verticals
+├── showcase/              # Static demo (GitHub Pages, localStorage)
 ├── api/                   # Vercel serverless functions
 │   └── index.mts          # Entry point (.mts = explicit ESM)
 ├── scripts/               # Repository utilities
@@ -558,6 +559,60 @@ import { createApp } from '@care-commons/app/server.js';
 import { ClientService } from '@care-commons/client-demographics';
 import { CaregiverService } from '@care-commons/caregiver-staff';
 ```
+
+---
+
+## Deployment & Branching
+
+### Branch Strategy
+
+**Workflow**: `feature/*` → `develop` → `preview` → `production`
+
+| Branch | Environment | URL |
+|--------|-------------|-----|
+| `production` | Production | care-commons.vercel.app |
+| `preview` | Preview | preview-*.vercel.app |
+| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ |
+
+**NOTE**: There is no `main` branch. This is intentional.
+
+### Showcase Demo
+
+Static client-side demo at https://neighborhood-lab.github.io/care-commons/
+- Uses localStorage (no backend)
+- Multi-role experience (patient, family, caregiver, coordinator, admin)
+- Includes mobile app simulator (work in progress)
+
+### Screenshot Capture
+
+AI agents can visually inspect the UI and **read PNG files directly**:
+
+```bash
+# Showcase (local or production)
+npx tsx scripts/capture-screenshots.ts --showcase-only
+npx tsx scripts/capture-screenshots.ts --showcase-only --production
+
+# iOS Simulator (requires Expo running)
+npx tsx scripts/capture-ios-screenshots.ts --name screen-name
+
+# Mobile E2E with Detox
+cd packages/mobile && npm run test:e2e
+```
+
+**Use screenshots to create GitHub issues with visual evidence.**
+
+### Authentication Notes
+
+**Working**: Demo logins (e.g., `admin@carecommons.example`)
+
+**Not fully implemented**: Google OAuth, Stripe billing, multi-tenant signup
+
+### Secrets
+
+- Ask user for secrets when needed - they will provide securely
+- Store in `.env` files (gitignored)
+- **NEVER** commit secrets or expose in client-side code
+- Common: `DATABASE_URL`, `JWT_SECRET`, `REDIS_URL` (optional)
 
 ---
 

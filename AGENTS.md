@@ -230,16 +230,130 @@ care-commons/
 ├── packages/
 │   ├── core/           # Shared domain logic, database, permissions
 │   ├── app/            # Express application
-│   └── web/            # Frontend (React)
+│   ├── web/            # Frontend (React)
+│   ├── mobile/         # React Native mobile app (Expo)
+│   └── shared-components/  # Shared UI components (web + mobile)
 ├── verticals/
 │   ├── client-demographics/    # Client records
 │   ├── caregiver-staff/        # Caregiver management
 │   ├── scheduling-visits/      # Scheduling & visits
 │   ├── care-plans-tasks/       # Care plans
 │   └── time-tracking-evv/      # EVV compliance
+├── showcase/           # Static demo (GitHub Pages)
 ├── api/                # Vercel serverless functions (.mts)
 └── scripts/            # Database utilities
 ```
+
+### Mobile App
+
+The project includes a **React Native mobile app** (`packages/mobile/`) built with Expo:
+
+- **Purpose**: Caregiver-first EVV (Electronic Visit Verification) mobile experience
+- **Features**: Clock in/out, GPS verification, offline support, visit documentation
+- **Status**: Core functionality implemented, integrated into showcase demo
+- **Showcase Integration**: Mobile UI is displayed via `MobileSimulator` component in the showcase (work in progress)
+
+### Showcase Demo
+
+The **Showcase** (`showcase/`) is a static, client-side demo deployed to GitHub Pages:
+
+- **URL**: https://neighborhood-lab.github.io/care-commons/
+- **Purpose**: Interactive demo without backend dependencies
+- **Data**: Uses browser localStorage (no database)
+- **Roles**: Multi-role experience (patient, family, caregiver, coordinator, admin)
+- **Mobile Demo**: Includes embedded mobile app simulator (work in progress)
+
+### Screenshot Capture Tooling
+
+AI agents can **visually inspect the UI** using the screenshot capture framework. **You can read PNG files directly** - not just metadata, but actually see the rendered pages.
+
+**Web/Showcase Screenshots** (`scripts/capture-screenshots.ts`):
+
+```bash
+# Showcase only (23 pages, no database needed)
+npx tsx scripts/capture-screenshots.ts --showcase-only
+
+# Production showcase (GitHub Pages)
+npx tsx scripts/capture-screenshots.ts --showcase-only --production
+
+# Web SaaS with all personas (requires database)
+npx tsx scripts/capture-screenshots.ts
+
+# All targets
+npx tsx scripts/capture-screenshots.ts --all
+```
+
+**iOS Simulator Screenshots** (`scripts/capture-ios-screenshots.ts`):
+
+```bash
+# Boot simulator and start app
+xcrun simctl boot "iPhone 15 Pro"
+open -a Simulator
+cd packages/mobile && npx expo start --ios
+
+# Capture current screen
+npx tsx scripts/capture-ios-screenshots.ts --name dashboard
+```
+
+**Automated Mobile E2E Testing** (Detox):
+
+```bash
+cd packages/mobile
+npm run test:e2e:build    # Build for testing
+npm run test:e2e          # Run E2E tests with screenshots
+```
+
+**Screenshot Locations**:
+- `ui-screenshots-personas/showcase/` - Showcase pages (local)
+- `ui-screenshots-personas/production/` - Production showcase (GitHub Pages)
+- `ui-screenshots-personas/web/` - Web SaaS by persona
+- `ui-screenshots-personas/ios-simulator/` - iOS Simulator captures
+
+**Use Screenshots To**:
+- Visually verify UI changes before committing
+- Create GitHub issues with visual evidence
+- Debug rendering issues across personas/roles
+- Document features and workflows
+- Validate multi-persona experiences
+
+See `scripts/SCREENSHOT_CAPTURE.md` and `docs/UI_VISIBILITY_TOOLING.md` for details.
+
+### Authentication Status
+
+**Demo Logins (Production)** - Well tested and working:
+- `admin@carecommons.example` - Admin access
+- Other demo personas work reliably
+- Demo data seeding is stable
+
+**Production Auth Features** - Not fully tested/implemented:
+- Google OAuth integration - likely broken
+- Stripe billing integration - likely broken  
+- Multi-tenant signup with secure email - not fully implemented
+- Self-service organization registration - incomplete
+
+When working on authentication, prioritize demo login stability. Full OAuth/Stripe/multi-tenant features need significant work.
+
+### Secrets and Environment Variables
+
+**Asking for Secrets**: You can ask the user for secrets when needed. They will provide them securely.
+
+**Storage Rules**:
+- Store secrets in `.env` files (gitignored)
+- **NEVER** commit secrets to git
+- **NEVER** expose secrets in client-side code or bundles
+- Use environment variables for all sensitive configuration
+
+**Common Secrets**:
+- `DATABASE_URL` - Neon PostgreSQL connection string
+- `REDIS_URL` - Optional, for rate limiting (falls back to in-memory)
+- `JWT_SECRET` - Authentication token signing
+- `GOOGLE_CLIENT_ID/SECRET` - OAuth (not fully implemented)
+- `STRIPE_*` - Billing integration (not fully implemented)
+
+**Vercel Environment**:
+- Production secrets are set in Vercel dashboard
+- Use `vercel env ls` to check what's configured
+- Never log or expose production secrets
 
 ### Technology Choices
 
@@ -274,13 +388,24 @@ The following CLI tools are installed and available for use:
 - Create branches, manage connection strings
 - **Responsible Use**: Exercise extreme caution with production database operations
 
+**Detox CLI (`detox` v20.45.1)**:
+- Mobile E2E testing framework for React Native
+- Automated UI testing with screenshot capture
+- **Usage**: `cd packages/mobile && npm run test:e2e`
+
 **⚠️ Critical Guidelines for CLI Tool Usage**:
 
 1. **Never bypass workflows**: These tools don't replace proper PR/CI processes
-2. **No production shortcuts**: Always use branching strategy (`feature/*` → `develop` → `preview` → `main`)
+2. **No production shortcuts**: Always use branching strategy (`feature/*` → `develop` → `preview` → `production`)
 3. **Database safety**: Never run destructive `neon` commands against production
 4. **Audit trail**: CLI operations still require proper commit messages and documentation
 5. **Security first**: Never commit credentials or API tokens obtained via CLI tools
+
+**Vercel CLI for Debugging Deployments**:
+- Use `vercel logs` to check deployment logs
+- Use `vercel ls` to list deployments and match commit hashes
+- Use `vercel inspect` to examine deployment details
+- Helpful for debugging production issues and verifying deployments
 
 ### Key Patterns
 
@@ -554,16 +679,18 @@ The following critical issues were resolved to achieve successful production dep
 
 ### Branching & PR Strategy
 
-**Workflow**: `feature/*` → `develop` → `preview` → `main`
+**Workflow**: `feature/*` → `develop` → `preview` → `production`
 
 - **`feature/*` branches**: Development work, no deployment
-- **`develop` branch**: Integration testing, **NEVER deployed** (was previously preview, now unused for deployment)
+- **`develop` branch**: Default branch, integration testing, **deploys Showcase to GitHub Pages**
 - **`preview` branch**: Pre-production validation, deploys to **Vercel preview environment**
-- **`main` branch**: Production, deploys to **Vercel production environment**
+- **`production` branch**: Live system, deploys to **Vercel production environment**
+
+**NOTE**: There is intentionally **no `main` branch**. The production branch is named `production`.
 
 ### Pull Request Requirements
 
-**ALL PRs to `preview` or `main` must**:
+**ALL PRs to `preview` or `production` must**:
 
 1. Pass CI checks (lint, typecheck, test, build)
 2. Include regression tests for critical paths
@@ -591,25 +718,32 @@ The following critical issues were resolved to achieve successful production dep
 
 | Branch | Environment | URL | Database | Purpose |
 |--------|-------------|-----|----------|---------|
-| `main` | Production | care-commons.vercel.app | Production DB | Live system |
+| `production` | Production | care-commons.vercel.app | Production DB | Live system |
 | `preview` | Preview | preview-*.vercel.app | Preview DB | Pre-prod testing |
-| `develop` | None | N/A | Local | Integration only |
+| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ | None (localStorage) | Showcase demo |
 | `feature/*` | None | N/A | Local | Development |
+
+**NOTE**: There is no `main` branch. This is intentional.
 
 ### GitHub Actions Workflows
 
 **CI Workflow** (`.github/workflows/ci.yml`):
-- Triggers: PRs to `main`, `preview`, `develop`
+- Triggers: PRs to `production`, `preview`, `develop`
 - Jobs: lint, typecheck, test, build
 - Must pass before merge
 
 **Deploy Workflow** (`.github/workflows/deploy.yml`):
-- Triggers: Push to `main` or `preview`
+- Triggers: Push to `production` or `preview`
 - Jobs: 
-  - `main` → production deployment
+  - `production` → production deployment
   - `preview` → preview deployment
 - Runs migrations before deployment
 - Validates environment configuration
+
+**Showcase Workflow** (`.github/workflows/deploy-showcase.yml`):
+- Triggers: Push to `develop`
+- Deploys static Showcase demo to GitHub Pages
+- No backend required (uses localStorage)
 
 ---
 
