@@ -206,7 +206,7 @@ export const FamilyPortalPage: React.FC = () => {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* Recent Notifications */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6" data-tour="activity-feed">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
                 <div className="space-y-4">
                   {notifications.map((notif) => (
@@ -229,7 +229,7 @@ export const FamilyPortalPage: React.FC = () => {
               </div>
 
               {/* Today's Care Plan Progress */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6" data-tour="care-plan">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">Today&apos;s Care Plan</h3>
                   <span className="text-sm text-gray-500">{completedTasks}/{totalTasks} completed</span>
@@ -268,7 +268,7 @@ export const FamilyPortalPage: React.FC = () => {
             {/* Right Column */}
             <div className="space-y-6">
               {/* Next Visit */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6" data-tour="upcoming-visits">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Next Visit</h3>
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                   <div className="flex items-center gap-3 mb-3">
@@ -297,7 +297,7 @@ export const FamilyPortalPage: React.FC = () => {
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6" data-tour="messaging">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                 <div className="space-y-3">
                   <button className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
