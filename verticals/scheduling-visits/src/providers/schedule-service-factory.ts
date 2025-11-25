@@ -2,7 +2,7 @@
  * Schedule Service Factory
  *
  * Provides factory functions for creating properly-wired ScheduleService instances
- * with all required dependencies (client address provider, etc.)
+ * with all required dependencies (client address provider, credential compliance, etc.)
  *
  * This eliminates the need to manually wire up dependencies and ensures
  * consistent configuration across the application.
@@ -10,10 +10,10 @@
 
 import type { Pool } from 'pg';
 import type { UserContext } from '@care-commons/core';
-import { ScheduleService } from '../service/schedule-service';
-import { ScheduleRepository } from '../repository/schedule-repository';
-import { ClientAddressProvider } from './client-address-provider';
-import { ClientServiceAdapter } from './client-service-adapter';
+import { ScheduleService, ICredentialComplianceProvider } from '../service/schedule-service.js';
+import { ScheduleRepository } from '../repository/schedule-repository.js';
+import { ClientAddressProvider } from './client-address-provider.js';
+import { ClientServiceAdapter } from './client-service-adapter.js';
 import type { ClientService } from '@care-commons/client-demographics';
 
 /**
@@ -31,6 +31,13 @@ export interface ScheduleServiceFactoryOptions {
 
   /** Cache TTL for client addresses (default: 5 minutes) */
   addressCacheTTL?: number;
+
+  /** 
+   * Credential compliance provider from caregiver-staff vertical
+   * When provided, caregiver assignments will be validated against
+   * credential expiration and compliance status
+   */
+  credentialProvider?: ICredentialComplianceProvider;
 }
 
 /**
@@ -65,7 +72,7 @@ export interface ScheduleServiceFactoryOptions {
 export function createScheduleService(
   options: ScheduleServiceFactoryOptions
 ): ScheduleService {
-  const { pool, clientService, systemContext, addressCacheTTL } = options;
+  const { pool, clientService, systemContext, addressCacheTTL, credentialProvider } = options;
 
   // Create the repository
   const repository = new ScheduleRepository(pool);
@@ -80,8 +87,16 @@ export function createScheduleService(
     addressCacheTTL
   );
 
-  // Create and return the fully-wired schedule service
-  return new ScheduleService(repository, clientAddressProvider);
+  // Create the schedule service
+  const scheduleService = new ScheduleService(repository, clientAddressProvider);
+
+  // Wire up credential compliance provider if provided
+  // This enables compliance checking before caregiver assignment
+  if (credentialProvider) {
+    scheduleService.setCredentialProvider(credentialProvider);
+  }
+
+  return scheduleService;
 }
 
 /**

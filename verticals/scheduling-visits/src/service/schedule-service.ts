@@ -5,7 +5,7 @@
  * - Service pattern management
  * - Schedule generation from patterns
  * - Visit lifecycle management
- * - Caregiver assignment
+ * - Caregiver assignment with compliance checking
  * - Conflict detection
  * - Availability checking
  */
@@ -21,8 +21,8 @@ import {
   ConflictError,
   getNotificationService,
 } from '@care-commons/core';
-import { ScheduleRepository } from '../repository/schedule-repository';
-import { ScheduleValidator } from '../validation/schedule-validator';
+import { ScheduleRepository } from '../repository/schedule-repository.js';
+import { ScheduleValidator } from '../validation/schedule-validator.js';
 import {
   ServicePattern,
   Visit,
@@ -67,11 +67,36 @@ export interface IClientAddressProvider {
   }>;
 }
 
+/**
+ * Interface for credential compliance checking
+ * Allows decoupling from caregiver-staff vertical
+ */
+export interface ICredentialComplianceProvider {
+  canBeScheduled(
+    caregiverId: UUID,
+    serviceDate: Date,
+    context: UserContext
+  ): Promise<{ canSchedule: boolean; blockingReasons: string[] }>;
+}
+
 export class ScheduleService {
+  private credentialProvider?: ICredentialComplianceProvider;
+
   constructor(
     private repository: ScheduleRepository,
     private clientAddressProvider?: IClientAddressProvider
   ) { }
+
+  /**
+   * Set the credential compliance provider for assignment validation
+   * 
+   * This enables the scheduling system to check caregiver credential
+   * status before allowing assignment. Per HIPAA and state regulations,
+   * caregivers with expired credentials must not be assigned to visits.
+   */
+  setCredentialProvider(provider: ICredentialComplianceProvider): void {
+    this.credentialProvider = provider;
+  }
 
   /**
    * Service Pattern Management
@@ -335,6 +360,29 @@ export class ScheduleService {
       throw new ValidationError('Visit cannot be assigned in current status', {
         status: visit.status,
       });
+    }
+
+    // COMPLIANCE CHECK: Verify caregiver credentials before assignment
+    // Per HIPAA and state regulations (TX 26 TAC §558, FL 59A-8), caregivers
+    // with expired credentials, failed background checks, or exclusion list
+    // findings must not be assigned to provide services.
+    if (this.credentialProvider) {
+      const complianceCheck = await this.credentialProvider.canBeScheduled(
+        input.caregiverId,
+        visit.scheduledDate,
+        context
+      );
+
+      if (!complianceCheck.canSchedule) {
+        throw new ValidationError(
+          'Caregiver cannot be assigned due to credential compliance issues',
+          {
+            caregiverId: input.caregiverId,
+            visitId: input.visitId,
+            reasons: complianceCheck.blockingReasons,
+          }
+        );
+      }
     }
 
     // Check caregiver availability
