@@ -8,6 +8,7 @@ export * from './NurseDashboard';
 export * from './Login';
 export * from './Logout';
 export * from './Signup';
+export * from './Onboarding';
 export * from './NotFound';
 export * from './Settings';
 export * from './Reports';
