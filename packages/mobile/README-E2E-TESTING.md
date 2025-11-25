@@ -22,7 +22,7 @@ This directory contains end-to-end (E2E) tests for the Care Commons mobile appli
 Detox and dependencies are already installed. If you need to reinstall:
 
 ```bash
-npm install --save-dev detox detox-expo-helpers jest ts-jest @types/jest @types/detox
+npm install --save-dev detox jest ts-jest @types/jest
 ```
 
 ### Running Tests
