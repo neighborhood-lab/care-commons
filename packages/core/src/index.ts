@@ -107,3 +107,5 @@ export { getNotificationService, NotificationService } from './notifications/not
 export * from './notifications/types';
 // Import infrastructure
 export * from './import/index';
+// Compliance Autopilot
+export * from './compliance/autopilot/index';
