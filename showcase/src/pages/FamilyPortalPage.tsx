@@ -1,47 +1,471 @@
-import React from 'react';
-import { Users, MessageCircle, Calendar, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Users, 
+  MessageCircle, 
+  Calendar, 
+  Heart,
+  Send,
+  Clock,
+  CheckCircle,
+  Bell,
+  FileText,
+  Phone,
+  MapPin,
+  ChevronRight,
+  Star,
+  Activity,
+  ClipboardList,
+  User,
+} from 'lucide-react';
+
+// Mock data
+const messages = [
+  {
+    id: 1,
+    from: 'Sarah M. (Caregiver)',
+    avatar: 'SM',
+    message: 'Good morning! Mom had a great breakfast today and we went for a short walk in the garden.',
+    time: '9:15 AM',
+    unread: true,
+  },
+  {
+    id: 2,
+    from: 'Care Coordinator',
+    avatar: 'CC',
+    message: 'Reminder: Dr. Johnson appointment scheduled for Thursday at 2:00 PM. Transportation has been arranged.',
+    time: 'Yesterday',
+    unread: false,
+  },
+  {
+    id: 3,
+    from: 'Maria G. (Caregiver)',
+    avatar: 'MG',
+    message: 'Afternoon visit completed. All medications administered on schedule. Blood pressure: 128/82.',
+    time: 'Yesterday',
+    unread: false,
+  },
+];
+
+const upcomingVisits = [
+  {
+    id: 1,
+    caregiver: 'Sarah M.',
+    type: 'Personal Care',
+    date: 'Today',
+    time: '2:00 PM - 4:00 PM',
+    status: 'confirmed',
+  },
+  {
+    id: 2,
+    caregiver: 'James K.',
+    type: 'Skilled Nursing',
+    date: 'Tomorrow',
+    time: '10:00 AM - 11:00 AM',
+    status: 'confirmed',
+  },
+  {
+    id: 3,
+    caregiver: 'Sarah M.',
+    type: 'Personal Care',
+    date: 'Wed, Nov 6',
+    time: '2:00 PM - 4:00 PM',
+    status: 'pending',
+  },
+];
+
+const carePlanTasks = [
+  { id: 1, task: 'Morning medication (Metformin)', completed: true, time: '8:00 AM' },
+  { id: 2, task: 'Blood pressure check', completed: true, time: '9:00 AM' },
+  { id: 3, task: 'Physical therapy exercises', completed: true, time: '10:30 AM' },
+  { id: 4, task: 'Lunch preparation', completed: false, time: '12:00 PM' },
+  { id: 5, task: 'Afternoon medication', completed: false, time: '2:00 PM' },
+  { id: 6, task: 'Evening walk', completed: false, time: '4:00 PM' },
+];
+
+const notifications = [
+  { id: 1, type: 'visit', message: 'Sarah M. clocked in for afternoon visit', time: '2 min ago' },
+  { id: 2, type: 'task', message: 'Blood pressure check completed: 128/82', time: '1 hour ago' },
+  { id: 3, type: 'message', message: 'New message from Care Coordinator', time: '3 hours ago' },
+];
 
 export const FamilyPortalPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'messages' | 'schedule' | 'careplan'>('overview');
+  const [messageText, setMessageText] = useState('');
+
+  const completedTasks = carePlanTasks.filter(t => t.completed).length;
+  const totalTasks = carePlanTasks.length;
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Family Engagement Portal</h1>
-          <p className="mt-2 text-gray-600">Keep families connected and informed</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Family Engagement Portal</h1>
+              <p className="mt-2 text-gray-600">Keep families connected and informed</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+                <Bell className="w-6 h-6" />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+              <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg">
+                <User className="w-5 h-5 text-blue-600" />
+                <span className="text-sm font-medium text-blue-900">Dorothy Chen&apos;s Family</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="mt-6 flex gap-4 border-b border-gray-200 -mb-px">
+            {[
+              { id: 'overview', label: 'Overview', icon: Activity },
+              { id: 'messages', label: 'Messages', icon: MessageCircle },
+              { id: 'schedule', label: 'Schedule', icon: Calendar },
+              { id: 'careplan', label: 'Care Plan', icon: ClipboardList },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <Users className="w-8 h-8 text-blue-600 mb-2" />
-            <p className="text-sm text-gray-600">Active Families</p>
-            <p className="text-2xl font-bold">128</p>
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Active Families</p>
+                <p className="text-2xl font-bold text-gray-900">128</p>
+              </div>
+              <div className="bg-blue-100 p-3 rounded-lg">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <MessageCircle className="w-8 h-8 text-green-600 mb-2" />
-            <p className="text-sm text-gray-600">Messages Today</p>
-            <p className="text-2xl font-bold">45</p>
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Messages Today</p>
+                <p className="text-2xl font-bold text-gray-900">45</p>
+                <p className="text-xs text-green-600 mt-1">3 unread</p>
+              </div>
+              <div className="bg-green-100 p-3 rounded-lg">
+                <MessageCircle className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <Calendar className="w-8 h-8 text-purple-600 mb-2" />
-            <p className="text-sm text-gray-600">Upcoming Visits</p>
-            <p className="text-2xl font-bold">87</p>
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Upcoming Visits</p>
+                <p className="text-2xl font-bold text-gray-900">87</p>
+                <p className="text-xs text-blue-600 mt-1">Next: Today 2pm</p>
+              </div>
+              <div className="bg-purple-100 p-3 rounded-lg">
+                <Calendar className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <Heart className="w-8 h-8 text-red-600 mb-2" />
-            <p className="text-sm text-gray-600">Satisfaction</p>
-            <p className="text-2xl font-bold">4.8/5</p>
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Satisfaction</p>
+                <p className="text-2xl font-bold text-gray-900">4.8/5</p>
+                <div className="flex gap-0.5 mt-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className={`w-3 h-3 ${star <= 4 ? 'text-yellow-400 fill-yellow-400' : 'text-yellow-400'}`} />
+                  ))}
+                </div>
+              </div>
+              <div className="bg-red-100 p-3 rounded-lg">
+                <Heart className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-6">
-          <h3 className="font-semibold mb-4">Family Portal Features</h3>
-          <ul className="space-y-2 text-sm">
-            <li>• Real-time visit notifications and updates</li>
-            <li>• Secure messaging with caregivers and coordinators</li>
-            <li>• View care plan and daily task completion</li>
-            <li>• Schedule requests and manage appointments</li>
-            <li>• Access billing statements and payment history</li>
-          </ul>
+
+        {activeTab === 'overview' && (
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Recent Notifications */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                <div className="space-y-4">
+                  {notifications.map((notif) => (
+                    <div key={notif.id} className="flex items-start gap-3">
+                      <div className={`p-2 rounded-lg ${
+                        notif.type === 'visit' ? 'bg-blue-100' :
+                        notif.type === 'task' ? 'bg-green-100' : 'bg-purple-100'
+                      }`}>
+                        {notif.type === 'visit' ? <MapPin className="w-4 h-4 text-blue-600" /> :
+                         notif.type === 'task' ? <CheckCircle className="w-4 h-4 text-green-600" /> :
+                         <MessageCircle className="w-4 h-4 text-purple-600" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">{notif.message}</p>
+                        <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Today's Care Plan Progress */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Today&apos;s Care Plan</h3>
+                  <span className="text-sm text-gray-500">{completedTasks}/{totalTasks} completed</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full transition-all"
+                    style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
+                  ></div>
+                </div>
+                <div className="space-y-3">
+                  {carePlanTasks.slice(0, 4).map((task) => (
+                    <div key={task.id} className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        task.completed 
+                          ? 'bg-green-500 border-green-500' 
+                          : 'border-gray-300'
+                      }`}>
+                        {task.completed && <CheckCircle className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className={`text-sm ${task.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                          {task.task}
+                        </p>
+                      </div>
+                      <span className="text-xs text-gray-500">{task.time}</span>
+                    </div>
+                  ))}
+                </div>
+                <button className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                  View full care plan <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Next Visit */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Next Visit</h3>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-medium">
+                      SM
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Sarah M.</p>
+                      <p className="text-sm text-gray-600">Personal Care</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="w-4 h-4" />
+                      <span>Today</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="w-4 h-4" />
+                      <span>2:00 PM - 4:00 PM</span>
+                    </div>
+                  </div>
+                  <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                    Contact Caregiver
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div className="space-y-3">
+                  <button className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <MessageCircle className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm font-medium text-gray-900">Send Message</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <Calendar className="w-5 h-5 text-purple-600" />
+                    <span className="text-sm font-medium text-gray-900">Request Schedule Change</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <FileText className="w-5 h-5 text-green-600" />
+                    <span className="text-sm font-medium text-gray-900">View Billing</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <Phone className="w-5 h-5 text-red-600" />
+                    <span className="text-sm font-medium text-gray-900">Emergency Contact</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'messages' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+            <div className="border-b border-gray-200 p-4">
+              <h3 className="text-lg font-semibold text-gray-900">Messages</h3>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {messages.map((msg) => (
+                <div key={msg.id} className={`p-4 hover:bg-gray-50 cursor-pointer ${msg.unread ? 'bg-blue-50' : ''}`}>
+                  <div className="flex items-start gap-3">
+                    <div className="bg-gray-200 text-gray-700 w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm">
+                      {msg.avatar}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-gray-900">{msg.from}</p>
+                        <span className="text-xs text-gray-500">{msg.time}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 truncate mt-1">{msg.message}</p>
+                    </div>
+                    {msg.unread && (
+                      <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-gray-200 p-4">
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  placeholder="Type a message..."
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'schedule' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+            <div className="border-b border-gray-200 p-4">
+              <h3 className="text-lg font-semibold text-gray-900">Upcoming Visits</h3>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {upcomingVisits.map((visit) => (
+                <div key={visit.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-blue-100 text-blue-700 w-12 h-12 rounded-lg flex flex-col items-center justify-center">
+                        <span className="text-xs font-medium">{visit.date.split(',')[0]}</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{visit.caregiver}</p>
+                        <p className="text-sm text-gray-600">{visit.type}</p>
+                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                          <Clock className="w-3 h-3" />
+                          {visit.time}
+                        </div>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      visit.status === 'confirmed' 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {visit.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'careplan' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Care Plan Tasks</h3>
+              <div className="text-sm text-gray-500">
+                {completedTasks}/{totalTasks} tasks completed today
+              </div>
+            </div>
+            <div className="space-y-4">
+              {carePlanTasks.map((task) => (
+                <div key={task.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    task.completed 
+                      ? 'bg-green-500 border-green-500' 
+                      : 'border-gray-300'
+                  }`}>
+                    {task.completed && <CheckCircle className="w-4 h-4 text-white" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`font-medium ${task.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                      {task.task}
+                    </p>
+                  </div>
+                  <span className="text-sm text-gray-500">{task.time}</span>
+                  {task.completed && (
+                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Completed</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Feature Highlights */}
+        <div className="mt-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-100">
+          <h3 className="font-semibold text-gray-900 mb-4">Family Portal Features</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <Bell className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Real-time Updates</h4>
+                <p className="text-sm text-gray-600">Instant notifications when caregivers clock in/out</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-lg">
+                <MessageCircle className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Secure Messaging</h4>
+                <p className="text-sm text-gray-600">HIPAA-compliant communication with care team</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-purple-100 p-2 rounded-lg">
+                <ClipboardList className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Care Plan Visibility</h4>
+                <p className="text-sm text-gray-600">Track daily tasks and care progress</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
