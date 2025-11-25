@@ -7,8 +7,12 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { getDatabase } from '@care-commons/core';
+import { requireAuth } from '../middleware/auth-context.js';
 
 const router = Router();
+
+// Apply authentication to all push notification routes
+router.use(requireAuth);
 
 // Validation schemas
 const RegisterTokenSchema = z.object({
