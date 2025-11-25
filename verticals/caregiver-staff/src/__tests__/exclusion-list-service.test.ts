@@ -200,10 +200,9 @@ describe('ExclusionListService', () => {
           limit: 10000, 
           totalPages: 1 
         });
+      const caregiverMap = new Map(caregivers.map(c => [c.id, c]));
       vi.spyOn(CaregiverRepository.prototype, 'findById')
-        .mockImplementation(async (id: string) => 
-          caregivers.find(c => c.id === id) || null
-        );
+        .mockImplementation((id: string) => Promise.resolve(caregiverMap.get(id) ?? null));
 
       const result = await service.checkOrganization('org-123', mockContext);
 
@@ -229,10 +228,9 @@ describe('ExclusionListService', () => {
           limit: 10000, 
           totalPages: 1 
         });
+      const caregiverMap = new Map(caregivers.map(c => [c.id, c]));
       vi.spyOn(CaregiverRepository.prototype, 'findById')
-        .mockImplementation(async (id: string) => 
-          caregivers.find(c => c.id === id) || null
-        );
+        .mockImplementation((id: string) => Promise.resolve(caregiverMap.get(id) ?? null));
 
       const result = await service.checkOrganization('org-123', mockContext);
 
@@ -257,12 +255,11 @@ describe('ExclusionListService', () => {
           limit: 10000, 
           totalPages: 1 
         });
+      const caregiverMap = new Map(caregivers.map(c => [c.id, c]));
       vi.spyOn(CaregiverRepository.prototype, 'findById')
-        .mockImplementation(async (id: string) => {
-          if (id === 'cg-2') {
-            throw new Error('Database connection failed');
-          }
-          return caregivers.find(c => c.id === id) || null;
+        .mockImplementation((id: string) => {
+          if (id === 'cg-2') return Promise.reject(new Error('Database connection failed'));
+          return Promise.resolve(caregiverMap.get(id) ?? null);
         });
 
       const result = await service.checkOrganization('org-123', mockContext);
