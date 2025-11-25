@@ -6,6 +6,7 @@
 
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable sonarjs/redundant-type-aliases */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Database } from '@care-commons/core';
