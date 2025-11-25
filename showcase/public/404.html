@@ -10,8 +10,9 @@
       // Store the current URL (including the path) in sessionStorage
       // and then redirect to the base URL. The main app will restore
       // the path from sessionStorage.
-      sessionStorage.redirect = location.href;
-      location.replace(location.protocol + '//' + location.host + location.pathname.split('/').slice(0, -1).join('/') + '/');
+      sessionStorage.setItem('redirect', location.href);
+      // Redirect to the base path /care-commons/
+      location.replace(location.protocol + '//' + location.host + '/care-commons/');
     </script>
   </head>
   <body>

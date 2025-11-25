@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { DataProviderContextProvider } from '@/core/providers/context';
@@ -7,6 +7,46 @@ import { RoleProvider } from './contexts/RoleContext';
 import { TourProvider } from './components/tours/TourProvider';
 import { createMockProvider } from './providers/mock-provider';
 import { seedData } from './data/seed-data';
+
+/**
+ * GitHub Pages SPA redirect handler
+ * Works with 404.html to preserve direct navigation to sub-routes
+ */
+const GitHubPagesRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check for GitHub Pages redirect stored in sessionStorage
+    const redirect = sessionStorage.getItem('redirect');
+    if (redirect) {
+      sessionStorage.removeItem('redirect');
+      // Extract the path from the full URL
+      try {
+        const url = new URL(redirect);
+        const basePath = '/care-commons';
+        let targetPath = url.pathname;
+        
+        // Remove the base path if present
+        if (targetPath.startsWith(basePath)) {
+          targetPath = targetPath.slice(basePath.length) || '/';
+        }
+        
+        // Include hash and search params
+        const fullPath = targetPath + url.search + url.hash;
+        
+        // Only navigate if we're not already at the target
+        if (fullPath !== location.pathname + location.search + location.hash) {
+          navigate(fullPath, { replace: true });
+        }
+      } catch {
+        // If URL parsing fails, ignore the redirect
+      }
+    }
+  }, [navigate, location]);
+
+  return <>{children}</>;
+};
 
 // Pages
 import { LandingPage } from './pages/LandingPage';
@@ -58,8 +98,9 @@ export const App: React.FC = () => {
         <RoleProvider defaultRole="coordinator">
           <TourProvider>
             <BrowserRouter basename="/care-commons">
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
+              <GitHubPagesRedirectHandler>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
 
                 {/* Desktop/Web Routes */}
@@ -88,7 +129,8 @@ export const App: React.FC = () => {
                 <Route path="/mobile/profile" element={<MobileProfilePage />} />
                 <Route path="/mobile/clients" element={<MobileClientsPage />} />
                 <Route path="/mobile/care-plans" element={<MobileCarePlansPage />} />
-              </Routes>
+                </Routes>
+              </GitHubPagesRedirectHandler>
             </BrowserRouter>
             <Toaster position="top-right" />
           </TourProvider>
