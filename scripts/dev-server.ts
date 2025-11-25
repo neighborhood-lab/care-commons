@@ -2,11 +2,24 @@
 
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
+import { config } from 'dotenv';
+import { basename } from 'node:path';
 import chalk from 'chalk';
 
-// Port configuration
-const API_PORT = 3001;
-const WEB_PORT = 5173;
+// Load environment variables from .env
+config();
+
+// Derive instance number from directory name (e.g., care-commons-1 -> 1)
+const dirName = basename(process.cwd());
+const instanceMatch = dirName.match(/(\d+)$/);
+const instanceNumber = instanceMatch ? parseInt(instanceMatch[1], 10) : 0;
+
+// Port configuration with instance-based offsets
+// Instance 0: API=3001, Web=5173
+// Instance 1: API=3011, Web=5183
+// Instance 2: API=3021, Web=5193
+const API_PORT = parseInt(process.env.API_PORT ?? String(3001 + instanceNumber * 10), 10);
+const WEB_PORT = parseInt(process.env.WEB_PORT ?? String(5173 + instanceNumber * 10), 10);
 
 // Track child processes for cleanup
 const children: Array<ReturnType<typeof spawn>> = [];
@@ -93,6 +106,9 @@ function startServer(
     env: {
       ...process.env,
       FORCE_COLOR: '1', // Enable colors in child processes
+      PORT: String(API_PORT), // API server port
+      API_PORT: String(API_PORT),
+      WEB_PORT: String(WEB_PORT),
     },
   });
 
@@ -118,6 +134,9 @@ function startServer(
  */
 async function main(): Promise<void> {
   console.log(chalk.blue.bold('🏥 Care Commons - Starting Development Servers\n'));
+  console.log(chalk.gray(`   Instance: ${instanceNumber} (from directory: ${dirName})`));
+  console.log(chalk.gray(`   API Port: ${API_PORT}`));
+  console.log(chalk.gray(`   Web Port: ${WEB_PORT}\n`));
 
   // Check if ports are already in use
   const apiInUse = await isPortInUse(API_PORT);
@@ -167,7 +186,7 @@ async function main(): Promise<void> {
   startServer(
     'Web',
     'npx',
-    ['vite'],
+    ['vite', '--port', String(WEB_PORT)],
     `${rootDir}/packages/web`,
     'magenta'
   );
