@@ -10,12 +10,15 @@
  */
 
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-/* eslint-disable sonarjs/no-hardcoded-passwords */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable sonarjs/redundant-type-aliases */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Database } from '@care-commons/core';
 import type { Router } from 'express';
+
+// Type for Express Router stack layer (Express internals aren't fully typed)
+type RouterLayer = any;
 
 // Mock all external dependencies before importing the router
 vi.mock('@care-commons/caregiver-staff', () => ({
@@ -128,12 +131,12 @@ describe('Caregiver Routes', () => {
         { path: '/:id/exclusion-check/history', method: 'get' },
       ];
 
-      expectedRoutes.forEach(({ path, method }) => {
+      for (const { path, method } of expectedRoutes) {
         const route = routes.find(
-          (r: any) => r.path === path && r.methods.includes(method)
+          (r: RouterLayer) => r.path === path && r.methods.includes(method)
         );
         expect(route, `Route ${method.toUpperCase()} ${path} should exist`).toBeDefined();
-      });
+      }
     });
 
     it('should have 24 route handlers', () => {
@@ -199,12 +202,12 @@ describe('Caregiver Routes', () => {
         '/credentials/update-all-statuses',
       ];
 
-      credentialRoutes.forEach((path) => {
+      for (const path of credentialRoutes) {
         const route = router.stack.find(
-          (layer: any) => layer.route?.path === path
+          (layer: RouterLayer) => layer.route?.path === path
         );
         expect(route, `Credential route ${path} should exist`).toBeDefined();
-      });
+      }
     });
 
     it('should expose exclusion list check endpoints', () => {
@@ -214,12 +217,12 @@ describe('Caregiver Routes', () => {
         { path: '/:id/exclusion-check/history', method: 'get' },
       ];
 
-      exclusionRoutes.forEach(({ path, method }) => {
+      for (const { path, method } of exclusionRoutes) {
         const route = router.stack.find(
-          (layer: any) => layer.route?.path === path && layer.route.methods[method]
+          (layer: RouterLayer) => layer.route?.path === path && layer.route.methods[method]
         );
         expect(route, `Exclusion route ${method.toUpperCase()} ${path} should exist`).toBeDefined();
-      });
+      }
     });
 
     it('should expose state screening endpoints', () => {
@@ -229,12 +232,12 @@ describe('Caregiver Routes', () => {
         { path: '/:caregiverId/state-screenings/:screeningId', method: 'patch' },
       ];
 
-      screeningRoutes.forEach(({ path, method }) => {
+      for (const { path, method } of screeningRoutes) {
         const route = router.stack.find(
-          (layer: any) => layer.route?.path === path && layer.route.methods[method]
+          (layer: RouterLayer) => layer.route?.path === path && layer.route.methods[method]
         );
         expect(route, `Screening route ${method.toUpperCase()} ${path} should exist`).toBeDefined();
-      });
+      }
     });
 
     it('should expose service authorization endpoints', () => {
@@ -243,12 +246,12 @@ describe('Caregiver Routes', () => {
         { path: '/:id/service-authorizations', method: 'post' },
       ];
 
-      authRoutes.forEach(({ path, method }) => {
+      for (const { path, method } of authRoutes) {
         const route = router.stack.find(
-          (layer: any) => layer.route?.path === path && layer.route.methods[method]
+          (layer: RouterLayer) => layer.route?.path === path && layer.route.methods[method]
         );
         expect(route, `Service auth route ${method.toUpperCase()} ${path} should exist`).toBeDefined();
-      });
+      }
     });
 
     it('should expose validate-assignment endpoint', () => {
@@ -278,17 +281,17 @@ describe('Caregiver Routes', () => {
 
   describe('Route Handler Existence', () => {
     it('should have async handlers for all routes', () => {
-      const routeLayers = router.stack.filter((layer: any) => layer.route);
+      const routeLayers = router.stack.filter((layer: RouterLayer) => layer.route);
       
-      routeLayers.forEach((layer: any) => {
-        const handlers = layer.route.stack;
+      for (const layer of routeLayers) {
+        const handlers = layer.route!.stack;
         expect(handlers.length).toBeGreaterThan(0);
         
         // Each route should have at least one handler function
-        handlers.forEach((handler: any) => {
+        for (const handler of handlers) {
           expect(typeof handler.handle).toBe('function');
-        });
-      });
+        }
+      }
     });
   });
 });
