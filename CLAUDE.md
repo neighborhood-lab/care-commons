@@ -632,6 +632,29 @@ cd packages/mobile && npm run test:e2e
 
 **GitHub Actions Timing**: Each job should take ~3 minutes. If >5 minutes, investigate.
 
+## Async Workflow (Critical)
+
+**NEVER wait, sleep, or thrash** on long-running operations. See AGENTS.md for full details.
+
+**Key Rules**:
+1. **Never wait** on CI/deployments - switch to background tasks immediately
+2. **Never thrash** by repeatedly checking status - check once, note state, move on
+3. **Always leave state on GitHub** - open Draft PRs early, update issues
+4. **Use time-slice task selection** to ensure no task type starves
+
+**Time-Slice Lookup** (by minute in hour):
+- 0-8: screenshot-review
+- 9-17: issue-triage  
+- 18-26: documentation
+- 27-32: code-review
+- 33-38: backlog-grooming
+- 39-44: dependency-audit
+- 45-50: test-coverage
+- 51-56: marketing-prep
+- 57-59: quick-wins
+
+**Crash Recovery**: Keep a GitHub issue "Agent Session State - [Date]" with current task and waiting-on status.
+
 ---
 
 ## See Also

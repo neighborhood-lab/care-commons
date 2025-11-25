@@ -530,14 +530,13 @@ When implementing features, consider:
 
 ### Work Style
 
-**Serial Execution**: Work on issues one at a time through the complete cycle:
+**Serial Execution for Primary Tasks**: Work on issues one at a time through the complete cycle:
 1. Pick an issue from the backlog
 2. Implement the fix/feature
 3. Create PR and merge to `develop`
-4. Watch GitHub Actions, verify showcase deployment
-5. Push to `preview`, verify Vercel deployment
-6. Push to `production`, verify production deployment
-7. Only then move to the next issue
+4. **DO NOT WAIT** - immediately switch to background work (see Time-Slice Task Selection below)
+5. Check back on CI/deployment status when switching between background tasks
+6. Only return to the primary issue flow once CI passes
 
 **Fix Issues in the Moment**: When you encounter problems (even unrelated to the current task), fix them immediately rather than creating separate issues to defer. Small fixes compound into a better codebase.
 
@@ -559,6 +558,91 @@ npx tsx scripts/capture-screenshots.ts --showcase-only --production
 # (screenshots of production require manual verification or web fetch)
 ```
 
+### Async Workflow - NEVER Wait, Sleep, or Thrash
+
+**CRITICAL RULES**:
+1. **NEVER sleep or wait** on long-running tasks (GitHub Actions, deployments, builds)
+2. **NEVER thrash** by repeatedly checking CI status - check once, note the state, move on
+3. **NEVER pick trivial tasks** just to fill waiting time - use systematic task selection
+4. **ALWAYS leave state on GitHub** - open PRs (marked as draft/WIP), create issues, document progress
+5. **ALWAYS use time-slice task selection** to ensure no task type starves
+
+**Why This Matters**:
+- Agent sessions can crash or restart at any time
+- GitHub is the persistent state - local branches can be lost
+- Brian monitors progress via GitHub activity, not terminal output
+- Long-running CI (6-10 min) is dead time if you wait
+
+**Open PRs Early**: When starting significant work:
+1. Create the branch and make initial commit
+2. Open a **Draft PR** immediately with clear notes: "WIP: [description]"
+3. Push incremental commits as you work
+4. This ensures work is preserved even if session crashes
+
+### Time-Slice Task Selection System
+
+When waiting on a long-running operation (CI, deployment, build), use this systematic approach to select background work:
+
+**Task Categories and Priority Weights** (60 minutes total):
+
+| Category | Weight | Minutes | Description |
+|----------|--------|---------|-------------|
+| **screenshot-review** | 15% | 0-8 | Capture/review screenshots, create visual issues |
+| **issue-triage** | 15% | 9-17 | Review open issues, add labels, close stale |
+| **documentation** | 15% | 18-26 | Update AGENTS.md, README, inline docs |
+| **code-review** | 10% | 27-32 | Review open PRs, check for regressions |
+| **backlog-grooming** | 10% | 33-38 | Create issues from observed problems |
+| **dependency-audit** | 10% | 39-44 | Check for outdated deps, security issues |
+| **test-coverage** | 10% | 45-50 | Identify untested code paths |
+| **marketing-prep** | 10% | 51-56 | Work on launch issues (#434-#438) |
+| **quick-wins** | 5% | 57-59 | Small fixes that can be done in <5 min |
+
+**Minute-Based Lookup Table**:
+```
+Minutes 0-8:   screenshot-review
+Minutes 9-17:  issue-triage
+Minutes 18-26: documentation
+Minutes 27-32: code-review
+Minutes 33-38: backlog-grooming
+Minutes 39-44: dependency-audit
+Minutes 45-50: test-coverage
+Minutes 51-56: marketing-prep
+Minutes 57-59: quick-wins
+```
+
+**How to Use**:
+1. When blocked on a long-running task, check the current time
+2. Look up the minute in the hour (e.g., 3:42 PM → minute 42)
+3. Select a task from that category
+4. Work on it until either:
+   - The task is complete
+   - You become blocked on something else
+   - ~5-10 minutes pass and you should check primary task status
+5. If switching to check status, DON'T THRASH - one quick check, note result, continue
+
+**Example Flow**:
+```
+10:00 - Start working on Issue #425 (caregiver credentialing)
+10:15 - PR created, CI running. Current minute: 15 → issue-triage
+10:15 - Review open issues, add labels to 3 issues
+10:22 - Quick CI check: still running. Current minute: 22 → documentation  
+10:22 - Update AGENTS.md with new pattern discovered
+10:30 - Quick CI check: PASSED! Return to primary flow
+10:31 - Merge PR, push to preview
+10:32 - Preview deploying. Current minute: 32 → code-review
+10:32 - Review PR #445, leave comments
+10:40 - Quick deployment check: live. Verify, push to production
+```
+
+**Recording State for Crash Recovery**:
+- Keep a GitHub issue open titled "Agent Session State - [Date]" with:
+  - Current primary task
+  - Waiting-on status (CI/deployment URL)
+  - Background tasks completed this session
+  - Next planned actions
+- Update this issue periodically (every 30 min or on major state change)
+- This allows seamless recovery if session crashes
+
 ### Handling Async Operations
 
 **GitHub Actions Timing Expectations**:
@@ -567,12 +651,7 @@ npx tsx scripts/capture-screenshots.ts --showcase-only --production
 - **If slower**: There should be a clear reason (e.g., cache miss, large test suite)
 - **Red flag**: Any single job taking >5 minutes warrants investigation
 
-**Parallel Work While Waiting**: When GitHub Actions is running, don't sit idle:
-- Start investigating the next issue
-- Read related code
-- Update documentation
-- Capture and review screenshots
-- Plan the next implementation
+**DO NOT**: Repeatedly check CI status in a loop. Check once, record state, do background work.
 
 **Vercel Deployment Lag**: Vercel CLI deployment listings may lag behind actual deployments. Match commit hashes to verify:
 ```bash

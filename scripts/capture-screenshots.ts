@@ -516,7 +516,7 @@ async function main(): Promise<void> {
   // Showcase always uses /care-commons/ base path (for GitHub Pages compatibility)
   const showcaseUrl = isProduction
     ? 'https://neighborhood-lab.github.io/care-commons'
-    : 'http://localhost:5174/care-commons';
+    : process.env.SHOWCASE_URL || 'http://localhost:5173/care-commons';
 
   const outputDir = join(process.cwd(), isProduction ? 'ui-screenshots-production-comprehensive' : 'ui-screenshots-personas');
 
