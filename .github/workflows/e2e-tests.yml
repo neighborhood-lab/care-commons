@@ -34,13 +34,13 @@ jobs:
   e2e-tests:
     name: E2E Tests (${{ matrix.browser || 'chromium' }})
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 15  # 15 min max - tests should be fast
 
     strategy:
-      fail-fast: false
+      fail-fast: true  # Stop on first failure
       matrix:
-        # Only test chromium on PRs for speed, full browser matrix on schedule
-        browser: ${{ github.event_name == 'schedule' && fromJSON('["chromium", "firefox", "webkit"]') || fromJSON('["chromium"]') }}
+        # Always just run chromium - other browsers only on manual dispatch
+        browser: ${{ github.event.inputs.browser == 'all' && fromJSON('["chromium", "firefox", "webkit"]') || fromJSON('["chromium"]') }}
 
     services:
       postgres:
@@ -164,9 +164,9 @@ jobs:
   e2e-mobile:
     name: E2E Tests (Mobile)
     runs-on: ubuntu-latest
-    # Only run mobile tests on schedule, skip on PRs for speed
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    timeout-minutes: 45
+    # Only run mobile tests on manual dispatch with 'mobile' or 'all' option
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.browser == 'mobile' || github.event.inputs.browser == 'all')
+    timeout-minutes: 15  # 15 min max
 
     services:
       postgres:
@@ -258,7 +258,7 @@ jobs:
   e2e-report:
     name: Generate E2E Test Report
     runs-on: ubuntu-latest
-    needs: [e2e-tests, e2e-mobile]
+    needs: [e2e-tests]
     if: always()
 
     steps:

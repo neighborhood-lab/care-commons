@@ -22,8 +22,9 @@ export default defineConfig({
   // Test directory structure
   testDir: './e2e/tests',
 
-  // Timeout for each test (2 minutes)
-  timeout: 120000,
+  // Timeout for each test - 30 seconds is plenty for most tests
+  // Tests should fail fast, not hang forever
+  timeout: 30000,
 
   // Global test setup/teardown
   globalSetup: './e2e/setup/global-setup.ts',
@@ -34,8 +35,8 @@ export default defineConfig({
 
   // CI-specific configuration
   forbidOnly: !!process.env['CI'], // Fail if test.only() left in code
-  retries: process.env['CI'] ? 2 : 0, // Retry failed tests in CI
-  workers: process.env['CI'] ? 2 : undefined, // Limit workers in CI
+  retries: process.env['CI'] ? 1 : 0, // Single retry in CI (faster)
+  workers: process.env['CI'] ? 4 : undefined, // More workers for speed
 
   // Reporter configuration
   reporter: [
@@ -65,11 +66,11 @@ export default defineConfig({
     // Ignore HTTPS errors for local development
     ignoreHTTPSErrors: true,
 
-    // Default timeout for actions (30 seconds)
-    actionTimeout: 30000,
+    // Default timeout for actions - 10 seconds is plenty
+    actionTimeout: 10000,
 
-    // Default timeout for navigation (60 seconds)
-    navigationTimeout: 60000,
+    // Default timeout for navigation - 15 seconds max
+    navigationTimeout: 15000,
   },
 
   // Project configurations for different browsers and viewports
@@ -124,7 +125,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run test:e2e:server',
     port: 3000,
-    timeout: 120000, // 2 minutes to start server
+    timeout: 30000, // 30 seconds to start server - should be fast
     reuseExistingServer: !process.env['CI'], // Reuse server in development
     stdout: 'pipe', // Capture server logs
     stderr: 'pipe',
