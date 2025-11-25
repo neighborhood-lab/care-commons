@@ -22,6 +22,7 @@ export type {
   TooltipProps,
   DemoBadgeProps,
   MobileSimulatorProps,
+  MobileScreenshot,
 } from './core/index.js';
 
 // Utilities

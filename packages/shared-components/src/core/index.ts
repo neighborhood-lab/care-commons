@@ -17,4 +17,4 @@ export { DemoBadge } from './DemoBadge.js';
 export type { DemoBadgeProps } from './DemoBadge.js';
 
 export { MobileSimulator } from './MobileSimulator.js';
-export type { MobileSimulatorProps } from './MobileSimulator.js';
+export type { MobileSimulatorProps, MobileScreenshot } from './MobileSimulator.js';

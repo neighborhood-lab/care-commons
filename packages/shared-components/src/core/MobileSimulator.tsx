@@ -2,22 +2,46 @@
  * MobileSimulator Component
  * 
  * Displays a mobile app in a phone simulator frame.
- * Can embed either an iframe (for Expo web) or render content directly.
+ * Can embed either an iframe (for Expo web), render content directly,
+ * or show a slideshow of static screenshots.
  * 
  * Usage:
  * ```tsx
+ * // Live iframe (requires Expo dev server)
  * <MobileSimulator 
  *   src="http://localhost:8081" 
  *   title="Caregiver Mobile App"
  * />
+ * 
+ * // Static screenshots (works in production)
+ * <MobileSimulator 
+ *   screenshots={[
+ *     { src: '/mobile-dashboard.png', label: 'Dashboard' },
+ *     { src: '/mobile-visits.png', label: 'Visits' },
+ *   ]}
+ *   title="Mobile App Preview"
+ * />
  * ```
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+
+export interface MobileScreenshot {
+  /** URL of the screenshot image */
+  src: string;
+  /** Label for the screenshot (shown in navigation) */
+  label: string;
+  /** Optional description */
+  description?: string;
+}
 
 export interface MobileSimulatorProps {
   /** URL to embed (typically Expo web dev server) */
   src?: string;
+  /** Array of screenshots for static slideshow mode */
+  screenshots?: MobileScreenshot[];
+  /** Auto-advance slideshow interval in ms (0 to disable) */
+  autoPlayInterval?: number;
   /** Title shown above the simulator */
   title?: string;
   /** Device type to simulate */
@@ -34,6 +58,8 @@ export interface MobileSimulatorProps {
 
 export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
   src,
+  screenshots,
+  autoPlayInterval = 5000,
   title = 'Mobile App',
   device = 'iphone',
   children,
@@ -43,6 +69,30 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
 }) => {
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(false);
+  const [currentScreenshot, setCurrentScreenshot] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Handle screenshot navigation
+  const goToNextScreenshot = useCallback(() => {
+    if (screenshots && screenshots.length > 0) {
+      setCurrentScreenshot((prev) => (prev + 1) % screenshots.length);
+    }
+  }, [screenshots]);
+
+  const goToPrevScreenshot = useCallback(() => {
+    if (screenshots && screenshots.length > 0) {
+      setCurrentScreenshot((prev) => (prev - 1 + screenshots.length) % screenshots.length);
+    }
+  }, [screenshots]);
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    if (screenshots && screenshots.length > 1 && autoPlayInterval > 0 && !isPaused) {
+      const interval = setInterval(goToNextScreenshot, autoPlayInterval);
+      return () => clearInterval(interval);
+    }
+    return undefined;
+  }, [screenshots, autoPlayInterval, isPaused, goToNextScreenshot]);
 
   // iPhone 14 Pro dimensions (in logical pixels)
   const width = 393;
@@ -138,6 +188,74 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
             <div className="w-full h-full overflow-auto">
               {children}
             </div>
+          ) : screenshots && screenshots.length > 0 ? (
+            /* Screenshot slideshow mode */
+            <div 
+              className="relative w-full h-full"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {/* Current Screenshot */}
+              {screenshots[currentScreenshot] && (
+                <>
+                  <img
+                    src={screenshots[currentScreenshot].src}
+                    alt={screenshots[currentScreenshot].label}
+                    className="w-full h-full object-cover object-top"
+                    style={{ 
+                      imageRendering: 'auto',
+                    }}
+                  />
+                  
+                  {/* Navigation Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); goToPrevScreenshot(); }}
+                      className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-colors"
+                      aria-label="Previous screenshot"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); goToNextScreenshot(); }}
+                      className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-colors"
+                      aria-label="Next screenshot"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Dot Indicators */}
+                  {screenshots.length > 1 && (
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                      {screenshots.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentScreenshot(index)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            index === currentScreenshot 
+                              ? 'bg-white w-4' 
+                              : 'bg-white/50 hover:bg-white/75'
+                          }`}
+                          aria-label={`Go to screenshot ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Current Screen Label */}
+                  <div className="absolute top-2 left-0 right-0 flex justify-center">
+                    <span className="bg-black/50 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
+                      {screenshots[currentScreenshot].label}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
           ) : src ? (
             <iframe
               src={src}
@@ -168,12 +286,17 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
       </div>
 
       {/* Instructions */}
-      {src && !iframeError && (
+      {screenshots && screenshots.length > 0 ? (
+        <div className="text-center mt-4 text-xs text-gray-500">
+          <p>Screenshot preview ({currentScreenshot + 1} of {screenshots.length})</p>
+          <p className="mt-1">Hover to pause, click arrows to navigate</p>
+        </div>
+      ) : src && !iframeError ? (
         <div className="text-center mt-4 text-xs text-gray-500">
           <p>Interactive mobile app simulator</p>
           <p className="mt-1">Connected to: <span className="font-mono">{src}</span></p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
