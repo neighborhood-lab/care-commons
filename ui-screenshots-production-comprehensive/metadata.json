@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-25T11:46:13.984Z",
+  "timestamp": "2025-11-25T14:14:15.377Z",
   "environment": {
     "webUrl": "https://care-commons.vercel.app",
     "showcaseUrl": "https://neighborhood-lab.github.io/care-commons"
@@ -11,8 +11,8 @@
   "personas": [],
   "stats": {
     "total": 23,
-    "success": 18,
-    "failed": 5,
+    "success": 23,
+    "failed": 0,
     "failedRoutes": []
   }
 }
