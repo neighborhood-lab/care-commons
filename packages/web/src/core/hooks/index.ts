@@ -4,3 +4,4 @@ export * from './api';
 export * from './useTimezone';
 export * from './useMediaQuery';
 export * from './useOnboarding';
+export * from './useCompliance';
