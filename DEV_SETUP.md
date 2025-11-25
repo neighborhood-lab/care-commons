@@ -2,15 +2,80 @@
 
 ## Quick Start
 
-### 1. Environment Configuration
+### Prerequisites
 
-The `.env` file has been updated with JWT secrets. **Restart your dev server** to pick up the changes:
+- Node.js 22.x (use `nvm use` to switch)
+- Docker and Docker Compose (for local database)
+- Git
+
+### 1. Clone and Install
 
 ```bash
-# Stop the current dev server (Ctrl+C)
-# Then start it again:
+git clone https://github.com/neighborhood-lab/care-commons.git
+cd care-commons
+nvm use
+npm install
+```
+
+### 2. Start Local Database (Docker)
+
+```bash
+# Start PostgreSQL and Redis
+docker compose up -d
+
+# Verify services are running
+docker compose ps
+# Should show: care-commons-db (postgres) and care-commons-redis
+
+# Optional: Start with admin tools (pgAdmin, Redis Commander, MailHog)
+docker compose --profile tools up -d
+```
+
+**Service URLs (with --profile tools):**
+- pgAdmin: http://localhost:5050 (admin@carecommons.local / admin)
+- Redis Commander: http://localhost:8081
+- MailHog: http://localhost:8025
+
+### 3. Configure Environment
+
+```bash
+# Copy example environment file
+cp .env.example packages/core/.env
+
+# The defaults work with docker-compose out of the box:
+# - DB_HOST=localhost
+# - DB_PORT=5432
+# - DB_NAME=care_commons
+# - DB_USER=postgres
+# - DB_PASSWORD=postgres
+```
+
+**Alternative: Use DATABASE_URL instead of individual variables:**
+```bash
+# Add this to packages/core/.env (overrides DB_* variables)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/care_commons
+```
+
+### 4. Initialize Database
+
+```bash
+# Run migrations to create schema
+npm run db:migrate
+
+# Seed with operational data (creates admin user)
+npm run db:seed
+
+# Optional: Add demo data for testing
+npm run db:seed:demo
+```
+
+### 5. Start Development Server
+
+```bash
 npm run dev
 ```
+
+Navigate to http://localhost:5173 to see the app.
 
 ### 2. User Accounts
 
@@ -101,6 +166,39 @@ ADMIN_PASSWORD="YourSecurePassword1!" npm run db:seed-users
 - At least one number
 
 ## Troubleshooting
+
+### Docker PostgreSQL: "password authentication failed"
+
+**Cause:** Your `packages/core/.env` might be pointing to a cloud database (Neon) instead of local Docker.
+
+**Solution 1:** Use individual DB_* variables (recommended for local dev):
+```bash
+# In packages/core/.env, ensure these are set:
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=care_commons
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_SSL=false
+
+# Remove or comment out DATABASE_URL if present
+# DATABASE_URL=...
+```
+
+**Solution 2:** Use DATABASE_URL for local Docker:
+```bash
+# In packages/core/.env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/care_commons
+```
+
+**Verify Docker is running:**
+```bash
+docker compose ps
+# Should show care-commons-db as "running"
+
+# Check PostgreSQL logs if issues persist:
+docker compose logs postgres
+```
 
 ### Login fails with "JWT_REFRESH_SECRET not set"
 
