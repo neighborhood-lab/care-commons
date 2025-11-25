@@ -57,10 +57,46 @@ npx detox test --configuration ios.sim.debug --loglevel trace
 npx detox test --configuration ios.sim.debug --take-screenshots failing
 ```
 
+## TypeScript Configuration
+
+The E2E tests use a **separate TypeScript configuration** from the main mobile app:
+
+### Why Separate Configurations?
+
+1. **Different Test Frameworks**: The main app uses Vitest, while E2E tests use Jest + Detox
+2. **Detox Global Types**: Detox v20+ provides its own global types (`by`, `element`, `waitFor`, `device`) that conflict with the app's type definitions
+3. **Different Module Systems**: E2E tests may need different module resolution settings
+
+### Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `packages/mobile/tsconfig.json` | Main app config (excludes `e2e/` directory) |
+| `packages/mobile/e2e/tsconfig.json` | E2E test config with Jest/Detox types |
+| `packages/mobile/e2e/jest.config.js` | Jest config for Detox test runner |
+
+### Type Checking E2E Tests
+
+```bash
+# Type check main app only (default)
+cd packages/mobile
+npm run typecheck
+
+# Type check E2E tests separately
+cd packages/mobile/e2e
+npx tsc --noEmit
+```
+
+### Note on @types/detox
+
+As of Detox v20+, the package provides its own TypeScript types. The separate `@types/detox` package is **no longer needed** and was removed to avoid duplicate/conflicting type definitions.
+
 ## Test Structure
 
 ```
 e2e/
+├── tsconfig.json                         # E2E-specific TypeScript config (separate from app)
+├── jest.config.js                        # Jest configuration for Detox
 ├── tests/
 │   ├── 01-authentication.e2e.ts         # Login, logout, session management
 │   ├── 03-visit-check-in-out.e2e.ts     # EVV compliance (CRITICAL)
@@ -74,11 +110,10 @@ e2e/
 │   ├── location-mock.ts                  # GPS location mocking
 │   ├── network-mock.ts                   # Network condition simulation
 │   └── assertions.ts                     # Custom EVV/geofence assertions
-├── setup/
-│   ├── test-environment.ts               # Test data seeding and utilities
-│   ├── global-setup.ts                   # Global test setup
-│   └── global-teardown.ts                # Global test teardown
-└── jest.config.js                        # Jest configuration for Detox
+└── setup/
+    ├── test-environment.ts               # Test data seeding and utilities
+    ├── global-setup.ts                   # Global test setup
+    └── global-teardown.ts                # Global test teardown
 ```
 
 ## Current Implementation Status
@@ -322,5 +357,5 @@ For questions or issues with E2E testing:
 
 ---
 
-**Last Updated**: 2025-11-12  
+**Last Updated**: 2025-11-25  
 **Maintainer**: Care Commons Development Team
