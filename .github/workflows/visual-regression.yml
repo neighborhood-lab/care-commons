@@ -78,7 +78,11 @@ jobs:
           PORT: 5174
 
       - name: Run visual regression tests
+        id: visual-tests
         if: ${{ !inputs.update_baselines }}
+        # continue-on-error until baselines are established
+        # Remove this once e2e/tests/visual-showcase.spec.ts-snapshots/ is committed
+        continue-on-error: true
         run: |
           SHOWCASE_URL=http://localhost:5174/care-commons npm run test:visual
         env:
@@ -110,7 +114,8 @@ jobs:
           retention-days: 30
 
       - name: Comment PR with visual diff results
-        if: failure() && github.event_name == 'pull_request'
+        # Only comment if tests actually ran and failed (not on continue-on-error)
+        if: failure() && github.event_name == 'pull_request' && steps.visual-tests.outcome == 'failure'
         uses: actions/github-script@v7
         with:
           script: |
