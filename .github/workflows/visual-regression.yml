@@ -20,6 +20,11 @@ on:
 env:
   NODE_VERSION: '22'
 
+# Required for PR comments
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   visual-regression:
     name: Visual Regression
