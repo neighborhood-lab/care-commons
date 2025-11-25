@@ -15,6 +15,7 @@ import { createAuthRouter } from './auth';
 import webhooksRouter from './webhooks.js';
 import { createUsersRouter } from './users';
 import { createOrganizationRouter } from './organizations';
+import { createOnboardingRouter } from './onboarding';
 import { createCaregiverRouter } from './caregivers';
 import { createDemoRouter } from './demo';
 import { createAnalyticsRouter } from './analytics';
@@ -223,6 +224,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const organizationRouter = createOrganizationRouter(db);
   app.use('/api', generalApiLimiter, organizationRouter);
   console.log('  ✓ Organization & Invitation routes registered (with rate limiting)');
+
+  // Onboarding & Go-Live Checklist routes
+  const onboardingRouter = createOnboardingRouter(db);
+  app.use('/api/onboarding', generalApiLimiter, onboardingRouter);
+  console.log('  ✓ Onboarding routes registered (with rate limiting)');
 
   // Client Demographics routes
   const clientRepository = new ClientRepository(db);
