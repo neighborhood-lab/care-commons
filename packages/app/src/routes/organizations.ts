@@ -124,6 +124,9 @@ export function createOrganizationRouter(db: Database): Router {
           adminUserId: result.adminUserId,
           subscriptionId: result.subscriptionId,
           message: result.message,
+          // Include user and tokens for auto-login
+          user: result.user,
+          tokens: result.tokens,
         },
       });
     } catch (error) {

@@ -17,6 +17,8 @@ import { createEmailService } from './email-service.js';
 import { createStripeService } from './stripe.service.js';
 import { UUID, ValidationError } from '../types/base.js';
 import { CreateOrganizationRequest, USStateCode } from '../types/organization.js';
+import { JWTUtils, TokenPayload, TokenPair } from '../utils/jwt-utils.js';
+import { PermissionService } from '../permissions/permission-service.js';
 
 export interface SignupRequest {
   // Organization details
@@ -45,6 +47,16 @@ export interface SignupResult {
   subscriptionId: UUID;
   verificationToken: string;
   message: string;
+  // Optional auth tokens for auto-login after signup
+  tokens?: TokenPair;
+  user?: {
+    id: UUID;
+    email: string;
+    name: string;
+    roles: string[];
+    permissions: string[];
+    organizationId: UUID;
+  };
 }
 
 /**
@@ -83,6 +95,7 @@ export class SignupService {
   private emailService: ReturnType<typeof createEmailService>;
   private verificationService: EmailVerificationService;
   private stripeService: ReturnType<typeof createStripeService>;
+  private permissionService: PermissionService;
   
   constructor(private db: Database) {
     this.orgService = new OrganizationService(db);
@@ -90,6 +103,7 @@ export class SignupService {
     this.emailService = createEmailService();
     this.verificationService = new EmailVerificationService(db);
     this.stripeService = createStripeService();
+    this.permissionService = new PermissionService();
   }
   
   /**
@@ -238,14 +252,55 @@ export class SignupService {
         // Don't fail the signup if email fails
       }
       
+      // Step 6: Generate auth tokens for auto-login
+      const tokens = await this.generateTokensForUser(
+        orgResult.adminUserId,
+        request.adminEmail,
+        orgResult.organization.id
+      );
+      
       return {
         organizationId: orgResult.organization.id,
         adminUserId: orgResult.adminUserId,
         subscriptionId,
         verificationToken,
         message: 'Organization registered successfully. Please check your email to verify your account.',
+        tokens,
+        user: {
+          id: orgResult.adminUserId,
+          email: request.adminEmail,
+          name: `${request.adminFirstName} ${request.adminLastName}`,
+          roles: ['ORG_ADMIN'],
+          permissions: this.permissionService.getPermissionsForRoles(['ORG_ADMIN']),
+          organizationId: orgResult.organization.id,
+        },
       };
     });
+  }
+  
+  /**
+   * Generate JWT tokens for a newly created user
+   */
+  private async generateTokensForUser(
+    userId: UUID,
+    email: string,
+    organizationId: UUID
+  ): Promise<TokenPair> {
+    // New users get ORG_ADMIN role by default
+    const roles = ['ORG_ADMIN'];
+    const permissions = this.permissionService.getPermissionsForRoles(roles);
+    
+    const tokenPayload: TokenPayload = {
+      userId,
+      email,
+      organizationId,
+      branchIds: [], // No branches initially
+      roles,
+      permissions,
+      tokenVersion: 0, // New users start at version 0
+    };
+    
+    return JWTUtils.generateTokenPair(tokenPayload);
   }
   
   /**

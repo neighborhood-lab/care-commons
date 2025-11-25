@@ -199,15 +199,17 @@ export const Signup: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || 'Signup failed');
+        throw new Error(responseData.message ?? responseData.error ?? 'Signup failed');
       }
 
+      const { data } = responseData;
+
       // Auto-login after successful signup
-      if (data.user && data.token) {
-        login(data.user, data.token);
+      if (data.user && data.tokens?.accessToken) {
+        login(data.user, data.tokens.accessToken);
       }
 
       toast.success(
