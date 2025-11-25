@@ -172,7 +172,6 @@ describe('useMediaQuery', () => {
 
   describe('useIsTouchDevice', () => {
     it('should return false when not a touch device', () => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete (window as unknown as Record<string, unknown>).ontouchstart;
       Object.defineProperty(navigator, 'maxTouchPoints', { value: 0, configurable: true });
 
@@ -187,12 +186,10 @@ describe('useMediaQuery', () => {
       expect(result.current).toBe(true);
 
       // Cleanup
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete (window as unknown as Record<string, unknown>).ontouchstart;
     });
 
     it('should return true when maxTouchPoints > 0', () => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete (window as unknown as Record<string, unknown>).ontouchstart;
       Object.defineProperty(navigator, 'maxTouchPoints', { value: 1, configurable: true });
 
