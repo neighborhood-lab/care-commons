@@ -148,7 +148,7 @@ describe('Caregiver Routes', () => {
         (layer: any) => layer.route?.path === '/me'
       );
       expect(meRoute).toBeDefined();
-      expect(meRoute.route.methods.get).toBe(true);
+      expect((meRoute as any).route.methods.get).toBe(true);
     });
 
     it('should expose /expiring-credentials endpoint', () => {
@@ -156,7 +156,7 @@ describe('Caregiver Routes', () => {
         (layer: any) => layer.route?.path === '/expiring-credentials'
       );
       expect(route).toBeDefined();
-      expect(route.route.methods.get).toBe(true);
+      expect((route as any).route.methods.get).toBe(true);
     });
 
     it('should expose CRUD endpoints for caregivers', () => {
@@ -269,9 +269,6 @@ describe('Caregiver Routes', () => {
   describe('Authentication', () => {
     it('should have auth middleware in the router stack', () => {
       // Auth middleware is added via router.use() at the beginning
-      const authLayer = router.stack.find(
-        (layer: any) => !layer.route && layer.name === 'requireAuth'
-      );
       // The auth middleware is added as a regular function, so we check if there's
       // a non-route layer in the stack
       const nonRouteLayers = router.stack.filter((layer: any) => !layer.route);
