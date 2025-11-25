@@ -11,7 +11,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   // Test directory
   testDir: './e2e/tests',
-  testMatch: 'visual-*.spec.ts',
+  testMatch: 'visual-showcase.spec.ts',
 
   // Shorter timeouts for visual tests
   timeout: 30000,
