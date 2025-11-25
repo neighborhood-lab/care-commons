@@ -70,7 +70,7 @@ export const BillingPage: React.FC = () => {
       )}
 
       {data && data.items.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-4" data-tour="invoice-list">
           {data.items.map((invoice) => (
             <div
               key={invoice.id}

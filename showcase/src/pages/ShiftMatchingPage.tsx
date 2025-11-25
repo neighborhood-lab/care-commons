@@ -20,7 +20,7 @@ export const ShiftMatchingPage: React.FC = () => {
       description="Smart shift matching connecting caregivers with client needs"
     >
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-4 mb-6">
+      <div className="grid gap-4 sm:grid-cols-4 mb-6" data-tour="open-shifts">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm font-medium text-gray-600">Total Shifts</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">{data?.total || 0}</p>
@@ -102,7 +102,7 @@ export const ShiftMatchingPage: React.FC = () => {
               </div>
 
               {shift.requiredCertifications && shift.requiredCertifications.length > 0 && (
-                <div className="border-t border-gray-100 pt-4">
+                <div className="border-t border-gray-100 pt-4" data-tour="match-algorithm">
                   <div className="flex items-center gap-2 mb-2">
                     <Award className="h-4 w-4 text-gray-400" />
                     <p className="text-xs font-medium text-gray-700">Required Certifications</p>

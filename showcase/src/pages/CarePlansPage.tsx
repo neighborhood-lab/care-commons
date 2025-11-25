@@ -79,14 +79,17 @@ export const CarePlansPage: React.FC = () => {
             className="w-full rounded-md border border-gray-300 pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <button className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+        <button 
+          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          data-tour="care-plan-templates"
+        >
           <Plus className="h-4 w-4" />
           Create Care Plan
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6" data-tour="task-scheduling">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm font-medium text-gray-600">Total Plans</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">{data?.total || 0}</p>

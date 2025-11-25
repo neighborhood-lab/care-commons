@@ -17,8 +17,8 @@
 export * from './types/schedule';
 
 // Service
-export { ScheduleService } from './service/schedule-service';
-export type { IClientAddressProvider } from './service/schedule-service';
+export { ScheduleService } from './service/schedule-service.js';
+export type { IClientAddressProvider, ICredentialComplianceProvider } from './service/schedule-service.js';
 
 // Providers
 export * from './providers';

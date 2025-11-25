@@ -1,5 +1,6 @@
 import { Database } from '../../../packages/core/src/db/connection.js';
 import { v4 as uuidv4 } from 'uuid';
+import { E2E_UUIDS } from '../../fixtures/test-data.js';
 
 /**
  * Seed Data: Visit Lifecycle
@@ -13,11 +14,11 @@ import { v4 as uuidv4 } from 'uuid';
 export async function seedDatabase(db: Database): Promise<void> {
   console.log('Seeding visit lifecycle test data...');
 
-  const orgId = 'org-e2e-001';
-  const branchId = 'branch-e2e-001';
-  const clientId = 'client-001';
-  const caregiverId = 'caregiver-001';
-  const visitId = 'visit-001';
+  const orgId = E2E_UUIDS.ORG_E2E;
+  const branchId = E2E_UUIDS.BRANCH_E2E;
+  const clientId = E2E_UUIDS.CLIENT_001;
+  const caregiverId = E2E_UUIDS.CAREGIVER_001;
+  const visitId = E2E_UUIDS.VISIT_001;
 
   // Create organization
   await db.query(

@@ -235,3 +235,5 @@ packages/mobile/tmp/
 packages/mobile/temp/
 packages/web/dist-showcase
 .stripe-keys-temp.txt
+ui-screenshots-personas/ios-simulator/
+ui-screenshots-personas/production/

@@ -1,10 +1,11 @@
 import { Database } from '../../../packages/core/src/db/connection.js';
 import { v4 as uuidv4 } from 'uuid';
+import { E2E_UUIDS } from '../../fixtures/test-data.js';
 
 export async function seedDatabase(db: Database): Promise<void> {
   console.log('Seeding Florida MCO visit test data...');
 
-  const orgId = 'org-e2e-001';
+  const orgId = E2E_UUIDS.ORG_E2E;
   const branchId = 'branch-fl-001';
   const clientId = 'client-fl-mco-001';
   const caregiverId = 'caregiver-fl-001';

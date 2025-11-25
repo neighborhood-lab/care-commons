@@ -3,6 +3,7 @@ import { test as authTest } from '../fixtures/auth.fixture.js';
 import { VisitListPage } from '../pages/VisitListPage.js';
 import { VisitDetailPage } from '../pages/VisitDetailPage.js';
 import { TestDatabase } from '../setup/test-database.js';
+import { E2E_UUIDS } from '../fixtures/test-data.js';
 
 /**
  * Mobile-Specific Workflow Tests
@@ -40,11 +41,11 @@ test.describe('Mobile Workflows', () => {
 
     // Set up authentication
     await page.goto('/');
-    await page.evaluate(() => {
+    await page.evaluate(({ caregiverId, orgId }) => {
       localStorage.setItem('authToken', 'caregiver-token');
-      localStorage.setItem('userId', 'caregiver-e2e-001');
-      localStorage.setItem('organizationId', 'org-e2e-001');
-    });
+      localStorage.setItem('userId', caregiverId);
+      localStorage.setItem('organizationId', orgId);
+    }, { caregiverId: E2E_UUIDS.CAREGIVER_USER, orgId: E2E_UUIDS.ORG_E2E });
 
     // Navigate to today's visits
     await page.goto('/visits/today');

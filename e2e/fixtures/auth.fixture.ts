@@ -1,6 +1,7 @@
 import { test as base, Page } from '@playwright/test';
 import { TestDatabase } from '../setup/test-database.js';
 import { JWTUtils, TokenPayload } from '../../packages/core/src/utils/jwt-utils.js';
+import { E2E_UUIDS } from './test-data.js';
 
 /**
  * Authenticated User Type
@@ -41,10 +42,10 @@ export const test = base.extend<AuthFixtures>({
    */
   adminUser: async ({}, use) => {
     const user: AuthenticatedUser = {
-      userId: 'admin-e2e-001',
+      userId: E2E_UUIDS.ADMIN_USER,
       email: 'admin@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['SUPER_ADMIN'],
       permissions: ['*:*'], // Wildcard permission
     };
@@ -68,10 +69,10 @@ export const test = base.extend<AuthFixtures>({
    */
   orgAdminUser: async ({}, use) => {
     const user: AuthenticatedUser = {
-      userId: 'org-admin-e2e-001',
+      userId: E2E_UUIDS.ORG_ADMIN_USER,
       email: 'orgadmin@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['ORG_ADMIN'],
       permissions: [
         'organizations:read',
@@ -107,10 +108,10 @@ export const test = base.extend<AuthFixtures>({
    */
   coordinatorUser: async ({}, use) => {
     const user: AuthenticatedUser = {
-      userId: 'coord-e2e-001',
+      userId: E2E_UUIDS.COORDINATOR_USER,
       email: 'coordinator@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['COORDINATOR'],
       permissions: [
         'clients:read',
@@ -149,10 +150,10 @@ export const test = base.extend<AuthFixtures>({
    */
   caregiverUser: async ({}, use) => {
     const user: AuthenticatedUser = {
-      userId: 'caregiver-e2e-001',
+      userId: E2E_UUIDS.CAREGIVER_USER,
       email: 'caregiver@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['CAREGIVER'],
       permissions: [
         'visits:read:own', // Only own visits
@@ -183,11 +184,11 @@ export const test = base.extend<AuthFixtures>({
   authenticatedPage: async ({ page, coordinatorUser }, use) => {
     // Option 1: Set authentication via local storage (for JWT-based auth)
     await page.goto('/');
-    await page.evaluate((token) => {
+    await page.evaluate(({ token, userId, orgId }) => {
       localStorage.setItem('authToken', token as string);
-      localStorage.setItem('userId', 'coord-e2e-001');
-      localStorage.setItem('organizationId', 'org-e2e-001');
-    }, coordinatorUser.token);
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('organizationId', orgId);
+    }, { token: coordinatorUser.token, userId: coordinatorUser.userId, orgId: coordinatorUser.organizationId });
 
     // Option 2: Set authentication via cookies (if using cookie-based auth)
     await page.context().addCookies([

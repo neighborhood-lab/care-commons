@@ -18,9 +18,11 @@
  *   npm run capture                          # Local, all personas, web only
  *   npm run capture -- --production          # Production environment
  *   npm run capture -- --showcase            # Include showcase
+ *   npm run capture -- --showcase-only       # Showcase only (skip web personas)
  *   npm run capture -- --mobile              # Include mobile views
  *   npm run capture -- --all                 # Web + Showcase + Mobile
  *   npm run capture -- --persona admin       # Single persona only
+ *   npm run capture -- --no-resize           # Skip ImageMagick resize
  */
 
 import { chromium, type Browser, type Page } from '@playwright/test';
@@ -156,9 +158,34 @@ const PERSONAS: Persona[] = [
   },
 ];
 
+// Showcase routes - all pages from showcase/src/App.tsx
+// Note: Showcase uses /care-commons/ base path for GitHub Pages
 const SHOWCASE_ROUTES: Route[] = [
+  // Main pages
   { path: '/', name: 'landing-page' },
-  { path: '/demo', name: 'demo' },
+  { path: '/dashboard', name: 'dashboard' },
+  { path: '/clients', name: 'clients' },
+  { path: '/care-plans', name: 'care-plans' },
+  { path: '/tasks', name: 'tasks' },
+  { path: '/caregivers', name: 'caregivers' },
+  { path: '/scheduling', name: 'scheduling' },
+  { path: '/shifts', name: 'shift-matching' },
+  { path: '/evv', name: 'evv' },
+  { path: '/payroll', name: 'payroll' },
+  { path: '/billing', name: 'billing' },
+  { path: '/analytics', name: 'analytics' },
+  { path: '/quality', name: 'quality-assurance' },
+  { path: '/family-portal', name: 'family-portal' },
+  { path: '/tours', name: 'tours' },
+  { path: '/videos', name: 'videos' },
+  { path: '/states', name: 'state-demo' },
+  // Mobile simulator pages
+  { path: '/mobile', name: 'mobile-demo' },
+  { path: '/mobile/visits', name: 'mobile-visits' },
+  { path: '/mobile/tasks', name: 'mobile-tasks' },
+  { path: '/mobile/profile', name: 'mobile-profile' },
+  { path: '/mobile/clients', name: 'mobile-clients' },
+  { path: '/mobile/care-plans', name: 'mobile-care-plans' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -475,18 +502,21 @@ async function main(): Promise<void> {
   
   // Parse arguments
   const isProduction = args.includes('--production');
-  const includeShowcase = args.includes('--showcase') || args.includes('--all');
+  const showcaseOnly = args.includes('--showcase-only');
+  const includeShowcase = showcaseOnly || args.includes('--showcase') || args.includes('--all');
   const includeMobile = args.includes('--mobile') || args.includes('--all');
   const targetPersona = args.find((arg) => arg.startsWith('--persona='))?.split('=')[1];
   const noResize = args.includes('--no-resize');
+  const skipWeb = showcaseOnly; // Skip web personas if showcase-only
 
   const webUrl = isProduction 
     ? 'https://care-commons.vercel.app' 
     : process.env.BASE_URL || 'http://localhost:5173';
   
+  // Showcase always uses /care-commons/ base path (for GitHub Pages compatibility)
   const showcaseUrl = isProduction
-    ? 'https://care-commons.vercel.app'
-    : 'http://localhost:5174';
+    ? 'https://neighborhood-lab.github.io/care-commons'
+    : process.env.SHOWCASE_URL || 'http://localhost:5173/care-commons';
 
   const outputDir = join(process.cwd(), isProduction ? 'ui-screenshots-production-comprehensive' : 'ui-screenshots-personas');
 
@@ -518,22 +548,24 @@ async function main(): Promise<void> {
   try {
     const capturedPersonas: Persona[] = [];
 
-    // Capture web personas
-    const personasToCapture = targetPersona
-      ? PERSONAS.filter((p) => p.id === targetPersona)
-      : PERSONAS;
+    // Capture web personas (skip if showcase-only)
+    if (!skipWeb) {
+      const personasToCapture = targetPersona
+        ? PERSONAS.filter((p) => p.id === targetPersona)
+        : PERSONAS;
 
-    if (personasToCapture.length === 0) {
-      throw new Error(`Unknown persona: ${targetPersona}. Valid: ${PERSONAS.map(p => p.id).join(', ')}`);
-    }
+      if (personasToCapture.length === 0 && targetPersona) {
+        throw new Error(`Unknown persona: ${targetPersona}. Valid: ${PERSONAS.map(p => p.id).join(', ')}`);
+      }
 
-    for (const persona of personasToCapture) {
-      await capturePersona(browser, persona, webUrl, outputDir, useResize);
-      capturedPersonas.push(persona);
+      for (const persona of personasToCapture) {
+        await capturePersona(browser, persona, webUrl, outputDir, useResize);
+        capturedPersonas.push(persona);
+      }
     }
 
     // Capture showcase
-    if (includeShowcase && !targetPersona) {
+    if (includeShowcase) {
       await captureShowcase(browser, showcaseUrl, outputDir, useResize);
     }
 

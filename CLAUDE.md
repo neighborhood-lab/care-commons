@@ -65,7 +65,7 @@ npm run test         # Run all tests
 | **Backend** | TypeScript/Node.js + Express | REST API server |
 | **Database** | PostgreSQL 14+ | Relational data with JSONB |
 | **Frontend** | React 19 + Vite | Web application |
-| **Mobile** | React Native (Expo) | Mobile application |
+| **Mobile** | React Native (Expo) | Mobile EVV app (caregiver-first) |
 | **Validation** | Zod | Runtime type safety |
 | **Testing** | Vitest | ESM-native testing |
 | **Build** | Turborepo | Monorepo orchestration |
@@ -123,6 +123,7 @@ care-commons/
 │   ├── billing-invoicing/     # Billing
 │   ├── family-engagement/     # Family portal
 │   └── [others]/              # Additional verticals
+├── showcase/              # Static demo (GitHub Pages, localStorage)
 ├── api/                   # Vercel serverless functions
 │   └── index.mts          # Entry point (.mts = explicit ESM)
 ├── scripts/               # Repository utilities
@@ -558,6 +559,126 @@ import { createApp } from '@care-commons/app/server.js';
 import { ClientService } from '@care-commons/client-demographics';
 import { CaregiverService } from '@care-commons/caregiver-staff';
 ```
+
+---
+
+## Deployment & Branching
+
+### Branch Strategy
+
+**Workflow**: `feature/*` → `develop` → `preview` → `production`
+
+| Branch | Environment | URL |
+|--------|-------------|-----|
+| `production` | Production | care-commons.vercel.app |
+| `preview` | Preview | preview-*.vercel.app |
+| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ |
+
+**NOTE**: There is no `main` branch. This is intentional.
+
+### Showcase Demo
+
+Static client-side demo at https://neighborhood-lab.github.io/care-commons/
+- Uses localStorage (no backend)
+- Multi-role experience (patient, family, caregiver, coordinator, admin)
+- Includes mobile app simulator (work in progress)
+
+### Screenshot Capture
+
+AI agents can visually inspect the UI and **read PNG files directly**:
+
+```bash
+# Showcase (local or production)
+npx tsx scripts/capture-screenshots.ts --showcase-only
+npx tsx scripts/capture-screenshots.ts --showcase-only --production
+
+# iOS Simulator (requires Expo running)
+npx tsx scripts/capture-ios-screenshots.ts --name screen-name
+
+# Mobile E2E with Detox
+cd packages/mobile && npm run test:e2e
+```
+
+**Use screenshots to create GitHub issues with visual evidence.**
+
+### Authentication Notes
+
+**Working**: Demo logins (e.g., `admin@carecommons.example`)
+
+**Not fully implemented**: Google OAuth, Stripe billing, multi-tenant signup
+
+### Secrets
+
+- Ask user for secrets when needed - they will provide securely
+- Store in `.env` files (gitignored)
+- **NEVER** commit secrets or expose in client-side code
+- Common: `DATABASE_URL`, `JWT_SECRET`, `REDIS_URL` (optional)
+
+---
+
+## Agent-Human Communication
+
+**Issue Labels**:
+- `HUMAN` - Tasks requiring Brian's action (non-blocking for agent)
+- No special label - Tasks for agent to work on later
+
+**When Blocked**: Prompt Brian inline immediately.
+
+**When NOT Blocked**: Create GitHub issue instead of inline prompts.
+
+**Brian's Contact** (for external communications):
+- Brian Edwards, 512-584-6841, brian.mabry.edwards@gmail.com
+- Always CC Brian, never use placeholders
+
+**GitHub Actions Timing**: Each job should take ~3 minutes. If >5 minutes, investigate.
+
+## Async Workflow (Critical)
+
+**NEVER wait, sleep, or thrash** on long-running operations. See AGENTS.md for full details.
+
+**Key Rules**:
+1. **Never wait** on CI/deployments - switch to background tasks immediately
+2. **Never thrash** by repeatedly checking status - check once, note state, move on
+3. **Always leave state on GitHub** - open Draft PRs early, update issues
+4. **Use time-slice task selection** to ensure no task type starves
+
+**Time-Slice Lookup** (by minute in hour):
+- 0-8: screenshot-review
+- 9-17: issue-triage  
+- 18-26: documentation
+- 27-32: code-review
+- 33-38: backlog-grooming
+- 39-44: dependency-audit
+- 45-50: test-coverage
+- 51-56: marketing-prep
+- 57-59: quick-wins
+
+**Crash Recovery**: Keep a GitHub issue "Agent Session State - [Date]" with current task and waiting-on status.
+
+---
+
+## Async Work Management
+
+**NEVER wait or sleep** for long-running operations. Instead, leave WIP on GitHub and switch tasks.
+
+**Draft PRs for WIP**: When blocked on CI, open a Draft PR with clear notes (e.g., "WIP - awaiting CI").
+
+**Time-Sliced Task Selection**: To avoid starving non-urgent work, use this lookup table:
+
+| Minute | Category |
+|--------|----------|
+| 0-14 | Bug fixes (blocking) |
+| 15-29 | Feature implementation |
+| 30-39 | Code review / PR fixes |
+| 40-47 | Documentation / screenshots |
+| 48-54 | Issue triage / creation |
+| 55-59 | Tech debt / refactoring |
+
+When switching tasks: Check current minute → look up category → pick task from that category.
+
+**GitHub as Source of Truth**: All state should be visible on GitHub (branches, draft PRs, issue comments). Never keep significant state only locally - this ensures crash recovery works.
+
+See **[AGENTS.md](./AGENTS.md)** for comprehensive workflow details.
 
 ---
 

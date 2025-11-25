@@ -4,8 +4,17 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware, UserContext } from '@care-commons/core';
-import { CaregiverService } from '@care-commons/caregiver-staff';
-import type { CreateCaregiverInput, UpdateCaregiverInput, CaregiverSearchFilters } from '@care-commons/caregiver-staff';
+import { 
+  CaregiverService,
+  CredentialExpirationService,
+  ExclusionListService,
+} from '@care-commons/caregiver-staff';
+import type { 
+  CreateCaregiverInput, 
+  UpdateCaregiverInput, 
+  CaregiverSearchFilters,
+  ExpiringItemType,
+} from '@care-commons/caregiver-staff';
 
 /**
  * Helper to create UserContext from JWT payload
@@ -357,6 +366,178 @@ export function createCaregiverRouter(db: Database): Router {
 
       const caregiver = await service.updateComplianceStatus(req.params['id']!, context);
       res.json(caregiver);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // ============================================================
+  // CREDENTIAL MANAGEMENT ENDPOINTS
+  // ============================================================
+
+  /**
+   * GET /api/caregivers/credentials/status-summary
+   * Get credential status summary for organization dashboard
+   */
+  router.get('/credentials/status-summary', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const credentialService = new CredentialExpirationService(db);
+
+      const summary = await credentialService.getStatusSummary(context.organizationId!);
+      res.json(summary);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * GET /api/caregivers/credentials/expiring
+   * Get all expiring credentials for organization
+   */
+  router.get('/credentials/expiring', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const credentialService = new CredentialExpirationService(db);
+
+      const options = {
+        daysAhead: parseInt((req.query['daysAhead'] as string | undefined) ?? '90', 10),
+        includeExpired: req.query['includeExpired'] === 'true',
+        branchId: req.query['branchId'] as string | undefined,
+        itemTypes: req.query['itemTypes'] !== undefined
+          ? (req.query['itemTypes'] as string).split(',') as ExpiringItemType[]
+          : undefined,
+      };
+
+      const expiringItems = await credentialService.getExpiringItems(
+        context.organizationId!,
+        options
+      );
+      res.json(expiringItems);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * GET /api/caregivers/credentials/alerts
+   * Get credential expiration alerts (for notifications)
+   */
+  router.get('/credentials/alerts', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const credentialService = new CredentialExpirationService(db);
+
+      const forceAll = req.query['forceAll'] === 'true';
+      const alerts = await credentialService.generateAlerts(
+        context.organizationId!,
+        { forceAll }
+      );
+      res.json(alerts);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * POST /api/caregivers/credentials/update-all-statuses
+   * Update compliance status for all caregivers (batch job)
+   */
+  router.post('/credentials/update-all-statuses', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const credentialService = new CredentialExpirationService(db);
+
+      const result = await credentialService.updateAllComplianceStatuses(
+        context.organizationId!,
+        context
+      );
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * POST /api/caregivers/:id/credentials/can-be-scheduled
+   * Check if caregiver can be scheduled based on credentials
+   */
+  router.post('/:id/credentials/can-be-scheduled', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const credentialService = new CredentialExpirationService(db);
+
+      const serviceDate = req.body['serviceDate'] !== undefined && req.body['serviceDate'] !== null
+        ? new Date(req.body['serviceDate'] as string)
+        : new Date();
+
+      const result = await credentialService.canBeScheduled(
+        req.params['id']!,
+        serviceDate,
+        context
+      );
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // ============================================================
+  // EXCLUSION LIST ENDPOINTS
+  // ============================================================
+
+  /**
+   * POST /api/caregivers/:id/exclusion-check
+   * Check caregiver against federal exclusion lists (OIG, SAM)
+   */
+  router.post('/:id/exclusion-check', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const exclusionService = new ExclusionListService(db);
+
+      const result = await exclusionService.checkCaregiver(req.params['id']!, context);
+      
+      // Record the check for audit purposes
+      await exclusionService.recordExclusionCheck(result, context);
+      
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * POST /api/caregivers/exclusion-check/batch
+   * Check all caregivers in organization against exclusion lists
+   * 
+   * NOTE: This is required monthly per CMS regulations
+   */
+  router.post('/exclusion-check/batch', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const exclusionService = new ExclusionListService(db);
+
+      const result = await exclusionService.checkOrganization(
+        context.organizationId!,
+        context
+      );
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * GET /api/caregivers/:id/exclusion-check/history
+   * Get exclusion check history for a caregiver
+   */
+  router.get('/:id/exclusion-check/history', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = getUserContext(req);
+      const exclusionService = new ExclusionListService(db);
+
+      const history = await exclusionService.getCheckHistory(req.params['id']!, context);
+      res.json(history);
     } catch (error) {
       next(error);
     }
