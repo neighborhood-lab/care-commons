@@ -5,6 +5,7 @@ import { ScheduleVisitPage } from '../pages/ScheduleVisitPage.js';
 import { EVVRecordPage } from '../pages/EVVRecordPage.js';
 import { TestDatabase } from '../setup/test-database.js';
 import { createAuthenticatedPage } from '../fixtures/auth.fixture.js';
+import { E2E_UUIDS } from '../fixtures/test-data.js';
 
 /**
  * Critical User Journey Tests
@@ -162,10 +163,10 @@ test.describe('Critical User Journeys', () => {
     // ===== PHASE 4: Verify visit appears on caregiver schedule =====
     const caregiverPage = await context.newPage();
     const caregiverUser = {
-      userId: 'caregiver-e2e-001',
+      userId: E2E_UUIDS.CAREGIVER_USER,
       email: 'caregiver@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['CAREGIVER'],
       permissions: ['visits:read:own', 'evv:write:own'],
     };

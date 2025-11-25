@@ -1,7 +1,7 @@
 import { Page, BrowserContext } from '@playwright/test';
 import { TestDatabase } from '../setup/test-database.js';
 import { createAuthenticatedPage, AuthenticatedUser } from '../fixtures/auth.fixture.js';
-import { TEST_GPS_COORDINATES } from '../fixtures/test-data.js';
+import { TEST_GPS_COORDINATES, E2E_UUIDS } from '../fixtures/test-data.js';
 
 /**
  * E2E Test Helper Functions
@@ -18,34 +18,34 @@ export async function login(
 ): Promise<void> {
   const users: Record<string, AuthenticatedUser> = {
     admin: {
-      userId: 'admin-e2e-001',
+      userId: E2E_UUIDS.ADMIN_USER,
       email: 'admin@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['SUPER_ADMIN'],
       permissions: ['*:*'],
     },
     coordinator: {
-      userId: 'coord-e2e-001',
+      userId: E2E_UUIDS.COORDINATOR_USER,
       email: 'coordinator@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['COORDINATOR'],
       permissions: ['clients:*', 'caregivers:*', 'visits:*', 'evv:*'],
     },
     caregiver: {
-      userId: 'caregiver-e2e-001',
+      userId: E2E_UUIDS.CAREGIVER_USER,
       email: 'caregiver@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['CAREGIVER'],
       permissions: ['visits:read:own', 'evv:write:own'],
     },
     family: {
-      userId: 'family-e2e-001',
+      userId: E2E_UUIDS.FAMILY_USER,
       email: 'family@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['FAMILY_MEMBER'],
       permissions: [
         'clients:read', 'visits:read', 'care-plans:read', 'tasks:read', 'schedules:read',

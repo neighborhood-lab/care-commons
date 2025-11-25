@@ -4,6 +4,7 @@ import { VisitDetailPage } from '../pages/VisitDetailPage.js';
 import { ScheduleVisitPage } from '../pages/ScheduleVisitPage.js';
 import { TestDatabase } from '../setup/test-database.js';
 import { createAuthenticatedPage } from '../fixtures/auth.fixture.js';
+import { E2E_UUIDS } from '../fixtures/test-data.js';
 
 /**
  * Multi-User Workflow Tests
@@ -37,13 +38,13 @@ test.describe('Multi-User Workflows', () => {
 
     const coordinator1 = {
       ...coordinatorUser,
-      userId: 'coord-e2e-001',
+      userId: E2E_UUIDS.COORDINATOR_USER,
       email: 'coordinator1@e2e-test.com',
     };
 
     const coordinator2 = {
       ...coordinatorUser,
-      userId: 'coord-e2e-002',
+      userId: '00000000-e2e0-4000-8000-000000000105', // Second coordinator UUID
       email: 'coordinator2@e2e-test.com',
     };
 
@@ -202,10 +203,10 @@ test.describe('Multi-User Workflows', () => {
     // Set up family member session
     const familyPage = await context.newPage();
     const familyUser = {
-      userId: 'family-e2e-001',
+      userId: E2E_UUIDS.FAMILY_USER,
       email: 'family@e2e-test.com',
-      organizationId: 'org-e2e-001',
-      branchId: 'branch-e2e-001',
+      organizationId: E2E_UUIDS.ORG_E2E,
+      branchId: E2E_UUIDS.BRANCH_E2E,
       roles: ['FAMILY_MEMBER'],
       permissions: ['family-portal:read', 'messages:write'],
     };
