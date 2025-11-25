@@ -26,6 +26,7 @@ import { FamilyPortalPage } from './pages/FamilyPortalPage';
 import { ToursPage } from './pages/ToursPage';
 import { VideosPage } from './pages/VideosPage';
 import { StateDemoPage } from './pages/StateDemoPage';
+import { WhyPage } from './pages/WhyPage';
 
 // Mobile Pages
 import { MobileDemoPage } from './pages/MobileDemoPage';
@@ -77,6 +78,7 @@ export const App: React.FC = () => {
                 <Route path="/tours" element={<ToursPage />} />
                 <Route path="/videos" element={<VideosPage />} />
                 <Route path="/states" element={<StateDemoPage />} />
+                <Route path="/why" element={<WhyPage />} />
 
                 {/* Mobile Routes */}
                 <Route path="/mobile" element={<MobileDemoPage />} />
