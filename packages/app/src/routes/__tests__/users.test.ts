@@ -164,7 +164,8 @@ describe('Users Routes', () => {
 
       expect(routes.length).toBe(1);
       // Route has multiple handlers (auth middleware + handler)
-      expect(routes[0].route.stack.length).toBeGreaterThan(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.stack?.length).toBeGreaterThan(1);
     });
 
     it('should require auth for PUT /profile', () => {
@@ -175,7 +176,8 @@ describe('Users Routes', () => {
       );
 
       expect(routes.length).toBe(1);
-      expect(routes[0].route.stack.length).toBeGreaterThan(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.stack?.length).toBeGreaterThan(1);
     });
 
     it('should require auth for PUT /password', () => {
@@ -186,7 +188,8 @@ describe('Users Routes', () => {
       );
 
       expect(routes.length).toBe(1);
-      expect(routes[0].route.stack.length).toBeGreaterThan(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.stack?.length).toBeGreaterThan(1);
     });
 
     it('should require auth for PUT /preferences', () => {
@@ -197,7 +200,8 @@ describe('Users Routes', () => {
       );
 
       expect(routes.length).toBe(1);
-      expect(routes[0].route.stack.length).toBeGreaterThan(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.stack?.length).toBeGreaterThan(1);
     });
   });
 
