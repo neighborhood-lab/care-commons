@@ -9,7 +9,12 @@ import {
   CredentialExpirationService,
   ExclusionListService,
 } from '@care-commons/caregiver-staff';
-import type { CreateCaregiverInput, UpdateCaregiverInput, CaregiverSearchFilters } from '@care-commons/caregiver-staff';
+import type { 
+  CreateCaregiverInput, 
+  UpdateCaregiverInput, 
+  CaregiverSearchFilters,
+  ExpiringItemType,
+} from '@care-commons/caregiver-staff';
 
 /**
  * Helper to create UserContext from JWT payload
@@ -400,7 +405,7 @@ export function createCaregiverRouter(db: Database): Router {
         includeExpired: req.query['includeExpired'] === 'true',
         branchId: req.query['branchId'] as string | undefined,
         itemTypes: req.query['itemTypes'] !== undefined
-          ? (req.query['itemTypes'] as string).split(',') as any[]
+          ? (req.query['itemTypes'] as string).split(',') as ExpiringItemType[]
           : undefined,
       };
 
@@ -462,8 +467,8 @@ export function createCaregiverRouter(db: Database): Router {
       const context = getUserContext(req);
       const credentialService = new CredentialExpirationService(db);
 
-      const serviceDate = req.body['serviceDate']
-        ? new Date(req.body['serviceDate'])
+      const serviceDate = req.body['serviceDate'] !== undefined && req.body['serviceDate'] !== null
+        ? new Date(req.body['serviceDate'] as string)
         : new Date();
 
       const result = await credentialService.canBeScheduled(
