@@ -16,7 +16,7 @@ on:
     - cron: "30 3 * * 2"
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
 
 jobs:
   codeql:
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
       - run: npm ci
       # Only fail on high/critical vulnerabilities
       # Moderate issues in transitive dependencies (e.g., sentry-expo) are tracked but don't block deployment
