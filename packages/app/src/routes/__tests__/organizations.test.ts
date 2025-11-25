@@ -273,8 +273,8 @@ describe('Organization Routes', () => {
 
       expect(routes.length).toBe(1);
       // Signup should be accessible without authentication
-      const route = routes[0];
-      expect(route.route.methods.post).toBe(true);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.post).toBe(true);
     });
 
     it('should have public organization registration endpoint (no auth required)', () => {
@@ -283,8 +283,8 @@ describe('Organization Routes', () => {
       );
 
       expect(routes.length).toBe(1);
-      const route = routes[0];
-      expect(route.route.methods.post).toBe(true);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.post).toBe(true);
     });
 
     it('should have public invitation details endpoint (no auth required)', () => {
@@ -307,8 +307,8 @@ describe('Organization Routes', () => {
       );
 
       expect(routes.length).toBe(1);
-      const route = routes[0];
-      expect(route.route.methods.post).toBe(true);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.post).toBe(true);
     });
 
     it('should require auth for get organization by ID', () => {
@@ -318,8 +318,8 @@ describe('Organization Routes', () => {
 
       expect(routes.length).toBe(1);
       // This route should use authentication middleware
-      const route = routes[0];
-      expect(route.route.methods.get).toBe(true);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.get).toBe(true);
     });
 
     it('should require auth for organization invitations management', () => {
