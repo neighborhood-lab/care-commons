@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/core/hooks';
+import { useAuth, useOnboarding } from '@/core/hooks';
 import toast from 'react-hot-toast';
+import type { OnboardingStepId } from '@care-commons/core';
 
 /**
  * Onboarding Wizard for new agencies
@@ -11,13 +12,12 @@ import toast from 'react-hot-toast';
  * signup to first real visit in under 24 hours.
  */
 
-interface OnboardingStep {
-  id: string;
+interface StepConfig {
+  id: OnboardingStepId;
   title: string;
   description: string;
   icon: React.ReactNode;
   estimatedMinutes: number;
-  isComplete: boolean;
   isOptional?: boolean;
 }
 
@@ -31,136 +31,184 @@ const CheckIcon = () => (
   </svg>
 );
 
+const STEP_CONFIGS: StepConfig[] = [
+  {
+    id: 'email_verified',
+    title: 'Verify Your Email',
+    description: 'Confirm your email address to secure your account',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+    estimatedMinutes: 1,
+  },
+  {
+    id: 'services_configured',
+    title: 'Configure Services',
+    description: 'Set up the service types your agency offers',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    ),
+    estimatedMinutes: 5,
+  },
+  {
+    id: 'payors_added',
+    title: 'Add Payors',
+    description: 'Configure Medicaid, Medicare, and private pay sources',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    estimatedMinutes: 10,
+  },
+  {
+    id: 'evv_configured',
+    title: 'EVV Configuration',
+    description: 'Connect to your state EVV aggregator for compliance',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+    estimatedMinutes: 15,
+  },
+  {
+    id: 'first_caregiver',
+    title: 'Add Your First Caregiver',
+    description: 'Invite a caregiver to test the mobile app',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+      </svg>
+    ),
+    estimatedMinutes: 5,
+  },
+  {
+    id: 'first_client',
+    title: 'Add Your First Client',
+    description: 'Create a client record to test the system',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    ),
+    estimatedMinutes: 10,
+  },
+  {
+    id: 'test_visit',
+    title: 'Schedule a Test Visit',
+    description: 'Create your first visit to test the complete workflow',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+    estimatedMinutes: 5,
+  },
+  {
+    id: 'team_invited',
+    title: 'Invite Your Team',
+    description: 'Add other administrators and coordinators',
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    estimatedMinutes: 5,
+    isOptional: true,
+  },
+];
+
 export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [expandedStep, setExpandedStep] = useState<string | null>('verify-email');
+  const {
+    progress,
+    isLoading,
+    error,
+    initialize,
+    updateStep,
+  } = useOnboarding();
+  
+  const [expandedStep, setExpandedStep] = useState<string | null>('email_verified');
+  const [isInitializing, setIsInitializing] = useState(false);
 
-  // Initial onboarding steps - these would be populated from API in real implementation
-  const [steps, setSteps] = useState<OnboardingStep[]>([
-    {
-      id: 'verify-email',
-      title: 'Verify Your Email',
-      description: 'Confirm your email address to secure your account',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      ),
-      estimatedMinutes: 1,
-      isComplete: false,
-    },
-    {
-      id: 'add-services',
-      title: 'Configure Services',
-      description: 'Set up the service types your agency offers',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-        </svg>
-      ),
-      estimatedMinutes: 5,
-      isComplete: false,
-    },
-    {
-      id: 'add-payors',
-      title: 'Add Payors',
-      description: 'Configure Medicaid, Medicare, and private pay sources',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      ),
-      estimatedMinutes: 10,
-      isComplete: false,
-    },
-    {
-      id: 'evv-setup',
-      title: 'EVV Configuration',
-      description: 'Connect to your state EVV aggregator for compliance',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
-      estimatedMinutes: 15,
-      isComplete: false,
-    },
-    {
-      id: 'add-caregiver',
-      title: 'Add Your First Caregiver',
-      description: 'Invite a caregiver to test the mobile app',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-        </svg>
-      ),
-      estimatedMinutes: 5,
-      isComplete: false,
-    },
-    {
-      id: 'add-client',
-      title: 'Add Your First Client',
-      description: 'Create a client record to test the system',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      ),
-      estimatedMinutes: 10,
-      isComplete: false,
-    },
-    {
-      id: 'schedule-visit',
-      title: 'Schedule a Test Visit',
-      description: 'Create your first visit to test the complete workflow',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
-      estimatedMinutes: 5,
-      isComplete: false,
-    },
-    {
-      id: 'invite-team',
-      title: 'Invite Your Team',
-      description: 'Add other administrators and coordinators',
-      icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      ),
-      estimatedMinutes: 5,
-      isComplete: false,
-      isOptional: true,
-    },
-  ]);
+  // Initialize onboarding if not already initialized
+  useEffect(() => {
+    const initIfNeeded = async () => {
+      if (!isLoading && progress === null && !isInitializing) {
+        setIsInitializing(true);
+        try {
+          // Default to TX for now - in production this would come from signup
+          await initialize('TX');
+        } catch {
+          // Error already handled in hook
+        } finally {
+          setIsInitializing(false);
+        }
+      }
+    };
+    void initIfNeeded();
+  }, [isLoading, progress, initialize, isInitializing]);
+
+  // Get step status from progress
+  const getStepStatus = (stepId: OnboardingStepId) => {
+    if (progress === null) return { isComplete: false };
+    const step = progress.steps.find(s => s.id === stepId);
+    return {
+      isComplete: step?.status === 'completed' || step?.status === 'skipped',
+      status: step?.status ?? 'not_started',
+    };
+  };
+
+  const steps = STEP_CONFIGS.map(config => ({
+    ...config,
+    ...getStepStatus(config.id),
+  }));
 
   const completedSteps = steps.filter((s) => s.isComplete).length;
   const totalSteps = steps.filter((s) => !s.isOptional).length;
-  const progress = Math.round((completedSteps / totalSteps) * 100);
+  const progressPercent = progress?.overallProgress ?? Math.round((completedSteps / totalSteps) * 100);
 
   const handleStepClick = (stepId: string) => {
     setExpandedStep(expandedStep === stepId ? null : stepId);
   };
 
-  const handleMarkComplete = (stepId: string) => {
-    setSteps((prev) =>
-      prev.map((step) =>
-        step.id === stepId ? { ...step, isComplete: true } : step
-      )
-    );
-    
-    // Find next incomplete step
-    const currentIndex = steps.findIndex((s) => s.id === stepId);
-    const nextStep = steps.slice(currentIndex + 1).find((s) => !s.isComplete);
-    if (nextStep) {
-      setExpandedStep(nextStep.id);
+  const handleMarkComplete = async (stepId: OnboardingStepId) => {
+    try {
+      await updateStep(stepId, 'completed');
+      
+      // Find next incomplete step
+      const currentIndex = steps.findIndex((s) => s.id === stepId);
+      const nextStep = steps.slice(currentIndex + 1).find((s) => !s.isComplete);
+      if (nextStep !== undefined) {
+        setExpandedStep(nextStep.id);
+      }
+      
+      toast.success('Step completed!');
+    } catch {
+      toast.error('Failed to update step');
     }
-    
-    toast.success('Step completed!');
+  };
+
+  const handleSkipStep = async (stepId: OnboardingStepId) => {
+    try {
+      await updateStep(stepId, 'skipped');
+      
+      // Find next incomplete step
+      const currentIndex = steps.findIndex((s) => s.id === stepId);
+      const nextStep = steps.slice(currentIndex + 1).find((s) => !s.isComplete);
+      if (nextStep !== undefined) {
+        setExpandedStep(nextStep.id);
+      }
+    } catch {
+      toast.error('Failed to skip step');
+    }
   };
 
   const handleSkipOnboarding = () => {
@@ -172,9 +220,9 @@ export const Onboarding: React.FC = () => {
     navigate('/dashboard');
   };
 
-  const renderStepContent = (step: OnboardingStep) => {
+  const renderStepContent = (step: StepConfig & { isComplete: boolean }) => {
     switch (step.id) {
-      case 'verify-email':
+      case 'email_verified':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -189,7 +237,7 @@ export const Onboarding: React.FC = () => {
                 Resend Email
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleMarkComplete(step.id)}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 I&apos;ve Verified My Email
@@ -198,7 +246,7 @@ export const Onboarding: React.FC = () => {
           </div>
         );
       
-      case 'add-services':
+      case 'services_configured':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -208,15 +256,15 @@ export const Onboarding: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
+                  void handleMarkComplete(step.id);
                   navigate('/settings/services');
-                  handleMarkComplete(step.id);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Configure Services
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleSkipStep(step.id)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Skip for Now
@@ -225,7 +273,7 @@ export const Onboarding: React.FC = () => {
           </div>
         );
       
-      case 'add-payors':
+      case 'payors_added':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -235,15 +283,15 @@ export const Onboarding: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
+                  void handleMarkComplete(step.id);
                   navigate('/billing/payors');
-                  handleMarkComplete(step.id);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Add Payors
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleSkipStep(step.id)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Skip for Now
@@ -252,7 +300,7 @@ export const Onboarding: React.FC = () => {
           </div>
         );
       
-      case 'evv-setup':
+      case 'evv_configured':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -267,15 +315,15 @@ export const Onboarding: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
+                  void handleMarkComplete(step.id);
                   navigate('/settings/evv');
-                  handleMarkComplete(step.id);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Configure EVV
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleSkipStep(step.id)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Skip for Now
@@ -284,7 +332,7 @@ export const Onboarding: React.FC = () => {
           </div>
         );
       
-      case 'add-caregiver':
+      case 'first_caregiver':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -294,15 +342,15 @@ export const Onboarding: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
+                  void handleMarkComplete(step.id);
                   navigate('/caregivers/new');
-                  handleMarkComplete(step.id);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Add Caregiver
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleSkipStep(step.id)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Skip for Now
@@ -311,7 +359,7 @@ export const Onboarding: React.FC = () => {
           </div>
         );
       
-      case 'add-client':
+      case 'first_client':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -321,15 +369,15 @@ export const Onboarding: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
+                  void handleMarkComplete(step.id);
                   navigate('/clients/new');
-                  handleMarkComplete(step.id);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Add Client
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleSkipStep(step.id)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Skip for Now
@@ -338,7 +386,7 @@ export const Onboarding: React.FC = () => {
           </div>
         );
       
-      case 'schedule-visit':
+      case 'test_visit':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -348,15 +396,15 @@ export const Onboarding: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
+                  void handleMarkComplete(step.id);
                   navigate('/schedule');
-                  handleMarkComplete(step.id);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Schedule Visit
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleSkipStep(step.id)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Skip for Now
@@ -365,7 +413,7 @@ export const Onboarding: React.FC = () => {
           </div>
         );
       
-      case 'invite-team':
+      case 'team_invited':
         return (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -375,15 +423,15 @@ export const Onboarding: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
+                  void handleMarkComplete(step.id);
                   navigate('/settings/team');
-                  handleMarkComplete(step.id);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Invite Team
               </button>
               <button
-                onClick={() => handleMarkComplete(step.id)}
+                onClick={() => void handleSkipStep(step.id)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Skip for Now
@@ -396,6 +444,33 @@ export const Onboarding: React.FC = () => {
         return null;
     }
   };
+
+  if (isLoading || isInitializing) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading onboarding...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error !== null) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -421,12 +496,12 @@ export const Onboarding: React.FC = () => {
               <span className="font-medium text-gray-700">
                 {completedSteps} of {totalSteps} steps complete
               </span>
-              <span className="text-gray-500">{progress}%</span>
+              <span className="text-gray-500">{progressPercent}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
@@ -472,7 +547,7 @@ export const Onboarding: React.FC = () => {
                     >
                       {step.title}
                     </h3>
-                    {step.isOptional && (
+                    {step.isOptional === true && (
                       <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">
                         Optional
                       </span>
