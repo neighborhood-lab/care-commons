@@ -64,7 +64,7 @@
     "@opentelemetry/instrumentation-http": "^0.208.0",
     "@opentelemetry/semantic-conventions": "^1.38.0",
     "@sentry/node": "^10.27.0",
-    "@sentry/profiling-node": "^10.25.0",
+    "@sentry/profiling-node": "^10.27.0",
     "@types/express": "^5.0.5",
     "@types/papaparse": "^5.5.0",
     "bintrees": "^1.0.2",
