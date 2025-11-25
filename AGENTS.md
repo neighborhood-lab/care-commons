@@ -645,6 +645,16 @@ Minutes 57-59: quick-wins
 
 ### Handling Async Operations
 
+**CRITICAL: Never Wait, Never Sleep**
+
+The agent must **NEVER**:
+- Wait/sleep for GitHub Actions to complete
+- Repeatedly poll CI status in a tight loop (thrashing)
+- Block on long-running operations
+- Sit idle while external processes run
+
+**Instead**: Leave work-in-progress on GitHub and switch to other tasks.
+
 **GitHub Actions Timing Expectations**:
 - **Target**: ~3 minutes per workflow job (lint, typecheck, test, build)
 - **Total CI**: Should complete in 6-10 minutes for a typical PR
@@ -652,6 +662,12 @@ Minutes 57-59: quick-wins
 - **Red flag**: Any single job taking >5 minutes warrants investigation
 
 **DO NOT**: Repeatedly check CI status in a loop. Check once, record state, do background work.
+
+**Draft PRs for Work-in-Progress**:
+- When blocked on CI/deployment, **open a Draft PR** to persist state on GitHub
+- Clear PR notes: "WIP - awaiting CI" or "WIP - needs review of X"
+- This ensures work survives crashes/restarts and provides visibility
+- Return to the PR later when choosing tasks from the backlog
 
 **Vercel Deployment Lag**: Vercel CLI deployment listings may lag behind actual deployments. Match commit hashes to verify:
 ```bash
@@ -664,6 +680,71 @@ vercel inspect <deployment-url>
 # Compare with git commit
 git log --oneline -5
 ```
+
+### Time-Sliced Task Selection (Anti-Starvation)
+
+**Problem**: Urgent/trivial tasks can starve important but non-urgent work.
+
+**Solution**: Use a deterministic time-slicing algorithm to ensure all task categories get attention proportional to their priority.
+
+**Task Categories and Time Allocation**:
+
+| Category | Priority | Minutes/Hour | Minute Ranges |
+|----------|----------|--------------|---------------|
+| Bug fixes (blocking) | Critical | 15 | 0-14 |
+| Feature implementation | High | 15 | 15-29 |
+| Code review / PR fixes | High | 10 | 30-39 |
+| Documentation / screenshots | Medium | 8 | 40-47 |
+| Issue triage / creation | Medium | 7 | 48-54 |
+| Tech debt / refactoring | Low | 5 | 55-59 |
+
+**How to Use the Lookup Table**:
+
+1. When you need to switch tasks (blocked on CI, waiting on external process):
+2. Check the current minute of the hour (0-59)
+3. Look up which category that minute falls into
+4. Select a task from that category from the GitHub backlog
+5. Work on that task until blocked again, then repeat
+
+**Example**:
+```
+Current time: 10:42 AM → minute 42 → Documentation category
+Action: Capture screenshots, create visual regression issues, update docs
+
+Current time: 10:17 AM → minute 17 → Feature implementation
+Action: Pick up next feature issue from backlog
+
+Current time: 10:56 AM → minute 56 → Tech debt
+Action: Work on refactoring issue or code cleanup
+```
+
+**Why This Works**:
+- Deterministic: No decision paralysis about what to do next
+- Fair: All categories get proportional attention over time
+- Anti-starvation: Even low-priority work eventually gets done
+- Crash-resistant: State is on GitHub, easy to resume after restart
+
+**Adjusting Priorities**: If business needs change, adjust the minute allocations. The key is that **no category should have 0 minutes**.
+
+### State Management for Crash Recovery
+
+**GitHub as Source of Truth**:
+- All work-in-progress should be visible on GitHub (branches, draft PRs, issues)
+- Never keep significant state only in local branches
+- Push early, push often
+- Use issue comments to document investigation progress
+
+**What to Push to GitHub**:
+- Draft PRs for any work that took >15 minutes
+- Issue comments with findings from investigation
+- Updated issue descriptions as understanding improves
+- Branch pushes even if CI might fail (can fix later)
+
+**After a Crash/Restart**:
+1. Check open PRs for WIP work
+2. Check recent issue comments for investigation state
+3. Check open issues sorted by recent activity
+4. Resume from GitHub state, not local memory
 
 ### Commit Practices
 

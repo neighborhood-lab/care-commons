@@ -657,6 +657,31 @@ cd packages/mobile && npm run test:e2e
 
 ---
 
+## Async Work Management
+
+**NEVER wait or sleep** for long-running operations. Instead, leave WIP on GitHub and switch tasks.
+
+**Draft PRs for WIP**: When blocked on CI, open a Draft PR with clear notes (e.g., "WIP - awaiting CI").
+
+**Time-Sliced Task Selection**: To avoid starving non-urgent work, use this lookup table:
+
+| Minute | Category |
+|--------|----------|
+| 0-14 | Bug fixes (blocking) |
+| 15-29 | Feature implementation |
+| 30-39 | Code review / PR fixes |
+| 40-47 | Documentation / screenshots |
+| 48-54 | Issue triage / creation |
+| 55-59 | Tech debt / refactoring |
+
+When switching tasks: Check current minute → look up category → pick task from that category.
+
+**GitHub as Source of Truth**: All state should be visible on GitHub (branches, draft PRs, issue comments). Never keep significant state only locally - this ensures crash recovery works.
+
+See **[AGENTS.md](./AGENTS.md)** for comprehensive workflow details.
+
+---
+
 ## See Also
 
 - **[AGENTS.md](./AGENTS.md)** - Comprehensive agent implementation directives
