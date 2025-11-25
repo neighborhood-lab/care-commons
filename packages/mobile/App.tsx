@@ -9,7 +9,7 @@ const Tab = createBottomTabNavigator();
 
 // Dashboard Screen - IMPROVED
 function DashboardScreen({ navigation }: any) {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline] = useState(true);
   
   const stats = [
     { label: "Today's Visits", value: '12', color: '#2196F3' },
@@ -161,7 +161,8 @@ function DashboardScreen({ navigation }: any) {
 }
 
 // Clock In/Out Screen - IMPROVED
-function ClockInScreen({ navigation }: any) {
+function ClockInScreen({ navigation: _navigation }: any) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [location, setLocation] = useState<any>(null);
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState('');
@@ -218,7 +219,7 @@ function ClockInScreen({ navigation }: any) {
         `Client: Robert Johnson\n` +
         `Visit ID: #V2024-1119-001`
       );
-    } catch (error) {
+    } catch {
       Alert.alert('Location Error', 'Please enable location services and try again');
     } finally {
       setLoading(false);

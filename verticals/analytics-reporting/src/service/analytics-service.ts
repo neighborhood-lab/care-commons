@@ -282,6 +282,7 @@ export class AnalyticsService {
   async getCaregiverPerformance(
     caregiverId: string,
     dateRange: DateRange,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _context: UserContext
   ): Promise<CaregiverPerformance> {
     // Get visits for this caregiver

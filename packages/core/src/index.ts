@@ -10,6 +10,7 @@ export * from './types/branding';
 export * from './types/feature-flags';
 export * from './types/domain-mappings';
 export * from './types/email-templates';
+export * from './types/onboarding';
 export * from './db/connection';
 export * from './db/repository';
 export * from './db/query-logger';
@@ -25,6 +26,7 @@ export * from './repository/billing-repository';
 export * from './service/organization-service';
 export * from './service/auth-service';
 export * from './service/signup-service';
+export * from './service/onboarding-service';
 export * from './service/email-verification.service';
 export * from './service/white-label.service';
 export * from './service/security-logger.service';
@@ -105,3 +107,5 @@ export { getNotificationService, NotificationService } from './notifications/not
 export * from './notifications/types';
 // Import infrastructure
 export * from './import/index';
+// Compliance Autopilot
+export * from './compliance/autopilot/index';

@@ -21,7 +21,7 @@ on:
           - major
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 

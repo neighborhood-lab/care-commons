@@ -15,6 +15,7 @@ import { createAuthRouter } from './auth';
 import webhooksRouter from './webhooks.js';
 import { createUsersRouter } from './users';
 import { createOrganizationRouter } from './organizations';
+import { createOnboardingRouter } from './onboarding';
 import { createCaregiverRouter } from './caregivers';
 import { createDemoRouter } from './demo';
 import { createAnalyticsRouter } from './analytics';
@@ -49,6 +50,7 @@ import { createUsageRouter } from './usage.js';
 import { createVerificationRouter } from './verification.js';
 import { createImportRoutes } from './import-routes.js';
 import { createBillingRouter } from './billing.js';
+import { createComplianceRouter } from './compliance.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -224,6 +226,11 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api', generalApiLimiter, organizationRouter);
   console.log('  ✓ Organization & Invitation routes registered (with rate limiting)');
 
+  // Onboarding & Go-Live Checklist routes
+  const onboardingRouter = createOnboardingRouter(db);
+  app.use('/api/onboarding', generalApiLimiter, onboardingRouter);
+  console.log('  ✓ Onboarding routes registered (with rate limiting)');
+
   // Client Demographics routes
   const clientRepository = new ClientRepository(db);
   const clientService = new ClientService(clientRepository);
@@ -364,6 +371,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const billingRouter = createBillingRouter(db);
   app.use('/api/billing', generalApiLimiter, billingRouter);
   console.log('  ✓ Billing & Invoicing routes registered (with rate limiting)');
+
+  // Compliance Autopilot routes
+  const complianceRouter = createComplianceRouter(db);
+  app.use('/api/compliance', generalApiLimiter, complianceRouter);
+  console.log('  ✓ Compliance Autopilot routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }

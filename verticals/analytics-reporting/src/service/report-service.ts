@@ -191,8 +191,12 @@ export class ReportService {
    * NOTE: This method requires refactor to raw SQL - see ARCHITECTURAL_ISSUES.md
    */
   private async getFlaggedVisitDetails(
+    // Parameters for future implementation:
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _orgId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _dateRange: DateRange,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _branchId?: string
   ): Promise<
     Array<{

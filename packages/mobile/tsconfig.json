@@ -42,6 +42,7 @@
   ],
   "exclude": [
     "node_modules",
+    "e2e",
     "src/services/__tests__/location.test.ts",
     "src/services/__tests__/offline-queue.test.ts"
   ]

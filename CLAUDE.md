@@ -612,7 +612,51 @@ cd packages/mobile && npm run test:e2e
 - Ask user for secrets when needed - they will provide securely
 - Store in `.env` files (gitignored)
 - **NEVER** commit secrets or expose in client-side code
+- **NEVER** put secrets in GitHub issues, PRs, or comments
 - Common: `DATABASE_URL`, `JWT_SECRET`, `REDIS_URL` (optional)
+
+### Vercel CLI
+
+```bash
+# Check current project
+vercel project ls
+
+# List environment variables
+vercel env ls
+
+# Update environment variable (remove then add)
+vercel env rm VAR_NAME production --yes
+echo "new_value" | vercel env add VAR_NAME production
+
+# Trigger redeploy (needed after env var changes)
+vercel --prod --yes
+
+# Check deployment logs
+vercel logs <deployment-url>
+```
+
+### Neon CLI
+
+```bash
+# List projects
+neon projects list
+
+# List branches (preview/production)
+neon branches list --project-id <project-id>
+
+# Get connection string
+neon connection-string --project-id <project-id> --branch production --pooled
+
+# Reset password (via API - CLI doesn't have this command)
+# Use curl with access token from ~/.config/neonctl/credentials.json
+curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<branch-id>/roles/<role-name>/reset_password" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+**Project IDs:**
+- care-commons: `spring-rice-86403246`
+- Production branch: `br-solitary-glitter-aemgucz8`
+- Preview branch: `br-sparkling-haze-aemthibi`
 
 ---
 
