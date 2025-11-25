@@ -50,6 +50,7 @@ import { createUsageRouter } from './usage.js';
 import { createVerificationRouter } from './verification.js';
 import { createImportRoutes } from './import-routes.js';
 import { createBillingRouter } from './billing.js';
+import { createComplianceRouter } from './compliance.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -370,6 +371,11 @@ export function setupRoutes(app: Express, db: Database): void {
   const billingRouter = createBillingRouter(db);
   app.use('/api/billing', generalApiLimiter, billingRouter);
   console.log('  ✓ Billing & Invoicing routes registered (with rate limiting)');
+
+  // Compliance Autopilot routes
+  const complianceRouter = createComplianceRouter(db);
+  app.use('/api/compliance', generalApiLimiter, complianceRouter);
+  console.log('  ✓ Compliance Autopilot routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }
