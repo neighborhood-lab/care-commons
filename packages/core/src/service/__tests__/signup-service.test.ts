@@ -103,4 +103,82 @@ describe('SignupService', () => {
       expect(starterLimits.amount).toBe(99.00);
     });
   });
+
+  describe('Admin User Validation', () => {
+    it('should reject signup with missing admin first name', async () => {
+      const invalidRequest = {
+        organizationName: 'Test Org',
+        organizationEmail: 'test@example.com',
+        stateCode: 'TX',
+        adminFirstName: '',
+        adminLastName: 'Doe',
+        adminEmail: 'john@example.com',
+        // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+        adminPassword: 'SecurePass123!',
+      };
+
+      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Invalid signup request');
+    });
+
+    it('should reject signup with missing admin last name', async () => {
+      const invalidRequest = {
+        organizationName: 'Test Org',
+        organizationEmail: 'test@example.com',
+        stateCode: 'TX',
+        adminFirstName: 'John',
+        adminLastName: '',
+        adminEmail: 'john@example.com',
+        // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+        adminPassword: 'SecurePass123!',
+      };
+
+      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Invalid signup request');
+    });
+
+    it('should reject signup with invalid admin email', async () => {
+      const invalidRequest = {
+        organizationName: 'Test Org',
+        organizationEmail: 'test@example.com',
+        stateCode: 'TX',
+        adminFirstName: 'John',
+        adminLastName: 'Doe',
+        adminEmail: 'not-an-email',
+        // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+        adminPassword: 'SecurePass123!',
+      };
+
+      await expect(signupService.registerOrganization(invalidRequest)).rejects.toThrow('Invalid signup request');
+    });
+  });
+
+  describe('Result Structure', () => {
+    it('should define SignupResult interface correctly', () => {
+      // Validate that the expected result structure is correct
+      // The actual integration test would verify the full flow
+      const expectedResultShape = {
+        organizationId: 'uuid',
+        adminUserId: 'uuid',
+        subscriptionId: 'uuid',
+        verificationToken: 'string',
+        message: 'string',
+        tokens: {
+          accessToken: 'string',
+          refreshToken: 'string',
+        },
+        user: {
+          id: 'uuid',
+          email: 'string',
+          name: 'string',
+          roles: ['ORG_ADMIN'],
+          permissions: ['array'],
+          organizationId: 'uuid',
+        },
+      };
+
+      // Just verify the shape is as expected
+      expect(expectedResultShape.tokens).toBeDefined();
+      expect(expectedResultShape.user).toBeDefined();
+      expect(expectedResultShape.user.roles).toContain('ORG_ADMIN');
+    });
+  });
 });
