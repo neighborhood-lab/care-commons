@@ -348,7 +348,8 @@ describe('ApiClient - Additional Coverage', () => {
     });
 
     it('should handle network errors', async () => {
-      const error = new ApiClientError('Network error', 0);
+      // Verify the error class exists and has expected properties
+      expect(new ApiClientError('Network error', 0).message).toBe('Network error');
       (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
       await expect(client.get('/test')).rejects.toThrow(ApiClientError);

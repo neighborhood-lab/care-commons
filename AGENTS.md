@@ -387,6 +387,9 @@ The following CLI tools are installed and available for use:
 - Manage Neon PostgreSQL databases
 - Create branches, manage connection strings
 - **Responsible Use**: Exercise extreme caution with production database operations
+- **Project ID**: `spring-rice-86403246`
+- **Branches**: `production` (br-solitary-glitter-aemgucz8), `preview` (br-sparkling-haze-aemthibi)
+- **Password Reset**: Use Neon API (CLI doesn't support it) - see CLAUDE.md for details
 
 **Detox CLI (`detox` v20.45.1)**:
 - Mobile E2E testing framework for React Native

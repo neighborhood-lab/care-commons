@@ -10,8 +10,11 @@
       // Store the current URL (including the path) in sessionStorage
       // and then redirect to the base URL. The main app will restore
       // the path from sessionStorage.
+      // GitHub Pages SPA workaround - redirect to base path /care-commons/
       sessionStorage.redirect = location.href;
-      location.replace(location.protocol + '//' + location.host + location.pathname.split('/').slice(0, -1).join('/') + '/');
+      // Always redirect to the base /care-commons/ path, not just parent directory
+      var basePath = '/care-commons/';
+      location.replace(location.protocol + '//' + location.host + basePath);
     </script>
   </head>
   <body>

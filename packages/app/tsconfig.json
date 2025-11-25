@@ -29,6 +29,9 @@
   "references": [
     {
       "path": "../core"
+    },
+    {
+      "path": "../../verticals/caregiver-staff"
     }
   ]
 }

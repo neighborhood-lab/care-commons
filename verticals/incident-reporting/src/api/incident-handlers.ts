@@ -3,6 +3,7 @@ import { IncidentService } from '../service/incident-service.js';
 import type { UserContext, Role } from '@care-commons/core';
 import { createIncidentSchema, updateIncidentSchema } from '../validation/incident-validator.js';
 import { ZodError } from 'zod';
+import type { IncidentType, IncidentSeverity, IncidentStatus } from '../types/incident.js';
 
 function getUserContext(req: Request): UserContext {
   const branchId = req.header('X-Branch-Id');
@@ -79,9 +80,9 @@ export function createIncidentHandlers(service: IncidentService) {
         const context = getUserContext(req);
         const filters = {
           clientId: req.query.clientId as string | undefined,
-          incidentType: req.query.incidentType as any,
-          severity: req.query.severity as any,
-          status: req.query.status as any,
+          incidentType: req.query.incidentType as IncidentType | undefined,
+          severity: req.query.severity as IncidentSeverity | undefined,
+          status: req.query.status as IncidentStatus | undefined,
           startDate: req.query.startDate as string | undefined,
           endDate: req.query.endDate as string | undefined,
           reportedBy: req.query.reportedBy as string | undefined,

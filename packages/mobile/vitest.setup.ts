@@ -38,3 +38,9 @@ vi.mock('@nozbe/watermelondb', async () => {
     },
   };
 });
+
+// Mock expo-localization
+vi.mock('expo-localization', () => ({
+  getCalendars: vi.fn(() => [{ timeZone: 'America/Chicago' }]),
+  getLocales: vi.fn(() => [{ languageCode: 'en', regionCode: 'US' }]),
+}));

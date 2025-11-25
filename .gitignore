@@ -1,3 +1,4 @@
+vibe-coding/
 screenshots/
 
 # UI Visibility Tooling outputs
@@ -237,3 +238,4 @@ packages/web/dist-showcase
 .stripe-keys-temp.txt
 ui-screenshots-personas/ios-simulator/
 ui-screenshots-personas/production/
+ui-screenshots-production-comprehensive/
