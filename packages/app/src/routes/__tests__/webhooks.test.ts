@@ -49,6 +49,15 @@ async function callHandler(handler: any, req: any, res: any) {
   await handler(req, res, next);
 }
 
+// Shared helper to get Stripe handler from router
+function getStripeHandler() {
+  const route = (webhooksRouter.stack as RouterLayer[]).find(
+    (layer: RouterLayer) => layer.route?.path === '/stripe'
+  )!;
+  // Get the last handler (after express.raw middleware)
+  return route.route.stack[route.route.stack.length - 1].handle;
+}
+
 describe('Webhooks Routes', () => {
   beforeEach(() => {
     // Reset all mocks
@@ -90,14 +99,6 @@ describe('Webhooks Routes', () => {
   });
 
   describe('POST /stripe', () => {
-    function getStripeHandler() {
-      const route = (webhooksRouter.stack as RouterLayer[]).find(
-        (layer: RouterLayer) => layer.route?.path === '/stripe'
-      )!;
-      // Get the last handler (after express.raw middleware)
-      return route.route.stack[route.route.stack.length - 1].handle;
-    }
-
     it('should return 400 when stripe-signature header is missing', async () => {
       const req = {
         headers: {},
@@ -195,13 +196,6 @@ describe('Webhooks Routes', () => {
   });
 
   describe('Subscription Events', () => {
-    function getStripeHandler() {
-      const route = (webhooksRouter.stack as RouterLayer[]).find(
-        (layer: RouterLayer) => layer.route?.path === '/stripe'
-      )!;
-      return route.route.stack[route.route.stack.length - 1].handle;
-    }
-
     beforeEach(() => {
       mockVerifyWebhookSignature.mockReturnValue(true);
       mockCheckTableExists.mockResolvedValue(true);
@@ -293,13 +287,6 @@ describe('Webhooks Routes', () => {
   });
 
   describe('Invoice Events', () => {
-    function getStripeHandler() {
-      const route = (webhooksRouter.stack as RouterLayer[]).find(
-        (layer: RouterLayer) => layer.route?.path === '/stripe'
-      )!;
-      return route.route.stack[route.route.stack.length - 1].handle;
-    }
-
     beforeEach(() => {
       mockVerifyWebhookSignature.mockReturnValue(true);
       mockCheckTableExists.mockResolvedValue(true);
@@ -407,13 +394,6 @@ describe('Webhooks Routes', () => {
   });
 
   describe('Trial Events', () => {
-    function getStripeHandler() {
-      const route = (webhooksRouter.stack as RouterLayer[]).find(
-        (layer: RouterLayer) => layer.route?.path === '/stripe'
-      )!;
-      return route.route.stack[route.route.stack.length - 1].handle;
-    }
-
     beforeEach(() => {
       mockVerifyWebhookSignature.mockReturnValue(true);
       mockCheckTableExists.mockResolvedValue(true);
@@ -443,13 +423,6 @@ describe('Webhooks Routes', () => {
   });
 
   describe('Missing Subscription Handling', () => {
-    function getStripeHandler() {
-      const route = (webhooksRouter.stack as RouterLayer[]).find(
-        (layer: RouterLayer) => layer.route?.path === '/stripe'
-      )!;
-      return route.route.stack[route.route.stack.length - 1].handle;
-    }
-
     beforeEach(() => {
       mockVerifyWebhookSignature.mockReturnValue(true);
       mockCheckTableExists.mockResolvedValue(true);
