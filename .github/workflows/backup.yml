@@ -31,6 +31,9 @@ jobs:
   backup:
     name: Create Database Backup
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     
     steps:
       - name: Checkout code
@@ -78,13 +81,16 @@ jobs:
           MONTHLY_RETENTION_MONTHS: 12
         run: |
           BACKUP_TYPE="${{ github.event.inputs.backup_type || 'both' }}"
-          tsx scripts/backup-neon.ts --type "$BACKUP_TYPE"
+          npx tsx scripts/backup-neon.ts --type "$BACKUP_TYPE"
       
       - name: Verify backup
         if: github.event.inputs.verify != 'false'
         env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           BACKUP_DIR: /tmp/backups
-        run: tsx scripts/backup-neon.ts --verify
+        run: npx tsx scripts/backup-neon.ts --verify
       
       - name: Upload backup artifacts (for debugging)
         if: failure()
