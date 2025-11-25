@@ -499,6 +499,87 @@ When implementing features, consider:
 4. **Test edge cases**: Did you cover failure modes?
 5. **Update documentation**: If code diverged from docs, update them
 
+## Agent Workflow Preferences
+
+### Work Style
+
+**Serial Execution**: Work on issues one at a time through the complete cycle:
+1. Pick an issue from the backlog
+2. Implement the fix/feature
+3. Create PR and merge to `develop`
+4. Watch GitHub Actions, verify showcase deployment
+5. Push to `preview`, verify Vercel deployment
+6. Push to `production`, verify production deployment
+7. Only then move to the next issue
+
+**Fix Issues in the Moment**: When you encounter problems (even unrelated to the current task), fix them immediately rather than creating separate issues to defer. Small fixes compound into a better codebase.
+
+**Direct Pushes for Small Fixes**: Push small, low-risk fixes directly to `develop` without PRs. Reserve PRs for:
+- Significant features
+- Database migrations
+- Breaking changes
+- Work that benefits from review
+
+**Visual Verification at Every Step**: Use screenshot capture tools to verify your work:
+```bash
+# After local changes - verify showcase renders correctly
+npx tsx scripts/capture-screenshots.ts --showcase-only
+
+# After develop merge - verify GitHub Pages deployment
+npx tsx scripts/capture-screenshots.ts --showcase-only --production
+
+# After preview/production - verify Vercel deployments
+# (screenshots of production require manual verification or web fetch)
+```
+
+### Handling Async Operations
+
+**Parallel Work While Waiting**: When GitHub Actions is running (3-5 min), don't sit idle:
+- Start investigating the next issue
+- Read related code
+- Update documentation
+- Capture and review screenshots
+- Plan the next implementation
+
+**Vercel Deployment Lag**: Vercel CLI deployment listings may lag behind actual deployments. Match commit hashes to verify:
+```bash
+# List recent deployments
+vercel ls
+
+# Check specific deployment
+vercel inspect <deployment-url>
+
+# Compare with git commit
+git log --oneline -5
+```
+
+### Commit Practices
+
+**Significant Work in Single PRs**: Don't artificially split work into tiny PRs. A single PR can include:
+- Multiple file changes across packages
+- Related test updates
+- Documentation updates
+- Minor refactors encountered along the way
+
+**Commit Messages**: Keep them short and present-tense:
+- "fix mobile demo iframe loading"
+- "add analytics chart components"
+- "update screenshot capture for production"
+
+### Issue Management
+
+**GitHub Issues as Backlog**: The issues we created serve as our work backlog. When picking work:
+1. Check issue labels for priority/category
+2. Consider dependencies between issues
+3. Start with bugs before enhancements
+4. Tackle quick wins to build momentum
+
+**Close Issues via PR**: Reference issues in PR descriptions to auto-close:
+```
+Fixes #408
+Closes #409
+```
+
 ## Communication Guidelines
 
 ### When to Ask Questions
