@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-11-25T11:46:13.984Z",
+  "environment": {
+    "webUrl": "https://care-commons.vercel.app",
+    "showcaseUrl": "https://neighborhood-lab.github.io/care-commons"
+  },
+  "settings": {
+    "resize": true,
+    "maxWidth": 2000
+  },
+  "personas": [],
+  "stats": {
+    "total": 23,
+    "success": 18,
+    "failed": 5,
+    "failedRoutes": []
+  }
+}

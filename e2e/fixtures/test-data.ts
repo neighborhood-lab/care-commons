@@ -4,6 +4,45 @@
  * Reusable test data for E2E tests
  */
 
+/**
+ * E2E Test UUIDs
+ * 
+ * These are deterministic UUIDs for E2E testing. They use the UUID v4 format
+ * but are fixed values so tests are reproducible.
+ * 
+ * Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where y is 8, 9, a, or b
+ */
+export const E2E_UUIDS = {
+  // Organizations
+  ORG_E2E: '00000000-e2e0-4000-8000-000000000001',
+  
+  // Branches
+  BRANCH_E2E: '00000000-e2e0-4000-8000-000000000010',
+  
+  // Users
+  ADMIN_USER: '00000000-e2e0-4000-8000-000000000100',
+  ORG_ADMIN_USER: '00000000-e2e0-4000-8000-000000000101',
+  COORDINATOR_USER: '00000000-e2e0-4000-8000-000000000102',
+  CAREGIVER_USER: '00000000-e2e0-4000-8000-000000000103',
+  FAMILY_USER: '00000000-e2e0-4000-8000-000000000104',
+  
+  // Clients
+  CLIENT_001: '00000000-e2e0-4000-8000-000000001001',
+  CLIENT_002: '00000000-e2e0-4000-8000-000000001002',
+  CLIENT_003: '00000000-e2e0-4000-8000-000000001003',
+  CLIENT_004: '00000000-e2e0-4000-8000-000000001004',
+  
+  // Caregivers
+  CAREGIVER_001: '00000000-e2e0-4000-8000-000000002001',
+  CAREGIVER_002: '00000000-e2e0-4000-8000-000000002002',
+  CAREGIVER_003: '00000000-e2e0-4000-8000-000000002003',
+  
+  // Visits
+  VISIT_001: '00000000-e2e0-4000-8000-000000003001',
+  VISIT_002: '00000000-e2e0-4000-8000-000000003002',
+  VISIT_003: '00000000-e2e0-4000-8000-000000003003',
+} as const;
+
 export interface TestUser {
   userId: string;
   email: string;
@@ -56,22 +95,22 @@ export interface TestVisit {
  */
 export const TEST_USERS: Record<string, TestUser> = {
   admin: {
-    userId: 'admin-e2e-001',
+    userId: E2E_UUIDS.ADMIN_USER,
     email: 'admin@e2e-test.com',
     firstName: 'Admin',
     lastName: 'User',
-    organizationId: 'org-e2e-001',
-    branchId: 'branch-e2e-001',
+    organizationId: E2E_UUIDS.ORG_E2E,
+    branchId: E2E_UUIDS.BRANCH_E2E,
     roles: ['SUPER_ADMIN'],
     permissions: ['*:*'],
   },
   orgAdmin: {
-    userId: 'org-admin-e2e-001',
+    userId: E2E_UUIDS.ORG_ADMIN_USER,
     email: 'orgadmin@e2e-test.com',
     firstName: 'Org',
     lastName: 'Admin',
-    organizationId: 'org-e2e-001',
-    branchId: 'branch-e2e-001',
+    organizationId: E2E_UUIDS.ORG_E2E,
+    branchId: E2E_UUIDS.BRANCH_E2E,
     roles: ['ORG_ADMIN'],
     permissions: [
       'organizations:*',
@@ -85,12 +124,12 @@ export const TEST_USERS: Record<string, TestUser> = {
     ],
   },
   coordinator: {
-    userId: 'coord-e2e-001',
+    userId: E2E_UUIDS.COORDINATOR_USER,
     email: 'coordinator@e2e-test.com',
     firstName: 'Care',
     lastName: 'Coordinator',
-    organizationId: 'org-e2e-001',
-    branchId: 'branch-e2e-001',
+    organizationId: E2E_UUIDS.ORG_E2E,
+    branchId: E2E_UUIDS.BRANCH_E2E,
     roles: ['COORDINATOR'],
     permissions: [
       'clients:read',
@@ -108,12 +147,12 @@ export const TEST_USERS: Record<string, TestUser> = {
     ],
   },
   caregiver: {
-    userId: 'caregiver-e2e-001',
+    userId: E2E_UUIDS.CAREGIVER_USER,
     email: 'caregiver@e2e-test.com',
     firstName: 'Jane',
     lastName: 'Caregiver',
-    organizationId: 'org-e2e-001',
-    branchId: 'branch-e2e-001',
+    organizationId: E2E_UUIDS.ORG_E2E,
+    branchId: E2E_UUIDS.BRANCH_E2E,
     roles: ['CAREGIVER'],
     permissions: [
       'visits:read:own',
@@ -124,12 +163,12 @@ export const TEST_USERS: Record<string, TestUser> = {
     ],
   },
   familyMember: {
-    userId: 'family-e2e-001',
+    userId: E2E_UUIDS.FAMILY_USER,
     email: 'family@e2e-test.com',
     firstName: 'Family',
     lastName: 'Member',
-    organizationId: 'org-e2e-001',
-    branchId: 'branch-e2e-001',
+    organizationId: E2E_UUIDS.ORG_E2E,
+    branchId: E2E_UUIDS.BRANCH_E2E,
     roles: ['FAMILY_MEMBER'],
     permissions: ['family-portal:read', 'messages:write'],
   },
@@ -140,7 +179,7 @@ export const TEST_USERS: Record<string, TestUser> = {
  */
 export const TEST_CLIENTS: Record<string, TestClient> = {
   johnDoe: {
-    id: 'client-001',
+    id: E2E_UUIDS.CLIENT_001,
     firstName: 'John',
     lastName: 'Doe',
     dateOfBirth: '1950-06-15',
@@ -151,7 +190,7 @@ export const TEST_CLIENTS: Record<string, TestClient> = {
     authorizedHours: 20,
   },
   janeDoe: {
-    id: 'client-002',
+    id: E2E_UUIDS.CLIENT_002,
     firstName: 'Jane',
     lastName: 'Doe',
     dateOfBirth: '1945-03-20',
@@ -162,7 +201,7 @@ export const TEST_CLIENTS: Record<string, TestClient> = {
     authorizedHours: 15,
   },
   bobSmith: {
-    id: 'client-003',
+    id: E2E_UUIDS.CLIENT_003,
     firstName: 'Bob',
     lastName: 'Smith',
     dateOfBirth: '1948-11-30',
@@ -173,7 +212,7 @@ export const TEST_CLIENTS: Record<string, TestClient> = {
     authorizedHours: 30,
   },
   emilyJohnson: {
-    id: 'client-004',
+    id: E2E_UUIDS.CLIENT_004,
     firstName: 'Emily',
     lastName: 'Johnson',
     dateOfBirth: '1955-08-10',
@@ -190,7 +229,7 @@ export const TEST_CLIENTS: Record<string, TestClient> = {
  */
 export const TEST_CAREGIVERS: Record<string, TestCaregiver> = {
   janeCaregiver: {
-    id: 'caregiver-001',
+    id: E2E_UUIDS.CAREGIVER_001,
     firstName: 'Jane',
     lastName: 'Caregiver',
     email: 'jane.caregiver@example.com',
@@ -200,7 +239,7 @@ export const TEST_CAREGIVERS: Record<string, TestCaregiver> = {
     availability: 'FULL_TIME',
   },
   tomCaregiver: {
-    id: 'caregiver-002',
+    id: E2E_UUIDS.CAREGIVER_002,
     firstName: 'Tom',
     lastName: 'Helper',
     email: 'tom.helper@example.com',
@@ -210,7 +249,7 @@ export const TEST_CAREGIVERS: Record<string, TestCaregiver> = {
     availability: 'PART_TIME',
   },
   sarahCaregiver: {
-    id: 'caregiver-003',
+    id: E2E_UUIDS.CAREGIVER_003,
     firstName: 'Sarah',
     lastName: 'Nurse',
     email: 'sarah.nurse@example.com',
@@ -226,9 +265,9 @@ export const TEST_CAREGIVERS: Record<string, TestCaregiver> = {
  */
 export const TEST_VISITS: Record<string, TestVisit> = {
   scheduledVisit: {
-    id: 'visit-001',
-    clientId: 'client-001',
-    caregiverId: 'caregiver-001',
+    id: E2E_UUIDS.VISIT_001,
+    clientId: E2E_UUIDS.CLIENT_001,
+    caregiverId: E2E_UUIDS.CAREGIVER_001,
     serviceType: 'PERSONAL_CARE',
     scheduledDate: '2025-01-20',
     scheduledTime: '09:00',
@@ -237,9 +276,9 @@ export const TEST_VISITS: Record<string, TestVisit> = {
     tasks: ['Assist with bathing', 'Medication reminder', 'Meal preparation'],
   },
   inProgressVisit: {
-    id: 'visit-002',
-    clientId: 'client-002',
-    caregiverId: 'caregiver-001',
+    id: E2E_UUIDS.VISIT_002,
+    clientId: E2E_UUIDS.CLIENT_002,
+    caregiverId: E2E_UUIDS.CAREGIVER_001,
     serviceType: 'COMPANIONSHIP',
     scheduledDate: '2025-01-20',
     scheduledTime: '14:00',
@@ -248,9 +287,9 @@ export const TEST_VISITS: Record<string, TestVisit> = {
     tasks: ['Conversation', 'Light exercise', 'Social activities'],
   },
   completedVisit: {
-    id: 'visit-003',
-    clientId: 'client-003',
-    caregiverId: 'caregiver-002',
+    id: E2E_UUIDS.VISIT_003,
+    clientId: E2E_UUIDS.CLIENT_003,
+    caregiverId: E2E_UUIDS.CAREGIVER_002,
     serviceType: 'PERSONAL_CARE',
     scheduledDate: '2025-01-19',
     scheduledTime: '10:00',

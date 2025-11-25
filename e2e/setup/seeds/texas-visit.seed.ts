@@ -1,5 +1,6 @@
 import { Database } from '../../../packages/core/src/db/connection.js';
 import { v4 as uuidv4 } from 'uuid';
+import { E2E_UUIDS } from '../../fixtures/test-data.js';
 
 /**
  * Seed Data: Texas Visit with EVV Requirements
@@ -14,7 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 export async function seedDatabase(db: Database): Promise<void> {
   console.log('Seeding Texas visit test data...');
 
-  const orgId = 'org-e2e-001';
+  const orgId = E2E_UUIDS.ORG_E2E;
   const branchId = 'branch-tx-001';
   const clientId = 'client-tx-001';
   const caregiverId = 'caregiver-tx-001';

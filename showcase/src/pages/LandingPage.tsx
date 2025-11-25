@@ -499,6 +499,26 @@ export const LandingPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Why Care Commons Section */}
+      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 mb-16 border border-green-200">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            Why Open Source?
+          </h2>
+          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            Tired of vendor lock-in and per-user fees? Learn why agencies are choosing 
+            open source software that they actually own.
+          </p>
+          <Link
+            to="/why"
+            className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+          >
+            Why Care Commons?
+            <ArrowRight className="h-5 w-5" />
+          </Link>
+        </div>
+      </div>
+
       {/* Strong Conversion CTA */}
       <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-12 text-center">
         <div className="relative z-10">

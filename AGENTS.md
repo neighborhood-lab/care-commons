@@ -230,16 +230,130 @@ care-commons/
 ├── packages/
 │   ├── core/           # Shared domain logic, database, permissions
 │   ├── app/            # Express application
-│   └── web/            # Frontend (React)
+│   ├── web/            # Frontend (React)
+│   ├── mobile/         # React Native mobile app (Expo)
+│   └── shared-components/  # Shared UI components (web + mobile)
 ├── verticals/
 │   ├── client-demographics/    # Client records
 │   ├── caregiver-staff/        # Caregiver management
 │   ├── scheduling-visits/      # Scheduling & visits
 │   ├── care-plans-tasks/       # Care plans
 │   └── time-tracking-evv/      # EVV compliance
+├── showcase/           # Static demo (GitHub Pages)
 ├── api/                # Vercel serverless functions (.mts)
 └── scripts/            # Database utilities
 ```
+
+### Mobile App
+
+The project includes a **React Native mobile app** (`packages/mobile/`) built with Expo:
+
+- **Purpose**: Caregiver-first EVV (Electronic Visit Verification) mobile experience
+- **Features**: Clock in/out, GPS verification, offline support, visit documentation
+- **Status**: Core functionality implemented, integrated into showcase demo
+- **Showcase Integration**: Mobile UI is displayed via `MobileSimulator` component in the showcase (work in progress)
+
+### Showcase Demo
+
+The **Showcase** (`showcase/`) is a static, client-side demo deployed to GitHub Pages:
+
+- **URL**: https://neighborhood-lab.github.io/care-commons/
+- **Purpose**: Interactive demo without backend dependencies
+- **Data**: Uses browser localStorage (no database)
+- **Roles**: Multi-role experience (patient, family, caregiver, coordinator, admin)
+- **Mobile Demo**: Includes embedded mobile app simulator (work in progress)
+
+### Screenshot Capture Tooling
+
+AI agents can **visually inspect the UI** using the screenshot capture framework. **You can read PNG files directly** - not just metadata, but actually see the rendered pages.
+
+**Web/Showcase Screenshots** (`scripts/capture-screenshots.ts`):
+
+```bash
+# Showcase only (23 pages, no database needed)
+npx tsx scripts/capture-screenshots.ts --showcase-only
+
+# Production showcase (GitHub Pages)
+npx tsx scripts/capture-screenshots.ts --showcase-only --production
+
+# Web SaaS with all personas (requires database)
+npx tsx scripts/capture-screenshots.ts
+
+# All targets
+npx tsx scripts/capture-screenshots.ts --all
+```
+
+**iOS Simulator Screenshots** (`scripts/capture-ios-screenshots.ts`):
+
+```bash
+# Boot simulator and start app
+xcrun simctl boot "iPhone 15 Pro"
+open -a Simulator
+cd packages/mobile && npx expo start --ios
+
+# Capture current screen
+npx tsx scripts/capture-ios-screenshots.ts --name dashboard
+```
+
+**Automated Mobile E2E Testing** (Detox):
+
+```bash
+cd packages/mobile
+npm run test:e2e:build    # Build for testing
+npm run test:e2e          # Run E2E tests with screenshots
+```
+
+**Screenshot Locations**:
+- `ui-screenshots-personas/showcase/` - Showcase pages (local)
+- `ui-screenshots-personas/production/` - Production showcase (GitHub Pages)
+- `ui-screenshots-personas/web/` - Web SaaS by persona
+- `ui-screenshots-personas/ios-simulator/` - iOS Simulator captures
+
+**Use Screenshots To**:
+- Visually verify UI changes before committing
+- Create GitHub issues with visual evidence
+- Debug rendering issues across personas/roles
+- Document features and workflows
+- Validate multi-persona experiences
+
+See `scripts/SCREENSHOT_CAPTURE.md` and `docs/UI_VISIBILITY_TOOLING.md` for details.
+
+### Authentication Status
+
+**Demo Logins (Production)** - Well tested and working:
+- `admin@carecommons.example` - Admin access
+- Other demo personas work reliably
+- Demo data seeding is stable
+
+**Production Auth Features** - Not fully tested/implemented:
+- Google OAuth integration - likely broken
+- Stripe billing integration - likely broken  
+- Multi-tenant signup with secure email - not fully implemented
+- Self-service organization registration - incomplete
+
+When working on authentication, prioritize demo login stability. Full OAuth/Stripe/multi-tenant features need significant work.
+
+### Secrets and Environment Variables
+
+**Asking for Secrets**: You can ask the user for secrets when needed. They will provide them securely.
+
+**Storage Rules**:
+- Store secrets in `.env` files (gitignored)
+- **NEVER** commit secrets to git
+- **NEVER** expose secrets in client-side code or bundles
+- Use environment variables for all sensitive configuration
+
+**Common Secrets**:
+- `DATABASE_URL` - Neon PostgreSQL connection string
+- `REDIS_URL` - Optional, for rate limiting (falls back to in-memory)
+- `JWT_SECRET` - Authentication token signing
+- `GOOGLE_CLIENT_ID/SECRET` - OAuth (not fully implemented)
+- `STRIPE_*` - Billing integration (not fully implemented)
+
+**Vercel Environment**:
+- Production secrets are set in Vercel dashboard
+- Use `vercel env ls` to check what's configured
+- Never log or expose production secrets
 
 ### Technology Choices
 
@@ -274,13 +388,24 @@ The following CLI tools are installed and available for use:
 - Create branches, manage connection strings
 - **Responsible Use**: Exercise extreme caution with production database operations
 
+**Detox CLI (`detox` v20.45.1)**:
+- Mobile E2E testing framework for React Native
+- Automated UI testing with screenshot capture
+- **Usage**: `cd packages/mobile && npm run test:e2e`
+
 **⚠️ Critical Guidelines for CLI Tool Usage**:
 
 1. **Never bypass workflows**: These tools don't replace proper PR/CI processes
-2. **No production shortcuts**: Always use branching strategy (`feature/*` → `develop` → `preview` → `main`)
+2. **No production shortcuts**: Always use branching strategy (`feature/*` → `develop` → `preview` → `production`)
 3. **Database safety**: Never run destructive `neon` commands against production
 4. **Audit trail**: CLI operations still require proper commit messages and documentation
 5. **Security first**: Never commit credentials or API tokens obtained via CLI tools
+
+**Vercel CLI for Debugging Deployments**:
+- Use `vercel logs` to check deployment logs
+- Use `vercel ls` to list deployments and match commit hashes
+- Use `vercel inspect` to examine deployment details
+- Helpful for debugging production issues and verifying deployments
 
 ### Key Patterns
 
@@ -373,6 +498,280 @@ When implementing features, consider:
 3. **Check all states**: Are state variations properly handled?
 4. **Test edge cases**: Did you cover failure modes?
 5. **Update documentation**: If code diverged from docs, update them
+
+## Agent Workflow Preferences
+
+### Human-Agent Communication Protocol
+
+**HUMAN Label for Issues**: Use the `HUMAN` label on GitHub issues that require Brian's action.
+
+**When to Create Issues**:
+- **Non-blocking tasks for Brian** → Create issue with `HUMAN` label
+- **Tasks for agent to do later** → Create issue (no special label)
+- **Blocking issues that need Brian now** → Prompt inline immediately
+
+**Brian's Contact Info** (for external communications on his behalf):
+- Name: Brian Edwards
+- Phone: 512-584-6841
+- Email: brian.mabry.edwards@gmail.com
+- Always CC Brian on external emails
+- Never use placeholders or inaccurate info
+
+**Inline Communication Rules**:
+- Do NOT put tasks for Brian inline unless you are blocked and need something NOW
+- If something can wait and you're not blocked, create a `HUMAN` issue
+- Keep the agent working - don't wait on non-blocking items
+
+**Issue Prioritization**: 
+- Create GitHub issues for anything that surfaces during work
+- Use labels to categorize (bug, enhancement, documentation, etc.)
+- Prioritize based on: blocking issues first, then bugs, then enhancements
+- Quick wins build momentum - tackle small fixes to keep progress visible
+
+### Work Style
+
+**Serial Execution for Primary Tasks**: Work on issues one at a time through the complete cycle:
+1. Pick an issue from the backlog
+2. Implement the fix/feature
+3. Create PR and merge to `develop`
+4. **DO NOT WAIT** - immediately switch to background work (see Time-Slice Task Selection below)
+5. Check back on CI/deployment status when switching between background tasks
+6. Only return to the primary issue flow once CI passes
+
+**Fix Issues in the Moment**: When you encounter problems (even unrelated to the current task), fix them immediately rather than creating separate issues to defer. Small fixes compound into a better codebase.
+
+**Direct Pushes for Small Fixes**: Push small, low-risk fixes directly to `develop` without PRs. Reserve PRs for:
+- Significant features
+- Database migrations
+- Breaking changes
+- Work that benefits from review
+
+**Visual Verification at Every Step**: Use screenshot capture tools to verify your work:
+```bash
+# After local changes - verify showcase renders correctly
+npx tsx scripts/capture-screenshots.ts --showcase-only
+
+# After develop merge - verify GitHub Pages deployment
+npx tsx scripts/capture-screenshots.ts --showcase-only --production
+
+# After preview/production - verify Vercel deployments
+# (screenshots of production require manual verification or web fetch)
+```
+
+### Async Workflow - NEVER Wait, Sleep, or Thrash
+
+**CRITICAL RULES**:
+1. **NEVER sleep or wait** on long-running tasks (GitHub Actions, deployments, builds)
+2. **NEVER thrash** by repeatedly checking CI status - check once, note the state, move on
+3. **NEVER pick trivial tasks** just to fill waiting time - use systematic task selection
+4. **ALWAYS leave state on GitHub** - open PRs (marked as draft/WIP), create issues, document progress
+5. **ALWAYS use time-slice task selection** to ensure no task type starves
+
+**Why This Matters**:
+- Agent sessions can crash or restart at any time
+- GitHub is the persistent state - local branches can be lost
+- Brian monitors progress via GitHub activity, not terminal output
+- Long-running CI (6-10 min) is dead time if you wait
+
+**Open PRs Early**: When starting significant work:
+1. Create the branch and make initial commit
+2. Open a **Draft PR** immediately with clear notes: "WIP: [description]"
+3. Push incremental commits as you work
+4. This ensures work is preserved even if session crashes
+
+### Time-Slice Task Selection System
+
+When waiting on a long-running operation (CI, deployment, build), use this systematic approach to select background work:
+
+**Task Categories and Priority Weights** (60 minutes total):
+
+| Category | Weight | Minutes | Description |
+|----------|--------|---------|-------------|
+| **screenshot-review** | 15% | 0-8 | Capture/review screenshots, create visual issues |
+| **issue-triage** | 15% | 9-17 | Review open issues, add labels, close stale |
+| **documentation** | 15% | 18-26 | Update AGENTS.md, README, inline docs |
+| **code-review** | 10% | 27-32 | Review open PRs, check for regressions |
+| **backlog-grooming** | 10% | 33-38 | Create issues from observed problems |
+| **dependency-audit** | 10% | 39-44 | Check for outdated deps, security issues |
+| **test-coverage** | 10% | 45-50 | Identify untested code paths |
+| **marketing-prep** | 10% | 51-56 | Work on launch issues (#434-#438) |
+| **quick-wins** | 5% | 57-59 | Small fixes that can be done in <5 min |
+
+**Minute-Based Lookup Table**:
+```
+Minutes 0-8:   screenshot-review
+Minutes 9-17:  issue-triage
+Minutes 18-26: documentation
+Minutes 27-32: code-review
+Minutes 33-38: backlog-grooming
+Minutes 39-44: dependency-audit
+Minutes 45-50: test-coverage
+Minutes 51-56: marketing-prep
+Minutes 57-59: quick-wins
+```
+
+**How to Use**:
+1. When blocked on a long-running task, check the current time
+2. Look up the minute in the hour (e.g., 3:42 PM → minute 42)
+3. Select a task from that category
+4. Work on it until either:
+   - The task is complete
+   - You become blocked on something else
+   - ~5-10 minutes pass and you should check primary task status
+5. If switching to check status, DON'T THRASH - one quick check, note result, continue
+
+**Example Flow**:
+```
+10:00 - Start working on Issue #425 (caregiver credentialing)
+10:15 - PR created, CI running. Current minute: 15 → issue-triage
+10:15 - Review open issues, add labels to 3 issues
+10:22 - Quick CI check: still running. Current minute: 22 → documentation  
+10:22 - Update AGENTS.md with new pattern discovered
+10:30 - Quick CI check: PASSED! Return to primary flow
+10:31 - Merge PR, push to preview
+10:32 - Preview deploying. Current minute: 32 → code-review
+10:32 - Review PR #445, leave comments
+10:40 - Quick deployment check: live. Verify, push to production
+```
+
+**Recording State for Crash Recovery**:
+- Keep a GitHub issue open titled "Agent Session State - [Date]" with:
+  - Current primary task
+  - Waiting-on status (CI/deployment URL)
+  - Background tasks completed this session
+  - Next planned actions
+- Update this issue periodically (every 30 min or on major state change)
+- This allows seamless recovery if session crashes
+
+### Handling Async Operations
+
+**CRITICAL: Never Wait, Never Sleep**
+
+The agent must **NEVER**:
+- Wait/sleep for GitHub Actions to complete
+- Repeatedly poll CI status in a tight loop (thrashing)
+- Block on long-running operations
+- Sit idle while external processes run
+
+**Instead**: Leave work-in-progress on GitHub and switch to other tasks.
+
+**GitHub Actions Timing Expectations**:
+- **Target**: ~3 minutes per workflow job (lint, typecheck, test, build)
+- **Total CI**: Should complete in 6-10 minutes for a typical PR
+- **If slower**: There should be a clear reason (e.g., cache miss, large test suite)
+- **Red flag**: Any single job taking >5 minutes warrants investigation
+
+**DO NOT**: Repeatedly check CI status in a loop. Check once, record state, do background work.
+
+**Draft PRs for Work-in-Progress**:
+- When blocked on CI/deployment, **open a Draft PR** to persist state on GitHub
+- Clear PR notes: "WIP - awaiting CI" or "WIP - needs review of X"
+- This ensures work survives crashes/restarts and provides visibility
+- Return to the PR later when choosing tasks from the backlog
+
+**Vercel Deployment Lag**: Vercel CLI deployment listings may lag behind actual deployments. Match commit hashes to verify:
+```bash
+# List recent deployments
+vercel ls
+
+# Check specific deployment
+vercel inspect <deployment-url>
+
+# Compare with git commit
+git log --oneline -5
+```
+
+### Time-Sliced Task Selection (Anti-Starvation)
+
+**Problem**: Urgent/trivial tasks can starve important but non-urgent work.
+
+**Solution**: Use a deterministic time-slicing algorithm to ensure all task categories get attention proportional to their priority.
+
+**Task Categories and Time Allocation**:
+
+| Category | Priority | Minutes/Hour | Minute Ranges |
+|----------|----------|--------------|---------------|
+| Bug fixes (blocking) | Critical | 15 | 0-14 |
+| Feature implementation | High | 15 | 15-29 |
+| Code review / PR fixes | High | 10 | 30-39 |
+| Documentation / screenshots | Medium | 8 | 40-47 |
+| Issue triage / creation | Medium | 7 | 48-54 |
+| Tech debt / refactoring | Low | 5 | 55-59 |
+
+**How to Use the Lookup Table**:
+
+1. When you need to switch tasks (blocked on CI, waiting on external process):
+2. Check the current minute of the hour (0-59)
+3. Look up which category that minute falls into
+4. Select a task from that category from the GitHub backlog
+5. Work on that task until blocked again, then repeat
+
+**Example**:
+```
+Current time: 10:42 AM → minute 42 → Documentation category
+Action: Capture screenshots, create visual regression issues, update docs
+
+Current time: 10:17 AM → minute 17 → Feature implementation
+Action: Pick up next feature issue from backlog
+
+Current time: 10:56 AM → minute 56 → Tech debt
+Action: Work on refactoring issue or code cleanup
+```
+
+**Why This Works**:
+- Deterministic: No decision paralysis about what to do next
+- Fair: All categories get proportional attention over time
+- Anti-starvation: Even low-priority work eventually gets done
+- Crash-resistant: State is on GitHub, easy to resume after restart
+
+**Adjusting Priorities**: If business needs change, adjust the minute allocations. The key is that **no category should have 0 minutes**.
+
+### State Management for Crash Recovery
+
+**GitHub as Source of Truth**:
+- All work-in-progress should be visible on GitHub (branches, draft PRs, issues)
+- Never keep significant state only in local branches
+- Push early, push often
+- Use issue comments to document investigation progress
+
+**What to Push to GitHub**:
+- Draft PRs for any work that took >15 minutes
+- Issue comments with findings from investigation
+- Updated issue descriptions as understanding improves
+- Branch pushes even if CI might fail (can fix later)
+
+**After a Crash/Restart**:
+1. Check open PRs for WIP work
+2. Check recent issue comments for investigation state
+3. Check open issues sorted by recent activity
+4. Resume from GitHub state, not local memory
+
+### Commit Practices
+
+**Significant Work in Single PRs**: Don't artificially split work into tiny PRs. A single PR can include:
+- Multiple file changes across packages
+- Related test updates
+- Documentation updates
+- Minor refactors encountered along the way
+
+**Commit Messages**: Keep them short and present-tense:
+- "fix mobile demo iframe loading"
+- "add analytics chart components"
+- "update screenshot capture for production"
+
+### Issue Management
+
+**GitHub Issues as Backlog**: The issues we created serve as our work backlog. When picking work:
+1. Check issue labels for priority/category
+2. Consider dependencies between issues
+3. Start with bugs before enhancements
+4. Tackle quick wins to build momentum
+
+**Close Issues via PR**: Reference issues in PR descriptions to auto-close:
+```
+Fixes #408
+Closes #409
+```
 
 ## Communication Guidelines
 
@@ -554,16 +953,18 @@ The following critical issues were resolved to achieve successful production dep
 
 ### Branching & PR Strategy
 
-**Workflow**: `feature/*` → `develop` → `preview` → `main`
+**Workflow**: `feature/*` → `develop` → `preview` → `production`
 
 - **`feature/*` branches**: Development work, no deployment
-- **`develop` branch**: Integration testing, **NEVER deployed** (was previously preview, now unused for deployment)
+- **`develop` branch**: Default branch, integration testing, **deploys Showcase to GitHub Pages**
 - **`preview` branch**: Pre-production validation, deploys to **Vercel preview environment**
-- **`main` branch**: Production, deploys to **Vercel production environment**
+- **`production` branch**: Live system, deploys to **Vercel production environment**
+
+**NOTE**: There is intentionally **no `main` branch**. The production branch is named `production`.
 
 ### Pull Request Requirements
 
-**ALL PRs to `preview` or `main` must**:
+**ALL PRs to `preview` or `production` must**:
 
 1. Pass CI checks (lint, typecheck, test, build)
 2. Include regression tests for critical paths
@@ -591,25 +992,32 @@ The following critical issues were resolved to achieve successful production dep
 
 | Branch | Environment | URL | Database | Purpose |
 |--------|-------------|-----|----------|---------|
-| `main` | Production | care-commons.vercel.app | Production DB | Live system |
+| `production` | Production | care-commons.vercel.app | Production DB | Live system |
 | `preview` | Preview | preview-*.vercel.app | Preview DB | Pre-prod testing |
-| `develop` | None | N/A | Local | Integration only |
+| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ | None (localStorage) | Showcase demo |
 | `feature/*` | None | N/A | Local | Development |
+
+**NOTE**: There is no `main` branch. This is intentional.
 
 ### GitHub Actions Workflows
 
 **CI Workflow** (`.github/workflows/ci.yml`):
-- Triggers: PRs to `main`, `preview`, `develop`
+- Triggers: PRs to `production`, `preview`, `develop`
 - Jobs: lint, typecheck, test, build
 - Must pass before merge
 
 **Deploy Workflow** (`.github/workflows/deploy.yml`):
-- Triggers: Push to `main` or `preview`
+- Triggers: Push to `production` or `preview`
 - Jobs: 
-  - `main` → production deployment
+  - `production` → production deployment
   - `preview` → preview deployment
 - Runs migrations before deployment
 - Validates environment configuration
+
+**Showcase Workflow** (`.github/workflows/deploy-showcase.yml`):
+- Triggers: Push to `develop`
+- Deploys static Showcase demo to GitHub Pages
+- No backend required (uses localStorage)
 
 ---
 

@@ -31,6 +31,12 @@ export default [
         HTMLInputElement: 'readonly',
         HTMLButtonElement: 'readonly',
         console: 'readonly',
+        // Browser globals for timer APIs
+        window: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
       },
     },
     plugins: {
