@@ -434,7 +434,7 @@ export function createVisitRouter(db: Database): Router {
           caregiverId
         );
 
-        if (!complianceResult.canSchedule) {
+        if (complianceResult.canSchedule === false) {
           complianceIssues = complianceResult.blockingIssues;
 
           // If not forcing assignment, block with compliance error
@@ -455,7 +455,7 @@ export function createVisitRouter(db: Database): Router {
           const supervisorRoles = ['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'COORDINATOR'];
           const hasSupervisorRole = context.roles.some(role => supervisorRoles.includes(role));
 
-          if (!hasSupervisorRole) {
+          if (hasSupervisorRole === false) {
             res.status(403).json({
               success: false,
               error: 'Only supervisors can force assignment with compliance issues',
@@ -795,7 +795,7 @@ export function createVisitRouter(db: Database): Router {
         caregiverId
       );
 
-      if (!complianceResult.canSchedule) {
+      if (complianceResult.canSchedule === false) {
         result.complianceStatus.isCompliant = false;
         result.complianceStatus.blockingIssues = complianceResult.blockingIssues;
         result.complianceStatus.canOverride = true;
