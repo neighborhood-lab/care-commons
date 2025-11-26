@@ -18,7 +18,6 @@ export const useShowcasePersona = (): PersonaRole | undefined => {
         return stored;
       }
     }
-    return undefined;
   });
 
   useEffect(() => {
