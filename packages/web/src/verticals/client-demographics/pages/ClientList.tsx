@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Grid, List, Users } from 'lucide-react';
+import { Plus, Grid, List, Users, Sparkles } from 'lucide-react';
 import { 
   Button, 
   LoadingSpinner, 
   ErrorMessage, 
-  OnboardingEmptyState,
+  EmptyState,
   DemoDataBanner 
 } from '@/core/components';
 import { usePermissions, useDemoData } from '@/core/hooks';
@@ -21,12 +21,11 @@ export const ClientList: React.FC = () => {
   const { data, isLoading, error, refetch } = useClients(filters);
   const {
     hasDemoData,
-    isLoadingDemoData,
-    isRemovingDemoData,
-    loadDemoData,
-    removeDemoData,
-    dismissBanner,
-    showBanner,
+    isSeeding,
+    isClearing,
+    seedDemoData,
+    clearDemoData,
+    stats,
   } = useDemoData();
 
   if (isLoading) {
@@ -87,26 +86,63 @@ export const ClientList: React.FC = () => {
       </div>
 
       {/* Demo Data Banner */}
-      {showBanner && (
+      {hasDemoData && (
         <DemoDataBanner
-          onRemoveDemoData={removeDemoData}
-          onDismiss={dismissBanner}
-          isRemoving={isRemovingDemoData}
+          onClearDemo={clearDemoData}
+          onAddRealData={() => navigate('/clients/new')}
+          isClearing={isClearing}
+          stats={stats || undefined}
         />
       )}
 
       <ClientSearch filters={filters} onFiltersChange={setFilters} />
 
       {clients.length === 0 ? (
-        <OnboardingEmptyState
-          resourceType="clients"
-          resourceSingular="client"
-          showDemoDataOption={!hasDemoData}
-          onLoadDemoData={loadDemoData}
-          onAddResource={() => navigate('/clients/new')}
-          isLoadingDemoData={isLoadingDemoData}
-          canAdd={can('clients:write')}
-          icon={<Users className="h-12 w-12" />}
+        <EmptyState
+          title="No clients found"
+          description={
+            !hasDemoData
+              ? "Get started by loading sample data to explore the platform, or add your first client."
+              : "Get started by creating your first client."
+          }
+          icon={<Users />}
+          size="lg"
+          action={
+            !hasDemoData ? (
+              <Button
+                variant="primary"
+                size="lg"
+                leftIcon={<Sparkles className="h-4 w-4" />}
+                onClick={() => void seedDemoData()}
+                isLoading={isSeeding}
+              >
+                Load Sample Data
+              </Button>
+            ) : (
+              can('clients:write') && (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  leftIcon={<Plus className="h-4 w-4" />}
+                  onClick={() => navigate('/clients/new')}
+                >
+                  Add Client
+                </Button>
+              )
+            )
+          }
+          secondaryAction={
+            !hasDemoData && can('clients:write') ? (
+              <Button
+                variant="outline"
+                size="lg"
+                leftIcon={<Plus className="h-4 w-4" />}
+                onClick={() => navigate('/clients/new')}
+              >
+                Add Client
+              </Button>
+            ) : null
+          }
         />
       ) : (
         <div
