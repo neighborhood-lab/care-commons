@@ -1,185 +1,93 @@
 ---
-title: "The 6 AM Phone Call Nobody Wants"
-subtitle: "How we built a compliance autopilot that actually understands home healthcare"
+title: "Compliance Tracking in Home Healthcare: Why It's Broken and How to Fix It"
+subtitle: "Care Commons ships proactive compliance monitoring"
 scheduled_date: 2025-11-26
-image_prompt: "Flat illustration showing a shield protecting a calendar with green checkmarks, credentials and certificates floating around with visible expiration dates highlighted in orange, a coordinator looking relieved at a clean organized dashboard on their computer, warm earth tones (orange, brown, cream, olive green), simple geometric shapes, organized and calm aesthetic, no complexity"
+image_prompt: "Flat illustration showing a dashboard with credential expiration dates, warning indicators, calendar with deadlines, warm earth tones (orange, brown, cream, olive green), simple geometric shapes, organized and precise aesthetic"
 tags: [compliance, product, technical]
-category: Technical + Product Guide
+category: Product
 ---
 
-# The 6 AM Phone Call Nobody Wants
+# Compliance Tracking in Home Healthcare: Why It's Broken and How to Fix It
 
-Rosa Mendez was already awake when her phone buzzed at 6:14 AM. After twenty-three years running a home health agency in San Antonio, she'd developed a sixth sense for trouble.
+CMS proposed new home health conditions of participation in October 2025, adding requirements for infection control documentation and emergency preparedness. Meanwhile, states continue tightening EVV enforcement—Texas HHSC issued 47 enforcement actions in Q3 2025 alone, mostly for visit verification failures.
 
-"Mrs. Chen's caregiver can't work today," her scheduler said. "Her CPR certification expired. Yesterday."
+Home healthcare agencies face a compliance environment that gets more complex every year. The tools they have to manage it haven't kept pace.
 
-Rosa closed her eyes. Three visits scheduled. One caregiver blocked. Twelve phone calls to make before 8 AM. A compliance violation already logged because they'd assigned her to a visit last week with an expired credential.
-
-This is the hidden tax of home healthcare compliance. Not the regulations themselves—those exist to protect vulnerable people, and Rosa respects that. The tax is the *management* of compliance: tracking dozens of caregivers, each with multiple credentials, each with different expiration dates, each governed by state-specific rules that nobody outside the industry truly understands.
-
-Enterprise software vendors love to sell "compliance modules." They're usually glorified spreadsheets with reminder emails. They don't understand that a CPR expiration in Texas triggers different rules than one in Florida. They don't know that some credentials block scheduling while others just require documentation. They don't grasp that a coordinator at 6 AM needs answers, not alerts.
-
-So we built something different.
+This article explains what compliance tracking actually requires, why existing solutions fail, and what Care Commons built to address the gap.
 
 ---
 
-## What Compliance Actually Looks Like
+## What Compliance Tracking Means in Home Healthcare
 
-Before I show you what we built, let me explain what we're solving. Home healthcare compliance isn't a checkbox exercise. It's a constraint satisfaction problem with cascading dependencies.
+Home healthcare compliance isn't a single thing. It's several distinct tracking problems that interact:
 
-Consider a single caregiver in Texas. They might need:
+**Caregiver credentials.** Each caregiver has multiple documents that expire on different schedules:
 
-- **State license** (expires every 2 years)
-- **CPR/First Aid certification** (expires annually)
-- **Background check clearance** (varies by state—Texas requires Employee Misconduct Registry checks)
-- **TB test** (annual in most states)
-- **HIPAA training** (annual)
-- **Abuse/neglect training** (state-specific intervals)
-- **COVID vaccination records** (if serving certain populations)
-- **Vehicle insurance** (if transporting clients)
-- **Professional liability coverage** (agency-specific)
+| Credential | Typical Cycle | Consequence if Expired |
+|------------|---------------|------------------------|
+| State license/certification | 1-2 years | Cannot legally provide care |
+| CPR/First Aid | 1 year | Cannot work (most states) |
+| Background check | Varies (TX: ongoing, FL: 5 years) | Cannot work |
+| TB test | 1 year | Cannot work |
+| HIPAA training | 1 year | Agency liability |
+| Abuse/neglect training | State-specific | Agency liability |
 
-Now multiply that by 50 caregivers. Each credential has different warning periods. Some block scheduling immediately upon expiration. Others trigger warnings but allow continued work with documentation. State regulations vary dramatically—what's acceptable in Florida might violate Texas HHSC rules under 26 TAC §558.
+A 50-caregiver agency has 300-500 credential expirations to track per year.
 
-And that's just caregiver credentials. We haven't touched:
+**Client authorizations.** Medicaid and insurance authorizations specify:
+- Service type (personal care, skilled nursing, etc.)
+- Unit allocation (hours per week/month)
+- Date range (authorization period)
 
-- **Client authorizations** (Medicaid service units that deplete and expire)
-- **Care plan reviews** (60-90 day intervals depending on service type)
-- **RN supervision visits** (required every 60 days for skilled nursing clients in some states)
-- **Incident report filing deadlines** (24-72 hours depending on severity and state)
-- **EVV submission windows** (daily, weekly, or monthly depending on aggregator)
+Exceeding authorized units means unbillable services. Expired authorizations mean the same. Both create audit findings and potential fraud exposure.
 
-A coordinator managing all this manually is setting themselves up for failure. The spreadsheet will fall behind. The reminder email will get buried. The 6 AM phone call will come.
+**Care plan reviews.** Federal conditions of participation require care plan updates at specified intervals (typically 60-90 days). State requirements may be stricter. Missing a review deadline is a deficiency on survey.
 
----
+**EVV submission.** The 21st Century Cures Act mandates Electronic Visit Verification for Medicaid-funded personal care and home health services. States set submission windows—some require daily transmission, others weekly or monthly. Late submissions trigger compliance flags.
 
-## Building the Compliance Autopilot
+**Incident reporting.** Abuse, neglect, and exploitation incidents have mandatory reporting windows (24-72 hours depending on state and severity). Missing the window is itself a violation.
 
-We shipped the [Compliance Autopilot](https://care-commons.vercel.app/compliance) this week. Here's what it does and why it matters.
-
-### Proactive Scanning
-
-The system continuously scans your organization for compliance deadlines. Not just "things that expired" but "things that will expire in 30/14/7 days." The dashboard shows you:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  OVERDUE          DUE SOON         CAREGIVERS      UPCOMING │
-│     2                7              45/50              23    │
-│  ▓▓▓▓▓▓▓▓         ░░░░░░░░       compliant          items   │
-│  Requires         Action                              30d   │
-│  attention        this week                                 │
-└─────────────────────────────────────────────────────────────┘
-```
-
-Those two overdue items? You see them immediately. Not buried in a report. Not waiting for someone to check. Right there, categorized by severity, with direct links to take action.
-
-### Intelligent Categorization
-
-Not all deadlines are equal. A caregiver's license expiration is critical—they legally cannot provide care. A training certificate that's due for renewal is important but might not block scheduling.
-
-We built this understanding into the system:
-
-```typescript
-const DEADLINE_CATEGORIES = {
-  CAREGIVER_CREDENTIAL: {
-    blocksScheduling: true,
-    blocksAssignment: true,
-    warningDays: 30,
-    urgentDays: 7,
-  },
-  CAREGIVER_TRAINING: {
-    blocksScheduling: false,
-    blocksAssignment: false,
-    warningDays: 30,
-    urgentDays: 14,
-  },
-  CLIENT_AUTHORIZATION: {
-    blocksScheduling: true,  // Can't bill for unauthorized services
-    warningDays: 14,
-    urgentDays: 7,
-  },
-  // ... 10+ more categories with state-specific variations
-};
-```
-
-This isn't configuration—it's domain knowledge encoded as software. We read the regulations so coordinators don't have to interpret them at 6 AM.
-
-### Authorization Usage Tracking
-
-One of the most insidious compliance failures is authorization exhaustion. A client is approved for 40 hours per month of personal care. You schedule 42 hours. Now you have two hours of unbillable service, potential Medicaid fraud exposure, and an unhappy caregiver who might not get paid.
-
-The Autopilot tracks usage in real-time:
-
-```
-┌──────────────────────────────────────────────────────────┐
-│ AUTHORIZATION ALERTS                                      │
-├──────────────────────────────────────────────────────────┤
-│ Martha Johnson                                            │
-│ 36 / 40 units used (90%)                    ⚠️ WARNING   │
-│ Projected exhaust: Dec 3                                  │
-│                                                          │
-│ Robert Williams                                           │
-│ 40 / 40 units used (100%)                   🔴 EXHAUSTED │
-│ Authorization expires: Nov 30                             │
-└──────────────────────────────────────────────────────────┘
-```
-
-You see the problem before it becomes a crisis. You can reduce visit frequency, request authorization increases, or have the difficult conversation with the family—on your terms, not in a panic.
-
-### Automatic Notifications
-
-The system doesn't just track deadlines—it acts on them. When a credential approaches expiration, the right people know:
-
-- **Caregivers** receive email alerts for their own credentials
-- **Supervisors** get notified when team members have urgent issues
-- **Coordinators** receive daily digest emails summarizing all compliance items
-
-```typescript
-// Notification frequency limits to prevent alert fatigue:
-// - Overdue items: notify every 24 hours (max 7 times)
-// - Urgent items: notify every 48 hours (max 3 times)
-// - Warning items: notify once
-
-await notificationService.sendDeadlineNotifications(
-  organizationId,
-  urgentDeadlines
-);
-```
-
-The daily digest gives supervisors a morning briefing: "You have 2 overdue items, 7 urgent, 23 upcoming." They can prioritize their day knowing exactly where attention is needed.
-
-### One-Click Audit Reports
-
-Every home health agency dreads the audit. Whether it's Medicaid program integrity, state licensing boards, or accreditation surveyors, the request is always the same: "Show us your compliance documentation."
-
-The Autopilot generates audit-ready reports:
-
-```typescript
-const report = await complianceService.generateAuditReport(
-  organizationId,
-  startDate,
-  endDate
-);
-
-// Returns comprehensive data:
-// - Caregiver credential status at any point in time
-// - Authorization usage history
-// - Care plan review compliance
-// - EVV submission rates
-// - Historical compliance trends
-```
-
-What used to take two days of pulling records now takes two seconds. And because the data is already structured and validated, you know it's accurate before the auditor sees it.
+These five categories interact. A caregiver with an expired credential can't be scheduled, which affects visit coverage, which affects authorization utilization, which affects billing. Compliance is a constraint satisfaction problem.
 
 ---
 
-## The Technical Foundation
+## Why Existing Tools Fail
 
-Building this required solving several hard problems.
+Enterprise home health software (HHAeXchange, Sandata, AlayaCare, WellSky) includes "compliance modules." Having evaluated several, the failures cluster into patterns:
 
-### Real-Time Constraint Checking
+**1. Alert-based rather than preventive.**
 
-When a coordinator assigns a caregiver to a visit, we need to check compliance instantly. Not "eventually consistent." Not "check back in a few minutes." Immediate feedback.
+Most systems send reminder emails when credentials approach expiration. This puts the burden on humans to act on alerts. Alerts get buried. Coordinators have 50 other things demanding attention. The 6 AM crisis happens anyway.
+
+Prevention means blocking non-compliant assignments at the point of scheduling, not sending emails that may or may not be read.
+
+**2. Generic rather than state-specific.**
+
+Texas requires Employee Misconduct Registry checks. Florida requires Level 2 background screening with a 5-year lifecycle. Ohio has different rules. Pennsylvania different still.
+
+Enterprise vendors sell nationwide and configure for the lowest common denominator. Agencies either accept generic rules that don't match their state's requirements, or pay consultants to customize. Neither is acceptable.
+
+**3. Siloed rather than integrated.**
+
+Credential tracking lives in one module. Scheduling in another. Authorization management in a third. They don't talk to each other in real-time.
+
+A coordinator scheduling a visit doesn't see that the caregiver's CPR expired yesterday. They find out later, when the visit has already happened and the compliance violation is already logged.
+
+**4. Reporting-focused rather than operational.**
+
+Enterprise compliance tools are designed to generate reports for audits. They answer "what happened" well. They answer "what should I do right now" poorly.
+
+An audit report showing credential expiration history doesn't help a coordinator at 6 AM who needs to know which caregivers can legally work today.
+
+---
+
+## What Care Commons Built
+
+We shipped the Compliance Autopilot this week. It addresses each failure mode directly.
+
+### Preventive Enforcement
+
+When a coordinator schedules a visit, the system checks caregiver compliance in real-time:
 
 ```typescript
 async canCaregiverBeScheduled(
@@ -198,71 +106,152 @@ async canCaregiverBeScheduled(
 }
 ```
 
-If a caregiver's CPR is expired, the scheduling UI shows it immediately. The coordinator can't accidentally create a non-compliant visit—the assignment is blocked with a clear explanation:
+Non-compliant assignments are blocked with specific reasons:
 
 ```
-⚠️ Assignment Blocked: Maria Garcia has compliance issues
+Assignment Blocked: Maria Garcia has compliance issues
 - CPR certification expired (Nov 20, 2025)
 - Background check expiring in 5 days
 
 Supervisor can force assignment with documented override.
 ```
 
-The system prevents the problem instead of documenting it after the fact. And when supervisors *do* need to override—because sometimes operational reality requires it—that decision is logged for the audit trail.
+The system prevents violations rather than documenting them after the fact. Supervisors can override when operational necessity requires it, but the override is logged for audit purposes.
 
-### State-Specific Validation
+### State-Specific Rules
 
-Texas and Florida don't just have different regulations—they have different regulatory *structures*. Texas HHSC enforces through the Health and Human Services Commission. Florida uses AHCA (Agency for Health Care Administration). The rules don't just differ in content; they differ in how they're applied.
-
-We modeled this explicitly:
+Compliance rules are modeled per state:
 
 ```typescript
 interface StateComplianceRules {
-  backgroundCheckLifecycle: number;  // Florida: 5 years, Texas: varies
-  nursAideRegistryRequired: boolean;  // Texas: yes (Employee Misconduct)
+  backgroundCheckLifecycle: number;  // FL: 5 years, TX: varies
+  nurseAideRegistryRequired: boolean; // TX: Employee Misconduct Registry
   evvAggregator: 'HHAeXchange' | 'Sandata' | 'Other';
-  clockInGracePeriod: number;  // Texas: 10 min, Florida: 15 min
-  geofenceBase: number;  // Texas: 100m, Florida: 150m
-  // ... dozens more state-specific parameters
+  clockInGracePeriod: number;  // TX: 10 min, FL: 15 min
+  geofenceBase: number;  // TX: 100m, FL: 150m
 }
 ```
 
-When you configure your agency for Texas, you get Texas rules. Not generic rules that sort of apply. Not enterprise "compliance modules" that require you to customize everything yourself. Actual Texas rules, maintained by people who read 26 TAC §558 so you don't have to.
+Texas agencies get Texas rules. Florida agencies get Florida rules. The configuration is built-in, not consultant-dependent.
 
-### Offline-First Compliance
+This matters because state-specific compliance is where agencies get burned. Generic systems either under-enforce (missing state requirements) or over-enforce (blocking things that are actually permitted). Both create problems.
 
-Here's something enterprise vendors never consider: what happens when a caregiver is at a client's home with no cell signal?
+### Integrated Constraint Checking
 
-They still need to know if they're compliant. They still need to document their visit. They still need confidence that they're not violating regulations.
+Credentials, authorizations, and scheduling share a unified data model. When any constraint changes, dependent calculations update immediately.
 
-The Autopilot syncs compliance status to the mobile app. Caregivers see their credential status offline. The app warns them if something is expiring. They can make informed decisions even in that basement apartment with no connectivity.
+A credential expiration doesn't just update a report—it flags affected scheduled visits, alerts relevant supervisors, and blocks future assignments until resolved.
 
-This is what "offline-first" actually means. Not just caching data—understanding which data matters for which decisions and ensuring it's available when decisions need to be made.
+Authorization utilization is tracked in real-time:
+
+```
+CLIENT AUTHORIZATION STATUS
+Martha Johnson - Personal Care
+36 / 40 hours used (90%)
+Projected exhaustion: Dec 3
+```
+
+Coordinators see utilization when scheduling, not after they've over-scheduled.
+
+### Proactive Dashboard
+
+The compliance dashboard shows operational state, not just historical reports:
+
+| Category | Count | Action Required |
+|----------|-------|-----------------|
+| Overdue | 2 | Immediate attention |
+| Urgent (7 days) | 7 | This week |
+| Warning (30 days) | 23 | Plan ahead |
+| Compliant caregivers | 45/50 | - |
+
+Each item links directly to the resolution action—update credential, request authorization extension, schedule supervision visit.
+
+This answers "what should I do right now" rather than "what happened historically."
+
+### Scheduled Scanning
+
+A cron job runs daily compliance scans:
+
+```typescript
+// Runs at 6 AM local time
+const urgentDeadlines = await complianceService.scanForDeadlines(
+  organizationId,
+  { urgentDays: 7, warningDays: 30 }
+);
+
+// Send notifications with rate limiting to prevent alert fatigue
+await notificationService.sendDeadlineNotifications(
+  organizationId,
+  urgentDeadlines
+);
+```
+
+Supervisors receive morning digests summarizing compliance status. Caregivers receive alerts for their own expiring credentials. The system is proactive rather than reactive.
 
 ---
 
-## What This Means for Agencies
+## Differentiation from Enterprise Vendors
 
-If you're running a home health agency, here's what the Compliance Autopilot gives you:
+The honest comparison:
 
-**No more surprise expirations.** You see credentials approaching expiration 30 days out. Plenty of time to renew, document, or plan coverage.
+| Capability | Enterprise Vendors | Care Commons |
+|------------|-------------------|--------------|
+| Credential tracking | Yes | Yes |
+| State-specific rules | Configuration required | Built-in |
+| Real-time scheduling blocks | Partial | Yes |
+| Authorization tracking | Separate module | Integrated |
+| Audit reports | Yes | Yes |
+| Proactive dashboard | Limited | Yes |
+| Offline credential status | No | Yes |
+| Pricing | $500-2000/month | Open source |
 
-**No more unauthorized scheduling.** The system blocks non-compliant assignments before they happen. You can't accidentally create a compliance violation. And when you *need* to override, it's documented.
+Enterprise vendors have advantages: larger support teams, more integrations, established relationships with state aggregators. For large agencies (500+ caregivers), those advantages may outweigh the limitations.
 
-**No more audit panic.** Reports generate instantly. Documentation is structured and complete. Surveyors get what they need; you get back to running your agency.
+For small-to-medium agencies (10-200 caregivers), the enterprise tradeoffs are worse. You pay for features you don't use, configure around state-specific gaps, and still end up with alert-based rather than preventive compliance.
 
-**No more generic software.** Your state's rules are built in. You're not paying consultants to customize enterprise software to match regulations you're already required to follow.
+Care Commons is built for the latter segment.
 
 ---
 
-## Try It Today
+## Technical Implementation Notes
 
-The Compliance Autopilot is live in [Care Commons](https://care-commons.vercel.app/compliance). You can explore it in our [interactive showcase](https://neighborhood-lab.github.io/care-commons/) or spin up your own instance.
+For those interested in the architecture:
 
-This is what community-owned healthcare software looks like. Not compliance as a profit center. Not "modules" that require consultants. Just working software that respects the people who use it.
+**Database schema.** Credentials are stored with expiration dates and category metadata. Categories define blocking behavior and warning thresholds. State-specific rules are stored as configuration, not hardcoded.
 
-Rosa Mendez still gets early morning calls. But now they're about client care, not credential chaos. The system handles compliance so she can focus on what matters: the people she serves.
+**Constraint checking.** Compliance checks run as database queries, not application-level loops. A single query returns all blocking issues for a caregiver. This scales to agencies with hundreds of caregivers.
+
+**Notification rate limiting.** Alert fatigue is a real problem. The system limits notification frequency: overdue items notify daily (max 7 times), urgent items every 48 hours (max 3 times), warnings once. Supervisors aren't buried in repetitive alerts.
+
+**Offline sync.** The mobile app caches credential status for offline access. Caregivers see their compliance state even without connectivity. The cache refreshes on connection with conflict resolution for any status changes.
+
+**Audit trail.** All compliance state changes are logged: credential updates, override approvals, notification sends. The audit report reconstructs compliance state at any historical point.
 
 ---
 
-*Brian Edwards builds Care Commons with [Neighborhood Lab](https://neighborhoodlab.org). Join us on [Discord](https://discord.gg/EkeXQZFq) or support the project on [Patreon](https://www.patreon.com/cw/neighborhood_lab).*
+## What's Next
+
+The Compliance Autopilot ships with credential and authorization tracking. Planned additions:
+
+- **Care plan review scheduling** - Automated 60/90-day review reminders with care plan versioning
+- **Incident report deadlines** - State-specific mandatory reporting windows
+- **EVV submission monitoring** - Aggregator submission status and deadline tracking
+- **OIG/SAM exclusion checks** - Automated exclusion list screening (already implemented in backend, pending UI)
+
+Each addition follows the same pattern: state-specific rules, real-time constraint checking, proactive rather than reactive.
+
+---
+
+## Try It
+
+The Compliance Autopilot is live:
+
+- **Production:** [care-commons.vercel.app/compliance](https://care-commons.vercel.app/compliance)
+- **Showcase:** [neighborhood-lab.github.io/care-commons](https://neighborhood-lab.github.io/care-commons/)
+- **Source:** [github.com/neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons)
+
+Care Commons is open source under MIT license. Contributions welcome, especially state-specific compliance rules from practitioners who know their state's requirements.
+
+---
+
+*Brian Edwards builds Care Commons with Neighborhood Lab. Contact: brian.mabry.edwards@gmail.com*
