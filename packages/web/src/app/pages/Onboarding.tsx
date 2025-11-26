@@ -12,6 +12,36 @@ import type { OnboardingStepId } from '@care-commons/core';
  * signup to first real visit in under 24 hours.
  */
 
+// US States for dropdown
+const US_STATES = [
+  { code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' },
+  { code: 'AZ', name: 'Arizona' }, { code: 'AR', name: 'Arkansas' },
+  { code: 'CA', name: 'California' }, { code: 'CO', name: 'Colorado' },
+  { code: 'CT', name: 'Connecticut' }, { code: 'DE', name: 'Delaware' },
+  { code: 'DC', name: 'District of Columbia' }, { code: 'FL', name: 'Florida' },
+  { code: 'GA', name: 'Georgia' }, { code: 'HI', name: 'Hawaii' },
+  { code: 'ID', name: 'Idaho' }, { code: 'IL', name: 'Illinois' },
+  { code: 'IN', name: 'Indiana' }, { code: 'IA', name: 'Iowa' },
+  { code: 'KS', name: 'Kansas' }, { code: 'KY', name: 'Kentucky' },
+  { code: 'LA', name: 'Louisiana' }, { code: 'ME', name: 'Maine' },
+  { code: 'MD', name: 'Maryland' }, { code: 'MA', name: 'Massachusetts' },
+  { code: 'MI', name: 'Michigan' }, { code: 'MN', name: 'Minnesota' },
+  { code: 'MS', name: 'Mississippi' }, { code: 'MO', name: 'Missouri' },
+  { code: 'MT', name: 'Montana' }, { code: 'NE', name: 'Nebraska' },
+  { code: 'NV', name: 'Nevada' }, { code: 'NH', name: 'New Hampshire' },
+  { code: 'NJ', name: 'New Jersey' }, { code: 'NM', name: 'New Mexico' },
+  { code: 'NY', name: 'New York' }, { code: 'NC', name: 'North Carolina' },
+  { code: 'ND', name: 'North Dakota' }, { code: 'OH', name: 'Ohio' },
+  { code: 'OK', name: 'Oklahoma' }, { code: 'OR', name: 'Oregon' },
+  { code: 'PA', name: 'Pennsylvania' }, { code: 'RI', name: 'Rhode Island' },
+  { code: 'SC', name: 'South Carolina' }, { code: 'SD', name: 'South Dakota' },
+  { code: 'TN', name: 'Tennessee' }, { code: 'TX', name: 'Texas' },
+  { code: 'UT', name: 'Utah' }, { code: 'VT', name: 'Vermont' },
+  { code: 'VA', name: 'Virginia' }, { code: 'WA', name: 'Washington' },
+  { code: 'WV', name: 'West Virginia' }, { code: 'WI', name: 'Wisconsin' },
+  { code: 'WY', name: 'Wyoming' },
+];
+
 interface StepConfig {
   id: OnboardingStepId;
   title: string;
@@ -45,11 +75,11 @@ const STEP_CONFIGS: StepConfig[] = [
   },
   {
     id: 'services_configured',
-    title: 'Configure Services',
-    description: 'Set up the service types your agency offers',
+    title: 'Complete Organization Profile',
+    description: 'Add your business address and details',
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
     estimatedMinutes: 5,
@@ -80,7 +110,7 @@ const STEP_CONFIGS: StepConfig[] = [
   {
     id: 'first_caregiver',
     title: 'Add Your First Caregiver',
-    description: 'Invite a caregiver to test the mobile app',
+    description: 'Create a caregiver to test the mobile app',
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -124,9 +154,39 @@ const STEP_CONFIGS: StepConfig[] = [
   },
 ];
 
+// Organization profile form data
+interface OrgProfileForm {
+  street1: string;
+  street2: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  legalName: string;
+}
+
+// Caregiver form data
+interface CaregiverForm {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+// Client form data
+interface ClientForm {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  street1: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}
+
 export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const {
     progress,
     isLoading,
@@ -137,6 +197,35 @@ export const Onboarding: React.FC = () => {
   
   const [expandedStep, setExpandedStep] = useState<string | null>('email_verified');
   const [isInitializing, setIsInitializing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Form states
+  const [orgProfile, setOrgProfile] = useState<OrgProfileForm>({
+    street1: '',
+    street2: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    phone: '',
+    legalName: '',
+  });
+
+  const [caregiverForm, setCaregiverForm] = useState<CaregiverForm>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+  });
+
+  const [clientForm, setClientForm] = useState<ClientForm>({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    street1: '',
+    city: '',
+    state: '',
+    zipCode: '',
+  });
 
   // Initialize onboarding if not already initialized
   useEffect(() => {
@@ -220,6 +309,125 @@ export const Onboarding: React.FC = () => {
     navigate('/dashboard');
   };
 
+  // Save organization profile
+  const handleSaveOrgProfile = async () => {
+    if (!user?.organizationId || !token) return;
+    
+    setIsSaving(true);
+    try {
+      const response = await fetch(`/api/organizations/${user.organizationId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          legalName: orgProfile.legalName || undefined,
+          phone: orgProfile.phone || undefined,
+          primaryAddress: {
+            street1: orgProfile.street1,
+            street2: orgProfile.street2 || undefined,
+            city: orgProfile.city,
+            state: orgProfile.state,
+            zipCode: orgProfile.zipCode,
+            country: 'USA',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error ?? 'Failed to update profile');
+      }
+
+      toast.success('Organization profile updated!');
+      await handleMarkComplete('services_configured');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Save caregiver
+  const handleSaveCaregiver = async () => {
+    if (!user?.organizationId || !token) return;
+    
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/caregivers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName: caregiverForm.firstName,
+          lastName: caregiverForm.lastName,
+          email: caregiverForm.email,
+          phone: caregiverForm.phone || undefined,
+          roles: ['CAREGIVER'],
+          status: 'ACTIVE',
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error ?? 'Failed to create caregiver');
+      }
+
+      toast.success('Caregiver added successfully!');
+      setCaregiverForm({ firstName: '', lastName: '', email: '', phone: '' });
+      await handleMarkComplete('first_caregiver');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to add caregiver');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Save client
+  const handleSaveClient = async () => {
+    if (!user?.organizationId || !token) return;
+    
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/clients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName: clientForm.firstName,
+          lastName: clientForm.lastName,
+          phone: clientForm.phone || undefined,
+          address: {
+            street1: clientForm.street1,
+            city: clientForm.city,
+            state: clientForm.state,
+            zipCode: clientForm.zipCode,
+            country: 'USA',
+          },
+          status: 'ACTIVE',
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error ?? 'Failed to create client');
+      }
+
+      toast.success('Client added successfully!');
+      setClientForm({ firstName: '', lastName: '', phone: '', street1: '', city: '', state: '', zipCode: '' });
+      await handleMarkComplete('first_client');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to add client');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const renderStepContent = (step: StepConfig & { isComplete: boolean }) => {
     switch (step.id) {
       case 'email_verified':
@@ -249,19 +457,115 @@ export const Onboarding: React.FC = () => {
       case 'services_configured':
         return (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              Configure the types of home health services your agency provides.
-              Common services include Personal Care, Skilled Nursing, and Companion Care.
+            <p className="text-sm text-gray-600 mb-4">
+              Complete your organization profile with your business address and details.
             </p>
-            <div className="flex gap-3">
+            
+            {/* Organization Profile Form */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Legal Business Name
+                </label>
+                <input
+                  type="text"
+                  value={orgProfile.legalName}
+                  onChange={(e) => setOrgProfile({ ...orgProfile, legalName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="e.g., Sunshine Home Health LLC"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Street Address *
+                </label>
+                <input
+                  type="text"
+                  value={orgProfile.street1}
+                  onChange={(e) => setOrgProfile({ ...orgProfile, street1: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="123 Main Street"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Suite/Unit (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={orgProfile.street2}
+                  onChange={(e) => setOrgProfile({ ...orgProfile, street2: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Suite 100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  value={orgProfile.city}
+                  onChange={(e) => setOrgProfile({ ...orgProfile, city: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Austin"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  State *
+                </label>
+                <select
+                  value={orgProfile.state}
+                  onChange={(e) => setOrgProfile({ ...orgProfile, state: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select state</option>
+                  {US_STATES.map((s) => (
+                    <option key={s.code} value={s.code}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ZIP Code *
+                </label>
+                <input
+                  type="text"
+                  value={orgProfile.zipCode}
+                  onChange={(e) => setOrgProfile({ ...orgProfile, zipCode: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="78701"
+                  maxLength={10}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Business Phone
+                </label>
+                <input
+                  type="tel"
+                  value={orgProfile.phone}
+                  onChange={(e) => setOrgProfile({ ...orgProfile, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="(512) 555-1234"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
               <button
-                onClick={() => {
-                  void handleMarkComplete(step.id);
-                  navigate('/settings/services');
-                }}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                onClick={handleSaveOrgProfile}
+                disabled={isSaving || !orgProfile.street1 || !orgProfile.city || !orgProfile.state || !orgProfile.zipCode}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Configure Services
+                {isSaving ? 'Saving...' : 'Save & Continue'}
               </button>
               <button
                 onClick={() => void handleSkipStep(step.id)}
@@ -335,19 +639,73 @@ export const Onboarding: React.FC = () => {
       case 'first_caregiver':
         return (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 mb-4">
               Add a caregiver to test the mobile app experience. You can invite yourself
               as a test caregiver using a different email address.
             </p>
-            <div className="flex gap-3">
+
+            {/* Caregiver Form */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name *
+                </label>
+                <input
+                  type="text"
+                  value={caregiverForm.firstName}
+                  onChange={(e) => setCaregiverForm({ ...caregiverForm, firstName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Jane"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  value={caregiverForm.lastName}
+                  onChange={(e) => setCaregiverForm({ ...caregiverForm, lastName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Smith"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={caregiverForm.email}
+                  onChange={(e) => setCaregiverForm({ ...caregiverForm, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="jane@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={caregiverForm.phone}
+                  onChange={(e) => setCaregiverForm({ ...caregiverForm, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="(555) 555-1234"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
               <button
-                onClick={() => {
-                  void handleMarkComplete(step.id);
-                  navigate('/caregivers/new');
-                }}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                onClick={handleSaveCaregiver}
+                disabled={isSaving || !caregiverForm.firstName || !caregiverForm.lastName || !caregiverForm.email}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add Caregiver
+                {isSaving ? 'Adding...' : 'Add Caregiver'}
               </button>
               <button
                 onClick={() => void handleSkipStep(step.id)}
@@ -362,19 +720,116 @@ export const Onboarding: React.FC = () => {
       case 'first_client':
         return (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 mb-4">
               Create a client record to test scheduling and documentation.
               You can use test data or add a real client.
             </p>
-            <div className="flex gap-3">
+
+            {/* Client Form */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name *
+                </label>
+                <input
+                  type="text"
+                  value={clientForm.firstName}
+                  onChange={(e) => setClientForm({ ...clientForm, firstName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="John"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  value={clientForm.lastName}
+                  onChange={(e) => setClientForm({ ...clientForm, lastName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Doe"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={clientForm.phone}
+                  onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="(555) 555-1234"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Street Address *
+                </label>
+                <input
+                  type="text"
+                  value={clientForm.street1}
+                  onChange={(e) => setClientForm({ ...clientForm, street1: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="456 Oak Street"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  value={clientForm.city}
+                  onChange={(e) => setClientForm({ ...clientForm, city: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Austin"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  State *
+                </label>
+                <select
+                  value={clientForm.state}
+                  onChange={(e) => setClientForm({ ...clientForm, state: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select state</option>
+                  {US_STATES.map((s) => (
+                    <option key={s.code} value={s.code}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ZIP Code *
+                </label>
+                <input
+                  type="text"
+                  value={clientForm.zipCode}
+                  onChange={(e) => setClientForm({ ...clientForm, zipCode: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="78701"
+                  maxLength={10}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
               <button
-                onClick={() => {
-                  void handleMarkComplete(step.id);
-                  navigate('/clients/new');
-                }}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                onClick={handleSaveClient}
+                disabled={isSaving || !clientForm.firstName || !clientForm.lastName || !clientForm.street1 || !clientForm.city || !clientForm.state || !clientForm.zipCode}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add Client
+                {isSaving ? 'Adding...' : 'Add Client'}
               </button>
               <button
                 onClick={() => void handleSkipStep(step.id)}

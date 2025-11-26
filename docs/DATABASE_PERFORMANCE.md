@@ -18,6 +18,19 @@ This document describes the database performance optimizations implemented in th
 
 ## Index Strategy
 
+**Implementation:** See `scripts/migrations/003_add_performance_indexes.sql` for comprehensive index definitions.
+
+**Monitoring:** Run `npx tsx scripts/check-slow-queries.ts` to identify missing indexes or slow queries.
+
+### Overview
+
+Our indexing strategy includes:
+- **Foreign key indexes** for all relationships (improves JOIN performance)
+- **Composite indexes** for common multi-column filters (org + date, org + status)
+- **Partial indexes** with `WHERE deleted_at IS NULL` (reduces index size)
+- **Demo data indexes** for efficient cleanup (`WHERE is_demo_data = true`)
+- **Compliance indexes** for EVV queries and credential expiry tracking
+
 ### Composite Indexes
 
 We use composite indexes for common query patterns that filter on multiple columns. The order of columns in composite indexes matters - most selective columns should generally come first.

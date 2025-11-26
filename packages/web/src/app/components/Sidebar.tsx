@@ -14,6 +14,7 @@ import {
   Plus,
   ClipboardCheck,
   AlertTriangle,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/core/utils';
 import { useAuth, usePermissions } from '@/core/hooks';
@@ -98,6 +99,12 @@ const navItems: NavItem[] = [
     path: '/quality-assurance',
     icon: <ClipboardCheck className="h-5 w-5" />,
     permission: 'audits:view',
+  },
+  {
+    label: 'Compliance',
+    path: '/compliance',
+    icon: <Shield className="h-5 w-5" />,
+    permission: 'compliance:read',
   },
   {
     label: 'Admin',

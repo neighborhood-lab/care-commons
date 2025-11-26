@@ -126,16 +126,18 @@ export class SignupService {
     // Execute within transaction
     return await this.db.transaction(async () => {
       // Step 1: Create organization and admin user
+      // Note: We use placeholder address during self-service signup.
+      // This should be updated during onboarding wizard.
       const orgRequest: CreateOrganizationRequest = {
         name: request.organizationName,
         email: request.organizationEmail,
         phone: request.organizationPhone,
         stateCode: request.stateCode as USStateCode,
         primaryAddress: {
-          street1: '',
-          city: '',
+          street1: 'Pending - Complete in Onboarding',
+          city: 'Pending',
           state: request.stateCode as USStateCode,
-          zipCode: '',
+          zipCode: '00000',
           country: 'USA',
         },
         adminUser: {

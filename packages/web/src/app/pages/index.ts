@@ -5,6 +5,7 @@ export * from './AdministratorDashboard';
 export * from './CoordinatorDashboard';
 export * from './CaregiverDashboard';
 export * from './NurseDashboard';
+export * from './ComplianceDashboard';
 export * from './Login';
 export * from './Logout';
 export * from './Signup';

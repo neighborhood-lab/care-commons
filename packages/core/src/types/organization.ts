@@ -147,3 +147,19 @@ export interface InviteDetails {
   expiresAt: Date;
   isValid: boolean;
 }
+
+/**
+ * Update organization request (for onboarding/settings)
+ */
+export interface UpdateOrganizationRequest {
+  name?: string;
+  legalName?: string;
+  taxId?: string;
+  licenseNumber?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  primaryAddress?: Address;
+  billingAddress?: Address | null;
+  settings?: Partial<OrganizationSettings>;
+}

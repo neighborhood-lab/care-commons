@@ -6,8 +6,9 @@ import { config } from 'dotenv';
 import { basename } from 'node:path';
 import chalk from 'chalk';
 
-// Load environment variables from .env
-config();
+// Load environment variables from .env and .env.instance
+config(); // loads .env
+config({ path: '.env.instance' }); // loads instance-specific overrides
 
 // Derive instance number from directory name (e.g., care-commons-1 -> 1)
 const dirName = basename(process.cwd());
@@ -20,6 +21,11 @@ const instanceNumber = instanceMatch ? parseInt(instanceMatch[1], 10) : 0;
 // Instance 2: API=3021, Web=5193
 const API_PORT = parseInt(process.env.API_PORT ?? String(3001 + instanceNumber * 10), 10);
 const WEB_PORT = parseInt(process.env.WEB_PORT ?? String(5173 + instanceNumber * 10), 10);
+
+// Database name with instance suffix
+// Instance 0: care_commons
+// Instance 1: care_commons1
+const DB_NAME = process.env.DB_NAME ?? `care_commons${instanceNumber || ''}`;
 
 // Track child processes for cleanup
 const children: Array<ReturnType<typeof spawn>> = [];
@@ -109,6 +115,7 @@ function startServer(
       PORT: String(API_PORT), // API server port
       API_PORT: String(API_PORT),
       WEB_PORT: String(WEB_PORT),
+      DB_NAME, // Database name for this instance
     },
   });
 
@@ -136,7 +143,8 @@ async function main(): Promise<void> {
   console.log(chalk.blue.bold('🏥 Care Commons - Starting Development Servers\n'));
   console.log(chalk.gray(`   Instance: ${instanceNumber} (from directory: ${dirName})`));
   console.log(chalk.gray(`   API Port: ${API_PORT}`));
-  console.log(chalk.gray(`   Web Port: ${WEB_PORT}\n`));
+  console.log(chalk.gray(`   Web Port: ${WEB_PORT}`));
+  console.log(chalk.gray(`   Database: ${DB_NAME}\n`));
 
   // Check if ports are already in use
   const apiInUse = await isPortInUse(API_PORT);

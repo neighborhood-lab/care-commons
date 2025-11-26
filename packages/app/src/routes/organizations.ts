@@ -16,6 +16,7 @@ import {
   ConflictError,
   NotFoundError,
   AuthMiddleware,
+  DemoDataService,
 } from '@care-commons/core';
 
 export function createOrganizationRouter(db: Database): Router {
@@ -23,6 +24,7 @@ export function createOrganizationRouter(db: Database): Router {
   const organizationService = new OrganizationService(db);
   const signupService = new SignupService(db);
   const authMiddleware = new AuthMiddleware(db);
+  const demoDataService = new DemoDataService(db);
 
   /**
    * @openapi
@@ -339,6 +341,133 @@ export function createOrganizationRouter(db: Database): Router {
   );
 
   /**
+   * @openapi
+   * /api/organizations/{id}:
+   *   put:
+   *     tags:
+   *       - Organizations
+   *     summary: Update organization profile
+   *     description: Update organization details (for onboarding and settings)
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Organization UUID
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               name:
+   *                 type: string
+   *               legalName:
+   *                 type: string
+   *               taxId:
+   *                 type: string
+   *               licenseNumber:
+   *                 type: string
+   *               phone:
+   *                 type: string
+   *               email:
+   *                 type: string
+   *               website:
+   *                 type: string
+   *               primaryAddress:
+   *                 type: object
+   *                 properties:
+   *                   street1:
+   *                     type: string
+   *                   street2:
+   *                     type: string
+   *                   city:
+   *                     type: string
+   *                   state:
+   *                     type: string
+   *                   zipCode:
+   *                     type: string
+   *                   country:
+   *                     type: string
+   *     responses:
+   *       200:
+   *         description: Organization updated successfully
+   *       400:
+   *         description: Invalid input
+   *       401:
+   *         description: Not authenticated
+   *       403:
+   *         description: Access denied
+   *       404:
+   *         description: Organization not found
+   */
+  router.put('/organizations/:id',
+    authMiddleware.requireAuth,
+    authMiddleware.requireSameOrganization('id'),
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        const id = req.params['id'];
+        if (id === undefined || id.length === 0) {
+          res.status(400).json({
+            success: false,
+            error: 'Organization ID is required',
+          });
+          return;
+        }
+
+        const userId = (req as { user?: { userId?: string } }).user?.userId;
+        if (userId === undefined) {
+          res.status(401).json({
+            success: false,
+            error: 'User not authenticated',
+          });
+          return;
+        }
+
+        const organization = await organizationService.updateOrganization(
+          id,
+          req.body,
+          userId
+        );
+
+        res.json({
+          success: true,
+          data: organization,
+        });
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          res.status(400).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
+
+        if (error instanceof NotFoundError) {
+          res.status(404).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
+
+        console.error('Update organization error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to update organization',
+        });
+      }
+    }
+  );
+
+  /**
    * POST /api/organizations/:id/invitations
    * Create a new team member invitation
    */
@@ -606,6 +735,255 @@ export function createOrganizationRouter(db: Database): Router {
       });
     }
   });
+
+  /**
+   * @openapi
+   * /api/organizations/{id}/seed-demo:
+   *   post:
+   *     tags:
+   *       - Organizations
+   *       - Demo Data
+   *     summary: Seed demo data for organization
+   *     description: |
+   *       Creates sample data for a new organization to help them explore the platform.
+   *       All data is marked with `is_demo_data: true` for easy cleanup.
+   *       
+   *       Creates:
+   *       - 60 clients
+   *       - 35 caregivers
+   *       - 600+ visits
+   *       - 50+ care plans
+   *       - 40+ family members
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Organization UUID
+   *     responses:
+   *       201:
+   *         description: Demo data seeded successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     clients:
+   *                       type: number
+   *                     caregivers:
+   *                       type: number
+   *                     visits:
+   *                       type: number
+   *                     carePlans:
+   *                       type: number
+   *                     familyMembers:
+   *                       type: number
+   *       401:
+   *         description: Not authenticated
+   *       403:
+   *         description: Access denied
+   *       404:
+   *         description: Organization not found
+   */
+  router.post('/organizations/:id/seed-demo',
+    authMiddleware.requireAuth,
+    authMiddleware.requireSameOrganization('id'),
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        const organizationId = req.params['id'];
+        if (organizationId === undefined || organizationId.length === 0) {
+          res.status(400).json({
+            success: false,
+            error: 'Organization ID is required',
+          });
+          return;
+        }
+
+        const stats = await demoDataService.seedDemoData(organizationId);
+
+        res.status(201).json({
+          success: true,
+          data: stats,
+        });
+      } catch (error) {
+        if (error instanceof NotFoundError) {
+          res.status(404).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
+
+        console.error('Seed demo data error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to seed demo data',
+        });
+      }
+    }
+  );
+
+  /**
+   * @openapi
+   * /api/organizations/{id}/demo-data:
+   *   delete:
+   *     tags:
+   *       - Organizations
+   *       - Demo Data
+   *     summary: Clear demo data for organization
+   *     description: |
+   *       Removes all demo data (records marked with `is_demo_data: true`).
+   *       Safe operation - only deletes demo records, never touches real data.
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Organization UUID
+   *     responses:
+   *       200:
+   *         description: Demo data cleared successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 message:
+   *                   type: string
+   *       401:
+   *         description: Not authenticated
+   *       403:
+   *         description: Access denied
+   *       404:
+   *         description: Organization not found
+   */
+  router.delete('/organizations/:id/demo-data',
+    authMiddleware.requireAuth,
+    authMiddleware.requireSameOrganization('id'),
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        const organizationId = req.params['id'];
+        if (organizationId === undefined || organizationId.length === 0) {
+          res.status(400).json({
+            success: false,
+            error: 'Organization ID is required',
+          });
+          return;
+        }
+
+        await demoDataService.clearDemoData(organizationId);
+
+        res.json({
+          success: true,
+          message: 'Demo data cleared successfully',
+        });
+      } catch (error) {
+        if (error instanceof NotFoundError) {
+          res.status(404).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
+
+        console.error('Clear demo data error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to clear demo data',
+        });
+      }
+    }
+  );
+
+  /**
+   * @openapi
+   * /api/organizations/{id}/demo-data/status:
+   *   get:
+   *     tags:
+   *       - Organizations
+   *       - Demo Data
+   *     summary: Check demo data status
+   *     description: Check if organization has demo data and get statistics
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Organization UUID
+   *     responses:
+   *       200:
+   *         description: Demo data status
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     hasDemoData:
+   *                       type: boolean
+   *                     stats:
+   *                       type: object
+   */
+  router.get('/organizations/:id/demo-data/status',
+    authMiddleware.requireAuth,
+    authMiddleware.requireSameOrganization('id'),
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        const organizationId = req.params['id'];
+        if (organizationId === undefined || organizationId.length === 0) {
+          res.status(400).json({
+            success: false,
+            error: 'Organization ID is required',
+          });
+          return;
+        }
+
+        const hasDemoData = await demoDataService.hasDemoData(organizationId);
+        const stats = hasDemoData === true
+          ? await demoDataService.getDemoDataStats(organizationId)
+          : null;
+
+        res.json({
+          success: true,
+          data: {
+            hasDemoData,
+            stats,
+          },
+        });
+      } catch (error) {
+        console.error('Get demo data status error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to get demo data status',
+        });
+      }
+    }
+  );
 
   return router;
 }

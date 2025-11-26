@@ -6,7 +6,7 @@ import { useAuth } from './core/hooks';
 import { ProtectedRoute, FamilyProtectedRoute, PublicRoute } from './core/components';
 import { AppShell } from './app/components';
 import { initAuthStorage } from './core/utils/auth-storage';
-import { Dashboard, DashboardSelector, Login, Logout, Signup, Onboarding, NotFound, AdministratorDashboard, Settings, MobileDemoPage } from './app/pages';
+import { Dashboard, DashboardSelector, Login, Logout, Signup, Onboarding, NotFound, AdministratorDashboard, Settings, MobileDemoPage, ComplianceDashboard } from './app/pages';
 import { ClientList, ClientDetail, ClientDashboard } from './verticals/client-demographics';
 import { CarePlanList, CarePlanDetail, TaskList } from './verticals/care-plans';
 import { CreateCarePlanPage, CreateFromTemplatePage, CustomizeTemplatePage } from './verticals/care-plans';
@@ -524,6 +524,18 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <CorrectiveActionsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/compliance"
+        element={
+          <ProtectedRoute
+            requiredRoles={['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'ADMIN', 'COORDINATOR']}
+          >
+            <AppShell>
+              <ComplianceDashboard />
             </AppShell>
           </ProtectedRoute>
         }

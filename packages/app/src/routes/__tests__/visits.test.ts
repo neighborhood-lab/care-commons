@@ -329,6 +329,7 @@ describe('Visit Routes', () => {
         body: {
           caregiverId: 'caregiver-456',
           checkConflicts: true,
+          checkCompliance: false, // Skip compliance checks in tests (not mocked)
         },
         userContext: {
           userId: 'user-123',

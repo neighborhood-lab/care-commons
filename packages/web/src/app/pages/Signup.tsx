@@ -142,8 +142,8 @@ export const Signup: React.FC = () => {
         newErrors.password = 'Password is required';
       } else if (formData.password.length < 8) {
         newErrors.password = 'Password must be at least 8 characters';
-      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-        newErrors.password = 'Password must contain uppercase, lowercase, and number';
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"#$%&()*,.:<>?@^{|}])/.test(formData.password)) {
+        newErrors.password = 'Password must contain uppercase, lowercase, number, and special character';
       }
 
       if (formData.password !== formData.confirmPassword) {
@@ -493,6 +493,9 @@ export const Signup: React.FC = () => {
           </p>
           <p className={`text-xs ${/\d/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}`}>
             {/\d/.test(formData.password) ? '✓' : '○'} Contains a number
+          </p>
+          <p className={`text-xs ${/[!"#$%&()*,.:<>?@^{|}]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}`}>
+            {/[!"#$%&()*,.:<>?@^{|}]/.test(formData.password) ? '✓' : '○'} Contains special character (!@#$%...)
           </p>
         </div>
       </div>
