@@ -352,6 +352,117 @@ Ensure DemoModeProvider wraps your app:
 </DemoModeProvider>
 ```
 
+## Demo Data API (Production)
+
+For production SaaS deployments, Care Commons provides a Demo Data Seeding API to help new agencies explore the platform with realistic sample data.
+
+### Endpoints
+
+#### Seed Demo Data
+
+```http
+POST /api/organizations/:id/seed-demo
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "clients": 60,
+    "caregivers": 35,
+    "visits": 600,
+    "carePlans": 50,
+    "familyMembers": 40
+  }
+}
+```
+
+Seeds comprehensive demo data:
+- 60 clients (Texas-specific, culturally diverse)
+- 35 caregivers (CNAs, HHAs, companions)
+- 600+ visits with realistic EVV compliance (90% compliant)
+- 50+ care plans with tasks and goals
+- 40+ family members with portal access
+
+All records marked with `is_demo_data: true` for safe cleanup.
+
+#### Check Demo Data Status
+
+```http
+GET /api/organizations/:id/demo-data/status
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "hasDemoData": true,
+    "stats": {
+      "clients": 60,
+      "caregivers": 35,
+      "visits": 600,
+      "carePlans": 50,
+      "familyMembers": 40
+    }
+  }
+}
+```
+
+#### Clear Demo Data
+
+```http
+DELETE /api/organizations/:id/demo-data
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Demo data cleared successfully"
+}
+```
+
+**Safety Guarantees:**
+- Only deletes records where `is_demo_data = true`
+- Never touches real production data
+- Can be safely called multiple times (idempotent)
+- Cleans up in reverse dependency order (no foreign key violations)
+
+### Usage in Empty State UI
+
+The empty state UI will show a "Load Sample Data" button for new organizations:
+
+```typescript
+const handleLoadDemoData = async () => {
+  const response = await fetch(`/api/organizations/${orgId}/seed-demo`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  
+  if (response.ok) {
+    // Refresh dashboard to show demo data
+    window.location.reload();
+  }
+};
+```
+
+### Demo Data Banner
+
+When demo data is present, show a banner:
+
+```tsx
+{hasDemoData && (
+  <Banner variant="info">
+    <p>You're viewing sample data. <button onClick={clearDemo}>Clear Sample Data</button></p>
+  </Banner>
+)}
+```
+
 ## Future Enhancements
 
 - [ ] Guided tours using react-joyride for each persona
