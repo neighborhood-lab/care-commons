@@ -53,8 +53,8 @@ describe('Signup Page', () => {
 
     // Check for step 1 content
     expect(screen.getByText('Organization Details')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Organization Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/State/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/organization name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/state/i)).toBeInTheDocument();
   });
 
   it('should show all US states in the dropdown', () => {
@@ -64,7 +64,7 @@ describe('Signup Page', () => {
       </BrowserRouter>
     );
 
-    const stateSelect = screen.getByLabelText(/State/i);
+    const stateSelect = screen.getByLabelText(/state/i);
     expect(stateSelect).toBeInTheDocument();
     
     // Check for representative states as options
@@ -83,7 +83,7 @@ describe('Signup Page', () => {
     );
 
     // Select a state but leave org name empty
-    const stateSelect = screen.getByLabelText(/State/i);
+    const stateSelect = screen.getByLabelText(/state/i);
     fireEvent.change(stateSelect, { target: { value: 'TX' } });
 
     // Try to proceed
@@ -92,7 +92,7 @@ describe('Signup Page', () => {
 
     // Should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/Organization name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/organization name is required/i)).toBeInTheDocument();
     });
   });
 
@@ -104,7 +104,7 @@ describe('Signup Page', () => {
     );
 
     // Fill org name but leave state empty
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
 
@@ -114,7 +114,7 @@ describe('Signup Page', () => {
 
     // Should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/Please select your state/i)).toBeInTheDocument();
+      expect(screen.getByText(/please select your state/i)).toBeInTheDocument();
     });
   });
 
@@ -126,11 +126,11 @@ describe('Signup Page', () => {
     );
 
     // Fill in step 1 fields
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Home Health Agency' },
     });
     
-    const stateSelect = screen.getByLabelText(/State/i);
+    const stateSelect = screen.getByLabelText(/state/i);
     fireEvent.change(stateSelect, { target: { value: 'TX' } });
 
     // Click next
@@ -140,7 +140,7 @@ describe('Signup Page', () => {
     // Should be on step 2 (Administrator Account)
     await waitFor(() => {
       expect(screen.getByText('Administrator Account')).toBeInTheDocument();
-      expect(screen.getByLabelText(/First Name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
     });
   });
 
@@ -152,10 +152,10 @@ describe('Signup Page', () => {
     );
 
     // Complete step 1
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
@@ -170,7 +170,7 @@ describe('Signup Page', () => {
 
     // Should show validation errors
     await waitFor(() => {
-      expect(screen.getByText(/First name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
     });
   });
 
@@ -184,10 +184,10 @@ describe('Signup Page', () => {
     );
 
     // Complete step 1
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
@@ -198,13 +198,13 @@ describe('Signup Page', () => {
     });
 
     // Fill with invalid email
-    fireEvent.change(screen.getByLabelText(/First Name/i), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'John' },
     });
-    fireEvent.change(screen.getByLabelText(/Last Name/i), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: 'Doe' },
     });
-    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'not-an-email' },
     });
 
@@ -213,7 +213,7 @@ describe('Signup Page', () => {
 
     // Wait for validation error
     await waitFor(() => {
-      expect(screen.getByText(/Please enter a valid email address/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter a valid email address/i)).toBeInTheDocument();
     });
   });
 
@@ -225,10 +225,10 @@ describe('Signup Page', () => {
     );
 
     // Complete step 1
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
@@ -239,13 +239,13 @@ describe('Signup Page', () => {
     });
 
     // Complete step 2
-    fireEvent.change(screen.getByLabelText(/First Name/i), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'John' },
     });
-    fireEvent.change(screen.getByLabelText(/Last Name/i), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: 'Doe' },
     });
-    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'john@example.com' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
@@ -264,23 +264,23 @@ describe('Signup Page', () => {
     );
 
     // Navigate to step 3
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => screen.getByText('Administrator Account'));
 
-    fireEvent.change(screen.getByLabelText(/First Name/i), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'John' },
     });
-    fireEvent.change(screen.getByLabelText(/Last Name/i), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: 'Doe' },
     });
-    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'john@example.com' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
@@ -288,10 +288,10 @@ describe('Signup Page', () => {
     await waitFor(() => screen.getByText('Set Your Password'));
 
     // Enter short password
-    fireEvent.change(screen.getByLabelText(/^Password/i), {
+    fireEvent.change(screen.getByLabelText(/^password/i), {
       target: { value: 'short' },
     });
-    fireEvent.change(screen.getByLabelText(/Confirm Password/i), {
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
       target: { value: 'short' },
     });
 
@@ -300,7 +300,7 @@ describe('Signup Page', () => {
 
     // Should show password validation error
     await waitFor(() => {
-      expect(screen.getByText(/Password must be at least 8 characters/i)).toBeInTheDocument();
+      expect(screen.getByText(/password must be at least 8 characters/i)).toBeInTheDocument();
     });
   });
 
@@ -312,23 +312,23 @@ describe('Signup Page', () => {
     );
 
     // Navigate to step 3
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => screen.getByText('Administrator Account'));
 
-    fireEvent.change(screen.getByLabelText(/First Name/i), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'John' },
     });
-    fireEvent.change(screen.getByLabelText(/Last Name/i), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: 'Doe' },
     });
-    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'john@example.com' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
@@ -336,10 +336,10 @@ describe('Signup Page', () => {
     await waitFor(() => screen.getByText('Set Your Password'));
 
     // Enter mismatched passwords
-    fireEvent.change(screen.getByLabelText(/^Password/i), {
+    fireEvent.change(screen.getByLabelText(/^password/i), {
       target: { value: 'SecurePass123!' },
     });
-    fireEvent.change(screen.getByLabelText(/Confirm Password/i), {
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
       target: { value: 'DifferentPass123!' },
     });
 
@@ -385,33 +385,33 @@ describe('Signup Page', () => {
     );
 
     // Complete all steps
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => screen.getByText('Administrator Account'));
 
-    fireEvent.change(screen.getByLabelText(/First Name/i), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'John' },
     });
-    fireEvent.change(screen.getByLabelText(/Last Name/i), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: 'Doe' },
     });
-    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'john@example.com' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => screen.getByText('Set Your Password'));
 
-    fireEvent.change(screen.getByLabelText(/^Password/i), {
+    fireEvent.change(screen.getByLabelText(/^password/i), {
       target: { value: 'SecurePass123!' },
     });
-    fireEvent.change(screen.getByLabelText(/Confirm Password/i), {
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
       target: { value: 'SecurePass123!' },
     });
 
@@ -456,33 +456,33 @@ describe('Signup Page', () => {
     );
 
     // Complete all steps
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => screen.getByText('Administrator Account'));
 
-    fireEvent.change(screen.getByLabelText(/First Name/i), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'John' },
     });
-    fireEvent.change(screen.getByLabelText(/Last Name/i), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: 'Doe' },
     });
-    fireEvent.change(screen.getByLabelText(/Email Address/i), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'john@example.com' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => screen.getByText('Set Your Password'));
 
-    fireEvent.change(screen.getByLabelText(/^Password/i), {
+    fireEvent.change(screen.getByLabelText(/^password/i), {
       target: { value: 'SecurePass123!' },
     });
-    fireEvent.change(screen.getByLabelText(/Confirm Password/i), {
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
       target: { value: 'SecurePass123!' },
     });
 
@@ -503,10 +503,10 @@ describe('Signup Page', () => {
     );
 
     // Complete step 1
-    fireEvent.change(screen.getByLabelText(/Organization Name/i), {
+    fireEvent.change(screen.getByLabelText(/organization name/i), {
       target: { value: 'Test Agency' },
     });
-    fireEvent.change(screen.getByLabelText(/State/i), {
+    fireEvent.change(screen.getByLabelText(/state/i), {
       target: { value: 'TX' },
     });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
@@ -524,7 +524,7 @@ describe('Signup Page', () => {
     await waitFor(() => {
       expect(screen.getByText('Organization Details')).toBeInTheDocument();
       // Data should be preserved
-      expect(screen.getByLabelText(/Organization Name/i)).toHaveValue('Test Agency');
+      expect(screen.getByLabelText(/organization name/i)).toHaveValue('Test Agency');
     });
   });
 
@@ -536,7 +536,7 @@ describe('Signup Page', () => {
     );
 
     // The page has a "Sign in" button that navigates to login
-    expect(screen.getByText(/Already have an account/i)).toBeInTheDocument();
+    expect(screen.getByText(/already have an account/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
@@ -560,7 +560,7 @@ describe('Signup Page', () => {
       </BrowserRouter>
     );
 
-    const phoneInput = screen.getByLabelText(/Organization Phone/i);
+    const phoneInput = screen.getByLabelText(/organization phone/i);
     
     // Enter digits
     fireEvent.change(phoneInput, { target: { value: '5125551234' } });

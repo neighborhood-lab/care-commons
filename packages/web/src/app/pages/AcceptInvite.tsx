@@ -98,10 +98,10 @@ export function AcceptInvite() {
   });
 
   // Field name constants - these are form field names, not actual credential values
-  /* eslint-disable sonarjs/no-hardcoded-passwords */
+   
   const PWD_FIELD = 'password' as const;
   const CONFIRM_PWD_FIELD = 'confirmPassword' as const;
-  /* eslint-enable sonarjs/no-hardcoded-passwords */
+   
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};

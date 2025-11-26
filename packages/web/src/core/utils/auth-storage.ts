@@ -46,7 +46,7 @@ function getStoredAuth(): { user: User; token: string } | null {
     const state = parsed?.state;
     
     // Validate we have the minimum required data
-    if (!state || !state.user || typeof state.user !== 'object') {
+    if (!state?.user || typeof state.user !== 'object') {
       return null;
     }
 
@@ -75,7 +75,7 @@ export function detectStaleAuthData(
   }
 
   const stored = getStoredAuth();
-  if (!stored || !stored.user) {
+  if (!stored?.user) {
     // No stored data or invalid data, nothing to detect
     return false;
   }
@@ -142,7 +142,7 @@ export function handleSmartLogin(
  */
 export function initAuthStorage(): void {
   const stored = getStoredAuth();
-  if (!stored || !stored.user) return;
+  if (!stored?.user) return;
 
   // In demo mode, if the stored user ID looks like a UUID but the
   // organizationId is invalid, clear it
