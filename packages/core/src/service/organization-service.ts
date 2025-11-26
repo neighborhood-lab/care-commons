@@ -9,6 +9,7 @@ import { UUID, ValidationError, ConflictError, NotFoundError } from '../types/ba
 import {
   Organization,
   CreateOrganizationRequest,
+  UpdateOrganizationRequest,
   InviteToken,
   CreateInviteRequest,
   AcceptInviteRequest,
@@ -134,6 +135,29 @@ export class OrganizationService implements IOrganizationService {
       throw new NotFoundError('Organization not found', { id });
     }
     return organization;
+  }
+
+  /**
+   * Update organization profile (for onboarding and settings)
+   */
+  async updateOrganization(
+    id: UUID,
+    request: UpdateOrganizationRequest,
+    updatedBy: UUID
+  ): Promise<Organization> {
+    // Ensure organization exists
+    await this.getOrganizationById(id);
+
+    // Validate address if provided
+    if (request.primaryAddress !== undefined) {
+      this.validateAddress(request.primaryAddress);
+    }
+    if (request.billingAddress !== undefined && request.billingAddress !== null) {
+      this.validateAddress(request.billingAddress);
+    }
+
+    // Update organization (repo throws if not found)
+    return this.organizationRepo.updateOrganization(id, request, updatedBy);
   }
 
   // Invitation management

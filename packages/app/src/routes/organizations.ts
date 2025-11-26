@@ -339,6 +339,133 @@ export function createOrganizationRouter(db: Database): Router {
   );
 
   /**
+   * @openapi
+   * /api/organizations/{id}:
+   *   put:
+   *     tags:
+   *       - Organizations
+   *     summary: Update organization profile
+   *     description: Update organization details (for onboarding and settings)
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Organization UUID
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               name:
+   *                 type: string
+   *               legalName:
+   *                 type: string
+   *               taxId:
+   *                 type: string
+   *               licenseNumber:
+   *                 type: string
+   *               phone:
+   *                 type: string
+   *               email:
+   *                 type: string
+   *               website:
+   *                 type: string
+   *               primaryAddress:
+   *                 type: object
+   *                 properties:
+   *                   street1:
+   *                     type: string
+   *                   street2:
+   *                     type: string
+   *                   city:
+   *                     type: string
+   *                   state:
+   *                     type: string
+   *                   zipCode:
+   *                     type: string
+   *                   country:
+   *                     type: string
+   *     responses:
+   *       200:
+   *         description: Organization updated successfully
+   *       400:
+   *         description: Invalid input
+   *       401:
+   *         description: Not authenticated
+   *       403:
+   *         description: Access denied
+   *       404:
+   *         description: Organization not found
+   */
+  router.put('/organizations/:id',
+    authMiddleware.requireAuth,
+    authMiddleware.requireSameOrganization('id'),
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        const id = req.params['id'];
+        if (id === undefined || id.length === 0) {
+          res.status(400).json({
+            success: false,
+            error: 'Organization ID is required',
+          });
+          return;
+        }
+
+        const userId = (req as { user?: { id?: string } }).user?.id;
+        if (userId === undefined) {
+          res.status(401).json({
+            success: false,
+            error: 'User not authenticated',
+          });
+          return;
+        }
+
+        const organization = await organizationService.updateOrganization(
+          id,
+          req.body,
+          userId
+        );
+
+        res.json({
+          success: true,
+          data: organization,
+        });
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          res.status(400).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
+
+        if (error instanceof NotFoundError) {
+          res.status(404).json({
+            success: false,
+            error: error.message,
+            code: error.code,
+          });
+          return;
+        }
+
+        console.error('Update organization error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to update organization',
+        });
+      }
+    }
+  );
+
+  /**
    * POST /api/organizations/:id/invitations
    * Create a new team member invitation
    */

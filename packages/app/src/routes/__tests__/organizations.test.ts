@@ -256,12 +256,13 @@ describe('Organization Routes', () => {
       // POST /signup
       // POST /organizations/register
       // GET /organizations/:id
+      // PUT /organizations/:id
       // POST /organizations/:id/invitations
       // GET /organizations/:id/invitations
       // GET /invitations/:token
       // POST /invitations/accept
       // DELETE /invitations/:token
-      expect(routes.length).toBe(8);
+      expect(routes.length).toBe(9);
     });
   });
 
@@ -316,10 +317,17 @@ describe('Organization Routes', () => {
         (layer: RouterLayer) => layer.route?.path === '/organizations/:id'
       );
 
-      expect(routes.length).toBe(1);
-      // This route should use authentication middleware
-      const route = routes[0] as RouterLayer;
-      expect(route?.route?.methods?.get).toBe(true);
+      // GET and PUT are separate route entries
+      expect(routes.length).toBe(2);
+      // Check both GET and PUT routes exist
+      const hasGet = routes.some(
+        (r: RouterLayer) => r.route.methods.get === true
+      );
+      const hasPut = routes.some(
+        (r: RouterLayer) => r.route.methods.put === true
+      );
+      expect(hasGet).toBe(true);
+      expect(hasPut).toBe(true);
     });
 
     it('should require auth for organization invitations management', () => {
