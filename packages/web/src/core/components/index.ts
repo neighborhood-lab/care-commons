@@ -4,3 +4,4 @@ export * from './Badge';
 export * from './forms';
 export * from './feedback';
 export * from './ProtectedRoute';
+export * from './onboarding';
