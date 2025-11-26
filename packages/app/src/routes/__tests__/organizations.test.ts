@@ -365,5 +365,35 @@ describe('Organization Routes', () => {
       );
       expect(deleteRoute).toBeDefined();
     });
+
+    it('should have demo data seeding endpoint with auth', () => {
+      const routes = router.stack.filter(
+        (layer: RouterLayer) => layer.route?.path === '/organizations/:id/seed-demo'
+      );
+
+      expect(routes.length).toBe(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.post).toBe(true);
+    });
+
+    it('should have demo data deletion endpoint with auth', () => {
+      const routes = router.stack.filter(
+        (layer: RouterLayer) => layer.route?.path === '/organizations/:id/demo-data'
+      );
+
+      expect(routes.length).toBe(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.delete).toBe(true);
+    });
+
+    it('should have demo data status endpoint with auth', () => {
+      const routes = router.stack.filter(
+        (layer: RouterLayer) => layer.route?.path === '/organizations/:id/demo-data/status'
+      );
+
+      expect(routes.length).toBe(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.get).toBe(true);
+    });
   });
 });
