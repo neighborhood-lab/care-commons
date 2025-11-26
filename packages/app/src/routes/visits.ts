@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, isValidUUID } from '@care-commons/core';
+import { Database, isValidUUID, ComplianceAutopilotService } from '@care-commons/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@care-commons/scheduling-visits';
 
@@ -283,6 +283,9 @@ export function createVisitRouter(db: Database): Router {
     }
   });
 
+  // Initialize compliance service for scheduling checks
+  const complianceService = new ComplianceAutopilotService(db);
+
   /**
    * PUT /api/visits/:id/assign
    * Assign a caregiver to a visit
@@ -291,20 +294,40 @@ export function createVisitRouter(db: Database): Router {
    * Body:
    * - caregiverId: UUID of caregiver to assign
    * - checkConflicts: boolean (default: true) - whether to check for scheduling conflicts
+   * - checkCompliance: boolean (default: true) - whether to check caregiver compliance
+   * - forceAssignment: boolean (default: false) - force assignment despite compliance issues (requires supervisor role)
+   * - overrideReason: string (required if forceAssignment is true) - audit trail for compliance override
    *
    * Returns: Updated visit with assignment details
    */
+  // eslint-disable-next-line sonarjs/cognitive-complexity -- Well-structured with validation, compliance, and assignment sections
   router.put('/:id/assign', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const context = req.userContext!;
       const { id: visitId } = req.params;
-      const { caregiverId, checkConflicts = true } = req.body;
+      const { 
+        caregiverId, 
+        checkConflicts = true,
+        checkCompliance = true,
+        forceAssignment = false,
+        overrideReason,
+      } = req.body;
 
       // Validate required fields
       if (caregiverId === undefined || caregiverId === null || caregiverId.trim() === '') {
         res.status(400).json({
           success: false,
           error: 'caregiverId is required',
+        });
+        return;
+      }
+
+      // Validate override reason if forcing assignment
+      if (forceAssignment === true && (overrideReason === undefined || overrideReason.trim() === '')) {
+        res.status(400).json({
+          success: false,
+          error: 'overrideReason is required when forceAssignment is true',
+          code: 'OVERRIDE_REASON_REQUIRED',
         });
         return;
       }
@@ -373,7 +396,7 @@ export function createVisitRouter(db: Database): Router {
 
       // Verify caregiver exists and is active
       const caregiverCheck = await db.query(
-        `SELECT id, status FROM caregivers
+        `SELECT id, status, first_name, last_name FROM caregivers
          WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL`,
         [caregiverId, context.organizationId]
       );
@@ -386,7 +409,12 @@ export function createVisitRouter(db: Database): Router {
         return;
       }
 
-      const caregiver = caregiverCheck.rows[0] as { id: string; status: string };
+      const caregiver = caregiverCheck.rows[0] as { 
+        id: string; 
+        status: string;
+        first_name: string;
+        last_name: string;
+      };
 
       if (caregiver.status !== 'ACTIVE') {
         res.status(400).json({
@@ -394,6 +422,51 @@ export function createVisitRouter(db: Database): Router {
           error: 'Caregiver is not active',
         });
         return;
+      }
+
+      // Check caregiver compliance status
+      let complianceOverridden = false;
+      let complianceIssues: string[] = [];
+      
+      if (checkCompliance === true) {
+        const complianceResult = await complianceService.canCaregiverBeScheduled(
+          organizationId,
+          caregiverId
+        );
+
+        if (!complianceResult.canSchedule) {
+          complianceIssues = complianceResult.blockingIssues;
+
+          // If not forcing assignment, block with compliance error
+          if (forceAssignment !== true) {
+            res.status(422).json({
+              success: false,
+              error: 'Caregiver has compliance issues that block scheduling',
+              code: 'COMPLIANCE_BLOCK',
+              complianceIssues: complianceResult.blockingIssues,
+              canForceAssignment: true,
+              message: `${caregiver.first_name} ${caregiver.last_name} cannot be scheduled: ${complianceResult.blockingIssues.join(', ')}. ` +
+                       'A supervisor can force this assignment with an override reason.',
+            });
+            return;
+          }
+
+          // Check if user has supervisor role to force assignment
+          const supervisorRoles = ['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'COORDINATOR'];
+          const hasSupervisorRole = context.roles.some(role => supervisorRoles.includes(role));
+
+          if (!hasSupervisorRole) {
+            res.status(403).json({
+              success: false,
+              error: 'Only supervisors can force assignment with compliance issues',
+              code: 'SUPERVISOR_REQUIRED',
+              complianceIssues: complianceResult.blockingIssues,
+            });
+            return;
+          }
+
+          complianceOverridden = true;
+        }
       }
 
       // Check for conflicts if requested
@@ -423,26 +496,60 @@ export function createVisitRouter(db: Database): Router {
         }
       }
 
+      // If compliance was overridden, log the override for audit trail
+      if (complianceOverridden) {
+        await db.query(
+          `INSERT INTO audit_logs (
+            organization_id, user_id, action, entity_type, entity_id,
+            details, created_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+          [
+            organizationId,
+            context.userId,
+            'COMPLIANCE_OVERRIDE',
+            'VISIT',
+            visitId,
+            JSON.stringify({
+              caregiverId,
+              caregiverName: `${caregiver.first_name} ${caregiver.last_name}`,
+              complianceIssues,
+              overrideReason,
+              visitDate: visit.scheduled_date,
+            }),
+          ]
+        );
+      }
+
       // Assign caregiver to visit
       const result = await db.query(
         `UPDATE visits
          SET assigned_caregiver_id = $1,
              assigned_at = NOW(),
-             assignment_method = 'MANUAL',
+             assignment_method = $2,
              status = CASE
                WHEN status = 'UNASSIGNED' THEN 'ASSIGNED'
                ELSE status
              END,
-             updated_by = $2,
+             updated_by = $3,
              updated_at = NOW()
-         WHERE id = $3
+         WHERE id = $4
          RETURNING *`,
-        [caregiverId, context.userId, visitId]
+        [
+          caregiverId, 
+          complianceOverridden ? 'MANUAL_OVERRIDE' : 'MANUAL',
+          context.userId, 
+          visitId
+        ]
       );
 
       res.json({
         success: true,
         data: result.rows[0],
+        complianceOverridden,
+        ...(complianceOverridden && {
+          warning: 'Assignment completed with compliance override. This has been logged for audit purposes.',
+          overriddenIssues: complianceIssues,
+        }),
       });
     } catch (error) {
       next(error);
@@ -548,6 +655,182 @@ export function createVisitRouter(db: Database): Router {
         success: true,
         hasConflicts: conflicts.rows.length > 0,
         conflicts: conflicts.rows,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  /**
+   * POST /api/visits/:id/check-assignment
+   * Check if a caregiver can be assigned to a visit
+   * Combines compliance and conflict checks for UI validation
+   *
+   * Body:
+   * - caregiverId: UUID of caregiver to check
+   *
+   * Returns: Assignment eligibility with any blocking issues
+   */
+  router.post('/:id/check-assignment', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = req.userContext!;
+      const { id: visitId } = req.params;
+      const { caregiverId } = req.body;
+
+      // Validate required fields
+      if (caregiverId === undefined || caregiverId === null || caregiverId.trim() === '') {
+        res.status(400).json({
+          success: false,
+          error: 'caregiverId is required',
+        });
+        return;
+      }
+
+      // Validate organization_id is present
+      if (context.organizationId === undefined) {
+        res.status(400).json({
+          success: false,
+          error: 'Organization ID is required for this endpoint',
+        });
+        return;
+      }
+
+      const organizationId = context.organizationId;
+
+      // Verify visit exists
+      const visitCheck = await db.query(
+        `SELECT id, organization_id, scheduled_date, scheduled_start_time, scheduled_end_time
+         FROM visits
+         WHERE id = $1 AND deleted_at IS NULL`,
+        [visitId]
+      );
+
+      if (visitCheck.rows.length === 0) {
+        res.status(404).json({
+          success: false,
+          error: 'Visit not found',
+        });
+        return;
+      }
+
+      const visit = visitCheck.rows[0] as {
+        id: string;
+        organization_id: string;
+        scheduled_date: Date;
+        scheduled_start_time: string;
+        scheduled_end_time: string;
+      };
+
+      // Check organization access
+      if (visit.organization_id !== context.organizationId) {
+        res.status(403).json({
+          success: false,
+          error: 'Access denied',
+        });
+        return;
+      }
+
+      // Get caregiver info
+      const caregiverCheck = await db.query(
+        `SELECT id, first_name, last_name, status FROM caregivers
+         WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL`,
+        [caregiverId, organizationId]
+      );
+
+      if (caregiverCheck.rows.length === 0) {
+        res.status(404).json({
+          success: false,
+          error: 'Caregiver not found',
+        });
+        return;
+      }
+
+      const caregiver = caregiverCheck.rows[0] as {
+        id: string;
+        first_name: string;
+        last_name: string;
+        status: string;
+      };
+
+      // Build eligibility result
+      const result: {
+        canAssign: boolean;
+        caregiverName: string;
+        caregiverStatus: string;
+        complianceStatus: {
+          isCompliant: boolean;
+          blockingIssues: string[];
+          canOverride: boolean;
+        };
+        schedulingStatus: {
+          hasConflicts: boolean;
+          conflicts: unknown[];
+        };
+        warnings: string[];
+      } = {
+        canAssign: true,
+        caregiverName: `${caregiver.first_name} ${caregiver.last_name}`,
+        caregiverStatus: caregiver.status,
+        complianceStatus: {
+          isCompliant: true,
+          blockingIssues: [],
+          canOverride: false,
+        },
+        schedulingStatus: {
+          hasConflicts: false,
+          conflicts: [],
+        },
+        warnings: [],
+      };
+
+      // Check if caregiver is active
+      if (caregiver.status !== 'ACTIVE') {
+        result.canAssign = false;
+        result.warnings.push(`Caregiver is ${caregiver.status}`);
+      }
+
+      // Check compliance
+      const complianceResult = await complianceService.canCaregiverBeScheduled(
+        organizationId,
+        caregiverId
+      );
+
+      if (!complianceResult.canSchedule) {
+        result.complianceStatus.isCompliant = false;
+        result.complianceStatus.blockingIssues = complianceResult.blockingIssues;
+        result.complianceStatus.canOverride = true;
+        result.canAssign = false;
+      }
+
+      // Check for scheduling conflicts
+      const conflicts = await db.query(
+        `SELECT v.id, v.scheduled_start_time, v.scheduled_end_time, v.status,
+                c.first_name as client_first_name, c.last_name as client_last_name,
+                v.address
+         FROM visits v
+         LEFT JOIN clients c ON v.client_id = c.id
+         WHERE v.assigned_caregiver_id = $1
+           AND v.scheduled_date = $2
+           AND v.deleted_at IS NULL
+           AND v.status NOT IN ('CANCELLED', 'COMPLETED', 'NO_SHOW_CAREGIVER')
+           AND v.id != $3
+           AND (
+             (v.scheduled_start_time < $5 AND v.scheduled_end_time > $4)
+             OR (v.scheduled_start_time >= $4 AND v.scheduled_start_time < $5)
+           )
+         ORDER BY v.scheduled_start_time`,
+        [caregiverId, visit.scheduled_date, visitId, visit.scheduled_start_time, visit.scheduled_end_time]
+      );
+
+      if (conflicts.rows.length > 0) {
+        result.schedulingStatus.hasConflicts = true;
+        result.schedulingStatus.conflicts = conflicts.rows;
+        result.canAssign = false;
+      }
+
+      res.json({
+        success: true,
+        data: result,
       });
     } catch (error) {
       next(error);
