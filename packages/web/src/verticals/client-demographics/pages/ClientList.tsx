@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Grid, List } from 'lucide-react';
-import { Button, LoadingSpinner, EmptyState, ErrorMessage } from '@/core/components';
-import { usePermissions } from '@/core/hooks';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Grid, List, Users } from 'lucide-react';
+import { 
+  Button, 
+  LoadingSpinner, 
+  ErrorMessage, 
+  OnboardingEmptyState,
+  DemoDataBanner 
+} from '@/core/components';
+import { usePermissions, useDemoData } from '@/core/hooks';
 import { useClients } from '../hooks';
 import { ClientCard, ClientSearch } from '../components';
 import type { ClientSearchFilters } from '../types';
 
 export const ClientList: React.FC = () => {
+  const navigate = useNavigate();
   const { can } = usePermissions();
   const [filters, setFilters] = useState<ClientSearchFilters>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { data, isLoading, error, refetch } = useClients(filters);
+  const {
+    hasDemoData,
+    isLoadingDemoData,
+    isRemovingDemoData,
+    loadDemoData,
+    removeDemoData,
+    dismissBanner,
+    showBanner,
+  } = useDemoData();
 
   if (isLoading) {
     return (
@@ -70,23 +86,27 @@ export const ClientList: React.FC = () => {
         </div>
       </div>
 
+      {/* Demo Data Banner */}
+      {showBanner && (
+        <DemoDataBanner
+          onRemoveDemoData={removeDemoData}
+          onDismiss={dismissBanner}
+          isRemoving={isRemovingDemoData}
+        />
+      )}
+
       <ClientSearch filters={filters} onFiltersChange={setFilters} />
 
       {clients.length === 0 ? (
-        <EmptyState
-          title="No clients found"
-          description="Get started by creating your first client."
-          action={
-            <Link to="/clients/new">
-              <Button
-                leftIcon={<Plus className="h-4 w-4" />}
-                disabled={!can('clients:write')}
-                title={!can('clients:write') ? 'You do not have permission to create clients' : undefined}
-              >
-                Create Client
-              </Button>
-            </Link>
-          }
+        <OnboardingEmptyState
+          resourceType="clients"
+          resourceSingular="client"
+          showDemoDataOption={!hasDemoData}
+          onLoadDemoData={loadDemoData}
+          onAddResource={() => navigate('/clients/new')}
+          isLoadingDemoData={isLoadingDemoData}
+          canAdd={can('clients:write')}
+          icon={<Users className="h-12 w-12" />}
         />
       ) : (
         <div
