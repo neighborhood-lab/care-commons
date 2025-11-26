@@ -964,7 +964,7 @@ export function createOrganizationRouter(db: Database): Router {
         }
 
         const hasDemoData = await demoDataService.hasDemoData(organizationId);
-        const stats = hasDemoData 
+        const stats = hasDemoData === true
           ? await demoDataService.getDemoDataStats(organizationId)
           : null;
 
