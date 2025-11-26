@@ -365,8 +365,21 @@ class NeonBackupManager {
 
     try {
       if (type === 'branch' || type === 'both') {
-        const branchResult = await this.createBranchBackup();
-        results.push(branchResult);
+        // Check if Neon credentials are available
+        if (!this.config.neonApiKey || !this.config.neonProjectId) {
+          logger.warn(
+            'NEON_API_KEY or NEON_PROJECT_ID not configured - skipping branch backup. ' +
+            'Branch backups provide point-in-time recovery. Configure secrets in GitHub repository settings.'
+          );
+          
+          // If type was explicitly 'branch', downgrade to 'dump' instead of failing
+          if (type === 'branch') {
+            logger.warn('Branch backup requested but secrets missing - falling back to dump backup');
+          }
+        } else {
+          const branchResult = await this.createBranchBackup();
+          results.push(branchResult);
+        }
       }
 
       if (type === 'dump' || type === 'both') {
