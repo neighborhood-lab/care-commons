@@ -36,10 +36,11 @@ export const ShowcaseRouter: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<PersonaRole | undefined>(() => {
     if (typeof window !== 'undefined') {
       const stored = window.localStorage.getItem(CURRENT_ROLE_KEY);
-      if (stored && isValidRole(stored)) {
+      if (stored !== null && isValidRole(stored)) {
         return stored;
       }
     }
+    return undefined;
   });
 
   const handleRoleSelect = (roleId: string) => {
