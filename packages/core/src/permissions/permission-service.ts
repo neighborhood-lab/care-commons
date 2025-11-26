@@ -47,6 +47,8 @@ export class PermissionService {
         'billing:*',
         'reports:*',
         'settings:*',
+        'compliance:read',
+        'compliance:write',
         'admin:access',
         'admin:state-config',
         'admin:data-access',
@@ -64,6 +66,7 @@ export class PermissionService {
         'staff:read',
         'schedules:*',
         'reports:read',
+        'compliance:read',
       ])
     );
 
@@ -77,6 +80,7 @@ export class PermissionService {
         'schedules:*',
         'visits:*',
         'care-plans:*',
+        'compliance:read',
       ])
     );
 
