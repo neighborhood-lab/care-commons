@@ -1,283 +1,335 @@
 ---
-title: "Vibe Coding Is Real, But Not What Reddit Thinks"
-subtitle: "Building production healthcare software with AI in 28 days"
+title: "AI-Assisted Development: What It Actually Is"
+subtitle: "Separating the hype from the practice"
 scheduled_date: 2025-12-06
-image_prompt: "Flat illustration showing a developer and an AI assistant represented as a friendly robot working together at a desk, code symbols flowing between them, healthcare symbols (heart, cross) in the background, warm earth tones (orange, brown, cream, olive green), collaborative and productive mood, simple geometric shapes"
-tags: [technical, ai, vibe-coding]
-category: Technical Deep Dive
+image_prompt: "Flat illustration showing code editor with AI suggestions highlighted, verification checkmarks, terminal output, warm earth tones (orange, brown, cream, olive green), technical and precise aesthetic, simple geometric shapes"
+tags: [technical, ai, development]
+category: Technical
 ---
 
-# Vibe Coding Is Real, But Not What Reddit Thinks
+# AI-Assisted Development: What It Actually Is
 
-Three weeks ago, at 2:47 AM, I was staring at a gnarly EVV synchronization bug. Electronic Visit Verification requires caregivers to clock in and out of client visits with GPS coordinates, and our offline-first mobile app wasn't reconciling server state correctly after connectivity gaps.
+On November 19, 2025, an Anthropic employee posted on r/vibecoding that "software engineering could be dead by next year." The same week, Bayada Home Health Care announced an AI partnership for fall prevention, and HHS launched a $2 million AI initiative for caregiving technology.
 
-I described the problem to Claude. Twenty minutes later, we had a working CRDT-based solution with conflict resolution, proper vector clocks, and a test suite covering twelve edge cases.
+These three data points represent the current state of AI in software: hyperbolic claims from insiders, cautious enterprise adoption in healthcare, and government money flowing toward automation. What's actually happening?
 
-That's vibe coding. Not "prompt and pray." Not "ChatGPT wrote my homework." Real collaboration between human expertise and AI capability.
-
----
-
-## What Reddit Gets Wrong
-
-There's a 102,000-member subreddit called r/vibecoding. I lurked there last week, and the discourse is... revealing.
-
-**The skeptics** say vibe coding doesn't work:
-
-> "90% of vibe-coded projects never reach production"
-> "Great for prototyping, can't fix its own bugs"
-> "If you don't understand the code, you can't debug the code"
-
-**The evangelists** say it changes everything:
-
-> "Built my entire SaaS for $500 in a weekend"
-> "Software engineering could be dead by next year"
-> "I shipped features my senior devs said were impossible"
-
-Both sides are wrong because they're arguing about different things.
-
-The skeptics are right that prompting ChatGPT to "build me an app" produces garbage. The evangelists are right that AI dramatically accelerates capable developers. The confusion is about what "vibe coding" actually means.
+This article explains AI-assisted development from first principles, using Care Commons—a home healthcare platform I built over 28 days—as a concrete reference point. The goal is precision, not persuasion.
 
 ---
 
-## What Vibe Coding Actually Is
+## Definitions
 
-Here's my definition, after building Care Commons—a production healthcare platform—in 28 days:
+**AI-assisted development** means using large language models (LLMs) during the software development process. This includes code generation, debugging, documentation, test writing, and refactoring.
 
-**Vibe coding is AI-augmented development where you guide direction and validate output while the AI handles implementation velocity.**
+**Vibe coding** is a colloquial term that emerged in 2024 for a specific workflow: describing desired behavior to an AI in natural language and accepting the generated code with minimal modification. The term implies low-rigor development.
 
-The key words are *guide* and *validate*. You're not abdicating judgment. You're not blindly accepting output. You're collaborating with a tool that has perfect recall of documentation, infinite patience for boilerplate, and no ego about rewrites.
+**Traditional development** means writing code manually, using AI only for autocomplete or search (if at all).
 
-It's like pair programming with a junior developer who:
-- Has read every library's documentation
-- Never gets tired or frustrated
-- Types 10x faster than you
-- Needs clear direction and code review
-- Sometimes confidently suggests nonsense
-
-That last point is crucial. AI generates plausible code, not necessarily correct code. You need domain expertise to distinguish between the two.
+These are points on a spectrum, not discrete categories. Most working developers today operate somewhere between traditional and AI-assisted, depending on the task.
 
 ---
 
-## The Numbers: 28 Days to Production
+## What LLMs Actually Do
 
-Let me show you what this looks like in practice.
+LLMs are statistical models trained on text. When applied to code, they predict likely token sequences based on context. This has specific strengths and limitations.
 
-Care Commons is a home healthcare management platform. It handles:
-- Electronic Visit Verification (EVV) - federally mandated
-- Multi-state regulatory compliance (Texas, Florida, Ohio, Pennsylvania)
-- Caregiver scheduling and credential tracking
-- Client care plans and authorizations
-- Billing and payroll integration
-- Mobile app with offline support
+**Strengths:**
 
-Here are the verified metrics:
+1. **Pattern matching.** Given examples of a pattern, LLMs replicate it consistently. If your codebase has 10 API endpoints following a specific structure, the LLM will generate the 11th endpoint in the same structure.
+
+2. **Documentation recall.** LLMs have ingested most public documentation. They can generate code using library APIs without requiring you to look up syntax.
+
+3. **Boilerplate generation.** Repetitive code (CRUD operations, type definitions, test scaffolding) is exactly the kind of predictable output LLMs excel at.
+
+4. **Translation.** Converting between equivalent representations—callbacks to promises, one framework to another, code to documentation—is pattern matching.
+
+**Limitations:**
+
+1. **No verification.** LLMs cannot execute code or prove correctness. They generate plausible output, not verified output.
+
+2. **No domain knowledge.** LLMs don't understand your business requirements, regulatory constraints, or system architecture unless you explicitly provide that context.
+
+3. **Hallucination.** LLMs sometimes generate code using APIs that don't exist or patterns that look correct but aren't.
+
+4. **Context window.** LLMs can only consider limited context. Large codebases exceed this limit, causing inconsistency.
+
+Understanding these properties explains both why AI-assisted development works and why it fails.
+
+---
+
+## The Care Commons Case
+
+Care Commons is a home healthcare management platform. It handles Electronic Visit Verification (EVV), caregiver scheduling, compliance tracking, billing, and mobile visit documentation.
+
+Development started October 28, 2025. Production deployment occurred November 25, 2025.
+
+**Metrics (verifiable at github.com/neighborhood-lab/care-commons):**
 
 | Metric | Value |
 |--------|-------|
-| Development time | 28 days |
-| Total commits | 1,505+ |
-| Pull requests merged | 330+ |
+| Calendar days | 28 |
+| Total commits | 1,500+ |
 | Lines of code | 381,049 |
+| TypeScript source | 209,774 lines |
 | Automated tests | 3,154 |
-| TypeScript/TSX source | 209,774 lines |
+| Database migrations | 48 |
+| Domain modules | 15 |
 
-You can verify these yourself: [github.com/neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons)
+These numbers require context to be meaningful.
 
-For comparison, a traditional team would estimate this scope at 6-12 months with 3-5 engineers. I did it in a month with Claude.
+**What "381,049 lines" includes:**
 
----
+- Application code (TypeScript, React components)
+- Test files (roughly 30% of total)
+- Configuration (package.json, tsconfig, eslint)
+- Documentation (markdown files)
+- Generated types and schemas
 
-## Where AI Excels
+**What "28 days" means:**
 
-Let me be specific about what the AI is actually good at.
+- Full-time effort (8-12 hours/day)
+- Solo developer with 15+ years experience
+- Prior domain expertise in healthcare IT
+- AI assistance throughout
 
-### 1. Boilerplate and CRUD
-
-Building a new API endpoint with validation, database queries, error handling, and tests? AI does this in minutes with consistent patterns.
-
-```typescript
-// I describe what I need:
-// "Add endpoint to get caregiver compliance status, 
-//  check credentials, return blocking issues"
-
-// AI generates complete implementation:
-export async function getCaregiverComplianceStatus(
-  organizationId: UUID,
-  caregiverId: UUID
-): Promise<ComplianceStatus> {
-  const credentials = await credentialRepository.findByCaregiver(
-    organizationId,
-    caregiverId
-  );
-  
-  const blockingIssues = credentials
-    .filter(c => isExpired(c) && c.blocksScheduling)
-    .map(c => `${c.type} expired ${formatDate(c.expirationDate)}`);
-    
-  return {
-    canSchedule: blockingIssues.length === 0,
-    blockingIssues,
-    warnings: getUpcomingExpirations(credentials, 30),
-  };
-}
-```
-
-### 2. Pattern Replication
-
-Once you establish a pattern in your codebase, AI replicates it flawlessly. We have 15 "verticals" (domain modules) in Care Commons. After building the first two, I could say "create the incident-reporting vertical following the scheduling-visits pattern" and get consistent architecture.
-
-### 3. Test Generation
-
-This is AI's superpower. Given a function, AI will generate:
-- Happy path tests
-- Edge cases you forgot
-- Error condition coverage
-- Mock setup boilerplate
-
-```typescript
-// Me: "Write tests for the compliance status function"
-
-describe('getCaregiverComplianceStatus', () => {
-  it('returns canSchedule true when no blocking credentials expired', async () => {
-    // Complete test with mocks, assertions, cleanup
-  });
-  
-  it('returns blocking issues for expired credentials', async () => {
-    // Edge case I might have forgotten
-  });
-  
-  it('includes warnings for credentials expiring within 30 days', async () => {
-    // Another edge case
-  });
-  
-  it('handles caregiver with no credentials', async () => {
-    // Error case
-  });
-});
-```
-
-Our 3,154 tests? Most were AI-generated, then human-reviewed.
-
-### 4. Documentation
-
-AI writes better documentation than most developers. It's patient, thorough, and doesn't resent the work. Our API docs, README files, and inline comments are consistently high quality because AI never rushes documentation.
-
-### 5. Refactoring
-
-This is where AI saves the most time. "Rename this function across the codebase." "Extract this logic into a service." "Convert these callbacks to async/await." Tasks that would take an hour of careful find-replace take seconds.
+The relevant comparison isn't "could a human type this much code in 28 days?" (obviously not). It's "what would equivalent output require with traditional development?"
 
 ---
 
-## Where Human Judgment Is Essential
+## Estimating Traditional Development
 
-Here's where the Reddit skeptics have a point. There are things AI cannot do, and pretending otherwise leads to the disasters people complain about.
+Scoping healthcare software is notoriously difficult because requirements emerge during development. However, some calibration points exist:
 
-### 1. Architecture Decisions
+**Industry benchmarks:**
 
-AI will happily implement whatever architecture you describe. It won't tell you that your architecture is wrong for your problem. When I decided on a monorepo structure with Turborepo, I made that call based on understanding our deployment constraints, team size (one), and long-term maintenance needs.
+- A skilled developer produces 10-50 lines of production code per day (after tests, reviews, debugging)
+- Healthcare IT projects typically take 2-3x longer than initial estimates due to compliance requirements
+- Enterprise home health software (like HHAeXchange or Sandata) took years and large teams to build
 
-AI would have built a microservices architecture if I'd asked. It would have been wrong for this project.
+**Rough estimate for Care Commons scope:**
 
-### 2. Domain Expertise
+A traditional team would likely need:
+- 3-5 engineers
+- 6-12 months
+- $500K-$1M in salary costs
 
-Care Commons handles healthcare compliance. Texas requires different EVV rules than Florida. HIPAA mandates specific data handling. The 21st Century Cures Act specifies six required data elements for visit verification.
-
-AI doesn't *know* these things. It can look them up if prompted, but it can't spot when code violates regulations you didn't mention. My years of healthcare IT experience are what make the AI output correct, not just syntactically valid.
-
-### 3. Security Review
-
-AI generates code that *looks* secure. Parameterized queries, input validation, authentication checks. But it doesn't think adversarially. When I review AI-generated auth code, I'm asking: "How would I break this?" That's a human skill.
-
-### 4. Priority and Scope
-
-What should we build first? What can we defer? What's the minimum viable feature set? AI will build everything you ask for. Deciding what to ask for is strategy, not implementation.
-
-### 5. Trade-off Analysis
-
-"Good enough" is a human judgment. When the AI generates a perfect but complex solution, sometimes a simpler hack is better for now. Knowing when technical debt is acceptable requires understanding the business context.
+This estimate has wide error bars. The point is order-of-magnitude difference, not precise prediction.
 
 ---
 
-## The Workflow That Works
+## Where AI Added Value
 
-Here's how I actually work with Claude:
+Here are specific categories where AI assistance accelerated development:
 
-**1. Start with context.** I maintain an `AGENTS.md` file with domain knowledge, coding standards, and project context. The AI reads this first.
+### 1. CRUD Operations
 
-**2. Describe the outcome.** Not "write a function that..." but "I need to track caregiver credential expirations and prevent scheduling when licenses are invalid."
+Care Commons has 15 domain modules (scheduling, billing, EVV, etc.). Each module needs:
+- Database schema and migrations
+- Repository layer (data access)
+- Service layer (business logic)
+- API routes (HTTP endpoints)
+- Type definitions
+- Tests
 
-**3. Review critically.** Every piece of AI output gets reviewed. I'm looking for:
-   - Logic errors (does this actually solve the problem?)
-   - Security issues (can this be exploited?)
-   - Pattern violations (does this match our architecture?)
-   - Missing edge cases (what about null inputs?)
+Once the pattern was established in the first module, AI generated subsequent modules with high consistency. Human effort shifted from writing code to reviewing code.
 
-**4. Iterate rapidly.** Small commits, frequent validation. Our average PR is ~50 lines. If something's wrong, we catch it fast.
+### 2. Test Generation
 
-**5. Run the checks.** Every commit runs lint, typecheck, and tests. If AI-generated code breaks the build, it gets fixed before merge.
+Given a function signature and description, AI generates comprehensive test suites. Example prompt:
+
+> Write tests for getCaregiverComplianceStatus. It takes organizationId and caregiverId, returns { canSchedule: boolean, blockingIssues: string[], warnings: string[] }. Blocking issues are expired credentials that prevent scheduling. Warnings are credentials expiring within 30 days.
+
+AI output: 6-10 test cases covering happy path, edge cases, error conditions. Human review catches missing cases or incorrect assertions, but the scaffolding is done.
+
+3,154 tests in 28 days would be impossible without this leverage.
+
+### 3. Documentation
+
+AI generates documentation alongside code. API endpoints get OpenAPI specs. Functions get JSDoc comments. READMEs get updated. This happens in the same pass as implementation, not as deferred work.
+
+### 4. Refactoring
+
+Renaming, extracting, restructuring—these are mechanical transformations that AI handles quickly. "Extract this validation logic into a separate function" or "rename userId to caregiverId across all files" completes in seconds instead of error-prone find-replace.
 
 ---
 
-## The Honest Math
+## Where AI Did Not Help
 
-Here's what vibe coding actually cost for Care Commons:
+### 1. Architecture
+
+The monorepo structure, package boundaries, deployment configuration, and database design were human decisions. AI implemented whatever architecture was described, but couldn't evaluate whether it was appropriate.
+
+Example: I chose Turborepo for build orchestration. AI would have equally implemented Nx, Lerna, or no monorepo tooling. The choice required understanding deployment targets (Vercel), team size (one), and maintenance priorities.
+
+### 2. Regulatory Compliance
+
+Care Commons must comply with:
+- HIPAA (health data privacy)
+- 21st Century Cures Act (EVV requirements)
+- State-specific regulations (Texas 26 TAC §558, Florida Chapter 59A-8)
+
+AI doesn't know these regulations unless explicitly told. More importantly, AI can't identify when generated code violates regulations. A function that stores PHI without encryption looks syntactically identical to one that encrypts properly.
+
+Domain expertise is the verification layer.
+
+### 3. Security
+
+AI generates code that appears secure—parameterized queries, input validation, authentication checks. But security requires adversarial thinking: "How would an attacker exploit this?"
+
+Every authentication flow, permission check, and data access pattern required human review for security properties that AI cannot evaluate.
+
+### 4. Prioritization
+
+What to build first? What to defer? What's the minimum viable feature set? These are product decisions that require understanding business context, user needs, and resource constraints. AI implements priorities; it doesn't set them.
+
+---
+
+## Why "Vibe Coding" Fails
+
+The r/vibecoding subreddit (102,000 members) contains many failure reports. Common patterns:
+
+**1. No verification layer.**
+
+Accepting AI output without review produces code that works for the demonstrated case and fails elsewhere. Without tests, failures surface in production.
+
+**2. No domain expertise.**
+
+If you can't evaluate whether generated code is correct for your domain, you can't distinguish working code from plausible-looking garbage.
+
+**3. Exceeding context limits.**
+
+Large projects exceed LLM context windows. AI loses track of earlier decisions, generating inconsistent code. Without human architectural memory, the codebase becomes incoherent.
+
+**4. Compounding errors.**
+
+AI debugging AI-generated code often introduces new bugs. Without the ability to reason about code, error correction becomes random mutation.
+
+These failure modes share a common cause: treating AI as autonomous rather than assistive.
+
+---
+
+## The Actual Workflow
+
+Here's how AI-assisted development works in practice:
+
+**1. Context loading.**
+
+I maintain an `AGENTS.md` file (4,000+ lines) containing:
+- Domain knowledge (healthcare regulations, terminology)
+- Architecture decisions and rationale
+- Coding standards and patterns
+- Project structure and conventions
+
+AI reads this before generating code. Context is the input that shapes output quality.
+
+**2. Task specification.**
+
+Prompts describe outcomes, not implementations:
+
+> "Add compliance checking to visit scheduling. Before a visit can be created, verify the assigned caregiver has valid credentials. Block scheduling if any credential is expired. Return specific reasons for blocking."
+
+AI generates implementation. Human reviews for correctness.
+
+**3. Verification.**
+
+Every commit runs:
+- Linting (code style)
+- Type checking (TypeScript)
+- Tests (3,154 automated tests)
+- Build (production compilation)
+
+AI-generated code that fails checks gets fixed before merge. The verification layer catches AI errors.
+
+**4. Incremental commits.**
+
+Small changes, frequent commits. Average PR is ~50 lines. Problems surface quickly and scope is limited.
+
+---
+
+## Cost Analysis
+
+**AI-assisted (Care Commons):**
 
 | Item | Cost |
 |------|------|
 | Claude API (28 days) | ~$2,000 |
-| Vercel hosting | $20/month |
-| Neon database | $0 (free tier) |
-| GitHub | $0 (free tier) |
-| My time (28 days) | Priceless? |
+| Vercel (hosting) | $20/month |
+| Neon (database) | $0 (free tier) |
+| Human time (28 days) | Opportunity cost |
 
-Compare to traditional development:
-- 4-person team for 9 months
-- Fully loaded cost: ~$150K/engineer/year
-- Total: $450K minimum
+**Traditional estimate (equivalent scope):**
 
-I'm not claiming AI replaces teams. I'm claiming AI dramatically extends what a skilled individual can build. For a bootstrapped open-source project, that's transformational.
+| Item | Cost |
+|------|------|
+| 4 engineers × 9 months × $150K/year | $450,000 |
+| Project management | $50,000+ |
+| Infrastructure | Comparable |
 
----
+The 100x cost difference is real but requires qualification: traditional development might produce more robust architecture, better documentation of decisions, and knowledge distributed across a team rather than concentrated in one person.
 
-## Why Most Vibe-Coded Projects Fail
-
-The Reddit skeptics observe real failures. Here's why:
-
-**1. No domain expertise.** If you don't understand healthcare compliance, you can't validate that AI-generated compliance code is correct. The AI will generate plausible-looking garbage.
-
-**2. No engineering fundamentals.** AI amplifies capability. If you can't read code, you can't review code. Debugging AI output requires understanding what it should do.
-
-**3. Skipping validation.** "It works!" No—it appears to work for the one case you tested. The AI generated 3,154 tests for Care Commons because I insisted on test coverage.
-
-**4. Wrong problem selection.** Some problems are hard because they require deep original thinking, not implementation velocity. AI doesn't help you invent new algorithms; it helps you implement known patterns faster.
-
-**5. Premature production.** Vibe-coded prototypes ship before they're ready. The pressure to show progress leads to skipping the hardening phase where AI output gets properly reviewed and tested.
+AI-assisted development trades team resilience for speed and cost. Whether that tradeoff makes sense depends on context.
 
 ---
 
-## The Future Is Collaboration
+## Implications
 
-I don't think software engineering is "dead by next year." But I think the job is changing.
+**For individual developers:**
 
-The developers who thrive will be:
-- **Domain experts** who can validate AI output in their specialty
-- **Architects** who can design systems that AI implements
-- **Reviewers** who can spot AI's blind spots
-- **Product thinkers** who know what to build
+AI-assisted development extends what one person can build. Projects that required teams become feasible for individuals. The constraint shifts from implementation capacity to domain expertise and architectural judgment.
 
-The developers who struggle will be:
-- **Pure implementers** whose only value is typing speed
-- **Copy-paste programmers** who don't understand what they're modifying
-- **Documentation-avoiders** whose code can't be AI-extended
+**For teams:**
 
-Vibe coding is real. It's not magic, and it's not fraud. It's a new mode of development that rewards expertise differently.
+AI accelerates certain tasks (boilerplate, tests, documentation) but doesn't eliminate coordination overhead. Small teams may benefit more than large teams, where communication costs dominate.
 
-Care Commons is proof. Twenty-eight days, one human, 381,000 lines of production healthcare software.
+**For hiring:**
 
-The vibe is real. The code is on GitHub. Go verify it yourself.
+If AI handles implementation, value shifts toward:
+- Domain expertise (validating correctness)
+- Architecture (designing systems)
+- Security (adversarial thinking)
+- Product judgment (prioritization)
+
+Pure coding speed becomes less differentiating.
+
+**For healthcare IT specifically:**
+
+The home healthcare software market is dominated by expensive enterprise vendors (HHAeXchange, Sandata, AlayaCare). If AI reduces development costs by 10-100x, market dynamics may shift toward smaller vendors and open-source alternatives.
+
+Care Commons is a test of this hypothesis.
 
 ---
 
-*Brian Edwards builds Care Commons with [Neighborhood Lab](https://neighborhoodlab.org). The entire codebase is open source at [github.com/neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons).*
+## What This Isn't
 
-*Built with [OpenCode](https://opencode.ai/), Anthropic's open-source CLI for Claude.*
+This article is not claiming:
+
+- AI replaces software engineers (it doesn't)
+- Anyone can build production software with AI (domain expertise still required)
+- Vibe coding is a good practice (low-rigor development fails)
+- Care Commons proves anything definitive (sample size of one)
+
+The claim is narrower: AI-assisted development, done rigorously, produces real output faster than traditional development. The Care Commons metrics are verifiable. The tradeoffs are real.
+
+---
+
+## Verification
+
+All claims in this article can be verified:
+
+- **Repository:** github.com/neighborhood-lab/care-commons
+- **Live demo:** neighborhood-lab.github.io/care-commons/
+- **Production:** care-commons.vercel.app
+
+Run locally:
+```bash
+git clone https://github.com/neighborhood-lab/care-commons
+cd care-commons
+npm install
+npm run test     # 3,154 tests
+npm run build    # Production build
+npm run lint     # Code quality
+```
+
+---
+
+*Brian Edwards builds Care Commons with Neighborhood Lab. Contact: brian.mabry.edwards@gmail.com*
