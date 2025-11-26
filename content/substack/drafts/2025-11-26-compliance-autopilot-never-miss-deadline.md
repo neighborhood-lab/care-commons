@@ -126,6 +126,28 @@ The Autopilot tracks usage in real-time:
 
 You see the problem before it becomes a crisis. You can reduce visit frequency, request authorization increases, or have the difficult conversation with the family—on your terms, not in a panic.
 
+### Automatic Notifications
+
+The system doesn't just track deadlines—it acts on them. When a credential approaches expiration, the right people know:
+
+- **Caregivers** receive email alerts for their own credentials
+- **Supervisors** get notified when team members have urgent issues
+- **Coordinators** receive daily digest emails summarizing all compliance items
+
+```typescript
+// Notification frequency limits to prevent alert fatigue:
+// - Overdue items: notify every 24 hours (max 7 times)
+// - Urgent items: notify every 48 hours (max 3 times)
+// - Warning items: notify once
+
+await notificationService.sendDeadlineNotifications(
+  organizationId,
+  urgentDeadlines
+);
+```
+
+The daily digest gives supervisors a morning briefing: "You have 2 overdue items, 7 urgent, 23 upcoming." They can prioritize their day knowing exactly where attention is needed.
+
 ### One-Click Audit Reports
 
 Every home health agency dreads the audit. Whether it's Medicaid program integrity, state licensing boards, or accreditation surveyors, the request is always the same: "Show us your compliance documentation."
@@ -176,7 +198,17 @@ async canCaregiverBeScheduled(
 }
 ```
 
-If a caregiver's CPR is expired, the scheduling UI shows it immediately. The coordinator can't accidentally create a non-compliant visit. The system prevents the problem instead of documenting it after the fact.
+If a caregiver's CPR is expired, the scheduling UI shows it immediately. The coordinator can't accidentally create a non-compliant visit—the assignment is blocked with a clear explanation:
+
+```
+⚠️ Assignment Blocked: Maria Garcia has compliance issues
+- CPR certification expired (Nov 20, 2025)
+- Background check expiring in 5 days
+
+Supervisor can force assignment with documented override.
+```
+
+The system prevents the problem instead of documenting it after the fact. And when supervisors *do* need to override—because sometimes operational reality requires it—that decision is logged for the audit trail.
 
 ### State-Specific Validation
 
@@ -215,7 +247,7 @@ If you're running a home health agency, here's what the Compliance Autopilot giv
 
 **No more surprise expirations.** You see credentials approaching expiration 30 days out. Plenty of time to renew, document, or plan coverage.
 
-**No more unauthorized scheduling.** The system blocks non-compliant assignments before they happen. You can't accidentally create a compliance violation.
+**No more unauthorized scheduling.** The system blocks non-compliant assignments before they happen. You can't accidentally create a compliance violation. And when you *need* to override, it's documented.
 
 **No more audit panic.** Reports generate instantly. Documentation is structured and complete. Surveyors get what they need; you get back to running your agency.
 
