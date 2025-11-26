@@ -1,12 +1,59 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/core/hooks';
-import { Card, CardHeader, CardContent, Button, EmptyState } from '@/core/components';
+import { useAuth, useDemoData } from '@/core/hooks';
+import { Card, CardHeader, CardContent, Button, EmptyState, LoadDemoDataCard } from '@/core/components';
 import { Users, Calendar, ClipboardList, AlertCircle, Activity, CalendarPlus } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { 
+    isLoading: isDemoDataLoading, 
+    isOrganizationEmpty, 
+    seedDemoData, 
+    isSeeding 
+  } = useDemoData();
+
+  const handleLoadDemo = () => {
+    void seedDemoData();
+  };
+
+  const handleSkipDemo = () => {
+    navigate('/clients/new');
+  };
+
+  // Show loading state while checking demo data status
+  if (isDemoDataLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      </div>
+    );
+  }
+
+  // Show empty state if organization has no data
+  if (isOrganizationEmpty) {
+    return (
+      <div id="dashboard" className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Welcome to Care Commons, {user?.name?.split(' ')[0]}!
+          </h1>
+          <p className="mt-1 text-gray-600">
+            Let&apos;s get started with your home healthcare management.
+          </p>
+        </div>
+
+        <div className="py-8">
+          <LoadDemoDataCard
+            onLoadDemo={handleLoadDemo}
+            onSkip={handleSkipDemo}
+            isLoading={isSeeding}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const stats = [
     {

@@ -109,3 +109,5 @@ export * from './notifications/types';
 export * from './import/index';
 // Compliance Autopilot
 export * from './compliance/autopilot/index';
+// Demo Data Service
+export { DemoDataService, type DemoDataStats } from './service/demo-data-service.js';

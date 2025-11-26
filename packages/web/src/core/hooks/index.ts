@@ -5,4 +5,4 @@ export * from './useTimezone';
 export * from './useMediaQuery';
 export * from './useOnboarding';
 export * from './useCompliance';
-export * from './onboarding/useDemoData';
+export * from './useDemoData';
