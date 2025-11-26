@@ -8,8 +8,8 @@
 import { Database } from '../db/connection.js';
 import type { UUID } from '../types/base.js';
 import { NotFoundError } from '../errors/app-errors.js';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
 
 const execAsync = promisify(exec);
 
@@ -64,7 +64,7 @@ export class DemoDataService {
         { cwd: process.cwd() }
       );
 
-      if (stderr) {
+      if (stderr !== '') {
         console.error('Seed script stderr:', stderr);
       }
 
