@@ -418,7 +418,7 @@ export function createOrganizationRouter(db: Database): Router {
           return;
         }
 
-        const userId = (req as { user?: { id?: string } }).user?.id;
+        const userId = (req as { user?: { userId?: string } }).user?.userId;
         if (userId === undefined) {
           res.status(401).json({
             success: false,
