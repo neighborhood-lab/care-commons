@@ -9,6 +9,7 @@ import { Router, Request, Response } from 'express';
 import {
   Database,
   ComplianceAutopilotService,
+  ComplianceNotificationService,
   AuthMiddleware,
   NotFoundError,
 } from '@care-commons/core';
@@ -16,6 +17,7 @@ import {
 export function createComplianceRouter(db: Database): Router {
   const router = Router();
   const complianceService = new ComplianceAutopilotService(db);
+  const notificationService = new ComplianceNotificationService(db);
   const authMiddleware = new AuthMiddleware(db);
 
   /**
@@ -640,6 +642,8 @@ export function createComplianceRouter(db: Database): Router {
           organizationName: string;
           deadlinesFound: number;
           deadlinesUpdated: number;
+          notificationsSent: number;
+          notificationsFailed: number;
           error?: string;
         }[] = [];
 
@@ -652,14 +656,34 @@ export function createComplianceRouter(db: Database): Router {
             // Update statuses of existing deadlines
             const updatedCount = await complianceService.updateDeadlineStatuses(org.id);
 
+            // Get deadlines that need notifications (urgent and overdue)
+            const activeDeadlines = await complianceService.getActiveDeadlines(org.id);
+            const notifyableDeadlines = activeDeadlines.filter(
+              d => d.status === 'OVERDUE' || d.status === 'DUE_SOON' || d.status === 'UPCOMING'
+            );
+
+            // Send notifications for deadlines
+            const notificationResult = await notificationService.sendDeadlineNotifications(
+              org.id,
+              notifyableDeadlines
+            );
+
+            // Send daily digest to admins
+            const digestResult = await notificationService.sendDailyDigest(org.id);
+
+            const totalSent = notificationResult.sent + digestResult.sent;
+            const totalFailed = notificationResult.failed + digestResult.failed;
+
             results.push({
               organizationId: org.id,
               organizationName: org.name,
               deadlinesFound: deadlines.length,
               deadlinesUpdated: updatedCount,
+              notificationsSent: totalSent,
+              notificationsFailed: totalFailed,
             });
 
-            console.log(`[Compliance Cron] Scanned ${org.name}: ${deadlines.length} deadlines found, ${updatedCount} statuses updated`);
+            console.log(`[Compliance Cron] Scanned ${org.name}: ${deadlines.length} deadlines, ${updatedCount} updated, ${totalSent} notifications sent`);
           } catch (orgError) {
             const errorMessage = orgError instanceof Error ? orgError.message : 'Unknown error';
             console.error(`[Compliance Cron] Error scanning ${org.name}:`, errorMessage);
@@ -668,6 +692,8 @@ export function createComplianceRouter(db: Database): Router {
               organizationName: org.name,
               deadlinesFound: 0,
               deadlinesUpdated: 0,
+              notificationsSent: 0,
+              notificationsFailed: 0,
               error: errorMessage,
             });
           }
@@ -676,9 +702,10 @@ export function createComplianceRouter(db: Database): Router {
         const duration = Date.now() - startTime;
         const totalDeadlines = results.reduce((sum, r) => sum + r.deadlinesFound, 0);
         const totalUpdated = results.reduce((sum, r) => sum + r.deadlinesUpdated, 0);
+        const totalNotifications = results.reduce((sum, r) => sum + r.notificationsSent, 0);
         const errorCount = results.filter(r => r.error !== undefined).length;
 
-        console.log(`[Compliance Cron] Completed: ${organizations.length} orgs, ${totalDeadlines} deadlines, ${totalUpdated} updated, ${errorCount} errors, ${duration}ms`);
+        console.log(`[Compliance Cron] Completed: ${organizations.length} orgs, ${totalDeadlines} deadlines, ${totalUpdated} updated, ${totalNotifications} notifications, ${errorCount} errors, ${duration}ms`);
 
         res.json({
           success: true,
@@ -686,6 +713,7 @@ export function createComplianceRouter(db: Database): Router {
             organizationsScanned: organizations.length,
             totalDeadlinesFound: totalDeadlines,
             totalDeadlinesUpdated: totalUpdated,
+            totalNotificationsSent: totalNotifications,
             errorCount,
             durationMs: duration,
             completedAt: new Date().toISOString(),
