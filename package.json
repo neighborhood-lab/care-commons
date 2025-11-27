@@ -100,6 +100,7 @@
     "@vitest/coverage-v8": "^4.0.13",
     "chalk": "^5.6.2",
     "concurrently": "^9.2.1",
+    "discord.js": "^14.25.1",
     "dotenv-cli": "^11.0.0",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
