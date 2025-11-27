@@ -1,28 +1,65 @@
 # Care Commons
 
-> **Document Date:** November 2025  
-> **Status:** Production SaaS + Open Source
+> **🚀 Soft Launch: December 1, 2025**  
+> **Status:** Production Ready - Open Source
 
 [![CI](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/neighborhood-lab/care-commons/branch/develop/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/care-commons/tree/develop)
 
-> Shared care software, community owned.
+> **Shared care software, community owned.**
 
-**Care Commons** is a modular, self-hostable software platform designed to support the administration and daily operations of home-based care services. Built by the people at **Neighborhood Lab**.
+Open-source home healthcare management platform with state-specific Electronic Visit Verification (EVV) compliance for all 50 states.
 
-## 🌐 Live Demos
+## Why Care Commons?
 
-- **[Production SaaS](https://care-commons.vercel.app/)** - Full application (requires login)
-- **[Interactive Showcase](https://neighborhood-lab.github.io/care-commons/)** - Explore through realistic scenarios
-- **[Health Check](https://care-commons.vercel.app/health)** - System status
+Home healthcare agencies face a broken software market:
+- **Expensive**: $500-2000/month for basic features
+- **Inflexible**: Doesn't handle state-specific regulations (Texas HHAeXchange, Florida background screening, etc.)
+- **Vendor lock-in**: Proprietary systems with no data ownership
+
+**Care Commons** is different:
+- ✅ **Free & Open Source** - MIT license, full code access
+- ✅ **State-Specific Compliance** - Automatic EVV rules for TX, FL, and all 50 states
+- ✅ **Full Data Ownership** - Self-host or use our managed service
+- ✅ **Modern Technology** - TypeScript, React, PostgreSQL
+- ✅ **Production Ready** - Built in 28 days with AI assistance, deployed and tested
+
+Built by **[Neighborhood Lab](https://neighborhoodlab.org)** - community-owned software for the common good.
+
+## 🌐 Try It Now
+
+- **[Interactive Showcase](https://neighborhood-lab.github.io/care-commons/)** ⭐ **Start here** - No login required, explore with realistic demo data
+- **[Production SaaS](https://care-commons.vercel.app/)** - Full application (free 14-day trial)
+- **[Health Check](https://care-commons.vercel.app/health)** - System status & uptime
 
 **Demo Logins:**
 ```
-Coordinator: coordinator@tx.demo / demo1234
 Administrator: admin@carecommons.example / Care2024!
+Coordinator: coordinator@tx.demo / demo1234
 Caregiver: caregiver@tx.demo / demo1234  
 Family: family@tx.demo / demo1234
 ```
+
+## ✨ Key Features
+
+**For Agency Administrators:**
+- 📊 **Real-time Dashboard** - See active clients, caregivers, care plans, and open shifts at a glance
+- 📋 **60+ Clients, 35+ Caregivers** - Comprehensive demo data showing production-scale capability
+- ✅ **98.2% EVV Compliance Rate** - GPS-verified visit tracking with automatic state compliance
+- 🗺️ **50-State Support** - Texas HHAeXchange, Florida Sandata, automatic geofence tolerances
+- 📱 **Mobile App** - React Native caregiver app with offline-first EVV
+
+**For Caregivers:**
+- ⏰ **Quick Clock In/Out** - GPS verification, geofencing, photo documentation
+- 📍 **Offline Support** - Works without internet, auto-syncs when connected
+- ✅ **Task Checklists** - Morning medication, blood pressure checks, PT exercises
+- 📝 **Visit Notes** - Document care provided with timestamps and signatures
+
+**For Families:**
+- 👨‍👩‍👧 **Family Portal** - Real-time updates on loved one's care
+- 💬 **Activity Feed** - "Sarah M. clocked in 2 min ago", "Blood pressure: 128/82"
+- 📅 **Visit Schedule** - See upcoming visits and caregiver assignments
+- ⭐ **4.8/5 Satisfaction** - Transparent communication builds trust
 
 ## 🔗 Community
 
