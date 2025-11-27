@@ -162,13 +162,16 @@ export function StateDemoPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {[
-                  { code: 'TX', name: 'Texas', strictness: 'STRICT', geofence: '150m', grace: '10 min', aggregator: 'HHAeXchange' },
-                  { code: 'FL', name: 'Florida', strictness: 'LENIENT', geofence: '200m', grace: '15 min', aggregator: 'Multi' },
-                  { code: 'OH', name: 'Ohio', strictness: 'MODERATE', geofence: '175m', grace: '15 min', aggregator: 'Sandata (Free)' },
-                  { code: 'GA', name: 'Georgia', strictness: 'LENIENT', geofence: '200m', grace: '15 min', aggregator: 'Tellus' },
-                  { code: 'PA', name: 'Pennsylvania', strictness: 'MODERATE', geofence: '175m', grace: '15 min', aggregator: 'Sandata (Free)' },
-                  { code: 'AZ', name: 'Arizona', strictness: 'MODERATE', geofence: '175m', grace: '15 min', aggregator: 'Sandata (Free)' },
-                  { code: 'NC', name: 'N. Carolina', strictness: 'MODERATE', geofence: '175m', grace: '15 min', aggregator: 'Sandata (Free)' },
+                  { code: 'TX', name: 'Texas', strictness: 'STRICT', geofence: '100m', grace: '10 min', aggregator: 'HHAeXchange' },
+                  { code: 'FL', name: 'Florida', strictness: 'LENIENT', geofence: '150m', grace: '15 min', aggregator: 'HHAeXchange' },
+                  { code: 'CA', name: 'California', strictness: 'STRICT', geofence: '100m', grace: '7 min', aggregator: 'Multi-aggregator' },
+                  { code: 'NY', name: 'New York', strictness: 'STRICT', geofence: '100m', grace: '10 min', aggregator: 'HHAeXchange' },
+                  { code: 'PA', name: 'Pennsylvania', strictness: 'STRICT', geofence: '100m', grace: '10 min', aggregator: 'Sandata' },
+                  { code: 'OH', name: 'Ohio', strictness: 'STRICT', geofence: '100m', grace: '10 min', aggregator: 'Sandata' },
+                  { code: 'GA', name: 'Georgia', strictness: 'STRICT', geofence: '100m', grace: '10 min', aggregator: 'Sandata' },
+                  { code: 'NC', name: 'N. Carolina', strictness: 'STRICT', geofence: '100m', grace: '10 min', aggregator: 'Sandata' },
+                  { code: 'MI', name: 'Michigan', strictness: 'STRICT', geofence: '100m', grace: '10 min', aggregator: 'Sandata' },
+                  { code: 'WA', name: 'Washington', strictness: 'LENIENT', geofence: '150m', grace: '15 min', aggregator: 'State Portal' },
                 ].map((state) => (
                   <tr key={state.code} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -208,9 +211,9 @@ export function StateDemoPage() {
       {/* Key Benefits */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 mb-2">7 States Supported</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">All 50 States + DC</h3>
           <p className="text-sm text-blue-800">
-            TX, FL, OH, GA, PA, AZ, NC with full compliance validation and state-specific rules.
+            Full compliance validation and state-specific rules for every US jurisdiction.
           </p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-6">
