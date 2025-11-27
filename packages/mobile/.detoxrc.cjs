@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 /** @type {Detox.DetoxConfig} */
 module.exports = {
   testRunner: {
