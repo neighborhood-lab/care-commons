@@ -1,7 +1,7 @@
 # Visual QA Report - Showcase Application
 **Date:** November 27, 2025
 **Tester:** Tove (AI Agent)
-**Environment:** Local (http://localhost:5173/care-commons) & Production (https://neighborhood-lab.github.io/care-commons)
+**Environment:** Local (http://localhost:5173/folkcare) & Production (https://folk.care)
 **Screenshots:** 23 pages captured
 
 ## Executive Summary

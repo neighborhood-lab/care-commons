@@ -7,8 +7,8 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Card } from '@care-commons/shared-components';
-import { Button } from '@care-commons/shared-components';
+import { Card } from '@folkcare/shared-components';
+import { Button } from '@folkcare/shared-components';
 import { useApiClient } from '@/core/hooks';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CheckCircle, XCircle, Clock, Building2, Mail, Shield } from 'lucide-react';
@@ -268,7 +268,7 @@ export function AcceptInvite() {
       <div className="max-w-md w-full space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Join Care Commons</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Join Folk</h1>
           <p className="mt-2 text-gray-600">Complete your account setup to get started</p>
         </div>
 

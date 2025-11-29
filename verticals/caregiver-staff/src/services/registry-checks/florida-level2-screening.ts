@@ -13,7 +13,7 @@
  * Reference: https://www.myflfamilies.com/service-programs/background-screening/
  */
 
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 import { FloridaBackgroundScreening, DisqualifyingOffense } from '../../types/caregiver';
 
 export interface Level2ScreeningInitiationInput {

@@ -13,7 +13,7 @@
  */
 
 import { EVVAggregatorService } from '../service/evv-aggregator-service.js';
-import { createLogger } from '@care-commons/core';
+import { createLogger } from '@folkcare/core';
 
 const log = createLogger('SubmissionWorker');
 

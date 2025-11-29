@@ -8,7 +8,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import {
   Database,
   AuthMiddleware,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
 

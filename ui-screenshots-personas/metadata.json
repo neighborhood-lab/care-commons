@@ -2,7 +2,7 @@
   "timestamp": "2025-11-27T13:31:58.581Z",
   "environment": {
     "webUrl": "http://localhost:5173",
-    "showcaseUrl": "http://localhost:5173/care-commons"
+    "showcaseUrl": "http://localhost:5173/folkcare"
   },
   "settings": {
     "resize": true,

@@ -10,7 +10,7 @@ import knex, { Knex } from 'knex';
 dotenv.config({ path: '.env', quiet: true });
 
 const env = process.env.NODE_ENV || 'development';
-const dbName = process.env.DB_NAME || 'care_commons';
+const dbName = process.env.DB_NAME || 'folkcare';
 
 // Use DATABASE_URL if provided, otherwise build from individual DB_* variables
 const connectionConfig = process.env.DATABASE_URL 

@@ -18,7 +18,7 @@ export interface DatabaseConfig {
   statementTimeout?: number; // Query statement timeout in ms (default: 30000)
   queryTimeout?: number; // Query timeout in ms (default: 30000)
   allowExitOnIdle?: boolean; // Allow process to exit when all connections are idle (default: false)
-  application_name?: string; // Application name for pg_stat_activity (default: 'care-commons')
+  application_name?: string; // Application name for pg_stat_activity (default: 'folkcare')
 }
 
 export class Database {
@@ -42,7 +42,7 @@ export class Database {
       statement_timeout: config.statementTimeout ?? 30000, // 30s statement timeout
       query_timeout: config.queryTimeout ?? 30000, // 30s query timeout
       // Application name for monitoring
-      application_name: config.application_name ?? 'care-commons',
+      application_name: config.application_name ?? 'folkcare',
     });
 
     // Log pool errors (only if pool has event emitter methods)

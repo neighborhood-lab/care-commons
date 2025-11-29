@@ -65,7 +65,7 @@ describe('Login Page', () => {
   it('should successfully login with demo persona', async () => {
     const mockUser = {
       userId: '123',
-      email: 'admin@tx.carecommons.example',
+      email: 'admin@tx.folkcare.example',
       organizationId: '456',
       roles: ['ADMIN'],
       permissions: ['*:*'],
@@ -89,7 +89,7 @@ describe('Login Page', () => {
 
     await waitFor(() => {
       expect(mockAuthServiceLogin).toHaveBeenCalledWith({
-        email: 'admin@tx.carecommons.example',
+        email: 'admin@tx.folkcare.example',
         password: 'Demo123!',
       });
       expect(mockLogin).toHaveBeenCalledWith(mockUser, 'test-token');
@@ -101,7 +101,7 @@ describe('Login Page', () => {
   it('should navigate to family portal for family member', async () => {
     const mockUser = {
       userId: '123',
-      email: 'family@tx.carecommons.example',
+      email: 'family@tx.folkcare.example',
       organizationId: '456',
       roles: ['FAMILY'],
       permissions: ['family:*'],

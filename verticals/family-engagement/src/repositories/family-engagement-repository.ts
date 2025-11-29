@@ -4,8 +4,8 @@
  * Data access layer for family portal, notifications, activity feed, and messaging
  */
 
-import { Repository, Database } from '@care-commons/core';
-import type { UUID } from '@care-commons/core';
+import { Repository, Database } from '@folkcare/core';
+import type { UUID } from '@folkcare/core';
 import type {
   FamilyMember,
   FamilyMemberProfile,

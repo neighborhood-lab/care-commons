@@ -14,14 +14,14 @@
 /* eslint-disable sonarjs/redundant-type-aliases */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { Router } from 'express';
 
 // Type for Express Router stack layer (Express internals aren't fully typed)
 type RouterLayer = any;
 
 // Mock billing-invoicing module
-vi.mock('@care-commons/billing-invoicing', () => ({
+vi.mock('@folkcare/billing-invoicing', () => ({
   BillingRepository: vi.fn().mockImplementation(function () {
     return {
       searchInvoices: vi.fn().mockResolvedValue([]),
@@ -31,8 +31,8 @@ vi.mock('@care-commons/billing-invoicing', () => ({
 }));
 
 // Mock core module
-vi.mock('@care-commons/core', async () => {
-  const actual = await vi.importActual('@care-commons/core');
+vi.mock('@folkcare/core', async () => {
+  const actual = await vi.importActual('@folkcare/core');
   return {
     ...actual,
     AuthMiddleware: vi.fn().mockImplementation(function () {

@@ -1,6 +1,6 @@
 # Deployment Workflow Guide
 
-This document explains when and how deployments happen in the Care Commons project.
+This document explains when and how deployments happen in the Folk project.
 
 **Note:** This project uses **Vercel Hobby Plan** with two environments:
 - **Production** (Vercel production environment) ← `main` branch

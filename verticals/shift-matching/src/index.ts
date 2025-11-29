@@ -1,5 +1,5 @@
 /**
- * @care-commons/shift-matching
+ * @folkcare/shift-matching
  * 
  * Intelligent caregiver-to-shift matching and assignment system.
  * 
@@ -32,4 +32,4 @@ export { EnhancedMatchExplanations } from './utils/enhanced-match-explanations';
 export type { EnhancedMatchExplanation, MatchDetail } from './utils/enhanced-match-explanations';
 
 // Re-export commonly used core types
-export type { UUID, UserContext, PaginationParams, PaginatedResult } from '@care-commons/core';
+export type { UUID, UserContext, PaginationParams, PaginatedResult } from '@folkcare/core';

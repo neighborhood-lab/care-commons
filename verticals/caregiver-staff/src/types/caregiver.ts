@@ -14,7 +14,7 @@ import {
   Entity,
   SoftDeletable,
   UUID,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * State-specific caregiver/staff data for TX and FL compliance

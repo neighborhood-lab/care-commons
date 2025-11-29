@@ -11,7 +11,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuditService } from '../audit-service.js';
-import type { UserContext } from '@care-commons/core';
+import type { UserContext } from '@folkcare/core';
 import type {
   Audit,
   CreateAuditInput,

@@ -18,7 +18,7 @@ import {
   SoftDeletable,
   UUID,
   Timestamp,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * Service Pattern - Template for recurring services

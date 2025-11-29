@@ -185,9 +185,9 @@ This is why commenting matters. The proposed rule isn't the final word.
 
 ---
 
-## What Care Commons Does
+## What Folk Does
 
-When CMS rules change, Care Commons adapts. Here's our commitment:
+When CMS rules change, Folk adapts. Here's our commitment:
 
 ### Before the Final Rule
 
@@ -231,13 +231,13 @@ Because we're community-owned, our priorities align with agencies, not investors
 
 ## Stay Informed
 
-**Join the Care Commons community:**
-[Care Commons Discord](https://discord.gg/EkeXQZFq)
+**Join the Folk community:**
+[Folk Discord](https://discord.gg/EkeXQZFq)
 
 We discuss regulatory changes as they happen. When the final rule drops, you won't be reading 623 pages alone.
 
 **Try the interactive demo:**
-[Care Commons Showcase](https://neighborhood-lab.github.io/care-commons/)
+[Folk Showcase](https://folk.care/)
 
 See how community-owned software approaches documentation, quality reporting, and compliance.
 
@@ -269,4 +269,4 @@ See how community-owned software approaches documentation, quality reporting, an
 
 ---
 
-*Care Commons is open source, community-owned software for home healthcare agencies. We believe understanding regulations shouldn't require a law degree.*
+*Folk is open source, community-owned software for home healthcare agencies. We believe understanding regulations shouldn't require a law degree.*

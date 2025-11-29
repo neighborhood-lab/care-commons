@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document describes the Texas-specific EVV compliance features added to the Care Commons platform. These features ensure full compliance with Texas Health and Human Services Commission (HHSC) EVV requirements for Medicaid home and community-based services.
+This document describes the Texas-specific EVV compliance features added to the Folk platform. These features ensure full compliance with Texas Health and Human Services Commission (HHSC) EVV requirements for Medicaid home and community-based services.
 
 ---
 
@@ -38,7 +38,7 @@ Implements Texas HHSC geofence validation with 100m base radius + GPS accuracy a
 
 #### Example Usage:
 ```typescript
-import { createTexasGeofenceValidator } from '@care-commons/time-tracking-evv';
+import { createTexasGeofenceValidator } from '@folkcare/time-tracking-evv';
 
 const validator = createTexasGeofenceValidator();
 
@@ -86,7 +86,7 @@ Validates compliance with federal and Texas EVV requirements for the six mandato
 
 #### Example Usage:
 ```typescript
-import { createTexasValidator } from '@care-commons/time-tracking-evv';
+import { createTexasValidator } from '@folkcare/time-tracking-evv';
 
 const validator = createTexasValidator();
 
@@ -147,7 +147,7 @@ type TexasComplianceFlag =
 
 #### Example Usage:
 ```typescript
-import { createTexasComplianceService } from '@care-commons/time-tracking-evv';
+import { createTexasComplianceService } from '@folkcare/time-tracking-evv';
 
 const complianceService = createTexasComplianceService();
 
@@ -309,7 +309,7 @@ export {
 ### Example API Handler (Future)
 
 ```typescript
-import { createTexasComplianceService } from '@care-commons/time-tracking-evv';
+import { createTexasComplianceService } from '@folkcare/time-tracking-evv';
 import type { Request, Response } from 'express';
 
 const complianceService = createTexasComplianceService();
@@ -472,4 +472,4 @@ For questions or issues regarding Texas EVV compliance features:
 
 **Version:** 1.0
 **Last Updated:** 2025-11-14
-**Maintainer:** Care Commons Engineering Team
+**Maintainer:** Folk Engineering Team

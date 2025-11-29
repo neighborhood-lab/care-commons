@@ -84,14 +84,14 @@ jobs:
         # Remove this once e2e/tests/visual-showcase.spec.ts-snapshots/ is committed
         continue-on-error: true
         run: |
-          SHOWCASE_URL=http://localhost:5174/care-commons npm run test:visual
+          SHOWCASE_URL=http://localhost:5174/folkcare npm run test:visual
         env:
           CI: true
 
       - name: Update baseline screenshots
         if: ${{ inputs.update_baselines }}
         run: |
-          SHOWCASE_URL=http://localhost:5174/care-commons npm run test:visual:update
+          SHOWCASE_URL=http://localhost:5174/folkcare npm run test:visual:update
         env:
           CI: true
 

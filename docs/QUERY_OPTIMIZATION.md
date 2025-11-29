@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document details the performance optimizations implemented to improve database query performance across the Care Commons platform, with a focus on the shift matching vertical.
+This document details the performance optimizations implemented to improve database query performance across the Folk platform, with a focus on the shift matching vertical.
 
 ## Migration: 20251101000000_add_performance_indexes.ts
 
@@ -397,7 +397,7 @@ LIMIT 20;
 REINDEX TABLE open_shifts;
 
 -- Reindex all tables (during maintenance window)
-REINDEX DATABASE care_commons;
+REINDEX DATABASE folkcare;
 ```
 
 ## References

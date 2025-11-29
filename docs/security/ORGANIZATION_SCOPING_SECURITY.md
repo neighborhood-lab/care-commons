@@ -2,7 +2,7 @@
 
 **CRITICAL SECURITY DOCUMENT**
 
-This document describes the multi-layered security architecture implemented to ensure complete organization-level data isolation in Care Commons.
+This document describes the multi-layered security architecture implemented to ensure complete organization-level data isolation in Folk.
 
 ## Security Threat Model
 
@@ -104,7 +104,7 @@ router.get('/organizations/:id',
 ### Usage Example
 
 ```typescript
-import { AuthMiddleware } from '@care-commons/core';
+import { AuthMiddleware } from '@folkcare/core';
 
 const authMiddleware = new AuthMiddleware(db);
 
@@ -140,7 +140,7 @@ All database operations MUST use scoped query helpers that automatically inject 
 #### `scopedSelect` - Filtered SELECT
 
 ```typescript
-import { scopedSelect } from '@care-commons/core';
+import { scopedSelect } from '@folkcare/core';
 
 const context = {
   organizationId: req.user.organizationId,
@@ -161,7 +161,7 @@ const result = await scopedSelect(
 #### `scopedInsert` - Organization-Scoped INSERT
 
 ```typescript
-import { scopedInsert } from '@care-commons/core';
+import { scopedInsert } from '@folkcare/core';
 
 await scopedInsert(
   db,
@@ -185,7 +185,7 @@ await scopedInsert(
 #### `scopedUpdate` - Organization-Scoped UPDATE
 
 ```typescript
-import { scopedUpdate } from '@care-commons/core';
+import { scopedUpdate } from '@folkcare/core';
 
 await scopedUpdate(
   db,
@@ -203,7 +203,7 @@ await scopedUpdate(
 #### `scopedDelete` - Organization-Scoped Soft Delete
 
 ```typescript
-import { scopedDelete } from '@care-commons/core';
+import { scopedDelete } from '@folkcare/core';
 
 await scopedDelete(
   db,
@@ -220,7 +220,7 @@ await scopedDelete(
 #### `validateOrganizationOwnership` - Pre-Operation Check
 
 ```typescript
-import { validateOrganizationOwnership } from '@care-commons/core';
+import { validateOrganizationOwnership } from '@folkcare/core';
 
 // Before performing operation on a resource
 await validateOrganizationOwnership(
@@ -239,7 +239,7 @@ await validateOrganizationOwnership(
 For complex multi-query operations:
 
 ```typescript
-import { createScopedDatabase } from '@care-commons/core';
+import { createScopedDatabase } from '@folkcare/core';
 
 const scopedDb = createScopedDatabase(db, {
   organizationId: req.user.organizationId,
@@ -267,7 +267,7 @@ RLS provides **database-level enforcement** of multi-tenancy, even if applicatio
 #### Step 1: Run RLS Migration
 
 ```bash
-psql -d care_commons_production -f scripts/migrations/001_enable_rls_policies.sql
+psql -d folkcare_production -f scripts/migrations/001_enable_rls_policies.sql
 ```
 
 This creates:
@@ -432,7 +432,7 @@ curl -X POST http://localhost:3001/api/clients \
 
 ```bash
 # Connect to database as application user
-psql -d care_commons_production -U app_user
+psql -d folkcare_production -U app_user
 
 # Set org context
 SET LOCAL app.current_organization_id = '<org1-id>';

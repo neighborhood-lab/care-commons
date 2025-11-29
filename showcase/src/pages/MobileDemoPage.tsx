@@ -1,7 +1,7 @@
 /**
  * Mobile Demo Page
  * 
- * Showcases the Care Commons mobile app for caregivers.
+ * Showcases the Folk mobile app for caregivers.
  * Displays the simulated mobile interface with feature overview.
  */
 

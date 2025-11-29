@@ -5,7 +5,7 @@
  */
 
 import type { Request, Response } from 'express';
-import type { UserContext } from '@care-commons/core';
+import type { UserContext } from '@folkcare/core';
 import { FamilyEngagementService } from '../services/family-engagement-service';
 
 /**

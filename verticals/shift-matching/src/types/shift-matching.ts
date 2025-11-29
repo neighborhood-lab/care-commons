@@ -21,7 +21,7 @@ import {
   SoftDeletable,
   UUID,
   Timestamp,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * Open Shift - Unassigned visit needing caregiver

@@ -18,24 +18,24 @@ NPM_VERSION = "10"
 # Production uses cache and optimizations
 [env.production.build.environment]
 NODE_ENV = "production"
-VITE_API_URL = "https://api.care-commons.com"
+VITE_API_URL = "https://api.folkcare.com"
 
 [env.preview]
 # Preview builds for PRs
 [env.preview.build.environment]
 NODE_ENV = "preview"
-VITE_API_URL = "https://api-preview.care-commons.com"
+VITE_API_URL = "https://api-preview.folkcare.com"
 
 [env.staging]
 # Staging environment
 [env.staging.build.environment]
 NODE_ENV = "staging"
-VITE_API_URL = "https://api-staging.care-commons.com"
+VITE_API_URL = "https://api-staging.folkcare.com"
 
 # Redirects and headers
 [[redirects]]
 from = "/api/*"
-to = "https://api.care-commons.com/:splat"
+to = "https://api.folkcare.com/:splat"
 status = 200
 
 [[redirects]]

@@ -8,7 +8,7 @@
  * - State-specific medication administration rules
  */
 
-import type { Database, UserContext } from '@care-commons/core';
+import type { Database, UserContext } from '@folkcare/core';
 import { MedicationRepository, MedicationAdministrationRepository } from '../repository/medication-repository.js';
 import type {
   Medication,

@@ -15,7 +15,7 @@ import {
 } from '../hooks';
 import { useAuth } from '@/core/hooks';
 import { MessageList, MessageThread, MessageComposer } from '../components';
-import type { UUID } from '@care-commons/core/browser';
+import type { UUID } from '@folkcare/core/browser';
 
 export const MessagesPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();

@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Feature Flags Types
+ * @folkcare/core - Feature Flags Types
  *
  * Per-organization feature control types
  */

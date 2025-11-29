@@ -2,7 +2,7 @@
 
 **State Code**: OH  
 **Last Updated**: 2025-11-05  
-**Verified By**: Care Commons Compliance Team  
+**Verified By**: Folk Compliance Team  
 **Next Review Date**: 2026-02-05
 
 ## Table of Contents
@@ -770,5 +770,5 @@ Ohio home healthcare compliance is characterized by:
 - Sandata Technologies: https://www.sandata.com/
 - 21st Century Cures Act: https://www.congress.gov/bill/114th-congress/house-bill/34
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

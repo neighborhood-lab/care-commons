@@ -2,10 +2,10 @@ export const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Care Commons API',
+      title: 'Folk API',
       version: '1.0.0',
       description: `
-# Care Commons API Documentation
+# Folk API Documentation
 
 Comprehensive REST API for home healthcare management platform.
 
@@ -92,9 +92,9 @@ The API uses semantic versioning. Breaking changes will be introduced in new maj
 Current version: **v1.0.0**
       `,
       contact: {
-        name: 'Care Commons Team',
-        url: 'https://github.com/neighborhood-lab/care-commons',
-        email: 'support@carecommons.example'
+        name: 'Folk Team',
+        url: 'https://github.com/neighborhood-lab/folkcare',
+        email: 'support@folkcare.example'
       },
       license: {
         name: 'AGPL-3.0',
@@ -107,11 +107,11 @@ Current version: **v1.0.0**
         description: 'Development server'
       },
       {
-        url: 'https://preview.carecommons.example',
+        url: 'https://preview.folkcare.example',
         description: 'Staging server'
       },
       {
-        url: 'https://care-commons.vercel.app',
+        url: 'https://folk.care',
         description: 'Production server'
       }
     ],

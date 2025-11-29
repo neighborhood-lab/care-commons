@@ -6,7 +6,7 @@ This guide demonstrates how to use the Billing & Invoicing vertical for common o
 
 ```typescript
 import { Pool } from 'pg';
-import { BillingRepository } from '@care-commons/billing-invoicing';
+import { BillingRepository } from '@folkcare/billing-invoicing';
 import {
   validateCreateBillableItem,
   validateCreateInvoice,
@@ -15,13 +15,13 @@ import {
   calculateBaseAmount,
   applyModifiers,
   calculateInvoiceTotal,
-} from '@care-commons/billing-invoicing';
+} from '@folkcare/billing-invoicing';
 
 // Initialize database connection
 const pool = new Pool({
   host: 'localhost',
   port: 5432,
-  database: 'care_commons',
+  database: 'folkcare',
   user: 'postgres',
   password: 'postgres',
 });
@@ -125,7 +125,7 @@ async function createBillableItemFromVisit(visitData: any) {
 ### 2. Generate an Invoice from Ready Billable Items
 
 ```typescript
-import { generateInvoiceNumber, calculateInvoiceTotal } from '@care-commons/billing-invoicing';
+import { generateInvoiceNumber, calculateInvoiceTotal } from '@folkcare/billing-invoicing';
 
 async function generateInvoiceForPayer(
   organizationId: string,
@@ -242,7 +242,7 @@ async function generateInvoiceForPayer(
 ### 3. Record and Allocate a Payment
 
 ```typescript
-import { generatePaymentNumber } from '@care-commons/billing-invoicing';
+import { generatePaymentNumber } from '@folkcare/billing-invoicing';
 
 async function recordPayment(
   organizationId: string,
@@ -506,7 +506,7 @@ async function getApplicableRate(
 All operations should include proper error handling:
 
 ```typescript
-import { ValidationResult } from '@care-commons/billing-invoicing';
+import { ValidationResult } from '@folkcare/billing-invoicing';
 
 async function handleBillingOperation() {
   try {

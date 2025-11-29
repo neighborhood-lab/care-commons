@@ -194,7 +194,7 @@ This repository uses **ES Modules (ESM) everywhere**:
 ```typescript
 // ✅ CORRECT
 import { createApp } from './server.js';
-import { getDatabase } from '@care-commons/core/db.js';
+import { getDatabase } from '@folkcare/core/db.js';
 
 // ❌ WRONG
 import { createApp } from './server';
@@ -226,7 +226,7 @@ const { getDatabase } = require('./db');
 ### Repository Structure
 
 ```
-care-commons/
+folkcare/
 ├── packages/
 │   ├── core/           # Shared domain logic, database, permissions
 │   ├── app/            # Express application
@@ -257,7 +257,7 @@ The project includes a **React Native mobile app** (`packages/mobile/`) built wi
 
 The **Showcase** (`showcase/`) is a static, client-side demo deployed to GitHub Pages:
 
-- **URL**: https://neighborhood-lab.github.io/care-commons/
+- **URL**: https://folk.care/
 - **Purpose**: Interactive demo without backend dependencies
 - **Data**: Uses browser localStorage (no database)
 - **Roles**: Multi-role experience (patient, family, caregiver, coordinator, admin)
@@ -321,7 +321,7 @@ See `scripts/SCREENSHOT_CAPTURE.md` and `docs/UI_VISIBILITY_TOOLING.md` for deta
 ### Authentication Status
 
 **Demo Logins (Production)** - Well tested and working:
-- `admin@carecommons.example` - Admin access
+- `admin@folkcare.example` - Admin access
 - Other demo personas work reliably
 - Demo data seeding is stable
 
@@ -919,7 +919,7 @@ The following critical issues were resolved to achieve successful production dep
    - **Problem**: No admin user existed in production database
    - **Solution**: Created temporary seed endpoint, then immediately removed after use
    - **Security**: NEVER deploy unauthenticated admin creation endpoints to production
-   - **Test**: Login at `/login` with `admin@carecommons.example` must work
+   - **Test**: Login at `/login` with `admin@folkcare.example` must work
 
 4. **Database Schema Alignment**
    - **Problem**: Production database schema didn't match code expectations
@@ -995,9 +995,9 @@ The following critical issues were resolved to achieve successful production dep
 
 | Branch | Environment | URL | Database | Purpose |
 |--------|-------------|-----|----------|---------|
-| `production` | Production | care-commons.vercel.app | Production DB | Live system |
+| `production` | Production | folk.care | Production DB | Live system |
 | `preview` | Preview | preview-*.vercel.app | Preview DB | Pre-prod testing |
-| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ | None (localStorage) | Showcase demo |
+| `develop` | GitHub Pages | folk.care/ | None (localStorage) | Showcase demo |
 | `feature/*` | None | N/A | Local | Development |
 
 **NOTE**: There is no `main` branch. This is intentional.
@@ -1057,5 +1057,5 @@ excellence, and meaningful impact.**
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

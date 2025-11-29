@@ -57,7 +57,7 @@ const PERSONAS: Persona[] = [
     id: 'admin',
     name: 'Maria Rodriguez',
     role: 'Administrator',
-    email: 'admin@tx.carecommons.example',
+    email: 'admin@tx.folkcare.example',
     password: 'Demo123!',
     folder: '01-administrator',
     routes: [
@@ -82,7 +82,7 @@ const PERSONAS: Persona[] = [
     id: 'coordinator',
     name: 'James Thompson',
     role: 'Care Coordinator',
-    email: 'coordinator@tx.carecommons.example',
+    email: 'coordinator@tx.folkcare.example',
     password: 'Demo123!',
     folder: '02-coordinator',
     routes: [
@@ -104,7 +104,7 @@ const PERSONAS: Persona[] = [
     id: 'caregiver',
     name: 'Sarah Chen',
     role: 'Caregiver',
-    email: 'caregiver@tx.carecommons.example',
+    email: 'caregiver@tx.folkcare.example',
     password: 'Demo123!',
     folder: '03-caregiver',
     routes: [
@@ -122,7 +122,7 @@ const PERSONAS: Persona[] = [
     id: 'nurse',
     name: 'David Williams',
     role: 'RN Clinical',
-    email: 'nurse@tx.carecommons.example',
+    email: 'nurse@tx.folkcare.example',
     password: 'Demo123!',
     folder: '04-nurse',
     routes: [
@@ -141,7 +141,7 @@ const PERSONAS: Persona[] = [
     id: 'family',
     name: 'Emily Johnson',
     role: 'Family Member',
-    email: 'family@tx.carecommons.example',
+    email: 'family@tx.folkcare.example',
     password: 'Demo123!',
     folder: '05-family',
     routes: [
@@ -159,7 +159,7 @@ const PERSONAS: Persona[] = [
 ];
 
 // Showcase routes - all pages from showcase/src/App.tsx
-// Note: Showcase uses /care-commons/ base path for GitHub Pages
+// Note: Showcase uses /folkcare/ base path for GitHub Pages
 const SHOWCASE_ROUTES: Route[] = [
   // Main pages
   { path: '/', name: 'landing-page' },
@@ -510,13 +510,13 @@ async function main(): Promise<void> {
   const skipWeb = showcaseOnly; // Skip web personas if showcase-only
 
   const webUrl = isProduction 
-    ? 'https://care-commons.vercel.app' 
+    ? 'https://folk.care' 
     : process.env.BASE_URL || 'http://localhost:5173';
   
-  // Showcase always uses /care-commons/ base path (for GitHub Pages compatibility)
+  // Showcase always uses /folkcare/ base path (for GitHub Pages compatibility)
   const showcaseUrl = isProduction
-    ? 'https://neighborhood-lab.github.io/care-commons'
-    : process.env.SHOWCASE_URL || 'http://localhost:5173/care-commons';
+    ? 'https://folk.care'
+    : process.env.SHOWCASE_URL || 'http://localhost:5173/folkcare';
 
   const outputDir = join(process.cwd(), isProduction ? 'ui-screenshots-production-comprehensive' : 'ui-screenshots-personas');
 
@@ -524,7 +524,7 @@ async function main(): Promise<void> {
   const hasImageMagick = checkImageMagick();
   const useResize = !noResize && hasImageMagick;
   
-  console.log(`🚀 Care Commons Screenshot Capture Tool\n`);
+  console.log(`🚀 Folk Screenshot Capture Tool\n`);
   console.log(`Configuration:`);
   console.log(`  Environment:  ${isProduction ? 'Production' : 'Local'}`);
   console.log(`  Web URL:      ${webUrl}`);

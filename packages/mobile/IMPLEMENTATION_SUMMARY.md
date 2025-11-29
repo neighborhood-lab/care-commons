@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation provides a **production-ready foundation** for the Care Commons mobile app, designed for caregivers to perform EVV-compliant clock-in/out operations with full offline support.
+This implementation provides a **production-ready foundation** for the Folk mobile app, designed for caregivers to perform EVV-compliant clock-in/out operations with full offline support.
 
 ## ✅ Completed Features
 
@@ -18,8 +18,8 @@ This implementation provides a **production-ready foundation** for the Care Comm
 - `src/database/index.ts` - Database initialization and health checks
 
 ### 2. **Maximum Code Reuse (70%+)**
-- **All types** imported from `@care-commons/core` and verticals
-- **All business logic** from `@care-commons/time-tracking-evv` (EVVService, validators, crypto utils)
+- **All types** imported from `@folkcare/core` and verticals
+- **All business logic** from `@folkcare/time-tracking-evv` (EVVService, validators, crypto utils)
 - **State-specific rules** for Texas and Florida directly reused
 - **Validation schemas** (Zod) shared across platforms
 
@@ -174,9 +174,9 @@ PostgreSQL (production data)
 ```
 Mobile App
     ↓ Import Types
-@care-commons/core (base types)
+@folkcare/core (base types)
     ↓ Import EVV Types
-@care-commons/time-tracking-evv (domain models)
+@folkcare/time-tracking-evv (domain models)
     ↓ Use Services
 EVVService, EVVValidator (business logic)
     ↓ Same Logic
@@ -432,7 +432,7 @@ When fully implemented, measure:
 
 ---
 
-**This implementation provides a solid, production-ready foundation for the Care Commons mobile app.** All core patterns are established, and the remaining work is primarily feature completion and testing.
+**This implementation provides a solid, production-ready foundation for the Folk mobile app.** All core patterns are established, and the remaining work is primarily feature completion and testing.
 
 **Estimated time to MVP with full team: 4-6 weeks**
 

@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { CheckCircle, Clock, AlertCircle, Circle } from 'lucide-react';
-import type { VisitSummary } from '@care-commons/family-engagement';
+import type { VisitSummary } from '@folkcare/family-engagement';
 
 interface VisitTimelineProps {
   visit: VisitSummary;

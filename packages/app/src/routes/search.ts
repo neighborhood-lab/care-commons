@@ -16,7 +16,7 @@ import {
   UserContext,
   AuthMiddleware,
   logger,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { z } from 'zod';
 
 export function createSearchRouter(db: Database): Router {

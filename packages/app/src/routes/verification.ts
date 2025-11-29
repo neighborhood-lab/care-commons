@@ -11,7 +11,7 @@ import {
   AuthMiddleware,
   ValidationError,
   NotFoundError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 export function createVerificationRouter(db: Database): Router {
   const router = Router();

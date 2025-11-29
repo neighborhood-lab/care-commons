@@ -11,7 +11,7 @@ import {
   AuthMiddleware,
   ValidationError,
   NotFoundError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 export function createOnboardingRouter(db: Database): Router {
   const router = Router();
@@ -225,7 +225,7 @@ export function createOnboardingRouter(db: Database): Router {
 
         const progress = await onboardingService.updateStep(
           organizationId,
-          { stepId: stepId as import('@care-commons/core').OnboardingStepId, status, metadata },
+          { stepId: stepId as import('@folkcare/core').OnboardingStepId, status, metadata },
           userId
         );
 

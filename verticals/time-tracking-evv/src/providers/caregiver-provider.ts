@@ -5,7 +5,7 @@
  * Implements the ICaregiverProvider interface to decouple EVV from caregiver-staff vertical.
  */
 
-import { UUID, NotFoundError, Database } from '@care-commons/core';
+import { UUID, NotFoundError, Database } from '@folkcare/core';
 import type { ICaregiverProvider } from '../interfaces/visit-provider';
 
 /**

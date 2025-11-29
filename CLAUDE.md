@@ -1,7 +1,7 @@
 # CLAUDE.md - Technical Reference for AI Assistants
 
 **Document Date:** November 2025  
-**Repository:** https://github.com/neighborhood-lab/care-commons  
+**Repository:** https://github.com/neighborhood-lab/folkcare  
 **For OpenCode/Claude Desktop:** See [AGENTS.md](./AGENTS.md) for implementation directives
 
 > Quick technical reference for AI assistants. For comprehensive agent directives, workflows, and deployment procedures, see AGENTS.md.
@@ -26,8 +26,8 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/neighborhood-lab/care-commons.git
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare.git
+cd folkcare
 nvm use  # Use Node.js 22.x
 npm install
 
@@ -85,7 +85,7 @@ npm run test         # Run all tests
 ## Project Structure
 
 ```
-care-commons/
+folkcare/
 ├── packages/
 │   ├── core/              # Shared domain logic, database, permissions
 │   │   ├── src/
@@ -251,7 +251,7 @@ await auditService.log({
 ```typescript
 // ✅ CORRECT - Always use .js extension
 import { ClientService } from './service.js';
-import { getDatabase } from '@care-commons/core/db.js';
+import { getDatabase } from '@folkcare/core/db.js';
 
 // ❌ WRONG - No extension
 import { ClientService } from './service';
@@ -311,7 +311,7 @@ npm run db:migration:create my_migration_name
 npm run dev
 
 # Start specific package
-npm run dev --filter=@care-commons/app
+npm run dev --filter=@folkcare/app
 ```
 
 ### Testing
@@ -347,7 +347,7 @@ npm run typecheck
 npm run build
 
 # Build specific package
-npm run build --filter=@care-commons/app
+npm run build --filter=@folkcare/app
 
 # Clean build artifacts
 npm run clean
@@ -465,8 +465,8 @@ describe('ClientService', () => {
 // verticals/client-demographics/tests/routes.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
-import { createApp } from '@care-commons/app/server.js';
-import { getDatabase } from '@care-commons/core/db.js';
+import { createApp } from '@folkcare/app/server.js';
+import { getDatabase } from '@folkcare/core/db.js';
 
 describe('Client API', () => {
   let app: Express;
@@ -552,12 +552,12 @@ ERROR: Pre-commit hooks failed
 
 ```typescript
 // Workspace packages
-import { getDatabase } from '@care-commons/core/db.js';
-import { createApp } from '@care-commons/app/server.js';
+import { getDatabase } from '@folkcare/core/db.js';
+import { createApp } from '@folkcare/app/server.js';
 
 // Verticals
-import { ClientService } from '@care-commons/client-demographics';
-import { CaregiverService } from '@care-commons/caregiver-staff';
+import { ClientService } from '@folkcare/client-demographics';
+import { CaregiverService } from '@folkcare/caregiver-staff';
 ```
 
 ---
@@ -570,15 +570,15 @@ import { CaregiverService } from '@care-commons/caregiver-staff';
 
 | Branch | Environment | URL |
 |--------|-------------|-----|
-| `production` | Production | care-commons.vercel.app |
+| `production` | Production | folk.care |
 | `preview` | Preview | preview-*.vercel.app |
-| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ |
+| `develop` | GitHub Pages | folk.care/ |
 
 **NOTE**: There is no `main` branch. This is intentional.
 
 ### Showcase Demo
 
-Static client-side demo at https://neighborhood-lab.github.io/care-commons/
+Static client-side demo at https://folk.care/
 - Uses localStorage (no backend)
 - Multi-role experience (patient, family, caregiver, coordinator, admin)
 - Includes mobile app simulator (work in progress)
@@ -603,7 +603,7 @@ cd packages/mobile && npm run test:e2e
 
 ### Authentication Notes
 
-**Working**: Demo logins (e.g., `admin@carecommons.example`)
+**Working**: Demo logins (e.g., `admin@folkcare.example`)
 
 **Not fully implemented**: Google OAuth, Stripe billing, multi-tenant signup
 
@@ -654,7 +654,7 @@ curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<b
 ```
 
 **Project IDs:**
-- care-commons: `spring-rice-86403246`
+- folkcare: `spring-rice-86403246`
 - Production branch: `br-solitary-glitter-aemgucz8`
 - Preview branch: `br-sparkling-haze-aemthibi`
 
@@ -736,5 +736,5 @@ See **[AGENTS.md](./AGENTS.md)** for comprehensive workflow details.
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

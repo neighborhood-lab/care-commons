@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 // 5 Demo Personas (all Texas-based)
 const DEMO_PERSONAS = [
   {
-    email: 'admin@tx.carecommons.example',
+    email: 'admin@tx.folkcare.example',
     password: 'Demo123!',
     name: 'Maria Rodriguez',
     role: 'Administrator',
@@ -17,7 +17,7 @@ const DEMO_PERSONAS = [
     color: 'bg-purple-50 border-purple-200 hover:border-purple-400',
   },
   {
-    email: 'coordinator@tx.carecommons.example',
+    email: 'coordinator@tx.folkcare.example',
     password: 'Demo123!',
     name: 'James Thompson',
     role: 'Care Coordinator',
@@ -26,7 +26,7 @@ const DEMO_PERSONAS = [
     color: 'bg-blue-50 border-blue-200 hover:border-blue-400',
   },
   {
-    email: 'caregiver@tx.carecommons.example',
+    email: 'caregiver@tx.folkcare.example',
     password: 'Demo123!',
     name: 'Sarah Chen',
     role: 'Caregiver',
@@ -35,7 +35,7 @@ const DEMO_PERSONAS = [
     color: 'bg-green-50 border-green-200 hover:border-green-400',
   },
   {
-    email: 'nurse@tx.carecommons.example',
+    email: 'nurse@tx.folkcare.example',
     password: 'Demo123!',
     name: 'David Williams',
     role: 'RN Clinical',
@@ -44,7 +44,7 @@ const DEMO_PERSONAS = [
     color: 'bg-teal-50 border-teal-200 hover:border-teal-400',
   },
   {
-    email: 'family@tx.carecommons.example',
+    email: 'family@tx.folkcare.example',
     password: 'Demo123!',
     name: 'Emily Johnson',
     role: 'Family Member',
@@ -158,7 +158,7 @@ export const Login: React.FC = () => {
             TEXAS DEMO
           </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-3">
-            Care Commons
+            Folk
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Experience home healthcare management with realistic Texas data
@@ -261,7 +261,7 @@ export const Login: React.FC = () => {
               <p className="text-xs text-gray-500">
                 This is a demonstration environment with sample data from Texas.{' '}
                 <a
-                  href="https://neighborhood-lab.github.io/care-commons/"
+                  href="https://folk.care/"
                   className="text-primary-600 hover:text-primary-700 underline"
                   target="_blank"
                   rel="noopener noreferrer"

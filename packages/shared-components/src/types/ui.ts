@@ -1,5 +1,5 @@
 /**
- * Shared UI type definitions for Care Commons components
+ * Shared UI type definitions for Folk components
  * These types ensure consistency across web and mobile platforms
  */
 

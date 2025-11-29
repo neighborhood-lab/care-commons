@@ -7,7 +7,7 @@ import { EVVRepository } from '../repository/evv-repository';
 import {
   EVVRecordSearchFilters,
 } from '../types/evv';
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 
 describe('EVVRepository', () => {
   let repository: EVVRepository;

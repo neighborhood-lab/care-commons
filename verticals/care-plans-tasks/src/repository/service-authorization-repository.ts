@@ -1,5 +1,5 @@
-import { Repository, Database } from '@care-commons/core';
-import { UUID, UserContext } from '@care-commons/core';
+import { Repository, Database } from '@folkcare/core';
+import { UUID, UserContext } from '@folkcare/core';
 import { ServiceAuthorization } from '../types/state-specific';
 
 export class ServiceAuthorizationRepository extends Repository<ServiceAuthorization> {

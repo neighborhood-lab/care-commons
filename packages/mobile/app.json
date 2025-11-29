@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Care Commons Mobile",
-    "slug": "care-commons-mobile",
+    "name": "Folk Mobile",
+    "slug": "folkcare-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -13,12 +13,12 @@
     "plugins": [],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.carecommons.mobile",
+      "bundleIdentifier": "com.folkcare.mobile",
       "infoPlist": {
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Care Commons needs your location for accurate visit verification and EVV compliance.",
-        "NSLocationWhenInUseUsageDescription": "Care Commons needs your location to verify you are at the client's address during clock-in and clock-out.",
-        "NSLocationAlwaysUsageDescription": "Care Commons needs background location access during active visits for EVV compliance and continuous verification.",
-        "NSCameraUsageDescription": "Care Commons needs camera access to capture photos for visit verification and documentation.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Folk needs your location for accurate visit verification and EVV compliance.",
+        "NSLocationWhenInUseUsageDescription": "Folk needs your location to verify you are at the client's address during clock-in and clock-out.",
+        "NSLocationAlwaysUsageDescription": "Folk needs background location access during active visits for EVV compliance and continuous verification.",
+        "NSCameraUsageDescription": "Folk needs camera access to capture photos for visit verification and documentation.",
         "UIBackgroundModes": [
           "location",
           "fetch"
@@ -29,7 +29,7 @@
       }
     },
     "android": {
-      "package": "com.carecommons.mobile",
+      "package": "com.folkcare.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },

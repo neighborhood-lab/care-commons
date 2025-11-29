@@ -10,7 +10,7 @@ import chalk from 'chalk';
 config(); // loads .env
 config({ path: '.env.instance' }); // loads instance-specific overrides
 
-// Derive instance number from directory name (e.g., care-commons-1 -> 1)
+// Derive instance number from directory name (e.g., folkcare-1 -> 1)
 const dirName = basename(process.cwd());
 const instanceMatch = dirName.match(/(\d+)$/);
 const instanceNumber = instanceMatch ? parseInt(instanceMatch[1], 10) : 0;
@@ -23,9 +23,9 @@ const API_PORT = parseInt(process.env.API_PORT ?? String(3001 + instanceNumber *
 const WEB_PORT = parseInt(process.env.WEB_PORT ?? String(5173 + instanceNumber * 10), 10);
 
 // Database name with instance suffix
-// Instance 0: care_commons
-// Instance 1: care_commons1
-const DB_NAME = process.env.DB_NAME ?? `care_commons${instanceNumber || ''}`;
+// Instance 0: folkcare
+// Instance 1: folkcare1
+const DB_NAME = process.env.DB_NAME ?? `folkcare${instanceNumber || ''}`;
 
 // Track child processes for cleanup
 const children: Array<ReturnType<typeof spawn>> = [];
@@ -140,7 +140,7 @@ function startServer(
  * Main entry point
  */
 async function main(): Promise<void> {
-  console.log(chalk.blue.bold('🏥 Care Commons - Starting Development Servers\n'));
+  console.log(chalk.blue.bold('🏥 Folk - Starting Development Servers\n'));
   console.log(chalk.gray(`   Instance: ${instanceNumber} (from directory: ${dirName})`));
   console.log(chalk.gray(`   API Port: ${API_PORT}`));
   console.log(chalk.gray(`   Web Port: ${WEB_PORT}`));
@@ -178,7 +178,7 @@ async function main(): Promise<void> {
   startServer(
     'Turbo Watch',
     'npx',
-    ['turbo', 'watch', 'build', '--filter=!@care-commons/web', '--filter=!@care-commons/app'],
+    ['turbo', 'watch', 'build', '--filter=!@folkcare/web', '--filter=!@folkcare/app'],
     rootDir,
     'yellow'
   );

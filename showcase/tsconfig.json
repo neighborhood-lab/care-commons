@@ -26,7 +26,7 @@
       "@/*": ["./src/*"],
       "@/core/*": ["../packages/web/src/core/*"],
       "@/verticals/*": ["../packages/web/src/verticals/*"],
-      "@care-commons/shared-components": ["../packages/shared-components/src"]
+      "@folkcare/shared-components": ["../packages/shared-components/src"]
     }
   },
   "include": ["src"]

@@ -42,7 +42,7 @@
 ### Hour 1: Publishing (9:00-10:00 AM)
 
 **Substack (15 min)**
-1. Go to https://carecommons.substack.com
+1. Go to https://folkcare.substack.com
 2. Publish "Economics of Community-Owned Software" article
    - File: `content/substack/drafts/2025-12-01-economics-of-community-owned-software.md`
    - Schedule for 9:00 AM
@@ -58,7 +58,7 @@
 **GitHub (10 min)**
 7. Create GitHub Release v1.0.0
    - Tag: `v1.0.0`
-   - Title: "Care Commons v1.0.0 - Initial Release"
+   - Title: "Folk v1.0.0 - Initial Release"
    - Copy release notes from below
 
 **Product Hunt (10 min)** - Optional
@@ -68,7 +68,7 @@
 ### Hour 2: Community Outreach (10:00-11:00 AM)
 
 **Hacker News (5 min)**
-9. Post "Show HN: Care Commons - Open-source home healthcare software"
+9. Post "Show HN: Folk - Open-source home healthcare software"
    - Use pre-written post from social media doc
 
 **Reddit (10 min)**
@@ -76,7 +76,7 @@
 11. Post to r/homecare or r/healthcare
 
 **Discord (5 min)**
-12. Announce in Care Commons Discord
+12. Announce in Folk Discord
 13. Post in relevant open source Discord communities
 
 **Email (optional)**
@@ -103,11 +103,11 @@
 ## GitHub Release Notes (v1.0.0)
 
 ```markdown
-# Care Commons v1.0.0 - Initial Release
+# Folk v1.0.0 - Initial Release
 
 🚀 **Soft Launch - December 1, 2025**
 
-Care Commons is an open-source home healthcare management platform with state-specific Electronic Visit Verification (EVV) compliance for all 50 states.
+Folk is an open-source home healthcare management platform with state-specific Electronic Visit Verification (EVV) compliance for all 50 states.
 
 ## What's Included
 
@@ -135,22 +135,22 @@ Care Commons is an open-source home healthcare management platform with state-sp
 
 ## Demo & Documentation
 
-- **[Interactive Showcase](https://neighborhood-lab.github.io/care-commons/)** - Try it now (no login required)
-- **[Production SaaS](https://care-commons.vercel.app/)** - Free 14-day trial
-- **[Documentation](https://github.com/neighborhood-lab/care-commons/tree/develop/docs)**
+- **[Interactive Showcase](https://folk.care/)** - Try it now (no login required)
+- **[Production SaaS](https://folk.care/)** - Free 14-day trial
+- **[Documentation](https://github.com/neighborhood-lab/folkcare/tree/develop/docs)**
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/neighborhood-lab/care-commons.git
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare.git
+cd folkcare
 npm install
 cp .env.example .env
 npm run db:reset:demo
 npm run dev
 ```
 
-See [README.md](https://github.com/neighborhood-lab/care-commons#readme) for full installation instructions.
+See [README.md](https://github.com/neighborhood-lab/folkcare#readme) for full installation instructions.
 
 ## What's Next
 
@@ -163,11 +163,11 @@ See [README.md](https://github.com/neighborhood-lab/care-commons#readme) for ful
 
 - [Discord](https://discord.gg/EkeXQZFq)
 - [Substack](https://neighborhoodlab.substack.com/)
-- [GitHub Discussions](https://github.com/neighborhood-lab/care-commons/discussions)
+- [GitHub Discussions](https://github.com/neighborhood-lab/folkcare/discussions)
 
 ## License
 
-MIT - See [LICENSE](https://github.com/neighborhood-lab/care-commons/blob/develop/LICENSE)
+MIT - See [LICENSE](https://github.com/neighborhood-lab/folkcare/blob/develop/LICENSE)
 
 ---
 
@@ -180,7 +180,7 @@ MIT - See [LICENSE](https://github.com/neighborhood-lab/care-commons/blob/develo
 
 ### Metrics to Track
 - **GitHub Stars** - Track growth
-- **Demo signups** - Care Commons SaaS signups
+- **Demo signups** - Folk SaaS signups
 - **Showcase traffic** - GitHub Pages analytics
 - **Community engagement** - Discord joins, discussions
 - **Social metrics** - Twitter impressions, LinkedIn engagement
@@ -257,9 +257,9 @@ MIT - See [LICENSE](https://github.com/neighborhood-lab/care-commons/blob/develo
 ## Resources
 
 **Quick Links:**
-- Showcase: https://neighborhood-lab.github.io/care-commons/
-- Production: https://care-commons.vercel.app/
-- GitHub: https://github.com/neighborhood-lab/care-commons
+- Showcase: https://folk.care/
+- Production: https://folk.care/
+- GitHub: https://github.com/neighborhood-lab/folkcare
 - Discord: https://discord.gg/EkeXQZFq
 - Substack: https://neighborhoodlab.substack.com/
 
@@ -269,7 +269,7 @@ MIT - See [LICENSE](https://github.com/neighborhood-lab/care-commons/blob/develo
 - Demo script: `docs/marketing/demo-video-script.md`
 
 **Monitoring:**
-- GitHub Actions: https://github.com/neighborhood-lab/care-commons/actions
+- GitHub Actions: https://github.com/neighborhood-lab/folkcare/actions
 - Vercel Dashboard: https://vercel.com/neighborhood-lab
 - Neon Dashboard: https://console.neon.tech/
 - Sentry: (if configured)

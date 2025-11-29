@@ -12,8 +12,8 @@ import type { AuthResponse, LoginCredentials, User } from '../types/auth';
 import type { RequestConfig } from '../types/api';
 import { getInitialShowcaseData, type ShowcaseData, type DemoUser } from './showcase-data';
 
-const STORAGE_KEY = 'care-commons-showcase-data';
-const AUTH_KEY = 'care-commons-showcase-auth';
+const STORAGE_KEY = 'folkcare-showcase-data';
+const AUTH_KEY = 'folkcare-showcase-auth';
 
 export class ShowcaseApiProvider implements ApiProvider {
   private data: ShowcaseData;

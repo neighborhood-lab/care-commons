@@ -1,5 +1,5 @@
 /**
- * Enhanced Landing Page for Care Commons Showcase
+ * Enhanced Landing Page for Folk Showcase
  *
  * Immersive hero section with animated elements and clear CTAs
  */
@@ -27,7 +27,7 @@ export const EnhancedLandingPage: React.FC<EnhancedLandingPageProps> = ({
           >
             {/* Main heading */}
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 mb-8">
-              Care Commons
+              Folk
             </h1>
 
             <p className="text-2xl text-gray-600 mb-12 max-w-2xl mx-auto">

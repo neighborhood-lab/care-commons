@@ -1,6 +1,6 @@
 # Migration Guide: TX/FL to Multi-State EVV
 
-**Target Audience**: Existing Care Commons deployments with TX and/or FL EVV already running  
+**Target Audience**: Existing Folk deployments with TX and/or FL EVV already running  
 **Estimated Migration Time**: 30-60 minutes  
 **Downtime Required**: None (backward compatible)
 
@@ -42,7 +42,7 @@ Before starting the migration, ensure:
 
 ```bash
 # PostgreSQL backup
-pg_dump -U your_user -d care_commons > backup_pre_multistate_$(date +%Y%m%d_%H%M%S).sql
+pg_dump -U your_user -d folkcare > backup_pre_multistate_$(date +%Y%m%d_%H%M%S).sql
 
 # Verify backup
 ls -lh backup_pre_multistate_*.sql
@@ -51,7 +51,7 @@ ls -lh backup_pre_multistate_*.sql
 ### Step 2: Pull Latest Code
 
 ```bash
-cd /path/to/care-commons
+cd /path/to/folkcare
 git fetch origin
 git checkout feature/multistate-evv  # Or main after merge
 git pull
@@ -88,7 +88,7 @@ cat packages/core/migrations/20251104000011_multistate_evv_expansion.ts
 
 ```bash
 # STAGING environment
-export DATABASE_URL="postgresql://user:pass@staging-db:5432/care_commons"
+export DATABASE_URL="postgresql://user:pass@staging-db:5432/folkcare"
 npm run db:migrate
 
 # Verify migration
@@ -130,7 +130,7 @@ Once staging is validated:
 
 ```bash
 # PRODUCTION environment
-export DATABASE_URL="postgresql://user:pass@prod-db:5432/care_commons"
+export DATABASE_URL="postgresql://user:pass@prod-db:5432/folkcare"
 
 # Run migration
 npm run db:migrate
@@ -488,7 +488,7 @@ Migration is successful when:
 ### If Migration Fails
 
 1. **Rollback immediately**: `npm run db:rollback`
-2. **Restore from backup**: `psql care_commons < backup_pre_multistate_*.sql`
+2. **Restore from backup**: `psql folkcare < backup_pre_multistate_*.sql`
 3. **Check logs**: Review migration logs for specific errors
 4. **Contact support**: Provide migration logs and error messages
 

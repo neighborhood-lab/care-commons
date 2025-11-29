@@ -1,4 +1,4 @@
-import { logger } from '@care-commons/core';
+import { logger } from '@folkcare/core';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -18,7 +18,7 @@ export class BackupMonitorService {
     issues: string[];
   }> {
     const issues: string[] = [];
-    const backupDir: string = process.env.BACKUP_DIR ?? '/var/backups/care-commons';
+    const backupDir: string = process.env.BACKUP_DIR ?? '/var/backups/folkcare';
 
     try {
       // Read backup log

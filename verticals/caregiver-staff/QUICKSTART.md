@@ -24,12 +24,12 @@ This will create the `caregivers` table with all necessary indexes and triggers.
 ### 1. Initialize Database Connection
 
 ```typescript
-import { Database, initializeDatabase } from '@care-commons/core';
+import { Database, initializeDatabase } from '@folkcare/core';
 
 const db = initializeDatabase({
   host: 'localhost',
   port: 5432,
-  database: 'care_commons',
+  database: 'folkcare',
   user: 'postgres',
   password: 'your_password',
 });
@@ -38,7 +38,7 @@ const db = initializeDatabase({
 ### 2. Create a Caregiver Service
 
 ```typescript
-import { CaregiverService } from '@care-commons/caregiver-staff';
+import { CaregiverService } from '@folkcare/caregiver-staff';
 
 const caregiverService = new CaregiverService(db);
 ```
@@ -360,7 +360,7 @@ import {
   PermissionError, 
   NotFoundError,
   ConflictError 
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 try {
   await caregiverService.createCaregiver(data, userContext);
@@ -383,7 +383,7 @@ try {
 # .env file
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=care_commons
+DB_NAME=folkcare
 DB_USER=postgres
 DB_PASSWORD=your_password
 DB_SSL=false
@@ -431,7 +431,7 @@ console.log(caregiver.complianceStatus); // Type: ComplianceStatus
 
 - 📚 [Full Documentation](./README.md)
 - 🏗️ [Implementation Details](./IMPLEMENTATION.md)
-- 🐛 [Report Issues](https://github.com/neighborhood-lab/care-commons/issues)
+- 🐛 [Report Issues](https://github.com/neighborhood-lab/folkcare/issues)
 
 ---
 

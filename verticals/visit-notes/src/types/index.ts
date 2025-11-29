@@ -5,7 +5,7 @@
  * Supports rich text editing, voice-to-text, and immutability.
  */
 
-import type { Entity, SoftDeletable, UUID, Timestamp } from '@care-commons/core';
+import type { Entity, SoftDeletable, UUID, Timestamp } from '@folkcare/core';
 
 /**
  * Visit Note - Caregiver documentation of visit activities

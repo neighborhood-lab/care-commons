@@ -13,10 +13,10 @@
 
 ### For Security Issues
 
-If you discover a security vulnerability in Care Commons, please report it privately:
+If you discover a security vulnerability in Folk, please report it privately:
 
 1. **Email**: brian.mabry.edwards@gmail.com
-2. **Subject**: `[SECURITY] Care Commons Vulnerability Report`
+2. **Subject**: `[SECURITY] Folk Vulnerability Report`
 3. **Include**:
    - Description of the vulnerability
    - Steps to reproduce
@@ -43,7 +43,7 @@ If you discover a security vulnerability in Care Commons, please report it priva
 
 ## Security Measures
 
-Care Commons implements multiple layers of security:
+Folk implements multiple layers of security:
 
 ### Application Security
 
@@ -65,7 +65,7 @@ Care Commons implements multiple layers of security:
 
 ### HIPAA Compliance
 
-Care Commons is designed with HIPAA compliance in mind:
+Folk is designed with HIPAA compliance in mind:
 
 - **Access Control**: Unique user identification and emergency access procedures
 - **Audit Controls**: Audit trails for all PHI access and modifications
@@ -73,7 +73,7 @@ Care Commons is designed with HIPAA compliance in mind:
 - **Person/Entity Authentication**: Strong authentication mechanisms
 - **Transmission Security**: Encryption for data in transit
 
-**Note**: While Care Commons implements HIPAA-required technical safeguards, full HIPAA compliance requires additional administrative and physical safeguards that are the responsibility of the covered entity (healthcare provider/agency).
+**Note**: While Folk implements HIPAA-required technical safeguards, full HIPAA compliance requires additional administrative and physical safeguards that are the responsibility of the covered entity (healthcare provider/agency).
 
 ### Infrastructure Security
 
@@ -85,7 +85,7 @@ Care Commons is designed with HIPAA compliance in mind:
 
 ## Security Best Practices for Self-Hosting
 
-If you're self-hosting Care Commons, follow these best practices:
+If you're self-hosting Folk, follow these best practices:
 
 ### Required
 
@@ -132,7 +132,7 @@ Security updates are released as:
 - **Medium/Low**: Included in next regular release
 
 Subscribe to releases on GitHub to stay informed:
-- https://github.com/neighborhood-lab/care-commons/releases
+- https://github.com/neighborhood-lab/folkcare/releases
 
 ## Vulnerability Disclosure Policy
 
@@ -145,14 +145,14 @@ We follow responsible disclosure:
 
 ## Security Hall of Fame
 
-We appreciate security researchers who help improve Care Commons security. Once disclosed, we'll list contributors here (with permission):
+We appreciate security researchers who help improve Folk security. Once disclosed, we'll list contributors here (with permission):
 
 <!-- Will be populated as vulnerabilities are responsibly disclosed and fixed -->
 
 ## Questions?
 
 For non-security questions, use:
-- GitHub Discussions: https://github.com/neighborhood-lab/care-commons/discussions
+- GitHub Discussions: https://github.com/neighborhood-lab/folkcare/discussions
 - Discord: https://discord.gg/EkeXQZFq
 
 For security issues, email: brian.mabry.edwards@gmail.com

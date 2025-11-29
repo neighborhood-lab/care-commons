@@ -4,8 +4,8 @@
  * Data access layer for care plans and related entities
  */
 
-import { Repository, Database } from '@care-commons/core';
-import { UUID, PaginatedResult, PaginationParams } from '@care-commons/core';
+import { Repository, Database } from '@folkcare/core';
+import { UUID, PaginatedResult, PaginationParams } from '@folkcare/core';
 import {
   CarePlan,
   CreateCarePlanInput,

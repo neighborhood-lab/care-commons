@@ -6,7 +6,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { register } from '@care-commons/core';
+import { register } from '@folkcare/core';
 
 export function createMetricsRouter(): Router {
   const router = Router();

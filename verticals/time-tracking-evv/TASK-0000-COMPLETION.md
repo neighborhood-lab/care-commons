@@ -102,7 +102,7 @@ async canProvideService(caregiverId, serviceType, clientId): Promise<AuthResult>
 ### 4. ✅ Error handling for missing records
 **Status**: Complete
 
-Both providers throw `NotFoundError` from `@care-commons/core` when records don't exist:
+Both providers throw `NotFoundError` from `@folkcare/core` when records don't exist:
 
 ```typescript
 // Client Provider

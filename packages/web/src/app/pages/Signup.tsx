@@ -213,7 +213,7 @@ export const Signup: React.FC = () => {
       }
 
       toast.success(
-        `Welcome to Care Commons! Check your email (${formData.email}) to verify your account.`,
+        `Welcome to Folk! Check your email (${formData.email}) to verify your account.`,
         { duration: 6000 }
       );
 
@@ -560,7 +560,7 @@ export const Signup: React.FC = () => {
             CREATE ACCOUNT
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Start Your Agency</h1>
-          <p className="text-gray-600">Set up Care Commons in under 5 minutes</p>
+          <p className="text-gray-600">Set up Folk in under 5 minutes</p>
         </div>
 
         {/* Step Indicator */}

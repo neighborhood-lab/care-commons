@@ -2,7 +2,7 @@
 
 ## Overview
 
-Care Commons provides a robust demo mode designed for sales, training, and user onboarding. The demo environment features realistic, state-specific data for Texas and Florida, complete with EVV compliance scenarios, credentialing examples, and guided tours for each persona.
+Folk provides a robust demo mode designed for sales, training, and user onboarding. The demo environment features realistic, state-specific data for Texas and Florida, complete with EVV compliance scenarios, credentialing examples, and guided tours for each persona.
 
 ## Features
 
@@ -71,18 +71,18 @@ Access demo mode with predefined personas for different user types:
 
 | Persona | Email | Password | Access Level |
 |---------|-------|----------|--------------|
-| **Administrator** | `admin@{state}.carecommons.example` | `Demo123!` | Full system access |
-| **Care Coordinator** | `coordinator@{state}.carecommons.example` | `Demo123!` | Client/caregiver management, scheduling |
+| **Administrator** | `admin@{state}.folkcare.example` | `Demo123!` | Full system access |
+| **Care Coordinator** | `coordinator@{state}.folkcare.example` | `Demo123!` | Client/caregiver management, scheduling |
 | **Caregiver** | (see caregiver emails in demo data) | `Caregiver123!` | Visit clock-in/out, task completion |
-| **Family Member** | `family@carecommons.example` | `Family123!` | View loved one's care, communicate with team |
-| **Clinical/RN** | `nurse@{state}.carecommons.example` | `Demo123!` | Clinical assessments, supervision visits |
+| **Family Member** | `family@folkcare.example` | `Family123!` | View loved one's care, communicate with team |
+| **Clinical/RN** | `nurse@{state}.folkcare.example` | `Demo123!` | Clinical assessments, supervision visits |
 
 *Note: Replace `{state}` with state code (e.g., `tx`, `fl`)*
 
 **Examples**:
-- Texas Admin: `admin@tx.carecommons.example / Demo123!`
-- Florida Coordinator: `coordinator@fl.carecommons.example / Demo123!`
-- Family Portal: `family@carecommons.example / Family123!`
+- Texas Admin: `admin@tx.folkcare.example / Demo123!`
+- Florida Coordinator: `coordinator@fl.folkcare.example / Demo123!`
+- Family Portal: `family@folkcare.example / Family123!`
 
 ### 4. **Visual Demo Indicators**
 
@@ -138,7 +138,7 @@ Demonstrate complete credentialing workflows:
 
 #### Texas Credentialing
 ```javascript
-import { getStateCredentials } from '@care-commons/core/demo';
+import { getStateCredentials } from '@folkcare/core/demo';
 
 const txCreds = getStateCredentials('TX');
 
@@ -157,7 +157,7 @@ txCreds.evvRequirements.clockInGracePeriod // 10 minutes
 
 #### Florida Credentialing
 ```javascript
-import { getStateCredentials } from '@care-commons/core/demo';
+import { getStateCredentials } from '@folkcare/core/demo';
 
 const flCreds = getStateCredentials('FL');
 
@@ -179,7 +179,7 @@ flCreds.evvRequirements.clockInGracePeriod // 15 minutes
 
 #### Compare State Requirements
 ```javascript
-import { compareStateCredentials } from '@care-commons/core/demo';
+import { compareStateCredentials } from '@folkcare/core/demo';
 
 const comparison = compareStateCredentials('TX', 'FL');
 
@@ -210,7 +210,7 @@ npm run db:reset:demo
 ### 2. Activate Demo Mode in Application
 
 ```tsx
-import { DemoModeProvider, DemoModeBanner, useDemoMode } from '@care-commons/web/components/demo';
+import { DemoModeProvider, DemoModeBanner, useDemoMode } from '@folkcare/web/components/demo';
 
 function App() {
   return (
@@ -241,7 +241,7 @@ function App() {
 ### 3. Use Demo Mode Hooks
 
 ```tsx
-import { useDemoMode, useIsDemoMode, useDemoPersona } from '@care-commons/web/components/demo';
+import { useDemoMode, useIsDemoMode, useDemoPersona } from '@folkcare/web/components/demo';
 
 function MyComponent() {
   const { state, activateDemo, resetDemo } = useDemoMode();
@@ -335,7 +335,7 @@ npm run db:seed:demo
 Check that state-specific EVV requirements are properly configured:
 
 ```javascript
-import { getStateCredentials } from '@care-commons/core/demo';
+import { getStateCredentials } from '@folkcare/core/demo';
 
 const creds = getStateCredentials('TX');
 console.log('Geofence radius:', creds.evvRequirements.geofenceRadius);
@@ -354,7 +354,7 @@ Ensure DemoModeProvider wraps your app:
 
 ## Demo Data API (Production)
 
-For production SaaS deployments, Care Commons provides a Demo Data Seeding API to help new agencies explore the platform with realistic sample data.
+For production SaaS deployments, Folk provides a Demo Data Seeding API to help new agencies explore the platform with realistic sample data.
 
 ### Endpoints
 

@@ -23,7 +23,7 @@ export function StateDemoPage() {
   return (
     <ShowcaseLayout
       title="Multi-State Compliance Demo"
-      description="See how Care Commons adapts to each state's unique regulations, EVV requirements, and compliance rules."
+      description="See how Folk adapts to each state's unique regulations, EVV requirements, and compliance rules."
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* State Selector */}

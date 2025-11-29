@@ -510,7 +510,7 @@ private validateStatusTransition(
 
 ## Error Handling
 
-Consistent error types from `@care-commons/core`:
+Consistent error types from `@folkcare/core`:
 
 ```typescript
 // Input validation errors
@@ -603,5 +603,5 @@ throw new ConflictError('Client already has visit at this time', {
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

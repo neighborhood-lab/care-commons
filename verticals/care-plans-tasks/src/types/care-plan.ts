@@ -14,7 +14,7 @@ import {
   SoftDeletable,
   UUID,
   Timestamp,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * Care Plan - Comprehensive care strategy for a client

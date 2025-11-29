@@ -2,7 +2,7 @@
  * Incident Service - Business logic for incident management
  */
 
-import type { Database, UserContext } from '@care-commons/core';
+import type { Database, UserContext } from '@folkcare/core';
 import { IncidentRepository } from '../repository/incident-repository.js';
 import type {
   Incident,

@@ -37,7 +37,7 @@ function parseDatabaseUrl(url: string): DatabaseConfig {
 export default async function globalSetup() {
   console.log('\n🔧 Setting up E2E test environment...\n');
 
-  const dbName = process.env['E2E_DATABASE_NAME'] || 'care_commons_e2e_test';
+  const dbName = process.env['E2E_DATABASE_NAME'] || 'folkcare_e2e_test';
   const dbUrl = process.env['E2E_DATABASE_URL'] || `postgresql://postgres:postgres@localhost:5432/${dbName}`;
 
   try {
@@ -58,7 +58,7 @@ export default async function globalSetup() {
 
     // Step 2: Run migrations
     console.log('\n🔄 Running database migrations...');
-    const migrationCommand = `DATABASE_URL=${dbUrl} npm run db:migrate --workspace=@care-commons/core`;
+    const migrationCommand = `DATABASE_URL=${dbUrl} npm run db:migrate --workspace=@folkcare/core`;
     try {
       const { stdout, stderr } = await execAsync(migrationCommand);
       if (stdout) console.log(stdout);

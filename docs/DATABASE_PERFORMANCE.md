@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the database performance optimizations implemented in the care-commons platform, including indexing strategies, query optimization patterns, caching mechanisms, and connection pool configuration.
+This document describes the database performance optimizations implemented in the folkcare platform, including indexing strategies, query optimization patterns, caching mechanisms, and connection pool configuration.
 
 ## Table of Contents
 
@@ -206,7 +206,7 @@ We provide a query caching layer for frequently accessed, rarely changed data.
 ### Basic Usage
 
 ```typescript
-import { getQueryCache, CacheKeys } from '@care-commons/core/db/query-cache';
+import { getQueryCache, CacheKeys } from '@folkcare/core/db/query-cache';
 
 // Get cache instance
 const cache = getQueryCache();
@@ -229,7 +229,7 @@ const org = await cache.getOrSet(
 ### Wrapped Functions
 
 ```typescript
-import { getQueryCache } from '@care-commons/core/db/query-cache';
+import { getQueryCache } from '@folkcare/core/db/query-cache';
 
 const cache = getQueryCache();
 
@@ -247,7 +247,7 @@ const rates = await getCachedRateSchedule(orgId, payerId, new Date());
 ### Cache Invalidation
 
 ```typescript
-import { CacheInvalidation } from '@care-commons/core/db/query-cache';
+import { CacheInvalidation } from '@folkcare/core/db/query-cache';
 
 // Invalidate specific caches when data changes
 async function updateOrganization(id: UUID, updates: Partial<Organization>) {
@@ -303,7 +303,7 @@ pool: {
 ### Custom Database Configuration
 
 ```typescript
-import { initializeDatabase, DatabaseConfig } from '@care-commons/core';
+import { initializeDatabase, DatabaseConfig } from '@folkcare/core';
 
 const config: DatabaseConfig = {
   host: process.env.DB_HOST,
@@ -315,7 +315,7 @@ const config: DatabaseConfig = {
   min: 2,                       // Minimum connections
   statementTimeout: 30000,      // 30s query timeout
   queryTimeout: 30000,          // 30s total timeout
-  application_name: 'care-commons',
+  application_name: 'folkcare',
 };
 
 const db = initializeDatabase(config);
@@ -459,7 +459,7 @@ LOG_QUERY_RESPONSES=false
 The `query-logger.ts` module automatically tracks slow queries:
 
 ```typescript
-import { QueryLogger } from '@care-commons/core/db/query-logger';
+import { QueryLogger } from '@folkcare/core/db/query-logger';
 
 const logger = new QueryLogger({
   enabled: process.env.LOG_QUERIES === 'true',

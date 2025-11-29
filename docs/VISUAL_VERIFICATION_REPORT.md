@@ -203,7 +203,7 @@ All visual issues are **minor polish items** that can be addressed post-launch:
 
 **APPROVED FOR LAUNCH**
 
-The Care Commons showcase is visually polished, professionally designed, and ready for public presentation. No blocking visual bugs detected. The demo data is realistic and comprehensive. The UI communicates the platform's value clearly.
+The Folk showcase is visually polished, professionally designed, and ready for public presentation. No blocking visual bugs detected. The demo data is realistic and comprehensive. The UI communicates the platform's value clearly.
 
 **Recommendation:** Ship it on December 1, 2025 as planned.
 

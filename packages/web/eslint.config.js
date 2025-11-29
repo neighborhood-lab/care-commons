@@ -175,11 +175,11 @@ export default [
       'src/app/pages/admin/__tests__/DataGridPanel.test.tsx',
       'src/app/pages/admin/__tests__/OperationsCenter.test.tsx',
       'src/app/pages/admin/__tests__/StateConfigPanel.test.tsx',
-      // Exclude sync files that depend on @care-commons/core (pre-existing issues)
+      // Exclude sync files that depend on @folkcare/core (pre-existing issues)
       'src/core/hooks/sync/**/*',
       'src/core/services/sync-api.ts',
       'src/core/services/sync-service.ts',
-      // Exclude family-engagement files that depend on @care-commons/family-engagement and @care-commons/core (pre-existing issues)
+      // Exclude family-engagement files that depend on @folkcare/family-engagement and @folkcare/core (pre-existing issues)
       'src/verticals/family-engagement/**/*',
       'src/app/layouts/FamilyPortalLayout.tsx',
     ],

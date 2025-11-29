@@ -16,8 +16,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import express, { Express } from 'express';
 import request from 'supertest';
-import type { Database } from '@care-commons/core';
-import { AuthenticationError, ValidationError } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
+import { AuthenticationError, ValidationError } from '@folkcare/core';
 import { createAuthRouter } from '../auth.js';
 
 // Mock AuthService and AuthMiddleware
@@ -48,8 +48,8 @@ const mockAuthMiddleware = {
 };
 
 // Mock the core module
-vi.mock('@care-commons/core', async () => {
-  const actual = await vi.importActual('@care-commons/core');
+vi.mock('@folkcare/core', async () => {
+  const actual = await vi.importActual('@folkcare/core');
   return {
     ...actual,
     AuthService: vi.fn(function() {

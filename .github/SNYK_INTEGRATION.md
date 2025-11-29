@@ -47,4 +47,4 @@ If you're considering adding Snyk CLI commands back:
 ### Resources
 
 - [Snyk GitHub Integration Docs](https://docs.snyk.io/integrations/git-repository-scm-integrations/github-integration)
-- [GitHub Security Tab](https://github.com/neighborhood-lab/care-commons/security)
+- [GitHub Security Tab](https://github.com/neighborhood-lab/folkcare/security)

@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This document provides a comprehensive analysis of current test coverage across the Care Commons monorepo and outlines a strategic roadmap for achieving 90%+ coverage with focus on regulatory compliance and audit readiness.
+This document provides a comprehensive analysis of current test coverage across the Folk monorepo and outlines a strategic roadmap for achieving 90%+ coverage with focus on regulatory compliance and audit readiness.
 
 ### Current State (as of 2025-11-25)
 
@@ -415,7 +415,7 @@ packages/[package-name]/
 
 ## Conclusion
 
-Achieving 90%+ test coverage across the Care Commons monorepo is a significant but achievable goal. The phased approach outlined in this document prioritizes regulatory compliance and audit readiness while systematically improving coverage across all packages.
+Achieving 90%+ test coverage across the Folk monorepo is a significant but achievable goal. The phased approach outlined in this document prioritizes regulatory compliance and audit readiness while systematically improving coverage across all packages.
 
 **Key Takeaways:**
 1. **Critical compliance paths** (EVV, credentialing, documentation) must reach 90%+ first

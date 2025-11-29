@@ -42,7 +42,7 @@ export default defineConfig({
   // Shared settings for all tests
   use: {
     // Use environment variable for base URL (set by workflow)
-    baseURL: process.env['SHOWCASE_URL'] || 'http://localhost:5174/care-commons',
+    baseURL: process.env['SHOWCASE_URL'] || 'http://localhost:5174/folkcare',
 
     // No traces/videos for visual tests (just screenshots)
     trace: 'off',

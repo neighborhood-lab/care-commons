@@ -79,7 +79,7 @@ export function BiometricLockScreen({
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Logo or App Name */}
-        <Text style={styles.title}>Care Commons</Text>
+        <Text style={styles.title}>Folk</Text>
         
         {/* Lock Icon */}
         <View style={styles.iconContainer}>

@@ -7,7 +7,7 @@
 import React from 'react';
 import { Card, Badge } from '@/core/components';
 import { Target, CheckCircle, Clock, AlertTriangle, TrendingUp } from 'lucide-react';
-import type { CarePlanProgressReport, GoalProgressSummary } from '@care-commons/family-engagement';
+import type { CarePlanProgressReport, GoalProgressSummary } from '@folkcare/family-engagement';
 
 interface CarePlanSummaryProps {
   report?: CarePlanProgressReport;

@@ -22,8 +22,8 @@ import {
   ClientRepository,
   ClientValidator,
   createClientRouter,
-} from '@care-commons/client-demographics';
-import { getDatabase, UserContext } from '@care-commons/core';
+} from '@folkcare/client-demographics';
+import { getDatabase, UserContext } from '@folkcare/core';
 
 // Initialize database and services
 const db = getDatabase();
@@ -319,7 +319,7 @@ console.log('Risk flags added');
 ### Example 11: Monitor and Resolve Risk Flags
 
 ```typescript
-import { getActiveRiskFlags, getCriticalRiskFlags } from '@care-commons/client-demographics';
+import { getActiveRiskFlags, getCriticalRiskFlags } from '@folkcare/client-demographics';
 
 const client = await clientService.getClientById(clientId, userContext);
 
@@ -419,7 +419,7 @@ import {
   formatPhoneNumber,
   formatAddressSingleLine,
   getPrimaryEmergencyContact,
-} from '@care-commons/client-demographics';
+} from '@folkcare/client-demographics';
 
 const client = await clientService.getClientById(clientId, userContext);
 
@@ -458,7 +458,7 @@ import {
   requiresWheelchairAccess,
   getActivePrograms,
   getTotalAuthorizedHours,
-} from '@care-commons/client-demographics';
+} from '@folkcare/client-demographics';
 
 const client = await clientService.getClientById(clientId, userContext);
 
@@ -496,7 +496,7 @@ console.log(`Total authorized hours/week: ${totalHours}`);
 ### Example 15: Export Client Data
 
 ```typescript
-import { exportClientToCSV, generateClientSummary } from '@care-commons/client-demographics';
+import { exportClientToCSV, generateClientSummary } from '@folkcare/client-demographics';
 
 const client = await clientService.getClientById(clientId, userContext);
 
@@ -529,7 +529,7 @@ const csvData = allClients.items.map(exportClientToCSV);
 
 ```typescript
 import express from 'express';
-import { createClientRouter } from '@care-commons/client-demographics';
+import { createClientRouter } from '@folkcare/client-demographics';
 
 const app = express();
 app.use(express.json());
@@ -710,7 +710,7 @@ import {
   getCriticalRiskFlags,
   isNewClient,
   compareClients,
-} from '@care-commons/client-demographics';
+} from '@folkcare/client-demographics';
 
 async function generateDailyReport(branchId: string) {
   // Get all active clients
@@ -872,4 +872,4 @@ async function importClientsFromSpreadsheet(rows: SpreadsheetRow[]) {
 
 ---
 
-For more information, see the [main README](./README.md) or visit the [Care Commons documentation](https://docs.carecommons.org).
+For more information, see the [main README](./README.md) or visit the [Folk documentation](https://docs.folkcare.org).

@@ -1,6 +1,6 @@
 # Database Migrations
 
-This directory contains both TypeScript and SQL migrations for the Care Commons database schema.
+This directory contains both TypeScript and SQL migrations for the Folk database schema.
 
 ## Migration Status
 
@@ -46,7 +46,7 @@ npm run db:nuke
 All database scripts respect the `.env` configuration:
 - `DB_HOST` - Database host (default: localhost)
 - `DB_PORT` - Database port (default: 5432)
-- `DB_NAME` - Database name (default: care_commons)
+- `DB_NAME` - Database name (default: folkcare)
 - `DB_USER` - Database user (default: postgres)
 - `DB_PASSWORD` - Database password
 - `DB_SSL` - Enable SSL (default: false)

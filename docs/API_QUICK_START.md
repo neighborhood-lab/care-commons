@@ -1,11 +1,11 @@
 # API Quick Start Guide
 
-Fast guide to using the Care Commons REST API.
+Fast guide to using the Folk REST API.
 
 ## Base URL
 
 ```
-Production:  https://care-commons.vercel.app/api
+Production:  https://folk.care/api
 Development: http://localhost:3000/api
 ```
 
@@ -15,17 +15,17 @@ All API requests require a JWT token in the Authorization header:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  https://care-commons.vercel.app/api/clients
+  https://folk.care/api/clients
 ```
 
 ### Get a Token
 
 ```bash
 # Login
-curl -X POST https://care-commons.vercel.app/api/auth/login \
+curl -X POST https://folk.care/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "admin@carecommons.example",
+    "email": "admin@folkcare.example",
     "password": "Care2024!"
   }'
 
@@ -34,7 +34,7 @@ curl -X POST https://care-commons.vercel.app/api/auth/login \
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "user_123",
-    "email": "admin@carecommons.example",
+    "email": "admin@folkcare.example",
     "role": "ADMIN"
   }
 }
@@ -259,7 +259,7 @@ Subscribe to events (coming soon):
 ```bash
 POST /api/webhooks
 {
-  "url": "https://your-app.com/webhooks/care-commons",
+  "url": "https://your-app.com/webhooks/folkcare",
   "events": ["visit.started", "visit.completed", "credential.expiring"]
 }
 ```
@@ -292,7 +292,7 @@ View our OpenAPI 3.0 spec:
 ```bash
 # Get EVV records for a date range
 curl -H "Authorization: Bearer $TOKEN" \
-  "https://care-commons.vercel.app/api/evv/records?startDate=2025-11-01&endDate=2025-11-30&state=TX"
+  "https://folk.care/api/evv/records?startDate=2025-11-01&endDate=2025-11-30&state=TX"
 
 # Response
 {
@@ -327,7 +327,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```bash
 # Get Texas EVV rules
 curl -H "Authorization: Bearer $TOKEN" \
-  "https://care-commons.vercel.app/api/compliance/states/TX"
+  "https://folk.care/api/compliance/states/TX"
 
 # Response
 {

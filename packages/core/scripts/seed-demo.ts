@@ -904,7 +904,7 @@ async function seedDatabase() {
   console.log('🎭 Seeding demo data (all states, all roles, comprehensive)...\n');
 
   const env = process.env.NODE_ENV || 'development';
-  const dbName = process.env.DB_NAME || 'care_commons';
+  const dbName = process.env.DB_NAME || 'folkcare';
 
   let db: Database | { transaction: (callback: (client: PoolClient) => Promise<void>) => Promise<void>; close: () => Promise<void> };
 
@@ -1003,8 +1003,8 @@ async function seedDatabase() {
           const stateCode = state.code.toLowerCase();
           const roleCode = role.value.toLowerCase();
 
-          // Email format: role@state.carecommons.example
-          const email = `${roleCode}@${stateCode}.carecommons.example`;
+          // Email format: role@state.folkcare.example
+          const email = `${roleCode}@${stateCode}.folkcare.example`;
           const username = `${roleCode}-${stateCode}`;
           const firstName = role.label;
           const lastName = `(${state.code})`;
@@ -1111,8 +1111,8 @@ async function seedDatabase() {
       }
 
       console.log(`✅ State-specific users: ${usersCreated} created, ${usersUpdated} updated (${usersCreated + usersUpdated} total)\n`);
-      console.log(`📝 Login format: {role}@{state}.carecommons.example / Demo123!`);
-      console.log(`   Example: admin@al.carecommons.example / Demo123!\n`);
+      console.log(`📝 Login format: {role}@{state}.folkcare.example / Demo123!`);
+      console.log(`   Example: admin@al.folkcare.example / Demo123!\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 2: Clear existing demo data to refresh with evergreen dates
@@ -1269,7 +1269,7 @@ async function seedDatabase() {
       
       const txCaregiverUser = await client.query(
         'SELECT id FROM users WHERE email = $1',
-        ['caregiver@tx.carecommons.example']
+        ['caregiver@tx.folkcare.example']
       );
       
       if (txCaregiverUser.rows.length > 0) {
@@ -1298,7 +1298,7 @@ async function seedDatabase() {
             '1985-01-01',
             'OTHER',
             JSON.stringify({ number: '512-555-0100', type: 'MOBILE', canReceiveSMS: true }),
-            'caregiver@tx.carecommons.example',
+            'caregiver@tx.folkcare.example',
             JSON.stringify({
               type: 'HOME',
               line1: '123 Demo Street',
@@ -1335,7 +1335,7 @@ async function seedDatabase() {
           ]
         );
         
-        console.log(`✅ Created caregiver record for caregiver@tx.carecommons.example (ID: ${caregiverUserId})`);
+        console.log(`✅ Created caregiver record for caregiver@tx.folkcare.example (ID: ${caregiverUserId})`);
       }
       
       console.log('');
@@ -2052,13 +2052,13 @@ async function seedDatabase() {
 
       // Update family user to link to Gertrude
       await client.query(
-        `UPDATE family_members SET client_id = $1 WHERE email = 'family@carecommons.example'`,
+        `UPDATE family_members SET client_id = $1 WHERE email = 'family@folkcare.example'`,
         [gertrudeId]
       );
 
       // Get the family user ID (CRITICAL: family_member.id must match user.id)
       const gertrudeFamilyUserResult = await client.query(
-        `SELECT id FROM users WHERE email = 'family@carecommons.example' LIMIT 1`
+        `SELECT id FROM users WHERE email = 'family@folkcare.example' LIMIT 1`
       );
       const gertrudeFamilyUserId = gertrudeFamilyUserResult.rows.length > 0 ? gertrudeFamilyUserResult.rows[0].id : null;
 
@@ -2090,7 +2090,7 @@ async function seedDatabase() {
             gertrudeId,
             'Stein',
             'Family',
-            'family@carecommons.example',
+            'family@folkcare.example',
             '555-0198',
             'CHILD',
             true,
@@ -2180,7 +2180,7 @@ async function seedDatabase() {
 
       // Create or update Texas family user (Emily Johnson)
       const texasFamilyUserCheck = await client.query(
-        `SELECT id FROM users WHERE email = 'family@tx.carecommons.example' LIMIT 1`
+        `SELECT id FROM users WHERE email = 'family@tx.folkcare.example' LIMIT 1`
       );
 
       let emilyUserId;
@@ -2199,7 +2199,7 @@ async function seedDatabase() {
           [
             emilyUserId,
             orgId,
-            'family@tx.carecommons.example',
+            'family@tx.folkcare.example',
             'emily.johnson',
             emilyPasswordHash,
             'Emily',
@@ -2250,7 +2250,7 @@ async function seedDatabase() {
           margaretId,
           'Emily',
           'Johnson',
-          'family@tx.carecommons.example',
+          'family@tx.folkcare.example',
           '512-555-0123',
           'CHILD',
           true,
@@ -2675,7 +2675,7 @@ async function seedDatabase() {
       // Get the TX caregiver ID to assign some tasks to them
       const txCaregiverResult = await client.query(
         'SELECT id FROM caregivers WHERE email = $1',
-        ['caregiver@tx.carecommons.example']
+        ['caregiver@tx.folkcare.example']
       );
       const txCaregiverId = txCaregiverResult.rows.length > 0 ? txCaregiverResult.rows[0].id : null;
 
@@ -2739,7 +2739,7 @@ async function seedDatabase() {
 
       // Get the family user ID for sending messages
       const familyUserResult = await client.query(
-        `SELECT id FROM users WHERE email = 'family@carecommons.example' LIMIT 1`
+        `SELECT id FROM users WHERE email = 'family@folkcare.example' LIMIT 1`
       );
       const familyUserId = familyUserResult.rows.length > 0 ? familyUserResult.rows[0].id : systemUserId;
 
@@ -2850,7 +2850,7 @@ async function seedDatabase() {
 
       // Check if Texas family user exists (from seed-family-demo.ts)
       const texasFamilyUserResult = await client.query(
-        `SELECT id FROM users WHERE email = 'family@tx.carecommons.example' LIMIT 1`
+        `SELECT id FROM users WHERE email = 'family@tx.folkcare.example' LIMIT 1`
       );
 
       if (texasFamilyUserResult.rows.length > 0) {
@@ -3106,14 +3106,14 @@ async function seedDatabase() {
       console.log(`      - ${taskCount} pending tasks for caregivers`);
       console.log(`      - ${threadCount} message conversations with care team`);
       console.log(`      - ${activityCount} recent activities logged`);
-      console.log(`      - Family portal: family@carecommons.example / Family123!`);
+      console.log(`      - Family portal: family@folkcare.example / Family123!`);
       console.log('═══════════════════════════════════════════════════════════════');
       console.log('\n🔐 Demo Login Credentials:');
-      console.log('   📧 Admin: admin@carecommons.example / Admin123!');
-      console.log('   📧 Family: family@carecommons.example / Family123!');
+      console.log('   📧 Admin: admin@folkcare.example / Admin123!');
+      console.log('   📧 Family: family@folkcare.example / Family123!');
       console.log('   📧 Caregivers: (any caregiver email from demo data) / Caregiver123!');
-      console.log('   📧 State Users: {role}@{state}.carecommons.example / Demo123!');
-      console.log('      Example: admin@tx.carecommons.example / Demo123!');
+      console.log('   📧 State Users: {role}@{state}.folkcare.example / Demo123!');
+      console.log('      Example: admin@tx.folkcare.example / Demo123!');
       console.log('═══════════════════════════════════════════════════════════════\n');
     });
 

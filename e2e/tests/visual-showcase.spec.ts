@@ -42,7 +42,7 @@ const SHOWCASE_PAGES = [
 ] as const;
 
 // GitHub Pages showcase URL (or local dev server)
-const SHOWCASE_BASE_URL = process.env['SHOWCASE_URL'] || 'http://localhost:5174/care-commons';
+const SHOWCASE_BASE_URL = process.env['SHOWCASE_URL'] || 'http://localhost:5174/folkcare';
 
 test.describe('Visual Regression: Showcase', () => {
   test.beforeEach(async ({ page }) => {

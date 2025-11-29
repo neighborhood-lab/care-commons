@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createHealthRouter } from '../health';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { Request, Response } from 'express';
 
 describe('Health Routes', () => {

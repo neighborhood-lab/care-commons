@@ -3,7 +3,7 @@ import { DriveStep } from 'driver.js';
 export const coordinatorOverviewSteps: DriveStep[] = [
   {
     popover: {
-      title: 'Welcome to Care Commons! 🎉',
+      title: 'Welcome to Folk! 🎉',
       description: 'This showcase demonstrates a complete home healthcare management platform. You\'ll see how coordinators manage clients, caregivers, and visits with real data from TX, FL, and OH.',
     }
   },

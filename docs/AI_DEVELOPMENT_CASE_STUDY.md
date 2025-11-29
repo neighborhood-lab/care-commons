@@ -1,8 +1,8 @@
-# Care Commons: AI-Assisted Development Case Study
+# Folk: AI-Assisted Development Case Study
 
 ## Executive Summary
 
-Care Commons is a production-ready home healthcare management platform built in 28 days using AI-assisted development (Claude). This document provides verifiable metrics and insights from the development process.
+Folk is a production-ready home healthcare management platform built in 28 days using AI-assisted development (Claude). This document provides verifiable metrics and insights from the development process.
 
 ## Key Metrics (As of November 25, 2025)
 
@@ -108,14 +108,14 @@ For equivalent scope with a traditional development approach:
 ## Verification
 
 All metrics in this document can be independently verified:
-- **GitHub Repository**: [neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons)
-- **Live Demo**: [Showcase](https://neighborhood-lab.github.io/care-commons/)
-- **Production**: [care-commons.vercel.app](https://care-commons.vercel.app)
+- **GitHub Repository**: [neighborhood-lab/folkcare](https://github.com/neighborhood-lab/folkcare)
+- **Live Demo**: [Showcase](https://folk.care/)
+- **Production**: [folk.care](https://folk.care)
 
 Run locally to verify:
 ```bash
-git clone https://github.com/neighborhood-lab/care-commons
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare
+cd folkcare
 npm install
 npm run test     # Run all tests
 npm run build    # Build all packages
@@ -139,7 +139,7 @@ npm run lint     # Check code quality
 
 ## What's Next
 
-Care Commons is open source under MIT license. Contributions welcome:
+Folk is open source under MIT license. Contributions welcome:
 - Bug reports and fixes
 - Documentation improvements
 - Feature requests
@@ -150,7 +150,7 @@ Care Commons is open source under MIT license. Contributions welcome:
 
 - **Project Lead**: Brian Edwards (brian.mabry.edwards@gmail.com)
 - **Organization**: Neighborhood Lab (https://neighborhoodlab.org)
-- **Repository**: https://github.com/neighborhood-lab/care-commons
+- **Repository**: https://github.com/neighborhood-lab/folkcare
 
 ---
 

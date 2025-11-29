@@ -130,7 +130,7 @@ GET  /api/analytics/reports/:id/export            # Export report
 ### Backend
 
 ```typescript
-import { AnalyticsService, ReportService, ExportService } from '@care-commons/analytics-reporting';
+import { AnalyticsService, ReportService, ExportService } from '@folkcare/analytics-reporting';
 
 // Initialize services
 const analyticsService = new AnalyticsService(database);
@@ -175,7 +175,7 @@ import {
   CoordinatorDashboard,
   useOperationalKPIs,
   useComplianceAlerts
-} from '@care-commons/analytics-reporting/web';
+} from '@folkcare/analytics-reporting/web';
 
 // Use in routes
 function App() {
@@ -276,7 +276,7 @@ Test coverage includes:
 
 ## Dependencies
 
-- `@care-commons/core`: Database, authentication, and shared utilities
+- `@folkcare/core`: Database, authentication, and shared utilities
 - `@tanstack/react-query`: Data fetching and caching (frontend)
 - `lucide-react`: Icon library (frontend)
 
@@ -293,4 +293,4 @@ When adding new analytics features:
 
 ## License
 
-Copyright © 2024 Care Commons
+Copyright © 2024 Folk

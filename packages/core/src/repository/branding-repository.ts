@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Branding Repository
+ * @folkcare/core - Branding Repository
  *
  * Data access layer for organization white-label branding
  */

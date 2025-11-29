@@ -5,8 +5,8 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, AuthMiddleware } from '@care-commons/core';
-import { BillingRepository, InvoiceSearchFilters, InvoiceStatus } from '@care-commons/billing-invoicing';
+import { Database, AuthMiddleware } from '@folkcare/core';
+import { BillingRepository, InvoiceSearchFilters, InvoiceStatus } from '@folkcare/billing-invoicing';
 
 function isInvoiceStatus(value: string): value is InvoiceStatus {
   return ['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'SENT', 'SUBMITTED', 

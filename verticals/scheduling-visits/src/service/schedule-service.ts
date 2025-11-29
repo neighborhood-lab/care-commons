@@ -20,7 +20,7 @@ import {
   NotFoundError,
   ConflictError,
   getNotificationService,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { ScheduleRepository } from '../repository/schedule-repository.js';
 import { ScheduleValidator } from '../validation/schedule-validator.js';
 import {
@@ -266,7 +266,7 @@ export class ScheduleService {
 
     try {
       const notificationService = getNotificationService();
-      const { NotificationService: NS } = await import('@care-commons/core');
+      const { NotificationService: NS } = await import('@folkcare/core');
 
       // Map visit status to notification event type
       const eventTypeMap: Record<string, string> = {

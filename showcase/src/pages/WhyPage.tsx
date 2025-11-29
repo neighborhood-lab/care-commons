@@ -131,7 +131,7 @@ const philosophyPoints = [
   },
   {
     title: 'Community Owned',
-    description: 'Care Commons belongs to everyone who uses it. Improvements benefit all agencies, not just those who can pay for custom development.',
+    description: 'Folk belongs to everyone who uses it. Improvements benefit all agencies, not just those who can pay for custom development.',
     icon: Users,
   },
   {
@@ -152,7 +152,7 @@ export const WhyPage: React.FC = () => {
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
-          Why Care Commons?
+          Why Folk?
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Open source home care software that puts agencies first.
@@ -206,7 +206,7 @@ export const WhyPage: React.FC = () => {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-green-700 bg-green-50">
                     <div className="flex items-center gap-2">
                       <Unlock className="h-4 w-4" />
-                      Open Source (Care Commons)
+                      Open Source (Folk)
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-500 bg-gray-100">
@@ -283,7 +283,7 @@ export const WhyPage: React.FC = () => {
         </h2>
         <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
           Proprietary vendors charge per-user monthly fees that add up quickly.
-          With Care Commons, you can self-host for free or use our affordable managed hosting.
+          With Folk, you can self-host for free or use our affordable managed hosting.
         </p>
         <div className="grid gap-6 md:grid-cols-3">
           {pricingComparison.map((tier) => (
@@ -296,7 +296,7 @@ export const WhyPage: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Care Commons:</span>
+                  <span className="text-sm text-gray-600">Folk:</span>
                   <span className="font-semibold text-green-600">
                     {tier.openSource}
                   </span>
@@ -359,7 +359,7 @@ export const WhyPage: React.FC = () => {
           Ready to Take Back Control?
         </h2>
         <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-          Experience Care Commons today. Try the interactive demo, explore the code,
+          Experience Folk today. Try the interactive demo, explore the code,
           or deploy your own instance.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -371,7 +371,7 @@ export const WhyPage: React.FC = () => {
             <ArrowRight className="h-5 w-5" />
           </Link>
           <a
-            href="https://github.com/neighborhood-lab/care-commons"
+            href="https://github.com/neighborhood-lab/folkcare"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white/20 transition-colors border border-white/20"

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the UI visibility tooling that enables AI agents to "see" and understand the user interface of Care Commons applications. These tools generate screenshots, visual regression tests, and comprehensive UI state reports to support better UX and design decisions.
+This document describes the UI visibility tooling that enables AI agents to "see" and understand the user interface of Folk applications. These tools generate screenshots, visual regression tests, and comprehensive UI state reports to support better UX and design decisions.
 
 ## Purpose
 
@@ -647,5 +647,5 @@ jobs:
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

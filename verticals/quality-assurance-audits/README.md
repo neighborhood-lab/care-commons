@@ -147,7 +147,7 @@ GET    /api/audits/overdue-actions      - Get overdue actions
 ### Creating an Audit
 
 ```typescript
-import { AuditService } from '@care-commons/quality-assurance-audits';
+import { AuditService } from '@folkcare/quality-assurance-audits';
 
 const audit = await auditService.createAudit({
   title: 'Q1 2024 Compliance Audit',
@@ -290,4 +290,4 @@ Planned features:
 
 ## License
 
-Copyright © 2024 Care Commons
+Copyright © 2024 Folk

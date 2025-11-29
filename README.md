@@ -1,23 +1,23 @@
-# Care Commons
+# Folk
 
 > **🚀 Soft Launch: December 1, 2025**  
 > **Status:** Production Ready - Open Source
 
-[![CI](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/care-commons/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/neighborhood-lab/care-commons/branch/develop/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/care-commons/tree/develop)
+[![CI](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/neighborhood-lab/folkcare/branch/develop/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/folkcare/tree/develop)
 
-> **Shared care software, community owned.**
+> **Software for the people who care.**
 
 Open-source home healthcare management platform with state-specific Electronic Visit Verification (EVV) compliance for all 50 states.
 
-## Why Care Commons?
+## Why Folk?
 
 Home healthcare agencies face a broken software market:
 - **Expensive**: $500-2000/month for basic features
 - **Inflexible**: Doesn't handle state-specific regulations (Texas HHAeXchange, Florida background screening, etc.)
 - **Vendor lock-in**: Proprietary systems with no data ownership
 
-**Care Commons** is different:
+**Folk** is different:
 - ✅ **Free & Open Source** - MIT license, full code access
 - ✅ **State-Specific Compliance** - Automatic EVV rules for TX, FL, and all 50 states
 - ✅ **Full Data Ownership** - Self-host or use our managed service
@@ -28,13 +28,13 @@ Built by **[Neighborhood Lab](https://neighborhoodlab.org)** - community-owned s
 
 ## 🌐 Try It Now
 
-- **[Interactive Showcase](https://neighborhood-lab.github.io/care-commons/)** ⭐ **Start here** - No login required, explore with realistic demo data
-- **[Production SaaS](https://care-commons.vercel.app/)** - Full application (free 14-day trial)
-- **[Health Check](https://care-commons.vercel.app/health)** - System status & uptime
+- **[Interactive Showcase](https://folk.care/)** ⭐ **Start here** - No login required, explore with realistic demo data
+- **[Production SaaS](https://folk.care/)** - Full application (free 14-day trial)
+- **[Health Check](https://folk.care/health)** - System status & uptime
 
 **Demo Logins:**
 ```
-Administrator: admin@carecommons.example / Care2024!
+Administrator: admin@folkcare.example / Care2024!
 Coordinator: coordinator@tx.demo / demo1234
 Caregiver: caregiver@tx.demo / demo1234  
 Family: family@tx.demo / demo1234
@@ -71,7 +71,7 @@ Family: family@tx.demo / demo1234
 
 ## Vision
 
-A human-scale alternative to enterprise care management systems. Care Commons emphasizes:
+A human-scale alternative to enterprise care management systems. Folk emphasizes:
 
 - 🏡 **Human-scale workflows** - Not enterprise excess
 - 🔒 **Local autonomy** - Runs offline and on-premises if needed
@@ -81,7 +81,7 @@ A human-scale alternative to enterprise care management systems. Care Commons em
 
 ## Architecture
 
-Care Commons is structured as a set of independently deployable **verticals** that share a common core:
+Folk is structured as a set of independently deployable **verticals** that share a common core:
 
 - Unified domain model shared across verticals
 - Event-driven data flows for visit lifecycle
@@ -102,7 +102,7 @@ Care Commons is structured as a set of independently deployable **verticals** th
 ## Project Structure
 
 ```
-care-commons/
+folkcare/
 ├── packages/
 │   └── core/              # Shared core functionality
 │       ├── src/
@@ -164,8 +164,8 @@ care-commons/
 
 ```bash
 # Clone the repository
-git clone https://github.com/neighborhood-lab/care-commons.git
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare.git
+cd folkcare
 
 # Install dependencies
 npm install
@@ -178,7 +178,7 @@ cp .env.example .env
 npm run db:reset:demo
 
 # This creates 61 clients, 35 caregivers, 605 visits, and more Texas demo data
-# Login with: admin@tx.carecommons.example / Demo123!
+# Login with: admin@tx.folkcare.example / Demo123!
 
 # Start development servers
 npm run dev
@@ -193,7 +193,7 @@ npm install
 cp .env.example .env
 npm run db:reset:demo
 npm run dev
-# Navigate to http://localhost:5173 and login with admin@tx.carecommons.example / Demo123!
+# Navigate to http://localhost:5173 and login with admin@tx.folkcare.example / Demo123!
 ```
 
 ### Environment Variables
@@ -203,7 +203,7 @@ Create a `.env` file in the root directory:
 ```env
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=care_commons
+DB_NAME=folkcare
 DB_USER=postgres
 DB_PASSWORD=your_password
 DB_SSL=false
@@ -226,7 +226,7 @@ The development environment includes three mock users for testing:
 
 ### Demo Data & Showcase
 
-Care Commons includes comprehensive seed scripts for generating realistic demo data:
+Folk includes comprehensive seed scripts for generating realistic demo data:
 
 #### Quick Start with Demo Data
 
@@ -332,7 +332,7 @@ const SEED_CONFIG = {
 **Error: Database connection failed**
 - Check your `.env` file has correct database credentials
 - Ensure PostgreSQL is running: `pg_isready`
-- Test connection: `psql -h localhost -U postgres -d care_commons`
+- Test connection: `psql -h localhost -U postgres -d folkcare`
 
 **Seed script is slow**
 - The script generates 900+ records with realistic data
@@ -370,7 +370,7 @@ npm run lint
 Interactive API documentation is available via Swagger UI:
 
 - **Local Development**: http://localhost:3000/api-docs
-- **Production**: https://care-commons.vercel.app/api-docs
+- **Production**: https://folk.care/api-docs
 
 ### OpenAPI Specification
 
@@ -493,7 +493,7 @@ npm run db:migrate:rollback
 
 ## Cloud Deployment
 
-Care Commons supports deployment to **Vercel** with **Neon PostgreSQL** for production-ready, serverless hosting.
+Folk supports deployment to **Vercel** with **Neon PostgreSQL** for production-ready, serverless hosting.
 
 ### Prerequisites for Cloud Deployment
 
@@ -505,8 +505,8 @@ Care Commons supports deployment to **Vercel** with **Neon PostgreSQL** for prod
 
 1. Create a new project at [console.neon.tech](https://console.neon.tech)
 2. Create two databases:
-   - `care_commons_staging` (for staging environment)
-   - `care_commons_production` (for production environment)
+   - `folkcare_staging` (for staging environment)
+   - `folkcare_production` (for production environment)
 3. Enable connection pooling for each database
 4. Copy the connection strings (with pooling enabled)
 
@@ -665,7 +665,7 @@ vercel promote <deployment-url> --scope <team-name>
 
 ## Documentation
 
-- [Technical Plan](./care-commons-tech-plan.md) - Overall product vision and vertical descriptions
+- [Technical Plan](./folkcare-tech-plan.md) - Overall product vision and vertical descriptions
 - [Client & Demographics](./verticals/client-demographics/README.md) - Client management vertical documentation
 - [Caregiver & Staff Management](./verticals/caregiver-staff/README.md) - Caregiver and staff management documentation
 - [Scheduling & Visit Management](./verticals/scheduling-visits/README.md) - Scheduling and visit tracking documentation
@@ -692,15 +692,15 @@ See [LICENSE](./LICENSE) for details.
 
 ## Community
 
-- **GitHub**: [neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons)
-- **Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/care-commons/issues)
+- **GitHub**: [neighborhood-lab/folkcare](https://github.com/neighborhood-lab/folkcare)
+- **Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/folkcare/issues)
 
 ---
 
-**Care Commons** is brought to you by [Neighborhood Lab](https://neighborhoodlab.org) 🏡
+**Folk** is brought to you by [Neighborhood Lab](https://neighborhoodlab.org) 🏡
 
-Shared care software, community owned.
+Software for the people who care.
 
-[Product website](https://neighborhood-lab.github.io/care-commons-home/)  
+[Product website](https://folk.care-home/)  
 [Organization website](https://neighborhood-lab.github.io/home/)
 

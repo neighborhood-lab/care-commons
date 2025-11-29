@@ -16,7 +16,7 @@ import {
   Entity,
   SoftDeletable,
   UUID,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * State-specific client data for TX and FL compliance

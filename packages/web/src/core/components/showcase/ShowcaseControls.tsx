@@ -75,7 +75,7 @@ export const ShowcaseControls: React.FC = () => {
 
                 <div className="space-y-4 text-gray-700">
                   <p>
-                    Interactive demo of Care Commons care coordination software.
+                    Interactive demo of Folk care coordination software.
                   </p>
 
                   <p className="text-sm">
@@ -84,7 +84,7 @@ export const ShowcaseControls: React.FC = () => {
 
                   <div className="pt-4 border-t border-gray-200">
                     <a
-                      href="https://github.com/neighborhood-lab/care-commons"
+                      href="https://github.com/neighborhood-lab/folkcare"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-900 hover:text-gray-700 font-medium"

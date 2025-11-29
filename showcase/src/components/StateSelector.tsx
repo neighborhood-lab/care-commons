@@ -215,7 +215,7 @@ export function StateSelector({ currentState = 'TX', onStateChange }: StateSelec
             </div>
             <div className="border-t border-gray-200 px-4 py-3 bg-gray-50 rounded-b-lg">
               <p className="text-xs text-gray-600">
-                <strong>Multi-State Support:</strong> Care Commons supports operations across all 50 US states
+                <strong>Multi-State Support:</strong> Folk supports operations across all 50 US states
                 with state-specific compliance rules, EVV aggregators, and regulatory requirements.
               </p>
             </div>

@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OhioEVVProvider } from '../ohio-evv-provider';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { EVVRecord, LocationVerification } from '../../types/evv';
 
 describe('OhioEVVProvider', () => {

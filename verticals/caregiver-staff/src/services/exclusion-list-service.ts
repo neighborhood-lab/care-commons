@@ -15,7 +15,7 @@
  * - FAR 9.4 (SAM exclusion requirements)
  */
 
-import { Database, UserContext } from '@care-commons/core';
+import { Database, UserContext } from '@folkcare/core';
 import { CaregiverRepository } from '../repository/caregiver-repository.js';
 import { Caregiver } from '../types/caregiver.js';
 

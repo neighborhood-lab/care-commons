@@ -21,7 +21,7 @@ import {
   OpenShiftFilters,
   ProposalFilters,
 } from '../../types/shift-matching';
-import { UserContext, PaginationParams } from '@care-commons/core';
+import { UserContext, PaginationParams } from '@folkcare/core';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock dependencies

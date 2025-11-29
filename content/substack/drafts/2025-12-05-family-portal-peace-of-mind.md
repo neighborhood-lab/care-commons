@@ -1,6 +1,6 @@
 # Family Portal: Giving Families Peace of Mind
 
-*How Care Commons keeps long-distance families connected without crossing privacy boundaries*
+*How Folk keeps long-distance families connected without crossing privacy boundaries*
 
 ---
 
@@ -10,7 +10,7 @@ Sarah checks her phone at lunch. It's 12:15 PM in Chicago, but her mind is in Ph
 
 Did the caregiver arrive this morning? Did Mom take her medications? Is the new care aide working out?
 
-Before Care Commons, Sarah's lunch breaks were consumed by anxiety and phone tag. Calling the agency meant navigating voicemail. Calling Mom directly meant getting "I'm fine, dear" regardless of reality. The information gap between visits was a void filled with worry.
+Before Folk, Sarah's lunch breaks were consumed by anxiety and phone tag. Calling the agency meant navigating voicemail. Calling Mom directly meant getting "I'm fine, dear" regardless of reality. The information gap between visits was a void filled with worry.
 
 Now, Sarah's phone shows a notification: "Maria arrived at 9:02 AM. Morning care visit completed." She taps it open.
 
@@ -112,7 +112,7 @@ The Family Portal activity feed isn't a list of tasks. It's a narrative of your 
 10:00 - Check out
 ```
 
-**Care Commons activity feed:**
+**Folk activity feed:**
 ```
 Maria completed morning visit
 
@@ -158,7 +158,7 @@ No phone tag. No anxiety spiral while waiting for a callback. Just clear communi
 
 ## Privacy Controls: Who Sees What
 
-Not every family situation is simple. Care Commons lets you control information access at a granular level.
+Not every family situation is simple. Folk lets you control information access at a granular level.
 
 **Primary family contact**: Full access to visits, schedules, messaging, care plans
 
@@ -213,15 +213,15 @@ That's what the Family Portal gives you back: the chance to be a daughter again,
 Want to experience the Family Portal from a family member's perspective?
 
 **Try the interactive demo:**
-[Care Commons Showcase](https://neighborhood-lab.github.io/care-commons/)
+[Folk Showcase](https://folk.care/)
 
 Select the "Family Member" role to see exactly what Sarah sees - visit notifications, activity feeds, and messaging with the care team.
 
 **Join the community:**
-[Care Commons Discord](https://discord.gg/EkeXQZFq)
+[Folk Discord](https://discord.gg/EkeXQZFq)
 
 Share your experience as a long-distance family caregiver. What information do you need? What boundaries matter to you? Your input shapes how we build.
 
 ---
 
-*Care Commons is open source, community-owned software for home healthcare agencies. We believe families deserve peace of mind without sacrificing anyone's privacy or dignity.*
+*Folk is open source, community-owned software for home healthcare agencies. We believe families deserve peace of mind without sacrificing anyone's privacy or dignity.*

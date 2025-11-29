@@ -28,7 +28,7 @@ function ShowcaseApp() {
   return (
     <QueryClientProvider client={queryClient}>
       <ApiProviderProvider config={config}>
-        <BrowserRouter basename="/care-commons">
+        <BrowserRouter basename="/folkcare">
           <ShowcaseControls />
           <ShowcaseRouter />
           <Toaster position="top-right" />

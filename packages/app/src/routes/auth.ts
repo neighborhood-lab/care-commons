@@ -15,7 +15,7 @@ import {
   Database, 
   ValidationError, 
   AuthenticationError 
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 export function createAuthRouter(db: Database): Router {
   const router = Router();

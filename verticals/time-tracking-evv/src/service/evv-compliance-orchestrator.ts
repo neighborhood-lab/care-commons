@@ -21,7 +21,7 @@ import {
   StateComplianceService,
   type EVVValidationResult,
   type VisitData,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { EVVRecord } from '../types/evv.js';
 import { StateCode } from '../types/state-specific.js';
 import { StateProviderFactory } from '../providers/state-provider-factory.js';

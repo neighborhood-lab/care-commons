@@ -12,7 +12,7 @@ import {
   ComplianceNotificationService,
   AuthMiddleware,
   NotFoundError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 export function createComplianceRouter(db: Database): Router {
   const router = Router();

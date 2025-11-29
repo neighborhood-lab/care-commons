@@ -13,19 +13,19 @@ export default defineConfig({
       '@/core': path.resolve(__dirname, './src/core'),
       '@/verticals': path.resolve(__dirname, './src/verticals'),
       '@/app': path.resolve(__dirname, './src/app'),
-      '@care-commons/shared-components': path.resolve(
+      '@folkcare/shared-components': path.resolve(
         __dirname,
         '../shared-components/src'
       ),
-      '@care-commons/care-plans-tasks/browser': path.resolve(
+      '@folkcare/care-plans-tasks/browser': path.resolve(
         __dirname,
         '../../verticals/care-plans-tasks/dist/browser.js'
       ),
-      '@care-commons/core/browser': path.resolve(
+      '@folkcare/core/browser': path.resolve(
         __dirname,
         '../core/dist/browser.js'
       ),
-      '@care-commons/core': path.resolve(__dirname, '../core/dist/index.js'),
+      '@folkcare/core': path.resolve(__dirname, '../core/dist/index.js'),
     },
   },
   define: {
@@ -46,5 +46,5 @@ export default defineConfig({
       },
     },
   },
-  base: '/care-commons/', // GitHub Pages base path
+  base: '/folkcare/', // GitHub Pages base path
 });

@@ -242,7 +242,7 @@ npm run build
 du -sh packages/web/dist packages/showcase/dist
 
 # Lighthouse audit
-npx lighthouse https://care-commons.vercel.app --view
+npx lighthouse https://folk.care --view
 ```
 
 **After Optimization:**
@@ -252,7 +252,7 @@ npm run build
 du -sh packages/web/dist packages/showcase/dist
 
 # Compare
-npx lighthouse https://care-commons.vercel.app --view
+npx lighthouse https://folk.care --view
 ```
 
 ## Resources

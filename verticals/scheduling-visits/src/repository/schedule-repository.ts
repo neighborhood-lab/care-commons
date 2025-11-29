@@ -13,7 +13,7 @@ import {
   PaginatedResult,
   UserContext,
   NotFoundError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import {
   ServicePattern,
   Visit,

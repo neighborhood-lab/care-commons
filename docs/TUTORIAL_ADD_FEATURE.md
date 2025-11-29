@@ -1,13 +1,13 @@
-# Tutorial: Adding a New Feature to Care Commons
+# Tutorial: Adding a New Feature to Folk
 
-> **Audience:** Developers new to Care Commons who want to add a feature  
+> **Audience:** Developers new to Folk who want to add a feature  
 > **Time:** 30-60 minutes  
 > **Difficulty:** Intermediate  
 > **Last Updated:** November 27, 2025
 
 ## Overview
 
-This tutorial walks you through adding a complete feature to Care Commons, from database schema to frontend UI. We'll implement a simple **"Notes"** feature that allows coordinators to add notes to client records.
+This tutorial walks you through adding a complete feature to Folk, from database schema to frontend UI. We'll implement a simple **"Notes"** feature that allows coordinators to add notes to client records.
 
 **What you'll learn:**
 - How verticals are structured
@@ -280,8 +280,8 @@ Add routes to `verticals/client-demographics/src/routes.ts`:
 
 ```typescript
 import { Router } from 'express';
-import { authMiddleware } from '@care-commons/app/middleware/auth';
-import { permissionMiddleware } from '@care-commons/app/middleware/permissions';
+import { authMiddleware } from '@folkcare/app/middleware/auth';
+import { permissionMiddleware } from '@folkcare/app/middleware/permissions';
 
 export function createClientNotesRoutes(repository: ClientDemographicsRepository): Router {
   const router = Router();
@@ -398,7 +398,7 @@ export function createClientNotesRoutes(repository: ClientDemographicsRepository
 Update `packages/app/src/server.ts` to include the new routes:
 
 ```typescript
-import { createClientNotesRoutes } from '@care-commons/client-demographics/routes';
+import { createClientNotesRoutes } from '@folkcare/client-demographics/routes';
 
 // In the server setup
 app.use('/api', createClientNotesRoutes(clientDemographicsRepository));
@@ -411,7 +411,7 @@ Create `verticals/client-demographics/src/__tests__/client-notes.test.ts`:
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ClientDemographicsRepository } from '../repository';
-import { createTestDb } from '@care-commons/core/test-utils';
+import { createTestDb } from '@folkcare/core/test-utils';
 
 describe('Client Notes', () => {
   let repository: ClientDemographicsRepository;
@@ -709,7 +709,7 @@ Adds ability for coordinators to create notes on client records.
 
 ## Congratulations! 🎉
 
-You've successfully added a complete feature to Care Commons!
+You've successfully added a complete feature to Folk!
 
 ## Next Steps
 

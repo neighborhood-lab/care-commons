@@ -23,17 +23,17 @@ async function testIntegration() {
   try {
     // Test 1: Showcase landing page
     console.log('1️⃣  Testing showcase landing page...');
-    await page.goto(`${showcaseURL}/care-commons/`, { 
+    await page.goto(`${showcaseURL}/folkcare/`, { 
       waitUntil: 'networkidle',
       timeout: 10000,
     });
     
-    const hasLanding = await page.locator('h1:has-text("Care Commons Showcase")').isVisible();
+    const hasLanding = await page.locator('h1:has-text("Folk Showcase")').isVisible();
     console.log(`   ${hasLanding ? '✅' : '❌'} Landing page loads\n`);
     
     // Test 2: Mobile demo page
     console.log('2️⃣  Testing mobile demo page...');
-    await page.goto(`${showcaseURL}/care-commons/mobile`, { 
+    await page.goto(`${showcaseURL}/folkcare/mobile`, { 
       waitUntil: 'networkidle',
       timeout: 10000,
     });
@@ -55,7 +55,7 @@ async function testIntegration() {
       console.log(`   ${mobileOk ? '✅' : '❌'} Mobile server accessible at ${mobileURL}`);
       
       const mobileContent = await mobileResponse.text();
-      const hasMobileContent = mobileContent.includes('Care Commons Mobile');
+      const hasMobileContent = mobileContent.includes('Folk Mobile');
       console.log(`   ${hasMobileContent ? '✅' : '❌'} Mobile app content served\n`);
     } catch (error) {
       console.log(`   ⚠️  Mobile server not running (expected in CI)\n`);

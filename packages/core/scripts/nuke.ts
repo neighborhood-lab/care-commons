@@ -51,8 +51,8 @@ async function nukeDatabase() {
     // Fall back to individual DB_* variables (local development)
     const environment = process.env.NODE_ENV || 'development';
     const dbName = environment === 'test'
-      ? (process.env.DB_NAME || 'care_commons') + '_test'
-      : process.env.DB_NAME || 'care_commons';
+      ? (process.env.DB_NAME || 'folkcare') + '_test'
+      : process.env.DB_NAME || 'folkcare';
 
     console.log(`Environment: ${environment}`);
     console.log(`Database: ${dbName}`);

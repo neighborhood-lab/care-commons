@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 
 test("homepage loads", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle(/Care Commons/);
+  await expect(page).toHaveTitle(/Folk/);
 });
 
 test("health check returns 200", async ({ request }) => {

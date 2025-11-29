@@ -21,8 +21,8 @@ Use the `createScheduleService()` factory function to automatically wire up all 
 ### 1. Basic Setup
 
 ```typescript
-import { createScheduleService } from '@care-commons/scheduling-visits';
-import { ClientService, ClientRepository } from '@care-commons/client-demographics';
+import { createScheduleService } from '@folkcare/scheduling-visits';
+import { ClientService, ClientRepository } from '@folkcare/client-demographics';
 import { Pool } from 'pg';
 
 // Database connection
@@ -49,7 +49,7 @@ const scheduleService = createScheduleService({
 ### 2. Generate Schedules (with real addresses)
 
 ```typescript
-import type { UserContext } from '@care-commons/core';
+import type { UserContext } from '@folkcare/core';
 
 const userContext: UserContext = {
   userId: 'coordinator-123',
@@ -129,7 +129,7 @@ const scheduleService = createScheduleService({
 If a client's address is updated, invalidate the cache:
 
 ```typescript
-import { ClientAddressProvider } from '@care-commons/scheduling-visits';
+import { ClientAddressProvider } from '@folkcare/scheduling-visits';
 
 // After updating a client's address
 await clientService.updateClient(clientId, { primaryAddress: newAddress }, context);
@@ -185,8 +185,8 @@ visits.forEach(visit => {
 ### Unit Tests (with mocks)
 
 ```typescript
-import { ScheduleService } from '@care-commons/scheduling-visits';
-import type { IClientAddressProvider } from '@care-commons/scheduling-visits';
+import { ScheduleService } from '@folkcare/scheduling-visits';
+import type { IClientAddressProvider } from '@folkcare/scheduling-visits';
 
 const mockAddressProvider: IClientAddressProvider = {
   getClientAddress: vi.fn().mockResolvedValue({
@@ -207,8 +207,8 @@ const scheduleService = new ScheduleService(mockRepository, mockAddressProvider)
 ### Integration Tests (with real database)
 
 ```typescript
-import { createScheduleService } from '@care-commons/scheduling-visits';
-import { ClientService } from '@care-commons/client-demographics';
+import { createScheduleService } from '@folkcare/scheduling-visits';
+import { ClientService } from '@folkcare/client-demographics';
 
 // Use test database
 const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
@@ -268,7 +268,7 @@ WHERE (primary_address->>'latitude') IS NULL
 Use a geocoding service to add coordinates:
 
 ```typescript
-import { geocodeAddress } from '@care-commons/core/utils/geocoding';
+import { geocodeAddress } from '@folkcare/core/utils/geocoding';
 
 const clientsNeedingGeocode = await clientService.searchClients({
   // Custom filter for missing coordinates

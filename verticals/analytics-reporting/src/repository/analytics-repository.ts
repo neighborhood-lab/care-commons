@@ -2,7 +2,7 @@
  * Analytics Repository - Data access layer for analytics queries
  */
 
-import { Database } from '@care-commons/core';
+import { Database } from '@folkcare/core';
 import {
   DateRange,
   VisitException,

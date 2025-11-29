@@ -3,18 +3,18 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, AuthMiddleware, UserContext } from '@care-commons/core';
+import { Database, AuthMiddleware, UserContext } from '@folkcare/core';
 import { 
   CaregiverService,
   CredentialExpirationService,
   ExclusionListService,
-} from '@care-commons/caregiver-staff';
+} from '@folkcare/caregiver-staff';
 import type { 
   CreateCaregiverInput, 
   UpdateCaregiverInput, 
   CaregiverSearchFilters,
   ExpiringItemType,
-} from '@care-commons/caregiver-staff';
+} from '@folkcare/caregiver-staff';
 
 /**
  * Helper to create UserContext from JWT payload

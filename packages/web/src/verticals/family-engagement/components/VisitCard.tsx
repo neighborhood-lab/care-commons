@@ -7,7 +7,7 @@
 import React from 'react';
 import { Card } from '@/core/components';
 import { Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import type { VisitSummary } from '@care-commons/family-engagement';
+import type { VisitSummary } from '@folkcare/family-engagement';
 
 interface VisitCardProps {
   visit: VisitSummary;

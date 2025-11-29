@@ -1,15 +1,15 @@
 # State Compliance Documentation
 
-**Care Commons Regulatory Knowledge Base**
+**Folk Regulatory Knowledge Base**
 
-> "Reading Texas HHSC regulations at 2 AM shouldn't be necessary. The compliance rules should be encoded in the software itself." — Care Commons Philosophy
+> "Reading Texas HHSC regulations at 2 AM shouldn't be necessary. The compliance rules should be encoded in the software itself." — Folk Philosophy
 
 ## Overview
 
 This directory contains comprehensive regulatory compliance documentation for all 50 US states (starting with priority states). Each state has:
 
 1. **REQUIREMENTS.md** - Detailed regulatory requirements with statutory citations
-2. **IMPLEMENTATION.md** - How Care Commons implements these requirements in code
+2. **IMPLEMENTATION.md** - How Folk implements these requirements in code
 3. **TEST_SCENARIOS.md** - Comprehensive test cases for every requirement
 4. **CHANGELOG.md** - Git-tracked history of regulatory changes
 
@@ -66,13 +66,13 @@ States will be prioritized based on:
 
 ## Using This Documentation
 
-### For Agencies Using Care Commons
+### For Agencies Using Folk
 
 **Check your state's compliance status:**
 
 1. Navigate to your state's directory (e.g., `docs/compliance/texas/`)
 2. Read `REQUIREMENTS.md` to understand what regulations apply
-3. Review `IMPLEMENTATION.md` to see how Care Commons handles compliance
+3. Review `IMPLEMENTATION.md` to see how Folk handles compliance
 4. Check `CHANGELOG.md` for recent regulatory changes
 
 **Stay updated on regulatory changes:**
@@ -422,12 +422,12 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for detailed guidelines.
 - **National Association for Home Care & Hospice (NAHC)**: https://www.nahc.org/
 - **Partnership for Medicaid Home-Based Care**: https://www.medicaidhomecare.org/
 
-### Care Commons Resources
+### Folk Resources
 
-- **GitHub Repository**: https://github.com/neighborhood-lab/care-commons
-- **Community Forum**: https://github.com/neighborhood-lab/care-commons/discussions
-- **Issue Tracker**: https://github.com/neighborhood-lab/care-commons/issues
-- **Documentation**: https://docs.carecommons.org (coming soon)
+- **GitHub Repository**: https://github.com/neighborhood-lab/folkcare
+- **Community Forum**: https://github.com/neighborhood-lab/folkcare/discussions
+- **Issue Tracker**: https://github.com/neighborhood-lab/folkcare/issues
+- **Documentation**: https://docs.folkcare.org (coming soon)
 
 ## Roadmap
 
@@ -471,9 +471,9 @@ For agencies needing dedicated compliance support:
 - **Training and onboarding**: Staff training sessions
 - **Audit preparation**: Compliance documentation support
 
-Contact: **support@carecommons.org**
+Contact: **support@folkcare.org**
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

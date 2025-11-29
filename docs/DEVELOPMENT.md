@@ -4,8 +4,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/neighborhood-lab/care-commons.git
-   cd care-commons
+   git clone https://github.com/neighborhood-lab/folkcare.git
+   cd folkcare
    ```
 
 2. **Run setup script**
@@ -60,7 +60,7 @@ npm run dev:docker:down
 
 If you see "connection refused" errors:
 1. Check PostgreSQL is running: `pg_isready`
-2. Check database exists: `psql -l | grep care_commons`
+2. Check database exists: `psql -l | grep folkcare`
 3. Check DB_* variables in `.env`
 
 ### Port already in use
@@ -123,7 +123,7 @@ npm run dev:docker
 ## Project Structure
 
 ```
-care-commons/
+folkcare/
 ├── packages/
 │   ├── app/          # Backend API (Express)
 │   ├── core/         # Shared database & business logic
@@ -248,7 +248,7 @@ Key environment variables for development:
 # Database
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=care_commons
+DB_NAME=folkcare
 DB_USER=postgres
 DB_PASSWORD=postgres
 

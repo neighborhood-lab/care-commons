@@ -1,5 +1,5 @@
 /**
- * Persona definitions for Care Commons Showcase
+ * Persona definitions for Folk Showcase
  */
 
 import { Persona } from '../types';

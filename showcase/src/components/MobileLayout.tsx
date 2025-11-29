@@ -72,7 +72,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
             </button>
           )}
           <h1 className="text-lg font-semibold text-gray-900">
-            {title || 'Care Commons'}
+            {title || 'Folk'}
           </h1>
           <div className="w-9"></div>
         </div>

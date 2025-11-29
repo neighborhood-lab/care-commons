@@ -26,7 +26,7 @@ export interface CloudflareEnv {
  * 
  * Setup Hyperdrive:
  * ```bash
- * wrangler hyperdrive create care-commons-db \
+ * wrangler hyperdrive create folkcare-db \
  *   --connection-string="postgres://postgres.[ref]:[pwd]@aws-0-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
  * ```
  */
@@ -70,7 +70,7 @@ export function buildSupabaseConnectionString(options: {
  * Example usage in Cloudflare Worker:
  * 
  * ```typescript
- * import { createSupabasePool } from '@care-commons/core/db/supabase-adapter.js';
+ * import { createSupabasePool } from '@folkcare/core/db/supabase-adapter.js';
  * 
  * export default {
  *   async fetch(request: Request, env: Env) {

@@ -1,6 +1,6 @@
-# Care Commons Deployment Scripts
+# Folk Deployment Scripts
 
-This directory contains automated setup scripts for deploying Care Commons to production.
+This directory contains automated setup scripts for deploying Folk to production.
 
 ## Available Scripts
 
@@ -93,7 +93,7 @@ Both scripts require:
    curl https://your-app.vercel.app/health
    
    # Cloudflare
-   curl https://care-commons-api.your-subdomain.workers.dev/health
+   curl https://folkcare-api.your-subdomain.workers.dev/health
    ```
 
 ---
@@ -198,7 +198,7 @@ nvm use 22
 # If password is: -Q$gsyPD788qv!S
 # Use in command: -Q\$gsyPD788qv\!S
 
-wrangler hyperdrive create care-commons-db \
+wrangler hyperdrive create folkcare-db \
   --connection-string="postgres://postgres.aoxifllwcujpinwfaxmu:-Q\$gsyPD788qv\!S@..."
 ```
 
@@ -209,7 +209,7 @@ wrangler hyperdrive create care-commons-db \
 **Solution**: Check database connection
 ```bash
 # Test connection (Neon)
-psql "postgres://user:pass@ep-xxx.us-east-2.aws.neon.tech/care_commons?sslmode=require" -c "SELECT 1"
+psql "postgres://user:pass@ep-xxx.us-east-2.aws.neon.tech/folkcare?sslmode=require" -c "SELECT 1"
 
 # Test connection (Supabase)
 psql "postgres://postgres:pass@db.aoxifllwcujpinwfaxmu.supabase.co:5432/postgres" -c "SELECT 1"
@@ -281,10 +281,10 @@ Yes, but:
   - Supabase: https://status.supabase.com/
 
 **General questions**:
-- GitHub Issues: https://github.com/neighborhood-lab/care-commons/issues
+- GitHub Issues: https://github.com/neighborhood-lab/folkcare/issues
 - Documentation: `/docs` directory
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Automated deployment made simple!

@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document describes how Care Commons implements Ohio home healthcare compliance requirements in code.
+This document describes how Folk implements Ohio home healthcare compliance requirements in code.
 
 **Key Implementation Files:**
 - `packages/core/src/compliance/ohio/validator.ts` - OhioComplianceValidator class
@@ -572,7 +572,7 @@ Response:
 ### Ohio Compliance Dashboard
 
 ```typescript
-import { OhioComplianceValidator } from '@care-commons/core/compliance/ohio';
+import { OhioComplianceValidator } from '@folkcare/core/compliance/ohio';
 
 export function OhioComplianceDashboard() {
   const validator = new OhioComplianceValidator();
@@ -698,5 +698,5 @@ Ohio compliance implementation features:
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

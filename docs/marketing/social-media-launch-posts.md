@@ -1,6 +1,6 @@
 # Social Media Launch Posts - December 1, 2025
 
-Pre-written posts for Twitter/X, LinkedIn, and other platforms for the Care Commons soft launch.
+Pre-written posts for Twitter/X, LinkedIn, and other platforms for the Folk soft launch.
 
 ---
 
@@ -10,7 +10,7 @@ Pre-written posts for Twitter/X, LinkedIn, and other platforms for the Care Comm
 
 **Post 1 - Main announcement:**
 ```
-🚀 Care Commons is live!
+🚀 Folk is live!
 
 Open-source home healthcare software built by agencies, for agencies.
 
@@ -22,14 +22,14 @@ Open-source home healthcare software built by agencies, for agencies.
 
 Built in the open. Community owned.
 
-carecommons.org
+folkcare.org
 
 #HealthTech #HomeHealth #OpenSource
 ```
 
 **Post 2 - Technical angle:**
 ```
-Just shipped Care Commons - a home healthcare platform built with AI assistance in 28 days.
+Just shipped Folk - a home healthcare platform built with AI assistance in 28 days.
 
 - Full TypeScript stack
 - PostgreSQL + Neon
@@ -39,7 +39,7 @@ Just shipped Care Commons - a home healthcare platform built with AI assistance 
 
 Open source. Production ready.
 
-GitHub: github.com/neighborhood-lab/care-commons
+GitHub: github.com/neighborhood-lab/folkcare
 
 #BuildInPublic #HealthTech
 ```
@@ -48,7 +48,7 @@ GitHub: github.com/neighborhood-lab/care-commons
 ```
 Home health agencies spend $500-2000/month on software that doesn't handle state-specific compliance.
 
-Care Commons fixes this:
+Folk fixes this:
 - Automatic TX HHAeXchange submission
 - FL background screening tracking
 - GPS-verified EVV
@@ -66,7 +66,7 @@ Free to start. Community owned forever.
 ### Launch Announcement (Professional)
 
 ```
-I'm excited to announce the launch of Care Commons, an open-source home healthcare management platform.
+I'm excited to announce the launch of Folk, an open-source home healthcare management platform.
 
 **The Problem**
 
@@ -83,7 +83,7 @@ Existing software either:
 
 **The Solution**
 
-Care Commons is community-owned software that:
+Folk is community-owned software that:
 - Handles state-specific compliance automatically (Texas HHAeXchange, Florida background screening, etc.)
 - Provides GPS-verified Electronic Visit Verification
 - Manages caregiver credentials and client authorizations
@@ -101,8 +101,8 @@ The platform was developed using AI-assisted development practices:
 
 **Try It**
 
-14-day free trial at carecommons.org
-Full source code: github.com/neighborhood-lab/care-commons
+14-day free trial at folkcare.org
+Full source code: github.com/neighborhood-lab/folkcare
 
 Home healthcare deserves better software. We built it.
 
@@ -114,7 +114,7 @@ Home healthcare deserves better software. We built it.
 ```
 Case study: Building production healthcare software with AI assistance
 
-Over 28 days, I built Care Commons - a full-featured home healthcare platform handling EVV compliance, scheduling, billing, and state-specific regulations.
+Over 28 days, I built Folk - a full-featured home healthcare platform handling EVV compliance, scheduling, billing, and state-specific regulations.
 
 Key technical decisions:
 - TypeScript throughout (strict mode)
@@ -138,7 +138,7 @@ Human expertise was critical for:
 Result: Production-grade healthcare software, open source, ready for agency adoption.
 
 Full write-up: [Substack link TBD]
-GitHub: github.com/neighborhood-lab/care-commons
+GitHub: github.com/neighborhood-lab/folkcare
 
 #SoftwareEngineering #AI #HealthTech #OpenSource
 ```
@@ -151,7 +151,7 @@ GitHub: github.com/neighborhood-lab/care-commons
 "Open-source home healthcare software with state-specific EVV compliance"
 
 **Description:**
-Care Commons is the first community-owned home healthcare management platform. Built for small to mid-size agencies struggling with compliance complexity and expensive proprietary software.
+Folk is the first community-owned home healthcare management platform. Built for small to mid-size agencies struggling with compliance complexity and expensive proprietary software.
 
 **Key Features:**
 - Electronic Visit Verification for all 50 states
@@ -163,7 +163,7 @@ Care Commons is the first community-owned home healthcare management platform. B
 - Full data ownership
 
 **Why It Matters:**
-Home healthcare is a $125B industry serving vulnerable populations. Agencies need software that handles compliance without breaking the bank. Care Commons delivers enterprise features with community ownership.
+Home healthcare is a $125B industry serving vulnerable populations. Agencies need software that handles compliance without breaking the bank. Folk delivers enterprise features with community ownership.
 
 **Built With:**
 TypeScript, React, Node.js, PostgreSQL, React Native
@@ -175,10 +175,10 @@ Free for 14 days, then $99/month for up to 50 caregivers. Open source forever.
 
 ## Hacker News "Show HN" Post
 
-**Title:** Show HN: Care Commons – Open-source home healthcare software with state EVV compliance
+**Title:** Show HN: Folk – Open-source home healthcare software with state EVV compliance
 
 **Post:**
-I built Care Commons, an open-source home healthcare management platform that handles state-specific Electronic Visit Verification requirements.
+I built Folk, an open-source home healthcare management platform that handles state-specific Electronic Visit Verification requirements.
 
 **Background:**
 Home healthcare agencies (think: caregivers visiting elderly/disabled clients at home) face a compliance nightmare:
@@ -209,11 +209,11 @@ Full-stack platform with:
 Built in 28 days using AI-assisted development (Claude). Human expertise for architecture, compliance, security. AI for boilerplate, documentation, pattern replication.
 
 **Open Source:**
-MIT license. Full code: https://github.com/neighborhood-lab/care-commons
+MIT license. Full code: https://github.com/neighborhood-lab/folkcare
 
 **Try It:**
-Demo: https://neighborhood-lab.github.io/care-commons/
-Signup: carecommons.org (launching Dec 1)
+Demo: https://folk.care/
+Signup: folkcare.org (launching Dec 1)
 
 Questions welcome about the tech, compliance challenges, or AI-assisted development process.
 
@@ -232,7 +232,7 @@ Questions welcome about the tech, compliance challenges, or AI-assisted developm
 **Title:** We built open-source software for home healthcare agencies - feedback welcome
 
 **Post:**
-Home healthcare agency staff: I'm building Care Commons, an open-source alternative to expensive agency management software.
+Home healthcare agency staff: I'm building Folk, an open-source alternative to expensive agency management software.
 
 **Problem I'm solving:**
 - Current software costs $500-2000/month
@@ -253,7 +253,7 @@ Home healthcare agency staff: I'm building Care Commons, an open-source alternat
 - Feature feedback from coordinators/admins
 - Compliance gap identification
 
-Free to try: carecommons.org (soft launch Dec 1)
+Free to try: folkcare.org (soft launch Dec 1)
 
 Feedback appreciated!
 
@@ -263,7 +263,7 @@ Feedback appreciated!
 
 1. **Screenshot collage** - Dashboard + Mobile EVV + Family Portal
 2. **State compliance map** - Visual showing TX/FL differences
-3. **Before/After** - "Excel spreadsheets vs Care Commons dashboard"
+3. **Before/After** - "Excel spreadsheets vs Folk dashboard"
 4. **Caregiver mobile flow** - Clock-in → GPS verification → Tasks → Clock-out
 5. **Credential tracking** - Visual of expiration alerts
 
@@ -275,7 +275,7 @@ Feedback appreciated!
 #HomeHealth #HealthTech #OpenSource
 
 ### Secondary (rotate):
-#HealthcareIT #EVV #CareCommons #HIPAA #HealthIT #DigitalHealth
+#HealthcareIT #EVV #Folkcare #HIPAA #HealthIT #DigitalHealth
 
 ### Technical (for dev audience):
 #TypeScript #React #NodeJS #BuildInPublic #AI
