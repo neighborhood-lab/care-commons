@@ -840,7 +840,7 @@ The `gh` CLI tool uses GraphQL which has severe limitations:
 - Even established accounts limited to 5,000 GraphQL points/hour
 - GraphQL rate limits are shared across all operations
 
-**Use our REST API wrapper instead:**
+**Use our SINGLE GitHub API wrapper: `scripts/github-api.sh`**
 
 ```bash
 # Set token (use appropriate account)
@@ -856,6 +856,12 @@ export GITHUB_TOKEN="ghp_your_token_here"
 ./scripts/github-api.sh issue-list open
 ./scripts/github-api.sh pr-list open
 ```
+
+**IMPORTANT - Single Entry Point:**
+- ✅ **ADD functionality to `scripts/github-api.sh`** when needed
+- ❌ **DO NOT create multiple GitHub scripts** (no `gh-issue.sh`, `gh-pr.sh`, etc.)
+- ✅ **Keep all GitHub operations in ONE script** for maintainability
+- ❌ **DO NOT use `gh` CLI** - it uses GraphQL
 
 **REST API Advantages:**
 - ✅ 5,000 requests/hour per authenticated user

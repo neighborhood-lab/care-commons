@@ -289,7 +289,7 @@ app.post('/api/clients', async (req, res) => {
 
 **Use REST API, NOT `gh` CLI**
 
-The `gh` CLI uses GraphQL which has strict rate limits and blocks new accounts. Use our REST API wrapper instead:
+The `gh` CLI uses GraphQL which has strict rate limits and blocks new accounts. Use our **SINGLE** REST API wrapper instead:
 
 ```bash
 # Set your GitHub token
@@ -305,6 +305,11 @@ export GITHUB_TOKEN="ghp_your_token_here"
 ./scripts/github-api.sh issue-list open
 ./scripts/github-api.sh pr-list open
 ```
+
+**CRITICAL - Single Entry Point:**
+- ✅ **ADD to `scripts/github-api.sh`** when you need new GitHub functionality
+- ❌ **DO NOT create separate scripts** (`gh-issue.sh`, `gh-pr.sh`, etc.)
+- ✅ **One script for ALL GitHub operations**
 
 **Why?**
 - ✅ REST API: 5,000 calls/hour, works for all accounts

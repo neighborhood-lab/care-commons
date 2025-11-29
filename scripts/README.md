@@ -1,6 +1,12 @@
 # Scripts Directory
 
-## GitHub API Helper
+## GitHub API Helper (SINGLE ENTRY POINT)
+
+**IMPORTANT**: `scripts/github-api.sh` is our **ONLY** GitHub interaction script.
+
+- ✅ **DO**: Add new commands to this file when needed
+- ❌ **DON'T**: Create `gh-issue.sh`, `gh-pr.sh`, or other separate GitHub scripts
+- ✅ **REASON**: Centralized maintenance, consistent patterns, single source of truth
 
 Use `scripts/github-api.sh` instead of `gh` CLI to avoid GraphQL rate limits.
 
