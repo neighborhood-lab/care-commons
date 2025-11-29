@@ -285,6 +285,32 @@ app.post('/api/clients', async (req, res) => {
 
 ## Development Commands
 
+### GitHub Operations (IMPORTANT)
+
+**Use REST API, NOT `gh` CLI**
+
+The `gh` CLI uses GraphQL which has strict rate limits and blocks new accounts. Use our REST API wrapper instead:
+
+```bash
+# Set your GitHub token
+export GITHUB_TOKEN="ghp_your_token_here"
+
+# Create an issue
+./scripts/github-api.sh issue-create "Title" "Body" "label1,label2"
+
+# Create a pull request
+./scripts/github-api.sh pr-create "Title" "Body" "feature/branch" "develop"
+
+# List issues/PRs
+./scripts/github-api.sh issue-list open
+./scripts/github-api.sh pr-list open
+```
+
+**Why?**
+- ✅ REST API: 5,000 calls/hour, works for all accounts
+- ❌ GraphQL (gh CLI): Rate limited, blocked for new accounts
+- See `scripts/README.md` for detailed usage
+
 ### Database
 
 ```bash

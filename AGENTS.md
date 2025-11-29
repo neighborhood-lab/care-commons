@@ -831,6 +831,48 @@ while ensuring [compliance/security/usability]."
 
 ## Commit and Deployment
 
+### GitHub API Usage (CRITICAL)
+
+**ALWAYS use REST API, NEVER use `gh` CLI**
+
+The `gh` CLI tool uses GraphQL which has severe limitations:
+- New GitHub accounts have **ZERO GraphQL quota** (anti-spam measure)
+- Even established accounts limited to 5,000 GraphQL points/hour
+- GraphQL rate limits are shared across all operations
+
+**Use our REST API wrapper instead:**
+
+```bash
+# Set token (use appropriate account)
+export GITHUB_TOKEN="ghp_your_token_here"
+
+# Create issue
+./scripts/github-api.sh issue-create "Title" "Body" "label1,label2"
+
+# Create PR
+./scripts/github-api.sh pr-create "Title" "Body" "feature/branch" "develop"
+
+# List resources
+./scripts/github-api.sh issue-list open
+./scripts/github-api.sh pr-list open
+```
+
+**REST API Advantages:**
+- ✅ 5,000 requests/hour per authenticated user
+- ✅ Works immediately for new accounts (no waiting period)
+- ✅ No GraphQL point calculation complexity
+- ✅ More predictable rate limits
+- ✅ Simple curl-based implementation
+
+**Account Status:**
+- `bedwards` - Full access (5,000 REST/hour, 5,000 GraphQL/hour)
+- `tove-bot` - REST only (5,000 REST/hour, 0 GraphQL/hour until account ages 2-4 weeks)
+
+**Reasoning:**
+GitHub restricts GraphQL for new accounts to prevent cryptocurrency mining abuse. The `gh` CLI exclusively uses GraphQL, making it unusable for new accounts and prone to rate limits for agent-driven workflows. REST API is more reliable and has better limits.
+
+See `scripts/README.md` for detailed REST API usage examples.
+
 ### Commit Guidelines
 
 - **Short, present-tense** messages: "add risk flag helper"
