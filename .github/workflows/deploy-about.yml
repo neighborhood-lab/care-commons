@@ -29,8 +29,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: 'about/package-lock.json'
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
