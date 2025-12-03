@@ -200,6 +200,9 @@ packages/core/migrations/*.d.ts.map
 .vercel
 .DS_Store
 *.png
+# Exception: Allow marketing and about site images
+!marketing/*.png
+!about/public/images/*.png
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Mobile-specific (React Native / Expo)
