@@ -58,6 +58,62 @@
       pointer-events: none;
     }
 
+    .nav {
+      background: rgba(255, 255, 255, 0.98);
+      padding: 1rem 2rem;
+      border-bottom: 1px solid rgba(74, 155, 155, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      width: 50px;
+      height: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #1e293b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #4A9B9B;
+    }
+
+    .nav-links .nav-button {
+      background: linear-gradient(135deg, #4A9B9B 0%, #5EACA8 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(74, 155, 155, 0.2);
+    }
+
+    .nav-links .nav-button:hover {
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 155, 155, 0.3);
+    }
+
     .logo {
       width: 140px;
       height: auto;
@@ -88,6 +144,20 @@
       letter-spacing: -0.01em;
     }
 
+    .hero-image {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -96,6 +166,14 @@
 
     .section {
       padding: 5rem 0;
+    }
+
+    .why-section {
+      background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
+                  url('/images/background-1.png') center/cover;
+      padding: 5rem 2rem;
+      margin: 3rem 0;
+      border-radius: 0;
     }
 
     .section h2 {
@@ -260,6 +338,26 @@
     }
 
     @media (max-width: 768px) {
+      .nav {
+        padding: 1rem;
+      }
+
+      .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .nav-logo {
+        width: 40px;
+      }
+
       .header {
         padding: 4rem 1.5rem;
       }
@@ -293,11 +391,32 @@
   </style>
 </head>
 <body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="https://about.folk.care">
+        <img src="/images/logo-2.png" alt="Folk Care Logo" class="nav-logo">
+      </a>
+      <div class="nav-links">
+        <a href="https://showcase.folk.care">Demo</a>
+        <a href="https://github.com/neighborhood-lab/folk-care">GitHub</a>
+        <a href="https://discord.gg/EkeXQZFq">Discord</a>
+        <a href="https://neighborhoodlab.substack.com/">Blog</a>
+        <a href="https://www.patreon.com/cw/neighborhood_lab">Patreon</a>
+        <a href="https://folk.care" class="nav-button">Launch Platform</a>
+      </div>
+    </div>
+  </nav>
+
   <header class="header">
-    <img src="/images/logo-2.png" alt="Folk Care - Hands supporting a bird and flower, symbolizing community care" class="logo">
+    <img src="/images/logo-2.png" alt="Folk Care Logo" class="logo">
     <h1>Folk Care</h1>
     <p>Shared care software, community owned</p>
   </header>
+
+  <!-- Hero Image Section -->
+  <section class="hero-image">
+    <img src="/images/header-1.png" alt="Caregiver supporting elderly community member in a garden setting">
+  </section>
 
   <div class="container">
     <section class="section">
@@ -308,67 +427,67 @@
 
       <div class="features">
         <div class="feature">
-          <h3>📅 Scheduling & Visits</h3>
+          <h3>Scheduling & Visits</h3>
           <p>Intelligent scheduling with caregiver matching, automated recurring visits, and real-time availability tracking.</p>
         </div>
 
         <div class="feature">
-          <h3>✓ EVV Compliance</h3>
+          <h3>EVV Compliance</h3>
           <p>Built-in Electronic Visit Verification with GPS, mobile clock-in/out, and state-specific compliance (TX, FL, OH, CA, NY).</p>
         </div>
 
         <div class="feature">
-          <h3>👥 Care Coordination</h3>
+          <h3>Care Coordination</h3>
           <p>Centralized client profiles, care plans, medication tracking, and task management for coordinated care delivery.</p>
         </div>
 
         <div class="feature">
-          <h3>👨‍👩‍👧 Family Engagement</h3>
+          <h3>Family Engagement</h3>
           <p>Family portal for updates, secure messaging, visit notes, and care plan access. Real-time transparency.</p>
         </div>
 
         <div class="feature">
-          <h3>💰 Billing & Invoicing</h3>
+          <h3>Billing & Invoicing</h3>
           <p>Automated invoice generation from completed visits, insurance billing, payment tracking, and financial reporting.</p>
         </div>
 
         <div class="feature">
-          <h3>📊 Reporting & Analytics</h3>
+          <h3>Reporting & Analytics</h3>
           <p>Compliance dashboards, caregiver performance metrics, client outcomes, and customizable reports.</p>
         </div>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section why-section">
       <h2>Why Folk Care?</h2>
       <div class="features">
         <div class="feature">
-          <h3>🆓 Open Source</h3>
+          <h3>Open Source</h3>
           <p>Fully open-source under MIT license. No vendor lock-in. Community-driven development.</p>
         </div>
 
         <div class="feature">
-          <h3>🏥 Compliance First</h3>
+          <h3>Compliance First</h3>
           <p>Built for state regulations, Medicaid billing, and home care industry standards. EVV compliant out of the box.</p>
         </div>
 
         <div class="feature">
-          <h3>📱 Mobile First</h3>
+          <h3>Mobile First</h3>
           <p>Native mobile apps for caregivers with offline support, GPS tracking, and digital signatures.</p>
         </div>
 
         <div class="feature">
-          <h3>🔒 Privacy & Security</h3>
+          <h3>Privacy & Security</h3>
           <p>HIPAA-ready architecture, encrypted data, audit logs, and fine-grained permissions.</p>
         </div>
 
         <div class="feature">
-          <h3>🚀 Modern Stack</h3>
+          <h3>Modern Stack</h3>
           <p>TypeScript, React, PostgreSQL. Cloud-native with Vercel deployment. Battle-tested technologies.</p>
         </div>
 
         <div class="feature">
-          <h3>🤝 Community Owned</h3>
+          <h3>Community Owned</h3>
           <p>By Neighborhood Lab - building software that serves communities, not shareholders.</p>
         </div>
       </div>
