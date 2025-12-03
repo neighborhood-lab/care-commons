@@ -3,7 +3,7 @@
  */
 
 // Import only the error class - browser-safe (no server deps)
-import { ValidationError } from '@care-commons/core/browser';
+import { ValidationError } from '@folkcare/core/browser';
 import {
   ClockInInput,
   ClockOutInput,

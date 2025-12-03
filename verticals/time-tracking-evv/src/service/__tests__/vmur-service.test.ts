@@ -6,9 +6,9 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VMURService } from '../vmur-service';
-import type { Database } from '@care-commons/core';
-import type { UserContext } from '@care-commons/core';
-import { ValidationError, NotFoundError, PermissionError } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
+import type { UserContext } from '@folkcare/core';
+import { ValidationError, NotFoundError, PermissionError } from '@folkcare/core';
 
 describe('VMURService', () => {
   let vmurService: VMURService;

@@ -257,15 +257,15 @@ export function ProfileScreen() {
   }, []);
 
   const openTerms = useCallback(() => {
-    Linking.openURL('https://carecommons.example/terms');
+    Linking.openURL('https://folkcare.example/terms');
   }, []);
 
   const openPrivacy = useCallback(() => {
-    Linking.openURL('https://carecommons.example/privacy');
+    Linking.openURL('https://folkcare.example/privacy');
   }, []);
 
   const openSupport = useCallback(() => {
-    Linking.openURL('mailto:support@carecommons.example');
+    Linking.openURL('mailto:support@folkcare.example');
   }, []);
 
   const getCertStatusVariant = (

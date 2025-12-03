@@ -2,7 +2,7 @@
  * EVV Repository - Data access layer for time tracking and verification
  */
 
-import { Database, UUID, PaginationParams, PaginatedResult } from '@care-commons/core';
+import { Database, UUID, PaginationParams, PaginatedResult } from '@folkcare/core';
 import {
   EVVRecord,
   TimeEntry,

@@ -37,7 +37,7 @@ export const Dashboard: React.FC = () => {
       <div id="dashboard" className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome to Care Commons, {user?.name?.split(' ')[0]}!
+            Welcome to Folk, {user?.name?.split(' ')[0]}!
           </h1>
           <p className="mt-1 text-gray-600">
             Let&apos;s get started with your home healthcare management.

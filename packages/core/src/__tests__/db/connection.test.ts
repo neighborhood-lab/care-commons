@@ -86,7 +86,7 @@ describe('Database Connection', () => {
         allowExitOnIdle: false,
         statement_timeout: 30000,
         query_timeout: 30000,
-        application_name: 'care-commons',
+        application_name: 'folkcare',
       });
     });
 

@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { Router } from 'express';
 
 // Type for Express Router stack layer
@@ -28,7 +28,7 @@ vi.mock('multer', () => {
 const mockParseFile = vi.fn();
 const mockImport = vi.fn();
 
-vi.mock('@care-commons/client-demographics', () => ({
+vi.mock('@folkcare/client-demographics', () => ({
   ClientImportService: vi.fn().mockImplementation(function () {
     return {
       parseFile: mockParseFile,
@@ -38,8 +38,8 @@ vi.mock('@care-commons/client-demographics', () => ({
 }));
 
 // Mock core module
-vi.mock('@care-commons/core', async () => {
-  const actual = await vi.importActual('@care-commons/core');
+vi.mock('@folkcare/core', async () => {
+  const actual = await vi.importActual('@folkcare/core');
   return {
     ...actual,
     asyncHandler: (fn: any) => fn,

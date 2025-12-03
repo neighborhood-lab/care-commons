@@ -7,8 +7,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ClientProvider, createClientProvider } from '../client-provider';
-import { NotFoundError } from '@care-commons/core';
-import type { Database } from '@care-commons/core';
+import { NotFoundError } from '@folkcare/core';
+import type { Database } from '@folkcare/core';
 
 describe('ClientProvider', () => {
   let clientProvider: ClientProvider;

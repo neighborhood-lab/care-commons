@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Billing Repository
+ * @folkcare/core - Billing Repository
  * 
  * Data access layer for subscription and billing operations
  * Uses raw SQL queries to interact with PostgreSQL database

@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import type { Message } from '@care-commons/family-engagement';
+import type { Message } from '@folkcare/family-engagement';
 
 interface MessageThreadProps {
   messages: Message[];

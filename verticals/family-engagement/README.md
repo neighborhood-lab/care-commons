@@ -115,7 +115,7 @@ CarePlan
 
 ### Installation
 
-The family engagement vertical is part of the Care Commons monorepo:
+The family engagement vertical is part of the Folk monorepo:
 
 ```bash
 # Install dependencies
@@ -152,14 +152,14 @@ npm run db:migrate
 ### Service Setup
 
 ```typescript
-import { Database, PermissionService } from '@care-commons/core';
+import { Database, PermissionService } from '@folkcare/core';
 import {
   FamilyMemberRepository,
   NotificationRepository,
   ActivityFeedRepository,
   MessageRepository,
   FamilyEngagementService
-} from '@care-commons/family-engagement';
+} from '@folkcare/family-engagement';
 
 // Initialize repositories
 const familyMemberRepo = new FamilyMemberRepository(database);
@@ -181,7 +181,7 @@ const familyEngagementService = new FamilyEngagementService(
 
 ```typescript
 import { Router } from 'express';
-import { createFamilyEngagementHandlers } from '@care-commons/family-engagement';
+import { createFamilyEngagementHandlers } from '@folkcare/family-engagement';
 
 const router = Router();
 const handlers = createFamilyEngagementHandlers(familyEngagementService);
@@ -541,16 +541,16 @@ When contributing to the family engagement vertical:
 
 For questions or issues with the family engagement vertical:
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/care-commons/issues)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/folkcare/issues)
 - **Discord**: Join our community for support
-- **Documentation**: Check the main Care Commons docs
+- **Documentation**: Check the main Folk docs
 
 ## License
 
-This vertical is part of Care Commons and is licensed under the same license. See [LICENSE](../../LICENSE) for details.
+This vertical is part of Folk and is licensed under the same license. See [LICENSE](../../LICENSE) for details.
 
 ---
 
-**Care Commons** is brought to you by [Neighborhood Lab](https://neighborhoodlab.org) 🏡
+**Folk** is brought to you by [Neighborhood Lab](https://neighborhoodlab.org) 🏡
 
 *Building trust through transparency and communication.*

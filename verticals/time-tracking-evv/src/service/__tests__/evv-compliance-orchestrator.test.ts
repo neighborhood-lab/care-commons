@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EVVComplianceOrchestrator } from '../evv-compliance-orchestrator.js';
-import { StateComplianceService } from '@care-commons/core';
+import { StateComplianceService } from '@folkcare/core';
 import { EVVRecord } from '../../types/evv.js';
 import { StateProviderFactory } from '../../providers/state-provider-factory.js';
 

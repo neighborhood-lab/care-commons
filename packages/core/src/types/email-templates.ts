@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Email Templates Types
+ * @folkcare/core - Email Templates Types
  *
  * Customizable email template types for white-labeling
  */

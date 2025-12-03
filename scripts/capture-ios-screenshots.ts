@@ -2,7 +2,7 @@
 /**
  * iOS Simulator Screenshot Capture Tool
  * 
- * Captures screenshots from the iOS Simulator running the Care Commons mobile app.
+ * Captures screenshots from the iOS Simulator running the Folk mobile app.
  * 
  * Prerequisites:
  *   - Xcode installed with iOS Simulator

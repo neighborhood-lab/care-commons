@@ -19,7 +19,7 @@ import {
   SoftDeletable,
   UUID,
   Timestamp,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * Pay Period - Time span for payroll cycle

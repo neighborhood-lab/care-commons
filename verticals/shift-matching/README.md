@@ -1,6 +1,6 @@
 # Shift Matching & Assignment
 
-Intelligent caregiver-to-shift matching system for Care Commons. Automatically evaluates and ranks caregivers based on skills, availability, proximity, preferences, and performance history to optimize shift assignments.
+Intelligent caregiver-to-shift matching system for Folk. Automatically evaluates and ranks caregivers based on skills, availability, proximity, preferences, and performance history to optimize shift assignments.
 
 ## Overview
 
@@ -130,7 +130,7 @@ overallScore = (
 ### Create an Open Shift
 
 ```typescript
-import { ShiftMatchingRepository } from '@care-commons/shift-matching';
+import { ShiftMatchingRepository } from '@folkcare/shift-matching';
 
 const repo = new ShiftMatchingRepository(pool);
 
@@ -148,7 +148,7 @@ const openShift = await repo.createOpenShift(
 ### Evaluate Match Candidates
 
 ```typescript
-import { MatchingAlgorithm, CaregiverContext } from '@care-commons/shift-matching';
+import { MatchingAlgorithm, CaregiverContext } from '@folkcare/shift-matching';
 
 const candidate = MatchingAlgorithm.evaluateMatch(
   openShift,
@@ -318,9 +318,9 @@ If set (e.g., 90), shifts with candidates scoring >= threshold are automatically
 
 ## Dependencies
 
-- `@care-commons/core`: Base types, error handling, database connection
-- `@care-commons/caregiver-staff`: Caregiver profiles and availability
-- `@care-commons/scheduling-visits`: Visit details and status
+- `@folkcare/core`: Base types, error handling, database connection
+- `@folkcare/caregiver-staff`: Caregiver profiles and availability
+- `@folkcare/scheduling-visits`: Visit details and status
 - `pg`: PostgreSQL client
 - `zod`: Runtime validation
 - `date-fns`: Date/time utilities
@@ -330,7 +330,7 @@ If set (e.g., 90), shifts with candidates scoring >= threshold are automatically
 Run migration `007_shift_matching.sql` to create tables, indexes, functions, and materialized views.
 
 ```bash
-psql -d care_commons -f packages/core/migrations/007_shift_matching.sql
+psql -d folkcare -f packages/core/migrations/007_shift_matching.sql
 ```
 
 ## License

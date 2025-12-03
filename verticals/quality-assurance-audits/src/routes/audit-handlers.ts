@@ -6,8 +6,8 @@
 
 import type { Request, Response, Router } from 'express';
 import type { AuditService } from '../services/audit-service';
-import type { UserContext, Database, TokenPayload } from '@care-commons/core';
-import { AuthMiddleware } from '@care-commons/core';
+import type { UserContext, Database, TokenPayload } from '@folkcare/core';
+import { AuthMiddleware } from '@folkcare/core';
 
 /**
  * Extend Express Request to include userContext

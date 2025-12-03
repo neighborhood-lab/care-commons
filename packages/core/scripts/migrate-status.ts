@@ -17,8 +17,8 @@ async function showMigrationStatus() {
   // Determine environment
   const environment = process.env.NODE_ENV || 'development';
   const dbName = environment === 'test' 
-    ? (process.env.DB_NAME || 'care_commons') + '_test'
-    : process.env.DB_NAME || 'care_commons';
+    ? (process.env.DB_NAME || 'folkcare') + '_test'
+    : process.env.DB_NAME || 'folkcare';
 
   // Build Knex config inline to avoid tsconfig issues
   const config: Knex.Config = {

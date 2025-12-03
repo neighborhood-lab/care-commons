@@ -1,6 +1,6 @@
 # Mobile App Quick Start Guide
 
-Get the Care Commons mobile app running in 5 minutes.
+Get the Folk mobile app running in 5 minutes.
 
 ## Prerequisites
 
@@ -70,7 +70,7 @@ npm run web
 You should see:
 - Login screen with biometric option
 - Email/password inputs
-- "Care Commons" branding
+- "Folk" branding
 
 ## What You Can Do Now
 
@@ -337,7 +337,7 @@ eas submit --platform android
 - **WatermelonDB:** https://nozbe.github.io/WatermelonDB
 
 ### Community
-- **GitHub:** https://github.com/neighborhood-lab/care-commons
+- **GitHub:** https://github.com/neighborhood-lab/folkcare
 - **Issues:** Report bugs via GitHub Issues
 - **Discussions:** GitHub Discussions
 

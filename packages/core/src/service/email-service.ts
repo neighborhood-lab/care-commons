@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Email Service
+ * @folkcare/core - Email Service
  * 
  * Email delivery service using Resend for transactional emails
  * 
@@ -12,8 +12,8 @@
  * 
  * Configuration:
  * - Requires RESEND_API_KEY environment variable
- * - From address: noreply@care-commons.com
- * - Reply-to: support@care-commons.com
+ * - From address: noreply@folkcare.com
+ * - Reply-to: support@folkcare.com
  */
 
 import { Resend } from 'resend';
@@ -81,10 +81,10 @@ export class EmailService implements IEmailService {
   constructor(config: EmailServiceConfig) {
     // Initialize Resend client if API key is provided
     this.resend = (config.apiKey != null && config.apiKey !== '') ? new Resend(config.apiKey) : null;
-    this.fromAddress = config.fromAddress ?? 'noreply@care-commons.com';
-    this.fromName = config.fromName ?? 'Care Commons';
-    this.replyTo = config.replyTo ?? 'support@care-commons.com';
-    this.baseUrl = config.baseUrl ?? 'https://care-commons.com';
+    this.fromAddress = config.fromAddress ?? 'noreply@folkcare.com';
+    this.fromName = config.fromName ?? 'Folk';
+    this.replyTo = config.replyTo ?? 'support@folkcare.com';
+    this.baseUrl = config.baseUrl ?? 'https://folkcare.com';
 
     if (this.resend === null) {
       console.warn('[EmailService] No RESEND_API_KEY provided. Emails will be logged but not sent.');
@@ -105,7 +105,7 @@ export class EmailService implements IEmailService {
 
     await this.sendEmail({
       to: request.recipientEmail,
-      subject: `You've been invited to join ${request.organizationName} on Care Commons`,
+      subject: `You've been invited to join ${request.organizationName} on Folk`,
       html,
     });
   }
@@ -119,7 +119,7 @@ export class EmailService implements IEmailService {
 
     await this.sendEmail({
       to: request.recipientEmail,
-      subject: `Welcome to ${request.organizationName} on Care Commons!`,
+      subject: `Welcome to ${request.organizationName} on Folk!`,
       html,
     });
   }
@@ -136,7 +136,7 @@ export class EmailService implements IEmailService {
 
     await this.sendEmail({
       to: request.recipientEmail,
-      subject: 'Reset your Care Commons password',
+      subject: 'Reset your Folk password',
       html,
     });
   }
@@ -153,7 +153,7 @@ export class EmailService implements IEmailService {
 
     await this.sendEmail({
       to: request.recipientEmail,
-      subject: 'Verify your email address for Care Commons',
+      subject: 'Verify your email address for Folk',
       html,
     });
   }
@@ -164,7 +164,7 @@ export class EmailService implements IEmailService {
 
     switch (request.notificationType) {
       case 'trial_ending':
-        subject = `Your Care Commons trial is ending soon`;
+        subject = `Your Folk trial is ending soon`;
         html = this.generateTrialEndingEmail({
           recipientName: request.recipientName,
           organizationName: request.organizationName,
@@ -174,7 +174,7 @@ export class EmailService implements IEmailService {
         break;
       
       case 'subscription_renewed':
-        subject = `Your Care Commons subscription has been renewed`;
+        subject = `Your Folk subscription has been renewed`;
         html = this.generateSubscriptionRenewedEmail({
           recipientName: request.recipientName,
           organizationName: request.organizationName,
@@ -185,7 +185,7 @@ export class EmailService implements IEmailService {
         break;
       
       case 'subscription_cancelled':
-        subject = `Your Care Commons subscription has been cancelled`;
+        subject = `Your Folk subscription has been cancelled`;
         html = this.generateSubscriptionCancelledEmail({
           recipientName: request.recipientName,
           organizationName: request.organizationName,
@@ -194,7 +194,7 @@ export class EmailService implements IEmailService {
         break;
       
       case 'payment_failed':
-        subject = `Payment failed for your Care Commons subscription`;
+        subject = `Payment failed for your Folk subscription`;
         html = this.generatePaymentFailedEmail({
           recipientName: request.recipientName,
           organizationName: request.organizationName,
@@ -206,7 +206,7 @@ export class EmailService implements IEmailService {
         break;
       
       case 'usage_limit_warning':
-        subject = `You're approaching your usage limits on Care Commons`;
+        subject = `You're approaching your usage limits on Folk`;
         html = this.generateUsageLimitWarningEmail({
           recipientName: request.recipientName,
           organizationName: request.organizationName,
@@ -282,7 +282,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -290,9 +290,9 @@ export class EmailService implements IEmailService {
     
     <p>Hi ${params.recipientName},</p>
     
-    <p><strong>${params.inviterName}</strong> has invited you to join <strong>${params.organizationName}</strong> on Care Commons.</p>
+    <p><strong>${params.inviterName}</strong> has invited you to join <strong>${params.organizationName}</strong> on Folk.</p>
     
-    <p>Care Commons is a home healthcare management platform that helps organizations deliver better care while staying compliant with state and federal regulations.</p>
+    <p>Folk is a home healthcare management platform that helps organizations deliver better care while staying compliant with state and federal regulations.</p>
     
     <div style="margin: 30px 0; text-align: center;">
       <a href="${params.invitationUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">Accept Invitation</a>
@@ -309,7 +309,7 @@ export class EmailService implements IEmailService {
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
     <p>
       <a href="${this.baseUrl}" style="color: #2563eb; text-decoration: none;">Visit our website</a> |
       <a href="${this.baseUrl}/support" style="color: #2563eb; text-decoration: none;">Get support</a>
@@ -331,21 +331,21 @@ export class EmailService implements IEmailService {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to Care Commons</title>
+  <title>Welcome to Folk</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
-    <h2 style="margin-top: 0; color: #1f2937;">Welcome to Care Commons!</h2>
+    <h2 style="margin-top: 0; color: #1f2937;">Welcome to Folk!</h2>
     
     <p>Hi ${params.recipientName},</p>
     
-    <p>Welcome to <strong>${params.organizationName}</strong> on Care Commons! We're excited to have you on board.</p>
+    <p>Welcome to <strong>${params.organizationName}</strong> on Folk! We're excited to have you on board.</p>
     
-    <p>Care Commons helps home healthcare organizations:</p>
+    <p>Folk helps home healthcare organizations:</p>
     <ul>
       <li>Manage clients, caregivers, and visits</li>
       <li>Track Electronic Visit Verification (EVV)</li>
@@ -362,7 +362,7 @@ export class EmailService implements IEmailService {
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -384,7 +384,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -392,7 +392,7 @@ export class EmailService implements IEmailService {
     
     <p>Hi ${params.recipientName},</p>
     
-    <p>We received a request to reset your password for your Care Commons account.</p>
+    <p>We received a request to reset your password for your Folk account.</p>
     
     <div style="margin: 30px 0; text-align: center;">
       <a href="${params.resetUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">Reset Password</a>
@@ -409,7 +409,7 @@ export class EmailService implements IEmailService {
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -431,7 +431,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -439,7 +439,7 @@ export class EmailService implements IEmailService {
     
     <p>Hi ${params.recipientName},</p>
     
-    <p>Thank you for signing up for Care Commons! Please verify your email address to complete your registration.</p>
+    <p>Thank you for signing up for Folk! Please verify your email address to complete your registration.</p>
     
     <div style="margin: 30px 0; text-align: center;">
       <a href="${params.verificationUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">Verify Email Address</a>
@@ -456,7 +456,7 @@ export class EmailService implements IEmailService {
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -479,7 +479,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -487,9 +487,9 @@ export class EmailService implements IEmailService {
     
     <p>Hi ${params.recipientName},</p>
     
-    <p>Your trial for <strong>${params.organizationName}</strong> on Care Commons will end in ${params.daysRemaining} days.</p>
+    <p>Your trial for <strong>${params.organizationName}</strong> on Folk will end in ${params.daysRemaining} days.</p>
     
-    <p>To continue using Care Commons without interruption, please update your billing information.</p>
+    <p>To continue using Folk without interruption, please update your billing information.</p>
     
     <div style="margin: 30px 0; text-align: center;">
       <a href="${params.billingUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">Update Billing</a>
@@ -499,7 +499,7 @@ export class EmailService implements IEmailService {
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -534,7 +534,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -549,11 +549,11 @@ export class EmailService implements IEmailService {
       <p style="margin: 0;"><strong>Next billing date:</strong> ${formattedDate}</p>
     </div>
     
-    <p>Thank you for being a valued Care Commons customer!</p>
+    <p>Thank you for being a valued Folk customer!</p>
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -581,7 +581,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -591,13 +591,13 @@ export class EmailService implements IEmailService {
     
     <p>Your subscription for <strong>${params.organizationName}</strong> has been cancelled.</p>
     
-    <p>You will continue to have access to Care Commons until <strong>${formattedDate}</strong>.</p>
+    <p>You will continue to have access to Folk until <strong>${formattedDate}</strong>.</p>
     
     <p>We're sorry to see you go! If you have feedback on how we can improve, please let us know at <a href="mailto:${this.replyTo}" style="color: #2563eb;">${this.replyTo}</a>.</p>
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -633,7 +633,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -659,7 +659,7 @@ export class EmailService implements IEmailService {
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -685,7 +685,7 @@ export class EmailService implements IEmailService {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Care Commons</h1>
+    <h1 style="margin: 0; font-size: 24px; color: #2563eb;">Folk</h1>
   </div>
   
   <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -709,7 +709,7 @@ export class EmailService implements IEmailService {
   </div>
   
   <div style="margin-top: 20px; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>Care Commons - Shared care software, community owned</p>
+    <p>Folk - Shared care software, community owned</p>
   </div>
 </body>
 </html>
@@ -722,7 +722,7 @@ export class EmailService implements IEmailService {
  */
 export function createEmailService(config?: Partial<EmailServiceConfig>): EmailService {
   const apiKey = config?.apiKey ?? process.env.RESEND_API_KEY ?? '';
-  const baseUrl = config?.baseUrl ?? process.env.BASE_URL ?? 'https://care-commons.com';
+  const baseUrl = config?.baseUrl ?? process.env.BASE_URL ?? 'https://folkcare.com';
 
   return new EmailService({
     apiKey,

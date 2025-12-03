@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
 /**
- * Root Vitest configuration for the Care Commons monorepo.
+ * Root Vitest configuration for the Folk monorepo.
  * 
  * This configuration uses the "projects" pattern to explicitly define
  * all test projects in the monorepo. This approach:

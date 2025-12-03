@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Organization Service
+ * @folkcare/core - Organization Service
  * 
  * Business logic for multi-tenant organization management with state-based isolation
  */

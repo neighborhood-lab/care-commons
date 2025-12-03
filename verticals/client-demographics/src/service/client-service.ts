@@ -10,10 +10,10 @@ import {
   NotFoundError,
   PaginatedResult,
   GeocodingService,
-} from '@care-commons/core';
-import { getPermissionService } from '@care-commons/core';
-import { getCacheService } from '@care-commons/core/service/cache.service';
-import { CacheKeys, CacheTTL } from '@care-commons/core/constants/cache-keys';
+} from '@folkcare/core';
+import { getPermissionService } from '@folkcare/core';
+import { getCacheService } from '@folkcare/core/service/cache.service';
+import { CacheKeys, CacheTTL } from '@folkcare/core/constants/cache-keys';
 import { Client, CreateClientInput, UpdateClientInput, ClientSearchFilters } from '../types/client';
 import { ClientRepository } from '../repository/client-repository';
 import { ClientValidator } from '../validation/client-validator';

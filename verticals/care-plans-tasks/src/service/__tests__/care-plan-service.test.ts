@@ -23,7 +23,7 @@ import {
   GoalStatus,
   ComplianceStatus,
 } from '../../types/care-plan';
-import { UserContext, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
+import { UserContext, ValidationError, PermissionError, NotFoundError } from '@folkcare/core';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock uuid
@@ -39,7 +39,7 @@ import { v4 as uuid } from 'uuid';
 
 // Mock dependencies
 vi.mock('../../repository/care-plan-repository');
-vi.mock('@care-commons/core', () => ({
+vi.mock('@folkcare/core', () => ({
   PermissionService: vi.fn(),
   UserContext: vi.fn(),
   PaginationParams: vi.fn(),

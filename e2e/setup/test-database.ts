@@ -21,7 +21,7 @@ export class TestDatabase {
       return this.instance;
     }
 
-    this.dbUrl = process.env['E2E_DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/care_commons_e2e_test';
+    this.dbUrl = process.env['E2E_DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/folkcare_e2e_test';
 
     console.log('🔌 Connecting to test database...');
     

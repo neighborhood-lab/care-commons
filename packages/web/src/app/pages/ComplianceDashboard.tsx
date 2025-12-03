@@ -25,7 +25,7 @@ import {
   Calendar,
   Download,
 } from 'lucide-react';
-import type { ComplianceDeadline } from '@care-commons/core';
+import type { ComplianceDeadline } from '@folkcare/core';
 import toast from 'react-hot-toast';
 
 const PRIORITY_STYLES: Record<string, { bg: string; border: string; badge: string; icon: string }> = {

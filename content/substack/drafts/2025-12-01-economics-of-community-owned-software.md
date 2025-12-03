@@ -90,7 +90,7 @@ This is the "rising tide lifts all boats" dynamic that proprietary vendors can n
 
 ## The Compounding Value of Shared Knowledge
 
-Consider what we built with [Compliance Autopilot](https://care-commons.vercel.app/compliance):
+Consider what we built with [Compliance Autopilot](https://folk.care/compliance):
 
 - Texas HHSC regulations (26 TAC §558)
 - Florida AHCA requirements (Chapter 59A-8)
@@ -123,7 +123,7 @@ Same functionality. 1% of the cost. And it actually gets better over time, becau
 
 ## How Neighborhood Lab Sustains This
 
-We're building [Care Commons](https://neighborhood-lab.github.io/care-commons/) through Neighborhood Lab, a community interest company focused on healthcare infrastructure that should be shared.
+We're building [Folk](https://folk.care/) through Neighborhood Lab, a community interest company focused on healthcare infrastructure that should be shared.
 
 Our sustainability model has three pillars:
 
@@ -185,7 +185,7 @@ If you're running a home health agency, you have choices:
 
 **Option B**: Join a community of agencies sharing compliance research, development costs, and operational knowledge. Pay what you can afford. Benefit from everyone's contributions.
 
-Care Commons is Option B made real.
+Folk is Option B made real.
 
 ---
 
@@ -193,7 +193,7 @@ Care Commons is Option B made real.
 
 Here's how to participate:
 
-**Use the software**: [Try the showcase](https://neighborhood-lab.github.io/care-commons/). Spin up your own instance. See if it works for your agency.
+**Use the software**: [Try the showcase](https://folk.care/). Spin up your own instance. See if it works for your agency.
 
 **Join the community**: [Discord](https://discord.gg/EkeXQZFq) is where we coordinate development, share regulatory updates, and help each other solve problems.
 
@@ -205,7 +205,7 @@ Here's how to participate:
 
 ## The Real Question
 
-The home health agency owner who showed me that $50,000 quote is now running Care Commons. Her costs dropped by 90%. Her software actually improves. Her compliance documentation is better than it's ever been.
+The home health agency owner who showed me that $50,000 quote is now running Folk. Her costs dropped by 90%. Her software actually improves. Her compliance documentation is better than it's ever been.
 
 She's not paying for dashboards. She's investing in shared infrastructure.
 
@@ -213,4 +213,4 @@ That's the $50,000 question: Do you want software that extracts from you, or sof
 
 ---
 
-*Brian Edwards builds Care Commons with [Neighborhood Lab](https://neighborhoodlab.org). Join us on [Discord](https://discord.gg/EkeXQZFq) or support the project on [Patreon](https://www.patreon.com/cw/neighborhood_lab).*
+*Brian Edwards builds Folk with [Neighborhood Lab](https://neighborhoodlab.org). Join us on [Discord](https://discord.gg/EkeXQZFq) or support the project on [Patreon](https://www.patreon.com/cw/neighborhood_lab).*

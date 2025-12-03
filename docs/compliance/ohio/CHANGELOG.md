@@ -11,7 +11,7 @@
 This changelog tracks all changes to Ohio home healthcare compliance requirements. When Ohio regulations change, this file documents:
 1. What changed
 2. When it takes effect
-3. How it impacts Care Commons implementation
+3. How it impacts Folk implementation
 4. Migration path for existing data/workflows
 
 ---
@@ -88,7 +88,7 @@ This changelog tracks all changes to Ohio home healthcare compliance requirement
 - 21st Century Cures Act §12006(a)
 - 42 CFR §484
 
-**Care Commons Version**: v0.9.0
+**Folk Version**: v0.9.0
 
 ---
 
@@ -193,7 +193,7 @@ _No pending regulatory changes are currently known as of 2025-11-05._
 6. **Update tests** in `packages/core/src/compliance/ohio/__tests__/`
 7. **Run full test suite** to ensure no regressions
 8. **Create migration guide** if existing data affected
-9. **Notify Care Commons users** via email/in-app notification
+9. **Notify Folk users** via email/in-app notification
 10. **Submit PR** with all updates and regulatory citations
 
 ### Git Commit Message Template
@@ -276,7 +276,7 @@ When reviewing for potential changes (quarterly):
 - [ ] Document any findings (even if no changes) with review date
 
 **Last Review**: 2025-11-05  
-**Reviewed By**: Care Commons Compliance Team  
+**Reviewed By**: Folk Compliance Team  
 **Next Review Due**: 2026-02-05  
 **Findings**: No pending changes identified
 
@@ -306,17 +306,17 @@ When reviewing for potential changes (quarterly):
 - Website: https://www.sandata.com/
 - Portal: https://portal.sandata.com/
 
-### Care Commons Compliance
+### Folk Compliance
 
 **Compliance Questions**:
-- Email: compliance@carecommons.org
-- GitHub Discussions: https://github.com/neighborhood-lab/care-commons/discussions (tag: `compliance`, `ohio`)
+- Email: compliance@folkcare.org
+- GitHub Discussions: https://github.com/neighborhood-lab/folkcare/discussions (tag: `compliance`, `ohio`)
 
 **Report Regulatory Changes**:
-- GitHub Issues: https://github.com/neighborhood-lab/care-commons/issues/new?labels=compliance,ohio,regulatory-change
+- GitHub Issues: https://github.com/neighborhood-lab/folkcare/issues/new?labels=compliance,ohio,regulatory-change
 - Provide: Citation, effective date, description, impact assessment
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

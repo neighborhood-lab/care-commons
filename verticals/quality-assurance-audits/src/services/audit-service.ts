@@ -8,13 +8,13 @@
 import type {
   UserContext,
   UUID,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { 
   PermissionService,
   ValidationError,
   PermissionError,
   NotFoundError
-} from '@care-commons/core';
+} from '@folkcare/core';
 import type {
   Audit,
   AuditFinding,

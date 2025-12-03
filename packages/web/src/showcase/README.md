@@ -1,6 +1,6 @@
-# Care Commons Showcase Enhancements
+# Folk Showcase Enhancements
 
-This directory contains the enhanced showcase experience for the Care Commons platform, designed to transform the static demo into an interactive, narrative-driven experience.
+This directory contains the enhanced showcase experience for the Folk platform, designed to transform the static demo into an interactive, narrative-driven experience.
 
 ## Overview
 
@@ -211,7 +211,7 @@ cd packages/web
 npm run dev:showcase
 ```
 
-Visit `http://localhost:5173/care-commons` to see the showcase.
+Visit `http://localhost:5173/folkcare` to see the showcase.
 
 ### Production Build
 
@@ -237,8 +237,8 @@ npm run preview:showcase
 
 The showcase uses the following configuration:
 
-- **Base Path**: `/care-commons` (for GitHub Pages)
-- **Storage Key**: `care-commons-showcase-visited` (for first-time visitor detection)
+- **Base Path**: `/folkcare` (for GitHub Pages)
+- **Storage Key**: `folkcare-showcase-visited` (for first-time visitor detection)
 - **Role Key**: `showcase-current-role` (for persisting selected role)
 
 ## Dependencies
@@ -323,11 +323,11 @@ See the main specification document for detailed plans on:
 ## Support
 
 For questions or issues:
-- GitHub Issues: https://github.com/neighborhood-lab/care-commons/issues
-- Documentation: https://docs.care-commons.org
+- GitHub Issues: https://github.com/neighborhood-lab/folkcare/issues
+- Documentation: https://docs.folkcare.org
 - Community: Join our discussions
 
 ---
 
-**Care Commons** - Shared care software, community owned
+**Folk** - Shared care software, community owned
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

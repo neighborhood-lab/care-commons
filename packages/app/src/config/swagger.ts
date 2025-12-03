@@ -4,7 +4,7 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Care Commons API',
+      title: 'Folk API',
       version: '1.0.0',
       description: 'Self-hostable home healthcare platform API',
       contact: {
@@ -22,7 +22,7 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://care-commons.vercel.app',
+        url: 'https://folk.care',
         description: 'Production server',
       },
     ],

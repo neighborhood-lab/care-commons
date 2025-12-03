@@ -22,16 +22,16 @@
     "useDefineForClassFields": false,
     "baseUrl": ".",
     "paths": {
-      "@care-commons/core": [
+      "@folkcare/core": [
         "../core/src"
       ],
-      "@care-commons/core/*": [
+      "@folkcare/core/*": [
         "../core/src/*"
       ],
-      "@care-commons/time-tracking-evv": [
+      "@folkcare/time-tracking-evv": [
         "../../verticals/time-tracking-evv/src"
       ],
-      "@care-commons/time-tracking-evv/*": [
+      "@folkcare/time-tracking-evv/*": [
         "../../verticals/time-tracking-evv/src/*"
       ]
     }

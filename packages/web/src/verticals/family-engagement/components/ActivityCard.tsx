@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import type { ActivityFeedItem } from '@care-commons/family-engagement';
+import type { ActivityFeedItem } from '@folkcare/family-engagement';
 
 interface ActivityCardProps {
   activity: ActivityFeedItem;

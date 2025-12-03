@@ -1,17 +1,32 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Grid, List } from 'lucide-react';
-import { Button, LoadingSpinner, EmptyState, ErrorMessage } from '@/core/components';
-import { usePermissions } from '@/core/hooks';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Grid, List, Users, Sparkles } from 'lucide-react';
+import { 
+  Button, 
+  LoadingSpinner, 
+  ErrorMessage, 
+  EmptyState,
+  DemoDataBanner 
+} from '@/core/components';
+import { usePermissions, useDemoData } from '@/core/hooks';
 import { useClients } from '../hooks';
 import { ClientCard, ClientSearch } from '../components';
 import type { ClientSearchFilters } from '../types';
 
 export const ClientList: React.FC = () => {
+  const navigate = useNavigate();
   const { can } = usePermissions();
   const [filters, setFilters] = useState<ClientSearchFilters>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { data, isLoading, error, refetch } = useClients(filters);
+  const {
+    hasDemoData,
+    isSeeding,
+    isClearing,
+    seedDemoData,
+    clearDemoData,
+    stats,
+  } = useDemoData();
 
   if (isLoading) {
     return (
@@ -70,22 +85,63 @@ export const ClientList: React.FC = () => {
         </div>
       </div>
 
+      {/* Demo Data Banner */}
+      {hasDemoData && (
+        <DemoDataBanner
+          onClearDemo={clearDemoData}
+          onAddRealData={() => navigate('/clients/new')}
+          isClearing={isClearing}
+          stats={stats || undefined}
+        />
+      )}
+
       <ClientSearch filters={filters} onFiltersChange={setFilters} />
 
       {clients.length === 0 ? (
         <EmptyState
           title="No clients found"
-          description="Get started by creating your first client."
+          description={
+            !hasDemoData
+              ? "Get started by loading sample data to explore the platform, or add your first client."
+              : "Get started by creating your first client."
+          }
+          icon={<Users />}
+          size="lg"
           action={
-            <Link to="/clients/new">
+            !hasDemoData ? (
               <Button
-                leftIcon={<Plus className="h-4 w-4" />}
-                disabled={!can('clients:write')}
-                title={!can('clients:write') ? 'You do not have permission to create clients' : undefined}
+                variant="primary"
+                size="lg"
+                leftIcon={<Sparkles className="h-4 w-4" />}
+                onClick={() => void seedDemoData()}
+                isLoading={isSeeding}
               >
-                Create Client
+                Load Sample Data
               </Button>
-            </Link>
+            ) : (
+              can('clients:write') && (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  leftIcon={<Plus className="h-4 w-4" />}
+                  onClick={() => navigate('/clients/new')}
+                >
+                  Add Client
+                </Button>
+              )
+            )
+          }
+          secondaryAction={
+            !hasDemoData && can('clients:write') ? (
+              <Button
+                variant="outline"
+                size="lg"
+                leftIcon={<Plus className="h-4 w-4" />}
+                onClick={() => navigate('/clients/new')}
+              >
+                Add Client
+              </Button>
+            ) : null
           }
         />
       ) : (

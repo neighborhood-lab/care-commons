@@ -1,5 +1,5 @@
 /**
- * @care-commons/core/browser
+ * @folkcare/core/browser
  *
  * Browser-safe exports from core package
  * This file excludes server-only modules that depend on Node.js built-ins

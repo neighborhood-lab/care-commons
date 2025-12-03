@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import type { ActivityType } from '@care-commons/family-engagement';
+import type { ActivityType } from '@folkcare/family-engagement';
 import { useRecentActivity } from '../hooks';
 import { ActivityFeed, ActivityFilters } from '../components';
 

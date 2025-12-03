@@ -6,7 +6,7 @@
 
 import { Request, Response } from 'express';
 import { CarePlanService } from '../service/care-plan-service';
-import { UserContext, Role, ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
+import { UserContext, Role, ValidationError, PermissionError, NotFoundError } from '@folkcare/core';
 import { CarePlanStatus, CarePlanType, TaskStatus, TaskCategory, CarePlanSearchFilters, TaskInstanceSearchFilters } from '../types/care-plan';
 
 /**

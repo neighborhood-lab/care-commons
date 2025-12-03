@@ -12,7 +12,7 @@ interface Video {
 
 const videos: Video[] = [
   {
-    title: 'Getting Started with Care Commons',
+    title: 'Getting Started with Folk',
     duration: '5:30',
     thumbnail: '/videos/thumbnails/getting-started.jpg',
     url: '/videos/getting-started.mp4',
@@ -169,8 +169,19 @@ export function VideosPage() {
   return (
     <ShowcaseLayout
       title="Video Walkthroughs"
-      description="Watch detailed video guides to learn how to use Care Commons effectively."
+      description="Watch detailed video guides to learn how to use Folk effectively."
     >
+      {/* Coming Soon Banner */}
+      <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="flex items-center gap-2">
+          <span className="text-amber-600 font-semibold">Coming Soon</span>
+          <span className="text-amber-700">—</span>
+          <span className="text-amber-800 text-sm">
+            Video tutorials are in production. Subscribe to our newsletter for updates!
+          </span>
+        </div>
+      </div>
+
       <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start gap-3">

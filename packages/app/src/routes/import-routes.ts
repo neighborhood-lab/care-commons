@@ -6,8 +6,8 @@
 
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
-import { asyncHandler, Database, AuthMiddleware, UserContext } from '@care-commons/core';
-import { ClientImportService } from '@care-commons/client-demographics';
+import { asyncHandler, Database, AuthMiddleware, UserContext } from '@folkcare/core';
+import { ClientImportService } from '@folkcare/client-demographics';
 
 export function createImportRoutes(db: Database): Router {
   const router = Router();

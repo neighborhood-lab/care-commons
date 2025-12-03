@@ -38,7 +38,7 @@ jobs:
         run: npm ci
 
       - name: Build core dependencies
-        run: npx turbo run build --filter=@care-commons/core --filter=@care-commons/shared-components
+        run: npx turbo run build --filter=@folkcare/core --filter=@folkcare/shared-components
 
       - name: Build showcase
         run: |

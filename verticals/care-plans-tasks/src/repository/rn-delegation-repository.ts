@@ -1,5 +1,5 @@
-import { Repository, Database } from '@care-commons/core';
-import { UUID } from '@care-commons/core';
+import { Repository, Database } from '@folkcare/core';
+import { UUID } from '@folkcare/core';
 import { RNDelegation } from '../types/state-specific';
 
 export class RNDelegationRepository extends Repository<RNDelegation> {

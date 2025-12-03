@@ -19,7 +19,7 @@ import {
   MatchReason,
   ConflictingVisit,
 } from '../types/shift-matching';
-import { Caregiver } from '@care-commons/caregiver-staff';
+import { Caregiver } from '@folkcare/caregiver-staff';
 
 export interface CaregiverContext {
   caregiver: Caregiver;

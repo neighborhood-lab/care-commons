@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/time-tracking-evv",
+  "name": "@folkcare/time-tracking-evv",
   "version": "0.1.0",
   "description": "Time Tracking & Electronic Visit Verification (EVV) - Accurate timing and location evidence of visits",
   "//1": "════════════════════════════════════════════════════════════════",
@@ -24,7 +24,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -32,7 +32,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/core": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
     "axios": "^1.13.2",
     "uuid": "^13.0.0"
   },

@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Feature Flag Repository
+ * @folkcare/core - Feature Flag Repository
  *
  * Data access layer for per-organization feature flags
  */

@@ -16,7 +16,7 @@ This document provides templates for communicating with stakeholders during key 
 
 ### Template 1: Pre-Launch Announcement (T-7 Days)
 
-**Subject**: Care Commons Production Launch - [Launch Date]
+**Subject**: Folk Production Launch - [Launch Date]
 
 **To**: Executive team, stakeholders, partners
 
@@ -25,10 +25,10 @@ This document provides templates for communicating with stakeholders during key 
 ```
 Hi Team,
 
-I'm excited to announce that Care Commons will be launching to production on [Launch Date] at [Launch Time].
+I'm excited to announce that Folk will be launching to production on [Launch Date] at [Launch Time].
 
 **What's Launching:**
-Care Commons is our comprehensive care management platform featuring:
+Folk is our comprehensive care management platform featuring:
 - Client demographics and care plan management
 - Caregiver scheduling and visit tracking
 - Electronic Visit Verification (EVV) compliance
@@ -60,7 +60,7 @@ Our team has completed:
 ✅ End-to-end testing across all features
 ✅ Compliance verification (HIPAA, EVV)
 
-We're ready for launch and excited to get Care Commons into production!
+We're ready for launch and excited to get Folk into production!
 
 Best regards,
 [Your Name]
@@ -73,14 +73,14 @@ Best regards,
 
 ### Template 2: Launch Kickoff (H-0)
 
-**Subject**: 🚀 Care Commons Launch - In Progress
+**Subject**: 🚀 Folk Launch - In Progress
 
 **To**: Internal team, key stakeholders
 
 **Slack/Email**:
 
 ```
-🚀 CARE COMMONS PRODUCTION LAUNCH - IN PROGRESS
+🚀 FOLK PRODUCTION LAUNCH - IN PROGRESS
 
 Status: Deployment started at [Time]
 
@@ -108,7 +108,7 @@ Next Update: [Time + 30 minutes]
 
 ### Template 3: Launch Success (H+2)
 
-**Subject**: ✅ Care Commons Launch Complete - System Live
+**Subject**: ✅ Folk Launch Complete - System Live
 
 **To**: All stakeholders
 
@@ -117,7 +117,7 @@ Next Update: [Time + 30 minutes]
 ```
 Hi Team,
 
-I'm pleased to announce that Care Commons has been successfully launched to production!
+I'm pleased to announce that Folk has been successfully launched to production!
 
 **Launch Summary:**
 - Deployment started: [Start Time]
@@ -151,7 +151,7 @@ I'm pleased to announce that Care Commons has been successfully launched to prod
 **Support:**
 For questions or issues:
 - Support Email: support@[your-domain].com
-- Support Slack: #care-commons-support
+- Support Slack: #folkcare-support
 - Documentation: https://docs.[your-domain].com
 
 Thank you to everyone who contributed to this successful launch!
@@ -167,7 +167,7 @@ Best regards,
 
 ### Template 4: Incident Notification (Critical)
 
-**Subject**: 🔴 URGENT: Care Commons Production Incident
+**Subject**: 🔴 URGENT: Folk Production Incident
 
 **To**: Executive team, key stakeholders
 
@@ -217,7 +217,7 @@ Next Update: [Time]
 
 ### Template 5: Incident Resolution
 
-**Subject**: ✅ RESOLVED: Care Commons Production Incident
+**Subject**: ✅ RESOLVED: Folk Production Incident
 
 **To**: All stakeholders who received incident notification
 
@@ -226,7 +226,7 @@ Next Update: [Time]
 ```
 Hi Team,
 
-The Care Commons production incident has been resolved.
+The Folk production incident has been resolved.
 
 **Incident Summary:**
 - Incident ID: INC-[Number]
@@ -284,7 +284,7 @@ Thank you,
 
 ### Template 6: Scheduled Maintenance Notice
 
-**Subject**: Scheduled Maintenance - Care Commons - [Date]
+**Subject**: Scheduled Maintenance - Folk - [Date]
 
 **To**: All users, stakeholders
 
@@ -295,7 +295,7 @@ Thank you,
 ```
 Hi,
 
-We will be performing scheduled maintenance on the Care Commons platform.
+We will be performing scheduled maintenance on the Folk platform.
 
 **Maintenance Window:**
 - Date: [Day of Week], [Month Day, Year]
@@ -331,7 +331,7 @@ If you have questions, please contact support@[your-domain].com
 Thank you for your understanding.
 
 Best regards,
-Care Commons Team
+Folk Team
 ```
 
 **Email Body** (1 hour before):
@@ -354,7 +354,7 @@ This is a reminder that scheduled maintenance begins in 1 hour.
 We will send an update when maintenance is complete.
 
 Thank you,
-Care Commons Team
+Folk Team
 ```
 
 ---
@@ -363,7 +363,7 @@ Care Commons Team
 
 ### Template 7: Weekly Status Update
 
-**Subject**: Care Commons - Week [Number] Status Update
+**Subject**: Folk - Week [Number] Status Update
 
 **To**: Stakeholders, management
 
@@ -374,7 +374,7 @@ Care Commons Team
 ```
 Hi Team,
 
-Here's the weekly status update for Care Commons.
+Here's the weekly status update for Folk.
 
 **Period:** [Start Date] - [End Date]
 
@@ -429,7 +429,7 @@ Best regards,
 
 ### Template 8: Rollback Notification
 
-**Subject**: Care Commons - Deployment Rolled Back
+**Subject**: Folk - Deployment Rolled Back
 
 **To**: Internal team, stakeholders
 
@@ -484,7 +484,7 @@ Questions: Contact [Name] at [Email]
 ```
 Hi [First Name],
 
-We're excited to announce a new feature in Care Commons: [Feature Name]!
+We're excited to announce a new feature in Folk: [Feature Name]!
 
 **What's New:**
 [Description of the new feature and its benefits]
@@ -511,14 +511,14 @@ Our support team is here to help:
 We hope you enjoy this new feature!
 
 Best regards,
-The Care Commons Team
+The Folk Team
 
 P.S. Have feedback or feature requests? Reply to this email - we'd love to hear from you!
 ```
 
 ### Template 10: Service Issue Notification (User-Facing)
 
-**Subject**: Care Commons - Service Issue Update
+**Subject**: Folk - Service Issue Update
 
 **To**: Affected users
 
@@ -527,7 +527,7 @@ P.S. Have feedback or feature requests? Reply to this email - we'd love to hear 
 ```
 Hi,
 
-We're currently experiencing an issue with Care Commons that may affect your ability to [description of impact].
+We're currently experiencing an issue with Folk that may affect your ability to [description of impact].
 
 **What We Know:**
 - Issue started: [Time]
@@ -551,7 +551,7 @@ If you have urgent questions, please contact:
 We apologize for the inconvenience and appreciate your patience.
 
 Best regards,
-The Care Commons Team
+The Folk Team
 ```
 
 ---
@@ -560,7 +560,7 @@ The Care Commons Team
 
 ### Template 11: Post-Mortem Summary (Public)
 
-**Subject**: Care Commons Incident Post-Mortem - [Date]
+**Subject**: Folk Incident Post-Mortem - [Date]
 
 **To**: Stakeholders, affected users (if appropriate)
 

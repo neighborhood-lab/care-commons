@@ -13,9 +13,9 @@ import type {
   PermissionError,
   NotFoundError,
   IUserRepository
-} from '@care-commons/core';
-import { PermissionService, getNotificationService } from '@care-commons/core';
-import type { NotificationChannel } from '@care-commons/core';
+} from '@folkcare/core';
+import { PermissionService, getNotificationService } from '@folkcare/core';
+import type { NotificationChannel } from '@folkcare/core';
 import type {
   FamilyMember,
   FamilyMemberProfile,
@@ -37,8 +37,8 @@ import {
   ActivityFeedRepository,
   MessageRepository
 } from '../repositories/family-engagement-repository';
-import type { ClientService } from '@care-commons/client-demographics';
-import type { CarePlanService } from '@care-commons/care-plans-tasks';
+import type { ClientService } from '@folkcare/client-demographics';
+import type { CarePlanService } from '@folkcare/care-plans-tasks';
 
 /**
  * Service for managing family portal and engagement

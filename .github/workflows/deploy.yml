@@ -309,7 +309,7 @@ jobs:
         if: success()
         run: |
           echo "::group::Validating production deployment"
-          ./scripts/validate-deployment.sh "https://care-commons.vercel.app" production
+          ./scripts/validate-deployment.sh "https://folk.care" production
           echo "::endgroup::"
 
       - name: Deployment Summary
@@ -319,8 +319,8 @@ jobs:
           echo "✅ Production Deployment Complete"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "URL: https://care-commons.vercel.app"
-          echo "Health Check: https://care-commons.vercel.app/health"
+          echo "URL: https://folk.care"
+          echo "Health Check: https://folk.care/health"
           echo ""
           echo "Database: Reset and seeded with comprehensive demo data"
           echo "Validation Status: See post-deployment checks above"

@@ -15,7 +15,7 @@ import {
   UUID,
   NotFoundError,
   ValidationError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { EVVRecord } from '../types/evv';
 import {
   StateCode,

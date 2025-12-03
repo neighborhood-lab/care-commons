@@ -2,13 +2,13 @@
 
 ## Overview
 
-The Care Commons mobile app is now integrated into both the **Showcase** and **Web Demo** environments, allowing users to interact with the actual React Native mobile app running in their browser.
+The Folk mobile app is now integrated into both the **Showcase** and **Web Demo** environments, allowing users to interact with the actual React Native mobile app running in their browser.
 
 ## Architecture
 
 ### Components
 
-1. **MobileSimulator Component** (`@care-commons/shared-components`)
+1. **MobileSimulator Component** (`@folkcare/shared-components`)
    - Reusable phone frame simulator
    - Embeds mobile app via iframe
    - Handles loading/error states
@@ -52,8 +52,8 @@ npm run dev
 
 ### Access Points
 
-- **Showcase Mobile Demo**: http://localhost:5173/care-commons/mobile
-- **Showcase Landing**: http://localhost:5173/care-commons/ (scroll to mobile section)
+- **Showcase Mobile Demo**: http://localhost:5173/folkcare/mobile
+- **Showcase Landing**: http://localhost:5173/folkcare/ (scroll to mobile section)
 - **Mobile App Direct**: http://localhost:8081
 
 ## Key Features Demonstrated
@@ -234,5 +234,5 @@ The web demo can optionally embed mobile app if configured.
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/neighborhood-lab/care-commons/issues
-- Discussions: https://github.com/neighborhood-lab/care-commons/discussions
+- GitHub Issues: https://github.com/neighborhood-lab/folkcare/issues
+- Discussions: https://github.com/neighborhood-lab/folkcare/discussions

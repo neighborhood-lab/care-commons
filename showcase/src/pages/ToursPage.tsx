@@ -18,7 +18,7 @@ export function ToursPage() {
   return (
     <ShowcaseLayout
       title="Interactive Tours"
-      description="Learn how Care Commons works through guided, interactive tours for each role and module."
+      description="Learn how Folk works through guided, interactive tours for each role and module."
     >
       <div className="space-y-8">
         {/* Hero Section */}
@@ -29,13 +29,13 @@ export function ToursPage() {
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Experience Care Commons Through Interactive Guides
+                Experience Folk Through Interactive Guides
               </h2>
               <p className="text-gray-700 mb-4">
                 Our interactive tours walk you through real workflows using actual demo data. 
                 Each tour highlights key features, explains regulatory compliance considerations, 
                 and demonstrates how different roles use the platform. Complete all tours to 
-                become a Care Commons expert!
+                become a Folk expert!
               </p>
               <div className="flex flex-wrap gap-3 text-sm">
                 <div className="flex items-center gap-2 text-blue-700">

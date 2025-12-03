@@ -18,7 +18,7 @@ import type { z } from 'zod';
  * @example
  * ```tsx
  * import { useFormValidation } from '@/hooks/useFormValidation';
- * import { clientSchema } from '@care-commons/core/validation';
+ * import { clientSchema } from '@folkcare/core/validation';
  *
  * const ClientForm = () => {
  *   const { register, handleSubmit, formState: { errors } } = useFormValidation(clientSchema);

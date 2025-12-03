@@ -1,10 +1,10 @@
 # Cloud Deployment Guide
 
-This document provides a complete guide for deploying Care Commons to production using **Vercel Hobby Plan** and **Neon PostgreSQL**.
+This document provides a complete guide for deploying Folk to production using **Vercel Hobby Plan** and **Neon PostgreSQL**.
 
 ## Overview
 
-Care Commons uses a modern serverless architecture optimized for cost-efficiency and scalability:
+Folk uses a modern serverless architecture optimized for cost-efficiency and scalability:
 
 - **Frontend & API**: Deployed on Vercel (serverless functions)
 - **Database**: Neon PostgreSQL (serverless database with connection pooling)
@@ -65,7 +65,7 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 
 #### Create Databases
 1. Sign up at [console.neon.tech](https://console.neon.tech)
-2. Create a new project: `care-commons`
+2. Create a new project: `folkcare`
 3. Create two branches in Neon:
    - `preview` - For preview environment (develop branch and PRs)
    - `production` - For production environment (main branch)
@@ -98,7 +98,7 @@ Care Commons uses a modern serverless architecture optimized for cost-efficiency
 
 3. Link your project:
    ```bash
-   cd /path/to/care-commons
+   cd /path/to/folkcare
    vercel link
    ```
    - Select your account/team
@@ -119,7 +119,7 @@ Add environment variables through Vercel dashboard or CLI:
 ```bash
 # Production Environment
 vercel env add DATABASE_URL production
-# Paste: postgresql://user:pass@neon-host/care_commons_production?sslmode=require
+# Paste: postgresql://user:pass@neon-host/folkcare_production?sslmode=require
 
 vercel env add JWT_SECRET production
 # Paste: (generate with: openssl rand -hex 32)
@@ -129,7 +129,7 @@ vercel env add ENCRYPTION_KEY production
 
 # Staging/Preview Environment
 vercel env add DATABASE_URL preview
-# Paste: postgresql://user:pass@neon-host/care_commons_staging?sslmode=require
+# Paste: postgresql://user:pass@neon-host/folkcare_staging?sslmode=require
 
 vercel env add JWT_SECRET preview
 # Paste: (same or different secret for staging)
@@ -145,7 +145,7 @@ Add these in: **Settings → Secrets and variables → Actions → New repositor
 
 | Secret Name | Description | How to Get It |
 |------------|-------------|---------------|
-| **`VERCEL_TOKEN`** | ⚠️ **REQUIRED** - Vercel authentication token | 1. Go to [vercel.com/account/tokens](https://vercel.com/account/tokens)<br>2. Click "Create Token"<br>3. Name: `care-commons-github-actions`<br>4. Scope: **Full Account**<br>5. Copy token immediately (can't view again)<br>6. Add to GitHub Secrets |
+| **`VERCEL_TOKEN`** | ⚠️ **REQUIRED** - Vercel authentication token | 1. Go to [vercel.com/account/tokens](https://vercel.com/account/tokens)<br>2. Click "Create Token"<br>3. Name: `folkcare-github-actions`<br>4. Scope: **Full Account**<br>5. Copy token immediately (can't view again)<br>6. Add to GitHub Secrets |
 | **`VERCEL_ORG_ID`** | ⚠️ **REQUIRED** - Your Vercel organization/team ID | From `vercel link` output or Vercel dashboard URL |
 | **`VERCEL_PROJECT_ID`** | ⚠️ **REQUIRED** - Your Vercel project ID | From `vercel link` output or Project Settings |
 | **`DATABASE_URL`** | ⚠️ **REQUIRED** - Production database connection | Neon production pooled connection string |
@@ -179,7 +179,7 @@ Error: No existing credentials found. Please run `vercel login` or pass "--token
 1. **Go to** [vercel.com/account/tokens](https://vercel.com/account/tokens)
 2. **Click** "Create Token" button
 3. **Configure**:
-   - Token Name: `care-commons-github-actions`
+   - Token Name: `folkcare-github-actions`
    - Scope: **Full Account** (required for deployments)
    - Expiration: No Expiration (or set based on security policy)
 4. **Click** "Create"
@@ -287,7 +287,7 @@ When GitHub webhooks are not triggering automatic deployments, you can manually 
 
 ### Quick Start: Manual Deployment via GitHub UI
 
-1. **Navigate to Actions**: Go to [GitHub Actions](https://github.com/neighborhood-lab/care-commons/actions)
+1. **Navigate to Actions**: Go to [GitHub Actions](https://github.com/neighborhood-lab/folkcare/actions)
 2. **Select Workflow**: Click "Deploy" in the left sidebar
 3. **Run Workflow**: Click "Run workflow" button
 4. **Configure**:
@@ -363,7 +363,7 @@ After manual deployment, always verify:
 
 ```bash
 # Check health endpoint
-curl https://care-commons.vercel.app/health
+curl https://folk.care/health
 
 # Expected response
 {
@@ -606,10 +606,10 @@ npm run typecheck
 ### Documentation
 - [Vercel Documentation](https://vercel.com/docs)
 - [Neon Documentation](https://neon.tech/docs)
-- [Care Commons README](./README.md)
+- [Folk README](./README.md)
 
 ### Getting Help
-- **GitHub Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/care-commons/issues)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/neighborhood-lab/folkcare/issues)
 - **Vercel Support**: support@vercel.com
 - **Neon Support**: support@neon.tech
 
@@ -648,5 +648,5 @@ Located in `packages/core/migrations/`:
 
 ---
 
-**Care Commons** - Cloud deployment infrastructure
+**Folk** - Cloud deployment infrastructure
 Built with Vercel and Neon PostgreSQL

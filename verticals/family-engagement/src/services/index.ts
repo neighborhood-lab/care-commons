@@ -1,5 +1,5 @@
 /**
- * @care-commons/family-engagement - Service Exports
+ * @folkcare/family-engagement - Service Exports
  */
 
 export * from './family-engagement-service';

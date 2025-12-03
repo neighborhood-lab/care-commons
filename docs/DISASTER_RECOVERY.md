@@ -12,50 +12,50 @@
 1. **Identify recovery point**
    ```bash
    # List available backups
-   aws s3 ls s3://care-commons-backups/backups/database/
+   aws s3 ls s3://folkcare-backups/backups/database/
    ```
 
 2. **Download backup**
    ```bash
-   aws s3 cp s3://care-commons-backups/backups/database/backup_20240101_020000.sql.gz .
+   aws s3 cp s3://folkcare-backups/backups/database/backup_20240101_020000.sql.gz .
    gunzip backup_20240101_020000.sql.gz
    ```
 
 3. **Stop application servers**
    ```bash
    # Prevent writes during recovery
-   kubectl scale deployment care-commons-api --replicas=0
+   kubectl scale deployment folkcare-api --replicas=0
    ```
 
 4. **Restore database**
    ```bash
    # Drop existing database (CAUTION!)
-   dropdb -h $DB_HOST -U $DB_USER care_commons
+   dropdb -h $DB_HOST -U $DB_USER folkcare
 
    # Create fresh database
-   createdb -h $DB_HOST -U $DB_USER care_commons
+   createdb -h $DB_HOST -U $DB_USER folkcare
 
    # Restore from backup
-   pg_restore -h $DB_HOST -U $DB_USER -d care_commons backup_20240101_020000.sql
+   pg_restore -h $DB_HOST -U $DB_USER -d folkcare backup_20240101_020000.sql
 
    # Or for .sql files:
-   psql -h $DB_HOST -U $DB_USER -d care_commons < backup_20240101_020000.sql
+   psql -h $DB_HOST -U $DB_USER -d folkcare < backup_20240101_020000.sql
    ```
 
 5. **Verify data integrity**
    ```bash
-   psql -h $DB_HOST -U $DB_USER -d care_commons -c "SELECT COUNT(*) FROM clients;"
-   psql -h $DB_HOST -U $DB_USER -d care_commons -c "SELECT COUNT(*) FROM visits;"
+   psql -h $DB_HOST -U $DB_USER -d folkcare -c "SELECT COUNT(*) FROM clients;"
+   psql -h $DB_HOST -U $DB_USER -d folkcare -c "SELECT COUNT(*) FROM visits;"
    ```
 
 6. **Restart application**
    ```bash
-   kubectl scale deployment care-commons-api --replicas=3
+   kubectl scale deployment folkcare-api --replicas=3
    ```
 
 7. **Verify application health**
    ```bash
-   curl https://care-commons.com/health/detailed
+   curl https://folkcare.com/health/detailed
    ```
 
 ### Expected Recovery Time
@@ -74,7 +74,7 @@ The `backup-database.sh` script performs automated database backups:
 ./scripts/backup-database.sh
 
 # Schedule via cron (daily at 2 AM)
-0 2 * * * /path/to/care-commons/scripts/backup-database.sh >> /var/log/care-commons-backup.log 2>&1
+0 2 * * * /path/to/folkcare/scripts/backup-database.sh >> /var/log/folkcare-backup.log 2>&1
 ```
 
 Features:
@@ -92,7 +92,7 @@ The `backup-files.sh` script backs up user-uploaded files:
 ./scripts/backup-files.sh
 
 # Schedule via cron (daily at 3 AM)
-0 3 * * * /path/to/care-commons/scripts/backup-files.sh >> /var/log/care-commons-files-backup.log 2>&1
+0 3 * * * /path/to/folkcare/scripts/backup-files.sh >> /var/log/folkcare-files-backup.log 2>&1
 ```
 
 ### Configuration Backups
@@ -104,7 +104,7 @@ The `backup-config.sh` script backs up critical configuration files:
 ./scripts/backup-config.sh
 
 # Schedule via cron (weekly)
-0 4 * * 0 /path/to/care-commons/scripts/backup-config.sh >> /var/log/care-commons-config-backup.log 2>&1
+0 4 * * 0 /path/to/folkcare/scripts/backup-config.sh >> /var/log/folkcare-config-backup.log 2>&1
 ```
 
 ## Backup Verification
@@ -118,7 +118,7 @@ The `verify-backups.sh` script checks that recent backups exist and are valid:
 ./scripts/verify-backups.sh
 
 # Schedule via cron (every 6 hours)
-0 */6 * * * /path/to/care-commons/scripts/verify-backups.sh >> /var/log/care-commons-backup-verify.log 2>&1
+0 */6 * * * /path/to/folkcare/scripts/verify-backups.sh >> /var/log/folkcare-backup-verify.log 2>&1
 ```
 
 ### Monthly Restoration Tests
@@ -130,7 +130,7 @@ The `test-backup-restore.sh` script performs a full restoration test:
 ./scripts/test-backup-restore.sh
 
 # Schedule via cron (first day of month at 5 AM)
-0 5 1 * * /path/to/care-commons/scripts/test-backup-restore.sh >> /var/log/care-commons-backup-test.log 2>&1
+0 5 1 * * /path/to/folkcare/scripts/test-backup-restore.sh >> /var/log/folkcare-backup-test.log 2>&1
 ```
 
 ## Data Retention
@@ -147,10 +147,10 @@ Healthcare records must be retained for 6 years minimum. Our policy:
 
 ```bash
 # Run manually (caution: destructive)
-psql -h $DB_HOST -U $DB_USER -d care_commons -f scripts/data-retention.sql
+psql -h $DB_HOST -U $DB_USER -d folkcare -f scripts/data-retention.sql
 
 # Schedule via cron (first day of every month at 3 AM)
-0 3 1 * * psql -h $DB_HOST -U $DB_USER -d care_commons -f /path/to/scripts/data-retention.sql >> /var/log/care-commons-retention.log 2>&1
+0 3 1 * * psql -h $DB_HOST -U $DB_USER -d folkcare -f /path/to/scripts/data-retention.sql >> /var/log/folkcare-retention.log 2>&1
 ```
 
 ## Database Restoration
@@ -159,7 +159,7 @@ psql -h $DB_HOST -U $DB_USER -d care_commons -f scripts/data-retention.sql
 
 ```bash
 # Restore from a backup file
-./scripts/restore-database.sh /var/backups/care-commons/backup_care_commons_20240101_020000.sql.gz
+./scripts/restore-database.sh /var/backups/folkcare/backup_folkcare_20240101_020000.sql.gz
 ```
 
 The script will:
@@ -176,10 +176,10 @@ If the script is unavailable:
 
 ```bash
 # Decompress backup
-gunzip backup_care_commons_20240101_020000.sql.gz
+gunzip backup_folkcare_20240101_020000.sql.gz
 
 # Restore
-psql -h localhost -U postgres -d care_commons -f backup_care_commons_20240101_020000.sql
+psql -h localhost -U postgres -d folkcare -f backup_folkcare_20240101_020000.sql
 ```
 
 ## Neon PostgreSQL

@@ -2,14 +2,14 @@
 
 **State Code**: TX
 
-This document tracks changes to Texas home healthcare regulations and how they affect Care Commons implementation.
+This document tracks changes to Texas home healthcare regulations and how they affect Folk implementation.
 
 ## 2025
 
 ### 2025-11-05 - Initial Documentation
 
 ### Change Description
-Initial comprehensive documentation of Texas home healthcare regulatory requirements for Care Commons.
+Initial comprehensive documentation of Texas home healthcare regulatory requirements for Folk.
 
 ### Effective Date
 N/A - Initial documentation
@@ -66,7 +66,7 @@ N/A - Internal documentation
 - Texas Administrative Code Title 26, Chapter 558: https://texreg.sos.state.tx.us/
 - Texas Human Resources Code: https://statutes.capitol.texas.gov/
 - HHSC EVV Policy: https://hhs.texas.gov/services/health/medicaid-chip/provider-information/electronic-visit-verification-evv
-- Care Commons GitHub: https://github.com/neighborhood-lab/care-commons
+- Folk GitHub: https://github.com/neighborhood-lab/folkcare
 
 ---
 
@@ -145,7 +145,7 @@ Set up automated alerts for:
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0.0 | 2025-11-05 | Initial comprehensive documentation | Care Commons Team |
+| 1.0.0 | 2025-11-05 | Initial comprehensive documentation | Folk Team |
 
 ---
 
@@ -181,5 +181,5 @@ No proposed rules currently under review affecting home healthcare.
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

@@ -95,7 +95,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   const handleBiometricLogin = async () => {
     setIsLoading(true);
     try {
-      const success = await BiometricService.authenticate('Login to Care Commons');
+      const success = await BiometricService.authenticate('Login to Folk');
 
       if (!success) {
         setIsLoading(false);
@@ -120,7 +120,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Care Commons</Text>
+        <Text style={styles.title}>Folk</Text>
         <Text style={styles.subtitle}>Caregiver Mobile App</Text>
 
         <View style={styles.form}>

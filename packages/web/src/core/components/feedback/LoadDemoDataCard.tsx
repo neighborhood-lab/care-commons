@@ -32,7 +32,7 @@ export const LoadDemoDataCard: React.FC<LoadDemoDataCardProps> = ({
             Get started with sample data
           </h2>
           <p className="text-gray-600 mb-6">
-            Load realistic sample data to explore Care Commons features.
+            Load realistic sample data to explore Folk features.
             You can remove it anytime and add your real data when ready.
           </p>
 

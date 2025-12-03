@@ -5,7 +5,7 @@
  */
 
 import express, { Request, Response } from 'express';
-import { getDatabase, BillingRepository, createEmailService, createStripeService } from '@care-commons/core';
+import { getDatabase, BillingRepository, createEmailService, createStripeService } from '@folkcare/core';
 
 const router = express.Router();
 

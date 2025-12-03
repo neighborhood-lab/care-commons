@@ -32,7 +32,7 @@ Two new React components are available:
 import {
   EnhancedMatchExplanations,
   MatchingAlgorithm
-} from '@care-commons/shift-matching';
+} from '@folkcare/shift-matching';
 
 // After evaluating a match candidate
 const candidate = MatchingAlgorithm.evaluateMatch(openShift, caregiverContext, config);
@@ -62,7 +62,7 @@ return {
 ### Frontend: Displaying the Visualization
 
 ```tsx
-import { MatchExplanationVisualization } from '@care-commons/shift-matching';
+import { MatchExplanationVisualization } from '@folkcare/shift-matching';
 
 function AssignmentScreen() {
   const { candidate, explanations } = useMatchData(shiftId, caregiverId);
@@ -89,7 +89,7 @@ function AssignmentScreen() {
 ### Compact View for Lists
 
 ```tsx
-import { MatchExplanationCompact } from '@care-commons/shift-matching';
+import { MatchExplanationCompact } from '@folkcare/shift-matching';
 
 function MatchCandidateList({ candidates }) {
   return (
@@ -395,5 +395,5 @@ For questions or issues:
 
 ---
 
-**Care Commons** - Shared care software, community owned
+**Folk** - Shared care software, community owned
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

@@ -5,7 +5,7 @@
  * federal 21st Century Cures Act baseline.
  */
 
-import { UUID, Timestamp } from '@care-commons/core';
+import { UUID, Timestamp } from '@folkcare/core';
 
 /**
  * State Codes - All states with EVV mandates

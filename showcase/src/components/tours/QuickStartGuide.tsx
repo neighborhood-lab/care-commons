@@ -65,7 +65,7 @@ export function QuickStartGuide() {
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
         <h3 className="text-xl font-bold text-white">Quick Start Guide</h3>
         <p className="text-purple-100 text-sm mt-1">
-          New to Care Commons? Follow these steps to explore the platform (27 minutes total)
+          New to Folk? Follow these steps to explore the platform (27 minutes total)
         </p>
       </div>
 

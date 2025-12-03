@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CaregiverRepository } from '../repository/caregiver-repository';
-import type { Database, UserContext } from '@care-commons/core';
+import type { Database, UserContext } from '@folkcare/core';
 
 describe('CaregiverRepository', () => {
   let repository: CaregiverRepository;

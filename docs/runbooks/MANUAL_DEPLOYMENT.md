@@ -10,7 +10,7 @@
 
 ## Prerequisites
 
-- GitHub account with `write` permissions on the Care Commons repository
+- GitHub account with `write` permissions on the Folk repository
 - Access to GitHub Actions
 - Knowledge of current production/preview state
 - Understanding of the deployment process
@@ -31,7 +31,7 @@ Use manual deployment in these scenarios:
 
 ### Step 1: Navigate to Actions
 
-1. Go to [GitHub Actions](https://github.com/neighborhood-lab/care-commons/actions)
+1. Go to [GitHub Actions](https://github.com/neighborhood-lab/folkcare/actions)
 2. Click **"Deploy"** workflow in the left sidebar
 
 ### Step 2: Configure Deployment
@@ -94,10 +94,10 @@ Use manual deployment in these scenarios:
 
 ```bash
 # Production
-curl https://care-commons.vercel.app/health
+curl https://folk.care/health
 
 # Preview
-curl https://preview-care-commons.vercel.app/health
+curl https://preview-folk.care/health
 ```
 
 **Expected response:**
@@ -224,7 +224,7 @@ If deployment fails or introduces critical issues:
 
 ### Via Rollback Workflow (Recommended)
 
-1. Go to [GitHub Actions](https://github.com/neighborhood-lab/care-commons/actions)
+1. Go to [GitHub Actions](https://github.com/neighborhood-lab/folkcare/actions)
 2. Click **"Emergency Rollback"** workflow
 3. Click **"Run workflow"**
 4. Fill in parameters:
@@ -236,7 +236,7 @@ If deployment fails or introduces critical issues:
 ### Finding Deployment ID
 
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
-2. Select Care Commons project
+2. Select Folk project
 3. Click **"Deployments"** tab
 4. Find last working deployment
 5. Copy deployment ID (URL segment or shown in details)
@@ -253,7 +253,7 @@ gh workflow run rollback.yml \
 ### Via Vercel Dashboard (Alternative)
 
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
-2. Select Care Commons project
+2. Select Folk project
 3. Click **"Deployments"** tab
 4. Find last working deployment
 5. Click **"..."** menu → **"Promote to Production"**
@@ -303,7 +303,7 @@ gh secret list | grep DATABASE_URL
 **Diagnosis**:
 ```bash
 # Check Vercel function logs
-vercel logs care-commons --prod
+vercel logs folkcare --prod
 
 # Test database connectivity directly
 psql $DATABASE_URL -c "SELECT 1"
@@ -416,7 +416,7 @@ gh workflow view deploy.yml
 gh run list --workflow=deploy.yml
 
 # Check repository permissions
-gh api repos/neighborhood-lab/care-commons/collaborators/<username>/permission
+gh api repos/neighborhood-lab/folkcare/collaborators/<username>/permission
 ```
 
 **Resolution**:
@@ -483,10 +483,10 @@ gh api repos/neighborhood-lab/care-commons/collaborators/<username>/permission
 
 ## Support Contacts
 
-- **Deployment Issues**: ops@carecommons.org
-- **Database Issues**: dba@carecommons.org
-- **Emergency (production down)**: emergency@carecommons.org
-- **Security Issues**: security@carecommons.org
+- **Deployment Issues**: ops@folkcare.org
+- **Database Issues**: dba@folkcare.org
+- **Emergency (production down)**: emergency@folkcare.org
+- **Security Issues**: security@folkcare.org
 
 ---
 

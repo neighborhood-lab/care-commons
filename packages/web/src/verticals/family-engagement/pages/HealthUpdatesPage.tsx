@@ -10,7 +10,7 @@ import { useFamilyDashboard } from '../hooks';
 import { useAuth } from '@/core/hooks';
 import { ActivityFeed, VisitCard } from '../components';
 import { Heart, FileText, Activity } from 'lucide-react';
-import type { UUID } from '@care-commons/core/browser';
+import type { UUID } from '@folkcare/core/browser';
 
 export const HealthUpdatesPage: React.FC = () => {
   const { user } = useAuth();

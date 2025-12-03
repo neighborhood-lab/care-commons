@@ -288,8 +288,8 @@ See Task 3 in the project improvement tasks for detailed instructions.
 ### Creating a Care Plan
 
 ```typescript
-import { CarePlanService } from '@care-commons/care-plans-tasks';
-import { Database } from '@care-commons/core';
+import { CarePlanService } from '@folkcare/care-plans-tasks';
+import { Database } from '@folkcare/core';
 
 const db = new Database(config);
 const service = new CarePlanService(db);
@@ -610,10 +610,10 @@ This vertical integrates with:
 For questions or issues with the Care Plans & Tasks Library vertical:
 
 - Open an issue on GitHub
-- Check the [documentation](https://docs.care-commons.org)
+- Check the [documentation](https://docs.folkcare.org)
 - Join our community discussions
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

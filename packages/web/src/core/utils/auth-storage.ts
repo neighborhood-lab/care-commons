@@ -12,7 +12,7 @@ const AUTH_STORAGE_KEY = 'auth-storage';
 /**
  * Check if we're in demo mode
  * Demo mode is detected by:
- * 1. Demo user email patterns (@{state}.carecommons.example)
+ * 1. Demo user email patterns (@{state}.folkcare.example)
  * 2. Environment variable
  */
 function isDemoMode(email?: string): boolean {
@@ -22,12 +22,12 @@ function isDemoMode(email?: string): boolean {
   }
 
   // Check email pattern (demo users have state-specific emails)
-  if (email && /@[a-z]{2}\.carecommons\.example$/i.test(email)) {
+  if (email && /@[a-z]{2}\.folkcare\.example$/i.test(email)) {
     return true;
   }
 
   // Check for generic demo emails
-  if (email && /@carecommons\.example$/i.test(email)) {
+  if (email && /@folkcare\.example$/i.test(email)) {
     return true;
   }
 
@@ -46,7 +46,7 @@ function getStoredAuth(): { user: User; token: string } | null {
     const state = parsed?.state;
     
     // Validate we have the minimum required data
-    if (!state || !state.user || typeof state.user !== 'object') {
+    if (!state?.user || typeof state.user !== 'object') {
       return null;
     }
 
@@ -75,7 +75,7 @@ export function detectStaleAuthData(
   }
 
   const stored = getStoredAuth();
-  if (!stored || !stored.user) {
+  if (!stored?.user) {
     // No stored data or invalid data, nothing to detect
     return false;
   }
@@ -142,7 +142,7 @@ export function handleSmartLogin(
  */
 export function initAuthStorage(): void {
   const stored = getStoredAuth();
-  if (!stored || !stored.user) return;
+  if (!stored?.user) return;
 
   // In demo mode, if the stored user ID looks like a UUID but the
   // organizationId is invalid, clear it

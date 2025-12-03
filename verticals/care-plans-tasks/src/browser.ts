@@ -1,5 +1,5 @@
 /**
- * @care-commons/care-plans-tasks/browser
+ * @folkcare/care-plans-tasks/browser
  *
  * Browser-safe exports from care-plans-tasks package
  * This file excludes server-only modules (repositories, services)

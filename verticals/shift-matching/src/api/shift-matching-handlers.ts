@@ -7,7 +7,7 @@
  * - Administrative functions (configure matching rules, view analytics)
  */
 
-import { UserContext, PaginationParams, PaginatedResult } from '@care-commons/core';
+import { UserContext, PaginationParams, PaginatedResult } from '@folkcare/core';
 import { ShiftMatchingService } from '../service/shift-matching-service';
 import { ShiftMatchingRepository } from '../repository/shift-matching-repository';
 import {

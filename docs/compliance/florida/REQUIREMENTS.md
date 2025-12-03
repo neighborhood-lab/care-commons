@@ -2,7 +2,7 @@
 
 **State Code**: FL  
 **Last Updated**: 2025-11-05  
-**Verified By**: Care Commons Team  
+**Verified By**: Folk Team  
 **Next Review Date**: 2026-02-05
 
 ## Table of Contents
@@ -761,5 +761,5 @@ Standard HIPAA Privacy and Security Rules apply.
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

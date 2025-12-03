@@ -1,7 +1,7 @@
 # CLAUDE.md - Technical Reference for AI Assistants
 
 **Document Date:** November 2025  
-**Repository:** https://github.com/neighborhood-lab/care-commons  
+**Repository:** https://github.com/neighborhood-lab/folkcare  
 **For OpenCode/Claude Desktop:** See [AGENTS.md](./AGENTS.md) for implementation directives
 
 > Quick technical reference for AI assistants. For comprehensive agent directives, workflows, and deployment procedures, see AGENTS.md.
@@ -26,8 +26,8 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/neighborhood-lab/care-commons.git
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare.git
+cd folkcare
 nvm use  # Use Node.js 22.x
 npm install
 
@@ -85,7 +85,7 @@ npm run test         # Run all tests
 ## Project Structure
 
 ```
-care-commons/
+folkcare/
 ├── packages/
 │   ├── core/              # Shared domain logic, database, permissions
 │   │   ├── src/
@@ -251,7 +251,7 @@ await auditService.log({
 ```typescript
 // ✅ CORRECT - Always use .js extension
 import { ClientService } from './service.js';
-import { getDatabase } from '@care-commons/core/db.js';
+import { getDatabase } from '@folkcare/core/db.js';
 
 // ❌ WRONG - No extension
 import { ClientService } from './service';
@@ -285,6 +285,37 @@ app.post('/api/clients', async (req, res) => {
 
 ## Development Commands
 
+### GitHub Operations (IMPORTANT)
+
+**Use REST API, NOT `gh` CLI**
+
+The `gh` CLI uses GraphQL which has strict rate limits and blocks new accounts. Use our **SINGLE** REST API wrapper instead:
+
+```bash
+# Set your GitHub token
+export GITHUB_TOKEN="ghp_your_token_here"
+
+# Create an issue
+./scripts/github-api.sh issue-create "Title" "Body" "label1,label2"
+
+# Create a pull request
+./scripts/github-api.sh pr-create "Title" "Body" "feature/branch" "develop"
+
+# List issues/PRs
+./scripts/github-api.sh issue-list open
+./scripts/github-api.sh pr-list open
+```
+
+**CRITICAL - Single Entry Point:**
+- ✅ **ADD to `scripts/github-api.sh`** when you need new GitHub functionality
+- ❌ **DO NOT create separate scripts** (`gh-issue.sh`, `gh-pr.sh`, etc.)
+- ✅ **One script for ALL GitHub operations**
+
+**Why?**
+- ✅ REST API: 5,000 calls/hour, works for all accounts
+- ❌ GraphQL (gh CLI): Rate limited, blocked for new accounts
+- See `scripts/README.md` for detailed usage
+
 ### Database
 
 ```bash
@@ -311,7 +342,7 @@ npm run db:migration:create my_migration_name
 npm run dev
 
 # Start specific package
-npm run dev --filter=@care-commons/app
+npm run dev --filter=@folkcare/app
 ```
 
 ### Testing
@@ -347,7 +378,7 @@ npm run typecheck
 npm run build
 
 # Build specific package
-npm run build --filter=@care-commons/app
+npm run build --filter=@folkcare/app
 
 # Clean build artifacts
 npm run clean
@@ -465,8 +496,8 @@ describe('ClientService', () => {
 // verticals/client-demographics/tests/routes.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
-import { createApp } from '@care-commons/app/server.js';
-import { getDatabase } from '@care-commons/core/db.js';
+import { createApp } from '@folkcare/app/server.js';
+import { getDatabase } from '@folkcare/core/db.js';
 
 describe('Client API', () => {
   let app: Express;
@@ -552,12 +583,12 @@ ERROR: Pre-commit hooks failed
 
 ```typescript
 // Workspace packages
-import { getDatabase } from '@care-commons/core/db.js';
-import { createApp } from '@care-commons/app/server.js';
+import { getDatabase } from '@folkcare/core/db.js';
+import { createApp } from '@folkcare/app/server.js';
 
 // Verticals
-import { ClientService } from '@care-commons/client-demographics';
-import { CaregiverService } from '@care-commons/caregiver-staff';
+import { ClientService } from '@folkcare/client-demographics';
+import { CaregiverService } from '@folkcare/caregiver-staff';
 ```
 
 ---
@@ -570,15 +601,15 @@ import { CaregiverService } from '@care-commons/caregiver-staff';
 
 | Branch | Environment | URL |
 |--------|-------------|-----|
-| `production` | Production | care-commons.vercel.app |
+| `production` | Production | folk.care |
 | `preview` | Preview | preview-*.vercel.app |
-| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ |
+| `develop` | GitHub Pages | folk.care/ |
 
 **NOTE**: There is no `main` branch. This is intentional.
 
 ### Showcase Demo
 
-Static client-side demo at https://neighborhood-lab.github.io/care-commons/
+Static client-side demo at https://folk.care/
 - Uses localStorage (no backend)
 - Multi-role experience (patient, family, caregiver, coordinator, admin)
 - Includes mobile app simulator (work in progress)
@@ -599,21 +630,22 @@ npx tsx scripts/capture-ios-screenshots.ts --name screen-name
 cd packages/mobile && npm run test:e2e
 ```
 
-**Use screenshots to create GitHub issues with visual evidence.**
+**CRITICAL: Screenshots are the #1 verification technique.** You (the LLM) can read/see image files directly. Manual E2E testing by visually inspecting screenshots is critical for quality assurance. Always capture and review screenshots to verify UI changes.
 
 ### Authentication Notes
 
-**Working**: Demo logins (e.g., `admin@carecommons.example`)
+**Working**: Demo logins (e.g., `admin@folkcare.example`)
 
 **Not fully implemented**: Google OAuth, Stripe billing, multi-tenant signup
 
 ### Secrets
 
 - Ask user for secrets when needed - they will provide securely
-- Store in `.env` files (gitignored)
+- Store ALL secrets in `.secrets.txt` (single consolidated file, gitignored)
+- Also use `.env` files for environment-specific config (gitignored)
 - **NEVER** commit secrets or expose in client-side code
 - **NEVER** put secrets in GitHub issues, PRs, or comments
-- Common: `DATABASE_URL`, `JWT_SECRET`, `REDIS_URL` (optional)
+- Common: `GITHUB_TOKEN`, `DISCORD_WEBHOOK_URL`, `DATABASE_URL`, `JWT_SECRET`, `VERCEL_TOKEN`
 
 ### Vercel CLI
 
@@ -654,11 +686,23 @@ curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<b
 ```
 
 **Project IDs:**
-- care-commons: `spring-rice-86403246`
+- folkcare: `spring-rice-86403246`
 - Production branch: `br-solitary-glitter-aemgucz8`
 - Preview branch: `br-sparkling-haze-aemthibi`
 
 ---
+
+## Vibe Coding Workflow
+
+**THE BUCK STOPS WITH YOU**: You are your own code reviewer and merger for the develop branch.
+- Drive issues from creation through merge to develop
+- You create PRs, verify CI, review changes yourself, and merge
+- No waiting on human review for develop branch
+- Keep Discord dev-team channel updated with progress
+
+**Speed is Essential**: You are way faster than a human developer. We maintain ~80% of human dev team best practices, but ~20% no longer apply. This is vibe coding - keep things moving at lightning speed.
+
+**Full Authority**: You are domain expert, CTO, dev manager, all-star dev, product manager, designer, UI badass, database guru, and API stud. Do not downgrade to worse alternatives - stop and ask for help logging into things.
 
 ## Agent-Human Communication
 
@@ -669,6 +713,8 @@ curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<b
 **When Blocked**: Prompt Brian inline immediately.
 
 **When NOT Blocked**: Create GitHub issue instead of inline prompts.
+
+**Discord Updates**: Post to dev-team channel for significant progress, completions, and blockers.
 
 **Brian's Contact** (for external communications):
 - Brian Edwards, 512-584-6841, brian.mabry.edwards@gmail.com
@@ -736,5 +782,5 @@ See **[AGENTS.md](./AGENTS.md)** for comprehensive workflow details.
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

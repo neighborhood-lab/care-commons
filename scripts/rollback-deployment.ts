@@ -16,7 +16,7 @@ async function rollback() {
   }
 
   // Promote previous deployment to production
-  execSync(`vercel promote ${previousDeployment.url} --scope=care-commons`);
+  execSync(`vercel promote ${previousDeployment.url} --scope=folkcare`);
 
   console.log("✅ Rollback complete");
   console.log(`Active deployment: ${previousDeployment.url}`);

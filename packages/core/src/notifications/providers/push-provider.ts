@@ -300,7 +300,7 @@ export class PushProvider implements NotificationProvider {
     };
 
     const genericTitle = genericTitles[title];
-    return genericTitle !== undefined ? genericTitle : 'Care Commons Notification';
+    return genericTitle !== undefined ? genericTitle : 'Folk Notification';
   }
 
   /**

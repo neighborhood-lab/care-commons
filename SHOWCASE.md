@@ -1,10 +1,10 @@
-# Care Commons Platform - Interactive Showcase
+# Folk Platform - Interactive Showcase
 
-This showcase demonstrates the full capabilities of the Care Commons platform, running entirely in your browser using GitHub Pages.
+This showcase demonstrates the full capabilities of the Folk platform, running entirely in your browser using GitHub Pages.
 
 ## What is This?
 
-The Care Commons Showcase is an interactive demo that:
+The Folk Showcase is an interactive demo that:
 
 - **Runs 100% in-browser** - No backend server required
 - **Uses localStorage** - Each visitor gets their own sandbox
@@ -210,7 +210,7 @@ npm run build:showcase
 
 ## Learn More
 
-- **GitHub**: https://github.com/neighborhood-lab/care-commons
+- **GitHub**: https://github.com/neighborhood-lab/folkcare
 - **Documentation**: See `/docs` folder
 - **Contributing**: See `CONTRIBUTING.md`
 - **License**: Apache 2.0 (see `LICENSE`)

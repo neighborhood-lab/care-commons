@@ -10,10 +10,10 @@ import {
   ClockOutInput,
 } from '../types/evv';
 
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 
-import { Database, UserContext } from '@care-commons/core';
-import { ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
+import { Database, UserContext } from '@folkcare/core';
+import { ValidationError, PermissionError, NotFoundError } from '@folkcare/core';
 
 // Mock implementations
 const mockRepository = {

@@ -11,7 +11,7 @@ import {
   PermissionError,
   ConflictError,
   UserRepository,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { CaregiverRepository } from '../repository/caregiver-repository';
 import {
   Caregiver,

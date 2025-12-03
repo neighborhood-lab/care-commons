@@ -8,7 +8,7 @@
 
 ## Overview
 
-This guide provides procedures for load testing the Care Commons platform to ensure it can handle expected production traffic and identify performance bottlenecks.
+This guide provides procedures for load testing the Folk platform to ensure it can handle expected production traffic and identify performance bottlenecks.
 
 ---
 
@@ -331,7 +331,7 @@ k6 run --out influxdb=http://localhost:8086/k6 load-test.js
    vercel deploy --preview
 
    # Note the preview URL
-   # Example: https://care-commons-preview-abc123.vercel.app
+   # Example: https://folkcare-preview-abc123.vercel.app
    ```
 
 2. **Seed Test Data**:

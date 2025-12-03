@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document provides essential information for the support team to effectively assist users and troubleshoot common issues with the Care Commons platform.
+This document provides essential information for the support team to effectively assist users and troubleshoot common issues with the Folk platform.
 
 ---
 
@@ -121,8 +121,8 @@ This document provides essential information for the support team to effectively
 **Resolution**:
 ```
 1. Location Permission:
-   - iOS: Settings → Privacy → Location Services → Care Commons → "While Using"
-   - Android: Settings → Apps → Care Commons → Permissions → Location → "Allow"
+   - iOS: Settings → Privacy → Location Services → Folk → "While Using"
+   - Android: Settings → Apps → Folk → Permissions → Location → "Allow"
 
 2. Offline Mode:
    - App will cache clock-in
@@ -358,8 +358,8 @@ This document provides essential information for the support team to effectively
 - Android: 1.0.0 and above (Android 8.0+)
 
 **Where to Download**:
-- iOS: App Store (search "Care Commons")
-- Android: Google Play Store (search "Care Commons")
+- iOS: App Store (search "Folk")
+- Android: Google Play Store (search "Folk")
 
 ### Offline Mode
 
@@ -407,11 +407,11 @@ the app header - if it's spinning, data is syncing."
 ```
 iOS:
 1. Settings → Privacy → Location Services
-2. Find "Care Commons"
+2. Find "Folk"
 3. Select "While Using the App"
 
 Android:
-1. Settings → Apps → Care Commons
+1. Settings → Apps → Folk
 2. Permissions → Location
 3. Select "Allow only while using the app"
 ```
@@ -429,7 +429,7 @@ Android:
 
 **Monitoring Dashboards**:
 - Vercel Dashboard: https://vercel.com/[org]/[project]
-- Sentry Errors: https://sentry.io/[org]/care-commons
+- Sentry Errors: https://sentry.io/[org]/folkcare
 - Status Page (if configured): https://status.your-domain.com
 
 ### Known Limitations

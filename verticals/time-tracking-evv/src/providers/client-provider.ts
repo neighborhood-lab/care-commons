@@ -5,7 +5,7 @@
  * Implements the IClientProvider interface to decouple EVV from client-demographics vertical.
  */
 
-import { UUID, NotFoundError, Database } from '@care-commons/core';
+import { UUID, NotFoundError, Database } from '@folkcare/core';
 import type { IClientProvider } from '../interfaces/visit-provider';
 
 /**

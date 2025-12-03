@@ -5,7 +5,7 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { Database, AuthMiddleware } from '@care-commons/core';
+import { Database, AuthMiddleware } from '@folkcare/core';
 
 export function createSyncRouter(db: Database): Router {
   const router = Router();

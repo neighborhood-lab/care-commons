@@ -5,8 +5,8 @@
  */
 
 import { Router } from 'express';
-import type { Database } from '@care-commons/core';
-import { AuthMiddleware } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
+import { AuthMiddleware } from '@folkcare/core';
 import { createSyncHandlers } from './sync-handlers';
 import { syncLimiter } from '../../middleware/rate-limit';
 

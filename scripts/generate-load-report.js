@@ -30,7 +30,7 @@ const html = `
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Care Commons Load Test Report</title>
+  <title>Folk Load Test Report</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     h1 { color: #333; }
@@ -43,7 +43,7 @@ const html = `
   </style>
 </head>
 <body>
-  <h1>Care Commons Load Test Report</h1>
+  <h1>Folk Load Test Report</h1>
   <p>Generated: ${new Date().toISOString()}</p>
 
   ${Object.entries(results).map(([test, data]) => `

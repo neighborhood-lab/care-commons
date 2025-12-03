@@ -2,7 +2,7 @@
  * Medication Repository - Data access layer for medications and administrations
  */
 
-import { Repository, Database, UserContext } from '@care-commons/core';
+import { Repository, Database, UserContext } from '@folkcare/core';
 import type {
   Medication,
   MedicationAdministration,

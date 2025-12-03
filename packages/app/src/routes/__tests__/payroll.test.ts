@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import express, { Express } from 'express';
 import request from 'supertest';
-import { Database } from '@care-commons/core';
+import { Database } from '@folkcare/core';
 import { createPayrollRouter } from '../payroll';
 import { authContextMiddleware } from '../../middleware/auth-context';
 
@@ -44,7 +44,7 @@ const mockPayrollRepository = {
   }),
 };
 
-vi.mock('@care-commons/payroll-processing', () => ({
+vi.mock('@folkcare/payroll-processing', () => ({
   PayrollService: vi.fn(function() {
     return mockPayrollService;
   }),

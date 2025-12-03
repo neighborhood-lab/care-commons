@@ -14,7 +14,7 @@
  * - Supervisory visit requirements
  */
 
-import { UUID, Timestamp } from '@care-commons/core';
+import { UUID, Timestamp } from '@folkcare/core';
 
 /**
  * State jurisdiction for compliance

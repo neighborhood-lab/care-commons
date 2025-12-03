@@ -7,7 +7,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useUnreadNotifications } from '../hooks';
 import { useAuth } from '@/core/hooks';
-import type { UUID } from '@care-commons/core/browser';
+import type { UUID } from '@folkcare/core/browser';
 
 interface VisitNotificationsProps {
   

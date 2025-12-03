@@ -5,7 +5,7 @@
  */
 
 import type { ApiClient } from '@/core/services';
-import type { UUID } from '@care-commons/core/browser';
+import type { UUID } from '@folkcare/core/browser';
 import type {
   FamilyMember,
   FamilyDashboard,
@@ -14,7 +14,7 @@ import type {
   MessageThread,
   Message,
   NotificationPreferences,
-} from '@care-commons/family-engagement';
+} from '@folkcare/family-engagement';
 
 const BASE_URL = '/api/family-engagement';
 

@@ -102,7 +102,7 @@ PRODUCTION DEPLOYMENT WORKFLOW:
     ┌──────────────────────────┐
     │ Production Environment   │
     │ (Vercel Production Env)  │
-    │   care-commons.app       │
+    │   folkcare.app       │
     └──────────────────────────┘
 ```
 
@@ -301,13 +301,13 @@ Developer                    GitHub                     Vercel
 └──────────────────────────────────────────────────────┘
 
 Production (Vercel Production Environment):
-  URL: https://care-commons.vercel.app
+  URL: https://folk.care
   Branch: main
   Database: Production (Neon)
   Trigger: Push to main
 
 Preview (Vercel Preview Environment):
-  URL: https://care-commons-preview.vercel.app
+  URL: https://folkcare-preview.vercel.app
   Branch: develop
   Database: Preview (Neon)
   Trigger: Push to develop

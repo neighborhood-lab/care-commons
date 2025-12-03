@@ -4,7 +4,7 @@
  * Service for managing care plan templates and creating care plans from templates
  */
 
-import { UUID, UserContext, NotFoundError } from '@care-commons/core';
+import { UUID, UserContext, NotFoundError } from '@folkcare/core';
 import { addDays } from 'date-fns';
 import {
   CARE_PLAN_TEMPLATES,

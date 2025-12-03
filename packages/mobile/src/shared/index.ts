@@ -1,5 +1,5 @@
 /**
- * Shared exports from @care-commons/core and verticals
+ * Shared exports from @folkcare/core and verticals
  * 
  * This module re-exports types, services, and utilities from the core package
  * for direct use in the mobile app. This maximizes code reuse and ensures
@@ -22,7 +22,7 @@ export type {
   PaginationParams,
   PaginatedResult,
   Result,
-} from '@care-commons/core/browser';
+} from '@folkcare/core/browser';
 
 // Core error types (browser-safe)
 export {
@@ -33,7 +33,7 @@ export {
   ServiceUnavailableError,
   InternalServerError,
   DatabaseError,
-} from '@care-commons/core/browser';
+} from '@folkcare/core/browser';
 
 // Additional error types from base
 export type {
@@ -43,13 +43,13 @@ export type {
   NotFoundError,
   ConflictError,
   AuthenticationError,
-} from '@care-commons/core/browser';
+} from '@folkcare/core/browser';
 
 // Organization types (browser-safe)
 export type {
   Organization,
   OrganizationSettings,
-} from '@care-commons/core/browser';
+} from '@folkcare/core/browser';
 
 // Note: PermissionService and AuditService are server-only
 // Mobile app should use API endpoints for permissions/audit instead
@@ -112,7 +112,7 @@ export type {
   // Search filters
   EVVRecordSearchFilters,
   TimeEntrySearchFilters,
-} from '@care-commons/time-tracking-evv/browser';
+} from '@folkcare/time-tracking-evv/browser';
 
 // State-specific types (browser-safe)
 export type {
@@ -133,19 +133,19 @@ export type {
   StateEVVException,
   StateExceptionType,
   FloridaEVVException,
-} from '@care-commons/time-tracking-evv/browser';
+} from '@folkcare/time-tracking-evv/browser';
 
 // State-specific helper functions (browser-safe)
 export {
   getStateEVVRules,
   selectAggregator,
-} from '@care-commons/time-tracking-evv/browser';
+} from '@folkcare/time-tracking-evv/browser';
 
 // EVV Validation (browser-safe)
 export {
   EVVValidator,
   CryptoUtils,
-} from '@care-commons/time-tracking-evv/browser';
+} from '@folkcare/time-tracking-evv/browser';
 
 // Note: EVVService and IntegrationService use Database (server-only)
 // Mobile app should use API endpoints for EVV operations instead
@@ -203,7 +203,7 @@ export type VisitStatus =
   | 'PENDING_SYNC';
 
 // Import types for use in this module
-import type { ServiceAddress } from '@care-commons/time-tracking-evv';
+import type { ServiceAddress } from '@folkcare/time-tracking-evv';
 
 export interface MobileVisit {
   id: string; // UUID

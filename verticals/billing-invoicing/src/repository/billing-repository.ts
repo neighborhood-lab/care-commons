@@ -6,7 +6,7 @@
 
 import { Pool, PoolClient } from 'pg';
 import { v4 as uuid } from 'uuid';
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 import {
   BillableItem,
   Invoice,

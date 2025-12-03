@@ -222,7 +222,7 @@ APK will be in `android/app/build/outputs/apk/release/`
 open ~/Library/Developer/CoreSimulator/Devices/[DEVICE_ID]/data/Containers/Data/Application/[APP_ID]/Documents/
 
 # Android Emulator
-adb pull /data/data/com.carecommons.mobile/databases/watermelon.db
+adb pull /data/data/com.folkcare.mobile/databases/watermelon.db
 sqlite3 watermelon.db
 ```
 
@@ -239,7 +239,7 @@ await resetDatabase(); // WARNING: Deletes all data!
 Create `.env` file (ignored by git):
 
 ```env
-EXPO_PUBLIC_API_URL=https://api.carecommons.example
+EXPO_PUBLIC_API_URL=https://api.folkcare.example
 EXPO_PUBLIC_ENVIRONMENT=development
 ```
 

@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { IncidentService } from '../service/incident-service.js';
-import type { UserContext, Role } from '@care-commons/core';
+import type { UserContext, Role } from '@folkcare/core';
 import { createIncidentSchema, updateIncidentSchema } from '../validation/incident-validator.js';
 import { ZodError } from 'zod';
 import type { IncidentType, IncidentSeverity, IncidentStatus } from '../types/incident.js';

@@ -1,6 +1,6 @@
 ---
 title: "Compliance Tracking in Home Healthcare: Why It's Broken and How to Fix It"
-subtitle: "Care Commons ships proactive compliance monitoring"
+subtitle: "Folk ships proactive compliance monitoring"
 scheduled_date: 2025-11-26
 image_prompt: "Flat illustration showing a dashboard with credential expiration dates, warning indicators, calendar with deadlines, warm earth tones (orange, brown, cream, olive green), simple geometric shapes, organized and precise aesthetic"
 tags: [compliance, product, technical]
@@ -13,7 +13,7 @@ CMS proposed new home health conditions of participation in October 2025, adding
 
 Home healthcare agencies face a compliance environment that gets more complex every year. The tools they have to manage it haven't kept pace.
 
-This article explains what compliance tracking actually requires, why existing solutions fail, and what Care Commons built to address the gap.
+This article explains what compliance tracking actually requires, why existing solutions fail, and what Folk built to address the gap.
 
 ---
 
@@ -81,7 +81,7 @@ An audit report showing credential expiration history doesn't help a coordinator
 
 ---
 
-## What Care Commons Built
+## What Folk Built
 
 We shipped the Compliance Autopilot this week. It addresses each failure mode directly.
 
@@ -194,7 +194,7 @@ Supervisors receive morning digests summarizing compliance status. Caregivers re
 
 The honest comparison:
 
-| Capability | Enterprise Vendors | Care Commons |
+| Capability | Enterprise Vendors | Folk |
 |------------|-------------------|--------------|
 | Credential tracking | Yes | Yes |
 | State-specific rules | Configuration required | Built-in |
@@ -209,7 +209,7 @@ Enterprise vendors have advantages: larger support teams, more integrations, est
 
 For small-to-medium agencies (10-200 caregivers), the enterprise tradeoffs are worse. You pay for features you don't use, configure around state-specific gaps, and still end up with alert-based rather than preventive compliance.
 
-Care Commons is built for the latter segment.
+Folk is built for the latter segment.
 
 ---
 
@@ -246,12 +246,12 @@ Each addition follows the same pattern: state-specific rules, real-time constrai
 
 The Compliance Autopilot is live:
 
-- **Production:** [care-commons.vercel.app/compliance](https://care-commons.vercel.app/compliance)
-- **Showcase:** [neighborhood-lab.github.io/care-commons](https://neighborhood-lab.github.io/care-commons/)
-- **Source:** [github.com/neighborhood-lab/care-commons](https://github.com/neighborhood-lab/care-commons)
+- **Production:** [folk.care/compliance](https://folk.care/compliance)
+- **Showcase:** [folk.care](https://folk.care/)
+- **Source:** [github.com/neighborhood-lab/folkcare](https://github.com/neighborhood-lab/folkcare)
 
-Care Commons is open source under MIT license. Contributions welcome, especially state-specific compliance rules from practitioners who know their state's requirements.
+Folk is open source under MIT license. Contributions welcome, especially state-specific compliance rules from practitioners who know their state's requirements.
 
 ---
 
-*Brian Edwards builds Care Commons with Neighborhood Lab. Contact: brian.mabry.edwards@gmail.com*
+*Brian Edwards builds Folk with Neighborhood Lab. Contact: brian.mabry.edwards@gmail.com*

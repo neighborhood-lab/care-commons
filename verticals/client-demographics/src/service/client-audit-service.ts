@@ -12,7 +12,7 @@
  * and geolocation tracking.
  */
 
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 
 /**
  * Database interface for executing queries

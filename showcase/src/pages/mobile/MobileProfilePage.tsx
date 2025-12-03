@@ -150,7 +150,7 @@ export const MobileProfilePage: React.FC = () => {
 
         {/* App Info */}
         <div className="text-center text-xs text-gray-500 pb-4">
-          <p>Care Commons Mobile v1.0.0</p>
+          <p>Folk Mobile v1.0.0</p>
           <p className="mt-1">Showcase Demo Mode</p>
         </div>
       </div>

@@ -9,7 +9,7 @@ describe.skipIf(process.env.DB_NAME === undefined || process.env.DB_NAME === '')
     db = initializeDatabase({
       host: process.env.DB_HOST ?? 'localhost',
       port: process.env.DB_PORT !== undefined && process.env.DB_PORT !== '' ? Number(process.env.DB_PORT) : 5432,
-      database: process.env.DB_NAME ?? 'care_commons_test',
+      database: process.env.DB_NAME ?? 'folkcare_test',
       user: process.env.DB_USER ?? 'postgres',
       password: process.env.DB_PASSWORD ?? 'postgres',
       ssl: false,

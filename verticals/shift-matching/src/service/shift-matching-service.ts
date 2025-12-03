@@ -16,10 +16,10 @@ import {
   NotFoundError,
   ConflictError,
   Database,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { ShiftMatchingRepository } from '../repository/shift-matching-repository';
 import { MatchingAlgorithm, CaregiverContext } from '../utils/matching-algorithm';
-import { CaregiverService } from '@care-commons/caregiver-staff';
+import { CaregiverService } from '@folkcare/caregiver-staff';
 import {
   OpenShift,
   MatchCandidate,

@@ -11,7 +11,7 @@ export default async function globalTeardown() {
   const dropDatabase = process.env['E2E_DROP_DATABASE'] === 'true';
 
   if (dropDatabase) {
-    const dbName = process.env['E2E_DATABASE_NAME'] || 'care_commons_e2e_test';
+    const dbName = process.env['E2E_DATABASE_NAME'] || 'folkcare_e2e_test';
     console.log(`⚠️  Dropping test database: ${dbName}...`);
 
     const { exec } = await import('child_process');
@@ -27,7 +27,7 @@ export default async function globalTeardown() {
     }
   } else {
     console.log('ℹ️  Test database preserved for debugging');
-    console.log('   To drop the database, run: dropdb care_commons_e2e_test');
+    console.log('   To drop the database, run: dropdb folkcare_e2e_test');
     console.log('   Or set E2E_DROP_DATABASE=true in environment');
   }
 

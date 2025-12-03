@@ -1,5 +1,5 @@
 /**
- * @care-commons/time-tracking-evv/browser
+ * @folkcare/time-tracking-evv/browser
  * 
  * Browser-safe exports from time-tracking-evv
  * Excludes server-only modules (providers, repository, services that use Database)

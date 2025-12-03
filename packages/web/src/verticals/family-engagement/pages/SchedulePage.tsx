@@ -10,8 +10,8 @@ import { useFamilyDashboard } from '../hooks';
 import { useAuth } from '@/core/hooks';
 import { VisitCard, VisitTimeline } from '../components';
 import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { UUID } from '@care-commons/core/browser';
-import type { VisitSummary } from '@care-commons/family-engagement';
+import type { UUID } from '@folkcare/core/browser';
+import type { VisitSummary } from '@folkcare/family-engagement';
 
 export const SchedulePage: React.FC = () => {
   const { user } = useAuth();

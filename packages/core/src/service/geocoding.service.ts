@@ -155,7 +155,7 @@ export class GeocodingService {
 
       const response = await fetch(url.toString(), {
         headers: {
-          'User-Agent': 'CareCommons/1.0'
+          'User-Agent': 'Folkcare/1.0'
         }
       });
 

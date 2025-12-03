@@ -18,7 +18,7 @@ This document provides hands-on demonstrations of the Shift Matching & Assignmen
 
 1. Run the core migration:
 ```bash
-psql -d care_commons -f packages/core/migrations/007_shift_matching.sql
+psql -d folkcare -f packages/core/migrations/007_shift_matching.sql
 ```
 
 2. Seed demo data:
@@ -38,7 +38,7 @@ This creates:
 
 ```typescript
 import { Pool } from 'pg';
-import { ShiftMatchingService, ShiftMatchingHandlers } from '@care-commons/shift-matching';
+import { ShiftMatchingService, ShiftMatchingHandlers } from '@folkcare/shift-matching';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const service = new ShiftMatchingService(pool);
@@ -54,7 +54,7 @@ const handlers = new ShiftMatchingHandlers(pool);
 **Scenario**: A client calls to request a visit, but no caregiver is assigned yet.
 
 ```typescript
-import { UserContext } from '@care-commons/core';
+import { UserContext } from '@folkcare/core';
 
 const context: UserContext = {
   userId: 'scheduler-uuid',
@@ -552,7 +552,7 @@ rejectionReasons.forEach((reason, index) => {
 ```typescript
 // demo.ts
 import { Pool } from 'pg';
-import { ShiftMatchingHandlers } from '@care-commons/shift-matching';
+import { ShiftMatchingHandlers } from '@folkcare/shift-matching';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

@@ -11,7 +11,7 @@ function generateTestSecret(length = 32): string {
 }
 
 /**
- * Playwright Configuration for Care Commons E2E Testing
+ * Playwright Configuration for Folk E2E Testing
  *
  * This configuration provides comprehensive E2E testing for critical workflows
  * including visit management, EVV compliance, and state-specific validations.
@@ -131,7 +131,7 @@ export default defineConfig({
     stderr: 'pipe',
     env: {
       NODE_ENV: 'test',
-      DATABASE_URL: process.env['E2E_DATABASE_URL'] || process.env['DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/care_commons_e2e_test',
+      DATABASE_URL: process.env['E2E_DATABASE_URL'] || process.env['DATABASE_URL'] || 'postgresql://postgres:postgres@localhost:5432/folkcare_e2e_test',
       PORT: '3000',
       // JWT secrets for authentication
       // Generate cryptographically secure random secrets if not provided

@@ -5,10 +5,10 @@
  */
 
 import { Express, Router } from 'express';
-import { Database, PermissionService, UserRepository, AuthMiddleware } from '@care-commons/core';
-import { createClientRouter, ClientService, ClientRepository } from '@care-commons/client-demographics';
-import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
-import { createCarePlanHandlers } from '@care-commons/care-plans-tasks';
+import { Database, PermissionService, UserRepository, AuthMiddleware } from '@folkcare/core';
+import { createClientRouter, ClientService, ClientRepository } from '@folkcare/client-demographics';
+import { CarePlanService, CarePlanRepository } from '@folkcare/care-plans-tasks';
+import { createCarePlanHandlers } from '@folkcare/care-plans-tasks';
 import { createHealthRouter } from './health';
 import { createMetricsRouter } from './metrics';
 import { createAuthRouter } from './auth';
@@ -31,10 +31,10 @@ import docsRoutes from './docs.routes';
 import { createPayrollRouter } from './payroll';
 import adminRoutes from './admin';
 import { createWhiteLabelRouter } from './white-label';
-import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@care-commons/quality-assurance-audits';
+import { AuditService, AuditRepository, AuditFindingRepository, CorrectiveActionRepository, createAuditRoutes } from '@folkcare/quality-assurance-audits';
 import { createSearchRouter } from './search.js';
-import { MedicationService, createMedicationHandlers } from '@care-commons/medication-management';
-import { IncidentService, createIncidentHandlers } from '@care-commons/incident-reporting';
+import { MedicationService, createMedicationHandlers } from '@folkcare/medication-management';
+import { IncidentService, createIncidentHandlers } from '@folkcare/incident-reporting';
 import {
   FamilyEngagementService,
   createFamilyEngagementHandlers,
@@ -42,7 +42,7 @@ import {
   NotificationRepository,
   ActivityFeedRepository,
   MessageRepository
-} from '@care-commons/family-engagement';
+} from '@folkcare/family-engagement';
 import { createVisitRouter } from './visits.js';
 import pushNotificationRouter from './push-notifications.js';
 import { createEVVRouter } from './evv.js';

@@ -17,7 +17,7 @@ function getConnectionConfig(): string {
   // Fall back to individual connection parameters
   const host = process.env.DB_HOST ?? 'localhost';
   const port = process.env.DB_PORT ?? '5432';
-  const database = process.env.DB_NAME ?? 'care_commons';
+  const database = process.env.DB_NAME ?? 'folkcare';
   const user = process.env.DB_USER ?? 'postgres';
   const password = process.env.DB_PASSWORD ?? 'postgres';
   const ssl = process.env.DB_SSL === 'true';
@@ -109,7 +109,7 @@ const config: { [key: string]: Knex.Config } = {
     connection: process.env.DATABASE_URL ?? {
       host: process.env.DB_HOST ?? 'localhost',
       port: parseInt(process.env.DB_PORT ?? '5432'),
-      database: (process.env.DB_NAME ?? 'care_commons') + '_test',
+      database: (process.env.DB_NAME ?? 'folkcare') + '_test',
       user: process.env.DB_USER ?? 'postgres',
       password: process.env.DB_PASSWORD ?? 'postgres',
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,

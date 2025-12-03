@@ -11,7 +11,7 @@ import { Card } from '@/core/components';
 import { useFamilyDashboard } from '../hooks';
 import { useAuth } from '@/core/hooks';
 import { UpcomingVisits, ActivityFeed, VisitNotifications } from '../components';
-import type { UUID } from '@care-commons/core/browser';
+import type { UUID } from '@folkcare/core/browser';
 
 interface QuickLinkCardProps {
   title: string;

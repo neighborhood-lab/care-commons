@@ -1,5 +1,5 @@
 /**
- * @care-commons/client-demographics
+ * @folkcare/client-demographics
  * 
  * Client & Demographics Management Vertical
  * 

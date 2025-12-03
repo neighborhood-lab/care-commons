@@ -11,7 +11,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { FamilyEngagementService } from '../services/family-engagement-service.js';
-import type { UserContext } from '@care-commons/core';
+import type { UserContext } from '@folkcare/core';
 import type {
   InviteFamilyMemberInput,
 } from '../types/family-engagement.js';

@@ -46,10 +46,10 @@ export function WelcomeTourBanner() {
           
           <div className="flex-1 min-w-0">
             <h3 className="text-xl font-bold text-white mb-2">
-              Welcome to Care Commons! 👋
+              Welcome to Folk! 👋
             </h3>
             <p className="text-blue-100 mb-4 max-w-2xl">
-              New to the platform? Take an interactive guided tour to learn how Care Commons 
+              New to the platform? Take an interactive guided tour to learn how Folk 
               helps home healthcare agencies manage clients, caregivers, compliance, and more.
             </p>
             

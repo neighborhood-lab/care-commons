@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ScheduleService, IClientAddressProvider } from '../schedule-service';
 import { ScheduleRepository } from '../../repository/schedule-repository';
-import type { UserContext, UUID } from '@care-commons/core';
+import type { UserContext, UUID } from '@folkcare/core';
 import type { ScheduleGenerationOptions } from '../../types/schedule';
 
 // Valid UUIDs for testing (version 4, variant 8)

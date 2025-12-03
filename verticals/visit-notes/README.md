@@ -119,7 +119,7 @@ GET    /api/visit-note-templates/active // Get active templates
 ### Create a Visit Note
 
 ```typescript
-import { VisitNoteRepository } from '@care-commons/visit-notes';
+import { VisitNoteRepository } from '@folkcare/visit-notes';
 
 const repo = new VisitNoteRepository(pool);
 

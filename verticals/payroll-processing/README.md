@@ -169,7 +169,7 @@ api/                      HTTP handlers (future)
 ### Creating a Pay Period
 
 ```typescript
-import { PayrollService } from '@care-commons/payroll-processing';
+import { PayrollService } from '@folkcare/payroll-processing';
 
 const period = await payrollService.createPayPeriod({
   organizationId: 'org-123',
@@ -362,9 +362,9 @@ See `packages/core/migrations/` for SQL migrations creating:
 
 ## Dependencies
 
-- `@care-commons/core` – Base types, database connection
-- `@care-commons/caregiver-staff` – Caregiver records and rates
-- `@care-commons/time-tracking-evv` – Source time data
+- `@folkcare/core` – Base types, database connection
+- `@folkcare/caregiver-staff` – Caregiver records and rates
+- `@folkcare/time-tracking-evv` – Source time data
 
 ## References
 

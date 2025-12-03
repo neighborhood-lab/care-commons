@@ -24,7 +24,7 @@ const { width } = Dimensions.get('window');
 const ONBOARDING_SLIDES = [
   {
     id: '1',
-    title: 'Welcome to Care Commons',
+    title: 'Welcome to Folk',
     description: 'Your all-in-one tool for managing client visits and care tasks',
     icon: '🏠',
     color: '#3b82f6',

@@ -1,6 +1,6 @@
 # Migration Guide - Client & Demographics Management
 
-This guide helps organizations migrate existing client data to Care Commons.
+This guide helps organizations migrate existing client data to Folk.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ This guide helps organizations migrate existing client data to Care Commons.
 
 Before beginning migration, ensure:
 
-- [ ] Care Commons instance is set up and running
+- [ ] Folk instance is set up and running
 - [ ] Organization and branch records are created
 - [ ] User accounts with appropriate permissions exist
 - [ ] Database backup of existing system is complete
@@ -59,9 +59,9 @@ File → Save As → CSV (Comma delimited)
 
 ### Required Fields
 
-Map these fields from your source system to Care Commons:
+Map these fields from your source system to Folk:
 
-| Care Commons Field | Description | Required | Example |
+| Folk Field | Description | Required | Example |
 |-------------------|-------------|----------|---------|
 | `firstName` | Client first name | ✅ | "Margaret" |
 | `lastName` | Client last name | ✅ | "Thompson" |
@@ -74,7 +74,7 @@ Map these fields from your source system to Care Commons:
 
 ### Optional but Recommended Fields
 
-| Care Commons Field | Source System Field | Example |
+| Folk Field | Source System Field | Example |
 |-------------------|---------------------|---------|
 | `middleName` | Middle Name | "Rose" |
 | `preferredName` | Nickname / Preferred | "Maggie" |
@@ -88,7 +88,7 @@ Map these fields from your source system to Care Commons:
 
 ### Emergency Contact Mapping
 
-| Care Commons Field | Source Field | Example |
+| Folk Field | Source Field | Example |
 |-------------------|--------------|---------|
 | `emergencyContacts[0].name` | Emergency Contact Name | "Sarah Thompson" |
 | `emergencyContacts[0].relationship` | Relationship | "Daughter" |
@@ -113,7 +113,7 @@ Use this TypeScript script to transform your CSV data:
 ```typescript
 import * as fs from 'fs';
 import * as csv from 'csv-parser';
-import { CreateClientInput } from '@care-commons/client-demographics';
+import { CreateClientInput } from '@folkcare/client-demographics';
 
 interface SourceRow {
   firstName: string;
@@ -238,7 +238,7 @@ async function transformCSV(inputFile: string, outputFile: string, orgId: string
 ### Option 1: Using the API
 
 ```typescript
-import { ClientService } from '@care-commons/client-demographics';
+import { ClientService } from '@folkcare/client-demographics';
 import * as fs from 'fs';
 
 async function importClients(jsonFile: string, clientService: ClientService, userContext: any) {
@@ -501,10 +501,10 @@ After successful import:
 ## Support
 
 For migration assistance:
-- **Documentation:** https://docs.carecommons.org
-- **Community Forum:** https://github.com/neighborhood-lab/care-commons/discussions
-- **Issues:** https://github.com/neighborhood-lab/care-commons/issues
+- **Documentation:** https://docs.folkcare.org
+- **Community Forum:** https://github.com/neighborhood-lab/folkcare/discussions
+- **Issues:** https://github.com/neighborhood-lab/folkcare/issues
 
 ---
 
-**Care Commons** - Shared care software, community owned.
+**Folk** - Shared care software, community owned.

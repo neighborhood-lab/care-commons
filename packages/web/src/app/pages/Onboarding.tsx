@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useOnboarding } from '@/core/hooks';
 import toast from 'react-hot-toast';
-import type { OnboardingStepId } from '@care-commons/core';
+import type { OnboardingStepId } from '@folkcare/core';
 
 /**
  * Onboarding Wizard for new agencies
  * 
  * This is a guided setup flow that helps new agencies configure their
- * Care Commons instance after signup. The goal is to get agencies from
+ * Folk instance after signup. The goal is to get agencies from
  * signup to first real visit in under 24 hours.
  */
 
@@ -934,7 +934,7 @@ export const Onboarding: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Welcome to Care Commons</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Welcome to Folk</h1>
               <p className="text-gray-600 mt-1">Let&apos;s get your agency set up</p>
             </div>
             <button

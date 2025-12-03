@@ -8,7 +8,7 @@
 /* eslint-disable sonarjs/redundant-type-aliases */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { Router } from 'express';
 
 // Helper to call Express route handlers (they expect req, res, next)
@@ -24,8 +24,8 @@ type RouterLayer = any;
 const mockVerifyEmail = vi.fn()!;
 const mockResendVerificationEmail = vi.fn()!;
 
-vi.mock('@care-commons/core', async () => {
-  const actual = await vi.importActual('@care-commons/core')!;
+vi.mock('@folkcare/core', async () => {
+  const actual = await vi.importActual('@folkcare/core')!;
   return {
     ...actual,
     EmailVerificationService: vi.fn().mockImplementation(function () {
@@ -225,7 +225,7 @@ describe('Verification Routes', () => {
 
     it('should handle ValidationError from service', async () => {
       // Import the mocked error class
-      const { ValidationError } = await import('@care-commons/core')!;
+      const { ValidationError } = await import('@folkcare/core')!;
       mockVerifyEmail.mockRejectedValue(new ValidationError('Token expired or invalid'))!;
 
       const req = {
@@ -307,7 +307,7 @@ describe('Verification Routes', () => {
     })!;
 
     it('should handle ValidationError (already verified)', async () => {
-      const { ValidationError } = await import('@care-commons/core')!;
+      const { ValidationError } = await import('@folkcare/core')!;
       mockResendVerificationEmail.mockRejectedValue(new ValidationError('Email already verified'))!;
 
       const req = {
@@ -333,7 +333,7 @@ describe('Verification Routes', () => {
     })!;
 
     it('should handle NotFoundError (user not found)', async () => {
-      const { NotFoundError } = await import('@care-commons/core')!;
+      const { NotFoundError } = await import('@folkcare/core')!;
       mockResendVerificationEmail.mockRejectedValue(new NotFoundError('User not found'))!;
 
       const req = {

@@ -1,7 +1,7 @@
 /**
  * Clear specific user cache by email
  * 
- * Usage: tsx scripts/clear-user-cache.ts admin@carecommons.example
+ * Usage: tsx scripts/clear-user-cache.ts admin@folkcare.example
  */
 
 import dotenv from 'dotenv';

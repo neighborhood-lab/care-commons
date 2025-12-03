@@ -1,6 +1,6 @@
 # API Documentation
 
-Comprehensive REST API documentation for the Care Commons platform.
+Comprehensive REST API documentation for the Folk platform.
 
 ## Quick Start
 
@@ -38,7 +38,7 @@ Login to obtain a JWT token:
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "admin@carecommons.example",
+    "email": "admin@folkcare.example",
     "password": "your_password"
   }'
 ```
@@ -50,7 +50,7 @@ Response:
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "uuid",
-    "email": "admin@carecommons.example",
+    "email": "admin@folkcare.example",
     "roles": ["ADMIN"]
   }
 }
@@ -343,13 +343,13 @@ Add reusable schemas in `packages/app/src/config/openapi-schemas.ts`.
 ### Documentation Issues
 
 Found an error in the API documentation?
-- Open an issue: https://github.com/neighborhood-lab/care-commons/issues
+- Open an issue: https://github.com/neighborhood-lab/folkcare/issues
 - Tag with `documentation` label
 
 ### API Support
 
 Need help integrating with the API?
-- Email: support@carecommons.example
+- Email: support@folkcare.example
 - Slack: #api-support (for partners)
 
 ## Changelog

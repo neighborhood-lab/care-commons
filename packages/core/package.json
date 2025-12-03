@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/core",
+  "name": "@folkcare/core",
   "version": "0.1.0",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  CORE ESM PACKAGE - DO NOT CHANGE type:module",
