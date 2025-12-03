@@ -1,7 +1,7 @@
 {
   "name": "@folkcare/payroll-processing",
   "version": "0.1.0",
-  "description": "Payroll Processing - Accurate caregiver compensation from time tracking to payment distribution",
+  "description": "Folk Care Payroll Processing - caregiver compensation from time tracking to payment",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",

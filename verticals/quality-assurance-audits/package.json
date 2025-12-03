@@ -1,6 +1,7 @@
 {
   "name": "@folkcare/quality-assurance-audits",
   "version": "0.1.0",
+  "description": "Folk Care Quality Assurance & Audits - compliance monitoring and auditing",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",

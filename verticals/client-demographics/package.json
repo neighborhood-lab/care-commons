@@ -1,7 +1,7 @@
 {
   "name": "@folkcare/client-demographics",
   "version": "0.1.0",
-  "description": "Client & Demographics Management vertical for Folk - comprehensive client information management",
+  "description": "Folk Care Client & Demographics Management - comprehensive client information management",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",

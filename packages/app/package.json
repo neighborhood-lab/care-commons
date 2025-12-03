@@ -6,7 +6,7 @@
   "//2": "⚠️  ESM PACKAGE - type:module + node:22.x required",
   "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
-  "description": "Folk API server",
+  "description": "Folk Care API server - Express backend for home healthcare management",
   "main": "dist/server.js",
   "engines": {
     "node": "22.x"

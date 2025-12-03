@@ -5,7 +5,7 @@
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
-  "description": "Billing & Invoicing - Revenue cycle management from service delivery to payment collection",
+  "description": "Folk Care Billing & Invoicing - revenue cycle from service delivery to payment",
   "engines": {
     "node": "22.x"
   },

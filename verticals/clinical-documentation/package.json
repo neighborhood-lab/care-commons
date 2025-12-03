@@ -5,7 +5,7 @@
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
-  "description": "Clinical Documentation - Visit notes, vital signs, wound care, OASIS assessments for skilled nursing",
+  "description": "Folk Care Clinical Documentation - vitals, wound care, and OASIS assessments",
   "engines": {
     "node": "22.x"
   },
