@@ -6,7 +6,12 @@
 
 // Load environment variables FIRST, before any other imports
 import dotenv from "dotenv";
-dotenv.config({ path: '../../.env', quiet: true });
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, '../../../.env'), quiet: true });
 
 // Initialize error tracking EARLY (before other imports that might throw)
 // Skip initialization during test imports (when VERCEL env is set) or in test mode

@@ -7,6 +7,8 @@
 import { Router } from 'express';
 import type { Database } from '@folkcare/core';
 import { GeocodingService } from '@folkcare/core';
+import { testUpstashConnection, getUpstashClient } from '../config/upstash.js';
+import { getRedisClient } from '../middleware/rate-limit.js';
 
 export function createHealthRouter(db: Database): Router {
   const router = Router();
@@ -16,19 +18,34 @@ export function createHealthRouter(db: Database): Router {
       // Check database connection
       await db.query('SELECT 1');
 
+      // Check Redis connections
+      const upstashClient = getUpstashClient();
+      const rateLimitClient = getRedisClient();
+      const redisStatus = {
+        upstash: upstashClient ? 'configured' : 'not-configured',
+        rateLimit: rateLimitClient ? 'connected' : 'in-memory-fallback',
+      };
+
+      // Test Upstash connection if available
+      if (upstashClient) {
+        const upstashHealthy = await testUpstashConnection();
+        redisStatus.upstash = upstashHealthy ? 'healthy' : 'unhealthy';
+      }
+
       res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
         database: 'connected',
+        redis: redisStatus,
         uptime: process.uptime(),
-        environment: process.env.NODE_ENV
+        environment: process.env.NODE_ENV,
       });
     } catch (error) {
       res.status(503).json({
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
         database: 'disconnected',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   });
