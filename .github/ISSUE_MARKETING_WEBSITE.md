@@ -30,7 +30,7 @@ The Neighborhood Lab Substack provides excellent foundation content. Key themes 
 - Community-owned, not VC-backed
 
 ### 2. **Problem/Solution**
-**The Problem** (from Substack "What is Folk?"):
+**The Problem** (from Substack "What is Folk Care?"):
 - Enterprise vendors charge $30k+ annually
 - Bloated platforms nobody asked for
 - Poor field performance
@@ -60,7 +60,7 @@ From "About" page:
 - Human-scale vs. enterprise bloat
 
 ### 5. **Pricing/Economics**
-From "What is Folk?":
+From "What is Folk Care?":
 - **Self-Hosted**: Free (if technical)
 - **Managed Hosting**: $200-500/month
 - **Support**: $150/hour
@@ -118,7 +118,7 @@ Multiple entry points:
 ## Content Sources to Mine
 
 Primary Substack posts to adapt:
-1. ✅ **"What is Folk?"** - Core product explanation
+1. ✅ **"What is Folk Care?"** - Core product explanation
 2. ✅ **"Family Portal"** - Feature storytelling approach
 3. **"About This Newsletter"** - Philosophy and mission
 4. **"Against Monopoly"** - Anti-corporate positioning
