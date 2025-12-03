@@ -2,7 +2,7 @@
 # ════════════════════════════════════════════════════════════════
 # Vercel + Neon Deployment Setup Script
 # ════════════════════════════════════════════════════════════════
-# This script helps you set up Care Commons for Vercel + Neon deployment
+# This script helps you set up Folk for Vercel + Neon deployment
 #
 # Prerequisites:
 # - Node.js 22.x installed
@@ -13,7 +13,7 @@
 set -e  # Exit on error
 
 echo "════════════════════════════════════════════════════════════════"
-echo " Care Commons - Vercel + Neon Setup"
+echo " Folk - Vercel + Neon Setup"
 echo "════════════════════════════════════════════════════════════════"
 echo ""
 

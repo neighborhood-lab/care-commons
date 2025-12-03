@@ -12,7 +12,7 @@ if [ -z "$LATEST_BACKUP" ]; then
   # Send alert
   if [ -n "$SLACK_WEBHOOK_URL" ]; then
     curl -X POST $SLACK_WEBHOOK_URL -H 'Content-Type: application/json' \
-      -d '{"text":"🚨 Care Commons: No recent database backup found!"}'
+      -d '{"text":"🚨 Folk: No recent database backup found!"}'
   fi
   exit 1
 else
