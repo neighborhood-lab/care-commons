@@ -1,13 +1,12 @@
-name: Deploy Showcase to GitHub Pages
+name: Deploy About Site to GitHub Pages
 
 on:
   push:
     branches:
       - develop
     paths:
-      - 'showcase/**'
-      - 'packages/shared-components/**'
-      - '.github/workflows/deploy-showcase.yml'
+      - 'about/**'
+      - '.github/workflows/deploy-about.yml'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
@@ -17,7 +16,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "pages-showcase"
+  group: "pages-about"
   cancel-in-progress: true
 
 jobs:
@@ -34,15 +33,15 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: cd about && npm ci
 
-      - name: Build showcase
-        run: npm run build --workspace=@folkcare/showcase
+      - name: Build about site
+        run: cd about && npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './showcase/dist'
+          path: './about/dist'
 
   deploy:
     environment:

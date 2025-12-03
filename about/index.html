@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folk Care - Shared care software, community owned</title>
+  <meta name="description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .header p {
+      font-size: 1.5rem;
+      opacity: 0.95;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .section {
+      padding: 4rem 0;
+    }
+    
+    .section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #667eea;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .feature {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .feature h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    
+    .feature p {
+      color: #666;
+      line-height: 1.8;
+    }
+    
+    .cta {
+      background: #667eea;
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+      margin-top: 4rem;
+    }
+    
+    .cta h2 {
+      color: white;
+      margin-bottom: 2rem;
+    }
+    
+    .button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      margin: 0.5rem;
+      transition: transform 0.2s;
+    }
+    
+    .button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .button-secondary {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+    
+    .footer {
+      background: #2d3748;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .header p {
+        font-size: 1.2rem;
+      }
+      
+      .section h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Folk Care</h1>
+    <p>Shared care software, community owned</p>
+  </header>
+
+  <div class="container">
+    <section class="section">
+      <h2>Complete Home Care Management Platform</h2>
+      <p style="text-align: center; font-size: 1.2rem; color: #666; max-width: 800px; margin: 0 auto;">
+        Open-source software for care agencies, families, and communities. Built for transparency, compliance, and better care outcomes.
+      </p>
+
+      <div class="features">
+        <div class="feature">
+          <h3>📅 Scheduling & Visits</h3>
+          <p>Intelligent scheduling with caregiver matching, automated recurring visits, and real-time availability tracking.</p>
+        </div>
+
+        <div class="feature">
+          <h3>✓ EVV Compliance</h3>
+          <p>Built-in Electronic Visit Verification with GPS, mobile clock-in/out, and state-specific compliance (TX, FL, OH, CA, NY).</p>
+        </div>
+
+        <div class="feature">
+          <h3>👥 Care Coordination</h3>
+          <p>Centralized client profiles, care plans, medication tracking, and task management for coordinated care delivery.</p>
+        </div>
+
+        <div class="feature">
+          <h3>👨‍👩‍👧 Family Engagement</h3>
+          <p>Family portal for updates, secure messaging, visit notes, and care plan access. Real-time transparency.</p>
+        </div>
+
+        <div class="feature">
+          <h3>💰 Billing & Invoicing</h3>
+          <p>Automated invoice generation from completed visits, insurance billing, payment tracking, and financial reporting.</p>
+        </div>
+
+        <div class="feature">
+          <h3>📊 Reporting & Analytics</h3>
+          <p>Compliance dashboards, caregiver performance metrics, client outcomes, and customizable reports.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Why Folk Care?</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>🆓 Open Source</h3>
+          <p>Fully open-source under MIT license. No vendor lock-in. Community-driven development.</p>
+        </div>
+
+        <div class="feature">
+          <h3>🏥 Compliance First</h3>
+          <p>Built for state regulations, Medicaid billing, and home care industry standards. EVV compliant out of the box.</p>
+        </div>
+
+        <div class="feature">
+          <h3>📱 Mobile First</h3>
+          <p>Native mobile apps for caregivers with offline support, GPS tracking, and digital signatures.</p>
+        </div>
+
+        <div class="feature">
+          <h3>🔒 Privacy & Security</h3>
+          <p>HIPAA-ready architecture, encrypted data, audit logs, and fine-grained permissions.</p>
+        </div>
+
+        <div class="feature">
+          <h3>🚀 Modern Stack</h3>
+          <p>TypeScript, React, PostgreSQL. Cloud-native with Vercel deployment. Battle-tested technologies.</p>
+        </div>
+
+        <div class="feature">
+          <h3>🤝 Community Owned</h3>
+          <p>By Neighborhood Lab - building software that serves communities, not shareholders.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="cta">
+    <div class="container">
+      <h2>Get Started</h2>
+      <p style="font-size: 1.2rem; margin-bottom: 2rem;">Try the demo, explore the code, or deploy your own instance.</p>
+      <a href="https://showcase.folk.care" class="button">Try Interactive Demo</a>
+      <a href="https://folk.care" class="button">Live Platform</a>
+      <a href="https://github.com/neighborhood-lab/folk-care" class="button button-secondary">View on GitHub</a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Neighborhood Lab. Open source under MIT License.</p>
+    <p style="margin-top: 1rem;">
+      <a href="https://github.com/neighborhood-lab/folk-care">GitHub</a> •
+      <a href="https://folk.care">Platform</a> •
+      <a href="https://showcase.folk.care">Demo</a> •
+      <a href="https://neighborhoodlab.org">Neighborhood Lab</a>
+    </p>
+  </footer>
+</body>
+</html>
