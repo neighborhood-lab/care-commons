@@ -372,54 +372,118 @@ export class ClientRepository extends Repository<Client> {
     filters: ClientSearchFilters,
     pagination: { page: number; limit: number }
   ): Promise<PaginatedResult<Client>> {
-    const whereClauses: string[] = ['deleted_at IS NULL'];
+    const whereClauses: string[] = ['c.deleted_at IS NULL'];
     const params: unknown[] = [];
+    const joins: string[] = [];
     let paramIndex = 1;
 
+    // Enhanced text search: name, client number, and address
     if (typeof filters.query === 'string' && filters.query !== '') {
       whereClauses.push(`(
-        first_name ILIKE $${paramIndex} OR 
-        last_name ILIKE $${paramIndex} OR 
-        client_number ILIKE $${paramIndex}
+        c.first_name ILIKE $${paramIndex} OR
+        c.last_name ILIKE $${paramIndex} OR
+        c.client_number ILIKE $${paramIndex} OR
+        c.primary_address::jsonb->>'line1' ILIKE $${paramIndex} OR
+        c.primary_address::jsonb->>'line2' ILIKE $${paramIndex} OR
+        c.primary_address::jsonb->>'city' ILIKE $${paramIndex}
       )`);
       params.push(`%${filters.query}%`);
       paramIndex++;
     }
 
     if (typeof filters.organizationId === 'string' && filters.organizationId !== '') {
-      whereClauses.push(`organization_id = $${paramIndex}`);
+      whereClauses.push(`c.organization_id = $${paramIndex}`);
       params.push(filters.organizationId);
       paramIndex++;
     }
 
     if (typeof filters.branchId === 'string' && filters.branchId !== '') {
-      whereClauses.push(`branch_id = $${paramIndex}`);
+      whereClauses.push(`c.branch_id = $${paramIndex}`);
       params.push(filters.branchId);
       paramIndex++;
     }
 
     if (filters.status !== null && filters.status !== undefined && filters.status.length > 0) {
-      whereClauses.push(`status = ANY($${paramIndex})`);
+      whereClauses.push(`c.status = ANY($${paramIndex})`);
       params.push(filters.status);
       paramIndex++;
     }
 
+    // Service type filtering (via service_patterns table)
+    if (typeof filters.serviceTypeId === 'string' && filters.serviceTypeId !== '') {
+      joins.push(`
+        INNER JOIN service_patterns sp
+          ON sp.client_id = c.id
+          AND sp.deleted_at IS NULL
+          AND sp.status = 'ACTIVE'
+      `);
+      whereClauses.push(`sp.service_type_id = $${paramIndex}`);
+      params.push(filters.serviceTypeId);
+      paramIndex++;
+    }
+
+    // Coordinator filtering (via care_plans table)
+    if (typeof filters.coordinatorId === 'string' && filters.coordinatorId !== '') {
+      joins.push(`
+        INNER JOIN care_plans cp
+          ON cp.client_id = c.id
+          AND cp.deleted_at IS NULL
+          AND cp.status IN ('ACTIVE', 'DRAFT')
+      `);
+      whereClauses.push(`cp.coordinator_id = $${paramIndex}`);
+      params.push(filters.coordinatorId);
+      paramIndex++;
+    }
+
     if (typeof filters.city === 'string' && filters.city !== '') {
-      whereClauses.push(`primary_address::jsonb->>'city' ILIKE $${paramIndex}`);
+      whereClauses.push(`c.primary_address::jsonb->>'city' ILIKE $${paramIndex}`);
       params.push(`%${filters.city}%`);
       paramIndex++;
     }
 
     if (typeof filters.state === 'string' && filters.state !== '') {
-      whereClauses.push(`primary_address::jsonb->>'state' = $${paramIndex}`);
+      whereClauses.push(`c.primary_address::jsonb->>'state' = $${paramIndex}`);
       params.push(filters.state);
       paramIndex++;
     }
 
     const whereClause = whereClauses.join(' AND ');
+    const joinClause = joins.join(' ');
 
-    // Count total
-    const countQuery = `SELECT COUNT(*) FROM ${this.tableName} WHERE ${whereClause}`;
+    // Determine sort order
+    let orderByClause = 'c.last_name, c.first_name'; // Default
+    if (filters.sortBy) {
+      const sortOrder = filters.sortOrder || 'asc';
+      switch (filters.sortBy) {
+        case 'name':
+          orderByClause = `c.last_name ${sortOrder.toUpperCase()}, c.first_name ${sortOrder.toUpperCase()}`;
+          break;
+        case 'created_at':
+          orderByClause = `c.created_at ${sortOrder.toUpperCase()}`;
+          break;
+        case 'last_visit_date':
+          // Add LEFT JOIN for last visit calculation
+          joins.push(`
+            LEFT JOIN LATERAL (
+              SELECT MAX(v.scheduled_date) as last_visit_date
+              FROM visits v
+              WHERE v.client_id = c.id
+                AND v.deleted_at IS NULL
+                AND v.status = 'COMPLETED'
+            ) last_visit ON true
+          `);
+          orderByClause = `last_visit.last_visit_date ${sortOrder.toUpperCase()} NULLS LAST`;
+          break;
+      }
+    }
+
+    // Count total (need to use DISTINCT if JOINs are present)
+    const countSelect = joins.length > 0 ? 'COUNT(DISTINCT c.id)' : 'COUNT(*)';
+    const countQuery = `
+      SELECT ${countSelect} FROM ${this.tableName} c
+      ${joinClause}
+      WHERE ${whereClause}
+    `;
     const countResult = await this.database.query(countQuery, params);
     const countRow = countResult.rows[0];
     if (!countRow) {
@@ -427,12 +491,14 @@ export class ClientRepository extends Repository<Client> {
     }
     const total = parseInt(String(countRow['count']));
 
-    // Get paginated results
+    // Get paginated results (use DISTINCT if JOINs are present)
     const offset = (pagination.page - 1) * pagination.limit;
+    const selectClause = joins.length > 0 ? 'DISTINCT c.*' : 'c.*';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${selectClause} FROM ${this.tableName} c
+      ${joinClause}
       WHERE ${whereClause}
-      ORDER BY last_name, first_name
+      ORDER BY ${orderByClause}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
