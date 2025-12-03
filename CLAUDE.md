@@ -11,6 +11,7 @@
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Claude Code Setup](#claude-code-setup)
 - [Architecture Overview](#architecture-overview)
 - [Project Structure](#project-structure)
 - [Key Patterns](#key-patterns)
@@ -53,6 +54,79 @@ npm run typecheck    # Type check all packages
 npm run test         # Run all tests
 ./scripts/check.sh   # Full validation (lint + typecheck + test + build)
 ```
+
+---
+
+## Claude Code Setup
+
+### Required MCP Servers
+
+Claude Code uses Model Context Protocol (MCP) servers to extend capabilities. This project requires the following MCP servers:
+
+**Essential Servers** (required):
+- `sequential-thinking` - Extended reasoning for complex problems
+- `fetch` - Web content retrieval with image support
+- `filesystem` - File operations with proper permissions
+- `github` - GitHub API access (issues, PRs, commits)
+- `postgres` - Direct database queries and schema inspection
+
+**Installation**:
+```bash
+# Set up secrets first
+source .secrets.txt
+
+# Add GitHub MCP
+claude mcp add github npx -- -y @modelcontextprotocol/server-github -e GITHUB_TOKEN=$GITHUB_TOKEN
+
+# Add PostgreSQL MCP
+claude mcp add postgres npx -- -y @modelcontextprotocol/server-postgres $DATABASE_URL_PRODUCTION
+
+# Verify all servers
+claude mcp list
+```
+
+### Custom Slash Commands
+
+The `.claude/commands/` directory contains project-specific slash commands:
+
+| Command | Description |
+|---------|-------------|
+| `/quick-check` | Run lint + typecheck (fast validation) |
+| `/full-check` | Run complete CI suite (lint + typecheck + test + build) |
+| `/capture-showcase` | Capture screenshots of local showcase |
+| `/capture-production` | Capture screenshots of production showcase |
+| `/db-reset-local` | Reset local database with demo data |
+| `/github-status` | Check GitHub Actions workflow status |
+| `/vercel-status` | Check recent Vercel deployments |
+
+### Environment Variables
+
+Ensure these are set in your shell and accessible to Claude Code:
+
+```bash
+# Required for GitHub MCP
+GITHUB_TOKEN=ghp_...
+
+# Required for PostgreSQL MCP
+DATABASE_URL_PRODUCTION=postgresql://...
+DATABASE_URL_PREVIEW=postgresql://...
+
+# Required for deployment operations
+VERCEL_TOKEN=...
+DISCORD_WEBHOOK_URL=...
+```
+
+All secrets should be stored in `.secrets.txt` (gitignored) and sourced when needed.
+
+### Screenshot Verification Workflow
+
+Screenshots are the #1 verification technique. After making UI changes:
+
+1. Capture local screenshots: `/capture-showcase`
+2. Review in `ui-screenshots-personas/showcase/`
+3. Deploy to develop branch
+4. Capture production screenshots: `/capture-production`
+5. Compare to verify deployment
 
 ---
 
