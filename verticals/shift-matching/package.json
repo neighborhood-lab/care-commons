@@ -1,7 +1,7 @@
 {
   "name": "@folkcare/shift-matching",
   "version": "0.1.0",
-  "description": "Shift Matching & Assignment vertical for Folk",
+  "description": "Folk Care Shift Matching & Assignment - intelligent caregiver-client pairing",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",

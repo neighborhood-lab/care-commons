@@ -1,6 +1,7 @@
 {
   "name": "@folkcare/medication-management",
   "version": "0.1.0",
+  "description": "Folk Care Medication Management - MAR and medication tracking",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",

@@ -10,7 +10,7 @@
   "//6": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "index.ts",
-  "description": "Serverless API handler for Folk Vercel deployment",
+  "description": "Folk Care serverless API handler for Vercel deployment",
   "engines": {
     "node": "22.x"
   }

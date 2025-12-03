@@ -1,6 +1,7 @@
 {
   "name": "@folkcare/mobile",
   "version": "0.1.0",
+  "description": "Folk Care Mobile - React Native app for caregivers with offline EVV",
   "main": "index.ts",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  MOBILE PACKAGE - React Native with Expo",

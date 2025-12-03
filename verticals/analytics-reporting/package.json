@@ -1,7 +1,7 @@
 {
   "name": "@folkcare/analytics-reporting",
   "version": "0.1.0",
-  "description": "Analytics and reporting vertical for Folk",
+  "description": "Folk Care Analytics & Reporting - operational insights and compliance reporting",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

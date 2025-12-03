@@ -1,6 +1,7 @@
 {
   "name": "@folkcare/core",
   "version": "0.1.0",
+  "description": "Folk Care Core - shared domain logic, database, and permissions",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  CORE ESM PACKAGE - DO NOT CHANGE type:module",
   "//3": "════════════════════════════════════════════════════════════════",
