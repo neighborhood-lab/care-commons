@@ -5,7 +5,7 @@
 set -euo pipefail
 
 REPO_OWNER="neighborhood-lab"
-REPO_NAME="care-commons"
+REPO_NAME="folk-care"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 
 if [ -z "$GITHUB_TOKEN" ]; then
