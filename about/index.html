@@ -5,6 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folk Care - Shared care software, community owned</title>
   <meta name="description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/images/logo-1.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://about.folk.care/">
+  <meta property="og:title" content="Folk Care - Shared care software, community owned">
+  <meta property="og:description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
+  <meta property="og:image" content="https://about.folk.care/images/social-preview-1.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://about.folk.care/">
+  <meta property="twitter:title" content="Folk Care - Shared care software, community owned">
+  <meta property="twitter:description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
+  <meta property="twitter:image" content="https://about.folk.care/images/social-preview-1.png">
   <style>
     * {
       margin: 0;
@@ -19,18 +36,26 @@
     }
     
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%),
+                  url('/images/header-2.png') center/cover;
       color: white;
       padding: 4rem 2rem;
       text-align: center;
+      position: relative;
     }
-    
+
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 1.5rem;
+    }
+
     .header h1 {
       font-size: 3rem;
       margin-bottom: 1rem;
       font-weight: 700;
     }
-    
+
     .header p {
       font-size: 1.5rem;
       opacity: 0.95;
@@ -144,6 +169,7 @@
 </head>
 <body>
   <header class="header">
+    <img src="/images/logo-2.png" alt="Folk Care Logo" class="logo">
     <h1>Folk Care</h1>
     <p>Shared care software, community owned</p>
   </header>
