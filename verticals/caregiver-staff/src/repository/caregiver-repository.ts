@@ -346,9 +346,15 @@ export class CaregiverRepository extends Repository<Caregiver> {
 
     if (filters.query) {
       whereClauses.push(`(
-        first_name ILIKE $${paramIndex} OR 
-        last_name ILIKE $${paramIndex} OR 
-        employee_number ILIKE $${paramIndex}
+        first_name ILIKE $${paramIndex} OR
+        last_name ILIKE $${paramIndex} OR
+        employee_number ILIKE $${paramIndex} OR
+        EXISTS (
+          SELECT 1 FROM jsonb_array_elements(credentials) AS cred
+          WHERE cred->>'type' ILIKE $${paramIndex}
+            OR cred->>'name' ILIKE $${paramIndex}
+            OR cred->>'number' ILIKE $${paramIndex}
+        )
       )`);
       params.push(`%${filters.query}%`);
       paramIndex++;
@@ -412,6 +418,84 @@ export class CaregiverRepository extends Repository<Caregiver> {
       whereClauses.push(`primary_address::jsonb->>'state' = $${paramIndex}`);
       params.push(filters.state);
       paramIndex++;
+    }
+
+    if (filters.credentials && filters.credentials.length > 0) {
+      whereClauses.push(`
+        EXISTS (
+          SELECT 1 FROM jsonb_array_elements(credentials) AS cred
+          WHERE cred->>'type' = ANY($${paramIndex})
+            AND cred->>'status' = 'ACTIVE'
+        )
+      `);
+      params.push(filters.credentials);
+      paramIndex++;
+    }
+
+    if (filters.availability) {
+      const { dayOfWeek, shiftType } = filters.availability;
+      if (dayOfWeek) {
+        const dayKey = dayOfWeek.toLowerCase();
+        whereClauses.push(`
+          availability IS NOT NULL
+          AND (availability->'schedule'->$${paramIndex})::jsonb->>'available' = 'true'
+        `);
+        params.push(dayKey);
+        paramIndex++;
+
+        if (shiftType) {
+          // Check if the day has time slots matching the shift type
+          // Shift types: MORNING (8am-12pm), AFTERNOON (12pm-5pm), EVENING (5pm-9pm), etc.
+          const shiftTimes: Record<string, { start: string; end: string }> = {
+            EARLY_MORNING: { start: '05:00', end: '08:00' },
+            MORNING: { start: '08:00', end: '12:00' },
+            AFTERNOON: { start: '12:00', end: '17:00' },
+            EVENING: { start: '17:00', end: '21:00' },
+            NIGHT: { start: '21:00', end: '05:00' },
+          };
+
+          const shift = shiftTimes[shiftType];
+          if (shift) {
+            whereClauses.push(`
+              EXISTS (
+                SELECT 1 FROM jsonb_array_elements((availability->'schedule'->$${paramIndex - 1})->'timeSlots') AS slot
+                WHERE slot->>'startTime' <= $${paramIndex}
+                  AND slot->>'endTime' >= $${paramIndex + 1}
+              )
+            `);
+            params.push(shift.start, shift.end);
+            paramIndex += 2;
+          }
+        }
+      }
+    }
+
+    // Geographic radius search using Haversine formula
+    if (filters.location && filters.maxTravelDistance) {
+      const { latitude, longitude } = filters.location;
+      const maxDistance = filters.maxTravelDistance;
+
+      // Haversine distance calculation in miles
+      // Formula: 3959 * acos(cos(radians(lat1)) * cos(radians(lat2)) *
+      //          cos(radians(lon2) - radians(lon1)) + sin(radians(lat1)) * sin(radians(lat2)))
+      whereClauses.push(`
+        primary_address IS NOT NULL
+        AND (primary_address->>'latitude') IS NOT NULL
+        AND (primary_address->>'longitude') IS NOT NULL
+        AND (
+          3959 * acos(
+            LEAST(1.0, GREATEST(-1.0,
+              cos(radians($${paramIndex})) *
+              cos(radians((primary_address->>'latitude')::float)) *
+              cos(radians((primary_address->>'longitude')::float) - radians($${paramIndex + 1})) +
+              sin(radians($${paramIndex})) *
+              sin(radians((primary_address->>'latitude')::float))
+            ))
+          )
+        ) <= $${paramIndex + 2}
+      `);
+      params.push(latitude, longitude, maxDistance);
+      paramIndex += 3;
     }
 
     if (filters.credentialExpiring) {
