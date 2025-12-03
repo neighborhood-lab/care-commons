@@ -1,6 +1,6 @@
-# @care-commons/shared-components
+# @folkcare/shared-components
 
-Platform-agnostic React components for Care Commons applications.
+Platform-agnostic React components for Folk applications.
 
 ## Overview
 
@@ -23,7 +23,7 @@ This package provides reusable UI components that work across web (Vite/React) a
 ### Usage
 
 ```tsx
-import { Button, Input, Card, Badge } from '@care-commons/shared-components';
+import { Button, Input, Card, Badge } from '@folkcare/shared-components';
 
 function MyComponent() {
   return (

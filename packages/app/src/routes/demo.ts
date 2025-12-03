@@ -6,7 +6,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, getDemoSessionManager, DemoSnapshot, DemoPersonaType } from '@care-commons/core';
+import { Database, getDemoSessionManager, DemoSnapshot, DemoPersonaType } from '@folkcare/core';
 
 interface TypedRequest<T = Record<string, never>> extends Request {
   body: T;

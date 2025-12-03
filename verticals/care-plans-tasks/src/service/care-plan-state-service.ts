@@ -1,6 +1,6 @@
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 import { CarePlan, TaskInstance } from '../types/care-plan';
-import { Database } from '@care-commons/core';
+import { Database } from '@folkcare/core';
 
 /**
  * State-specific care plan business logic

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Care Commons provides a robust demo mode designed for sales, training, and user onboarding. The demo environment features realistic, state-specific data for Texas and Florida, complete with EVV compliance scenarios, credentialing examples, and guided tours for each persona.
+Folk provides a robust demo mode designed for sales, training, and user onboarding. The demo environment features realistic, state-specific data for Texas and Florida, complete with EVV compliance scenarios, credentialing examples, and guided tours for each persona.
 
 ## Features
 
@@ -71,18 +71,18 @@ Access demo mode with predefined personas for different user types:
 
 | Persona | Email | Password | Access Level |
 |---------|-------|----------|--------------|
-| **Administrator** | `admin@{state}.carecommons.example` | `Demo123!` | Full system access |
-| **Care Coordinator** | `coordinator@{state}.carecommons.example` | `Demo123!` | Client/caregiver management, scheduling |
+| **Administrator** | `admin@{state}.folkcare.example` | `Demo123!` | Full system access |
+| **Care Coordinator** | `coordinator@{state}.folkcare.example` | `Demo123!` | Client/caregiver management, scheduling |
 | **Caregiver** | (see caregiver emails in demo data) | `Caregiver123!` | Visit clock-in/out, task completion |
-| **Family Member** | `family@carecommons.example` | `Family123!` | View loved one's care, communicate with team |
-| **Clinical/RN** | `nurse@{state}.carecommons.example` | `Demo123!` | Clinical assessments, supervision visits |
+| **Family Member** | `family@folkcare.example` | `Family123!` | View loved one's care, communicate with team |
+| **Clinical/RN** | `nurse@{state}.folkcare.example` | `Demo123!` | Clinical assessments, supervision visits |
 
 *Note: Replace `{state}` with state code (e.g., `tx`, `fl`)*
 
 **Examples**:
-- Texas Admin: `admin@tx.carecommons.example / Demo123!`
-- Florida Coordinator: `coordinator@fl.carecommons.example / Demo123!`
-- Family Portal: `family@carecommons.example / Family123!`
+- Texas Admin: `admin@tx.folkcare.example / Demo123!`
+- Florida Coordinator: `coordinator@fl.folkcare.example / Demo123!`
+- Family Portal: `family@folkcare.example / Family123!`
 
 ### 4. **Visual Demo Indicators**
 
@@ -138,7 +138,7 @@ Demonstrate complete credentialing workflows:
 
 #### Texas Credentialing
 ```javascript
-import { getStateCredentials } from '@care-commons/core/demo';
+import { getStateCredentials } from '@folkcare/core/demo';
 
 const txCreds = getStateCredentials('TX');
 
@@ -157,7 +157,7 @@ txCreds.evvRequirements.clockInGracePeriod // 10 minutes
 
 #### Florida Credentialing
 ```javascript
-import { getStateCredentials } from '@care-commons/core/demo';
+import { getStateCredentials } from '@folkcare/core/demo';
 
 const flCreds = getStateCredentials('FL');
 
@@ -179,7 +179,7 @@ flCreds.evvRequirements.clockInGracePeriod // 15 minutes
 
 #### Compare State Requirements
 ```javascript
-import { compareStateCredentials } from '@care-commons/core/demo';
+import { compareStateCredentials } from '@folkcare/core/demo';
 
 const comparison = compareStateCredentials('TX', 'FL');
 
@@ -210,7 +210,7 @@ npm run db:reset:demo
 ### 2. Activate Demo Mode in Application
 
 ```tsx
-import { DemoModeProvider, DemoModeBanner, useDemoMode } from '@care-commons/web/components/demo';
+import { DemoModeProvider, DemoModeBanner, useDemoMode } from '@folkcare/web/components/demo';
 
 function App() {
   return (
@@ -241,7 +241,7 @@ function App() {
 ### 3. Use Demo Mode Hooks
 
 ```tsx
-import { useDemoMode, useIsDemoMode, useDemoPersona } from '@care-commons/web/components/demo';
+import { useDemoMode, useIsDemoMode, useDemoPersona } from '@folkcare/web/components/demo';
 
 function MyComponent() {
   const { state, activateDemo, resetDemo } = useDemoMode();
@@ -335,7 +335,7 @@ npm run db:seed:demo
 Check that state-specific EVV requirements are properly configured:
 
 ```javascript
-import { getStateCredentials } from '@care-commons/core/demo';
+import { getStateCredentials } from '@folkcare/core/demo';
 
 const creds = getStateCredentials('TX');
 console.log('Geofence radius:', creds.evvRequirements.geofenceRadius);
@@ -350,6 +350,117 @@ Ensure DemoModeProvider wraps your app:
 <DemoModeProvider initialState={{ isActive: true, stateCode: 'TX' }}>
   <App />
 </DemoModeProvider>
+```
+
+## Demo Data API (Production)
+
+For production SaaS deployments, Folk provides a Demo Data Seeding API to help new agencies explore the platform with realistic sample data.
+
+### Endpoints
+
+#### Seed Demo Data
+
+```http
+POST /api/organizations/:id/seed-demo
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "clients": 60,
+    "caregivers": 35,
+    "visits": 600,
+    "carePlans": 50,
+    "familyMembers": 40
+  }
+}
+```
+
+Seeds comprehensive demo data:
+- 60 clients (Texas-specific, culturally diverse)
+- 35 caregivers (CNAs, HHAs, companions)
+- 600+ visits with realistic EVV compliance (90% compliant)
+- 50+ care plans with tasks and goals
+- 40+ family members with portal access
+
+All records marked with `is_demo_data: true` for safe cleanup.
+
+#### Check Demo Data Status
+
+```http
+GET /api/organizations/:id/demo-data/status
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "hasDemoData": true,
+    "stats": {
+      "clients": 60,
+      "caregivers": 35,
+      "visits": 600,
+      "carePlans": 50,
+      "familyMembers": 40
+    }
+  }
+}
+```
+
+#### Clear Demo Data
+
+```http
+DELETE /api/organizations/:id/demo-data
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Demo data cleared successfully"
+}
+```
+
+**Safety Guarantees:**
+- Only deletes records where `is_demo_data = true`
+- Never touches real production data
+- Can be safely called multiple times (idempotent)
+- Cleans up in reverse dependency order (no foreign key violations)
+
+### Usage in Empty State UI
+
+The empty state UI will show a "Load Sample Data" button for new organizations:
+
+```typescript
+const handleLoadDemoData = async () => {
+  const response = await fetch(`/api/organizations/${orgId}/seed-demo`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  
+  if (response.ok) {
+    // Refresh dashboard to show demo data
+    window.location.reload();
+  }
+};
+```
+
+### Demo Data Banner
+
+When demo data is present, show a banner:
+
+```tsx
+{hasDemoData && (
+  <Banner variant="info">
+    <p>You're viewing sample data. <button onClick={clearDemo}>Clear Sample Data</button></p>
+  </Banner>
+)}
 ```
 
 ## Future Enhancements

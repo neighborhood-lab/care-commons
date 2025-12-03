@@ -7,7 +7,7 @@
  * - Submission history and tracking
  */
 
-import { UserContext, UUID } from '@care-commons/core';
+import { UserContext, UUID } from '@folkcare/core';
 import { EVVAggregatorService, IAggregatorSubmissionRepository } from '../service/evv-aggregator-service';
 import { StateAggregatorSubmission } from '../types/state-specific';
 

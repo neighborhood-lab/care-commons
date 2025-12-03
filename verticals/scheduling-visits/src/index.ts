@@ -1,5 +1,5 @@
 /**
- * @care-commons/scheduling-visits
+ * @folkcare/scheduling-visits
  * 
  * Scheduling & Visit Management vertical
  * 

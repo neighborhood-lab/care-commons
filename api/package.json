@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/api-serverless",
+  "name": "@folkcare/api-serverless",
   "version": "0.1.0",
   "private": true,
   "//1": "════════════════════════════════════════════════════════════════",
@@ -10,7 +10,7 @@
   "//6": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "main": "index.ts",
-  "description": "Serverless API handler for Care Commons Vercel deployment",
+  "description": "Serverless API handler for Folk Vercel deployment",
   "engines": {
     "node": "22.x"
   }

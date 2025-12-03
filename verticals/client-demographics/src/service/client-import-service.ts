@@ -15,7 +15,7 @@ import {
   parseCsv,
   Database,
   UserContext,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { Client, CreateClientInput, ClientStatus, Gender } from '../types/client.js';
 import { ClientRepository } from '../repository/client-repository.js';
 import { ClientValidator } from '../validation/client-validator.js';

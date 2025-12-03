@@ -1,5 +1,5 @@
 /**
- * Type definitions for Care Commons Showcase
+ * Type definitions for Folk Showcase
  */
 
 export type PersonaRole = 'admin' | 'coordinator' | 'caregiver' | 'patient';

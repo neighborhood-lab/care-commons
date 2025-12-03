@@ -1,5 +1,5 @@
 /**
- * @care-commons/family-engagement
+ * @folkcare/family-engagement
  *
  * Family Engagement Platform - Transparency & Communication
  */

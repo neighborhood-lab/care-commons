@@ -1,6 +1,6 @@
-# Contributing to Care Commons
+# Contributing to Folk
 
-Thank you for your interest in contributing to Care Commons! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Folk! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -131,7 +131,7 @@ This project enforces strict quality standards at two levels:
 ## Project Structure
 
 ```
-care-commons/
+folkcare/
 ├── packages/core/          # Shared core functionality
 │   ├── src/
 │   │   ├── types/         # Base types
@@ -232,4 +232,4 @@ A PR cannot be merged if:
 
 By contributing, you agree that your contributions will be licensed under the same license as the project.
 
-Thank you for contributing to Care Commons! 🏡
+Thank you for contributing to Folk! 🏡

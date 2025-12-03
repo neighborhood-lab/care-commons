@@ -10,7 +10,7 @@ const specs = swaggerJsdoc(swaggerOptions);
 // Swagger UI
 router.use('/api-docs', swaggerUi.serve);
 router.get('/api-docs', swaggerUi.setup(specs, {
-  customSiteTitle: 'Care Commons API Documentation',
+  customSiteTitle: 'Folk API Documentation',
   customCss: '.swagger-ui .topbar { display: none }',
   explorer: true,
 }));

@@ -93,8 +93,8 @@ export class JWTUtils {
       this.getAccessTokenSecret(),
       { 
         expiresIn: this.ACCESS_TOKEN_EXPIRY,
-        issuer: 'care-commons',
-        audience: 'care-commons-api'
+        issuer: 'folkcare',
+        audience: 'folkcare-api'
       }
     );
 
@@ -109,8 +109,8 @@ export class JWTUtils {
       this.getRefreshTokenSecret(),
       { 
         expiresIn: this.REFRESH_TOKEN_EXPIRY,
-        issuer: 'care-commons',
-        audience: 'care-commons-api'
+        issuer: 'folkcare',
+        audience: 'folkcare-api'
       }
     );
 
@@ -131,8 +131,8 @@ export class JWTUtils {
    static verifyAccessToken(token: string): TokenPayload {
     try {
       const decoded = jwt.verify(token, this.getAccessTokenSecret(), {
-        issuer: 'care-commons',
-        audience: 'care-commons-api'
+        issuer: 'folkcare',
+        audience: 'folkcare-api'
       });
 
       // Validate payload structure - runtime safety checks
@@ -184,8 +184,8 @@ export class JWTUtils {
    static verifyRefreshToken(token: string): RefreshTokenPayload {
     try {
       const decoded = jwt.verify(token, this.getRefreshTokenSecret(), {
-        issuer: 'care-commons',
-        audience: 'care-commons-api'
+        issuer: 'folkcare',
+        audience: 'folkcare-api'
       });
 
       // Validate payload structure - runtime safety checks
@@ -249,8 +249,8 @@ export class JWTUtils {
       this.getAccessTokenSecret(),
       { 
         expiresIn: this.ACCESS_TOKEN_EXPIRY,
-        issuer: 'care-commons',
-        audience: 'care-commons-api'
+        issuer: 'folkcare',
+        audience: 'folkcare-api'
       }
     );
   }

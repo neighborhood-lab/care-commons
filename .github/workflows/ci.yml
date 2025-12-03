@@ -152,7 +152,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: care_commons_test
+          POSTGRES_DB: folkcare_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -196,7 +196,7 @@ jobs:
 
       - name: Setup test database
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/care_commons_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_test
           NODE_ENV: test
         run: |
           npm run db:migrate
@@ -204,7 +204,7 @@ jobs:
 
       - name: Run tests with coverage (Turbo)
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/care_commons_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_test
           NODE_ENV: test
         run: npx turbo run test:coverage
 

@@ -18,70 +18,62 @@ interface StateInfo {
   backgroundCheckCycle: string;
 }
 
+/**
+ * All 50 US States + DC compliance data
+ * Source: packages/core/src/compliance/states/all-states-config.ts
+ */
 const SUPPORTED_STATES: StateInfo[] = [
-  {
-    code: 'TX',
-    name: 'Texas',
-    evvAggregator: 'HHAeXchange (Mandatory)',
-    strictness: 'STRICT',
-    geofenceRadius: 150,
-    gracePeriod: 10,
-    backgroundCheckCycle: '2 years',
-  },
-  {
-    code: 'FL',
-    name: 'Florida',
-    evvAggregator: 'Multi-aggregator',
-    strictness: 'LENIENT',
-    geofenceRadius: 200,
-    gracePeriod: 15,
-    backgroundCheckCycle: '5 years',
-  },
-  {
-    code: 'OH',
-    name: 'Ohio',
-    evvAggregator: 'Sandata (Free)',
-    strictness: 'MODERATE',
-    geofenceRadius: 175,
-    gracePeriod: 15,
-    backgroundCheckCycle: '5 years',
-  },
-  {
-    code: 'GA',
-    name: 'Georgia',
-    evvAggregator: 'Tellus',
-    strictness: 'LENIENT',
-    geofenceRadius: 200,
-    gracePeriod: 15,
-    backgroundCheckCycle: '5 years',
-  },
-  {
-    code: 'PA',
-    name: 'Pennsylvania',
-    evvAggregator: 'Sandata (Free)',
-    strictness: 'MODERATE',
-    geofenceRadius: 175,
-    gracePeriod: 15,
-    backgroundCheckCycle: '5 years',
-  },
-  {
-    code: 'AZ',
-    name: 'Arizona',
-    evvAggregator: 'Sandata (Free)',
-    strictness: 'MODERATE',
-    geofenceRadius: 175,
-    gracePeriod: 15,
-    backgroundCheckCycle: '5 years',
-  },
-  {
-    code: 'NC',
-    name: 'North Carolina',
-    evvAggregator: 'Sandata (Free)',
-    strictness: 'MODERATE',
-    geofenceRadius: 175,
-    gracePeriod: 15,
-    backgroundCheckCycle: '5 years',
-  },
+  { code: 'AL', name: 'Alabama', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'AK', name: 'Alaska', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 200, gracePeriod: 15, backgroundCheckCycle: '2 years' },
+  { code: 'AZ', name: 'Arizona', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '3 years' },
+  { code: 'AR', name: 'Arkansas', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'CA', name: 'California', evvAggregator: 'Multi-aggregator', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 7, backgroundCheckCycle: '5 years' },
+  { code: 'CO', name: 'Colorado', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'CT', name: 'Connecticut', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'DE', name: 'Delaware', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'DC', name: 'District of Columbia', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '2 years' },
+  { code: 'FL', name: 'Florida', evvAggregator: 'HHAeXchange', strictness: 'LENIENT', geofenceRadius: 150, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'GA', name: 'Georgia', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'HI', name: 'Hawaii', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 150, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'ID', name: 'Idaho', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'IL', name: 'Illinois', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'IN', name: 'Indiana', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'IA', name: 'Iowa', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'KS', name: 'Kansas', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'KY', name: 'Kentucky', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'LA', name: 'Louisiana', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'ME', name: 'Maine', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 150, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'MD', name: 'Maryland', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'MA', name: 'Massachusetts', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '3 years' },
+  { code: 'MI', name: 'Michigan', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'MN', name: 'Minnesota', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'MS', name: 'Mississippi', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'MO', name: 'Missouri', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'MT', name: 'Montana', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 200, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'NE', name: 'Nebraska', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'NV', name: 'Nevada', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'NH', name: 'New Hampshire', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 150, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'NJ', name: 'New Jersey', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'NM', name: 'New Mexico', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'NY', name: 'New York', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'NC', name: 'North Carolina', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'ND', name: 'North Dakota', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 200, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'OH', name: 'Ohio', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'OK', name: 'Oklahoma', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'OR', name: 'Oregon', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 150, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'PA', name: 'Pennsylvania', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'RI', name: 'Rhode Island', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'SC', name: 'South Carolina', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'SD', name: 'South Dakota', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 200, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'TN', name: 'Tennessee', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'TX', name: 'Texas', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '2 years' },
+  { code: 'UT', name: 'Utah', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'VT', name: 'Vermont', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 150, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'VA', name: 'Virginia', evvAggregator: 'HHAeXchange', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'WA', name: 'Washington', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 150, gracePeriod: 15, backgroundCheckCycle: '5 years' },
+  { code: 'WV', name: 'West Virginia', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'WI', name: 'Wisconsin', evvAggregator: 'Sandata', strictness: 'STRICT', geofenceRadius: 100, gracePeriod: 10, backgroundCheckCycle: '5 years' },
+  { code: 'WY', name: 'Wyoming', evvAggregator: 'State Portal', strictness: 'LENIENT', geofenceRadius: 200, gracePeriod: 15, backgroundCheckCycle: '5 years' },
 ];
 
 interface StateSelectorProps {
@@ -223,7 +215,7 @@ export function StateSelector({ currentState = 'TX', onStateChange }: StateSelec
             </div>
             <div className="border-t border-gray-200 px-4 py-3 bg-gray-50 rounded-b-lg">
               <p className="text-xs text-gray-600">
-                <strong>Multi-State Support:</strong> Care Commons supports operations across all 50 US states
+                <strong>Multi-State Support:</strong> Folk supports operations across all 50 US states
                 with state-specific compliance rules, EVV aggregators, and regulatory requirements.
               </p>
             </div>

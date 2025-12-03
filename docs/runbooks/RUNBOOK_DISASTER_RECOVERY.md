@@ -9,9 +9,9 @@
 - Legal/Compliance: [CONFIGURE]
 
 **Key Locations**
-- Backup Scripts: `/home/user/care-commons/scripts/`
-- Backup Storage: `/var/backups/care-commons/` or S3
-- Documentation: `/home/user/care-commons/docs/DISASTER_RECOVERY.md`
+- Backup Scripts: `/home/user/folkcare/scripts/`
+- Backup Storage: `/var/backups/folkcare/` or S3
+- Documentation: `/home/user/folkcare/docs/DISASTER_RECOVERY.md`
 
 ---
 
@@ -34,18 +34,18 @@ ERROR: could not read block 678 in file "base/12345/67890"
 #### Step 1: Assess the Situation (2-5 minutes)
 ```bash
 # Check database connectivity
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "SELECT 1;"
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "SELECT 1;"
 
 # Check for corruption
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   SELECT datname, pg_database_size(datname)
   FROM pg_database
-  WHERE datname = 'care_commons';"
+  WHERE datname = 'folkcare';"
 
 # Check recent errors
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   SELECT * FROM pg_stat_database_conflicts
-  WHERE datname = 'care_commons';"
+  WHERE datname = 'folkcare';"
 ```
 
 #### Step 2: Stop Application (1-2 minutes)
@@ -55,7 +55,7 @@ psql -h $DB_HOST -U $DB_USER -d care_commons -c "
 vercel env rm DATABASE_URL production
 
 # For Kubernetes
-kubectl scale deployment care-commons-api --replicas=0
+kubectl scale deployment folkcare-api --replicas=0
 
 # Notify users (post status page update)
 curl -X POST $STATUS_PAGE_API -d '{"status": "maintenance"}'
@@ -64,7 +64,7 @@ curl -X POST $STATUS_PAGE_API -d '{"status": "maintenance"}'
 #### Step 3: Identify Last Known Good Backup (2-3 minutes)
 ```bash
 # List available backups
-ls -lht /var/backups/care-commons/backup_*.sql.gz | head -10
+ls -lht /var/backups/folkcare/backup_*.sql.gz | head -10
 
 # Or from S3
 aws s3 ls s3://$AWS_S3_BUCKET/backups/database/ | tail -20
@@ -86,7 +86,7 @@ aws s3 cp s3://$AWS_S3_BUCKET/backups/database/backup_20240101_020000.sql.gz .
 #### Step 5: Verify Data Integrity (5-10 minutes)
 ```bash
 # Check record counts
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   SELECT 'clients' as table, COUNT(*) FROM clients
   UNION ALL
   SELECT 'visits', COUNT(*) FROM visits
@@ -94,7 +94,7 @@ psql -h $DB_HOST -U $DB_USER -d care_commons -c "
   SELECT 'providers', COUNT(*) FROM providers;"
 
 # Check data consistency
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   SELECT COUNT(*) as orphaned_visits
   FROM visits v
   LEFT JOIN clients c ON v.client_id = c.id
@@ -110,19 +110,19 @@ npm run test:integration
 vercel env add DATABASE_URL production
 
 # For Kubernetes
-kubectl scale deployment care-commons-api --replicas=3
+kubectl scale deployment folkcare-api --replicas=3
 
 # Wait for pods to be ready
-kubectl wait --for=condition=ready pod -l app=care-commons-api --timeout=300s
+kubectl wait --for=condition=ready pod -l app=folkcare-api --timeout=300s
 ```
 
 #### Step 7: Monitor and Verify (10-15 minutes)
 ```bash
 # Check application health
-curl https://care-commons.com/health/detailed
+curl https://folkcare.com/health/detailed
 
 # Monitor logs
-kubectl logs -f deployment/care-commons-api
+kubectl logs -f deployment/folkcare-api
 
 # Test critical functionality
 npm run test:e2e:critical
@@ -161,9 +161,9 @@ curl https://status.aws.amazon.com/
 curl https://www.vercel-status.com/
 
 # Attempt to connect to various endpoints
-ping care-commons.com
-curl -I https://care-commons.com
-nslookup care-commons.com
+ping folkcare.com
+curl -I https://folkcare.com
+nslookup folkcare.com
 ```
 
 #### Step 2: Activate Disaster Recovery Team (5 minutes)
@@ -177,8 +177,8 @@ nslookup care-commons.com
 **Option A: New Vercel Deployment**
 ```bash
 # Clone repository
-git clone https://github.com/neighborhood-lab/care-commons.git
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare.git
+cd folkcare
 
 # Create new Vercel project
 vercel link --yes
@@ -197,7 +197,7 @@ terraform apply -var="environment=disaster-recovery"
 
 # Or use AWS CloudFormation
 aws cloudformation create-stack \
-  --stack-name care-commons-dr \
+  --stack-name folkcare-dr \
   --template-body file://infrastructure.yaml
 ```
 
@@ -205,14 +205,14 @@ aws cloudformation create-stack \
 ```bash
 # Provision new database
 # For Neon
-neonctl projects create --name care-commons-dr
+neonctl projects create --name folkcare-dr
 
 # Download latest backup from S3
 aws s3 cp s3://$AWS_S3_BUCKET/backups/database/latest.sql.gz .
 
 # Restore
 gunzip latest.sql.gz
-psql -h $NEW_DB_HOST -U $DB_USER -d care_commons -f latest.sql
+psql -h $NEW_DB_HOST -U $DB_USER -d folkcare -f latest.sql
 ```
 
 #### Step 5: Update DNS (5-10 minutes)
@@ -224,7 +224,7 @@ aws route53 change-resource-record-sets \
   --change-batch file://dns-update.json
 
 # Wait for propagation
-dig care-commons.com
+dig folkcare.com
 ```
 
 #### Step 6: Verify and Test (15-30 minutes)
@@ -271,7 +271,7 @@ npm run test:all
 #### Step 1: Identify Scope (5-10 minutes)
 ```bash
 # Query audit logs
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   SELECT * FROM audit_logs
   WHERE action IN ('DELETE', 'UPDATE')
   AND timestamp > NOW() - INTERVAL '1 hour'
@@ -279,7 +279,7 @@ psql -h $DB_HOST -U $DB_USER -d care_commons -c "
   LIMIT 100;"
 
 # Identify affected records
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   SELECT table_name, record_id, deleted_at
   FROM audit_logs
   WHERE deleted_at IS NOT NULL
@@ -289,36 +289,36 @@ psql -h $DB_HOST -U $DB_USER -d care_commons -c "
 #### Step 2: Stop Further Changes (2-5 minutes)
 ```bash
 # Revoke problematic user access
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   REVOKE ALL ON ALL TABLES IN SCHEMA public FROM problem_user;"
 
 # Or temporarily set database to read-only
 psql -h $DB_HOST -U $DB_USER -d postgres -c "
-  ALTER DATABASE care_commons SET default_transaction_read_only = on;"
+  ALTER DATABASE folkcare SET default_transaction_read_only = on;"
 ```
 
 #### Step 3: Create Temporary Recovery Database (10-15 minutes)
 ```bash
 # Create recovery database
-createdb -h $DB_HOST -U $DB_USER care_commons_recovery
+createdb -h $DB_HOST -U $DB_USER folkcare_recovery
 
 # Find backup closest to before deletion
-ls -lt /var/backups/care-commons/backup_*.sql.gz
+ls -lt /var/backups/folkcare/backup_*.sql.gz
 
 # Restore to recovery database
 gunzip -c backup_20240101_020000.sql.gz | \
-  psql -h $DB_HOST -U $DB_USER -d care_commons_recovery
+  psql -h $DB_HOST -U $DB_USER -d folkcare_recovery
 ```
 
 #### Step 4: Extract Deleted Records (10-20 minutes)
 ```bash
 # Export affected records from recovery database
-psql -h $DB_HOST -U $DB_USER -d care_commons_recovery -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare_recovery -c "
   COPY (
     SELECT * FROM clients WHERE id IN (123, 456, 789)
   ) TO '/tmp/recovered_clients.csv' CSV HEADER;"
 
-psql -h $DB_HOST -U $DB_USER -d care_commons_recovery -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare_recovery -c "
   COPY (
     SELECT * FROM visits WHERE client_id IN (123, 456, 789)
   ) TO '/tmp/recovered_visits.csv' CSV HEADER;"
@@ -328,13 +328,13 @@ psql -h $DB_HOST -U $DB_USER -d care_commons_recovery -c "
 ```bash
 # Re-enable writes
 psql -h $DB_HOST -U $DB_USER -d postgres -c "
-  ALTER DATABASE care_commons SET default_transaction_read_only = off;"
+  ALTER DATABASE folkcare SET default_transaction_read_only = off;"
 
 # Import recovered data
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   COPY clients FROM '/tmp/recovered_clients.csv' CSV HEADER;"
 
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   COPY visits FROM '/tmp/recovered_visits.csv' CSV HEADER;"
 ```
 
@@ -347,13 +347,13 @@ psql -h $DB_HOST -U $DB_USER -d care_commons -c "
 #### Step 7: Cleanup (5 minutes)
 ```bash
 # Drop recovery database
-dropdb -h $DB_HOST -U $DB_USER care_commons_recovery
+dropdb -h $DB_HOST -U $DB_USER folkcare_recovery
 
 # Remove temporary files
 rm /tmp/recovered_*.csv
 
 # Update audit log
-psql -h $DB_HOST -U $DB_USER -d care_commons -c "
+psql -h $DB_HOST -U $DB_USER -d folkcare -c "
   INSERT INTO audit_logs (action, table_name, description, user_id)
   VALUES ('RECOVERY', 'clients', 'Recovered accidentally deleted records', 1);"
 ```
@@ -433,10 +433,10 @@ sudo dd if=/dev/sda of=/mnt/external/disk-image.raw bs=64K conv=noerror,sync
 #### Step 4: Assess Damage (15-30 minutes)
 ```bash
 # Check backup integrity (from isolated system)
-ssh backup-server "find /var/backups/care-commons -name 'backup_*.sql.gz' -mtime -7"
+ssh backup-server "find /var/backups/folkcare -name 'backup_*.sql.gz' -mtime -7"
 
 # Verify backups are not encrypted
-ssh backup-server "gunzip -t /var/backups/care-commons/backup_latest.sql.gz"
+ssh backup-server "gunzip -t /var/backups/folkcare/backup_latest.sql.gz"
 
 # Check S3 backups
 aws s3 ls s3://$AWS_S3_BUCKET/backups/database/ --region us-east-1
@@ -455,7 +455,7 @@ terraform workspace new disaster-recovery-clean
 terraform apply -var="isolated=true"
 
 # Scan backups before restoration
-clamscan -r /var/backups/care-commons/
+clamscan -r /var/backups/folkcare/
 
 # Or use cloud antivirus
 aws s3 sync s3://$BACKUP_BUCKET /tmp/scan-location
@@ -486,7 +486,7 @@ vercel env add DATABASE_URL "postgresql://new-credentials..."
 
 # API keys
 aws secretsmanager create-secret \
-  --name care-commons/api-keys-new \
+  --name folkcare/api-keys-new \
   --secret-string file://new-secrets.json
 
 # SSH keys

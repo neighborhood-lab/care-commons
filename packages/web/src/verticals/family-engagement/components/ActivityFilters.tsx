@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import type { ActivityType } from '@care-commons/family-engagement';
+import type { ActivityType } from '@folkcare/family-engagement';
 
 interface ActivityFiltersProps {
   selectedTypes: ActivityType[];

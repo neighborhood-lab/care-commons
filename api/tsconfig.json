@@ -8,7 +8,7 @@
     "rootDir": ".",
     "baseUrl": "..",
     "paths": {
-      "@care-commons/*": ["packages/*/src", "verticals/*/src"]
+      "@folkcare/*": ["packages/*/src", "verticals/*/src"]
     }
   },
   "include": ["**/*.ts", "**/*.mts"],

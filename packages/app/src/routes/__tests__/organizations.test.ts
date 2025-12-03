@@ -14,15 +14,15 @@
 /* eslint-disable sonarjs/redundant-type-aliases */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { Router } from 'express';
 
 // Type for Express Router stack layer (Express internals aren't fully typed)
 type RouterLayer = any;
 
 // Mock all external dependencies before importing the router
-vi.mock('@care-commons/core', async () => {
-  const actual = await vi.importActual('@care-commons/core');
+vi.mock('@folkcare/core', async () => {
+  const actual = await vi.importActual('@folkcare/core');
   return {
     ...actual,
     OrganizationService: vi.fn().mockImplementation(function () {
@@ -252,16 +252,20 @@ describe('Organization Routes', () => {
           methods: Object.keys(layer.route.methods),
         }));
 
-      // 8 endpoints total:
+      // 12 endpoints total:
       // POST /signup
       // POST /organizations/register
       // GET /organizations/:id
+      // PUT /organizations/:id
       // POST /organizations/:id/invitations
       // GET /organizations/:id/invitations
       // GET /invitations/:token
       // POST /invitations/accept
       // DELETE /invitations/:token
-      expect(routes.length).toBe(8);
+      // POST /organizations/:id/seed-demo
+      // DELETE /organizations/:id/demo-data
+      // GET /organizations/:id/demo-data/status
+      expect(routes.length).toBe(12);
     });
   });
 
@@ -316,10 +320,17 @@ describe('Organization Routes', () => {
         (layer: RouterLayer) => layer.route?.path === '/organizations/:id'
       );
 
-      expect(routes.length).toBe(1);
-      // This route should use authentication middleware
-      const route = routes[0] as RouterLayer;
-      expect(route?.route?.methods?.get).toBe(true);
+      // GET and PUT are separate route entries
+      expect(routes.length).toBe(2);
+      // Check both GET and PUT routes exist
+      const hasGet = routes.some(
+        (r: RouterLayer) => r.route.methods.get === true
+      );
+      const hasPut = routes.some(
+        (r: RouterLayer) => r.route.methods.put === true
+      );
+      expect(hasGet).toBe(true);
+      expect(hasPut).toBe(true);
     });
 
     it('should require auth for organization invitations management', () => {
@@ -353,6 +364,36 @@ describe('Organization Routes', () => {
         (r: RouterLayer) => r.route.methods.delete === true
       );
       expect(deleteRoute).toBeDefined();
+    });
+
+    it('should have demo data seeding endpoint with auth', () => {
+      const routes = router.stack.filter(
+        (layer: RouterLayer) => layer.route?.path === '/organizations/:id/seed-demo'
+      );
+
+      expect(routes.length).toBe(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.post).toBe(true);
+    });
+
+    it('should have demo data deletion endpoint with auth', () => {
+      const routes = router.stack.filter(
+        (layer: RouterLayer) => layer.route?.path === '/organizations/:id/demo-data'
+      );
+
+      expect(routes.length).toBe(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.delete).toBe(true);
+    });
+
+    it('should have demo data status endpoint with auth', () => {
+      const routes = router.stack.filter(
+        (layer: RouterLayer) => layer.route?.path === '/organizations/:id/demo-data/status'
+      );
+
+      expect(routes.length).toBe(1);
+      const route = routes[0] as RouterLayer;
+      expect(route?.route?.methods?.get).toBe(true);
     });
   });
 });

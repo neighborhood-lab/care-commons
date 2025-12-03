@@ -1,7 +1,7 @@
 /**
- * @care-commons/core
+ * @folkcare/core
  * 
- * Shared foundation for all Care Commons verticals
+ * Shared foundation for all Folk verticals
  */
 
 export * from './types/base';
@@ -109,3 +109,5 @@ export * from './notifications/types';
 export * from './import/index';
 // Compliance Autopilot
 export * from './compliance/autopilot/index';
+// Demo Data Service
+export { DemoDataService, type DemoDataStats } from './service/demo-data-service.js';

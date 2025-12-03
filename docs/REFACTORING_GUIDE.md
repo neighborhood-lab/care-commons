@@ -1,6 +1,6 @@
 # Refactoring Guide
 
-This guide outlines best practices for refactoring code in the Care Commons platform, with a focus on applying SOLID principles and reducing code duplication.
+This guide outlines best practices for refactoring code in the Folk platform, with a focus on applying SOLID principles and reducing code duplication.
 
 ## Table of Contents
 
@@ -165,10 +165,10 @@ class VisitService {
 ### Extract Common Utilities
 
 #### Date Operations
-Use `DateUtils` from `@care-commons/core`:
+Use `DateUtils` from `@folkcare/core`:
 
 ```typescript
-import { DateUtils } from '@care-commons/core';
+import { DateUtils } from '@folkcare/core';
 
 // Format dates consistently
 const formatted = DateUtils.formatDate(new Date(), 'yyyy-MM-dd');
@@ -182,7 +182,7 @@ const dates = DateUtils.getDateRange(startDate, endDate);
 ```
 
 #### Validation Schemas
-Use common schemas from `@care-commons/core`:
+Use common schemas from `@folkcare/core`:
 
 ```typescript
 import {
@@ -190,7 +190,7 @@ import {
   phoneSchema,
   addressSchema,
   paginationSchema
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 const userSchema = z.object({
   email: emailSchema,
@@ -208,7 +208,7 @@ import {
   NotFoundError,
   ValidationError,
   UnauthorizedError
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 // In services
 if (!client) {
@@ -220,7 +220,7 @@ if (!validation.success) {
 }
 
 // In Express routes
-import { errorHandler, asyncHandler } from '@care-commons/core';
+import { errorHandler, asyncHandler } from '@folkcare/core';
 
 app.use(errorHandler);
 
@@ -302,10 +302,10 @@ class ClientEligibilityService {
 
 ### Repository Pattern
 
-Use the base `Repository` class from `@care-commons/core`:
+Use the base `Repository` class from `@folkcare/core`:
 
 ```typescript
-import { Repository } from '@care-commons/core';
+import { Repository } from '@folkcare/core';
 
 class ClientRepository extends Repository<Client> {
   constructor(database: Database) {
@@ -334,7 +334,7 @@ class ClientRepository extends Repository<Client> {
 
 ## Available Utilities
 
-### Core Package (`@care-commons/core`)
+### Core Package (`@folkcare/core`)
 
 #### Date Utilities
 - `DateUtils.formatDate(date, format?)` - Format date to string

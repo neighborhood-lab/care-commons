@@ -15,7 +15,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     id: 'user-admin-1',
     organizationId: 'org-1',
-    email: 'admin@demo.care-commons.org',
+    email: 'admin@demo.folkcare.org',
     password: 'demo',
     name: 'Admin User',
     roles: ['ADMIN'],
@@ -24,7 +24,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     id: 'user-coordinator-1',
     organizationId: 'org-1',
-    email: 'coordinator@demo.care-commons.org',
+    email: 'coordinator@demo.folkcare.org',
     password: 'demo',
     name: 'Care Coordinator',
     roles: ['COORDINATOR'],
@@ -33,7 +33,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     id: 'user-caregiver-1',
     organizationId: 'org-1',
-    email: 'caregiver@demo.care-commons.org',
+    email: 'caregiver@demo.folkcare.org',
     password: 'demo',
     name: 'Sarah Johnson',
     roles: ['CAREGIVER'],
@@ -42,7 +42,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     id: 'user-billing-1',
     organizationId: 'org-1',
-    email: 'billing@demo.care-commons.org',
+    email: 'billing@demo.folkcare.org',
     password: 'demo',
     name: 'Billing Manager',
     roles: ['BILLING'],

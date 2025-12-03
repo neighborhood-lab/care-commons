@@ -23,7 +23,7 @@ import {
   NotFoundError,
   PermissionError,
   Database,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import {
   TexasVMUR,
   TexasVMURReasonCode,

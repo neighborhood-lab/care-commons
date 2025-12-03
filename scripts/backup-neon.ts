@@ -24,7 +24,7 @@ import { promisify } from 'node:util';
 import { existsSync, mkdirSync } from 'node:fs';
 import { readdir, unlink, stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { createLogger } from '@care-commons/core';
+import { createLogger } from '@folkcare/core';
 
 const execAsync = promisify(exec);
 const logger = createLogger('BackupManager');
@@ -57,7 +57,7 @@ class NeonBackupManager {
       neonApiKey: process.env.NEON_API_KEY,
       neonProjectId: process.env.NEON_PROJECT_ID,
       databaseUrl: process.env.DATABASE_URL,
-      backupDir: process.env.BACKUP_DIR ?? '/var/backups/care-commons',
+      backupDir: process.env.BACKUP_DIR ?? '/var/backups/folkcare',
       s3Bucket: process.env.S3_BACKUP_BUCKET,
       encryptionKey: process.env.BACKUP_ENCRYPTION_KEY,
       retentionDays: Number(process.env.BACKUP_RETENTION_DAYS ?? '30'),
@@ -124,7 +124,7 @@ class NeonBackupManager {
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `care_commons_${timestamp}.dump`;
+    const filename = `folkcare_${timestamp}.dump`;
     const filepath = join(this.config.backupDir, filename);
 
     try {
@@ -218,7 +218,7 @@ class NeonBackupManager {
     let deletedCount = 0;
 
     for (const file of files) {
-      if (!file.startsWith('care_commons_') || !file.endsWith('.dump')) {
+      if (!file.startsWith('folkcare_') || !file.endsWith('.dump')) {
         continue;
       }
 
@@ -332,7 +332,7 @@ class NeonBackupManager {
       // Find latest dump file
       const files = await readdir(this.config.backupDir);
       const dumpFiles = files
-        .filter(f => f.startsWith('care_commons_') && f.endsWith('.dump'))
+        .filter(f => f.startsWith('folkcare_') && f.endsWith('.dump'))
         .sort()
         .reverse();
 
@@ -365,8 +365,21 @@ class NeonBackupManager {
 
     try {
       if (type === 'branch' || type === 'both') {
-        const branchResult = await this.createBranchBackup();
-        results.push(branchResult);
+        // Check if Neon credentials are available
+        if (!this.config.neonApiKey || !this.config.neonProjectId) {
+          logger.warn(
+            'NEON_API_KEY or NEON_PROJECT_ID not configured - skipping branch backup. ' +
+            'Branch backups provide point-in-time recovery. Configure secrets in GitHub repository settings.'
+          );
+          
+          // If type was explicitly 'branch', downgrade to 'dump' instead of failing
+          if (type === 'branch') {
+            logger.warn('Branch backup requested but secrets missing - falling back to dump backup');
+          }
+        } else {
+          const branchResult = await this.createBranchBackup();
+          results.push(branchResult);
+        }
       }
 
       if (type === 'dump' || type === 'both') {

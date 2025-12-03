@@ -6,3 +6,4 @@
 
 export * from './types.js';
 export * from './compliance-autopilot.service.js';
+export * from './compliance-notification.service.js';

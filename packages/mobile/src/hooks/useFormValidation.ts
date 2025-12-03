@@ -25,7 +25,7 @@ export interface FormValidationReturn<T> {
  * @example
  * ```tsx
  * import { useFormValidation } from '@/hooks/useFormValidation';
- * import { clientSchema } from '@care-commons/core/validation';
+ * import { clientSchema } from '@folkcare/core/validation';
  *
  * const ClientForm = () => {
  *   const [formData, setFormData] = useState({});

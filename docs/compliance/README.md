@@ -2,7 +2,7 @@
 
 **Regulations as Code for Home Healthcare Compliance**
 
-> "Reading Texas HHSC regulations at 2 AM shouldn't be necessary. The compliance rules should be encoded in the software itself." — Care Commons Philosophy
+> "Reading Texas HHSC regulations at 2 AM shouldn't be necessary. The compliance rules should be encoded in the software itself." — Folk Philosophy
 
 ## Quick Links
 
@@ -17,7 +17,7 @@
 This directory contains comprehensive regulatory compliance documentation for all 50 US states. Each state has:
 
 1. **REQUIREMENTS.md** - What regulations require (with statutory citations)
-2. **IMPLEMENTATION.md** - How Care Commons implements it (code + config)
+2. **IMPLEMENTATION.md** - How Folk implements it (code + config)
 3. **TEST_SCENARIOS.md** - How we test it (comprehensive test cases)
 4. **CHANGELOG.md** - When regulations change (git-tracked history)
 
@@ -37,7 +37,7 @@ This approach transforms regulations into **testable, verifiable, audit-ready co
 - ✅ **Extensible**: Easy to add new states
 - ✅ **Maintainable**: Consistent patterns across states
 
-### For the Care Commons Community
+### For the Folk Community
 - ✅ **Contribution Framework**: Anyone with domain knowledge can add states
 - ✅ **Quality Standards**: Template ensures consistency
 - ✅ **Change Tracking**: Git history shows regulatory diligence
@@ -45,12 +45,12 @@ This approach transforms regulations into **testable, verifiable, audit-ready co
 
 ## How to Use
 
-### I'm an Agency Using Care Commons
+### I'm an Agency Using Folk
 
 **Check Your State's Compliance:**
 1. Navigate to your state directory (e.g., `texas/` or `florida/`)
 2. Read `REQUIREMENTS.md` to understand what regulations apply
-3. Review `IMPLEMENTATION.md` to see how Care Commons handles it
+3. Review `IMPLEMENTATION.md` to see how Folk handles it
 4. Check `CHANGELOG.md` for recent regulatory changes
 
 **Stay Updated:**
@@ -81,7 +81,7 @@ This approach transforms regulations into **testable, verifiable, audit-ready co
 **Preparing for Survey/Audit:**
 1. Print your state's REQUIREMENTS.md
 2. Review IMPLEMENTATION.md for system capabilities
-3. Run compliance reports from Care Commons
+3. Run compliance reports from Folk
 4. Provide CHANGELOG.md showing regulatory tracking
 
 **Verifying Compliance:**
@@ -123,7 +123,7 @@ Remaining 43 states will be prioritized based on:
 3. **Regulatory Complexity** - Unique requirements
 4. **Contributor Availability** - Domain expertise
 
-**Request a state**: Open a [GitHub issue](https://github.com/neighborhood-lab/care-commons/issues/new) with tag `state-request`
+**Request a state**: Open a [GitHub issue](https://github.com/neighborhood-lab/folkcare/issues/new) with tag `state-request`
 
 ## Document Structure
 
@@ -152,7 +152,7 @@ Remaining 43 states will be prioritized based on:
 
 ### IMPLEMENTATION.md
 
-**Purpose**: How Care Commons implements each requirement in code
+**Purpose**: How Folk implements each requirement in code
 
 **Sections**:
 1. Implementation Status (what's done, what's planned)
@@ -668,10 +668,10 @@ Last attempted: [Date]
 - **National Association for Home Care & Hospice**: https://www.nahc.org/
 - **Partnership for Medicaid Home-Based Care**: https://www.medicaidhomecare.org/
 
-### Care Commons
-- **GitHub Repository**: https://github.com/neighborhood-lab/care-commons
-- **Discussions**: https://github.com/neighborhood-lab/care-commons/discussions
-- **Issues**: https://github.com/neighborhood-lab/care-commons/issues
+### Folk
+- **GitHub Repository**: https://github.com/neighborhood-lab/folkcare
+- **Discussions**: https://github.com/neighborhood-lab/folkcare/discussions
+- **Issues**: https://github.com/neighborhood-lab/folkcare/issues
 - **Contributing Guide**: [../../CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 ## Support
@@ -689,9 +689,9 @@ For agencies needing dedicated compliance support:
 - Staff training
 - Audit preparation
 
-Contact: **support@carecommons.org**
+Contact: **support@folkcare.org**
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

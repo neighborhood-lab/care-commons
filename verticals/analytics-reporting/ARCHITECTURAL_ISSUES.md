@@ -16,7 +16,7 @@ All critical issues identified in the original assessment have been resolved:
 
 ### 1. Database Access Layer Mismatch ✅ RESOLVED
 
-**Original Problem**: The analytics-reporting vertical was implemented using Knex query builder, but the Care Commons codebase uses raw SQL queries via the `Database` class from `@care-commons/core`.
+**Original Problem**: The analytics-reporting vertical was implemented using Knex query builder, but the Folk codebase uses raw SQL queries via the `Database` class from `@folkcare/core`.
 
 **Resolution**:
 - All repository methods converted to use `this.database.query()` with raw SQL
@@ -278,4 +278,4 @@ Created `packages/web/src/app/pages/Reports.tsx` with:
 
 **Last Updated**: 2025-11-14
 **Status**: Production Ready
-**Maintained By**: Care Commons Engineering Team
+**Maintained By**: Folk Engineering Team

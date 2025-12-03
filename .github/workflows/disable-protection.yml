@@ -27,4 +27,4 @@ jobs:
           
           echo ""
           echo "✅ Deployment protection should now be disabled for preview deployments"
-          echo "🔗 Verify at: https://vercel.com/brian-edwards-projects-0d190d6b/care-commons/settings/deployment-protection"
+          echo "🔗 Verify at: https://vercel.com/brian-edwards-projects-0d190d6b/folkcare/settings/deployment-protection"

@@ -6,7 +6,7 @@
  */
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import type { UUID } from '@care-commons/core';
+import type { UUID } from '@folkcare/core';
 
 export interface HHAeXchangeConfig {
   clientId: string;
@@ -56,7 +56,7 @@ export class HHAeXchangeClient {
       timeout: 30000, // 30s timeout
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'CareCommons-EVV/1.0'
+        'User-Agent': 'Folkcare-EVV/1.0'
       }
     });
 

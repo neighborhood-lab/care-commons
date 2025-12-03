@@ -19,7 +19,7 @@ import {
   SoftDeletable,
   UUID,
   Timestamp,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * Billable Item - Individual service occurrence ready for billing

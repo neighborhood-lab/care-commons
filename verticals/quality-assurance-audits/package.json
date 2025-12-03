@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/quality-assurance-audits",
+  "name": "@folkcare/quality-assurance-audits",
   "version": "0.1.0",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
@@ -11,7 +11,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -21,7 +21,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@care-commons/core": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
     "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
     "zod": "^4.1.12"

@@ -2,7 +2,7 @@
 
 **State Code**: [XX]
 
-This document tracks changes to [STATE] home healthcare regulations and how they affect Care Commons implementation.
+This document tracks changes to [STATE] home healthcare regulations and how they affect Folk implementation.
 
 ## How to Use This Document
 
@@ -65,7 +65,7 @@ When regulations change:
 - Regulation text: [URL]
 - State announcement: [URL]
 - Official guidance: [URL]
-- Care Commons GitHub PR: [URL]
+- Folk GitHub PR: [URL]
 ```
 
 ---
@@ -138,20 +138,20 @@ backgroundScreening: {
 **Subject**: [STATE] Background Screening Now Required Every 6 Months
 
 **Message**:
-Dear Care Commons Customer,
+Dear Folk Customer,
 
 Effective March 1, 2025, [STATE] requires background screening for caregivers serving vulnerable adults every 6 months instead of annually.
 
 **What this means for you:**
 - Caregivers with background checks older than 6 months will need re-screening
-- Care Commons will automatically flag affected caregivers starting March 1
+- Folk will automatically flag affected caregivers starting March 1
 - You have a 90-day grace period (until May 30, 2025) to complete re-screening
 - Automated reminders will be sent 30 days before expiration
 
 **Action required:**
 1. Review the list of affected caregivers (available in Reports > Compliance)
 2. Schedule re-screening for caregivers serving vulnerable adults
-3. Upload results to Care Commons within 90 days
+3. Upload results to Folk within 90 days
 
 **System updates:**
 - Deployed: February 15, 2025
@@ -159,16 +159,16 @@ Effective March 1, 2025, [STATE] requires background screening for caregivers se
 - Full enforcement: May 31, 2025
 
 **Questions?**
-Contact support@carecommons.org or reference [STATE] Code §X.XXX.
+Contact support@folkcare.org or reference [STATE] Code §X.XXX.
 
 Best regards,  
-Care Commons Team
+Folk Team
 
 ### References
 - Regulation text: https://[state].gov/code/section-x-xxx
 - State announcement: https://[state-agency].gov/news/2025/background-screening
 - Official guidance: https://[state-agency].gov/bulletins/2025-001
-- Care Commons GitHub PR: #123
+- Folk GitHub PR: #123
 
 ---
 
@@ -221,5 +221,5 @@ Set up automated alerts for:
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

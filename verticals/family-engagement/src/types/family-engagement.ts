@@ -1,5 +1,5 @@
 /**
- * @care-commons/family-engagement - Type Definitions
+ * @folkcare/family-engagement - Type Definitions
  *
  * Family Engagement Platform - Transparency & Communication
  *
@@ -8,7 +8,7 @@
  * about their loved one's care.
  */
 
-import type { Entity, UUID, Timestamp } from '@care-commons/core';
+import type { Entity, UUID, Timestamp } from '@folkcare/core';
 
 // ============================================================================
 // Family Member & Portal Access Types

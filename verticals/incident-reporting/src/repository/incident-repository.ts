@@ -2,7 +2,7 @@
  * Incident Repository - Data access layer
  */
 
-import { Repository, Database, UserContext } from '@care-commons/core';
+import { Repository, Database, UserContext } from '@folkcare/core';
 import type {
   Incident,
   IncidentSearchFilters,

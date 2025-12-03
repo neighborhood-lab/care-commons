@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AnalyticsService } from '../service/analytics-service';
-import { Database } from '@care-commons/core';
+import { Database } from '@folkcare/core';
 
 // Helper to create mock query builder
 function createMockQueryBuilder() {

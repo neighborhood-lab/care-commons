@@ -68,9 +68,9 @@ jobs:
 
           # Determine the URL based on environment
           if [ "${{ inputs.environment }}" == "production" ]; then
-            URL="https://care-commons.vercel.app"
+            URL="https://folk.care"
           else
-            URL="https://preview-care-commons.vercel.app"
+            URL="https://preview-folk.care"
           fi
 
           echo "🔍 Verifying deployment at: $URL"

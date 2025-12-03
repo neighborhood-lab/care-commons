@@ -1,7 +1,7 @@
 [
   {
     "id": "caregiver-test-001",
-    "email": "maria.garcia@carecommons.test",
+    "email": "maria.garcia@folkcare.test",
     "password": "TestPass123!",
     "firstName": "Maria",
     "lastName": "Garcia",
@@ -18,7 +18,7 @@
   },
   {
     "id": "caregiver-test-002",
-    "email": "james.wilson@carecommons.test",
+    "email": "james.wilson@folkcare.test",
     "password": "TestPass123!",
     "firstName": "James",
     "lastName": "Wilson",

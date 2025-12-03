@@ -10,7 +10,7 @@ import { useFamilyDashboard } from '../hooks';
 import { useAuth } from '@/core/hooks';
 import { CarePlanSummary, CareTeam } from '../components';
 import { ClipboardList, Users } from 'lucide-react';
-import type { UUID } from '@care-commons/core/browser';
+import type { UUID } from '@folkcare/core/browser';
 
 export const CarePlanPage: React.FC = () => {
   const { user } = useAuth();
@@ -93,7 +93,7 @@ export const CarePlanPage: React.FC = () => {
       name: 'Sarah Johnson',
       role: 'Primary Caregiver',
       photoUrl: undefined,
-      email: 'sarah.johnson@carecommons.example',
+      email: 'sarah.johnson@folkcare.example',
       phone: '(555) 123-4567',
       availability: 'Mon-Fri, 9AM-5PM',
       specialties: ['Personal Care', 'Mobility Assistance'],
@@ -103,7 +103,7 @@ export const CarePlanPage: React.FC = () => {
       name: 'Michael Chen',
       role: 'Care Coordinator',
       photoUrl: undefined,
-      email: 'michael.chen@carecommons.example',
+      email: 'michael.chen@folkcare.example',
       phone: '(555) 234-5678',
       availability: 'Mon-Sun, 24/7',
       specialties: ['Care Planning', 'Family Support'],
@@ -113,7 +113,7 @@ export const CarePlanPage: React.FC = () => {
       name: 'Emily Rodriguez, RN',
       role: 'Registered Nurse',
       photoUrl: undefined,
-      email: 'emily.rodriguez@carecommons.example',
+      email: 'emily.rodriguez@folkcare.example',
       phone: '(555) 345-6789',
       availability: 'On-call',
       specialties: ['Medication Management', 'Health Monitoring'],

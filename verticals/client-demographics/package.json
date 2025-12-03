@@ -1,7 +1,7 @@
 {
-  "name": "@care-commons/client-demographics",
+  "name": "@folkcare/client-demographics",
   "version": "0.1.0",
-  "description": "Client & Demographics Management vertical for Care Commons - comprehensive client information management",
+  "description": "Client & Demographics Management vertical for Folk - comprehensive client information management",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
@@ -12,7 +12,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -21,14 +21,14 @@
     "lint": "eslint . --ext ts --max-warnings 10"
   },
   "keywords": [
-    "care-commons",
+    "folkcare",
     "home-care",
     "client-management",
     "demographics",
     "healthcare"
   ],
   "dependencies": {
-    "@care-commons/core": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
     "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
     "zod": "^4.1.12"

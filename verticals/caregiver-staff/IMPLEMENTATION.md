@@ -310,7 +310,7 @@ The **Caregiver & Staff Management** vertical is a complete, production-ready im
 - 📚 **Well documented** with examples and best practices
 - ✅ **Ready to deploy** - compiles, validates, and integrates
 
-The vertical successfully follows the architectural principles of Care Commons:
+The vertical successfully follows the architectural principles of Folk:
 - Human-scale workflows
 - Local autonomy (offline-capable design)
 - Interoperability (open API, JSONB flexibility)

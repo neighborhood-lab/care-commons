@@ -9,12 +9,12 @@
  */
 
 import type { Pool } from 'pg';
-import type { UserContext } from '@care-commons/core';
+import type { UserContext } from '@folkcare/core';
 import { ScheduleService, ICredentialComplianceProvider } from '../service/schedule-service.js';
 import { ScheduleRepository } from '../repository/schedule-repository.js';
 import { ClientAddressProvider } from './client-address-provider.js';
 import { ClientServiceAdapter } from './client-service-adapter.js';
-import type { ClientService } from '@care-commons/client-demographics';
+import type { ClientService } from '@folkcare/client-demographics';
 
 /**
  * Factory configuration options
@@ -45,8 +45,8 @@ export interface ScheduleServiceFactoryOptions {
  *
  * Example usage:
  * ```typescript
- * import { createScheduleService } from '@care-commons/scheduling-visits';
- * import { ClientService } from '@care-commons/client-demographics';
+ * import { createScheduleService } from '@folkcare/scheduling-visits';
+ * import { ClientService } from '@folkcare/client-demographics';
  *
  * const clientService = new ClientService(clientRepository);
  *

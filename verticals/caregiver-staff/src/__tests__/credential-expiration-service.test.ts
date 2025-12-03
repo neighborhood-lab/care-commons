@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CredentialExpirationService, DEFAULT_ALERT_THRESHOLDS } from '../services/credential-expiration-service.js';
 import { CaregiverRepository } from '../repository/caregiver-repository.js';
-import type { Database, UserContext } from '@care-commons/core';
+import type { Database, UserContext } from '@folkcare/core';
 import type { Caregiver, Credential, TrainingRecord } from '../types/caregiver.js';
 
 // Fixed date for deterministic tests

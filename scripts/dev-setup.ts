@@ -19,7 +19,7 @@ async function prompt(question: string): Promise<string> {
 }
 
 async function main() {
-  console.log(chalk.blue.bold('🏥 Care Commons - Development Setup\n'));
+  console.log(chalk.blue.bold('🏥 Folk - Development Setup\n'));
 
   // Check prerequisites
   console.log(chalk.yellow('Checking prerequisites...'));
@@ -97,7 +97,7 @@ async function checkPostgres() {
 
 async function startPostgresDocker() {
   console.log(chalk.yellow('Starting PostgreSQL in Docker...'));
-  execSync('docker run -d --name care-commons-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:14', { stdio: 'inherit' });
+  execSync('docker run -d --name folkcare-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:14', { stdio: 'inherit' });
   console.log(chalk.green('✓ PostgreSQL started in Docker'));
 }
 
@@ -143,7 +143,7 @@ async function installDependencies() {
 async function setupDatabase() {
   try {
     // Check if database exists by trying to connect
-    const dbName = process.env.DB_NAME || 'care_commons';
+    const dbName = process.env.DB_NAME || 'folkcare';
     const dbUser = process.env.DB_USER || 'postgres';
     const dbPassword = process.env.DB_PASSWORD || 'postgres';
 

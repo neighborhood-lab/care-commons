@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createVisitRouter } from '../visits';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { Request, Response, NextFunction } from 'express';
 import type { Pool } from 'pg';
 
@@ -329,6 +329,7 @@ describe('Visit Routes', () => {
         body: {
           caregiverId: 'caregiver-456',
           checkConflicts: true,
+          checkCompliance: false, // Skip compliance checks in tests (not mocked)
         },
         userContext: {
           userId: 'user-123',

@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Successfully implemented a comprehensive **regulations-as-code** framework for home healthcare compliance across all 50 US states. This system establishes Care Commons as having the most thorough regulatory compliance documentation in the home healthcare software industry—surpassing both open-source and commercial competitors.
+Successfully implemented a comprehensive **regulations-as-code** framework for home healthcare compliance across all 50 US states. This system establishes Folk as having the most thorough regulatory compliance documentation in the home healthcare software industry—surpassing both open-source and commercial competitors.
 
 **Key Innovation**: Every regulatory requirement has four components:
 1. **Documentation** (REQUIREMENTS.md with statutory citations)
@@ -377,11 +377,11 @@ Supports:
 - Change tracking shows due diligence
 - Multi-state consistency
 
-### For Care Commons Project
+### For Folk Project
 
 **Competitive Advantage:**
 - **No other home health software** (open-source or commercial) has regulations-as-code documentation of this depth
-- Establishes Care Commons as compliance leader
+- Establishes Folk as compliance leader
 - Attracts quality-conscious agencies
 - Demonstrates commitment to regulatory excellence
 
@@ -576,7 +576,7 @@ Successfully delivered a **best-in-class compliance documentation system** that:
 
 6. **Creates Scalable Foundation**: Framework supports all 50 states with consistent patterns and code reuse
 
-**This work transforms Care Commons from "home health software" into "compliance-first home health software"—a critical differentiator in a highly regulated industry.**
+**This work transforms Folk from "home health software" into "compliance-first home health software"—a critical differentiator in a highly regulated industry.**
 
 ---
 
@@ -585,10 +585,10 @@ Successfully delivered a **best-in-class compliance documentation system** that:
 - **Texas HHSC**: Comprehensive regulatory framework at 26 TAC §558
 - **Florida AHCA**: Clear EVV policy and multi-aggregator model
 - **21st Century Cures Act**: Federal EVV mandate establishing baseline
-- **Care Commons Community**: Open-source collaboration enabling this work
+- **Folk Community**: Open-source collaboration enabling this work
 - **Neighborhood Lab**: Vision for community-owned care software
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

@@ -6,7 +6,7 @@
  * are tracked in an append-only audit trail.
  */
 
-import { UUID, Timestamp } from '@care-commons/core';
+import { UUID, Timestamp } from '@folkcare/core';
 import { EVVRecord, LocationVerification } from './evv';
 import { TexasVMURReasonCode } from './state-specific';
 

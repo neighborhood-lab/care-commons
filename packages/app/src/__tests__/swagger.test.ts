@@ -54,7 +54,7 @@ describe('Swagger Configuration', () => {
 
     it('should have API info metadata', () => {
       expect(spec.info).toBeDefined();
-      expect(spec.info.title).toBe('Care Commons API');
+      expect(spec.info.title).toBe('Folk API');
       expect(spec.info.version).toBe('1.0.0');
       expect(spec.info.description).toBe('Self-hostable home healthcare platform API');
     });
@@ -84,7 +84,7 @@ describe('Swagger Configuration', () => {
       
       // Production server
       const prodServer = spec.servers.find((s) => 
-        s.url === 'https://care-commons.vercel.app'
+        s.url === 'https://folk.care'
       );
       expect(prodServer).toBeDefined();
     });
@@ -130,7 +130,7 @@ describe('Swagger Configuration', () => {
 
       expect(response.body).toBeDefined();
       expect(response.body.openapi).toBe('3.0.0');
-      expect(response.body.info.title).toBe('Care Commons API');
+      expect(response.body.info.title).toBe('Folk API');
     });
 
     it('should serve swagger UI at /api-docs', async () => {

@@ -13,7 +13,7 @@ import type {
   ComplianceAuditReport,
   CaregiverCredentialStatus,
   AuthorizationUsage,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 interface ComplianceState {
   dashboard: ComplianceDashboardSummary | null;

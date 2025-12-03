@@ -123,21 +123,21 @@ describe('ProfileScreen', () => {
 
   describe('External Links', () => {
     it('should construct terms URL correctly', () => {
-      const termsUrl = 'https://carecommons.example/terms';
-      expect(termsUrl).toContain('carecommons.example');
+      const termsUrl = 'https://folkcare.example/terms';
+      expect(termsUrl).toContain('folkcare.example');
       expect(termsUrl).toContain('/terms');
     });
 
     it('should construct privacy URL correctly', () => {
-      const privacyUrl = 'https://carecommons.example/privacy';
-      expect(privacyUrl).toContain('carecommons.example');
+      const privacyUrl = 'https://folkcare.example/privacy';
+      expect(privacyUrl).toContain('folkcare.example');
       expect(privacyUrl).toContain('/privacy');
     });
 
     it('should construct support email URL correctly', () => {
-      const supportUrl = 'mailto:support@carecommons.example';
+      const supportUrl = 'mailto:support@folkcare.example';
       expect(supportUrl).toContain('mailto:');
-      expect(supportUrl).toContain('support@carecommons.example');
+      expect(supportUrl).toContain('support@folkcare.example');
     });
   });
 

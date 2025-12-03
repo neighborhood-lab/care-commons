@@ -256,7 +256,7 @@ async requestWithOfflineSupport<T>(/* ... */) {
 
 ```bash
 # packages/mobile/.env.local
-EXPO_PUBLIC_API_URL=https://api.carecommons.org
+EXPO_PUBLIC_API_URL=https://api.folkcare.org
 EXPO_PUBLIC_ENVIRONMENT=development
 EXPO_PUBLIC_SENTRY_DSN=your-sentry-dsn
 ```
@@ -268,18 +268,18 @@ Update `app.json` with proper app identifiers:
 ```json
 {
   "expo": {
-    "name": "Care Commons",
-    "slug": "care-commons",
+    "name": "Folk",
+    "slug": "folkcare",
     "ios": {
-      "bundleIdentifier": "org.carecommons.mobile",
+      "bundleIdentifier": "org.folkcare.mobile",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to verify you're at the client's address for EVV compliance.",
         "NSLocationAlwaysUsageDescription": "We track your location during visits for EVV compliance and client safety.",
-        "NSFaceIDUsageDescription": "Use Face ID to quickly and securely log in to Care Commons."
+        "NSFaceIDUsageDescription": "Use Face ID to quickly and securely log in to Folk."
       }
     },
     "android": {
-      "package": "org.carecommons.mobile",
+      "package": "org.folkcare.mobile",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",

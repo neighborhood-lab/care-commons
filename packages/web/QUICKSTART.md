@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get the Care Commons web UI running in under 5 minutes.
+Get the Folk web UI running in under 5 minutes.
 
 ## Prerequisites
 

@@ -11,7 +11,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ClientProvider } from '../providers/client-provider';
 import { CaregiverProvider } from '../providers/caregiver-provider';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 
 describe('Provider Integration Regression Tests', () => {
   let mockDatabase: Database;
@@ -245,7 +245,7 @@ describe('Provider Integration Regression Tests', () => {
       expect(caregiverProvider).toBeDefined();
     });
 
-    it('REGRESSION: Providers MUST throw standard errors from @care-commons/core', async () => {
+    it('REGRESSION: Providers MUST throw standard errors from @folkcare/core', async () => {
       const clientProvider = new ClientProvider(mockDatabase);
       const caregiverProvider = new CaregiverProvider(mockDatabase);
 

@@ -23,7 +23,7 @@ const adapter = new LokiJSAdapter({
   // Use IndexedDB for persistence
   useIncrementalIndexedDB: true,
   // Database name
-  dbName: 'care_commons_offline',
+  dbName: 'folkcare_offline',
 });
 
 /**

@@ -215,7 +215,7 @@ export class AuthService {
     }
 
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Authenticate to access Care Commons',
+      promptMessage: 'Authenticate to access Folk',
       fallbackLabel: 'Use password',
       disableDeviceFallback: false,
     });

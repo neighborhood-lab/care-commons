@@ -5,9 +5,9 @@
  * with caching for performance optimization.
  */
 
-import { UUID, NotFoundError } from '@care-commons/core';
+import { UUID, NotFoundError } from '@folkcare/core';
 import { IClientAddressProvider } from '../service/schedule-service';
-import type { UserContext } from '@care-commons/core';
+import type { UserContext } from '@folkcare/core';
 
 /**
  * Address structure from client demographics

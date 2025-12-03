@@ -3,7 +3,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { UserContext, Role } from '@care-commons/core';
+import { UserContext, Role } from '@folkcare/core';
 
 /**
  * Extend Express Request to include userContext

@@ -13,7 +13,7 @@ import {
   Database,
   UserContext,
   NotFoundError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { CaregiverRepository } from '../repository/caregiver-repository.js';
 import {
   Caregiver,

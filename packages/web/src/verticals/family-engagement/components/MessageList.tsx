@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { MessageThread } from '@care-commons/family-engagement';
+import type { MessageThread } from '@folkcare/family-engagement';
 
 interface MessageListProps {
   threads: MessageThread[];

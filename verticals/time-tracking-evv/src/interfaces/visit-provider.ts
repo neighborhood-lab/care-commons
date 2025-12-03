@@ -5,7 +5,7 @@
  * This allows the EVV vertical to remain decoupled from scheduling implementation.
  */
 
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 
 /**
  * Visit data needed for EVV operations

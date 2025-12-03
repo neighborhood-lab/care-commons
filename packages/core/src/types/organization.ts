@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Organization Types
+ * @folkcare/core - Organization Types
  * 
  * Multi-tenant organization and team invitation types
  */
@@ -146,4 +146,20 @@ export interface InviteDetails {
   roles: Role[];
   expiresAt: Date;
   isValid: boolean;
+}
+
+/**
+ * Update organization request (for onboarding/settings)
+ */
+export interface UpdateOrganizationRequest {
+  name?: string;
+  legalName?: string;
+  taxId?: string;
+  licenseNumber?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  primaryAddress?: Address;
+  billingAddress?: Address | null;
+  settings?: Partial<OrganizationSettings>;
 }

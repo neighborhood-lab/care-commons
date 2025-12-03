@@ -11,8 +11,8 @@
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/neighborhood-lab/care-commons.git
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare.git
+cd folkcare
 nvm use
 npm install
 ```
@@ -25,14 +25,14 @@ docker compose up -d
 
 # Verify services are running
 docker compose ps
-# Should show: care-commons-db (postgres) and care-commons-redis
+# Should show: folkcare-db (postgres) and folkcare-redis
 
 # Optional: Start with admin tools (pgAdmin, Redis Commander, MailHog)
 docker compose --profile tools up -d
 ```
 
 **Service URLs (with --profile tools):**
-- pgAdmin: http://localhost:5050 (admin@carecommons.local / admin)
+- pgAdmin: http://localhost:5050 (admin@folkcare.local / admin)
 - Redis Commander: http://localhost:8081
 - MailHog: http://localhost:8025
 
@@ -45,7 +45,7 @@ cp .env.example packages/core/.env
 # The defaults work with docker-compose out of the box:
 # - DB_HOST=localhost
 # - DB_PORT=5432
-# - DB_NAME=care_commons
+# - DB_NAME=folkcare
 # - DB_USER=postgres
 # - DB_PASSWORD=postgres
 ```
@@ -53,7 +53,7 @@ cp .env.example packages/core/.env
 **Alternative: Use DATABASE_URL instead of individual variables:**
 ```bash
 # Add this to packages/core/.env (overrides DB_* variables)
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/care_commons
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/folkcare
 ```
 
 ### 4. Initialize Database
@@ -82,19 +82,19 @@ Navigate to http://localhost:5173 to see the app.
 Three role-based accounts are now available for testing:
 
 #### Super Admin
-- **Email:** `admin@carecommons.example`
+- **Email:** `admin@folkcare.example`
 - **Password:** `Admin123!`
 - **Access:** Full system access, all permissions
 - **Use for:** System configuration, user management, full administrative tasks
 
 #### Coordinator
-- **Email:** `coordinator@carecommons.example`
+- **Email:** `coordinator@folkcare.example`
 - **Password:** `Admin123!`
 - **Access:** Client management, scheduling, care plan coordination
 - **Use for:** Day-to-day care coordination, scheduling visits, managing client records
 
 #### Caregiver
-- **Email:** `caregiver@carecommons.example`
+- **Email:** `caregiver@folkcare.example`
 - **Password:** `Admin123!`
 - **Access:** View assigned clients, clock in/out of visits, update tasks
 - **Use for:** Field caregiver workflows, mobile visit tracking
@@ -118,7 +118,7 @@ The database setup is organized in three layers:
 2. **Operational Data** - `npm run db:seed`
    - Minimal data required for any installation
    - Creates: 1 organization, 1 branch, 1 admin user
-   - Login: `admin@carecommons.example` / `Admin123!`
+   - Login: `admin@folkcare.example` / `Admin123!`
 
 3. **Demo Data** - `npm run db:seed:demo`
    - Sample data for testing and development
@@ -176,7 +176,7 @@ ADMIN_PASSWORD="YourSecurePassword1!" npm run db:seed-users
 # In packages/core/.env, ensure these are set:
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=care_commons
+DB_NAME=folkcare
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_SSL=false
@@ -188,13 +188,13 @@ DB_SSL=false
 **Solution 2:** Use DATABASE_URL for local Docker:
 ```bash
 # In packages/core/.env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/care_commons
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/folkcare
 ```
 
 **Verify Docker is running:**
 ```bash
 docker compose ps
-# Should show care-commons-db as "running"
+# Should show folkcare-db as "running"
 
 # Check PostgreSQL logs if issues persist:
 docker compose logs postgres
@@ -222,12 +222,12 @@ npm run db:seed-users
 
 1. Check existing users:
    ```bash
-   psql -h localhost -U postgres -d develop_care_commons -c "SELECT email, username, roles FROM users;"
+   psql -h localhost -U postgres -d develop_folkcare -c "SELECT email, username, roles FROM users;"
    ```
 
 2. Delete conflicting users:
    ```bash
-   psql -h localhost -U postgres -d develop_care_commons -c "DELETE FROM users WHERE email IN ('admin@carecommons.example', 'coordinator@carecommons.example', 'caregiver@carecommons.example');"
+   psql -h localhost -U postgres -d develop_folkcare -c "DELETE FROM users WHERE email IN ('admin@folkcare.example', 'coordinator@folkcare.example', 'caregiver@folkcare.example');"
    ```
 
 3. Re-seed:
@@ -305,5 +305,5 @@ Field caregiver access:
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

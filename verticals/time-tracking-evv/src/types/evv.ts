@@ -19,7 +19,7 @@ import {
   UUID,
   Timestamp,
   SyncMetadata,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 /**
  * EVV Record - Complete compliance record for a visit

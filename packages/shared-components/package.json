@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/shared-components",
+  "name": "@folkcare/shared-components",
   "version": "0.1.0",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  SHARED ESM PACKAGE - Platform-agnostic React components",

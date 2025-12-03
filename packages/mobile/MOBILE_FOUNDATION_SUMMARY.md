@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation establishes a **production-ready foundation** for the Care Commons mobile app with maximum code reuse (70%+) from the backend and web platforms. Built for offline-first operation with EVV compliance for caregivers working in challenging network conditions.
+This implementation establishes a **production-ready foundation** for the Folk mobile app with maximum code reuse (70%+) from the backend and web platforms. Built for offline-first operation with EVV compliance for caregivers working in challenging network conditions.
 
 ## ✅ Completed Work
 
@@ -60,7 +60,7 @@ packages/shared-components/
 
 **Usage:**
 ```typescript
-const apiClient = createApiClient({ baseUrl: 'https://api.carecommons.org' });
+const apiClient = createApiClient({ baseUrl: 'https://api.folkcare.org' });
 apiClient.setAuth(accessToken, refreshToken);
 
 const response = await apiClient.get<GetVisitsResponse>('/visits');
@@ -153,7 +153,7 @@ From previous implementation:
 
 ## 📊 Code Reuse Achievement
 
-**From Backend** (`@care-commons/core`, `@care-commons/time-tracking-evv`):
+**From Backend** (`@folkcare/core`, `@folkcare/time-tracking-evv`):
 - ✅ 40+ types reused (EVVRecord, LocationVerification, Visit, etc.)
 - ✅ All business logic (EVVService, EVVValidator, CryptoUtils)
 - ✅ State-specific rules (Texas, Florida EVV configs)
@@ -177,10 +177,10 @@ import {
 
 ```typescript
 // Web (packages/web)
-import { Button } from '@care-commons/shared-components';
+import { Button } from '@folkcare/shared-components';
 
 // Mobile (packages/mobile)
-import { Button } from '@care-commons/shared-components/native';
+import { Button } from '@folkcare/shared-components/native';
 
 // Same API, different rendering!
 <Button variant="primary" size="lg" onPress={handleSubmit}>
@@ -226,7 +226,7 @@ navigation.navigate('VisitDetail', { visitId: '123' });
 ```json
 {
   "dependencies": {
-    "@care-commons/shared-components": "file:../shared-components",
+    "@folkcare/shared-components": "file:../shared-components",
     "expo-local-authentication": "~15.0.4"
   }
 }

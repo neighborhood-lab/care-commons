@@ -5,7 +5,7 @@
  * Supports Medicare/Medicaid documentation requirements.
  */
 
-import type { Entity, SoftDeletable, UUID, Timestamp } from '@care-commons/core';
+import type { Entity, SoftDeletable, UUID, Timestamp } from '@folkcare/core';
 
 /**
  * Visit Note - Clinical documentation for a visit

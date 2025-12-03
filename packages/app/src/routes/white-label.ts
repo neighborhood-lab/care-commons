@@ -10,7 +10,7 @@ import {
   BrandingRepository,
   FeatureFlagRepository,
   WhiteLabelService,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { z } from 'zod';
 
 export function createWhiteLabelRouter(db: Database): Router {

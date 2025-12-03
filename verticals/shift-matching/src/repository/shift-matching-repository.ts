@@ -13,7 +13,7 @@ import {
   UserContext,
   NotFoundError,
   ConflictError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import {
   OpenShift,
   MatchingConfiguration,

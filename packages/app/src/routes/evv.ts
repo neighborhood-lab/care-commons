@@ -8,8 +8,8 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, AuthMiddleware } from '@care-commons/core';
-import { EVVRepository } from '@care-commons/time-tracking-evv';
+import { Database, AuthMiddleware } from '@folkcare/core';
+import { EVVRepository } from '@folkcare/time-tracking-evv';
 
 export function createEVVRouter(db: Database): Router {
   const router = Router();

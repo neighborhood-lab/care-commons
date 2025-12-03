@@ -239,3 +239,4 @@ packages/web/dist-showcase
 ui-screenshots-personas/ios-simulator/
 ui-screenshots-personas/production/
 ui-screenshots-production-comprehensive/
+.secrets.txt

@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import type { FamilyDashboard } from '@care-commons/family-engagement';
+import type { FamilyDashboard } from '@folkcare/family-engagement';
 
 interface CareSummaryProps {
   dashboard: FamilyDashboard;

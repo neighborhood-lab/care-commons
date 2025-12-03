@@ -1,7 +1,7 @@
 {
-  "name": "@care-commons/analytics-reporting",
+  "name": "@folkcare/analytics-reporting",
   "version": "0.1.0",
-  "description": "Analytics and reporting vertical for Care Commons",
+  "description": "Analytics and reporting vertical for Folk",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -38,7 +38,7 @@
     "lint": "eslint . --ext ts --max-warnings 50"
   },
   "dependencies": {
-    "@care-commons/core": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
     "eslint": "^9.39.1",
     "exceljs": "^4.4.0",
     "jspdf": "^3.0.3",

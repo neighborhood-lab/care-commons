@@ -1,6 +1,6 @@
-import { UUID, UserContext, PermissionService } from '@care-commons/core';
+import { UUID, UserContext, PermissionService } from '@folkcare/core';
 import { ShiftRepository, CaregiverMatch, ShiftRequirement } from '../repository/shift-repository';
-import { Database } from '@care-commons/core';
+import { Database } from '@folkcare/core';
 
 /**
  * State-Specific Shift Matching Service with TX/FL compliance rules

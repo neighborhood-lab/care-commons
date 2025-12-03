@@ -75,26 +75,26 @@ describe('Critical Regression Tests - ESM Module Resolution', () => {
   });
 
   describe('Core Dependencies (DO NOT REGRESS)', () => {
-    it('should import @care-commons/core without errors', async () => {
-      const coreModule = await import('@care-commons/core');
+    it('should import @folkcare/core without errors', async () => {
+      const coreModule = await import('@folkcare/core');
       expect(coreModule).toBeDefined();
       expect(coreModule.initializeDatabase).toBeDefined();
       expect(coreModule.getDatabase).toBeDefined();
     });
 
     it('should import client-demographics vertical without errors', async () => {
-      const clientModule = await import('@care-commons/client-demographics');
+      const clientModule = await import('@folkcare/client-demographics');
       expect(clientModule).toBeDefined();
       expect(clientModule.createClientRouter).toBeDefined();
     });
 
     it('should import caregiver-staff vertical without errors', async () => {
-      const caregiverModule = await import('@care-commons/caregiver-staff');
+      const caregiverModule = await import('@folkcare/caregiver-staff');
       expect(caregiverModule).toBeDefined();
     });
 
     it('should import care-plans-tasks vertical without errors', async () => {
-      const carePlansModule = await import('@care-commons/care-plans-tasks');
+      const carePlansModule = await import('@folkcare/care-plans-tasks');
       expect(carePlansModule).toBeDefined();
       expect(carePlansModule.CarePlanService).toBeDefined();
       expect(carePlansModule.createCarePlanHandlers).toBeDefined();

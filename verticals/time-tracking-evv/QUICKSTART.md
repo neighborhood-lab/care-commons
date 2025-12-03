@@ -35,8 +35,8 @@ npm run db:seed
 ### 1. Initialize the Service
 
 ```typescript
-import { EVVService, EVVRepository, EVVValidator } from '@care-commons/time-tracking-evv';
-import { getConnection } from '@care-commons/core';
+import { EVVService, EVVRepository, EVVValidator } from '@folkcare/time-tracking-evv';
+import { getConnection } from '@folkcare/core';
 
 const db = getConnection();
 const repository = new EVVRepository(db);
@@ -337,9 +337,9 @@ if (location.mockLocationDetected) {
 
 Questions? Issues?
 
-- GitHub Issues: [github.com/neighborhood-lab/care-commons/issues](https://github.com/neighborhood-lab/care-commons/issues)
+- GitHub Issues: [github.com/neighborhood-lab/folkcare/issues](https://github.com/neighborhood-lab/folkcare/issues)
 - Community: [community.neighborhoodlab.org](https://community.neighborhoodlab.org)
 
 ---
 
-**Care Commons** - Shared care software, community owned
+**Folk** - Shared care software, community owned

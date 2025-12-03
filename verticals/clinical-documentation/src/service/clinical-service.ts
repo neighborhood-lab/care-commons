@@ -6,7 +6,7 @@
  */
 
 import { Pool } from 'pg';
-import { UUID, PermissionError } from '@care-commons/core';
+import { UUID, PermissionError } from '@folkcare/core';
 import { ClinicalRepository } from '../repository/clinical-repository.js';
 import {
   VisitNote,

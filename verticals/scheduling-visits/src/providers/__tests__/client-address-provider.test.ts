@@ -6,8 +6,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ClientAddressProvider, IClientService } from '../client-address-provider';
-import type { UserContext, UUID } from '@care-commons/core';
-import { NotFoundError } from '@care-commons/core';
+import type { UserContext, UUID } from '@folkcare/core';
+import { NotFoundError } from '@folkcare/core';
 
 // Mock client service
 const mockClientService: IClientService = {

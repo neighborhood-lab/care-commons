@@ -88,8 +88,8 @@ export interface IProviders {
  *
  * @example
  * ```typescript
- * import { getDatabase } from '@care-commons/core';
- * import { createProviders } from '@care-commons/core/providers';
+ * import { getDatabase } from '@folkcare/core';
+ * import { createProviders } from '@folkcare/core/providers';
  *
  * const db = getDatabase();
  * const providers = createProviders(db);

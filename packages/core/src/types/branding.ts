@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Organization Branding Types
+ * @folkcare/core - Organization Branding Types
  *
  * White-label branding and customization types
  */

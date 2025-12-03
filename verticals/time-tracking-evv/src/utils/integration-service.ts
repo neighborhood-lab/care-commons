@@ -5,7 +5,7 @@
  * In a production system, this would use proper service-to-service communication.
  */
 
-import { UUID, Database, NotFoundError } from '@care-commons/core';
+import { UUID, Database, NotFoundError } from '@folkcare/core';
 
 export interface VisitData {
   visitId: UUID;

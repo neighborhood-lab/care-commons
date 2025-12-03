@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/payroll-processing",
+  "name": "@folkcare/payroll-processing",
   "version": "0.1.0",
   "description": "Payroll Processing - Accurate caregiver compensation from time tracking to payment distribution",
   "//1": "════════════════════════════════════════════════════════════════",
@@ -12,7 +12,7 @@
   },
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -20,9 +20,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/caregiver-staff": "^0.1.0",
-    "@care-commons/core": "^0.1.0",
-    "@care-commons/time-tracking-evv": "^0.1.0",
+    "@folkcare/caregiver-staff": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
+    "@folkcare/time-tracking-evv": "^0.1.0",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "uuid": "^13.0.0"

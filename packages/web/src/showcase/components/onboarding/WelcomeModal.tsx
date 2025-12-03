@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const STORAGE_KEY = 'care-commons-showcase-visited';
+const STORAGE_KEY = 'folkcare-showcase-visited';
 
 interface WelcomeModalProps {
   onComplete?: (selectedRole?: string) => void;
@@ -60,7 +60,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
           {/* Content */}
           <div className="p-8">
             <p className="text-lg text-gray-700 mb-8">
-              This is an interactive demo of Care Commons care coordination software.
+              This is an interactive demo of Folk care coordination software.
             </p>
 
             <button

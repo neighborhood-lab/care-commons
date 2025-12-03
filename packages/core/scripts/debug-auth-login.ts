@@ -202,8 +202,8 @@ if (args.length === 0) {
   console.log('Usage: tsx packages/core/scripts/debug-auth-login.ts <email> [password-to-test]');
   console.log('');
   console.log('Examples:');
-  console.log('  tsx packages/core/scripts/debug-auth-login.ts admin@carecommons.example');
-  console.log('  tsx packages/core/scripts/debug-auth-login.ts admin@carecommons.example Admin123!');
+  console.log('  tsx packages/core/scripts/debug-auth-login.ts admin@folkcare.example');
+  console.log('  tsx packages/core/scripts/debug-auth-login.ts admin@folkcare.example Admin123!');
   console.log('');
   process.exit(1);
 }

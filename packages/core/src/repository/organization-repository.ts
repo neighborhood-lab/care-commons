@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Organization Repository
+ * @folkcare/core - Organization Repository
  * 
  * Data access layer for multi-tenant organizations with state-based isolation
  */

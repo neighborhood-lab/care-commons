@@ -209,6 +209,31 @@ export class NotificationService {
         subject: `🚨 URGENT: Caregiver No-Show - ${d.caregiverName}`,
         message: `${d.caregiverName} did not show up for the scheduled visit with ${d.clientName} at ${d.scheduledTime}. Immediate action required.`,
       }),
+      // Compliance notification templates
+      COMPLIANCE_DEADLINE_WARNING: (d) => ({
+        subject: `⚠️ Compliance Deadline Approaching: ${d.title}`,
+        message: `${d.entityName} has a compliance deadline coming up.\n\n${d.title}\n\nDue: ${d.deadlineDate}\nDays remaining: ${d.daysRemaining}\n\nPlease take action to avoid compliance issues.`,
+      }),
+      COMPLIANCE_DEADLINE_URGENT: (d) => ({
+        subject: `🚨 URGENT: Compliance Deadline in ${d.daysRemaining} days - ${d.title}`,
+        message: `URGENT: ${d.entityName} has a critical compliance deadline.\n\n${d.title}\n\nDue: ${d.deadlineDate}\nDays remaining: ${d.daysRemaining}\n\nImmediate action required to maintain compliance.`,
+      }),
+      COMPLIANCE_DEADLINE_OVERDUE: (d) => ({
+        subject: `❌ OVERDUE: ${d.title} - Compliance Violation`,
+        message: `COMPLIANCE VIOLATION: ${d.entityName} has missed a compliance deadline.\n\n${d.title}\n\nDue date: ${d.deadlineDate}\nDays overdue: ${d.daysOverdue}\n\nThis may result in regulatory penalties or scheduling restrictions. Please resolve immediately.`,
+      }),
+      COMPLIANCE_DAILY_DIGEST: (d) => ({
+        subject: `📋 Daily Compliance Summary - ${d.overdueCount} overdue, ${d.urgentCount} urgent`,
+        message: `Your daily compliance summary:\n\n🔴 Overdue: ${d.overdueCount} items\n🟠 Urgent: ${d.urgentCount} items\n🟡 Warning: ${d.warningCount} items\n\nPlease review the compliance dashboard for details.`,
+      }),
+      COMPLIANCE_CREDENTIAL_EXPIRING: (d) => ({
+        subject: `⚠️ Credential Expiring: ${d.credentialName} for ${d.caregiverName}`,
+        message: `The ${d.credentialName} credential for ${d.caregiverName} will expire on ${d.expirationDate}.\n\nDays remaining: ${d.daysRemaining}\n\nPlease renew before expiration to avoid scheduling restrictions.`,
+      }),
+      COMPLIANCE_AUTHORIZATION_LOW: (d) => ({
+        subject: `⚠️ Authorization Running Low: ${d.clientName}`,
+        message: `${d.clientName}'s service authorization is running low.\n\nAuthorization: ${d.authorizationNumber}\nRemaining: ${d.remainingUnits} hours (${d.usagePercentage}% used)\nExpires: ${d.expirationDate}\n\nPlease request a new authorization to avoid service interruption.`,
+      }),
     };
 
     const template = templates[eventType];

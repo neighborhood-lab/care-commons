@@ -6,7 +6,7 @@
  * Optimized for CI environments - no watch mode, faster startup.
  */
 
-import { resetDatabase } from '@care-commons/core';
+import { resetDatabase } from '@folkcare/core';
 import { createApp } from '../packages/app/src/server.js';
 
 const PORT = parseInt(process.env['PORT'] || '3000', 10);

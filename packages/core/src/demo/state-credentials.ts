@@ -333,23 +333,215 @@ export const FLORIDA_CREDENTIALS: StateCredentials = {
 };
 
 /**
- * Get credentials for a specific state
+ * Default/Baseline credentials for states without specific configuration.
+ * Based on federal 21st Century Cures Act EVV requirements and common state patterns.
+ */
+export function getDefaultStateCredentials(stateCode: string, stateName: string): StateCredentials {
+  return {
+    stateName,
+    stateCode,
+    nurseAideRegistry: {
+      name: `${stateName} Nurse Aide Registry`,
+      url: `https://www.health.${stateCode.toLowerCase()}.gov/nurse-aide`,
+      verificationType: 'ONLINE_VERIFICATION',
+      renewalPeriod: 24, // 2 years is common
+      backgroundCheckRequired: true,
+      backgroundCheckType: 'State Criminal Background Check',
+      verificationFrequency: 'BEFORE_HIRE_AND_ANNUALLY',
+    },
+    requiredCertifications: [
+      {
+        code: 'CNA',
+        name: 'Certified Nurse Aide',
+        expiresAfterMonths: 24,
+        renewalRequired: true,
+        issuingAuthority: `${stateName} Department of Health`,
+      },
+      {
+        code: 'CPR',
+        name: 'CPR Certification',
+        expiresAfterMonths: 24,
+        renewalRequired: true,
+        issuingAuthority: 'American Heart Association or American Red Cross',
+      },
+    ],
+    requiredTraining: [
+      {
+        code: 'ABUSE_PREVENTION',
+        name: 'Abuse, Neglect, and Exploitation Prevention',
+        hours: 2,
+        expiresAfterMonths: 12,
+        isInitialOnly: false,
+        description: 'Annual training on recognizing and reporting abuse.',
+      },
+      {
+        code: 'HIPAA',
+        name: 'HIPAA Privacy and Security Training',
+        hours: 1,
+        expiresAfterMonths: 12,
+        isInitialOnly: false,
+        description: 'Annual HIPAA training.',
+      },
+      {
+        code: 'INFECTION_CONTROL',
+        name: 'Infection Control and Prevention',
+        hours: 2,
+        expiresAfterMonths: 12,
+        isInitialOnly: false,
+        description: 'Annual infection control training.',
+      },
+    ],
+    backgroundScreening: {
+      level: 1,
+      includes: ['Criminal History Check'],
+      validFor: 24,
+      clearanceRequired: true,
+      registryChecks: [
+        'State Nurse Aide Registry',
+        'OIG List of Excluded Individuals/Entities (LEIE)',
+        'SAM.gov Exclusions',
+      ],
+    },
+    evvRequirements: {
+      aggregatorRequired: false,
+      supportedAggregators: ['HHAeXchange', 'Sandata', 'Netsmart'],
+      gpsRequired: true,
+      geofenceRadius: 150, // 150 meters is typical
+      clockInGracePeriod: 15,
+      clockOutGracePeriod: 15,
+      verificationMethods: ['GPS', 'PHONE', 'BIOMETRIC'],
+      mandatoryDataElements: [
+        'Type of service performed',
+        'Individual receiving the service',
+        'Date of service',
+        'Location of service delivery',
+        'Individual providing the service',
+        'Time service begins and ends',
+      ],
+    },
+    complianceNotes: [
+      'Using default federal EVV requirements (21st Century Cures Act)',
+      'State-specific regulations may apply - verify with your state agency',
+      'Contact Folk support to request detailed state configuration',
+    ],
+  };
+}
+
+/**
+ * US State and Territory names for lookup
+ */
+const STATE_NAMES: Record<string, string> = {
+  AL: 'Alabama',
+  AK: 'Alaska',
+  AZ: 'Arizona',
+  AR: 'Arkansas',
+  CA: 'California',
+  CO: 'Colorado',
+  CT: 'Connecticut',
+  DE: 'Delaware',
+  DC: 'District of Columbia',
+  FL: 'Florida',
+  GA: 'Georgia',
+  HI: 'Hawaii',
+  ID: 'Idaho',
+  IL: 'Illinois',
+  IN: 'Indiana',
+  IA: 'Iowa',
+  KS: 'Kansas',
+  KY: 'Kentucky',
+  LA: 'Louisiana',
+  ME: 'Maine',
+  MD: 'Maryland',
+  MA: 'Massachusetts',
+  MI: 'Michigan',
+  MN: 'Minnesota',
+  MS: 'Mississippi',
+  MO: 'Missouri',
+  MT: 'Montana',
+  NE: 'Nebraska',
+  NV: 'Nevada',
+  NH: 'New Hampshire',
+  NJ: 'New Jersey',
+  NM: 'New Mexico',
+  NY: 'New York',
+  NC: 'North Carolina',
+  ND: 'North Dakota',
+  OH: 'Ohio',
+  OK: 'Oklahoma',
+  OR: 'Oregon',
+  PA: 'Pennsylvania',
+  RI: 'Rhode Island',
+  SC: 'South Carolina',
+  SD: 'South Dakota',
+  TN: 'Tennessee',
+  TX: 'Texas',
+  UT: 'Utah',
+  VT: 'Vermont',
+  VA: 'Virginia',
+  WA: 'Washington',
+  WV: 'West Virginia',
+  WI: 'Wisconsin',
+  WY: 'Wyoming',
+  PR: 'Puerto Rico',
+  VI: 'U.S. Virgin Islands',
+  GU: 'Guam',
+};
+
+/**
+ * Get credentials for a specific state.
+ * Returns detailed configuration for TX and FL.
+ * Returns baseline federal defaults for all other states.
  */
 export function getStateCredentials(stateCode: string): StateCredentials | null {
   const normalizedCode = stateCode.toUpperCase();
   
+  // Return detailed state-specific config for fully implemented states
   switch (normalizedCode) {
     case 'TX':
       return TEXAS_CREDENTIALS;
     case 'FL':
       return FLORIDA_CREDENTIALS;
-    default:
+    default: {
+      // Return baseline config for any valid US state/territory
+      const stateName = STATE_NAMES[normalizedCode];
+      if (stateName !== undefined) {
+        return getDefaultStateCredentials(normalizedCode, stateName);
+      }
       return null;
+    }
   }
 }
 
 /**
+ * Check if a state has detailed (not baseline) configuration
+ */
+export function hasDetailedStateConfig(stateCode: string): boolean {
+  const normalizedCode = stateCode.toUpperCase();
+  return normalizedCode === 'TX' || normalizedCode === 'FL';
+}
+
+/**
+ * Get all US states and territories
+ */
+export function getAllStates(): Array<{ code: string; name: string; hasDetailedConfig: boolean }> {
+  return Object.entries(STATE_NAMES).map(([code, name]) => ({
+    code,
+    name,
+    hasDetailedConfig: hasDetailedStateConfig(code),
+  }));
+}
+
+/**
+ * Get all states with detailed (not baseline) configuration
+ * These are fully verified against state regulations
+ */
+export function getStatesWithDetailedConfig(): string[] {
+  return ['TX', 'FL'];
+}
+
+/**
  * Get all supported states for demo mode
+ * @deprecated Use getAllStates() instead
  */
 export function getSupportedDemoStates(): string[] {
   return ['TX', 'FL'];

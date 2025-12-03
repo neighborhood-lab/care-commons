@@ -57,7 +57,7 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
               </p>
             </div>
             <a
-              href="https://care-commons.vercel.app/login"
+              href="https://folk.care/login"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20 transition-colors"
@@ -75,7 +75,7 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Care Commons
+                Folk
               </h1>
               <p className="text-sm text-gray-500">Showcase Edition</p>
             </div>
@@ -150,7 +150,7 @@ export const ShowcaseLayout: React.FC<ShowcaseLayoutProps> = ({
             <p>
               For the full experience with real backend integration, visit the{' '}
               <a
-                href="https://care-commons.vercel.app/login"
+                href="https://folk.care/login"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-blue-600 hover:text-blue-500"

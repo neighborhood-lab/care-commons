@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { RotateCcw } from 'lucide-react';
 
-const STORAGE_KEY = 'care-commons-showcase-data';
+const STORAGE_KEY = 'folkcare-showcase-data';
 
 export const DemoReset: React.FC = () => {
   const [showConfirm, setShowConfirm] = useState(false);

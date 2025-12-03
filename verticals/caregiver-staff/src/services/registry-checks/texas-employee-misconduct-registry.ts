@@ -10,7 +10,7 @@
  * Reference: https://apps.hhs.texas.gov/emr/
  */
 
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 import { RegistryCheck } from '../../types/caregiver';
 
 export interface EmployeeMisconductRegistryCheckInput {

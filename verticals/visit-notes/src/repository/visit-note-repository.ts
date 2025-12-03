@@ -13,7 +13,7 @@ import {
   PaginatedResult,
   UserContext,
   ValidationError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import type {
   VisitNote,
   CreateVisitNoteInput,

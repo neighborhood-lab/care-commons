@@ -1,6 +1,6 @@
 # How to View the Mobile App
 
-The Care Commons mobile app is a React Native + Expo application. There are several issues preventing it from running in web mode that need to be resolved.
+The Folk mobile app is a React Native + Expo application. There are several issues preventing it from running in web mode that need to be resolved.
 
 ## Current Status ⚠️
 

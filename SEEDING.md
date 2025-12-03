@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Care Commons platform requires database seeding to create demo/test users and data. The production deployment at https://care-commons.vercel.app requires manual seeding after deployment.
+The Folk platform requires database seeding to create demo/test users and data. The production deployment at https://folk.care requires manual seeding after deployment.
 
 ## Important Note
 
@@ -50,7 +50,7 @@ The comprehensive seed (`seed-comprehensive-demo.ts`) creates:
 
 All user credentials follow this pattern:
 
-- **Email:** `{role}@{state-code}.carecommons.example`
+- **Email:** `{role}@{state-code}.folkcare.example`
 - **Password:** `Demo{STATE_CODE}{ROLE}123!`
 
 Where:
@@ -62,39 +62,39 @@ Where:
 ### Examples by State
 
 #### Alabama (AL)
-- **Admin:** `admin@al.carecommons.example` / `DemoALADMIN123!`
-- **Coordinator:** `coordinator@al.carecommons.example` / `DemoALCOORDINATOR123!`
-- **Caregiver:** `caregiver@al.carecommons.example` / `DemoALCAREGIVER123!`
-- **Nurse:** `nurse@al.carecommons.example` / `DemoALNURSE123!`
-- **Family:** `family@al.carecommons.example` / `DemoALFAMILY123!`
+- **Admin:** `admin@al.folkcare.example` / `DemoALADMIN123!`
+- **Coordinator:** `coordinator@al.folkcare.example` / `DemoALCOORDINATOR123!`
+- **Caregiver:** `caregiver@al.folkcare.example` / `DemoALCAREGIVER123!`
+- **Nurse:** `nurse@al.folkcare.example` / `DemoALNURSE123!`
+- **Family:** `family@al.folkcare.example` / `DemoALFAMILY123!`
 
 #### California (CA)
-- **Admin:** `admin@ca.carecommons.example` / `DemoCAADMIN123!`
-- **Coordinator:** `coordinator@ca.carecommons.example` / `DemoCACOORDINATOR123!`
-- **Caregiver:** `caregiver@ca.carecommons.example` / `DemoCACAREGIVER123!`
-- **Nurse:** `nurse@ca.carecommons.example` / `DemoCANURSE123!`
-- **Family:** `family@ca.carecommons.example` / `DemoCAFAMILY123!`
+- **Admin:** `admin@ca.folkcare.example` / `DemoCAADMIN123!`
+- **Coordinator:** `coordinator@ca.folkcare.example` / `DemoCACOORDINATOR123!`
+- **Caregiver:** `caregiver@ca.folkcare.example` / `DemoCACAREGIVER123!`
+- **Nurse:** `nurse@ca.folkcare.example` / `DemoCANURSE123!`
+- **Family:** `family@ca.folkcare.example` / `DemoCAFAMILY123!`
 
 #### Texas (TX)
-- **Admin:** `admin@tx.carecommons.example` / `DemoTXADMIN123!`
-- **Coordinator:** `coordinator@tx.carecommons.example` / `DemoTXCOORDINATOR123!`
-- **Caregiver:** `caregiver@tx.carecommons.example` / `DemoTXCAREGIVER123!`
-- **Nurse:** `nurse@tx.carecommons.example` / `DemoTXNURSE123!`
-- **Family:** `family@tx.carecommons.example` / `DemoTXFAMILY123!`
+- **Admin:** `admin@tx.folkcare.example` / `DemoTXADMIN123!`
+- **Coordinator:** `coordinator@tx.folkcare.example` / `DemoTXCOORDINATOR123!`
+- **Caregiver:** `caregiver@tx.folkcare.example` / `DemoTXCAREGIVER123!`
+- **Nurse:** `nurse@tx.folkcare.example` / `DemoTXNURSE123!`
+- **Family:** `family@tx.folkcare.example` / `DemoTXFAMILY123!`
 
 #### Florida (FL)
-- **Admin:** `admin@fl.carecommons.example` / `DemoFLADMIN123!`
-- **Coordinator:** `coordinator@fl.carecommons.example` / `DemoFLCOORDINATOR123!`
-- **Caregiver:** `caregiver@fl.carecommons.example` / `DemoFLCAREGIVER123!`
-- **Nurse:** `nurse@fl.carecommons.example` / `DemoFLNURSE123!`
-- **Family:** `family@fl.carecommons.example` / `DemoFLFAMILY123!`
+- **Admin:** `admin@fl.folkcare.example` / `DemoFLADMIN123!`
+- **Coordinator:** `coordinator@fl.folkcare.example` / `DemoFLCOORDINATOR123!`
+- **Caregiver:** `caregiver@fl.folkcare.example` / `DemoFLCAREGIVER123!`
+- **Nurse:** `nurse@fl.folkcare.example` / `DemoFLNURSE123!`
+- **Family:** `family@fl.folkcare.example` / `DemoFLFAMILY123!`
 
 #### New York (NY)
-- **Admin:** `admin@ny.carecommons.example` / `DemoNYADMIN123!`
-- **Coordinator:** `coordinator@ny.carecommons.example` / `DemoNYCOORDINATOR123!`
-- **Caregiver:** `caregiver@ny.carecommons.example` / `DemoNYCAREGIVER123!`
-- **Nurse:** `nurse@ny.carecommons.example` / `DemoNYNURSE123!`
-- **Family:** `family@ny.carecommons.example` / `DemoNYFAMILY123!`
+- **Admin:** `admin@ny.folkcare.example` / `DemoNYADMIN123!`
+- **Coordinator:** `coordinator@ny.folkcare.example` / `DemoNYCOORDINATOR123!`
+- **Caregiver:** `caregiver@ny.folkcare.example` / `DemoNYCAREGIVER123!`
+- **Nurse:** `nurse@ny.folkcare.example` / `DemoNYNURSE123!`
+- **Family:** `family@ny.folkcare.example` / `DemoNYFAMILY123!`
 
 ### All States
 
@@ -123,8 +123,8 @@ Each state has 5 user roles:
    # Run comprehensive seed
    npm run db:seed-comprehensive
    ```
-3. **Verify login at:** https://care-commons.vercel.app/login
-4. **Test with any state's admin credentials** (e.g., `admin@al.carecommons.example` / `DemoALADMIN123!`)
+3. **Verify login at:** https://folk.care/login
+4. **Test with any state's admin credentials** (e.g., `admin@al.folkcare.example` / `DemoALADMIN123!`)
 
 ## Troubleshooting
 
@@ -150,7 +150,7 @@ If you need to re-seed, you have two options:
 2. **Clear users only:**
    ```sql
    -- Connect to your database and run:
-   DELETE FROM users WHERE email LIKE '%@%.carecommons.example';
+   DELETE FROM users WHERE email LIKE '%@%.folkcare.example';
    ```
 
 ### Wrong credentials pattern
@@ -159,8 +159,8 @@ Ensure you're using the correct pattern:
 - Email uses **lowercase** state code
 - Password uses **UPPERCASE** state code and role
 
-**Correct:** `admin@al.carecommons.example` / `DemoALADMIN123!`
-**Wrong:** `admin@AL.carecommons.example` / `Demoaladmin123!`
+**Correct:** `admin@al.folkcare.example` / `DemoALADMIN123!`
+**Wrong:** `admin@AL.folkcare.example` / `Demoaladmin123!`
 
 ## Security Note
 

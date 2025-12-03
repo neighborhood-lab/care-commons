@@ -9,13 +9,15 @@ import { Router, Request, Response } from 'express';
 import {
   Database,
   ComplianceAutopilotService,
+  ComplianceNotificationService,
   AuthMiddleware,
   NotFoundError,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 export function createComplianceRouter(db: Database): Router {
   const router = Router();
   const complianceService = new ComplianceAutopilotService(db);
+  const notificationService = new ComplianceNotificationService(db);
   const authMiddleware = new AuthMiddleware(db);
 
   /**
@@ -574,6 +576,155 @@ export function createComplianceRouter(db: Database): Router {
         res.status(500).json({
           success: false,
           error: 'Failed to get deadline count',
+        });
+      }
+    }
+  );
+
+  /**
+   * @openapi
+   * /api/compliance/cron/scan:
+   *   post:
+   *     tags:
+   *       - Compliance
+   *     summary: Scheduled compliance scan (cron job)
+   *     description: Run compliance scan for all organizations. Called by Vercel cron.
+   *     security:
+   *       - cronAuth: []
+   *     responses:
+   *       200:
+   *         description: Scan completed successfully
+   *       401:
+   *         description: Invalid cron secret
+   */
+  router.post('/cron/scan',
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        // Verify cron secret (Vercel sends this as Authorization header)
+        const authHeader = req.headers['authorization'];
+        const cronSecret = process.env['CRON_SECRET'];
+
+        // If CRON_SECRET is set, verify it. If not set, only allow from Vercel cron.
+        if (cronSecret !== undefined && cronSecret !== '') {
+          if (authHeader !== `Bearer ${cronSecret}`) {
+            res.status(401).json({
+              success: false,
+              error: 'Unauthorized: Invalid cron secret',
+            });
+            return;
+          }
+        } else {
+          // Fallback: Check for Vercel cron user-agent in production
+          const userAgent = req.headers['user-agent'] ?? '';
+          const isVercelCron = userAgent.toLowerCase().includes('vercel-cron');
+          const isLocalDev = process.env['NODE_ENV'] === 'development';
+
+          if (!isVercelCron && !isLocalDev) {
+            res.status(401).json({
+              success: false,
+              error: 'Unauthorized: Cron endpoint only callable by Vercel cron or with CRON_SECRET',
+            });
+            return;
+          }
+        }
+
+        console.log('[Compliance Cron] Starting scheduled compliance scan');
+        const startTime = Date.now();
+
+        // Get all active organizations
+        const orgResult = await db.query<{ id: string; name: string }>(
+          `SELECT id, name FROM organizations WHERE deleted_at IS NULL`
+        );
+
+        const organizations = orgResult.rows;
+        const results: {
+          organizationId: string;
+          organizationName: string;
+          deadlinesFound: number;
+          deadlinesUpdated: number;
+          notificationsSent: number;
+          notificationsFailed: number;
+          error?: string;
+        }[] = [];
+
+        // Scan each organization
+        for (const org of organizations) {
+          try {
+            // Scan for new deadlines
+            const deadlines = await complianceService.scanOrganization(org.id);
+
+            // Update statuses of existing deadlines
+            const updatedCount = await complianceService.updateDeadlineStatuses(org.id);
+
+            // Get deadlines that need notifications (urgent and overdue)
+            const activeDeadlines = await complianceService.getActiveDeadlines(org.id);
+            const notifyableDeadlines = activeDeadlines.filter(
+              d => d.status === 'OVERDUE' || d.status === 'DUE_SOON' || d.status === 'UPCOMING'
+            );
+
+            // Send notifications for deadlines
+            const notificationResult = await notificationService.sendDeadlineNotifications(
+              org.id,
+              notifyableDeadlines
+            );
+
+            // Send daily digest to admins
+            const digestResult = await notificationService.sendDailyDigest(org.id);
+
+            const totalSent = notificationResult.sent + digestResult.sent;
+            const totalFailed = notificationResult.failed + digestResult.failed;
+
+            results.push({
+              organizationId: org.id,
+              organizationName: org.name,
+              deadlinesFound: deadlines.length,
+              deadlinesUpdated: updatedCount,
+              notificationsSent: totalSent,
+              notificationsFailed: totalFailed,
+            });
+
+            console.log(`[Compliance Cron] Scanned ${org.name}: ${deadlines.length} deadlines, ${updatedCount} updated, ${totalSent} notifications sent`);
+          } catch (orgError) {
+            const errorMessage = orgError instanceof Error ? orgError.message : 'Unknown error';
+            console.error(`[Compliance Cron] Error scanning ${org.name}:`, errorMessage);
+            results.push({
+              organizationId: org.id,
+              organizationName: org.name,
+              deadlinesFound: 0,
+              deadlinesUpdated: 0,
+              notificationsSent: 0,
+              notificationsFailed: 0,
+              error: errorMessage,
+            });
+          }
+        }
+
+        const duration = Date.now() - startTime;
+        const totalDeadlines = results.reduce((sum, r) => sum + r.deadlinesFound, 0);
+        const totalUpdated = results.reduce((sum, r) => sum + r.deadlinesUpdated, 0);
+        const totalNotifications = results.reduce((sum, r) => sum + r.notificationsSent, 0);
+        const errorCount = results.filter(r => r.error !== undefined).length;
+
+        console.log(`[Compliance Cron] Completed: ${organizations.length} orgs, ${totalDeadlines} deadlines, ${totalUpdated} updated, ${totalNotifications} notifications, ${errorCount} errors, ${duration}ms`);
+
+        res.json({
+          success: true,
+          data: {
+            organizationsScanned: organizations.length,
+            totalDeadlinesFound: totalDeadlines,
+            totalDeadlinesUpdated: totalUpdated,
+            totalNotificationsSent: totalNotifications,
+            errorCount,
+            durationMs: duration,
+            completedAt: new Date().toISOString(),
+            results,
+          },
+        });
+      } catch (error) {
+        console.error('[Compliance Cron] Scan error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Scheduled compliance scan failed',
         });
       }
     }

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains end-to-end (E2E) tests for the Care Commons mobile application using [Detox](https://wix.github.io/Detox/).
+This directory contains end-to-end (E2E) tests for the Folk mobile application using [Detox](https://wix.github.io/Detox/).
 
 **Status**: MVP Implementation Complete  
 **Coverage**: Authentication, Visit Check-In/Out (EVV Compliance)  
@@ -358,4 +358,4 @@ For questions or issues with E2E testing:
 ---
 
 **Last Updated**: 2025-11-25  
-**Maintainer**: Care Commons Development Team
+**Maintainer**: Folk Development Team

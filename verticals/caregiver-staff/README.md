@@ -151,8 +151,8 @@ APPLICATION → INTERVIEWING → PENDING_ONBOARDING → ONBOARDING → ACTIVE
 ### Creating a Caregiver
 
 ```typescript
-import { CaregiverService } from '@care-commons/caregiver-staff';
-import { Database } from '@care-commons/core';
+import { CaregiverService } from '@folkcare/caregiver-staff';
+import { Database } from '@folkcare/core';
 
 const db = new Database(config);
 const caregiverService = new CaregiverService(db);
@@ -362,10 +362,10 @@ This vertical integrates with:
 For questions or issues with the Caregiver & Staff Management vertical:
 
 - Open an issue on GitHub
-- Check the [documentation](https://docs.care-commons.org)
+- Check the [documentation](https://docs.folkcare.org)
 - Join our community discussions
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

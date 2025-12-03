@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           >
             <Menu className="h-6 w-6" />
           </Button>
-          <h1 className="text-xl font-bold text-primary-600">Care Commons</h1>
+          <h1 className="text-xl font-bold text-primary-600">Folk</h1>
         </div>
 
         <div className="flex items-center gap-4">

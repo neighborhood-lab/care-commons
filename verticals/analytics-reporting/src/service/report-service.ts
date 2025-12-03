@@ -3,7 +3,7 @@
  * Pre-built reports for compliance, productivity, and revenue analysis
  */
 
-import { Database, UserContext } from '@care-commons/core';
+import { Database, UserContext } from '@folkcare/core';
 import { AnalyticsRepository } from '../repository/analytics-repository';
 import {
   EVVComplianceReport,

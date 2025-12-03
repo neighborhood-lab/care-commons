@@ -1,6 +1,6 @@
 # Performance Optimization Guide
 
-This guide documents the performance optimizations implemented in the Care Commons platform and provides patterns for ongoing optimization work.
+This guide documents the performance optimizations implemented in the Folk platform and provides patterns for ongoing optimization work.
 
 ## Overview
 
@@ -53,7 +53,7 @@ await knex.raw(`
 ### Cache Service Usage
 
 ```typescript
-import { getCacheService } from '@care-commons/core';
+import { getCacheService } from '@folkcare/core';
 
 const cache = getCacheService();
 await cache.connect();
@@ -149,7 +149,7 @@ const visits = await db('visits')
 For more complex scenarios, use DataLoader pattern with batching:
 
 ```typescript
-import { memoizeAsync } from '@care-commons/core';
+import { memoizeAsync } from '@folkcare/core';
 
 // Batch loader function
 async function batchLoadClients(ids: string[]): Promise<Client[]> {
@@ -179,7 +179,7 @@ await Promise.all(visits.map(async (visit) => {
 
 ```typescript
 import knex from 'knex';
-import { setupQueryLogging } from '@care-commons/core';
+import { setupQueryLogging } from '@folkcare/core';
 
 const db = knex(config);
 
@@ -228,7 +228,7 @@ This will:
 ### Using Pagination Utility
 
 ```typescript
-import { paginate, validatePaginationParams } from '@care-commons/core';
+import { paginate, validatePaginationParams } from '@folkcare/core';
 
 // In API route handler
 const params = validatePaginationParams(
@@ -254,7 +254,7 @@ res.json({
 For real-time data or large datasets:
 
 ```typescript
-import { paginateWithCursor } from '@care-commons/core';
+import { paginateWithCursor } from '@folkcare/core';
 
 const query = knex('audit_events')
   .where('organization_id', orgId)
@@ -278,7 +278,7 @@ res.json({
 ### For Expensive Calculations
 
 ```typescript
-import { memoize } from '@care-commons/core';
+import { memoize } from '@folkcare/core';
 
 // Expensive distance calculation
 const calculateDistance = memoize(

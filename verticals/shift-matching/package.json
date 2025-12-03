@@ -1,7 +1,7 @@
 {
-  "name": "@care-commons/shift-matching",
+  "name": "@folkcare/shift-matching",
   "version": "0.1.0",
-  "description": "Shift Matching & Assignment vertical for Care Commons",
+  "description": "Shift Matching & Assignment vertical for Folk",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
@@ -12,7 +12,7 @@
   },
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -20,9 +20,9 @@
     "lint": "eslint . --ext ts --max-warnings 200"
   },
   "dependencies": {
-    "@care-commons/caregiver-staff": "^0.1.0",
-    "@care-commons/core": "^0.1.0",
-    "@care-commons/scheduling-visits": "^0.1.0",
+    "@folkcare/caregiver-staff": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
+    "@folkcare/scheduling-visits": "^0.1.0",
     "date-fns": "^4.1.0",
     "knex": "^3.1.0",
     "uuid": "^13.0.0",
@@ -45,7 +45,7 @@
     "vitest": "^4.0.8"
   },
   "keywords": [
-    "care-commons",
+    "folkcare",
     "shift-matching",
     "caregiver-assignment",
     "home-care",

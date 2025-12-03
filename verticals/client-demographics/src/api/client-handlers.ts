@@ -5,7 +5,7 @@
  */
 
 import { Request, Response, NextFunction, Router } from 'express';
-import { UserContext, Database, AuthMiddleware } from '@care-commons/core';
+import { UserContext, Database, AuthMiddleware } from '@folkcare/core';
 import { ClientService } from '../service/client-service';
 import { CreateClientInput, UpdateClientInput, ClientSearchFilters, ClientStatus, RiskType } from '../types/client';
 

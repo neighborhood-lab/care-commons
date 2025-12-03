@@ -1,5 +1,5 @@
 /**
- * Care Commons API Server
+ * Folk API Server
  * 
  * Main Express application that integrates all vertical route handlers
  */
@@ -10,7 +10,7 @@ dotenv.config({ path: '../../.env', quiet: true });
 
 // Initialize error tracking EARLY (before other imports that might throw)
 // Skip initialization during test imports (when VERCEL env is set) or in test mode
-import { initializeErrorTracking } from '@care-commons/core';
+import { initializeErrorTracking } from '@folkcare/core';
 if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test' && process.env.VITEST !== 'true') {
   initializeErrorTracking();
 }
@@ -19,14 +19,14 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
-import { requestLogger, metricsMiddleware, sanitizeInput } from '@care-commons/core';
+import { requestLogger, metricsMiddleware, sanitizeInput } from '@folkcare/core';
 import { authContextMiddleware } from './middleware/auth-context';
 import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import { securityHeaders } from './middleware/security-headers';
 import { configureCsrfProtection } from './middleware/csrf';
 import { generalApiLimiter } from './middleware/rate-limit';
-import { initializeDatabase, getDatabase } from '@care-commons/core';
-import { initCacheService } from '@care-commons/core/service/cache.service';
+import { initializeDatabase, getDatabase } from '@folkcare/core';
+import { initCacheService } from '@folkcare/core/service/cache.service';
 import { setupRoutes } from './routes/index';
 import { swaggerSpec } from './config/swagger';
 
@@ -84,7 +84,7 @@ function initDb(): ReturnType<typeof initializeDatabase> {
   const dbConfig = {
     host: process.env['DB_HOST'] ?? 'localhost',
     port: Number(process.env['DB_PORT'] ?? 5432),
-    database: process.env['DB_NAME'] ?? 'care_commons',
+    database: process.env['DB_NAME'] ?? 'folkcare',
     user: process.env['DB_USER'] ?? 'postgres',
     password: dbPassword,
     ssl: process.env['DB_SSL'] === 'true' ? true : false,
@@ -189,7 +189,7 @@ function setupApiRoutes(): void {
   // Root endpoint - API overview
   app.get('/', (_req, res) => {
     res.json({
-      name: 'Care Commons API',
+      name: 'Folk API',
       version: '0.1.0',
       environment: NODE_ENV,
       endpoints: {
@@ -205,7 +205,7 @@ function setupApiRoutes(): void {
   // API version info
   app.get('/api', (_req, res) => {
     res.json({
-      name: 'Care Commons API',
+      name: 'Folk API',
       version: '0.1.0',
       environment: NODE_ENV,
     });
@@ -236,7 +236,7 @@ function setupApiRoutes(): void {
  * Create and configure the Express app (for Vercel serverless)
  */
 export async function createApp(): Promise<express.Express> {
-  console.log(`Initializing Care Commons API (${NODE_ENV})`);
+  console.log(`Initializing Folk API (${NODE_ENV})`);
 
   // Initialize database
   const db = initDb();
@@ -285,7 +285,7 @@ export async function createApp(): Promise<express.Express> {
  */
 async function start(): Promise<void> {
   try {
-    console.log(`Starting Care Commons API Server (${NODE_ENV})`);
+    console.log(`Starting Folk API Server (${NODE_ENV})`);
     
     await createApp();
 

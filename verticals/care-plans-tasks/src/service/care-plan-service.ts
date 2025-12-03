@@ -4,8 +4,8 @@
  * Business logic for care plans and tasks management
  */
 
-import { UserContext, PaginationParams, PaginatedResult, UUID, NotFoundError, ValidationError, PermissionError } from '@care-commons/core';
-import { PermissionService } from '@care-commons/core';
+import { UserContext, PaginationParams, PaginatedResult, UUID, NotFoundError, ValidationError, PermissionError } from '@folkcare/core';
+import { PermissionService } from '@folkcare/core';
 import { addDays, isBefore } from 'date-fns';
 import {
   CarePlan,
@@ -26,7 +26,7 @@ import {
 } from '../types/care-plan';
 import { CarePlanRepository } from '../repository/care-plan-repository';
 import { CarePlanValidator } from '../validation/care-plan-validator';
-import { IUserRepository } from '@care-commons/core';
+import { IUserRepository } from '@folkcare/core';
 import { StateComplianceValidator } from '../validation/state-compliance-validator';
 import { StateSpecificCarePlanData } from '../types/state-specific';
 

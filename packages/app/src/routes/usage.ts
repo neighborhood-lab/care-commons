@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { Database, AuthMiddleware, createUsageLimitMiddleware } from '@care-commons/core';
+import { Database, AuthMiddleware, createUsageLimitMiddleware } from '@folkcare/core';
 
 export function createUsageRouter(db: Database): Router {
   const router = Router();

@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import type { Notification } from '@care-commons/family-engagement';
+import type { Notification } from '@folkcare/family-engagement';
 import { useMarkNotificationAsRead } from '../hooks';
 
 interface NotificationListProps {

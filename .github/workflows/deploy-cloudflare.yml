@@ -1,6 +1,6 @@
 # ════════════════════════════════════════════════════════════════
 # Cloudflare + Supabase Deployment Workflow
-# Alternative deployment option for Care Commons
+# Alternative deployment option for Folk
 # ════════════════════════════════════════════════════════════════
 
 name: Deploy to Cloudflare + Supabase
@@ -215,7 +215,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy public --project-name=care-commons-web --branch=${{ github.ref == 'refs/heads/production' && 'main' || 'preview' }}
+          command: pages deploy public --project-name=folkcare-web --branch=${{ github.ref == 'refs/heads/production' && 'main' || 'preview' }}
           workingDirectory: .
           packageManager: npm
 

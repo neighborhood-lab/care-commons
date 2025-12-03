@@ -12,13 +12,13 @@ import {
   ValidationError,
   UserContext,
   Database,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import type {
   IVisitProvider,
   IClientProvider,
   EVVVisitData,
-} from '@care-commons/time-tracking-evv';
-import { createClientProvider } from '@care-commons/time-tracking-evv';
+} from '@folkcare/time-tracking-evv';
+import { createClientProvider } from '@folkcare/time-tracking-evv';
 import { ScheduleRepository } from '../repository/schedule-repository';
 import { VisitStatus } from '../types/schedule';
 

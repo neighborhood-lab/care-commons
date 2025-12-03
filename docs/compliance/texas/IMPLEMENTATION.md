@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document describes how Care Commons implements Texas regulatory requirements as documented in [REQUIREMENTS.md](./REQUIREMENTS.md).
+This document describes how Folk implements Texas regulatory requirements as documented in [REQUIREMENTS.md](./REQUIREMENTS.md).
 
 ## Implementation Status
 
@@ -736,5 +736,5 @@ TX_VMUR_ENABLED=true
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

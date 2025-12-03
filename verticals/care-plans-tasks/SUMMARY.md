@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Care Plans & Tasks Library vertical has been successfully implemented, providing comprehensive functionality for managing structured care plans, goals, interventions, and daily task execution. This vertical is core to the Care Commons platform, bridging the gap between high-level care coordination and day-to-day service delivery.
+The Care Plans & Tasks Library vertical has been successfully implemented, providing comprehensive functionality for managing structured care plans, goals, interventions, and daily task execution. This vertical is core to the Folk platform, bridging the gap between high-level care coordination and day-to-day service delivery.
 
 ## What Was Built
 
@@ -176,7 +176,7 @@ Clean, RESTful API structure:
 ## Integration Points
 
 ### Dependencies
-- **@care-commons/core** - Base types, database, permissions
+- **@folkcare/core** - Base types, database, permissions
 - **Client & Demographics** - Client records
 - **Caregiver & Staff Management** - Caregiver assignment
 - **Scheduling & Visit Management** - Visit association
@@ -363,7 +363,7 @@ When fully deployed, this vertical will enable:
 
 The Care Plans & Tasks Library vertical provides a solid foundation for structured care management in home-based care settings. It balances flexibility with structure, compliance with usability, and comprehensive features with maintainable code.
 
-The implementation follows Care Commons principles:
+The implementation follows Folk principles:
 - **Human-scale workflows** - Focused on real care needs
 - **Modular architecture** - Cleanly separated concerns
 - **Offline-capable design** - Ready for sync implementation
@@ -374,5 +374,5 @@ This vertical can now be integrated with existing verticals and extended with ad
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

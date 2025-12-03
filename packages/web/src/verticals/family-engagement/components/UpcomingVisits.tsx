@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import type { VisitSummary } from '@care-commons/family-engagement';
+import type { VisitSummary } from '@folkcare/family-engagement';
 
 interface UpcomingVisitsProps {
   visits: VisitSummary[];

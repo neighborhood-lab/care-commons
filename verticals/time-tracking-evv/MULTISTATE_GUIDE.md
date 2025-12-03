@@ -6,7 +6,7 @@
 
 ## Overview
 
-Care Commons now supports Electronic Visit Verification (EVV) across 7 states, expanding the addressable market from ~8,000 agencies to ~36,000+ home healthcare agencies (3x+ market expansion).
+Folk now supports Electronic Visit Verification (EVV) across 7 states, expanding the addressable market from ~8,000 agencies to ~36,000+ home healthcare agencies (3x+ market expansion).
 
 ### Key Achievement: Massive Code Reuse
 
@@ -25,7 +25,7 @@ This architectural decision reduces maintenance burden while maximizing market c
 ### 1. Import the Aggregator Router
 
 ```typescript
-import { getAggregatorRouter } from '@care-commons/time-tracking-evv';
+import { getAggregatorRouter } from '@folkcare/time-tracking-evv';
 
 const router = getAggregatorRouter();
 ```
@@ -40,7 +40,7 @@ const result = await router.submit(evvRecord, 'OH'); // Ohio → Sandata
 ### 3. Get State-Specific Configuration
 
 ```typescript
-import { getStateConfig } from '@care-commons/time-tracking-evv';
+import { getStateConfig } from '@folkcare/time-tracking-evv';
 
 const config = getStateConfig('PA'); // Pennsylvania config
 console.log(config.geofenceRadiusMeters); // 100
@@ -145,7 +145,7 @@ console.log(config.gracePeriodMinutes); // 15
 All Sandata states use the **same aggregator implementation** with state-specific configuration:
 
 ```typescript
-import { SandataAggregator, getStateConfig } from '@care-commons/time-tracking-evv';
+import { SandataAggregator, getStateConfig } from '@folkcare/time-tracking-evv';
 
 const aggregator = new SandataAggregator();
 
@@ -177,7 +177,7 @@ headers: {
 Georgia uses Tellus with API key authentication:
 
 ```typescript
-import { TellusAggregator, getStateConfig } from '@care-commons/time-tracking-evv';
+import { TellusAggregator, getStateConfig } from '@folkcare/time-tracking-evv';
 
 const aggregator = new TellusAggregator();
 const result = await aggregator.submit(evvRecord, getStateConfig('GA'));
@@ -199,7 +199,7 @@ headers: {
 Let the router handle state detection:
 
 ```typescript
-import { EVVService } from '@care-commons/time-tracking-evv';
+import { EVVService } from '@folkcare/time-tracking-evv';
 
 // EVVService automatically routes based on evvRecord.serviceAddress.state
 const result = await evvService.submitToStateAggregator(evvRecordId, userContext);
@@ -388,7 +388,7 @@ INSERT INTO evv_state_config (
 Enable debug logging for aggregator submissions:
 
 ```typescript
-import { AggregatorRouter } from '@care-commons/time-tracking-evv';
+import { AggregatorRouter } from '@folkcare/time-tracking-evv';
 
 const router = new AggregatorRouter();
 // Enable debug in production with environment variable

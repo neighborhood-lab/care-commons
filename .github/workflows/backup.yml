@@ -54,6 +54,14 @@ jobs:
       - name: Build packages
         run: npm run build
       
+      - name: Install PostgreSQL 17 client
+        run: |
+          # Add PostgreSQL APT repository for version 17
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+      
       - name: Install Neon CLI
         run: |
           curl -fsSL https://neon.tech/install.sh | bash

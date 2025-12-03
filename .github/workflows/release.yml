@@ -151,7 +151,7 @@ jobs:
             
             ### Installation
             ```bash
-            npm install @care-commons/platform@${{ steps.version.outputs.version }}
+            npm install @folkcare/platform@${{ steps.version.outputs.version }}
             ```
             
             ### Verification

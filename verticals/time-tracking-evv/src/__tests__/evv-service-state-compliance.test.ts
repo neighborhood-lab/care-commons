@@ -13,8 +13,8 @@ import {
   EVVRecord,
 } from '../types/evv.js';
 
-import { UUID } from '@care-commons/core';
-import { Database, UserContext } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
+import { Database, UserContext } from '@folkcare/core';
 
 // Mock implementations
 const mockRepository = {

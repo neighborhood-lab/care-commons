@@ -142,8 +142,8 @@ export const Signup: React.FC = () => {
         newErrors.password = 'Password is required';
       } else if (formData.password.length < 8) {
         newErrors.password = 'Password must be at least 8 characters';
-      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-        newErrors.password = 'Password must contain uppercase, lowercase, and number';
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"#$%&()*,.:<>?@^{|}])/.test(formData.password)) {
+        newErrors.password = 'Password must contain uppercase, lowercase, number, and special character';
       }
 
       if (formData.password !== formData.confirmPassword) {
@@ -213,7 +213,7 @@ export const Signup: React.FC = () => {
       }
 
       toast.success(
-        `Welcome to Care Commons! Check your email (${formData.email}) to verify your account.`,
+        `Welcome to Folk! Check your email (${formData.email}) to verify your account.`,
         { duration: 6000 }
       );
 
@@ -494,6 +494,9 @@ export const Signup: React.FC = () => {
           <p className={`text-xs ${/\d/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}`}>
             {/\d/.test(formData.password) ? '✓' : '○'} Contains a number
           </p>
+          <p className={`text-xs ${/[!"#$%&()*,.:<>?@^{|}]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}`}>
+            {/[!"#$%&()*,.:<>?@^{|}]/.test(formData.password) ? '✓' : '○'} Contains special character (!@#$%...)
+          </p>
         </div>
       </div>
 
@@ -557,7 +560,7 @@ export const Signup: React.FC = () => {
             CREATE ACCOUNT
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Start Your Agency</h1>
-          <p className="text-gray-600">Set up Care Commons in under 5 minutes</p>
+          <p className="text-gray-600">Set up Folk in under 5 minutes</p>
         </div>
 
         {/* Step Indicator */}
