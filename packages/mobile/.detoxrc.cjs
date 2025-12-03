@@ -12,13 +12,13 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/CareCommonsMobile.app',
-      build: 'npx expo prebuild --platform ios && xcodebuild -workspace ios/CareCommonsMobile.xcworkspace -scheme CareCommonsMobile -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build'
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/FolkMobile.app',
+      build: 'npx expo prebuild --platform ios && xcodebuild -workspace ios/FolkMobile.xcworkspace -scheme FolkMobile -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build'
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/CareCommonsMobile.app',
-      build: 'npx expo prebuild --platform ios && xcodebuild -workspace ios/CareCommonsMobile.xcworkspace -scheme CareCommonsMobile -configuration Release -sdk iphonesimulator -derivedDataPath ios/build'
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/FolkMobile.app',
+      build: 'npx expo prebuild --platform ios && xcodebuild -workspace ios/FolkMobile.xcworkspace -scheme FolkMobile -configuration Release -sdk iphonesimulator -derivedDataPath ios/build'
     },
     'android.debug': {
       type: 'android.apk',

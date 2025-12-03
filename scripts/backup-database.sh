@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Database backup script for Care Commons
+# Database backup script for Folk
 # Run daily via cron: 0 2 * * * /path/to/backup-database.sh
 
 set -e

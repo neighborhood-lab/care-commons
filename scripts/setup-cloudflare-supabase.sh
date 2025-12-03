@@ -2,7 +2,7 @@
 # ════════════════════════════════════════════════════════════════
 # Cloudflare + Supabase Deployment Setup Script
 # ════════════════════════════════════════════════════════════════
-# This script helps you set up Care Commons for Cloudflare + Supabase deployment
+# This script helps you set up Folk for Cloudflare + Supabase deployment
 #
 # Prerequisites:
 # - Node.js 22.x installed
@@ -13,7 +13,7 @@
 set -e  # Exit on error
 
 echo "════════════════════════════════════════════════════════════════"
-echo " Care Commons - Cloudflare + Supabase Setup"
+echo " Folk - Cloudflare + Supabase Setup"
 echo "════════════════════════════════════════════════════════════════"
 echo ""
 

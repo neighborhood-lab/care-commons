@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Database restore script for Care Commons
+# Database restore script for Folk
 # Usage: ./restore-database.sh <backup_file> [--point-in-time YYYY-MM-DD-HH:MM:SS]
 
 set -e
