@@ -3,23 +3,22 @@ name: Deploy Showcase to GitHub Pages
 on:
   push:
     branches:
-      - main
       - develop
     paths:
       - 'showcase/**'
+      - 'packages/shared-components/**'
       - '.github/workflows/deploy-showcase.yml'
-  workflow_dispatch:
+  workflow_dispatch: # Allow manual trigger
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment
+# Allow one concurrent deployment
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pages-showcase"
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -31,27 +30,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build core dependencies
-        run: npx turbo run build --filter=@folkcare/core --filter=@folkcare/shared-components
-
       - name: Build showcase
-        run: |
-          cd showcase
-          npm run build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+        run: npm run build --workspace=@folkcare/showcase
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'showcase/dist'
+          path: './showcase/dist'
 
   deploy:
     environment:
