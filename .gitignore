@@ -241,3 +241,4 @@ ui-screenshots-personas/production/
 ui-screenshots-production-comprehensive/
 .secrets.txt
 session-ses_*.md
+.discord-secrets
