@@ -50,53 +50,72 @@ npm run build
 
 ## About Site Deployment (Vercel)
 
-### First-Time Setup
+### Automatic Deployment via GitHub Integration
+
+The about site **automatically deploys** to Vercel when you push to `develop` branch.
+
+**One-Time Setup:**
+
+1. **Connect GitHub Repository to Vercel:**
+   - Visit [Vercel Dashboard](https://vercel.com/new)
+   - Import `neighborhood-lab/folk-care` repository
+   - Configure project settings:
+     - **Root Directory:** `about`
+     - **Framework Preset:** Other
+     - **Build Command:** `npm run build`
+     - **Output Directory:** `dist`
+     - **Install Command:** `npm install`
+   - Set **Production Branch:** `develop`
+   - Deploy
+
+2. **Configure Custom Domain via CLI:**
 
 ```bash
-# Install Vercel CLI
+# Install Vercel CLI (if not already installed)
 npm i -g vercel
 
-# Login
+# Login to Vercel
 vercel login
 
-# Link project (from about/ directory)
+# Link to project
 cd about
 vercel link
 # Choose: neighborhood-lab/folk-care
-# Directory: about
-```
 
-### Deploy to Production
-
-```bash
-cd about
-vercel --prod
-```
-
-### Configure Custom Domain
-
-**Via Vercel Dashboard:**
-1. Go to project → Settings → Domains
-2. Add domain: `about.folk.care`
-3. Vercel provides DNS instructions
-
-**Via CLI:**
-```bash
+# Add custom domain
 vercel domains add about.folk.care
+
+# Check domain status
+vercel domains ls
 ```
 
-### DNS Configuration
+3. **Configure DNS CNAME Record:**
 
-Add CNAME record (Vercel provides the exact target):
+Vercel will provide the CNAME target (usually `cname.vercel-dns.com`):
+
 ```
 about.folk.care  CNAME  cname.vercel-dns.com.
 ```
 
-**Note:** The exact CNAME target is provided in Vercel dashboard after adding the domain.
+Add this record to your DNS provider (Cloudflare, Route53, etc.).
 
-### Environment Variables
+**Verify domain:**
+```bash
+vercel domains inspect about.folk.care
+```
 
-None needed for the about site (static HTML).
+### Deployment Workflow
+
+**Automatic (No Manual Steps Needed):**
+- Push to `develop` → Vercel auto-deploys to production
+- Open PR → Vercel creates preview deployment
+- Merge PR → Production deployment updates
+
+**Manual deployment (NOT recommended):**
+```bash
+cd about
+vercel --prod
+```
 
 ---
 
@@ -202,20 +221,14 @@ vercel logs <deployment-url>
 
 ### About Site Updates
 
+**Automatic deployment (after one-time Vercel setup):**
+
 1. Make changes in `about/` directory
 2. Commit and push to `develop`
-3. Deploy manually: `cd about && vercel --prod`
-4. Or set up Vercel Git integration for auto-deploy
+3. Vercel automatically deploys to production
+4. Site live at https://about.folk.care within 1-2 minutes
 
-### Vercel Auto-Deploy Setup
-
-**Via Dashboard:**
-1. Vercel Dashboard → Project Settings → Git
-2. Connect GitHub repository
-3. Set root directory: `about`
-4. Production branch: `develop`
-
-Now about site auto-deploys on push to `develop`!
+**No manual deployment needed!** Vercel Git integration handles everything.
 
 ---
 
