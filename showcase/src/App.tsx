@@ -57,7 +57,7 @@ export const App: React.FC = () => {
       <DataProviderContextProvider provider={mockProvider}>
         <RoleProvider defaultRole="coordinator">
           <TourProvider>
-            <BrowserRouter basename="/folkcare">
+            <BrowserRouter basename="/">
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
