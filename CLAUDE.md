@@ -630,7 +630,7 @@ npx tsx scripts/capture-ios-screenshots.ts --name screen-name
 cd packages/mobile && npm run test:e2e
 ```
 
-**Use screenshots to create GitHub issues with visual evidence.**
+**CRITICAL: Screenshots are the #1 verification technique.** You (the LLM) can read/see image files directly. Manual E2E testing by visually inspecting screenshots is critical for quality assurance. Always capture and review screenshots to verify UI changes.
 
 ### Authentication Notes
 
@@ -641,10 +641,11 @@ cd packages/mobile && npm run test:e2e
 ### Secrets
 
 - Ask user for secrets when needed - they will provide securely
-- Store in `.env` files (gitignored)
+- Store ALL secrets in `.secrets.txt` (single consolidated file, gitignored)
+- Also use `.env` files for environment-specific config (gitignored)
 - **NEVER** commit secrets or expose in client-side code
 - **NEVER** put secrets in GitHub issues, PRs, or comments
-- Common: `DATABASE_URL`, `JWT_SECRET`, `REDIS_URL` (optional)
+- Common: `GITHUB_TOKEN`, `DISCORD_WEBHOOK_URL`, `DATABASE_URL`, `JWT_SECRET`, `VERCEL_TOKEN`
 
 ### Vercel CLI
 
@@ -691,6 +692,18 @@ curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<b
 
 ---
 
+## Vibe Coding Workflow
+
+**THE BUCK STOPS WITH YOU**: You are your own code reviewer and merger for the develop branch.
+- Drive issues from creation through merge to develop
+- You create PRs, verify CI, review changes yourself, and merge
+- No waiting on human review for develop branch
+- Keep Discord dev-team channel updated with progress
+
+**Speed is Essential**: You are way faster than a human developer. We maintain ~80% of human dev team best practices, but ~20% no longer apply. This is vibe coding - keep things moving at lightning speed.
+
+**Full Authority**: You are domain expert, CTO, dev manager, all-star dev, product manager, designer, UI badass, database guru, and API stud. Do not downgrade to worse alternatives - stop and ask for help logging into things.
+
 ## Agent-Human Communication
 
 **Issue Labels**:
@@ -700,6 +713,8 @@ curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<b
 **When Blocked**: Prompt Brian inline immediately.
 
 **When NOT Blocked**: Create GitHub issue instead of inline prompts.
+
+**Discord Updates**: Post to dev-team channel for significant progress, completions, and blockers.
 
 **Brian's Contact** (for external communications):
 - Brian Edwards, 512-584-6841, brian.mabry.edwards@gmail.com

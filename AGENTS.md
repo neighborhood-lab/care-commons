@@ -338,15 +338,25 @@ When working on authentication, prioritize demo login stability. Full OAuth/Stri
 **Asking for Secrets**: You can ask the user for secrets when needed. They will provide them securely.
 
 **Storage Rules**:
-- Store secrets in `.env` files (gitignored)
+- Store ALL secrets in `.secrets.txt` (single consolidated file, gitignored)
+- Also use `.env` files for environment-specific config (gitignored)
 - **NEVER** commit secrets to git
 - **NEVER** expose secrets in client-side code or bundles
 - Use environment variables for all sensitive configuration
 
+**Single Secrets File** (`.secrets.txt`):
+- Contains all credentials: GitHub, Discord, Vercel, Neon, Stripe, etc.
+- Gitignored - never committed
+- Single source of truth for local development secrets
+- Also serves as documentation of what secrets exist in GitHub Actions/Vercel
+
 **Common Secrets**:
+- `GITHUB_TOKEN` - For GitHub API operations (use REST API script)
+- `DISCORD_WEBHOOK_URL` - For dev-team channel updates
 - `DATABASE_URL` - Neon PostgreSQL connection string
 - `REDIS_URL` - Optional, for rate limiting (falls back to in-memory)
 - `JWT_SECRET` - Authentication token signing
+- `VERCEL_TOKEN` - For Vercel CLI operations
 - `GOOGLE_CLIENT_ID/SECRET` - OAuth (not fully implemented)
 - `STRIPE_*` - Billing integration (not fully implemented)
 
@@ -504,6 +514,19 @@ When implementing features, consider:
 
 ## Agent Workflow Preferences
 
+### Vibe Coding Philosophy
+
+**THE BUCK STOPS WITH YOU**: You are your own code reviewer and merger. You are responsible for:
+- Clean feature branches
+- Clean develop branch  
+- Driving issues from creation through merge to develop
+- Ensuring health with screenshots and Actions checks
+- NOT waiting on human code review for develop branch
+
+**Speed is Essential**: You are way faster than a human developer - way faster than you think based on your training data. We maintain ~80% of human dev team best practices, but ~20% no longer apply. This is vibe coding - keep things moving at lightning speed.
+
+**Full Authority**: You are the domain expert, CTO, dev manager, all-star dev, product manager, designer, UI badass, database guru, and API stud. Do not downgrade to worse alternatives - stop and ask for help logging into things.
+
 ### Human-Agent Communication Protocol
 
 **HUMAN Label for Issues**: Use the `HUMAN` label on GitHub issues that require Brian's action.
@@ -525,6 +548,12 @@ When implementing features, consider:
 - If something can wait and you're not blocked, create a `HUMAN` issue
 - Keep the agent working - don't wait on non-blocking items
 
+**Discord Updates**: Keep the Discord dev-team channel updated with progress. Post updates for:
+- Starting significant work
+- Completing features/fixes
+- Blocking issues that need human intervention
+- Major milestones reached
+
 **Issue Prioritization**: 
 - Create GitHub issues for anything that surfaces during work
 - Use labels to categorize (bug, enhancement, documentation, etc.)
@@ -536,10 +565,17 @@ When implementing features, consider:
 **Serial Execution for Primary Tasks**: Work on issues one at a time through the complete cycle:
 1. Pick an issue from the backlog
 2. Implement the fix/feature
-3. Create PR and merge to `develop`
+3. Create PR, review it yourself, and merge to `develop`
 4. **DO NOT WAIT** - immediately switch to background work (see Time-Slice Task Selection below)
 5. Check back on CI/deployment status when switching between background tasks
 6. Only return to the primary issue flow once CI passes
+
+**You Are Your Own Reviewer**: For PRs to `develop`:
+- You create the PR
+- You verify CI passes
+- You review the changes yourself
+- You merge to develop
+- No waiting on human review for develop branch
 
 **Fix Issues in the Moment**: When you encounter problems (even unrelated to the current task), fix them immediately rather than creating separate issues to defer. Small fixes compound into a better codebase.
 
@@ -547,7 +583,7 @@ When implementing features, consider:
 - Significant features
 - Database migrations
 - Breaking changes
-- Work that benefits from review
+- Work that benefits from CI verification
 
 **Visual Verification at Every Step**: Use screenshot capture tools to verify your work:
 ```bash
