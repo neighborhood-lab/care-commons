@@ -61,8 +61,17 @@ jobs:
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
           sudo apt-get update
           sudo apt-get install -y postgresql-client-17
-          # Ensure pg17 is used instead of default pg16
+
+          # Verify installation
+          dpkg -l | grep postgresql-client
+
+          # Set PostgreSQL 17 bin directory as highest priority in PATH
           echo "/usr/lib/postgresql/17/bin" >> $GITHUB_PATH
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+
+          # Verify pg_dump version
+          which pg_dump
+          pg_dump --version
       
       - name: Install Neon CLI
         run: |
@@ -89,7 +98,12 @@ jobs:
           S3_BACKUP_BUCKET: ${{ secrets.S3_BACKUP_BUCKET }}
           BACKUP_RETENTION_DAYS: 30
           MONTHLY_RETENTION_MONTHS: 12
+          PATH: /usr/lib/postgresql/17/bin:${{ env.PATH }}
         run: |
+          # Verify we're using the correct pg_dump version
+          echo "Using pg_dump: $(which pg_dump)"
+          pg_dump --version
+
           BACKUP_TYPE="${{ github.event.inputs.backup_type || 'both' }}"
           npx tsx scripts/backup-neon.ts --type "$BACKUP_TYPE"
       
@@ -100,6 +114,7 @@ jobs:
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           BACKUP_DIR: /tmp/backups
+          PATH: /usr/lib/postgresql/17/bin:${{ env.PATH }}
         run: npx tsx scripts/backup-neon.ts --verify
       
       - name: Upload backup artifacts (for debugging)
