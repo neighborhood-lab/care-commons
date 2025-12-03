@@ -1,5 +1,5 @@
 /**
- * @care-commons/time-tracking-evv
+ * @folkcare/time-tracking-evv
  * 
  * Time Tracking & Electronic Visit Verification (EVV)
  * 

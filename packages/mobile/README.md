@@ -1,8 +1,8 @@
-# Care Commons Mobile App 📱
+# Folk Mobile App 📱
 
 **Offline-First React Native Mobile App for Caregivers**
 
-This is the mobile application for Care Commons, designed for caregivers to clock in/out of visits with full Electronic Visit Verification (EVV) compliance. The app works offline-first, ensuring caregivers can work in areas with poor connectivity.
+This is the mobile application for Folk, designed for caregivers to clock in/out of visits with full Electronic Visit Verification (EVV) compliance. The app works offline-first, ensuring caregivers can work in areas with poor connectivity.
 
 > **Status:** Foundation Complete ✅ | **Code Reuse:** 70%+ | **Test Coverage:** 100% (shared components)
 
@@ -37,9 +37,9 @@ This is the mobile application for Care Commons, designed for caregivers to cloc
 Example:
 ```typescript
 // Web
-import { Button } from '@care-commons/shared-components';
+import { Button } from '@folkcare/shared-components';
 // Mobile
-import { Button } from '@care-commons/shared-components/native';
+import { Button } from '@folkcare/shared-components/native';
 
 // Same API!
 <Button variant="primary" onPress={handleSubmit}>Submit</Button>
@@ -47,8 +47,8 @@ import { Button } from '@care-commons/shared-components/native';
 
 ### ✅ Maximum Code Reuse
 - **70%+ code shared** with web platform
-- **All types** from `@care-commons/core`
-- **All business logic** from `@care-commons/time-tracking-evv`
+- **All types** from `@folkcare/core`
+- **All business logic** from `@folkcare/time-tracking-evv`
 - **Same validation schemas** (Zod)
 - **Same EVV service** for consistency
 
@@ -165,7 +165,7 @@ import type {
 ### Shared Business Logic
 ```typescript
 // Use exact same EVV service
-import { EVVService, EVVValidator } from '@care-commons/time-tracking-evv';
+import { EVVService, EVVValidator } from '@folkcare/time-tracking-evv';
 
 const evvService = new EVVService(database);
 await evvService.clockIn(input); // Same logic as web!
@@ -174,7 +174,7 @@ await evvService.clockIn(input); // Same logic as web!
 ### Shared Validation
 ```typescript
 // Zod schemas reused
-import { ClockInSchema } from '@care-commons/time-tracking-evv';
+import { ClockInSchema } from '@folkcare/time-tracking-evv';
 
 const validated = ClockInSchema.parse(input);
 ```
@@ -182,7 +182,7 @@ const validated = ClockInSchema.parse(input);
 ### State-Specific Rules
 ```typescript
 // Texas and Florida rules
-import { getStateEVVRules } from '@care-commons/time-tracking-evv';
+import { getStateEVVRules } from '@folkcare/time-tracking-evv';
 
 const txRules = getStateEVVRules('TX');
 // geoFenceRadius: 100m
@@ -389,7 +389,7 @@ open "rndebugger://set-debugger-loc?host=localhost&port=8081"
 ### Database Inspection
 ```bash
 # View SQLite database
-adb pull /data/data/org.carecommons.mobile/databases/watermelon.db
+adb pull /data/data/org.folkcare.mobile/databases/watermelon.db
 sqlite3 watermelon.db
 ```
 
@@ -460,5 +460,5 @@ See [LICENSE](../../LICENSE) - MIT License
 
 ---
 
-**Care Commons Mobile** - Offline-first caregiving, always compliant  
+**Folk Mobile** - Offline-first caregiving, always compliant  
 Built with ❤️ by [Neighborhood Lab](https://neighborhoodlab.org)

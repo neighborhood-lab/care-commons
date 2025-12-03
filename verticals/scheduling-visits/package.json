@@ -1,18 +1,18 @@
 {
-  "name": "@care-commons/scheduling-visits",
+  "name": "@folkcare/scheduling-visits",
   "version": "0.1.0",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
-  "description": "Scheduling & Visit Management vertical for Care Commons",
+  "description": "Scheduling & Visit Management vertical for Folk",
   "engines": {
     "node": "22.x"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -20,9 +20,9 @@
     "lint": "eslint . --ext ts --max-warnings 10"
   },
   "dependencies": {
-    "@care-commons/client-demographics": "^0.1.0",
-    "@care-commons/core": "^0.1.0",
-    "@care-commons/time-tracking-evv": "^0.1.0",
+    "@folkcare/client-demographics": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
+    "@folkcare/time-tracking-evv": "^0.1.0",
     "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
     "zod": "^4.1.12"
@@ -43,7 +43,7 @@
     "vitest": "^4.0.8"
   },
   "keywords": [
-    "care-commons",
+    "folkcare",
     "scheduling",
     "visit-management",
     "home-care",

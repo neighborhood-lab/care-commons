@@ -5,9 +5,9 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, isValidUUID, ComplianceAutopilotService } from '@care-commons/core';
+import { Database, isValidUUID, ComplianceAutopilotService } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
-import { ScheduleRepository } from '@care-commons/scheduling-visits';
+import { ScheduleRepository } from '@folkcare/scheduling-visits';
 
 /**
  * Validates date range parameters for calendar/list endpoints

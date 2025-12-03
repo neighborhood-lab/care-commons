@@ -36,8 +36,8 @@
 
 ### 5. Showcase Visual QA - LOCAL & PRODUCTION ✅
 - **Screenshots:** 23/23 pages captured (100% success)
-- **Local:** http://localhost:5173/care-commons - VERIFIED WORKING
-- **Production:** https://neighborhood-lab.github.io/care-commons - VERIFIED WORKING
+- **Local:** http://localhost:5173/folkcare - VERIFIED WORKING
+- **Production:** https://folk.care - VERIFIED WORKING
 - **Quality:** PRODUCTION-GRADE
 - **Time:** 5 minutes capture + 30 minutes visual review
 

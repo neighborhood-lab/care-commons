@@ -6,8 +6,8 @@
 
 import type { Request, Response } from 'express';
 import { MedicationService } from '../service/medication-service.js';
-import type { UserContext, Role } from '@care-commons/core';
-import { ValidationError, PermissionError, NotFoundError } from '@care-commons/core';
+import type { UserContext, Role } from '@folkcare/core';
+import { ValidationError, PermissionError, NotFoundError } from '@folkcare/core';
 import {
   createMedicationSchema,
   updateMedicationSchema,

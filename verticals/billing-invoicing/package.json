@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/billing-invoicing",
+  "name": "@folkcare/billing-invoicing",
   "version": "0.1.0",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
@@ -12,7 +12,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc-alias -p tsconfig.json",
+    "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -20,8 +20,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/client-demographics": "^0.1.0",
-    "@care-commons/core": "^0.1.0",
+    "@folkcare/client-demographics": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
     "date-fns": "^4.1.0",
     "pg": "^8.16.3",
     "uuid": "^13.0.0",

@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/mobile",
+  "name": "@folkcare/mobile",
   "version": "0.1.0",
   "main": "index.ts",
   "//1": "════════════════════════════════════════════════════════════════",
@@ -26,8 +26,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/core": "^0.1.0",
-    "@care-commons/time-tracking-evv": "^0.1.0",
+    "@folkcare/core": "^0.1.0",
+    "@folkcare/time-tracking-evv": "^0.1.0",
     "@nozbe/watermelondb": "^0.25.5",
     "@react-native-async-storage/async-storage": "~2.2.0",
     "@react-native-community/netinfo": "^11.4.1",

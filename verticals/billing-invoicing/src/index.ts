@@ -1,5 +1,5 @@
 /**
- * @care-commons/billing-invoicing
+ * @folkcare/billing-invoicing
  * 
  * Revenue cycle management from service delivery to payment collection.
  * Transforms care delivery data into billable items, generates invoices,

@@ -1,12 +1,12 @@
 /**
  * Mobile Demo Page - Web Demo
  * 
- * Showcases the Care Commons mobile app for caregivers within the main web demo.
+ * Showcases the Folk mobile app for caregivers within the main web demo.
  * Accessible to coordinators and admins to understand mobile capabilities.
  */
 
 import React, { useState } from 'react';
-import { MobileSimulator } from '@care-commons/shared-components';
+import { MobileSimulator } from '@folkcare/shared-components';
 import { 
   Smartphone, 
   MapPin, 

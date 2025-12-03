@@ -7,7 +7,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/core/hooks';
-import type { UUID } from '@care-commons/core/browser';
+import type { UUID } from '@folkcare/core/browser';
 import { createFamilyPortalApiService } from '../services';
 
 /**

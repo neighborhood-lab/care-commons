@@ -1,5 +1,5 @@
 /**
- * @care-commons/quality-assurance-audits
+ * @folkcare/quality-assurance-audits
  *
  * Quality Assurance & Audits - Compliance, Quality, and Safety Auditing
  */

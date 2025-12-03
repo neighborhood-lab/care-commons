@@ -17,7 +17,7 @@ import {
   NotFoundError,
   AuthMiddleware,
   DemoDataService,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 export function createOrganizationRouter(db: Database): Router {
   const router = Router();

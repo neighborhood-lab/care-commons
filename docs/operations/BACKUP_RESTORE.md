@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document outlines backup and restore procedures for the Care Commons platform, ensuring data protection and recovery capabilities.
+This document outlines backup and restore procedures for the Folk platform, ensuring data protection and recovery capabilities.
 
 > **📘 Note**: This document covers manual backup procedures. For the **automated backup system** (recommended for production), see [BACKUP_RECOVERY.md](./BACKUP_RECOVERY.md).
 
@@ -56,8 +56,8 @@ This document outlines backup and restore procedures for the Care Commons platfo
 
 # Set variables
 BACKUP_DATE=$(date +%Y%m%d-%H%M%S)
-BACKUP_FILE="care-commons-backup-${BACKUP_DATE}.sql"
-S3_BUCKET="s3://care-commons-backups/weekly"
+BACKUP_FILE="folkcare-backup-${BACKUP_DATE}.sql"
+S3_BUCKET="s3://folkcare-backups/weekly"
 
 # Create backup
 echo "Creating backup: ${BACKUP_FILE}"
@@ -261,13 +261,13 @@ jobs:
 1. **Download Backup from S3**:
    ```bash
    # List available backups
-   aws s3 ls s3://care-commons-backups/weekly/
+   aws s3 ls s3://folkcare-backups/weekly/
 
    # Download specific backup
-   aws s3 cp s3://care-commons-backups/weekly/care-commons-backup-20250101-020000.sql.gz .
+   aws s3 cp s3://folkcare-backups/weekly/folkcare-backup-20250101-020000.sql.gz .
 
    # Decompress
-   gunzip care-commons-backup-20250101-020000.sql.gz
+   gunzip folkcare-backup-20250101-020000.sql.gz
    ```
 
 2. **Create New Database**:
@@ -279,14 +279,14 @@ jobs:
 
    Option B: Create new Neon project (if current project unavailable)
    1. Neon Console → New Project
-   2. Name: "care-commons-recovery"
+   2. Name: "folkcare-recovery"
    3. Copy connection string
    ```
 
 3. **Restore Backup**:
    ```bash
    # Restore to new database
-   psql "postgresql://new-database..." < care-commons-backup-20250101-020000.sql
+   psql "postgresql://new-database..." < folkcare-backup-20250101-020000.sql
 
    # Monitor progress (for large backups)
    # The restore will output progress messages
@@ -416,17 +416,17 @@ jobs:
 - [ ] **Verify S3 Backups**:
   ```bash
   # List recent backups
-  aws s3 ls s3://care-commons-backups/weekly/ | tail -10
+  aws s3 ls s3://folkcare-backups/weekly/ | tail -10
 
   # Check latest backup size
-  aws s3 ls s3://care-commons-backups/weekly/ --human-readable | tail -1
+  aws s3 ls s3://folkcare-backups/weekly/ --human-readable | tail -1
   ```
 
 - [ ] **Test Backup Accessibility**:
   ```bash
   # Download latest backup
-  LATEST=$(aws s3 ls s3://care-commons-backups/weekly/ | tail -1 | awk '{print $4}')
-  aws s3 cp s3://care-commons-backups/weekly/$LATEST /tmp/
+  LATEST=$(aws s3 ls s3://folkcare-backups/weekly/ | tail -1 | awk '{print $4}')
+  aws s3 cp s3://folkcare-backups/weekly/$LATEST /tmp/
 
   # Verify can decompress
   gunzip -t /tmp/$LATEST
@@ -574,7 +574,7 @@ aws s3 cp backup.sql.gz s3://bucket/ \
 
 # Verify upload with checksum
 aws s3api head-object \
-  --bucket care-commons-backups \
+  --bucket folkcare-backups \
   --key weekly/backup.sql.gz
 ```
 

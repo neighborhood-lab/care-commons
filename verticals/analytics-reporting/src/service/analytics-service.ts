@@ -2,7 +2,7 @@
  * Analytics Service - Business logic for operational metrics and KPIs
  */
 
-import { Database, UserContext } from '@care-commons/core';
+import { Database, UserContext } from '@folkcare/core';
 import { AnalyticsRepository } from '../repository/analytics-repository';
 import {
   OperationalKPIs,

@@ -9,7 +9,7 @@
  * - ML configuration
  */
 
-import { UserContext, PaginationParams, PaginatedResult } from '@care-commons/core';
+import { UserContext, PaginationParams, PaginatedResult } from '@folkcare/core';
 import { Knex } from 'knex';
 import { MLEnhancedMatchingService } from '../service/ml-enhanced-matching-service';
 import { MLModelService } from '../service/ml-model-service';

@@ -1,6 +1,6 @@
 # Architecture Overview
 
-> **Care Commons System Architecture**  
+> **Folk System Architecture**  
 > Last Updated: November 27, 2025
 
 ## Table of Contents
@@ -21,11 +21,11 @@
 
 ## Philosophy
 
-Care Commons is designed around these fundamental principles:
+Folk is designed around these fundamental principles:
 
 ### 1. Human-Scale, Not Enterprise-Scale
 
-Traditional healthcare IT systems are designed for large hospital networks with complex enterprise requirements. Care Commons is built for **small to medium home healthcare agencies** (5-100 employees) that need:
+Traditional healthcare IT systems are designed for large hospital networks with complex enterprise requirements. Folk is built for **small to medium home healthcare agencies** (5-100 employees) that need:
 
 - Simple workflows without enterprise complexity
 - Quick setup without months of implementation
@@ -34,7 +34,7 @@ Traditional healthcare IT systems are designed for large hospital networks with 
 
 ### 2. Vertical Architecture
 
-Instead of a monolithic application, Care Commons is organized as **independently deployable verticals**:
+Instead of a monolithic application, Folk is organized as **independently deployable verticals**:
 
 ```
 Core ────┬──── Client Demographics
@@ -55,14 +55,14 @@ Each vertical:
 
 ### 3. State-Specific Compliance
 
-Home healthcare regulations vary dramatically by state. Care Commons handles this by:
+Home healthcare regulations vary dramatically by state. Folk handles this by:
 
 - **Regulatory database**: State-specific rules stored as data, not code
 - **Dynamic validation**: Rules applied at runtime based on client location
 - **Extensible design**: New states can be added without code changes
 - **Compliance engine**: Centralized logic for EVV, licensing, background checks
 
-Example: Texas requires HHAeXchange EVV aggregator submission with 100m geofence tolerance, while Florida uses Sandata with 150m tolerance. Care Commons applies the correct rules automatically.
+Example: Texas requires HHAeXchange EVV aggregator submission with 100m geofence tolerance, while Florida uses Sandata with 150m tolerance. Folk applies the correct rules automatically.
 
 ---
 
@@ -281,10 +281,10 @@ enum VisitEvent {
 
 ## Monorepo Structure
 
-Care Commons uses **Turborepo** for monorepo management:
+Folk uses **Turborepo** for monorepo management:
 
 ```
-care-commons/
+folkcare/
 ├── packages/                 # Shared packages
 │   ├── core/                # Shared infrastructure
 │   │   ├── src/
@@ -500,7 +500,7 @@ CREATE TRIGGER clients_audit_trigger
 
 ### Performance Indexes
 
-Care Commons has **83 indexes** for query performance:
+Folk has **83 indexes** for query performance:
 
 ```sql
 -- Organization scoping (on every table)
@@ -595,7 +595,7 @@ if (!canRead) {
 
 ```typescript
 // Encryption for SSN, credit card numbers
-import { encrypt, decrypt } from '@care-commons/core/crypto';
+import { encrypt, decrypt } from '@folkcare/core/crypto';
 
 const encryptedSSN = await encrypt(ssn, process.env.ENCRYPTION_KEY);
 // Store: "encrypted:AES256:base64encodeddata"
@@ -669,7 +669,7 @@ const decryptedSSN = await decrypt(encryptedSSN, process.env.ENCRYPTION_KEY);
 ### Branching Strategy
 
 ```
-production   ← Live system (care-commons.vercel.app)
+production   ← Live system (folk.care)
     ↑
     │ (PR + review)
     │
@@ -1000,5 +1000,5 @@ For architects and technical leads:
 ## Questions?
 
 - **Discord**: https://discord.gg/EkeXQZFq
-- **GitHub Issues**: https://github.com/neighborhood-lab/care-commons/issues
+- **GitHub Issues**: https://github.com/neighborhood-lab/folkcare/issues
 - **Email**: brian.mabry.edwards@gmail.com

@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CaregiverService } from '../service/caregiver-service';
-import type { Database, UserContext } from '@care-commons/core';
+import type { Database, UserContext } from '@folkcare/core';
 
 // Mock database
 const mockDatabase: Database = {

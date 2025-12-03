@@ -19,11 +19,11 @@ This creates:
 - **Demo users** for all roles (Admin, Coordinator, Caregiver, Nurse, Family)
 
 **Login credentials**: All demo accounts use password `Demo123!`
-- Admin: `admin@tx.carecommons.example`
-- Coordinator: `coordinator@tx.carecommons.example`
-- Caregiver: `caregiver@tx.carecommons.example`
-- Nurse: `nurse@tx.carecommons.example`
-- Family: `family@tx.carecommons.example`
+- Admin: `admin@tx.folkcare.example`
+- Coordinator: `coordinator@tx.folkcare.example`
+- Caregiver: `caregiver@tx.folkcare.example`
+- Nurse: `nurse@tx.folkcare.example`
+- Family: `family@tx.folkcare.example`
 
 ## Starting Development Servers
 
@@ -128,7 +128,7 @@ If you see:
 npm run dev:kill
 ```
 
-This will forcefully kill any orphaned tsx/vite processes related to care-commons.
+This will forcefully kill any orphaned tsx/vite processes related to folkcare.
 
 ### Orphaned processes after force-kill
 
@@ -136,7 +136,7 @@ If you force-killed the terminal or processes got orphaned:
 
 ```bash
 # Check for orphaned processes
-ps -ef | grep -E "(tsx watch|vite)" | grep care-commons
+ps -ef | grep -E "(tsx watch|vite)" | grep folkcare
 
 # Kill them all
 npm run dev:kill

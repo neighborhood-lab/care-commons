@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document describes how Care Commons implements [STATE] regulatory requirements as documented in [REQUIREMENTS.md](./REQUIREMENTS.md).
+This document describes how Folk implements [STATE] regulatory requirements as documented in [REQUIREMENTS.md](./REQUIREMENTS.md).
 
 ## Implementation Status
 
@@ -504,5 +504,5 @@ describe('[STATE] EVV Compliance', () => {
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

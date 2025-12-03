@@ -1,5 +1,5 @@
 {
-  "name": "@care-commons/web",
+  "name": "@folkcare/web",
   "version": "0.1.0",
   "private": true,
   "//1": "════════════════════════════════════════════════════════════════",
@@ -24,9 +24,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@care-commons/care-plans-tasks": "^0.1.0",
-    "@care-commons/family-engagement": "^0.1.0",
-    "@care-commons/shared-components": "^0.1.0",
+    "@folkcare/care-plans-tasks": "^0.1.0",
+    "@folkcare/family-engagement": "^0.1.0",
+    "@folkcare/shared-components": "^0.1.0",
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@nozbe/watermelondb": "^0.25.5",

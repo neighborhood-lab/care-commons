@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { StateProviderFactory } from '../state-provider-factory';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 
 describe('StateProviderFactory', () => {
   let mockDatabase: Database;

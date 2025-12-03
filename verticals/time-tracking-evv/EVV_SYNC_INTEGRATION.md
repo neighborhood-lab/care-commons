@@ -34,7 +34,7 @@ The EVV vertical should integrate with sync at the **service layer**, not by mod
 Create `verticals/time-tracking-evv/src/sync/evv-sync-adapter.ts`:
 
 ```typescript
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { EVVRecord, TimeEntry } from '../types/evv';
 
 export class EVVSyncAdapter {
@@ -219,7 +219,7 @@ private async applyChangeToLocal(change: SyncChange): Promise<void> {
 Then during app initialization:
 
 ```typescript
-import { createEVVSyncAdapter } from '@care-commons/time-tracking-evv/sync';
+import { createEVVSyncAdapter } from '@folkcare/time-tracking-evv/sync';
 
 // Initialize sync service
 const syncService = initializeSyncService({ ... });

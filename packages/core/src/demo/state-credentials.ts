@@ -422,7 +422,7 @@ export function getDefaultStateCredentials(stateCode: string, stateName: string)
     complianceNotes: [
       'Using default federal EVV requirements (21st Century Cures Act)',
       'State-specific regulations may apply - verify with your state agency',
-      'Contact Care Commons support to request detailed state configuration',
+      'Contact Folk support to request detailed state configuration',
     ],
   };
 }

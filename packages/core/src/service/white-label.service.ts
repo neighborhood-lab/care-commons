@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - White Label Service
+ * @folkcare/core - White Label Service
  *
  * Business logic for multi-agency white-labeling
  */

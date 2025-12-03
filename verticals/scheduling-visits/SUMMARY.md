@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Scheduling & Visit Management** vertical has been successfully implemented as a foundational component of the Care Commons platform. This vertical provides comprehensive functionality for planning, coordinating, and tracking care visits in home-based care organizations.
+The **Scheduling & Visit Management** vertical has been successfully implemented as a foundational component of the Folk platform. This vertical provides comprehensive functionality for planning, coordinating, and tracking care visits in home-based care organizations.
 
 ## What Was Built
 
@@ -407,7 +407,7 @@ The Scheduling & Visit Management vertical is **production-ready at the core lev
 
 ---
 
-**Built for Care Commons**  
+**Built for Folk**  
 A modular, self-hostable platform for home-based care services  
 *Human-scale workflows • Local autonomy • Privacy first*
 

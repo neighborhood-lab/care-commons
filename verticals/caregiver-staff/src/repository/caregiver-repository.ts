@@ -2,7 +2,7 @@
  * Caregiver repository - data access layer
  */
 
-import { Repository, Database, UserContext, PaginatedResult } from '@care-commons/core';
+import { Repository, Database, UserContext, PaginatedResult } from '@folkcare/core';
 import { Caregiver, CaregiverSearchFilters, ComplianceStatus, Gender, ContactMethod, EmploymentType, EmploymentStatus, CaregiverRole, CaregiverStatus } from '../types/caregiver';
 
 export class CaregiverRepository extends Repository<Caregiver> {

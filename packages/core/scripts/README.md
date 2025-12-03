@@ -1,6 +1,6 @@
 # Database Seed Scripts
 
-Comprehensive demo data seeding for Care Commons platform.
+Comprehensive demo data seeding for Folk platform.
 
 ## Quick Start
 
@@ -33,16 +33,16 @@ npm run db:seed-all-states
 ```
 
 **Credential Pattern:**
-- Email: `{role}@{state}.carecommons.example`
+- Email: `{role}@{state}.folkcare.example`
 - Password: `Demo{STATE}{ROLE}123!`
 
 **Examples:**
 ```
-admin@ca.carecommons.example / DemoCAADMIN123!
-coordinator@tx.carecommons.example / DemoTXCOORDINATOR123!
-caregiver@fl.carecommons.example / DemoFLCAREGIVER123!
-nurse@ny.carecommons.example / DemoNYNURSE123!
-family@il.carecommons.example / DemoILFAMILY123!
+admin@ca.folkcare.example / DemoCAADMIN123!
+coordinator@tx.folkcare.example / DemoTXCOORDINATOR123!
+caregiver@fl.folkcare.example / DemoFLCAREGIVER123!
+nurse@ny.folkcare.example / DemoNYNURSE123!
+family@il.folkcare.example / DemoILFAMILY123!
 ```
 
 ## All Available Seed Scripts
@@ -177,7 +177,7 @@ echo $DATABASE_URL
 # Or set individual variables:
 export DB_HOST=localhost
 export DB_PORT=5432
-export DB_NAME=care_commons
+export DB_NAME=folkcare
 export DB_USER=postgres
 export DB_PASSWORD=postgres
 ```
@@ -201,4 +201,4 @@ To modify or create new seed scripts:
 
 ## License
 
-Part of Care Commons - Shared care software, community owned
+Part of Folk - Shared care software, community owned

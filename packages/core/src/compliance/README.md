@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains the multi-state compliance validation system for Care Commons. The system ensures that caregiver assignments comply with state-specific home healthcare regulations for **Ohio (OH)**, **Texas (TX)**, and **Florida (FL)**.
+This directory contains the multi-state compliance validation system for Folk. The system ensures that caregiver assignments comply with state-specific home healthcare regulations for **Ohio (OH)**, **Texas (TX)**, and **Florida (FL)**.
 
 ## Quick Start
 
@@ -530,4 +530,4 @@ When contributing to compliance validators:
 
 ## License
 
-Copyright © 2025 Care Commons. All rights reserved.
+Copyright © 2025 Folk. All rights reserved.

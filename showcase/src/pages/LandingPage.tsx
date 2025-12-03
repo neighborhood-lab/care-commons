@@ -169,7 +169,7 @@ export const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
-          Care Commons Showcase
+          Folk Showcase
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
           Experience the complete care coordination platform from multiple perspectives.
@@ -266,7 +266,7 @@ export const LandingPage: React.FC = () => {
         {/* Quick Link to Full Demo */}
         <div className="text-center mt-8">
           <a
-            href="https://care-commons.vercel.app/login"
+            href="https://folk.care/login"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
@@ -499,7 +499,7 @@ export const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Why Care Commons Section */}
+      {/* Why Folk Section */}
       <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 mb-16 border border-green-200">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-3">
@@ -513,7 +513,7 @@ export const LandingPage: React.FC = () => {
             to="/why"
             className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
           >
-            Why Care Commons?
+            Why Folk?
             <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
@@ -526,12 +526,12 @@ export const LandingPage: React.FC = () => {
             Ready for the Full Experience?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Experience Care Commons with real backend integration, live data sync, 
+            Experience Folk with real backend integration, live data sync, 
             authentication, and production-grade infrastructure.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href="https://care-commons.vercel.app/login"
+              href="https://folk.care/login"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all shadow-xl"
@@ -540,7 +540,7 @@ export const LandingPage: React.FC = () => {
               <ArrowRight className="h-6 w-6" />
             </a>
             <a
-              href="https://github.com/neighborhood-lab/care-commons"
+              href="https://github.com/neighborhood-lab/folkcare"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white/20 transition-all border-2 border-white/20"

@@ -1,6 +1,6 @@
 # Mobile App Deployment Checklist
 
-Complete checklist for deploying Care Commons mobile app from development to production.
+Complete checklist for deploying Folk mobile app from development to production.
 
 ---
 

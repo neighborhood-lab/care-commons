@@ -1,8 +1,8 @@
-# Care Commons: End-to-End Testing Guide
+# Folk: End-to-End Testing Guide
 
 ## Overview
 
-This directory contains comprehensive end-to-end (E2E) tests for Care Commons using [Playwright](https://playwright.dev/). These tests validate critical user workflows across multiple states and compliance requirements.
+This directory contains comprehensive end-to-end (E2E) tests for Folk using [Playwright](https://playwright.dev/). These tests validate critical user workflows across multiple states and compliance requirements.
 
 ## Table of Contents
 
@@ -35,7 +35,7 @@ npm install
 npx playwright install
 
 # Set up test database
-createdb care_commons_e2e_test
+createdb folkcare_e2e_test
 npm run db:migrate
 ```
 
@@ -386,12 +386,12 @@ On test failure, the following are uploaded:
 
 ```bash
 # Reset test database
-dropdb care_commons_e2e_test
-createdb care_commons_e2e_test
+dropdb folkcare_e2e_test
+createdb folkcare_e2e_test
 npm run db:migrate
 
 # Check database connection
-psql -d care_commons_e2e_test -c "SELECT 1"
+psql -d folkcare_e2e_test -c "SELECT 1"
 ```
 
 ### Browser Installation Issues
@@ -548,10 +548,10 @@ expect(text).toBe('COMPLETED'); // No auto-retry
 
 - [Playwright Documentation](https://playwright.dev/)
 - [Playwright Best Practices](https://playwright.dev/docs/best-practices)
-- [Care Commons Architecture](../packages/web/ARCHITECTURE.md)
-- [Care Commons EVV Implementation](../verticals/time-tracking-evv/README.md)
+- [Folk Architecture](../packages/web/ARCHITECTURE.md)
+- [Folk EVV Implementation](../verticals/time-tracking-evv/README.md)
 
 ---
 
-**Care Commons** - Shared care software, community owned
+**Folk** - Shared care software, community owned
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

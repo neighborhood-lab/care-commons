@@ -12,7 +12,7 @@ import type {
   OnboardingStepId,
   ChecklistItemStatus,
   GoLiveCategory,
-} from '@care-commons/core';
+} from '@folkcare/core';
 
 interface CategorySummary {
   label: string;

@@ -8,7 +8,7 @@ All articles are complete, reviewed, and ready for Brian to publish:
 **File:** `drafts/2025-11-26-compliance-autopilot-never-miss-deadline.md`
 **Status:** ✅ Ready
 **Title:** Compliance Tracking in Home Healthcare: Why It's Broken and How to Fix It
-**Subtitle:** Care Commons ships proactive compliance monitoring
+**Subtitle:** Folk ships proactive compliance monitoring
 **Category:** Product
 **Image prompt included:** Yes - flat illustration, dashboard with credentials
 
@@ -34,7 +34,7 @@ All articles are complete, reviewed, and ready for Brian to publish:
 **Status:** ✅ Ready
 **Title:** AI-Assisted Development: What It Actually Is
 **Category:** Technical
-**Focus:** Care Commons as concrete example
+**Focus:** Folk as concrete example
 
 ### 6. CMS Proposed Rule Template (Dec 10)
 **File:** `drafts/2025-12-10-cms-home-health-proposed-rule-template.md`
@@ -47,7 +47,7 @@ All articles are complete, reviewed, and ready for Brian to publish:
 
 For each article:
 
-1. **Open Substack** - Go to https://carecommons.substack.com
+1. **Open Substack** - Go to https://folkcare.substack.com
 2. **Create new post**
 3. **Copy article text** from markdown file
 4. **Add title/subtitle** from YAML frontmatter
@@ -82,7 +82,7 @@ For each article:
 
 - All articles are ~1000-1500 words
 - Technical depth appropriate for agency administrators
-- Include Care Commons links where relevant
+- Include Folk links where relevant
 - Track engagement metrics
 - Consider email list growth after each post
 

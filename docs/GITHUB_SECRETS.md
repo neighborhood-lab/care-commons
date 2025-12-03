@@ -1,6 +1,6 @@
 # GitHub Secrets Configuration Guide
 
-This document lists all GitHub Secrets required for Care Commons CI/CD pipelines.
+This document lists all GitHub Secrets required for Folk CI/CD pipelines.
 
 ## How to Add Secrets
 
@@ -312,5 +312,5 @@ Configure protection rules (require approvals, etc.)
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Security is everyone's responsibility - protect your secrets!

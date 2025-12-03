@@ -102,8 +102,8 @@ Track safety and care concerns:
 ### Creating a Client
 
 ```typescript
-import { ClientService, CreateClientInput } from '@care-commons/client-demographics';
-import { UserContext } from '@care-commons/core';
+import { ClientService, CreateClientInput } from '@folkcare/client-demographics';
+import { UserContext } from '@folkcare/core';
 
 const clientService = new ClientService(clientRepository);
 

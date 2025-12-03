@@ -8,8 +8,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Database } from '@care-commons/core';
-import type { UUID } from '@care-commons/core';
+import { Database } from '@folkcare/core';
+import type { UUID } from '@folkcare/core';
 
 describe('EVV Notification Recipient Resolution', () => {
   let mockDatabase: Database;

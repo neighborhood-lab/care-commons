@@ -13,7 +13,7 @@ On November 19, 2025, an Anthropic employee posted on r/vibecoding that "softwar
 
 These three data points represent the current state of AI in software: hyperbolic claims from insiders, cautious enterprise adoption in healthcare, and government money flowing toward automation. What's actually happening?
 
-This article explains AI-assisted development from first principles, using Care Commons—a home healthcare platform I built over 28 days—as a concrete reference point. The goal is precision, not persuasion.
+This article explains AI-assisted development from first principles, using Folk—a home healthcare platform I built over 28 days—as a concrete reference point. The goal is precision, not persuasion.
 
 ---
 
@@ -57,13 +57,13 @@ Understanding these properties explains both why AI-assisted development works a
 
 ---
 
-## The Care Commons Case
+## The Folk Case
 
-Care Commons is a home healthcare management platform. It handles Electronic Visit Verification (EVV), caregiver scheduling, compliance tracking, billing, and mobile visit documentation.
+Folk is a home healthcare management platform. It handles Electronic Visit Verification (EVV), caregiver scheduling, compliance tracking, billing, and mobile visit documentation.
 
 Development started October 28, 2025. Production deployment occurred November 25, 2025.
 
-**Metrics (verifiable at github.com/neighborhood-lab/care-commons):**
+**Metrics (verifiable at github.com/neighborhood-lab/folkcare):**
 
 | Metric | Value |
 |--------|-------|
@@ -106,7 +106,7 @@ Scoping healthcare software is notoriously difficult because requirements emerge
 - Healthcare IT projects typically take 2-3x longer than initial estimates due to compliance requirements
 - Enterprise home health software (like HHAeXchange or Sandata) took years and large teams to build
 
-**Rough estimate for Care Commons scope:**
+**Rough estimate for Folk scope:**
 
 A traditional team would likely need:
 - 3-5 engineers
@@ -123,7 +123,7 @@ Here are specific categories where AI assistance accelerated development:
 
 ### 1. CRUD Operations
 
-Care Commons has 15 domain modules (scheduling, billing, EVV, etc.). Each module needs:
+Folk has 15 domain modules (scheduling, billing, EVV, etc.). Each module needs:
 - Database schema and migrations
 - Repository layer (data access)
 - Service layer (business logic)
@@ -163,7 +163,7 @@ Example: I chose Turborepo for build orchestration. AI would have equally implem
 
 ### 2. Regulatory Compliance
 
-Care Commons must comply with:
+Folk must comply with:
 - HIPAA (health data privacy)
 - 21st Century Cures Act (EVV requirements)
 - State-specific regulations (Texas 26 TAC §558, Florida Chapter 59A-8)
@@ -248,7 +248,7 @@ Small changes, frequent commits. Average PR is ~50 lines. Problems surface quick
 
 ## Cost Analysis
 
-**AI-assisted (Care Commons):**
+**AI-assisted (Folk):**
 
 | Item | Cost |
 |------|------|
@@ -295,7 +295,7 @@ Pure coding speed becomes less differentiating.
 
 The home healthcare software market is dominated by expensive enterprise vendors (HHAeXchange, Sandata, AlayaCare). If AI reduces development costs by 10-100x, market dynamics may shift toward smaller vendors and open-source alternatives.
 
-Care Commons is a test of this hypothesis.
+Folk is a test of this hypothesis.
 
 ---
 
@@ -306,9 +306,9 @@ This article is not claiming:
 - AI replaces software engineers (it doesn't)
 - Anyone can build production software with AI (domain expertise still required)
 - Vibe coding is a good practice (low-rigor development fails)
-- Care Commons proves anything definitive (sample size of one)
+- Folk proves anything definitive (sample size of one)
 
-The claim is narrower: AI-assisted development, done rigorously, produces real output faster than traditional development. The Care Commons metrics are verifiable. The tradeoffs are real.
+The claim is narrower: AI-assisted development, done rigorously, produces real output faster than traditional development. The Folk metrics are verifiable. The tradeoffs are real.
 
 ---
 
@@ -316,14 +316,14 @@ The claim is narrower: AI-assisted development, done rigorously, produces real o
 
 All claims in this article can be verified:
 
-- **Repository:** github.com/neighborhood-lab/care-commons
-- **Live demo:** neighborhood-lab.github.io/care-commons/
-- **Production:** care-commons.vercel.app
+- **Repository:** github.com/neighborhood-lab/folkcare
+- **Live demo:** folk.care/
+- **Production:** folk.care
 
 Run locally:
 ```bash
-git clone https://github.com/neighborhood-lab/care-commons
-cd care-commons
+git clone https://github.com/neighborhood-lab/folkcare
+cd folkcare
 npm install
 npm run test     # 3,154 tests
 npm run build    # Production build
@@ -332,4 +332,4 @@ npm run lint     # Code quality
 
 ---
 
-*Brian Edwards builds Care Commons with Neighborhood Lab. Contact: brian.mabry.edwards@gmail.com*
+*Brian Edwards builds Folk with Neighborhood Lab. Contact: brian.mabry.edwards@gmail.com*

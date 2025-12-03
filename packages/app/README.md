@@ -1,6 +1,6 @@
-# Care Commons API Server
+# Folk API Server
 
-Express.js application layer that integrates all Care Commons vertical packages into a unified REST API.
+Express.js application layer that integrates all Folk vertical packages into a unified REST API.
 
 ## Architecture
 
@@ -88,7 +88,7 @@ Environment variables (set in `.env` at repository root):
 # Database
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=care_commons
+DB_NAME=folkcare
 DB_USER=postgres
 DB_PASSWORD=your_password
 
@@ -124,7 +124,7 @@ To integrate a new vertical package:
 Example:
 ```typescript
 // In src/routes/index.ts
-import { createSchedulingRouter, SchedulingService } from '@care-commons/scheduling-visits';
+import { createSchedulingRouter, SchedulingService } from '@folkcare/scheduling-visits';
 
 const schedulingService = new SchedulingService(db);
 const schedulingRouter = createSchedulingRouter(schedulingService);

@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document outlines the monitoring and alerting strategy for the Care Commons platform, including configuration for Sentry, Prometheus metrics, and external monitoring services.
+This document outlines the monitoring and alerting strategy for the Folk platform, including configuration for Sentry, Prometheus metrics, and external monitoring services.
 
 ---
 
@@ -107,7 +107,7 @@ Purpose: Performance degradation detection
   "alerts": [
     {
       "name": "Critical Error Rate",
-      "projects": ["care-commons"],
+      "projects": ["folkcare"],
       "conditions": [
         {
           "id": "sentry.rules.conditions.event_frequency.EventFrequencyPercentCondition",
@@ -123,14 +123,14 @@ Purpose: Performance degradation detection
         },
         {
           "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
-          "workspace": "care-commons",
+          "workspace": "folkcare",
           "channel": "#incidents"
         }
       ]
     },
     {
       "name": "Database Errors",
-      "projects": ["care-commons"],
+      "projects": ["folkcare"],
       "conditions": [
         {
           "id": "sentry.rules.conditions.tagged_event.TaggedEventCondition",
@@ -142,7 +142,7 @@ Purpose: Performance degradation detection
       "actions": [
         {
           "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
-          "workspace": "care-commons",
+          "workspace": "folkcare",
           "channel": "#incidents"
         }
       ]
@@ -346,12 +346,12 @@ groups:
 
 ```
 Monitor Type: HTTPS
-Friendly Name: Care Commons API Health Check
+Friendly Name: Folk API Health Check
 URL: https://your-domain.com/health
 Monitoring Interval: 1 minute
 Monitor Timeout: 30 seconds
 Alert Contacts:
-  - Slack Integration (care-commons-alerts)
+  - Slack Integration (folkcare-alerts)
   - PagerDuty Integration (production-oncall)
   - Email (devops@your-domain.com)
 ```

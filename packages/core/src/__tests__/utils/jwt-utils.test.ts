@@ -70,7 +70,7 @@ describe('JWTUtils', () => {
       const badToken = sign(
         { email: 'test@example.com', organizationId: mockPayload.organizationId },
         TEST_JWT_SECRET,
-        { issuer: 'care-commons', audience: 'care-commons-api' }
+        { issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       expect(() => {
@@ -82,7 +82,7 @@ describe('JWTUtils', () => {
       const badToken = sign(
         { userId: mockPayload.userId, organizationId: mockPayload.organizationId },
         TEST_JWT_SECRET,
-        { issuer: 'care-commons', audience: 'care-commons-api' }
+        { issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       expect(() => {
@@ -94,7 +94,7 @@ describe('JWTUtils', () => {
       const badToken = sign(
         { userId: mockPayload.userId, email: 'test@example.com' },
         TEST_JWT_SECRET,
-        { issuer: 'care-commons', audience: 'care-commons-api' }
+        { issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       expect(() => {
@@ -106,7 +106,7 @@ describe('JWTUtils', () => {
       const tokenWithoutArrays = sign(
         { userId: mockPayload.userId, email: 'test@example.com', organizationId: mockPayload.organizationId },
         TEST_JWT_SECRET,
-        { issuer: 'care-commons', audience: 'care-commons-api' }
+        { issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       const decoded = JWTUtils.verifyAccessToken(tokenWithoutArrays);
@@ -118,7 +118,7 @@ describe('JWTUtils', () => {
       const tokenWithoutVersion = sign(
         { userId: mockPayload.userId, email: 'test@example.com', organizationId: mockPayload.organizationId },
         TEST_JWT_SECRET,
-        { issuer: 'care-commons', audience: 'care-commons-api' }
+        { issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       const decoded = JWTUtils.verifyAccessToken(tokenWithoutVersion);
@@ -129,7 +129,7 @@ describe('JWTUtils', () => {
       const expiredToken = sign(
         mockPayload,
         TEST_JWT_SECRET,
-        { expiresIn: '0s', issuer: 'care-commons', audience: 'care-commons-api' }
+        { expiresIn: '0s', issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       // Wait to ensure expiration
@@ -160,7 +160,7 @@ describe('JWTUtils', () => {
       const badToken = sign(
         { tokenVersion: 1 },
         TEST_JWT_REFRESH_SECRET,
-        { issuer: 'care-commons', audience: 'care-commons-api' }
+        { issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       expect(() => {
@@ -172,7 +172,7 @@ describe('JWTUtils', () => {
       const badToken = sign(
         { userId: mockPayload.userId },
         TEST_JWT_REFRESH_SECRET,
-        { issuer: 'care-commons', audience: 'care-commons-api' }
+        { issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       expect(() => {
@@ -184,7 +184,7 @@ describe('JWTUtils', () => {
       const expiredToken = sign(
         { userId: mockPayload.userId, tokenVersion: 1 },
         TEST_JWT_REFRESH_SECRET,
-        { expiresIn: '0s', issuer: 'care-commons', audience: 'care-commons-api' }
+        { expiresIn: '0s', issuer: 'folkcare', audience: 'folkcare-api' }
       );
 
       // Wait to ensure expiration

@@ -6,11 +6,11 @@
 
 ## General
 
-### What is Care Commons?
+### What is Folk?
 
-Care Commons is an open-source home healthcare management platform with state-specific Electronic Visit Verification (EVV) compliance for all 50 states. It provides comprehensive tools for scheduling, care plans, billing, and family engagement.
+Folk is an open-source home healthcare management platform with state-specific Electronic Visit Verification (EVV) compliance for all 50 states. It provides comprehensive tools for scheduling, care plans, billing, and family engagement.
 
-### Who is Care Commons for?
+### Who is Folk for?
 
 - **Home healthcare agencies** (skilled nursing, personal care, home health aides)
 - **Home care agencies** (non-medical personal care)
@@ -18,9 +18,9 @@ Care Commons is an open-source home healthcare management platform with state-sp
 - **Private duty nursing**
 - **Home health companies** (any size, but especially beneficial for 5-50 caregiver teams)
 
-### Is Care Commons really free?
+### Is Folk really free?
 
-Yes! Care Commons is MIT-licensed open source software. You can:
+Yes! Folk is MIT-licensed open source software. You can:
 - Use it commercially
 - Self-host it
 - Modify it for your needs
@@ -28,7 +28,7 @@ Yes! Care Commons is MIT-licensed open source software. You can:
 
 We also offer a managed SaaS service starting at $99/month for agencies that prefer hosted solutions.
 
-### What makes Care Commons different?
+### What makes Folk different?
 
 1. **State-Specific Compliance**: Automatic EVV rules for all 50 states (TX HHAeXchange, FL Sandata, etc.)
 2. **Open Source**: Full code access, no vendor lock-in
@@ -60,7 +60,7 @@ We also offer a managed SaaS service starting at $99/month for agencies that pre
 
 ### Does it support Medicare/Medicaid?
 
-Yes! Care Commons tracks:
+Yes! Folk tracks:
 - Medicaid/Medicare authorization numbers
 - Service authorizations and unit tracking
 - EVV compliance for Medicaid-funded services
@@ -68,11 +68,11 @@ Yes! Care Commons tracks:
 
 ### Can it handle multiple states?
 
-Yes! Care Commons has state-specific configurations for all 50 states. If you operate in multiple states, it automatically applies the correct rules for each location.
+Yes! Folk has state-specific configurations for all 50 states. If you operate in multiple states, it automatically applies the correct rules for each location.
 
 ### Is there a mobile app?
 
-Yes! Care Commons includes a React Native mobile app for iOS and Android with:
+Yes! Folk includes a React Native mobile app for iOS and Android with:
 - Offline-first EVV (works without internet)
 - GPS verification and geofencing
 - Task checklists
@@ -86,7 +86,7 @@ Yes! Care Commons includes a React Native mobile app for iOS and Android with:
 
 ### Does it meet the 21st Century Cures Act requirements?
 
-Yes! Care Commons captures all six required EVV elements:
+Yes! Folk captures all six required EVV elements:
 1. Type of service performed
 2. Individual receiving service
 3. Date of service
@@ -106,11 +106,11 @@ We're continuously adding more aggregator integrations.
 
 ### What if my state doesn't have EVV requirements yet?
 
-Care Commons works in all 50 states! Even if your state doesn't mandate EVV, you can still use GPS verification for quality assurance and operational visibility.
+Folk works in all 50 states! Even if your state doesn't mandate EVV, you can still use GPS verification for quality assurance and operational visibility.
 
 ### How accurate is GPS verification?
 
-Care Commons uses smartphone GPS with configurable geofence tolerances:
+Folk uses smartphone GPS with configurable geofence tolerances:
 - **Texas**: 100m base + GPS accuracy allowance
 - **Florida**: 150m base + GPS accuracy allowance
 - **Other states**: Configurable per state requirements
@@ -171,7 +171,7 @@ Yes! We provide migration assistance. Your data exports cleanly from self-hosted
 
 ### Is it secure?
 
-Yes! Care Commons implements:
+Yes! Folk implements:
 - JWT authentication with secure tokens
 - CSRF protection
 - Rate limiting
@@ -185,7 +185,7 @@ See [SECURITY.md](../SECURITY.md) for full details.
 
 ### Is it HIPAA compliant?
 
-Care Commons implements HIPAA-required **technical safeguards**:
+Folk implements HIPAA-required **technical safeguards**:
 - Access controls
 - Audit trails
 - Encryption
@@ -195,7 +195,7 @@ Care Commons implements HIPAA-required **technical safeguards**:
 
 ### Can I integrate with my existing systems?
 
-Yes! Care Commons provides:
+Yes! Folk provides:
 - REST API for all operations
 - Webhook support (coming soon)
 - Data import/export tools
@@ -213,8 +213,8 @@ PostgreSQL (14+ supported, 17+ recommended). We use JSONB for flexible state-spe
 
 ### How do I try it?
 
-1. **Showcase (no signup)**: https://neighborhood-lab.github.io/care-commons/
-2. **SaaS Trial (14 days free)**: https://care-commons.vercel.app/
+1. **Showcase (no signup)**: https://folk.care/
+2. **SaaS Trial (14 days free)**: https://folk.care/
 3. **Self-Host**: Clone from GitHub and follow README
 
 ### How long does setup take?
@@ -247,7 +247,7 @@ Currently in development. Contact us for migration assistance.
 
 - **Documentation**: README, docs/, inline code comments
 - **Discord**: https://discord.gg/EkeXQZFq (community support)
-- **GitHub Discussions**: https://github.com/neighborhood-lab/care-commons/discussions
+- **GitHub Discussions**: https://github.com/neighborhood-lab/folkcare/discussions
 - **Email**: brian.mabry.edwards@gmail.com (for SaaS customers)
 
 ### What is the response time?
@@ -325,11 +325,11 @@ All 50 US states! State-specific configurations include:
 
 ### Does it handle OASIS assessments?
 
-Not currently, but it's on the roadmap. Care Commons focuses on operational workflows (scheduling, EVV, billing) rather than clinical assessments.
+Not currently, but it's on the roadmap. Folk focuses on operational workflows (scheduling, EVV, billing) rather than clinical assessments.
 
 ### What about Plan of Care (POC) requirements?
 
-Yes! Care Commons tracks:
+Yes! Folk tracks:
 - Care plan creation and updates
 - Review cycles (60/90 days depending on state)
 - Supervisor sign-offs
@@ -383,7 +383,7 @@ Includes data mapping, testing, training, and go-live support.
 
 ### Who owns the software?
 
-Care Commons is developed by [Neighborhood Lab](https://neighborhoodlab.org), a community-owned software organization. The code is MIT-licensed, meaning you have full rights to use, modify, and distribute it.
+Folk is developed by [Neighborhood Lab](https://neighborhoodlab.org), a community-owned software organization. The code is MIT-licensed, meaning you have full rights to use, modify, and distribute it.
 
 ### Is this a venture-backed company?
 
@@ -449,11 +449,11 @@ All support funds continued development and maintenance.
 ## Still Have Questions?
 
 - 💬 **Discord**: https://discord.gg/EkeXQZFq
-- 💻 **GitHub**: https://github.com/neighborhood-lab/care-commons
+- 💻 **GitHub**: https://github.com/neighborhood-lab/folkcare
 - 📧 **Email**: brian.mabry.edwards@gmail.com
 - 📰 **Substack**: https://neighborhoodlab.substack.com/
 
 ---
 
-**Care Commons** - Shared care software, community owned.  
+**Folk** - Shared care software, community owned.  
 Built by [Neighborhood Lab](https://neighborhoodlab.org)

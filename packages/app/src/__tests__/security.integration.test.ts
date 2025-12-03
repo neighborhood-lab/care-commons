@@ -24,7 +24,7 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { configureCsrfProtection } from '../middleware/csrf';
 import { securityHeaders } from '../middleware/security-headers';
-import { sanitizeInput } from '@care-commons/core';
+import { sanitizeInput } from '@folkcare/core';
 import rateLimit from 'express-rate-limit';
 
 describe('Security Middleware Integration Tests', () => {

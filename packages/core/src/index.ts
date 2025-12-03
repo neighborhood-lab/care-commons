@@ -1,7 +1,7 @@
 /**
- * @care-commons/core
+ * @folkcare/core
  * 
- * Shared foundation for all Care Commons verticals
+ * Shared foundation for all Folk verticals
  */
 
 export * from './types/base';

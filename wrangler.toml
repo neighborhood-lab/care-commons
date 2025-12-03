@@ -1,9 +1,9 @@
 # ════════════════════════════════════════════════════════════════
-# Cloudflare Workers Configuration for Care Commons
+# Cloudflare Workers Configuration for Folk
 # Alternative deployment option (Cloudflare + Supabase)
 # ════════════════════════════════════════════════════════════════
 
-name = "care-commons-api"
+name = "folkcare-api"
 main = "api/cloudflare-worker.ts"  # Production: cloudflare-worker.ts, Development: worker.ts
 compatibility_date = "2024-11-12"
 compatibility_flags = ["nodejs_compat"]
@@ -14,7 +14,7 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 NODE_ENV = "production"
 LOG_LEVEL = "info"
-CORS_ORIGIN = "https://care-commons.com,https://www.care-commons.com"
+CORS_ORIGIN = "https://folkcare.com,https://www.folkcare.com"
 
 # ════════════════════════════════════════════════════════════════
 # Hyperdrive Database Connection (CRITICAL for Postgres)
@@ -29,7 +29,7 @@ CORS_ORIGIN = "https://care-commons.com,https://www.care-commons.com"
 #    Format: postgres://postgres.aoxifllwcujpinwfaxmu:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true
 #
 # 2. Create Hyperdrive configuration:
-#    wrangler hyperdrive create care-commons-db \
+#    wrangler hyperdrive create folkcare-db \
 #      --connection-string="postgres://postgres.aoxifllwcujpinwfaxmu:-Q\$gsyPD788qv\!S@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
 #
 #    Note: Escape special characters in command line:
@@ -86,9 +86,9 @@ CORS_ORIGIN = "https://care-commons.com,https://www.care-commons.com"
 # Environment: Production (default)
 # ════════════════════════════════════════════════════════════════
 [env.production]
-name = "care-commons-api"
+name = "folkcare-api"
 routes = [
-  { pattern = "api.care-commons.com/*", zone_name = "care-commons.com" }
+  { pattern = "api.folkcare.com/*", zone_name = "folkcare.com" }
 ]
 vars = { ENVIRONMENT = "production", NODE_ENV = "production" }
 
@@ -96,9 +96,9 @@ vars = { ENVIRONMENT = "production", NODE_ENV = "production" }
 # Environment: Staging
 # ════════════════════════════════════════════════════════════════
 [env.staging]
-name = "care-commons-api-staging"
+name = "folkcare-api-staging"
 routes = [
-  { pattern = "api-staging.care-commons.com/*", zone_name = "care-commons.com" }
+  { pattern = "api-staging.folkcare.com/*", zone_name = "folkcare.com" }
 ]
 vars = { ENVIRONMENT = "staging", NODE_ENV = "staging" }
 
@@ -106,14 +106,14 @@ vars = { ENVIRONMENT = "staging", NODE_ENV = "staging" }
 # Environment: Preview (for PR previews)
 # ════════════════════════════════════════════════════════════════
 [env.preview]
-name = "care-commons-api-preview"
+name = "folkcare-api-preview"
 vars = { ENVIRONMENT = "preview", NODE_ENV = "development" }
 
 # ════════════════════════════════════════════════════════════════
 # Environment: Development
 # ════════════════════════════════════════════════════════════════
 [env.development]
-name = "care-commons-api-dev"
+name = "folkcare-api-dev"
 vars = { NODE_ENV = "development" }
 
 # ════════════════════════════════════════════════════════════════
@@ -148,13 +148,13 @@ cpu_ms = 50000  # 50 seconds max CPU time
 # [[durable_objects.bindings]]
 # name = "SYNC_COORDINATOR"
 # class_name = "SyncCoordinator"
-# script_name = "care-commons-api"
+# script_name = "folkcare-api"
 
 # R2 Storage (for file uploads - optional)
 # [[r2_buckets]]
 # binding = "UPLOADS"
-# bucket_name = "care-commons-uploads"
-# preview_bucket_name = "care-commons-uploads-preview"
+# bucket_name = "folkcare-uploads"
+# preview_bucket_name = "folkcare-uploads-preview"
 
 # KV Storage (for caching - optional alternative to Redis)
 # [[kv_namespaces]]
@@ -165,7 +165,7 @@ cpu_ms = 50000  # 50 seconds max CPU time
 # D1 Database (SQLite at edge - not used, we use PostgreSQL)
 # [[d1_databases]]
 # binding = "DB"
-# database_name = "care-commons-db"
+# database_name = "folkcare-db"
 # database_id = "YOUR_D1_DATABASE_ID"
 
 # Analytics Engine (for metrics)
@@ -174,10 +174,10 @@ cpu_ms = 50000  # 50 seconds max CPU time
 
 # Tail Consumers (for log streaming)
 # [[tail_consumers]]
-# service = "care-commons-logs"
+# service = "folkcare-logs"
 
 # ════════════════════════════════════════════════════════════════
-# Notes for Care Commons Deployment
+# Notes for Folk Deployment
 # ════════════════════════════════════════════════════════════════
 # 1. ESM Architecture: This project uses ES modules everywhere
 # 2. Node.js 22.x: Required for compatibility
@@ -186,4 +186,4 @@ cpu_ms = 50000  # 50 seconds max CPU time
 # 5. Security: All secrets managed via wrangler secret put
 # 6. HIPAA Compliance: Ensure encryption at rest/transit (Cloudflare provides SSL)
 # 7. Static Assets: Deploy frontend separately with Cloudflare Pages
-#    wrangler pages deploy public --project-name=care-commons-web
+#    wrangler pages deploy public --project-name=folkcare-web

@@ -1,5 +1,5 @@
 /**
- * @care-commons/quality-assurance-audits - Type Definitions
+ * @folkcare/quality-assurance-audits - Type Definitions
  *
  * Quality Assurance & Audits - Compliance, Quality, and Safety Auditing
  *
@@ -7,7 +7,7 @@
  * tracking to ensure quality standards and regulatory requirements are met.
  */
 
-import type { Entity, UUID, Timestamp } from '@care-commons/core';
+import type { Entity, UUID, Timestamp } from '@folkcare/core';
 
 // ============================================================================
 // Audit Types & Core Entities

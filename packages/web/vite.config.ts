@@ -18,7 +18,7 @@ export default defineConfig({
     // Codecov bundle analysis - must be placed after all other plugins
     codecovVitePlugin({
       enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
-      bundleName: 'care-commons-web',
+      bundleName: 'folkcare-web',
       uploadToken: process.env.CODECOV_TOKEN,
       // Only upload in CI or when explicitly enabled
       uploadOverrides: {
@@ -33,24 +33,24 @@ export default defineConfig({
       '@/core': path.resolve(__dirname, './src/core'),
       '@/verticals': path.resolve(__dirname, './src/verticals'),
       '@/app': path.resolve(__dirname, './src/app'),
-      '@care-commons/shared-components': path.resolve(
+      '@folkcare/shared-components': path.resolve(
         __dirname,
         '../shared-components/src'
       ),
       // Force packages to use browser exports
-      '@care-commons/core/browser': path.resolve(
+      '@folkcare/core/browser': path.resolve(
         __dirname,
         '../core/dist/browser.js'
       ),
-      '@care-commons/core': path.resolve(
+      '@folkcare/core': path.resolve(
         __dirname,
         '../core/dist/browser.js'
       ),
-      '@care-commons/care-plans-tasks/browser': path.resolve(
+      '@folkcare/care-plans-tasks/browser': path.resolve(
         __dirname,
         '../../verticals/care-plans-tasks/dist/browser.js'
       ),
-      '@care-commons/care-plans-tasks': path.resolve(
+      '@folkcare/care-plans-tasks': path.resolve(
         __dirname,
         '../../verticals/care-plans-tasks/dist/browser.js'
       ),

@@ -21,7 +21,7 @@ const mockUpdateSubscriptionStatus = vi.fn();
 const mockUpdateSubscriptionPeriod = vi.fn();
 const mockCancelSubscription = vi.fn();
 
-vi.mock('@care-commons/core', () => ({
+vi.mock('@folkcare/core', () => ({
   getDatabase: vi.fn(() => ({})),
   BillingRepository: vi.fn().mockImplementation(function () {
     return {

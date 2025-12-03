@@ -6,7 +6,7 @@
 
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { getDatabase } from '@care-commons/core';
+import { getDatabase } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 
 const router = Router();

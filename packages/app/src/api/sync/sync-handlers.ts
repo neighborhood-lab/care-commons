@@ -6,7 +6,7 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import { z } from 'zod';
 
 /**

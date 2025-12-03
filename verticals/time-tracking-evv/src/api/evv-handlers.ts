@@ -8,7 +8,7 @@
  * - Compliance reporting
  */
 
-import { UserContext } from '@care-commons/core';
+import { UserContext } from '@folkcare/core';
 import { EVVService } from '../service/evv-service';
 import { EVVComplianceOrchestrator } from '../service/evv-compliance-orchestrator.js';
 import { StateCode } from '../types/state-specific.js';

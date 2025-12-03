@@ -1,8 +1,8 @@
 /**
  * Re-export validation helpers from core package to avoid duplication
- * @deprecated Import directly from '@care-commons/core/browser' instead
+ * @deprecated Import directly from '@folkcare/core/browser' instead
  */
-import { validationHelpers } from '@care-commons/core/browser';
+import { validationHelpers } from '@folkcare/core/browser';
 
 // Maintain backward compatibility with existing imports
 export const {

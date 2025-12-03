@@ -110,7 +110,7 @@ SELECT * FROM user_permissions WHERE user_id = ...;
 - Expected: "Invalid email address"
 
 #### 3b. Email Already Exists
-- Email: "admin@carecommons.example" (demo user)
+- Email: "admin@folkcare.example" (demo user)
 - Expected: "Email already in use"
 
 ---

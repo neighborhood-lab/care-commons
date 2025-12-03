@@ -137,7 +137,7 @@
 
 ### Dependencies
 
-- `@care-commons/core`: Core functionality and types
+- `@folkcare/core`: Core functionality and types
 - `zod`: Schema validation
 - `date-fns`: Date manipulation and formatting
 - `uuid`: UUID generation
@@ -181,4 +181,4 @@
 
 ---
 
-**Care Commons** - Shared care software, community owned.
+**Folk** - Shared care software, community owned.

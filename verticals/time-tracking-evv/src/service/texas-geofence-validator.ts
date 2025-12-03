@@ -17,7 +17,7 @@
  * - HHSC EVV Policy Handbook v3.2
  */
 
-import { ValidationError } from '@care-commons/core';
+import { ValidationError } from '@folkcare/core';
 
 /**
  * Geofence validation result

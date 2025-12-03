@@ -1,4 +1,4 @@
-import { getDatabase } from '@care-commons/core';
+import { getDatabase } from '@folkcare/core';
 
 interface SecurityEvent {
   type: string;

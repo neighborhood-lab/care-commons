@@ -8,8 +8,8 @@ import type {
   UserContext,
   UUID,
   PermissionError
-} from '@care-commons/core';
-import { PermissionService } from '@care-commons/core';
+} from '@folkcare/core';
+import { PermissionService } from '@folkcare/core';
 import type {
   AuditTemplate,
   AuditChecklistSection,

@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Organization Types
+ * @folkcare/core - Organization Types
  * 
  * Multi-tenant organization and team invitation types
  */

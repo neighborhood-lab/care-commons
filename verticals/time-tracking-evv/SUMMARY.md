@@ -355,5 +355,5 @@ AGPL-3.0 - See [LICENSE](../../LICENSE)
 **Status:** ✅ Ready for testing and integration  
 **Next milestone:** v0.2.0 with tests and REST API
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

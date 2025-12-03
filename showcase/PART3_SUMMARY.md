@@ -2,7 +2,7 @@
 
 ## Summary
 
-Part 3 of the Care Commons Showcase development focused on creating a **multi-role, multi-perspective demonstration** that allows users to experience the platform from different viewpoints: patient, family member, caregiver, care coordinator, and system administrator.
+Part 3 of the Folk Showcase development focused on creating a **multi-role, multi-perspective demonstration** that allows users to experience the platform from different viewpoints: patient, family member, caregiver, care coordinator, and system administrator.
 
 ## What Was Accomplished
 
@@ -257,9 +257,9 @@ The showcase currently has TypeScript compilation errors due to mismatches betwe
 
 ## Conclusion
 
-Part 3 successfully transforms the Care Commons Showcase from a simple feature demo into an immersive, multi-perspective experience that truly showcases how different users interact with the care coordination platform. The role-based system provides a foundation for future enhancements and makes the demo significantly more engaging and realistic.
+Part 3 successfully transforms the Folk Showcase from a simple feature demo into an immersive, multi-perspective experience that truly showcases how different users interact with the care coordination platform. The role-based system provides a foundation for future enhancements and makes the demo significantly more engaging and realistic.
 
-The implementation follows React best practices, maintains clean architecture, and provides an excellent user experience. With type alignment completed, the showcase will be ready for deployment to GitHub Pages, where it can serve as a powerful demonstration tool for the Care Commons platform.
+The implementation follows React best practices, maintains clean architecture, and provides an excellent user experience. With type alignment completed, the showcase will be ready for deployment to GitHub Pages, where it can serve as a powerful demonstration tool for the Folk platform.
 
 ## Next Actions
 

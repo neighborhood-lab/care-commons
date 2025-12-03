@@ -3,10 +3,10 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, AuthMiddleware } from '@care-commons/core';
-import { AnalyticsService } from '@care-commons/analytics-reporting';
-import { ExportService } from '@care-commons/analytics-reporting';
-import type { AnalyticsQueryOptions, ExportFormat, Report } from '@care-commons/analytics-reporting';
+import { Database, AuthMiddleware } from '@folkcare/core';
+import { AnalyticsService } from '@folkcare/analytics-reporting';
+import { ExportService } from '@folkcare/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report } from '@folkcare/analytics-reporting';
 
 export function createAnalyticsRouter(db: Database): Router {
   const router = Router();

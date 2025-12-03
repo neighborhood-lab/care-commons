@@ -1,7 +1,7 @@
 /**
  * API Client Service
  * 
- * Handles all HTTP communication with the Care Commons backend.
+ * Handles all HTTP communication with the Folk backend.
  * Integrates with offline queue for automatic retry when connection is restored.
  * 
  * Features:

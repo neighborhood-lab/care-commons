@@ -12,7 +12,7 @@ const AUTH_STORAGE_KEY = 'auth-storage';
 /**
  * Check if we're in demo mode
  * Demo mode is detected by:
- * 1. Demo user email patterns (@{state}.carecommons.example)
+ * 1. Demo user email patterns (@{state}.folkcare.example)
  * 2. Environment variable
  */
 function isDemoMode(email?: string): boolean {
@@ -22,12 +22,12 @@ function isDemoMode(email?: string): boolean {
   }
 
   // Check email pattern (demo users have state-specific emails)
-  if (email && /@[a-z]{2}\.carecommons\.example$/i.test(email)) {
+  if (email && /@[a-z]{2}\.folkcare\.example$/i.test(email)) {
     return true;
   }
 
   // Check for generic demo emails
-  if (email && /@carecommons\.example$/i.test(email)) {
+  if (email && /@folkcare\.example$/i.test(email)) {
     return true;
   }
 

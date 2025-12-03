@@ -1,6 +1,6 @@
 # Admin Dashboard
 
-Comprehensive administrative interface for Care Commons, providing real-time operations monitoring, multi-state EVV configuration, database management, and compliance reporting.
+Comprehensive administrative interface for Folk, providing real-time operations monitoring, multi-state EVV configuration, database management, and compliance reporting.
 
 ## Features
 
@@ -305,4 +305,4 @@ When adding new features to the admin dashboard:
 ## License
 
 Copyright © 2025 Neighborhood Lab  
-Licensed under the terms of the Care Commons project.
+Licensed under the terms of the Folk project.

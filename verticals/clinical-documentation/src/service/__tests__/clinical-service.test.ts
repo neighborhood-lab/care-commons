@@ -10,7 +10,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ClinicalService } from '../clinical-service.js';
-import { PermissionError } from '@care-commons/core';
+import { PermissionError } from '@folkcare/core';
 import type { CreateVisitNoteInput, UpdateVisitNoteInput, VisitNote } from '../../types/clinical.js';
 
 describe('ClinicalService', () => {

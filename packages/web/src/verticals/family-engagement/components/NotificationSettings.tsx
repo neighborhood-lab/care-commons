@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import type { NotificationPreferences } from '@care-commons/family-engagement';
+import type { NotificationPreferences } from '@folkcare/family-engagement';
 import { useUpdateNotificationPreferences } from '../hooks';
 
 interface NotificationSettingsProps {

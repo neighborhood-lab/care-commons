@@ -80,7 +80,7 @@ NODE_ENV=production
 NODE_ENV=development
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=care_commons
+DB_NAME=folkcare
 DB_USER=postgres
 DB_PASSWORD=your_password
 ```

@@ -1,4 +1,4 @@
-import { Repository, Database, UUID, Entity } from '@care-commons/core';
+import { Repository, Database, UUID, Entity } from '@folkcare/core';
 
 export interface ShiftRequirement extends Entity {
   clientId: UUID;

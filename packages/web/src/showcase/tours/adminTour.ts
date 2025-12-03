@@ -18,7 +18,7 @@ export const adminTour: Tour = {
       target: 'body',
       title: 'Welcome to the Admin Dashboard',
       content:
-        'Welcome to the Care Commons administrative interface! This tour will guide you through the powerful tools available for managing your home healthcare agency. You\'ll learn about compliance monitoring, state configuration, operations oversight, and more.',
+        'Welcome to the Folk administrative interface! This tour will guide you through the powerful tools available for managing your home healthcare agency. You\'ll learn about compliance monitoring, state configuration, operations oversight, and more.',
       placement: 'bottom',
       highlightElement: false,
       showProgress: true,
@@ -91,7 +91,7 @@ export const adminTour: Tour = {
       target: '[data-tour="state-config-link"]',
       title: 'Multi-State Configuration',
       content:
-        'Care Commons supports operations across all 50 states with pre-configured compliance rules. Click here to manage state-specific settings like grace periods, geofence requirements, and aggregator connections.',
+        'Folk supports operations across all 50 states with pre-configured compliance rules. Click here to manage state-specific settings like grace periods, geofence requirements, and aggregator connections.',
       placement: 'right',
       highlightElement: true,
       action: () => {
@@ -122,7 +122,7 @@ export const adminTour: Tour = {
       target: '[data-tour="audit-trail"]',
       title: 'Comprehensive Audit Trails',
       content:
-        'Every action in Care Commons is logged: who accessed what data, when, and from where. This audit trail is immutable and designed to meet HIPAA and state regulatory requirements.',
+        'Every action in Folk is logged: who accessed what data, when, and from where. This audit trail is immutable and designed to meet HIPAA and state regulatory requirements.',
       placement: 'bottom',
       highlightElement: true,
     },

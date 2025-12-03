@@ -1,4 +1,4 @@
-# Care Commons - Docker Compose Configuration
+# Folk - Docker Compose Configuration
 # 
 # Quick start:
 #   docker compose up -d          # Start PostgreSQL and Redis
@@ -18,12 +18,12 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: care-commons-db
+    container_name: folkcare-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: care_commons
+      POSTGRES_DB: folkcare
     ports:
       - "5432:5432"
     volumes:
@@ -57,11 +57,11 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - care-commons
+      - folkcare
 
   redis:
     image: redis:7-alpine
-    container_name: care-commons-redis
+    container_name: folkcare-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
@@ -74,17 +74,17 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - care-commons
+      - folkcare
 
   # Database management UI
   # Access at http://localhost:5050
-  # Email: admin@carecommons.local / Password: admin
+  # Email: admin@folkcare.local / Password: admin
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: care-commons-pgadmin
+    container_name: folkcare-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@carecommons.local
+      PGADMIN_DEFAULT_EMAIL: admin@folkcare.local
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
@@ -95,7 +95,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - care-commons
+      - folkcare
     profiles:
       - tools
 
@@ -103,7 +103,7 @@ services:
   # Access at http://localhost:8081
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: care-commons-redis-commander
+    container_name: folkcare-redis-commander
     restart: unless-stopped
     environment:
       REDIS_HOSTS: local:redis:6379
@@ -112,7 +112,7 @@ services:
     depends_on:
       - redis
     networks:
-      - care-commons
+      - folkcare
     profiles:
       - tools
 
@@ -121,13 +121,13 @@ services:
   # Web UI: http://localhost:8025
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: care-commons-mailhog
+    container_name: folkcare-mailhog
     restart: unless-stopped
     ports:
       - "1025:1025"  # SMTP server
       - "8025:8025"  # Web UI
     networks:
-      - care-commons
+      - folkcare
     profiles:
       - tools
 
@@ -140,5 +140,5 @@ volumes:
     driver: local
 
 networks:
-  care-commons:
+  folkcare:
     driver: bridge

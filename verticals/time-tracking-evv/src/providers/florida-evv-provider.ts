@@ -1,6 +1,6 @@
-import { UUID } from '@care-commons/core';
+import { UUID } from '@folkcare/core';
 import { EVVRecord } from '../types/evv';
-import { Database } from '@care-commons/core';
+import { Database } from '@folkcare/core';
 
 /**
  * FL EVV Provider - Multi-aggregator support

@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createVisitRouter } from '../visits';
-import type { Database } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
 import type { Request, Response, NextFunction } from 'express';
 import type { Pool } from 'pg';
 

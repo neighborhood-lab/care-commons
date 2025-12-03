@@ -1,7 +1,7 @@
 /**
  * Showcase Seed Data
  *
- * Comprehensive mock data for the Care Commons showcase.
+ * Comprehensive mock data for the Folk showcase.
  * Demonstrates all platform capabilities with realistic, varied data.
  * 
  * Data Scale:
@@ -176,7 +176,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'Emily',
     lastName: 'Rodriguez',
-    email: 'emily.rodriguez@carecommons.com',
+    email: 'emily.rodriguez@folkcare.com',
     phone: '555-1001',
     dateOfBirth: '1992-05-14',
     hireDate: '2022-01-15',
@@ -208,7 +208,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'Michael',
     lastName: 'Johnson',
-    email: 'michael.johnson@carecommons.com',
+    email: 'michael.johnson@folkcare.com',
     phone: '555-1002',
     dateOfBirth: '1988-09-22',
     hireDate: '2021-08-01',
@@ -233,7 +233,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'Jessica',
     lastName: 'Patel',
-    email: 'jessica.patel@carecommons.com',
+    email: 'jessica.patel@folkcare.com',
     phone: '555-1003',
     dateOfBirth: '1995-12-03',
     hireDate: '2023-02-01',
@@ -258,7 +258,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'David',
     lastName: 'Kim',
-    email: 'david.kim@carecommons.com',
+    email: 'david.kim@folkcare.com',
     phone: '555-1004',
     dateOfBirth: '1990-03-18',
     hireDate: '2020-05-15',

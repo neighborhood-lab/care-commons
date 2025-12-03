@@ -5,7 +5,7 @@ Get up and running with the Care Plans & Tasks Library vertical in minutes.
 ## Installation
 
 ```bash
-cd care-commons
+cd folkcare
 npm install
 npm run build
 ```
@@ -16,16 +16,16 @@ npm run build
 
 ```bash
 # Run core migrations first
-npm run db:migrate --workspace=@care-commons/core
+npm run db:migrate --workspace=@folkcare/core
 
 # Run care plans migrations
-npm run db:migrate --workspace=@care-commons/care-plans-tasks
+npm run db:migrate --workspace=@folkcare/care-plans-tasks
 ```
 
 ### 2. Verify Tables
 
 ```bash
-psql -d care_commons -c "\dt"
+psql -d folkcare -c "\dt"
 ```
 
 You should see:
@@ -38,13 +38,13 @@ You should see:
 ### 1. Initialize Services
 
 ```typescript
-import { Database, PermissionService } from '@care-commons/core';
-import { CarePlanService, CarePlanRepository } from '@care-commons/care-plans-tasks';
+import { Database, PermissionService } from '@folkcare/core';
+import { CarePlanService, CarePlanRepository } from '@folkcare/care-plans-tasks';
 
 const db = new Database({
   host: 'localhost',
   port: 5432,
-  database: 'care_commons',
+  database: 'folkcare',
   user: 'postgres',
   password: 'your_password',
 });
@@ -276,13 +276,13 @@ console.log(`
 ### Run Unit Tests
 
 ```bash
-npm test --workspace=@care-commons/care-plans-tasks
+npm test --workspace=@folkcare/care-plans-tasks
 ```
 
 ### Run Integration Tests
 
 ```bash
-npm run test:integration --workspace=@care-commons/care-plans-tasks
+npm run test:integration --workspace=@folkcare/care-plans-tasks
 ```
 
 ## Troubleshooting
@@ -335,4 +335,4 @@ Need help?
 
 ---
 
-**Care Commons** - Shared care software, community owned
+**Folk** - Shared care software, community owned

@@ -194,7 +194,7 @@ This repository uses **ES Modules (ESM) everywhere**:
 ```typescript
 // ✅ CORRECT
 import { createApp } from './server.js';
-import { getDatabase } from '@care-commons/core/db.js';
+import { getDatabase } from '@folkcare/core/db.js';
 
 // ❌ WRONG
 import { createApp } from './server';
@@ -226,7 +226,7 @@ const { getDatabase } = require('./db');
 ### Repository Structure
 
 ```
-care-commons/
+folkcare/
 ├── packages/
 │   ├── core/           # Shared domain logic, database, permissions
 │   ├── app/            # Express application
@@ -257,7 +257,7 @@ The project includes a **React Native mobile app** (`packages/mobile/`) built wi
 
 The **Showcase** (`showcase/`) is a static, client-side demo deployed to GitHub Pages:
 
-- **URL**: https://neighborhood-lab.github.io/care-commons/
+- **URL**: https://folk.care/
 - **Purpose**: Interactive demo without backend dependencies
 - **Data**: Uses browser localStorage (no database)
 - **Roles**: Multi-role experience (patient, family, caregiver, coordinator, admin)
@@ -321,7 +321,7 @@ See `scripts/SCREENSHOT_CAPTURE.md` and `docs/UI_VISIBILITY_TOOLING.md` for deta
 ### Authentication Status
 
 **Demo Logins (Production)** - Well tested and working:
-- `admin@carecommons.example` - Admin access
+- `admin@folkcare.example` - Admin access
 - Other demo personas work reliably
 - Demo data seeding is stable
 
@@ -831,6 +831,54 @@ while ensuring [compliance/security/usability]."
 
 ## Commit and Deployment
 
+### GitHub API Usage (CRITICAL)
+
+**ALWAYS use REST API, NEVER use `gh` CLI**
+
+The `gh` CLI tool uses GraphQL which has severe limitations:
+- New GitHub accounts have **ZERO GraphQL quota** (anti-spam measure)
+- Even established accounts limited to 5,000 GraphQL points/hour
+- GraphQL rate limits are shared across all operations
+
+**Use our SINGLE GitHub API wrapper: `scripts/github-api.sh`**
+
+```bash
+# Set token (use appropriate account)
+export GITHUB_TOKEN="ghp_your_token_here"
+
+# Create issue
+./scripts/github-api.sh issue-create "Title" "Body" "label1,label2"
+
+# Create PR
+./scripts/github-api.sh pr-create "Title" "Body" "feature/branch" "develop"
+
+# List resources
+./scripts/github-api.sh issue-list open
+./scripts/github-api.sh pr-list open
+```
+
+**IMPORTANT - Single Entry Point:**
+- ✅ **ADD functionality to `scripts/github-api.sh`** when needed
+- ❌ **DO NOT create multiple GitHub scripts** (no `gh-issue.sh`, `gh-pr.sh`, etc.)
+- ✅ **Keep all GitHub operations in ONE script** for maintainability
+- ❌ **DO NOT use `gh` CLI** - it uses GraphQL
+
+**REST API Advantages:**
+- ✅ 5,000 requests/hour per authenticated user
+- ✅ Works immediately for new accounts (no waiting period)
+- ✅ No GraphQL point calculation complexity
+- ✅ More predictable rate limits
+- ✅ Simple curl-based implementation
+
+**Account Status:**
+- `bedwards` - Full access (5,000 REST/hour, 5,000 GraphQL/hour)
+- `tove-bot` - REST only (5,000 REST/hour, 0 GraphQL/hour until account ages 2-4 weeks)
+
+**Reasoning:**
+GitHub restricts GraphQL for new accounts to prevent cryptocurrency mining abuse. The `gh` CLI exclusively uses GraphQL, making it unusable for new accounts and prone to rate limits for agent-driven workflows. REST API is more reliable and has better limits.
+
+See `scripts/README.md` for detailed REST API usage examples.
+
 ### Commit Guidelines
 
 - **Short, present-tense** messages: "add risk flag helper"
@@ -919,7 +967,7 @@ The following critical issues were resolved to achieve successful production dep
    - **Problem**: No admin user existed in production database
    - **Solution**: Created temporary seed endpoint, then immediately removed after use
    - **Security**: NEVER deploy unauthenticated admin creation endpoints to production
-   - **Test**: Login at `/login` with `admin@carecommons.example` must work
+   - **Test**: Login at `/login` with `admin@folkcare.example` must work
 
 4. **Database Schema Alignment**
    - **Problem**: Production database schema didn't match code expectations
@@ -995,9 +1043,9 @@ The following critical issues were resolved to achieve successful production dep
 
 | Branch | Environment | URL | Database | Purpose |
 |--------|-------------|-----|----------|---------|
-| `production` | Production | care-commons.vercel.app | Production DB | Live system |
+| `production` | Production | folk.care | Production DB | Live system |
 | `preview` | Preview | preview-*.vercel.app | Preview DB | Pre-prod testing |
-| `develop` | GitHub Pages | neighborhood-lab.github.io/care-commons/ | None (localStorage) | Showcase demo |
+| `develop` | GitHub Pages | folk.care/ | None (localStorage) | Showcase demo |
 | `feature/*` | None | N/A | Local | Development |
 
 **NOTE**: There is no `main` branch. This is intentional.
@@ -1057,5 +1105,5 @@ excellence, and meaningful impact.**
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

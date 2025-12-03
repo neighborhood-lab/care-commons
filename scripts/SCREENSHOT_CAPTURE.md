@@ -99,7 +99,7 @@ ui-screenshots-production-comprehensive/
 ## Personas & Routes
 
 ### 1. Administrator (Maria Rodriguez)
-**Email**: `admin@tx.carecommons.example`  
+**Email**: `admin@tx.folkcare.example`  
 **Password**: `Demo123!`
 
 **Routes** (15 total):
@@ -110,7 +110,7 @@ ui-screenshots-production-comprehensive/
 - Quality Assurance, Analytics, Settings
 
 ### 2. Care Coordinator (James Thompson)
-**Email**: `coordinator@tx.carecommons.example`  
+**Email**: `coordinator@tx.folkcare.example`  
 **Password**: `Demo123!`
 
 **Routes** (12 total):
@@ -121,7 +121,7 @@ ui-screenshots-production-comprehensive/
 - Analytics, Settings
 
 ### 3. Caregiver (Sarah Chen)
-**Email**: `caregiver@tx.carecommons.example`  
+**Email**: `caregiver@tx.folkcare.example`  
 **Password**: `Demo123!`
 
 **Routes** (8 total):
@@ -131,7 +131,7 @@ ui-screenshots-production-comprehensive/
 - Time Tracking, Settings
 
 ### 4. RN Clinical (David Williams)
-**Email**: `nurse@tx.carecommons.example`  
+**Email**: `nurse@tx.folkcare.example`  
 **Password**: `Demo123!`
 
 **Routes** (9 total):
@@ -141,7 +141,7 @@ ui-screenshots-production-comprehensive/
 - Quality Assurance, Settings
 
 ### 5. Family Member (Emily Johnson)
-**Email**: `family@tx.carecommons.example`  
+**Email**: `family@tx.folkcare.example`  
 **Password**: `Demo123!`
 
 **Routes** (9 total):

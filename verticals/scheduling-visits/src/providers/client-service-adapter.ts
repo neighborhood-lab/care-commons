@@ -10,16 +10,16 @@
  * - Provides a bridge between verticals without tight coupling
  */
 
-import type { UUID, UserContext } from '@care-commons/core';
+import type { UUID, UserContext } from '@folkcare/core';
 import type { IClientService } from './client-address-provider';
-import type { ClientService, Client } from '@care-commons/client-demographics';
+import type { ClientService, Client } from '@folkcare/client-demographics';
 
 /**
  * Adapter that wraps ClientService to conform to IClientService interface
  *
  * Usage:
  * ```typescript
- * import { ClientService } from '@care-commons/client-demographics';
+ * import { ClientService } from '@folkcare/client-demographics';
  * import { ClientServiceAdapter } from './client-service-adapter';
  *
  * const clientService = new ClientService(clientRepository);

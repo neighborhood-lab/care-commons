@@ -1,6 +1,6 @@
-# Care Commons Web UI
+# Folk Web UI
 
-React-based frontend for the Care Commons platform, built with TypeScript, Vite, and Tailwind CSS.
+React-based frontend for the Folk platform, built with TypeScript, Vite, and Tailwind CSS.
 
 ## Architecture
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Care Commons implements a **dual-strategy backup approach** for HIPAA compliance and disaster recovery:
+Folk implements a **dual-strategy backup approach** for HIPAA compliance and disaster recovery:
 
 1. **Neon Branch Backups** - Instant, copy-on-write snapshots with point-in-time recovery
 2. **pg_dump Backups** - Traditional PostgreSQL dumps for portability and long-term archival
@@ -75,10 +75,10 @@ NEON_PROJECT_ID=your_project_id
 DATABASE_URL=postgresql://user:pass@host/database
 
 # Local Storage
-BACKUP_DIR=/var/backups/care-commons  # Default
+BACKUP_DIR=/var/backups/folkcare  # Default
 
 # S3 Configuration (optional, recommended for production)
-S3_BACKUP_BUCKET=care-commons-backups
+S3_BACKUP_BUCKET=folkcare-backups
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
 
@@ -122,27 +122,27 @@ neon branches restore \
 ```bash
 # Download backup from S3 (if stored remotely)
 aws s3 cp \
-  "s3://care-commons-backups/backups/care_commons_2025-11-03T02-00-00-000Z.dump" \
+  "s3://folkcare-backups/backups/folkcare_2025-11-03T02-00-00-000Z.dump" \
   /tmp/restore.dump
 
 # Or use local backup
-BACKUP_FILE="/var/backups/care-commons/care_commons_2025-11-03T02-00-00-000Z.dump"
+BACKUP_FILE="/var/backups/folkcare/folkcare_2025-11-03T02-00-00-000Z.dump"
 
 # Create temporary database for testing
-createdb care_commons_restore_test
+createdb folkcare_restore_test
 
 # Restore to temporary database
 pg_restore \
-  --dbname=care_commons_restore_test \
+  --dbname=folkcare_restore_test \
   --verbose \
   --clean \
   --if-exists \
   "$BACKUP_FILE"
 
 # Verify restoration
-psql care_commons_restore_test -c "SELECT COUNT(*) FROM organizations;"
-psql care_commons_restore_test -c "SELECT COUNT(*) FROM users;"
-psql care_commons_restore_test -c "SELECT MAX(created_at) FROM audit_log;"
+psql folkcare_restore_test -c "SELECT COUNT(*) FROM organizations;"
+psql folkcare_restore_test -c "SELECT COUNT(*) FROM users;"
+psql folkcare_restore_test -c "SELECT MAX(created_at) FROM audit_log;"
 
 # If verified, restore to production (CAUTION!)
 pg_restore \
@@ -188,16 +188,16 @@ neon branches rename pitr-2025-11-10-14-25 main
 ```bash
 # Download latest backup from S3
 aws s3 cp \
-  "s3://care-commons-backups/backups/$(aws s3 ls s3://care-commons-backups/backups/ | sort | tail -1 | awk '{print $4}')" \
+  "s3://folkcare-backups/backups/$(aws s3 ls s3://folkcare-backups/backups/ | sort | tail -1 | awk '{print $4}')" \
   /tmp/restore.dump
 
 # Create new database on new PostgreSQL instance
-createdb -h new-postgres-host care_commons
+createdb -h new-postgres-host folkcare
 
 # Restore database
 pg_restore \
   --host=new-postgres-host \
-  --dbname=care_commons \
+  --dbname=folkcare \
   --username=postgres \
   --verbose \
   --clean \
@@ -205,7 +205,7 @@ pg_restore \
   /tmp/restore.dump
 
 # Run migrations to ensure schema is current
-DATABASE_URL="postgresql://postgres@new-postgres-host/care_commons" \
+DATABASE_URL="postgresql://postgres@new-postgres-host/folkcare" \
   npm run db:migrate
 
 # Update DNS/load balancer to point to new instance
@@ -221,19 +221,19 @@ DATABASE_URL="postgresql://postgres@new-postgres-host/care_commons" \
 
 ```bash
 # 1. Download random backup from last month
-BACKUP_FILE=$(aws s3 ls s3://care-commons-backups/backups/ | \
+BACKUP_FILE=$(aws s3 ls s3://folkcare-backups/backups/ | \
   grep "$(date -d '1 month ago' +%Y-%m)" | \
   shuf -n 1 | \
   awk '{print $4}')
 
-aws s3 cp "s3://care-commons-backups/backups/$BACKUP_FILE" /tmp/test-restore.dump
+aws s3 cp "s3://folkcare-backups/backups/$BACKUP_FILE" /tmp/test-restore.dump
 
 # 2. Restore to test database
-createdb care_commons_restore_test
-pg_restore --dbname=care_commons_restore_test /tmp/test-restore.dump
+createdb folkcare_restore_test
+pg_restore --dbname=folkcare_restore_test /tmp/test-restore.dump
 
 # 3. Verify critical tables
-psql care_commons_restore_test <<EOF
+psql folkcare_restore_test <<EOF
 SELECT 'organizations' as table_name, COUNT(*) as count FROM organizations
 UNION ALL
 SELECT 'users', COUNT(*) FROM users
@@ -253,7 +253,7 @@ echo "Backup File: $BACKUP_FILE" >> /tmp/backup-test-results.log
 echo "Status: SUCCESS" >> /tmp/backup-test-results.log
 
 # 5. Cleanup
-dropdb care_commons_restore_test
+dropdb folkcare_restore_test
 rm /tmp/test-restore.dump
 ```
 
@@ -282,7 +282,7 @@ tsx scripts/backup-neon.ts --verify
 neon branches list --project-id "$NEON_PROJECT_ID" | grep backup-
 
 # Check S3 backup inventory
-aws s3 ls s3://care-commons-backups/backups/ | tail -10
+aws s3 ls s3://folkcare-backups/backups/ | tail -10
 ```
 
 ## HIPAA Compliance Checklist
@@ -359,7 +359,7 @@ pg_restore --list /path/to/backup.dump
 ls -lh /path/to/backup.dump
 
 # Re-download from S3
-aws s3 cp "s3://care-commons-backups/backups/file.dump" /tmp/verify.dump
+aws s3 cp "s3://folkcare-backups/backups/file.dump" /tmp/verify.dump
 pg_restore --list /tmp/verify.dump
 ```
 

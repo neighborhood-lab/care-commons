@@ -1,20 +1,20 @@
-# Care Commons - Demo Video Script (2-3 minutes)
+# Folk - Demo Video Script (2-3 minutes)
 
 **Target Audience:** Home healthcare agency administrators and coordinators  
-**Goal:** Show how Care Commons solves operational pain points with state-specific compliance  
+**Goal:** Show how Folk solves operational pain points with state-specific compliance  
 **Tone:** Professional, helpful, emphasizing ease of use
 
 ---
 
 ## Opening (0:00-0:15) - 15 seconds
 
-**Visual:** Care Commons landing page
+**Visual:** Folk landing page
 
 **Voiceover:**
-> "Managing a home healthcare agency means juggling compliance, scheduling, EVV requirements, and billing—all while delivering quality care. Care Commons brings everything together in one modern platform that adapts to your state's specific regulations."
+> "Managing a home healthcare agency means juggling compliance, scheduling, EVV requirements, and billing—all while delivering quality care. Folk brings everything together in one modern platform that adapts to your state's specific regulations."
 
 **On-screen text:**
-- "Care Commons"
+- "Folk"
 - "Shared care software, community owned"
 
 ---
@@ -54,7 +54,7 @@
 **Visual:** Navigate to /states
 
 **Voiceover:**
-> "Every state has different rules. Care Commons handles the complexity for you. From Texas's HHAeXchange requirements to Florida's background screening regulations, the system adapts automatically."
+> "Every state has different rules. Folk handles the complexity for you. From Texas's HHAeXchange requirements to Florida's background screening regulations, the system adapts automatically."
 
 **Show:** Texas vs Florida comparison
 
@@ -65,7 +65,7 @@
 **Visual:** Landing page CTA
 
 **Voiceover:**
-> "Care Commons: open source, community-owned software. Try it free for 14 days—no credit card required."
+> "Folk: open source, community-owned software. Try it free for 14 days—no credit card required."
 
 **Call to Action:** Sign Up button
 

@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { ExclusionListService } from '../services/exclusion-list-service.js';
 import { CaregiverRepository } from '../repository/caregiver-repository.js';
-import type { Database, UserContext } from '@care-commons/core';
+import type { Database, UserContext } from '@folkcare/core';
 import type { Caregiver } from '../types/caregiver.js';
 
 function createMockCaregiver(overrides: Partial<Caregiver> = {}): Caregiver {

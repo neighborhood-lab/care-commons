@@ -3,7 +3,7 @@ import { Page, Locator, expect } from '@playwright/test';
 /**
  * Base Page Object
  *
- * Abstract base class for all page objects in Care Commons E2E tests.
+ * Abstract base class for all page objects in Folk E2E tests.
  * Provides common functionality for navigation, waiting, and interaction.
  *
  * @example

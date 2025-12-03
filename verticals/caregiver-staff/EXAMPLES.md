@@ -15,8 +15,8 @@ This document provides practical examples for using the Caregiver & Staff Manage
 ## Basic Setup
 
 ```typescript
-import { initializeDatabase } from '@care-commons/core';
-import { CaregiverService, CaregiverRepository } from '@care-commons/caregiver-staff';
+import { initializeDatabase } from '@folkcare/core';
+import { CaregiverService, CaregiverRepository } from '@folkcare/caregiver-staff';
 
 // Initialize database connection
 const db = initializeDatabase({
@@ -193,7 +193,7 @@ const dementiaCaregivers = await caregiverService.searchCaregivers(
 ### Example 5: Find Bilingual Caregivers
 
 ```typescript
-import { filterByLanguages } from '@care-commons/caregiver-staff';
+import { filterByLanguages } from '@folkcare/caregiver-staff';
 
 const allCaregivers = await caregiverService.searchCaregivers(
   { organizationId: 'org-456', status: ['ACTIVE'] },
@@ -225,7 +225,7 @@ console.log(`${weekendCaregivers.length} caregivers available for Saturday 8am-4
 ### Example 7: Add Credentials to a Caregiver
 
 ```typescript
-import { getExpiredCredentials, getExpiringCredentials } from '@care-commons/caregiver-staff';
+import { getExpiredCredentials, getExpiringCredentials } from '@folkcare/caregiver-staff';
 
 const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
 
@@ -343,7 +343,7 @@ await caregiverService.updateCaregiver(
 ### Example 11: Check Assignment Eligibility
 
 ```typescript
-import { canBeAssignedToVisits, getAssignmentBlockers } from '@care-commons/caregiver-staff';
+import { canBeAssignedToVisits, getAssignmentBlockers } from '@folkcare/caregiver-staff';
 
 const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
 
@@ -395,7 +395,7 @@ import {
   getStatusDisplay,
   getComplianceStatusDisplay,
   calculateTotalTrainingHours,
-} from '@care-commons/caregiver-staff';
+} from '@folkcare/caregiver-staff';
 
 const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
 
@@ -419,7 +419,7 @@ console.log(`  Total Training Hours: ${trainingHours}`);
 ### Example 15: Check Skills and Qualifications
 
 ```typescript
-import { hasSkill, hasActiveCredentials } from '@care-commons/caregiver-staff';
+import { hasSkill, hasActiveCredentials } from '@folkcare/caregiver-staff';
 
 const caregiver = await caregiverService.getCaregiverById('cg-123', userContext);
 
@@ -440,7 +440,7 @@ if (hasCNA && hasCPR) {
 ### Example 16: Sort and Filter Caregivers
 
 ```typescript
-import { compareCaregivers, filterByShiftPreference } from '@care-commons/caregiver-staff';
+import { compareCaregivers, filterByShiftPreference } from '@folkcare/caregiver-staff';
 
 const caregivers = await caregiverService.searchCaregivers(
   { organizationId: 'org-456', status: ['ACTIVE'] },
@@ -472,7 +472,7 @@ import {
   calculateTotalTrainingHours,
   getCompletedTraining,
   hasActiveCredentials,
-} from '@care-commons/caregiver-staff';
+} from '@folkcare/caregiver-staff';
 
 const caregivers = await caregiverService.searchCaregivers(
   { organizationId: 'org-456', status: ['ACTIVE'] },

@@ -205,8 +205,8 @@ interface Geofence {
 ### Clock In to Start Visit
 
 ```typescript
-import { EVVService } from '@care-commons/time-tracking-evv';
-import { UserContext } from '@care-commons/core';
+import { EVVService } from '@folkcare/time-tracking-evv';
+import { UserContext } from '@folkcare/core';
 
 const evvService = new EVVService(repository);
 
@@ -703,7 +703,7 @@ The EVV vertical integrates with other verticals through clean provider interfac
 The `ClientProvider` fetches real client demographic data needed for EVV record creation:
 
 ```typescript
-import { createClientProvider } from '@care-commons/time-tracking-evv';
+import { createClientProvider } from '@folkcare/time-tracking-evv';
 
 const clientProvider = createClientProvider(database);
 
@@ -723,7 +723,7 @@ const client = await clientProvider.getClientForEVV(clientId);
 The `CaregiverProvider` validates caregiver credentials and authorizations:
 
 ```typescript
-import { createCaregiverProvider } from '@care-commons/time-tracking-evv';
+import { createCaregiverProvider } from '@folkcare/time-tracking-evv';
 
 const caregiverProvider = createCaregiverProvider(database);
 
@@ -756,7 +756,7 @@ if (!authCheck.authorized) {
 The `VisitProvider` (in scheduling-visits vertical) supplies visit details:
 
 ```typescript
-import { createVisitProvider } from '@care-commons/scheduling-visits';
+import { createVisitProvider } from '@folkcare/scheduling-visits';
 
 const visitProvider = createVisitProvider(pool, database);
 
@@ -789,5 +789,5 @@ See [LICENSE](../../LICENSE) for details.
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

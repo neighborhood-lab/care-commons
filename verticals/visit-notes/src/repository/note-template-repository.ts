@@ -6,7 +6,7 @@
  */
 
 import { Pool } from 'pg';
-import { UUID, NotFoundError, PaginationParams, PaginatedResult, UserContext } from '@care-commons/core';
+import { UUID, NotFoundError, PaginationParams, PaginatedResult, UserContext } from '@folkcare/core';
 import type {
   VisitNoteTemplate,
   CreateNoteTemplateInput,

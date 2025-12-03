@@ -1,10 +1,10 @@
-# Care Commons Showcase
+# Folk Showcase
 
-An interactive, browser-based demonstration of Care Commons features, designed to run entirely in the browser with no backend dependencies.
+An interactive, browser-based demonstration of Folk features, designed to run entirely in the browser with no backend dependencies.
 
 ## Overview
 
-The Showcase is a **static, client-side demo** that demonstrates the capabilities of Care Commons without requiring server infrastructure. It features a **multi-role experience** that allows you to explore the system from different perspectives: patient, family member, caregiver, care coordinator, and administrator.
+The Showcase is a **static, client-side demo** that demonstrates the capabilities of Folk without requiring server infrastructure. It features a **multi-role experience** that allows you to explore the system from different perspectives: patient, family member, caregiver, care coordinator, and administrator.
 
 Perfect for:
 
@@ -129,7 +129,7 @@ cd showcase
 npm run dev
 ```
 
-Open [http://localhost:5173/care-commons](http://localhost:5173/care-commons)
+Open [http://localhost:5173/folkcare](http://localhost:5173/folkcare)
 
 ### Build for Production
 
@@ -207,7 +207,7 @@ All data is **different from the production demo** to make environments easily d
 
 ### localStorage Persistence
 
-Changes you make (creating, updating, deleting) are saved to browser localStorage under the key `care-commons-showcase-data`. This means:
+Changes you make (creating, updating, deleting) are saved to browser localStorage under the key `folkcare-showcase-data`. This means:
 
 - ✅ Changes persist across page reloads
 - ✅ Each browser/device has its own data
@@ -221,7 +221,7 @@ To reset to the original comprehensive seed data:
 **Option 1: Browser Developer Tools**
 1. Open browser DevTools (F12)
 2. Go to Application/Storage → Local Storage
-3. Delete the `care-commons-showcase-data` key
+3. Delete the `folkcare-showcase-data` key
 4. Refresh the page
 
 **Option 2: Browser Settings**
@@ -361,10 +361,10 @@ The showcase currently uses simplified types in `src/types/showcase-types.ts`. T
 
 ## Links
 
-- **Showcase Demo**: https://neighborhood-lab.github.io/care-commons
-- **Full Demo**: https://care-commons.vercel.app/login
-- **GitHub Repository**: https://github.com/neighborhood-lab/care-commons
+- **Showcase Demo**: https://folk.care
+- **Full Demo**: https://folk.care/login
+- **GitHub Repository**: https://github.com/neighborhood-lab/folkcare
 
 ## License
 
-Same as main Care Commons project.
+Same as main Folk project.

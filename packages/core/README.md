@@ -1,6 +1,6 @@
-# @care-commons/core
+# @folkcare/core
 
-Core shared functionality for Care Commons platform including database connection, authentication, permissions, and domain types.
+Core shared functionality for Folk platform including database connection, authentication, permissions, and domain types.
 
 ## Database Management
 
@@ -23,7 +23,7 @@ npm run db:migrate
 - Creates:
   - 1 Organization (template)
   - 1 Branch (template)
-  - 1 Admin User: `admin@carecommons.example` / `Admin123!`
+  - 1 Admin User: `admin@folkcare.example` / `Admin123!`
 - Customer adds their own clients, caregivers, programs
 
 ```bash
@@ -93,7 +93,7 @@ Required for database connection:
 # Local Development
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=develop_care_commons
+DB_NAME=develop_folkcare
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_SSL=false
@@ -126,7 +126,7 @@ Uses PBKDF2 with:
 Fine-grained, role-based permission system:
 
 ```typescript
-import { PermissionService } from '@care-commons/core/permissions.js';
+import { PermissionService } from '@folkcare/core/permissions.js';
 
 const permissions = new PermissionService(db);
 
@@ -145,8 +145,8 @@ const roles = await permissions.getUserRoles(userId);
 Shared domain types and interfaces:
 
 ```typescript
-import { UUID, Timestamp, Address } from '@care-commons/core/types/base.js';
-import { Client, Caregiver } from '@care-commons/core/types/entities.js';
+import { UUID, Timestamp, Address } from '@folkcare/core/types/base.js';
+import { Client, Caregiver } from '@folkcare/core/types/entities.js';
 ```
 
 ## Development
@@ -190,5 +190,5 @@ const { Database } = require('./db/connection');
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

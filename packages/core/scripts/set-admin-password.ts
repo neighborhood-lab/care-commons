@@ -15,7 +15,7 @@ async function setAdminPassword() {
   console.log('🔐 Setting admin password...\n');
 
   const env = process.env['NODE_ENV'] ?? 'development';
-  const dbName = process.env['DB_NAME'] ?? 'care_commons';
+  const dbName = process.env['DB_NAME'] ?? 'folkcare';
   const database = env === 'test' ? `${dbName}_test` : dbName;
 
   // Get password from environment or use default
@@ -44,7 +44,7 @@ async function setAdminPassword() {
       UPDATE users
       SET password_hash = $1,
           updated_at = NOW()
-      WHERE email = 'admin@carecommons.example'
+      WHERE email = 'admin@folkcare.example'
       RETURNING id, email, first_name, last_name
       `,
       [passwordHash]

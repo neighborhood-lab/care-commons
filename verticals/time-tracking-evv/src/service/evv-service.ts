@@ -13,7 +13,7 @@ import {
   PaginationParams,
   PaginatedResult,
   StateComplianceService,
-} from '@care-commons/core';
+} from '@folkcare/core';
 import { EVVRepository } from '../repository/evv-repository';
 import { EVVValidator } from '../validation/evv-validator';
 import { IntegrationService } from '../utils/integration-service';
@@ -37,10 +37,10 @@ import {
   IClientProvider,
   ICaregiverProvider,
 } from '../interfaces/visit-provider';
-import { Database } from '@care-commons/core';
+import { Database } from '@folkcare/core';
 import { StateCode } from '../types/state-specific';
 import { StateProviderFactory } from '../providers/state-provider-factory';
-import { getNotificationService, type NotificationChannel } from '@care-commons/core';
+import { getNotificationService, type NotificationChannel } from '@folkcare/core';
 
 export class EVVService {
   private stateComplianceService: StateComplianceService;
@@ -364,7 +364,7 @@ export class EVVService {
         timeZone: 'America/Chicago', // Default timezone, should be configurable
       });
       
-      const { NotificationService: NS } = await import('@care-commons/core');
+      const { NotificationService: NS } = await import('@folkcare/core');
       const template = NS.getTemplate('VISIT_CLOCK_IN', {
         caregiverName: caregiver.name,
         clientName: client.name,
@@ -635,7 +635,7 @@ export class EVVService {
     // Send notification after successful clock-out
     try {
       const notificationService = getNotificationService();
-      const { NotificationService: NS } = await import('@care-commons/core');
+      const { NotificationService: NS } = await import('@folkcare/core');
       const template = NS.getTemplate('VISIT_CLOCK_OUT', {
         caregiverName: updatedRecord.caregiverName,
         clientName: updatedRecord.clientName,

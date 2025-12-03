@@ -44,7 +44,7 @@ import type {
   ShiftSearchFilters,
 } from '../types/showcase-types.js';
 
-const STORAGE_KEY = 'care-commons-showcase-data';
+const STORAGE_KEY = 'folkcare-showcase-data';
 const SIMULATE_DELAY = 100; // ms
 
 interface MockDataStore {

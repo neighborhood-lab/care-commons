@@ -46,10 +46,10 @@ export async function up(knex: Knex): Promise<void> {
       updated_at = NOW()
   `, [
     FIXED_ORG_ID,
-    'Care Commons Home Health',
-    'Care Commons Home Health Services, Inc.',
+    'Folk Home Health',
+    'Folk Home Health Services, Inc.',
     '555-0100',
-    'info@carecommons.example',
+    'info@folkcare.example',
     JSON.stringify({
       line1: '123 Main Street',
       city: 'Springfield',
@@ -123,7 +123,7 @@ export async function up(knex: Knex): Promise<void> {
     FIXED_ADMIN_ID,
     FIXED_ORG_ID,
     'admin',
-    'admin@carecommons.example',
+    'admin@folkcare.example',
     adminPasswordHash,
     'System',
     'Administrator',
@@ -161,7 +161,7 @@ export async function up(knex: Knex): Promise<void> {
     FIXED_FAMILY_ID,
     FIXED_ORG_ID,
     'family',
-    'family@carecommons.example',
+    'family@folkcare.example',
     familyPasswordHash,
     'Stein',
     'Family',
@@ -175,10 +175,10 @@ export async function up(knex: Knex): Promise<void> {
 
   console.log('✅ Base seed completed successfully!\n');
   console.log('📊 Operational data created:');
-  console.log('  Organization: Care Commons Home Health');
+  console.log('  Organization: Folk Home Health');
   console.log('  Branch: Main Office');
-  console.log('  Admin User: admin@carecommons.example / Admin123!');
-  console.log('  Family User: family@carecommons.example / Family123!');
+  console.log('  Admin User: admin@folkcare.example / Admin123!');
+  console.log('  Family User: family@folkcare.example / Family123!');
   console.log('\n💡 Run "npm run db:seed:demo" to add comprehensive demo data (clients, caregivers, visits, etc.)\n');
 }
 
@@ -187,8 +187,8 @@ export async function down(knex: Knex): Promise<void> {
   
   // Delete in reverse order of creation
   await knex('users').whereIn('email', [
-    'admin@carecommons.example',
-    'family@carecommons.example',
+    'admin@folkcare.example',
+    'family@folkcare.example',
   ]).del();
   
   await knex('branches').where({ id: FIXED_BRANCH_ID }).del();

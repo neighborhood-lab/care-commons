@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This Disaster Recovery (DR) plan provides procedures for recovering the Care Commons platform in the event of a catastrophic failure. The plan defines recovery objectives, procedures, and responsibilities.
+This Disaster Recovery (DR) plan provides procedures for recovering the Folk platform in the event of a catastrophic failure. The plan defines recovery objectives, procedures, and responsibilities.
 
 **Recovery Objectives**:
 - **RTO (Recovery Time Objective)**: < 4 hours
@@ -327,11 +327,11 @@ pg_dump $DATABASE_URL > $BACKUP_FILE
 gzip $BACKUP_FILE
 
 # Upload to S3
-aws s3 cp ${BACKUP_FILE}.gz s3://care-commons-backups/manual/ \
+aws s3 cp ${BACKUP_FILE}.gz s3://folkcare-backups/manual/ \
   --sse AES256
 
 # Verify upload
-aws s3 ls s3://care-commons-backups/manual/${BACKUP_FILE}.gz
+aws s3 ls s3://folkcare-backups/manual/${BACKUP_FILE}.gz
 ```
 
 ### Configuration Backups

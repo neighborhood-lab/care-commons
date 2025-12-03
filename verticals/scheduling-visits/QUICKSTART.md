@@ -4,7 +4,7 @@ Get started with the Scheduling & Visit Management vertical in 10 minutes.
 
 ## Prerequisites
 
-- Care Commons core package installed
+- Folk core package installed
 - PostgreSQL database running
 - Client & Demographics vertical (for client data)
 - Caregiver & Staff vertical (for caregiver assignments)
@@ -38,7 +38,7 @@ This creates:
 
 ```typescript
 import { Pool } from 'pg';
-import { ScheduleRepository, ScheduleService } from '@care-commons/scheduling-visits';
+import { ScheduleRepository, ScheduleService } from '@folkcare/scheduling-visits';
 
 // Database connection
 const pool = new Pool({
@@ -59,7 +59,7 @@ const scheduleService = new ScheduleService(repository);
 Service patterns are templates for recurring care schedules.
 
 ```typescript
-import { UserContext } from '@care-commons/core';
+import { UserContext } from '@folkcare/core';
 
 const userContext: UserContext = {
   userId: 'user-123',
@@ -346,9 +346,9 @@ await scheduleService.assignCaregiver({
 ## Getting Help
 
 - Review the [test cases](./src/__tests__/) for more examples
-- Check the [Care Commons documentation](https://docs.care-commons.org)
-- Open an issue on [GitHub](https://github.com/neighborhood-lab/care-commons)
+- Check the [Folk documentation](https://docs.folkcare.org)
+- Open an issue on [GitHub](https://github.com/neighborhood-lab/folkcare)
 
 ---
 
-**Care Commons** - Shared care software, community owned
+**Folk** - Shared care software, community owned

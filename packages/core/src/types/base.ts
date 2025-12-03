@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Base Types
+ * @folkcare/core - Base Types
  * 
  * Fundamental types shared across all verticals:
  * - Entity identity and lifecycle

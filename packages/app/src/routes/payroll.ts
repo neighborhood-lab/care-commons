@@ -23,8 +23,8 @@ import {
   PayStubSearchFilters,
   PayPeriodSearchFilters,
   TimeSheetSearchFilters,
-} from '@care-commons/payroll-processing';
-import { Database } from '@care-commons/core';
+} from '@folkcare/payroll-processing';
+import { Database } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context';
 
 /**

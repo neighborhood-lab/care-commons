@@ -1,7 +1,7 @@
 /**
  * Enhanced Showcase Seed Data
  *
- * COMPREHENSIVE demo data showcasing all Care Commons capabilities.
+ * COMPREHENSIVE demo data showcasing all Folk capabilities.
  * 
  * Scale:
  * - 60 clients across TX, FL, OH (various conditions, ages, statuses)
@@ -354,7 +354,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'Emily',
     lastName: 'Rodriguez',
-    email: 'emily.rodriguez@carecommons.com',
+    email: 'emily.rodriguez@folkcare.com',
     phone: '512-555-1001',
     dateOfBirth: '1992-05-14',
     hireDate: '2022-01-15',
@@ -386,7 +386,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'Michael',
     lastName: 'Johnson',
-    email: 'michael.johnson@carecommons.com',
+    email: 'michael.johnson@folkcare.com',
     phone: '512-555-1002',
     dateOfBirth: '1988-09-22',
     hireDate: '2021-08-01',
@@ -418,7 +418,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'Jessica',
     lastName: 'Patel',
-    email: 'jessica.patel@carecommons.com',
+    email: 'jessica.patel@folkcare.com',
     phone: '512-555-1003',
     dateOfBirth: '1995-12-03',
     hireDate: '2023-02-01',
@@ -443,7 +443,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'David',
     lastName: 'Kim',
-    email: 'david.kim@carecommons.com',
+    email: 'david.kim@folkcare.com',
     phone: '512-555-1004',
     dateOfBirth: '1990-03-18',
     hireDate: '2020-05-15',
@@ -475,7 +475,7 @@ export const caregivers: Caregiver[] = [
     branchId: SHOWCASE_BRANCH_ID,
     firstName: 'Maria',
     lastName: 'Garcia',
-    email: 'maria.garcia@carecommons.com',
+    email: 'maria.garcia@folkcare.com',
     phone: '305-555-2001',
     dateOfBirth: '1985-07-10',
     hireDate: '2019-03-20',

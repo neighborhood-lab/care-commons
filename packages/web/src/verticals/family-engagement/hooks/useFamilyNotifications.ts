@@ -6,8 +6,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import type { UUID } from '@care-commons/core/browser';
-import type { NotificationPreferences } from '@care-commons/family-engagement';
+import type { UUID } from '@folkcare/core/browser';
+import type { NotificationPreferences } from '@folkcare/family-engagement';
 import { useFamilyPortalApi } from './useFamilyPortal';
 
 /**

@@ -1,5 +1,5 @@
 /**
- * @care-commons/quality-assurance-audits - Type Exports
+ * @folkcare/quality-assurance-audits - Type Exports
  */
 
 export * from './audit';

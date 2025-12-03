@@ -1,3 +1,3 @@
 // Re-export from shared components package
-export { Input } from '@care-commons/shared-components';
-export type { InputProps } from '@care-commons/shared-components';
+export { Input } from '@folkcare/shared-components';
+export type { InputProps } from '@folkcare/shared-components';

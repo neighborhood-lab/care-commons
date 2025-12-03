@@ -14,7 +14,7 @@ export default defineConfig({
       // Order matters! More specific aliases first
       '@/core': path.resolve(__dirname, '../packages/web/src/core'),
       '@/verticals': path.resolve(__dirname, '../packages/web/src/verticals'),
-      '@care-commons/shared-components': path.resolve(
+      '@folkcare/shared-components': path.resolve(
         __dirname,
         '../packages/shared-components/src'
       ),
@@ -23,7 +23,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   // GitHub Pages deployment configuration
-  base: '/care-commons/',
+  base: '/folkcare/',
   build: {
     outDir: 'dist',
     sourcemap: false,

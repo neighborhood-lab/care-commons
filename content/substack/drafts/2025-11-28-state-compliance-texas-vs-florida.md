@@ -173,9 +173,9 @@ These aren't obscure regulatory details. They're operational parameters that aff
 
 ---
 
-## How Care Commons Handles This
+## How Folk Handles This
 
-When we built the [Compliance Autopilot](https://care-commons.vercel.app/compliance), we didn't build "configurable compliance." We built state-aware compliance.
+When we built the [Compliance Autopilot](https://folk.care/compliance), we didn't build "configurable compliance." We built state-aware compliance.
 
 ```typescript
 interface StateComplianceRules {
@@ -223,7 +223,7 @@ packages/core/src/demo/state-credentials.ts
 
 Every compliance rule has a citation. Every training requirement has a description. Every deviation from federal baseline has an explanation.
 
-When the Texas HHSC updates 26 TAC §558, we don't wait for a vendor support ticket. We update the rules, publish the change, and every Care Commons agency gets the update automatically.
+When the Texas HHSC updates 26 TAC §558, we don't wait for a vendor support ticket. We update the rules, publish the change, and every Folk agency gets the update automatically.
 
 This is what community-owned software enables: shared regulatory intelligence that no single agency could afford to maintain alone.
 
@@ -249,12 +249,12 @@ If you're running a multi-state home health operation, here's what you need:
 
 ## Try It Today
 
-The [Compliance Autopilot](https://care-commons.vercel.app/compliance) is live with full Texas and Florida support. We're adding more states based on community demand—each one with proper regulatory research, not guesswork.
+The [Compliance Autopilot](https://folk.care/compliance) is live with full Texas and Florida support. We're adding more states based on community demand—each one with proper regulatory research, not guesswork.
 
-Explore the [interactive showcase](https://neighborhood-lab.github.io/care-commons/) to see state-specific compliance in action. Or dive into the code on [GitHub](https://github.com/neighborhood-lab/care-commons) and see exactly how we model state regulations.
+Explore the [interactive showcase](https://folk.care/) to see state-specific compliance in action. Or dive into the code on [GitHub](https://github.com/neighborhood-lab/folkcare) and see exactly how we model state regulations.
 
 Maria and her cousin in Miami shouldn't need different software. They just need software that understands their states are different.
 
 ---
 
-*Brian Edwards builds Care Commons with [Neighborhood Lab](https://neighborhoodlab.org). Join us on [Discord](https://discord.gg/EkeXQZFq) or support the project on [Patreon](https://www.patreon.com/cw/neighborhood_lab).*
+*Brian Edwards builds Folk with [Neighborhood Lab](https://neighborhoodlab.org). Join us on [Discord](https://discord.gg/EkeXQZFq) or support the project on [Patreon](https://www.patreon.com/cw/neighborhood_lab).*

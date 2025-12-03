@@ -12,7 +12,7 @@ import {
   EVVRecord,
   VerificationMethod
 } from '../types/evv';
-import { ValidationError } from '@care-commons/core';
+import { ValidationError } from '@folkcare/core';
 
 describe('EVVValidator', () => {
   let validator: EVVValidator;

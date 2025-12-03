@@ -5,8 +5,8 @@
  */
 
 import { Router } from 'express';
-import type { Database } from '@care-commons/core';
-import { GeocodingService } from '@care-commons/core';
+import type { Database } from '@folkcare/core';
+import { GeocodingService } from '@folkcare/core';
 
 export function createHealthRouter(db: Database): Router {
   const router = Router();

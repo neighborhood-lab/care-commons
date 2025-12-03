@@ -1,5 +1,5 @@
 /**
- * @care-commons/core - Domain Mappings Types
+ * @folkcare/core - Domain Mappings Types
  *
  * Custom domain configuration for white-label multi-tenancy
  */

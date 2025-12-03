@@ -175,7 +175,7 @@ import {
   validateCreateBillableItem,
   calculateUnits,
   calculateBaseAmount,
-} from '@care-commons/billing-invoicing';
+} from '@folkcare/billing-invoicing';
 
 const pool = new Pool({ /* config */ });
 const billingRepo = new BillingRepository(pool);

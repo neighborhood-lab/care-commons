@@ -1,5 +1,5 @@
 /**
- * @care-commons/care-plans-tasks
+ * @folkcare/care-plans-tasks
  * 
  * Care Plans & Tasks Library vertical
  */

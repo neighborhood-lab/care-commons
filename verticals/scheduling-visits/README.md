@@ -185,8 +185,8 @@ interface Visit {
 ### Creating a Service Pattern
 
 ```typescript
-import { ScheduleService } from '@care-commons/scheduling-visits';
-import { UserContext } from '@care-commons/core';
+import { ScheduleService } from '@folkcare/scheduling-visits';
+import { UserContext } from '@folkcare/core';
 
 const scheduleService = new ScheduleService(repository);
 
@@ -628,8 +628,8 @@ The scheduling service requires a `ClientAddressProvider` implementation to fetc
 Use the factory function to automatically wire up all dependencies:
 
 ```typescript
-import { createScheduleService } from '@care-commons/scheduling-visits';
-import { ClientService, ClientRepository } from '@care-commons/client-demographics';
+import { createScheduleService } from '@folkcare/scheduling-visits';
+import { ClientService, ClientRepository } from '@folkcare/client-demographics';
 
 // Create schedule service with real client address lookups
 const scheduleService = createScheduleService({
@@ -650,8 +650,8 @@ const scheduleService = createScheduleService({
 For custom configurations, wire components manually:
 
 ```typescript
-import { ScheduleService, ClientAddressProvider, ClientServiceAdapter } from '@care-commons/scheduling-visits';
-import { ClientService } from '@care-commons/client-demographics';
+import { ScheduleService, ClientAddressProvider, ClientServiceAdapter } from '@folkcare/scheduling-visits';
+import { ClientService } from '@folkcare/client-demographics';
 
 // Wrap client service with adapter
 const adapter = new ClientServiceAdapter(clientService);
@@ -749,5 +749,5 @@ See [LICENSE](../../LICENSE) for details.
 
 ---
 
-**Care Commons** - Shared care software, community owned  
+**Folk** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)
