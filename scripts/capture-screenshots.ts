@@ -234,15 +234,15 @@ async function loginWithPersona(
   baseUrl: string
 ): Promise<void> {
   console.log(`   🔐 Logging in as ${persona.email}...`);
-  
+
   await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForLoadState('networkidle', { timeout: 15000 });
   await page.waitForTimeout(1000);
-  
+
   // Try persona card first (faster for demo mode)
   const personaButton = page.locator(`button:has-text("${persona.name}")`).first();
   const hasPersonaButton = await personaButton.count() > 0;
-  
+
   if (hasPersonaButton) {
     console.log(`   ✓ Using persona card`);
     await personaButton.click();
@@ -253,16 +253,47 @@ async function loginWithPersona(
     console.log(`   ✓ Using email/password form`);
     const emailInput = page.locator('input[type="email"], input[name="email"]').first();
     const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
-    
+
     await emailInput.fill(persona.email);
     await passwordInput.fill(persona.password);
     await page.click('button[type="submit"]');
     await page.waitForLoadState('networkidle', { timeout: 15000 });
     await page.waitForTimeout(2000);
   }
-  
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MANDATORY LOGIN VERIFICATION - This MUST pass or we fail the entire run
+  // ═══════════════════════════════════════════════════════════════════════════
   const currentUrl = page.url();
-  console.log(`   ✓ Logged in → ${currentUrl}`);
+  const isStillOnLogin = currentUrl.includes('/login');
+
+  // Check for error messages on the page
+  const errorMessage = await page.locator('[class*="error"], [class*="Error"], [role="alert"]').first().textContent().catch(() => null);
+
+  if (isStillOnLogin) {
+    const errorDetails = errorMessage ? ` Error: "${errorMessage}"` : '';
+    throw new Error(
+      `❌ LOGIN VERIFICATION FAILED for ${persona.email}!${errorDetails}\n` +
+      `   Still on login page: ${currentUrl}\n` +
+      `   Password used: ${persona.password}\n` +
+      `   This is a CRITICAL error - fix production auth before continuing!`
+    );
+  }
+
+  // Verify we're on an authenticated page (not login, not error)
+  const validAuthPages = ['/dashboard', '/admin', '/clients', '/family-portal', '/'];
+  const isOnValidPage = validAuthPages.some(p => currentUrl.includes(p)) && !currentUrl.includes('/login');
+
+  if (!isOnValidPage) {
+    throw new Error(
+      `❌ LOGIN VERIFICATION FAILED for ${persona.email}!\n` +
+      `   Unexpected redirect to: ${currentUrl}\n` +
+      `   Expected one of: ${validAuthPages.join(', ')}\n` +
+      `   This is a CRITICAL error - investigate auth flow!`
+    );
+  }
+
+  console.log(`   ✅ LOGIN VERIFIED → ${currentUrl}`);
 }
 
 async function logout(page: Page, baseUrl: string): Promise<void> {
