@@ -158,7 +158,7 @@ export const Login: React.FC = () => {
             TEXAS DEMO
           </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-3">
-            Folk
+            Folk Care
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Experience home healthcare management with realistic Texas data
