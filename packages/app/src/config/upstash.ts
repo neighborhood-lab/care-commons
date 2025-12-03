@@ -14,7 +14,8 @@ export const initUpstashRedis = (): Redis | null => {
   const restUrl = process.env.UPSTASH_REDIS_REST_URL;
   const restToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  if (!restUrl || !restToken) {
+  if (restUrl === undefined || restUrl === '' ||
+      restToken === undefined || restToken === '') {
     console.log('Upstash Redis not configured, using in-memory fallback');
     return null;
   }
@@ -37,7 +38,7 @@ export const initUpstashRedis = (): Redis | null => {
  * Get existing Upstash Redis client
  */
 export const getUpstashClient = (): Redis | null => {
-  if (!upstashClient) {
+  if (upstashClient === null) {
     upstashClient = initUpstashRedis();
   }
   return upstashClient;
@@ -53,7 +54,7 @@ export const getUpstashClient = (): Redis | null => {
 export const initRateLimiter = (): Ratelimit | null => {
   const client = getUpstashClient();
 
-  if (!client) {
+  if (client === null) {
     console.log('Rate limiter not initialized - Redis not available');
     return null;
   }
@@ -85,7 +86,7 @@ export const createRateLimiter = (
 ): Ratelimit | null => {
   const client = getUpstashClient();
 
-  if (!client) {
+  if (client === null) {
     return null;
   }
 
@@ -96,7 +97,7 @@ export const createRateLimiter = (
       redis: client,
       limiter: Ratelimit.slidingWindow(requests, `${windowSeconds} s`),
       analytics: true,
-      prefix: prefix || '@folk-care/api',
+      prefix: prefix ?? '@folk-care/api',
     });
   } catch (error) {
     console.error('Failed to create rate limiter:', error);
@@ -108,7 +109,7 @@ export const createRateLimiter = (
  * Get existing rate limiter instance
  */
 export const getRateLimiter = (): Ratelimit | null => {
-  if (!rateLimiter) {
+  if (rateLimiter === null) {
     rateLimiter = initRateLimiter();
   }
   return rateLimiter;
@@ -120,7 +121,7 @@ export const getRateLimiter = (): Ratelimit | null => {
 export const testUpstashConnection = async (): Promise<boolean> => {
   const client = getUpstashClient();
 
-  if (!client) {
+  if (client === null) {
     return false;
   }
 
@@ -153,7 +154,7 @@ export const cache = {
    */
   get: async <T>(key: string): Promise<T | null> => {
     const client = getUpstashClient();
-    if (!client) return null;
+    if (client === null) return null;
 
     try {
       const value = await client.get(key);
@@ -169,10 +170,10 @@ export const cache = {
    */
   set: async <T>(key: string, value: T, ttl?: number): Promise<boolean> => {
     const client = getUpstashClient();
-    if (!client) return false;
+    if (client === null) return false;
 
     try {
-      if (ttl) {
+      if (ttl !== undefined && ttl !== 0) {
         await client.set(key, value, { ex: ttl });
       } else {
         await client.set(key, value);
@@ -189,7 +190,7 @@ export const cache = {
    */
   del: async (key: string): Promise<boolean> => {
     const client = getUpstashClient();
-    if (!client) return false;
+    if (client === null) return false;
 
     try {
       await client.del(key);
@@ -205,7 +206,7 @@ export const cache = {
    */
   exists: async (key: string): Promise<boolean> => {
     const client = getUpstashClient();
-    if (!client) return false;
+    if (client === null) return false;
 
     try {
       const result = await client.exists(key);

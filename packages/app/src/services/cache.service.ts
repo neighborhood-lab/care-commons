@@ -97,13 +97,15 @@ export class CacheService {
   /**
    * Invalidate cache for a specific organization
    * Useful when data changes that affects analytics/reports
+   *
+   * Note: Upstash Redis REST API doesn't support SCAN operations efficiently.
+   * Current approach: Let cache entries expire naturally based on TTL.
+   * Future: Track keys in a set or use traditional Redis client for SCAN.
+   *
+   * Tracked in: https://github.com/neighborhood-lab/folk-care/issues/569
    */
   async invalidateOrganization(organizationId: string): Promise<void> {
-    // Note: Redis doesn't have a built-in way to delete by pattern in @upstash/redis
-    // We'd need to track keys or use a different approach
-    // For now, individual cache entries will expire naturally
-    console.log(`Cache invalidation requested for organization ${organizationId}`);
-    // TODO: Implement key tracking or use Redis SCAN command via traditional client
+    console.log(`Cache invalidation requested for organization ${organizationId} - entries will expire per TTL`);
   }
 
   /**
@@ -140,7 +142,7 @@ export class CacheService {
   private hashParams(params: Record<string, unknown>): string {
     // Sort keys for consistent hashing
     const sorted = Object.keys(params)
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .reduce(
         (acc, key) => {
           acc[key] = params[key];

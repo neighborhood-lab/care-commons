@@ -22,12 +22,12 @@ export function createHealthRouter(db: Database): Router {
       const upstashClient = getUpstashClient();
       const rateLimitClient = getRedisClient();
       const redisStatus = {
-        upstash: upstashClient ? 'configured' : 'not-configured',
-        rateLimit: rateLimitClient ? 'connected' : 'in-memory-fallback',
+        upstash: (upstashClient !== null) ? 'configured' : 'not-configured',
+        rateLimit: (rateLimitClient !== null) ? 'connected' : 'in-memory-fallback',
       };
 
       // Test Upstash connection if available
-      if (upstashClient) {
+      if (upstashClient !== null) {
         const upstashHealthy = await testUpstashConnection();
         redisStatus.upstash = upstashHealthy ? 'healthy' : 'unhealthy';
       }
