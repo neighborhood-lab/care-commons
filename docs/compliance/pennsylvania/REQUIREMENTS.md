@@ -652,5 +652,5 @@ Pennsylvania home healthcare compliance is characterized by:
 - Sandata Technologies: https://www.sandata.com/
 - 21st Century Cures Act: https://www.congress.gov/bill/114th-congress/house-bill/34
 
-**Folk** - Shared care software, community owned  
+**Folk Care** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

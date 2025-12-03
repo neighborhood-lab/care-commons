@@ -473,4 +473,4 @@ See IMPLEMENTATION.md for complete schema.
 **Full Docs**: See README.md  
 **Technical**: See IMPLEMENTATION.md
 
-**Folk** - Shared care software, community owned
+**Folk Care** - Shared care software, community owned

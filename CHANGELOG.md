@@ -106,5 +106,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-**Folk** - Shared care software, community owned.  
+**Folk Care** - Shared care software, community owned.  
 Built by [Neighborhood Lab](https://neighborhoodlab.org)

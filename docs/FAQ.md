@@ -455,5 +455,5 @@ All support funds continued development and maintenance.
 
 ---
 
-**Folk** - Shared care software, community owned.  
+**Folk Care** - Shared care software, community owned.  
 Built by [Neighborhood Lab](https://neighborhoodlab.org)
