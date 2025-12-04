@@ -1,3 +1,1 @@
-*.png filter=lfs diff=lfs merge=lfs -text
-about/public/images/*.png filter=lfs diff=lfs merge=lfs -text
-marketing/*.png filter=lfs diff=lfs merge=lfs -text
+
