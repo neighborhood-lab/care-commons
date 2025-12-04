@@ -45,9 +45,9 @@ jobs:
 
       - name: Deploy to Vercel Production
         id: deploy
-        working-directory: about
+        working-directory: about/dist
         run: |
-          DEPLOYMENT_URL=$(vercel deploy dist --prod --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "✅ About site deployed: $DEPLOYMENT_URL"
 
