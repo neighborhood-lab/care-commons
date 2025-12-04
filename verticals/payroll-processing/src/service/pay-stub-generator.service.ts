@@ -31,7 +31,7 @@ export class PayStubGeneratorService {
         margin: 50,
         info: {
           Title: `Pay Stub - ${payStubData.stubNumber}`,
-          Author: payStubData.organizationName || 'Folk',
+          Author: payStubData.organizationName || 'Folk Care',
           Subject: `Pay stub for ${payStubData.caregiverName}`,
           CreationDate: new Date(),
         },
