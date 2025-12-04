@@ -6,22 +6,22 @@
   <title>Folk Care - Shared care software, community owned</title>
   <meta name="description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/images/logo-1.png">
+  <!-- Favicon - using data URI for reliability -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%234A9B9B'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='40' fill='white' text-anchor='middle' font-weight='bold'%3EFC%3C/text%3E%3C/svg%3E">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://about.folk.care/">
   <meta property="og:title" content="Folk Care - Shared care software, community owned">
   <meta property="og:description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
-  <meta property="og:image" content="https://about.folk.care/images/social-preview-1.png">
+  <!-- OG image disabled until proper images are available -->
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://about.folk.care/">
   <meta property="twitter:title" content="Folk Care - Shared care software, community owned">
   <meta property="twitter:description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
-  <meta property="twitter:image" content="https://about.folk.care/images/social-preview-1.png">
+  <!-- Twitter image disabled until proper images are available -->
   <style>
     * {
       margin: 0;
@@ -37,8 +37,7 @@
     }
 
     .header {
-      background: linear-gradient(135deg, rgba(74, 155, 155, 0.95) 0%, rgba(94, 172, 168, 0.95) 50%, rgba(123, 158, 137, 0.95) 100%),
-                  url('/images/header-2.png') center/cover;
+      background: linear-gradient(135deg, rgba(74, 155, 155, 0.95) 0%, rgba(94, 172, 168, 0.95) 50%, rgba(123, 158, 137, 0.95) 100%);
       color: white;
       padding: 6rem 2rem;
       text-align: center;
@@ -169,8 +168,7 @@
     }
 
     .why-section {
-      background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
-                  url('/images/background-1.png') center/cover;
+      background: linear-gradient(135deg, #f8fafc 0%, #f0f9f8 50%, #f8fafc 100%);
       padding: 5rem 2rem;
       margin: 3rem 0;
       border-radius: 0;
@@ -393,8 +391,11 @@
 <body>
   <nav class="nav">
     <div class="nav-container">
-      <a href="https://about.folk.care">
-        <img src="/images/logo-2.png" alt="Folk Care Logo" class="nav-logo">
+      <a href="https://about.folk.care" style="display: flex; align-items: center; text-decoration: none;">
+        <svg width="50" height="50" viewBox="0 0 100 100" class="nav-logo">
+          <circle cx="50" cy="50" r="45" fill="#4A9B9B"/>
+          <text x="50" y="65" font-family="Arial, sans-serif" font-size="40" fill="white" text-anchor="middle" font-weight="bold">FC</text>
+        </svg>
       </a>
       <div class="nav-links">
         <a href="https://showcase.folk.care">Demo</a>
@@ -408,15 +409,14 @@
   </nav>
 
   <header class="header">
-    <img src="/images/logo-2.png" alt="Folk Care Logo" class="logo">
+    <svg width="140" height="140" viewBox="0 0 100 100" class="logo">
+      <circle cx="50" cy="50" r="45" fill="white" fill-opacity="0.2"/>
+      <circle cx="50" cy="50" r="40" fill="white"/>
+      <text x="50" y="62" font-family="Arial, sans-serif" font-size="32" fill="#4A9B9B" text-anchor="middle" font-weight="bold">FC</text>
+    </svg>
     <h1>Folk Care</h1>
     <p>Shared care software, community owned</p>
   </header>
-
-  <!-- Hero Image Section -->
-  <section class="hero-image">
-    <img src="/images/header-1.png" alt="Caregiver supporting elderly community member in a garden setting">
-  </section>
 
   <div class="container">
     <section class="section">
