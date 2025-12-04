@@ -2,7 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
-  "installCommand": "apt-get update && apt-get install -y git-lfs && git lfs install && git lfs pull && npm install",
+  "installCommand": "npm install",
   "framework": null,
   "regions": ["iad1"]
 }
