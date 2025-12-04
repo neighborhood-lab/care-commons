@@ -36,18 +36,20 @@ export async function up(knex: Knex): Promise<void> {
   // ============================================================================
 
   // Optimize compliance reporting queries (date range + status)
+  // Note: evv_records does not use soft deletes, no deleted_at column
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_evv_compliance_reporting
-    ON evv_records(organization_id, service_date, verification_status)
-    WHERE deleted_at IS NULL
+    ON evv_records(organization_id, service_date, record_status)
   `);
 
   // Optimize exception/flag queries for compliance dashboards
+  // Note: evv_records uses jsonb compliance_flags, not boolean exception columns
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_evv_exceptions
     ON evv_records(organization_id, service_date)
-    WHERE deleted_at IS NULL
-      AND (has_location_exception = true OR has_time_exception = true OR has_verification_exception = true)
+    WHERE compliance_flags @> '["GEOFENCE_VIOLATION"]'::jsonb
+       OR compliance_flags @> '["LOCATION_SUSPICIOUS"]'::jsonb
+       OR compliance_flags @> '["TIME_DISCREPANCY"]'::jsonb
   `);
 
   // ============================================================================

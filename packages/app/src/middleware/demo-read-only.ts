@@ -13,7 +13,7 @@ import type { Request, Response, NextFunction } from 'express';
  * Check if an email belongs to a demo account
  */
 function isDemoEmail(email: string | undefined): boolean {
-  if (!email) return false;
+  if (email === undefined || email === '') return false;
 
   // State-specific demo emails: user@tx.folkcare.example
   if (/@[a-z]{2}\.folkcare\.example$/i.test(email)) {
@@ -63,7 +63,7 @@ export function demoReadOnlyMiddleware(
   const user = (req as Request & { user?: { email?: string } }).user;
 
   // If no user or not a demo user, allow all operations
-  if (!user || !isDemoEmail(user.email)) {
+  if (user === undefined || !isDemoEmail(user.email)) {
     return next();
   }
 

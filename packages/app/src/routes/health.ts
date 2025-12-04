@@ -5,8 +5,9 @@
  */
 
 import { Router } from 'express';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+import os from 'node:os';
 import type { Database } from '@folkcare/core';
 import { GeocodingService } from '@folkcare/core';
 import { testUpstashConnection, getUpstashClient } from '../config/upstash.js';
@@ -36,7 +37,7 @@ async function getDiskSpace(): Promise<{ used: number; available: number; total:
     const percentUsed = parseInt(parts[4] ?? '0');
 
     return { used, available, total, percentUsed };
-  } catch (error) {
+  } catch {
     // Fallback if df command fails (e.g., on Windows)
     return { used: 0, available: 0, total: 0, percentUsed: 0 };
   }
@@ -46,10 +47,10 @@ async function getDiskSpace(): Promise<{ used: number; available: number; total:
  * Get memory usage information
  * Returns Node.js process memory usage and system memory
  */
-function getMemoryUsage() {
+function getMemoryUsage(): { process: { heapUsed: number; heapTotal: number; external: number; rss: number }; system: { total: number; used: number; free: number; percentUsed: number } } {
   const mem = process.memoryUsage();
-  const totalMemory = require('os').totalmem();
-  const freeMemory = require('os').freemem();
+  const totalMemory = os.totalmem();
+  const freeMemory = os.freemem();
   const usedMemory = totalMemory - freeMemory;
 
   return {
@@ -66,6 +67,19 @@ function getMemoryUsage() {
       percentUsed: Math.round((usedMemory / totalMemory) * 100),
     },
   };
+}
+
+/**
+ * Calculate disk status based on usage percentage
+ */
+function getDiskStatus(percentUsed: number): 'ok' | 'warning' | 'critical' {
+  if (percentUsed < 85) {
+    return 'ok';
+  }
+  if (percentUsed < 95) {
+    return 'warning';
+  }
+  return 'critical';
 }
 
 export function createHealthRouter(db: Database): Router {
@@ -102,6 +116,9 @@ export function createHealthRouter(db: Database): Router {
         memory.system.percentUsed < 95 && // System memory < 95%
         disk.percentUsed < 90; // Disk usage < 90%
 
+      // Calculate disk status
+      const diskStatus = getDiskStatus(disk.percentUsed);
+
       res.json({
         status: isHealthy ? 'healthy' : 'degraded',
         timestamp: new Date().toISOString(),
@@ -135,7 +152,7 @@ export function createHealthRouter(db: Database): Router {
             },
           },
           disk: {
-            status: disk.percentUsed < 85 ? 'ok' : disk.percentUsed < 95 ? 'warning' : 'critical',
+            status: diskStatus,
             used: disk.used,
             available: disk.available,
             total: disk.total,
