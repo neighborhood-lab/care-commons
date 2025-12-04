@@ -10,7 +10,7 @@
   "//6": "════════════════════════════════════════════════════════════════",
   "type": "module",
   "license": "AGPL-3.0",
-  "description": "Software for the people who care",
+  "description": "Folk Care - Open source home healthcare software for community-owned agencies",
   "packageManager": "npm@10.9.4",
   "workspaces": [
     "packages/*",

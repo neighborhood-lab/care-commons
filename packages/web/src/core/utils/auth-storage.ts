@@ -14,8 +14,11 @@ const AUTH_STORAGE_KEY = 'auth-storage';
  * Demo mode is detected by:
  * 1. Demo user email patterns (@{state}.folkcare.example)
  * 2. Environment variable
+ *
+ * IMPORTANT: Demo mode means READ-ONLY access. Users should not be able to
+ * modify data in demo mode. This protects the shared demo database.
  */
-function isDemoMode(email?: string): boolean {
+export function isDemoMode(email?: string): boolean {
   // Check environment
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     return true;

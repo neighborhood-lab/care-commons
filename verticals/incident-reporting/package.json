@@ -1,6 +1,7 @@
 {
   "name": "@folkcare/incident-reporting",
   "version": "0.1.0",
+  "description": "Folk Care Incident Reporting - safety events and compliance tracking",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",

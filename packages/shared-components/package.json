@@ -1,6 +1,7 @@
 {
   "name": "@folkcare/shared-components",
   "version": "0.1.0",
+  "description": "Folk Care Shared Components - cross-platform React UI components",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  SHARED ESM PACKAGE - Platform-agnostic React components",
   "//3": "Used by both web (Vite) and mobile (React Native) apps",

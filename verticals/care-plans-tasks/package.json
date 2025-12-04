@@ -1,6 +1,7 @@
 {
   "name": "@folkcare/care-plans-tasks",
   "version": "0.1.0",
+  "description": "Folk Care Care Plans & Tasks - personalized care instructions and task tracking",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",

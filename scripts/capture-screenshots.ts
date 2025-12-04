@@ -234,18 +234,57 @@ async function loginWithPersona(
   baseUrl: string
 ): Promise<void> {
   console.log(`   🔐 Logging in as ${persona.email}...`);
-  
+
   await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForLoadState('networkidle', { timeout: 15000 });
   await page.waitForTimeout(1000);
-  
+
   // Try persona card first (faster for demo mode)
   const personaButton = page.locator(`button:has-text("${persona.name}")`).first();
   const hasPersonaButton = await personaButton.count() > 0;
-  
+
   if (hasPersonaButton) {
     console.log(`   ✓ Using persona card`);
-    await personaButton.click();
+
+    // Capture browser console logs for debugging
+    const consoleLogs: string[] = [];
+    page.on('console', (msg) => consoleLogs.push(`${msg.type()}: ${msg.text()}`));
+    page.on('pageerror', (err) => consoleLogs.push(`PAGE ERROR: ${err.message}`));
+
+    // Try clicking with force in case of overlay issues
+    await personaButton.click({ force: true });
+    console.log(`   ✓ Click sent, waiting for API response...`);
+
+    // Wait for navigation OR network activity
+    try {
+      const result = await Promise.race([
+        page.waitForURL(/\/(dashboard|admin|clients)/, { timeout: 10000 }).then(() => ({ type: 'navigation' })),
+        page.waitForResponse(resp => resp.url().includes('/api/auth/login'), { timeout: 10000 }).then(async (resp) => {
+          const status = resp.status();
+          let body = '';
+          try {
+            body = await resp.text();
+          } catch (e) {
+            body = '(could not read body)';
+          }
+          return { type: 'api', status, body: body.slice(0, 500) };
+        }),
+      ]);
+
+      if (result.type === 'navigation') {
+        console.log(`   ✓ Navigation detected!`);
+      } else {
+        console.log(`   ✓ API response: ${result.status}`);
+        console.log(`   📦 Body: ${result.body}`);
+      }
+    } catch (e) {
+      console.log(`   ⚠️ No navigation or API response detected`);
+      if (consoleLogs.length > 0) {
+        console.log(`   📋 Browser console logs:`);
+        consoleLogs.slice(-10).forEach(log => console.log(`      ${log}`));
+      }
+    }
+
     await page.waitForLoadState('networkidle', { timeout: 15000 });
     await page.waitForTimeout(2000);
   } else {
@@ -253,16 +292,58 @@ async function loginWithPersona(
     console.log(`   ✓ Using email/password form`);
     const emailInput = page.locator('input[type="email"], input[name="email"]').first();
     const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
-    
+
     await emailInput.fill(persona.email);
     await passwordInput.fill(persona.password);
     await page.click('button[type="submit"]');
     await page.waitForLoadState('networkidle', { timeout: 15000 });
     await page.waitForTimeout(2000);
   }
-  
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MANDATORY LOGIN VERIFICATION - This MUST pass or we fail the entire run
+  // ═══════════════════════════════════════════════════════════════════════════
   const currentUrl = page.url();
-  console.log(`   ✓ Logged in → ${currentUrl}`);
+  const isStillOnLogin = currentUrl.includes('/login');
+
+  // Check for error messages on the page (including toast notifications)
+  const errorMessage = await page.locator('[class*="error"], [class*="Error"], [role="alert"], [class*="toast"]').first().textContent().catch(() => null);
+
+  // Check for toast messages (react-hot-toast uses specific structure)
+  const toastText = await page.locator('[style*="opacity"]').filter({ hasText: /login|error|failed/i }).first().textContent().catch(() => null);
+
+  if (isStillOnLogin) {
+    // Save debug screenshot before failing
+    const debugPath = join(process.cwd(), 'ui-screenshots-debug', `login-failure-${persona.id}.png`);
+    await mkdir(join(process.cwd(), 'ui-screenshots-debug'), { recursive: true });
+    await page.screenshot({ path: debugPath, fullPage: true });
+    console.log(`   📸 Debug screenshot saved: ${debugPath}`);
+
+    const errorDetails = errorMessage ? ` Error: "${errorMessage}"` : '';
+    const toastDetails = toastText ? ` Toast: "${toastText}"` : '';
+    throw new Error(
+      `❌ LOGIN VERIFICATION FAILED for ${persona.email}!${errorDetails}${toastDetails}\n` +
+      `   Still on login page: ${currentUrl}\n` +
+      `   Password used: ${persona.password}\n` +
+      `   Debug screenshot: ${debugPath}\n` +
+      `   This is a CRITICAL error - fix production auth before continuing!`
+    );
+  }
+
+  // Verify we're on an authenticated page (not login, not error)
+  const validAuthPages = ['/dashboard', '/admin', '/clients', '/family-portal', '/'];
+  const isOnValidPage = validAuthPages.some(p => currentUrl.includes(p)) && !currentUrl.includes('/login');
+
+  if (!isOnValidPage) {
+    throw new Error(
+      `❌ LOGIN VERIFICATION FAILED for ${persona.email}!\n` +
+      `   Unexpected redirect to: ${currentUrl}\n` +
+      `   Expected one of: ${validAuthPages.join(', ')}\n` +
+      `   This is a CRITICAL error - investigate auth flow!`
+    );
+  }
+
+  console.log(`   ✅ LOGIN VERIFIED → ${currentUrl}`);
 }
 
 async function logout(page: Page, baseUrl: string): Promise<void> {
@@ -369,7 +450,21 @@ async function capturePersona(
     // Logout
     await logout(page, baseUrl);
   } catch (error) {
-    console.error(`   ❌ Error:`, error instanceof Error ? error.message : String(error));
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(`   ❌ Error:`, errorMsg);
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FAIL FAST: Login failures are CRITICAL - stop immediately, don't continue
+    // ═══════════════════════════════════════════════════════════════════════════
+    if (errorMsg.includes('LOGIN VERIFICATION FAILED')) {
+      console.error('\n' + '═'.repeat(80));
+      console.error('🛑 CRITICAL: LOGIN FAILED - STOPPING IMMEDIATELY');
+      console.error('═'.repeat(80));
+      console.error('Login failures indicate a systemic problem that will affect ALL personas.');
+      console.error('Fix the authentication issue before continuing.\n');
+      throw error; // Re-throw to crash the entire script
+    }
+    // For other errors, continue to next persona
   } finally {
     await context.close();
   }

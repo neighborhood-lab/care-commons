@@ -56,8 +56,12 @@ describe('Health Routes', () => {
       expect(mockDb.query).toHaveBeenCalledWith('SELECT 1');
       expect(jsonMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: 'healthy',
-          database: 'connected',
+          status: expect.stringMatching(/healthy|degraded/),
+          checks: expect.objectContaining({
+            database: expect.objectContaining({
+              status: 'ok',
+            }),
+          }),
         })
       );
     });
@@ -83,8 +87,12 @@ describe('Health Routes', () => {
       expect(jsonMock).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'unhealthy',
-          database: 'disconnected',
-          error: 'Connection failed',
+          checks: expect.objectContaining({
+            database: expect.objectContaining({
+              status: 'error',
+              error: 'Connection failed',
+            }),
+          }),
         })
       );
     });

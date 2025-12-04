@@ -1,0 +1,541 @@
+{
+  "meta": {
+    "version": "1.0",
+    "created": "2025-12-03",
+    "description": "Prioritized backlog for Folk Care development",
+    "total": 100
+  },
+  "priorities": {
+    "P1": "Rebranding - Critical for launch consistency",
+    "P2": "User-Visible Features - Direct user value",
+    "P3": "Dev Velocity - Vibe coding improvements",
+    "P4": "Performance & Security - Production readiness",
+    "P5": "Visibility & Monitoring - Operational awareness",
+    "P6": "DevOps & Infrastructure - Platform improvements",
+    "P7": "Free OSS Services - Leverage free tier offerings"
+  },
+  "issues": [
+    {
+      "priority": "P1",
+      "title": "Rebrand: Finalize email domain standard (folkcare.example vs folk.care)",
+      "body": "## Priority: P1 - Rebranding\n\n## Description\nStandardize email domains across codebase.\n\n## Current Inconsistency\n- Some use: `admin@folkcare.example`\n- Some use: `admin@folk.care`\n- Some use: `admin@tx.folkcare.example`\n\n## Decision Needed\nChoose one standard:\n- **Option A**: `admin@folk.care` (production domain)\n- **Option B**: `admin@folkcare.example` (RFC 2606 reserved)\n- **Option C**: `admin@demo.folk.care` (subdomain)\n\n## Files Affected\n- `packages/web/src/app/pages/Login.tsx`\n- `README.md`\n- Database seed files\n- Documentation\n\n## Related\n- Issue #550",
+      "labels": ["rebrand", "documentation"]
+    },
+    {
+      "priority": "P1",
+      "title": "Rebrand: Update all package.json descriptions for Folk Care",
+      "body": "## Priority: P1 - Rebranding\n\n## Description\nEnsure all package.json files use consistent Folk Care branding.\n\n## Tasks\n- [ ] Audit all package.json files\n- [ ] Update descriptions to use \"Folk Care\"\n- [ ] Ensure consistency in terminology\n- [ ] Update keywords for discoverability\n\n## Why Important\nPackage descriptions appear in npm, GitHub, and search results.",
+      "labels": ["rebrand", "documentation"]
+    },
+    {
+      "priority": "P1",
+      "title": "Rebrand: Create BRANDING.md guidelines document",
+      "body": "## Priority: P1 - Rebranding\n\n## Description\nDocument official branding standards.\n\n## Contents\n- Product name: **Folk Care** (two words, title case)\n- Domain: **folk.care**\n- Package namespace: **@folkcare/**\n- Tagline: \"Software for the people who care\"\n- When to use \"Folk Care\" vs \"folk.care\" vs \"@folkcare\"\n- Logo usage guidelines\n- Color palette\n- Typography\n\n## Why Important\nConsistency across marketing, documentation, and code.",
+      "labels": ["rebrand", "documentation"]
+    },
+    {
+      "priority": "P1",
+      "title": "Rebrand: Update GitHub repository description and topics",
+      "body": "## Priority: P1 - Rebranding\n\n## Description\nUpdate GitHub repository metadata for Folk Care.\n\n## Tasks\n- [ ] Update repository description\n- [ ] Add relevant topics/tags\n- [ ] Update About section\n- [ ] Ensure social preview image is current\n\n## Suggested Description\n\"Folk Care - Open source home healthcare software. EVV, scheduling, care plans, and billing for community-owned agencies. AGPL-3.0.\"\n\n## Topics\n`healthcare`, `home-care`, `evv`, `open-source`, `typescript`, `react`, `postgresql`",
+      "labels": ["rebrand", "documentation"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Client Search with Filters",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nAdd search and filtering to client list view.\n\n## Features\n- [ ] Text search (name, ID, address)\n- [ ] Filter by status (active, inactive, on-hold)\n- [ ] Filter by service type\n- [ ] Filter by assigned coordinator\n- [ ] Sort by name, date added, last visit\n- [ ] Saved filter presets\n\n## Why Important\nCoordinators manage 50-200 clients. Need fast search.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Caregiver Search with Availability Filter",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nAdd search and filtering to caregiver list view.\n\n## Features\n- [ ] Text search (name, ID, certifications)\n- [ ] Filter by status (active, inactive, on-leave)\n- [ ] Filter by availability (available now, this week)\n- [ ] Filter by certification type\n- [ ] Filter by skills (languages, specialties)\n- [ ] Geographic radius search\n\n## Why Important\nQuickly find caregivers for open shifts.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Visit Calendar Month View",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nAdd month calendar view for visits.\n\n## Features\n- [ ] Month grid showing all visits\n- [ ] Color-coded by status (scheduled, in-progress, completed, missed)\n- [ ] Click to view visit details\n- [ ] Print-friendly format\n- [ ] Export to PDF\n\n## Why Important\nCoordinators need to see full schedule at a glance.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Drag-and-Drop Shift Assignment",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nDrag caregivers onto unassigned shifts in calendar view.\n\n## Features\n- [ ] Drag caregiver from sidebar to shift\n- [ ] Visual conflict detection (double-booking)\n- [ ] Show travel time between shifts\n- [ ] Undo/redo support\n- [ ] Auto-save on drop\n\n## Why Important\nMakes scheduling 10x faster for coordinators.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Bulk Visit Creation from Template",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nCreate recurring visits in bulk from template.\n\n## Features\n- [ ] Select client and caregiver\n- [ ] Choose recurrence pattern (daily, weekly, custom)\n- [ ] Set start and end dates\n- [ ] Preview visits before creation\n- [ ] Bulk create with single click\n\n## Why Important\nManual creation of 30 days of visits is tedious.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Caregiver Mobile App - Push Notifications",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nSend push notifications for shift reminders and updates.\n\n## Notifications\n- [ ] 1 hour before shift start\n- [ ] Shift assignment/cancellation\n- [ ] Schedule changes\n- [ ] Messages from coordinator\n- [ ] Missed clock-in alert\n\n## Why Important\nReduces no-shows and improves communication.",
+      "labels": ["enhancement", "mobile"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Client Portal - Family View (Read-Only)",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nBasic client portal for families to view care status.\n\n## Features\n- [ ] View upcoming visits\n- [ ] See visit completion status\n- [ ] Read visit notes (HIPAA-appropriate)\n- [ ] View care plan\n- [ ] See assigned caregivers\n\n## Why Important\nFamily peace of mind, reduces coordinator calls.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Dashboard - Quick Stats Widget",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nImprove dashboard with at-a-glance metrics.\n\n## Widgets\n- [ ] Today's active visits\n- [ ] Unassigned shifts count\n- [ ] Upcoming visits requiring attention\n- [ ] EVV compliance rate this week\n- [ ] Pending invoices total\n\n## Why Important\nCoordinators need quick status overview.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Export Reports to PDF",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nExport common reports to PDF for printing/sharing.\n\n## Reports\n- [ ] Visit summary by client\n- [ ] Caregiver hours worked\n- [ ] EVV compliance report\n- [ ] Invoice statements\n- [ ] Care plan printout\n\n## Implementation\n- Use Puppeteer or similar for server-side PDF generation\n- Clean, professional formatting\n- Include agency branding\n\n## Why Important\nAgencies need to print reports for audits and meetings.",
+      "labels": ["enhancement", "backend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Dark Mode Support",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nAdd dark mode for web and mobile apps.\n\n## Tasks\n- [ ] Design dark mode color palette\n- [ ] Update Tailwind config for dark variants\n- [ ] Add theme toggle component\n- [ ] Persist user preference\n- [ ] Test all screens in dark mode\n\n## Why Important\nMany users work late hours, dark mode reduces eye strain.",
+      "labels": ["enhancement", "frontend", "mobile"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Keyboard Shortcuts for Power Users",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nAdd keyboard shortcuts for common actions.\n\n## Shortcuts\n- `Cmd/Ctrl + K` - Global search\n- `Cmd/Ctrl + N` - New client/caregiver/visit (context-aware)\n- `Cmd/Ctrl + S` - Save (forms)\n- `Cmd/Ctrl + /` - Show keyboard shortcuts help\n- Arrow keys - Navigate lists\n- `Enter` - Select/open item\n- `Esc` - Close modal/cancel\n\n## Why Important\nPower users can work much faster with keyboard.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add AI-Friendly Code Comments",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nAdd structured comments to help Claude understand complex code.\n\n## Guidelines\n- Function intent comments\n- Business logic explanations\n- API endpoint documentation\n- Complex algorithm explanations\n- TODOs with context\n\n## Example\n```typescript\n/**\n * Match caregivers to open shifts based on skills, location, and availability.\n * \n * Business rules:\n * - Must have required certifications\n * - Must be within 15 miles (configurable)\n * - Cannot exceed 40 hours/week without overtime approval\n * \n * @param shiftId - The shift to fill\n * @returns Ranked list of eligible caregivers\n */\n```\n\n## Why Important\nAI pair programming works better with clear intent.",
+      "labels": ["documentation", "dev-experience"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Create Vertical Scaffold Generator",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nScript to scaffold new verticals with standard structure.\n\n## Generated Files\n- `src/service.ts`\n- `src/repository.ts`\n- `src/routes.ts`\n- `src/types.ts`\n- `src/validation.ts`\n- `tests/service.test.ts`\n- `tests/routes.test.ts`\n- `package.json`\n- `tsconfig.json`\n\n## Usage\n```bash\nnpm run scaffold:vertical -- --name=medication-management\n```\n\n## Why Important\nFaster to create new features with consistent structure.",
+      "labels": ["dev-experience", "tooling"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Migration Template Generator",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nGenerate database migration templates with common patterns.\n\n## Templates\n- Add table\n- Add column\n- Add index\n- Add foreign key\n- Rename column\n- Drop column\n\n## Usage\n```bash\nnpm run migration:template -- --type=add-table --name=medications\n```\n\n## Why Important\nReduce boilerplate, fewer migration errors.",
+      "labels": ["dev-experience", "tooling", "backend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Improve TypeScript Strictness",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nEnable stricter TypeScript for better type safety.\n\n## Tasks\n- [ ] Enable `strict: true` in tsconfig\n- [ ] Fix all type errors\n- [ ] Enable `noImplicitAny`\n- [ ] Enable `strictNullChecks`\n- [ ] Enable `noUncheckedIndexedAccess`\n\n## Why Important\nCatch bugs at compile time, better AI code generation.",
+      "labels": ["dev-experience", "backend", "frontend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Storybook for Component Development",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nAdd Storybook for isolated component development.\n\n## Benefits\n- Develop components in isolation\n- Visual regression testing\n- Living documentation\n- Easier QA review\n\n## Tasks\n- [ ] Install Storybook\n- [ ] Add stories for shared-components\n- [ ] Add stories for common patterns\n- [ ] Integrate with CI\n\n## Why Important\nFaster iteration on UI components.",
+      "labels": ["dev-experience", "frontend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add API Client Code Generation from OpenAPI",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nGenerate TypeScript API clients from OpenAPI spec.\n\n## Tasks\n- [ ] Generate OpenAPI spec from Express routes\n- [ ] Use openapi-generator for client code\n- [ ] Auto-update on API changes\n- [ ] Include in build pipeline\n\n## Why Important\nType-safe API calls, no manual client updates.",
+      "labels": ["dev-experience", "backend", "frontend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Pre-commit Hooks with Husky",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nEnforce code quality with pre-commit hooks.\n\n## Hooks\n- [ ] Lint staged files\n- [ ] Type check\n- [ ] Run affected tests\n- [ ] Check for secrets\n- [ ] Format with Prettier\n\n## Why Important\nCatch issues before CI, faster feedback.",
+      "labels": ["dev-experience", "tooling"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Automated Dependency Updates with Renovate",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nAutomate dependency updates with Renovate bot.\n\n## Configuration\n- Auto-merge patch updates\n- Group minor updates weekly\n- Manual review for major updates\n- Separate PR for security fixes\n\n## Why Important\nStay current without manual effort.",
+      "labels": ["dev-experience", "maintenance"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Improve Test Coverage to 80%",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nIncrease test coverage to 80% across codebase.\n\n## Current Coverage\n- Backend: ~40%\n- Frontend: ~20%\n\n## Focus Areas\n- Service layer (high value)\n- API routes\n- Critical business logic\n- Validation schemas\n\n## Why Important\nConfidence in refactoring, catch regressions.",
+      "labels": ["testing", "backend", "frontend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Visual Regression Testing with Percy or Chromatic",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nCatch UI regressions with visual testing.\n\n## Tools\n- Percy (free for open source)\n- Chromatic (free for open source)\n\n## Coverage\n- Showcase personas\n- Key workflows\n- Responsive breakpoints\n\n## Why Important\nCatch visual bugs before production.",
+      "labels": ["testing", "frontend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Implement CSRF Protection",
+      "body": "## Priority: P4 - Security\n\n## Description\nAdd CSRF tokens to all state-changing requests.\n\n## Implementation\n- Use `csurf` middleware or similar\n- Include token in forms\n- Validate on backend\n- Handle token expiration\n\n## Why Important\nPrevent cross-site request forgery attacks.",
+      "labels": ["security", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Add Rate Limiting to API Endpoints",
+      "body": "## Priority: P4 - Security\n\n## Description\nImplement rate limiting to prevent abuse.\n\n## Current State\n- Redis/Upstash available\n- No rate limiting implemented\n\n## Limits\n- Auth endpoints: 5 req/min\n- API endpoints: 100 req/min per user\n- Public endpoints: 20 req/min per IP\n\n## Why Important\nPrevent brute force attacks and API abuse.",
+      "labels": ["security", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Implement Content Security Policy (CSP)",
+      "body": "## Priority: P4 - Security\n\n## Description\nAdd CSP headers to prevent XSS attacks.\n\n## Tasks\n- [ ] Define CSP policy\n- [ ] Add CSP headers\n- [ ] Test in production\n- [ ] Monitor CSP violations\n\n## Why Important\nDefense-in-depth against XSS.",
+      "labels": ["security", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Add Security Headers (HSTS, X-Frame-Options, etc.)",
+      "body": "## Priority: P4 - Security\n\n## Description\nImplement security headers per OWASP recommendations.\n\n## Headers\n- `Strict-Transport-Security`\n- `X-Frame-Options`\n- `X-Content-Type-Options`\n- `Referrer-Policy`\n- `Permissions-Policy`\n\n## Implementation\n- Use `helmet` middleware\n\n## Why Important\nBasic security hygiene.",
+      "labels": ["security", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Implement 2FA for Admin Users",
+      "body": "## Priority: P4 - Security\n\n## Description\nAdd two-factor authentication for admin accounts.\n\n## Implementation\n- TOTP (Google Authenticator, Authy)\n- Backup codes\n- Optional for non-admin users\n- Required for admin users\n\n## Why Important\nProtect high-privilege accounts.",
+      "labels": ["security", "backend", "frontend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Add Database Query Optimization",
+      "body": "## Priority: P4 - Performance\n\n## Description\nOptimize slow database queries.\n\n## Tasks\n- [ ] Enable query logging\n- [ ] Identify slow queries (>100ms)\n- [ ] Add missing indexes\n- [ ] Optimize N+1 queries\n- [ ] Add query caching where appropriate\n\n## Why Important\nFaster page loads, better user experience.",
+      "labels": ["performance", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Implement API Response Caching",
+      "body": "## Priority: P4 - Performance\n\n## Description\nCache frequently-accessed API responses.\n\n## Candidates\n- Client list (5 min TTL)\n- Caregiver list (5 min TTL)\n- Dashboard stats (1 min TTL)\n- Care plans (10 min TTL)\n\n## Implementation\n- Use Redis/Upstash\n- Cache-Control headers\n- Invalidate on updates\n\n## Why Important\nReduce database load, faster responses.",
+      "labels": ["performance", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Add Frontend Bundle Size Analysis",
+      "body": "## Priority: P4 - Performance\n\n## Description\nAnalyze and reduce frontend bundle size.\n\n## Tasks\n- [ ] Add webpack-bundle-analyzer\n- [ ] Identify large dependencies\n- [ ] Code split by route\n- [ ] Lazy load heavy components\n- [ ] Remove unused dependencies\n\n## Target\n- Initial bundle: <200KB gzipped\n- Time to interactive: <3s on 3G\n\n## Why Important\nFaster page loads on slow connections.",
+      "labels": ["performance", "frontend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Implement Image Optimization",
+      "body": "## Priority: P4 - Performance\n\n## Description\nOptimize images for faster loading.\n\n## Tasks\n- [ ] Convert to WebP\n- [ ] Lazy load images\n- [ ] Responsive images (srcset)\n- [ ] Image CDN (Cloudinary free tier)\n- [ ] Compression\n\n## Why Important\nImages are usually largest payload.",
+      "labels": ["performance", "frontend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Add Database Connection Pooling Optimization",
+      "body": "## Priority: P4 - Performance\n\n## Description\nOptimize database connection pool settings.\n\n## Tasks\n- [ ] Review current pool size\n- [ ] Monitor connection usage\n- [ ] Adjust min/max connections\n- [ ] Add connection timeout handling\n- [ ] Monitor connection leaks\n\n## Why Important\nPrevent connection exhaustion under load.",
+      "labels": ["performance", "backend"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Add Error Tracking with Sentry",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nImplement error tracking with Sentry (free for open source).\n\n## Tasks\n- [ ] Create Sentry account\n- [ ] Install SDK (frontend + backend)\n- [ ] Configure source maps\n- [ ] Set up alerts\n- [ ] Add custom error context\n\n## Why Important\nCatch errors before users report them.\n\n## Free Tier\nSentry offers free tier for open source projects.",
+      "labels": ["monitoring", "backend", "frontend"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Add APM with New Relic or Datadog",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nApplication performance monitoring.\n\n## Metrics\n- Request latency\n- Throughput\n- Error rates\n- Database query performance\n- Memory/CPU usage\n\n## Tools\n- New Relic (free for open source)\n- Datadog (free tier)\n\n## Why Important\nIdentify performance bottlenecks.",
+      "labels": ["monitoring", "backend"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Add Uptime Monitoring with UptimeRobot",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nMonitor production uptime.\n\n## Tasks\n- [ ] Set up UptimeRobot (free)\n- [ ] Monitor folk.care\n- [ ] Monitor API endpoints\n- [ ] Alert on downtime (email/Slack)\n- [ ] Public status page\n\n## Why Important\nKnow when production is down.",
+      "labels": ["monitoring", "devops"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Add Real User Monitoring (RUM)",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nTrack real user performance metrics.\n\n## Metrics\n- Core Web Vitals (LCP, FID, CLS)\n- Page load times\n- Time to interactive\n- Navigation timing\n\n## Tools\n- Google Analytics (free)\n- Vercel Analytics (free tier)\n\n## Why Important\nUnderstand real-world performance.",
+      "labels": ["monitoring", "frontend"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Add Log Aggregation with BetterStack",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nCentralize logs from all services.\n\n## Tasks\n- [ ] Set up BetterStack (free tier)\n- [ ] Forward Vercel logs\n- [ ] Forward application logs\n- [ ] Set up log-based alerts\n- [ ] Create log dashboards\n\n## Why Important\nDebug production issues faster.",
+      "labels": ["monitoring", "devops"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Create Custom Metrics Dashboard",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nBuild internal dashboard for key metrics.\n\n## Metrics\n- Active users\n- Visits created/completed\n- EVV compliance rate\n- API response times\n- Error rates\n- Database query performance\n\n## Implementation\n- Grafana (free, self-hosted)\n- Metabase (free, self-hosted)\n\n## Why Important\nAt-a-glance system health.",
+      "labels": ["monitoring", "backend"]
+    },
+    {
+      "priority": "P6",
+      "title": "DevOps: Add Docker Compose for Local Development",
+      "body": "## Priority: P6 - DevOps\n\n## Description\nImprove docker-compose.yml for complete local stack.\n\n## Current State\n- PostgreSQL ✅\n- Redis ✅\n\n## Add\n- [ ] Adminer (database UI)\n- [ ] Redis Commander (Redis UI)\n- [ ] Mailhog (email testing)\n- [ ] LocalStack (AWS services)\n\n## Why Important\nEasier onboarding for contributors.",
+      "labels": ["devops", "dev-experience"]
+    },
+    {
+      "priority": "P6",
+      "title": "DevOps: Add Kubernetes Deployment Manifests",
+      "body": "## Priority: P6 - DevOps\n\n## Description\nCreate k8s manifests for self-hosting.\n\n## Files\n- Deployment\n- Service\n- Ingress\n- ConfigMap\n- Secret\n- HPA (autoscaling)\n\n## Why Important\nEnable self-hosting on Kubernetes.",
+      "labels": ["devops", "infrastructure"]
+    },
+    {
+      "priority": "P6",
+      "title": "DevOps: Add Terraform for Infrastructure as Code",
+      "body": "## Priority: P6 - DevOps\n\n## Description\nDefine infrastructure in Terraform.\n\n## Resources\n- Vercel project\n- Neon database\n- Upstash Redis\n- DNS records\n- Environment variables\n\n## Why Important\nReproducible infrastructure.",
+      "labels": ["devops", "infrastructure"]
+    },
+    {
+      "priority": "P6",
+      "title": "DevOps: Add GitHub Actions for Automated Releases",
+      "body": "## Priority: P6 - DevOps\n\n## Description\nAutomate release process with semantic versioning.\n\n## Tasks\n- [ ] Conventional commits\n- [ ] Automated changelog\n- [ ] GitHub releases\n- [ ] Git tags\n- [ ] npm package publishing\n\n## Why Important\nStreamlined release process.",
+      "labels": ["devops", "automation"]
+    },
+    {
+      "priority": "P6",
+      "title": "DevOps: Add Database Migration Testing in CI",
+      "body": "## Priority: P6 - DevOps\n\n## Description\nTest migrations in CI before production.\n\n## Tasks\n- [ ] Spin up test database\n- [ ] Run all migrations\n- [ ] Run rollback tests\n- [ ] Verify schema\n- [ ] Test with seed data\n\n## Why Important\nCatch migration issues early.",
+      "labels": ["devops", "backend", "testing"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add CodeCov for Test Coverage Reporting",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nTrack test coverage with CodeCov (free for open source).\n\n## Tasks\n- [ ] Sign up for CodeCov\n- [ ] Add to GitHub Actions\n- [ ] Add badge to README\n- [ ] Set coverage thresholds\n- [ ] PR comments with coverage diff\n\n## Why Important\nVisibility into test coverage trends.",
+      "labels": ["testing", "tooling"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add Dependabot for Security Updates",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nAutomate security updates with Dependabot (free).\n\n## Configuration\n- Daily security updates\n- Weekly dependency updates\n- Auto-merge patch updates\n- Group minor updates\n\n## Why Important\nStay secure without manual effort.",
+      "labels": ["security", "maintenance"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add Snyk for Vulnerability Scanning",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nScan for vulnerabilities with Snyk (free for open source).\n\n## Features\n- Dependency vulnerability scanning\n- License compliance checking\n- Fix PRs for known vulnerabilities\n- Container scanning\n\n## Why Important\nProactive security monitoring.",
+      "labels": ["security", "tooling"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add Vercel Analytics and Web Vitals",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nEnable Vercel Analytics (free tier).\n\n## Metrics\n- Page views\n- Unique visitors\n- Core Web Vitals\n- Referrers\n- Geographic distribution\n\n## Why Important\nUnderstand user behavior.",
+      "labels": ["monitoring", "frontend"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add Cloudflare for CDN and DDoS Protection",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nUse Cloudflare free tier for folk.care.\n\n## Features\n- CDN (faster asset delivery)\n- DDoS protection\n- SSL/TLS\n- Page rules\n- Analytics\n\n## Why Important\nBetter performance and security.",
+      "labels": ["performance", "security", "devops"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add GitHub Sponsors for Sustainability",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nSet up GitHub Sponsors for donations.\n\n## Tiers\n- $5/month - Supporter\n- $25/month - Sustainer\n- $100/month - Sponsor\n- $500/month - Partner\n\n## Benefits\n- Name in README\n- Monthly thank-you\n- Early feature access\n\n## Why Important\nFunding for infrastructure and development.",
+      "labels": ["HUMAN", "marketing"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add Open Collective for Transparent Finances",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nUse Open Collective for transparent financial management.\n\n## Features\n- Transparent budget\n- Expense reimbursement\n- Multiple funding sources\n- Tax-deductible donations (via fiscal host)\n\n## Why Important\nCommunity trust through transparency.",
+      "labels": ["HUMAN", "marketing"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add All Contributors Bot",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nRecognize all contributors (code, docs, design, etc.).\n\n## Implementation\n- Install All Contributors bot\n- Update README with contributors\n- Recognize non-code contributions\n- Automated updates\n\n## Why Important\nRecognize and encourage contributions.",
+      "labels": ["documentation", "community"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Visit Notes Templates",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nPre-defined templates for common visit note types.\n\n## Templates\n- Personal care\n- Medication administration\n- Meal preparation\n- Companionship\n- Transportation\n- Light housekeeping\n\n## Features\n- [ ] Quick select template\n- [ ] Customizable fields\n- [ ] Auto-fill from care plan\n- [ ] Save as new template\n\n## Why Important\nFaster documentation for caregivers.",
+      "labels": ["enhancement", "mobile", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Medication Administration Record (MAR)",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nTrack medication administration during visits.\n\n## Features\n- [ ] Medication list from care plan\n- [ ] Check off administered meds\n- [ ] Mark missed/refused\n- [ ] Photo of pill bottle\n- [ ] Timestamp and signature\n- [ ] MAR export for compliance\n\n## Why Important\nCritical for medication management clients.",
+      "labels": ["enhancement", "mobile", "compliance"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Incident Reporting Workflow",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nStructured incident reporting from mobile app.\n\n## Types\n- Fall\n- Injury\n- Medication error\n- Behavioral issue\n- Equipment failure\n- Other\n\n## Workflow\n- [ ] Caregiver submits from mobile\n- [ ] Coordinator receives alert\n- [ ] Follow-up required checkbox\n- [ ] Document resolution\n- [ ] Report to family (optional)\n\n## Why Important\nCompliance requirement, family communication.",
+      "labels": ["enhancement", "mobile", "compliance"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Timesheet Approval Workflow",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nCoordinator approval of caregiver timesheets.\n\n## Features\n- [ ] Weekly timesheet summary\n- [ ] Highlight discrepancies\n- [ ] Approve/reject with notes\n- [ ] Batch approval\n- [ ] Export for payroll\n\n## Why Important\nAccurate payroll processing.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Client Intake Wizard",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nGuided workflow for new client onboarding.\n\n## Steps\n1. Basic information\n2. Medical history\n3. Emergency contacts\n4. Insurance/payment\n5. Service authorization\n6. Care plan creation\n7. Initial caregiver assignment\n\n## Features\n- [ ] Progress indicator\n- [ ] Save draft and resume\n- [ ] Validation at each step\n- [ ] Document upload\n- [ ] E-signature\n\n## Why Important\nStreamline onboarding, ensure completeness.",
+      "labels": ["enhancement", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Caregiver Onboarding Checklist",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nTrack caregiver onboarding tasks.\n\n## Checklist\n- [ ] Background check complete\n- [ ] References verified\n- [ ] Certifications uploaded\n- [ ] Training completed\n- [ ] Orientation scheduled\n- [ ] Tax forms (W4, I9)\n- [ ] Direct deposit setup\n- [ ] Mobile app access\n\n## Features\n- Status tracking\n- Email reminders\n- Document storage\n- Completion report\n\n## Why Important\nCompliance, faster time-to-first-shift.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Schedule Conflict Detection",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nAutomatically detect scheduling conflicts.\n\n## Conflicts\n- Caregiver double-booked\n- Overlapping shifts\n- No travel time between visits\n- Shift exceeds max hours/week\n- Missing required certification\n\n## Alerts\n- Visual warning in calendar\n- Block save until resolved\n- Suggest alternatives\n\n## Why Important\nPrevent scheduling errors.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Time-Off Request Management",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nCaregivers request time off, coordinators approve.\n\n## Features\n- [ ] Caregiver submits request\n- [ ] Coordinator approves/denies\n- [ ] Check impact on scheduled shifts\n- [ ] Auto-notification to find replacement\n- [ ] PTO balance tracking\n\n## Why Important\nManage caregiver availability.",
+      "labels": ["enhancement", "mobile", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Mileage Tracking for Caregivers",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nTrack caregiver mileage for reimbursement.\n\n## Features\n- [ ] Auto-calculate from GPS coordinates\n- [ ] Manual entry option\n- [ ] IRS mileage rate\n- [ ] Export for reimbursement\n- [ ] Attach to visits\n\n## Why Important\nCommon caregiver benefit.",
+      "labels": ["enhancement", "mobile"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: SMS Notifications for Shift Reminders",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nSend SMS reminders to caregivers.\n\n## Use Cases\n- Shift starting in 1 hour\n- Schedule changes\n- Missed clock-in\n- Urgent coordinator message\n\n## Implementation\n- Twilio (pay-as-you-go)\n- Opt-in required\n- Rate limiting\n\n## Why Important\nReduce no-shows, better communication.",
+      "labels": ["enhancement", "backend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Care Plan Goal Tracking",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nTrack progress toward care plan goals.\n\n## Features\n- [ ] Define measurable goals\n- [ ] Track progress over time\n- [ ] Caregiver updates during visit\n- [ ] Visual progress charts\n- [ ] Quarterly reviews\n\n## Examples\n- \"Increase mobility by 20%\"\n- \"Reduce medication errors to zero\"\n- \"Maintain healthy weight\"\n\n## Why Important\nDemonstrate care effectiveness.",
+      "labels": ["enhancement", "frontend", "mobile"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add E2E Test Suite with Playwright",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nExpand E2E testing with Playwright.\n\n## Critical Flows\n- Login (all roles)\n- Create client\n- Create caregiver\n- Schedule visit\n- Clock in/out (mobile)\n- Generate invoice\n\n## CI Integration\n- Run on every PR\n- Record videos on failure\n- Parallel execution\n\n## Why Important\nCatch regressions in critical flows.",
+      "labels": ["testing", "frontend", "mobile"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Database Seeding for Different States",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nSeed data for multiple states to test compliance.\n\n## States\n- Texas (current)\n- Florida\n- Ohio\n- California\n- New York\n\n## Why Important\nTest state-specific compliance rules.",
+      "labels": ["dev-experience", "backend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add GraphQL API Layer (Optional)",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nConsider GraphQL for flexible data fetching.\n\n## Benefits\n- Reduce over-fetching\n- Single endpoint\n- Type safety\n- Better developer experience\n\n## Considerations\n- Additional complexity\n- Caching strategies\n- Learning curve\n\n## Why Important\nMay improve frontend development speed.",
+      "labels": ["dev-experience", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Optimize Mobile App Bundle Size",
+      "body": "## Priority: P4 - Performance\n\n## Description\nReduce React Native app size.\n\n## Tasks\n- [ ] Remove unused dependencies\n- [ ] Enable Hermes (if not already)\n- [ ] Optimize assets\n- [ ] Use ProGuard (Android)\n- [ ] App thinning (iOS)\n\n## Target\n- Android: <30MB\n- iOS: <25MB\n\n## Why Important\nFaster downloads, better for low-storage devices.",
+      "labels": ["performance", "mobile"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Add Session Management Improvements",
+      "body": "## Priority: P4 - Security\n\n## Description\nImprove session security.\n\n## Features\n- [ ] Session timeout (30 min idle)\n- [ ] Concurrent session limits\n- [ ] Logout from all devices\n- [ ] Session activity log\n- [ ] Suspicious activity detection\n\n## Why Important\nPrevent session hijacking.",
+      "labels": ["security", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Add API Input Validation with Zod",
+      "body": "## Priority: P4 - Security\n\n## Description\nStrict input validation on all API endpoints.\n\n## Current State\n- Some endpoints have validation\n- Not comprehensive\n\n## Tasks\n- [ ] Audit all endpoints\n- [ ] Add Zod schemas for all inputs\n- [ ] Sanitize string inputs\n- [ ] Validate business logic constraints\n\n## Why Important\nPrevent injection attacks, data corruption.",
+      "labels": ["security", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Add Database Read Replicas",
+      "body": "## Priority: P4 - Performance\n\n## Description\nUse read replicas for reporting and analytics.\n\n## Implementation\n- Neon supports read replicas\n- Route SELECT queries to replica\n- Route write queries to primary\n\n## Why Important\nReduce load on primary database.",
+      "labels": ["performance", "backend"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Add Custom Health Check Endpoint",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nComprehensive health check for monitoring.\n\n## Checks\n- Database connectivity\n- Redis connectivity\n- API responsiveness\n- Disk space\n- Memory usage\n\n## Endpoint\n`GET /health`\n\nReturns:\n```json\n{\n  \"status\": \"healthy\",\n  \"checks\": {\n    \"database\": \"ok\",\n    \"redis\": \"ok\",\n    \"api\": \"ok\"\n  }\n}\n```\n\n## Why Important\nDetailed system status for monitoring tools.",
+      "labels": ["monitoring", "backend"]
+    },
+    {
+      "priority": "P5",
+      "title": "Monitoring: Add Performance Budget for Frontend",
+      "body": "## Priority: P5 - Monitoring\n\n## Description\nSet and enforce performance budgets.\n\n## Budgets\n- Bundle size: <200KB gzipped\n- Time to interactive: <3s\n- Largest Contentful Paint: <2.5s\n- First Input Delay: <100ms\n- Cumulative Layout Shift: <0.1\n\n## Enforcement\n- Fail CI if budget exceeded\n- Report in PR comments\n\n## Why Important\nPrevent performance regressions.",
+      "labels": ["monitoring", "frontend", "performance"]
+    },
+    {
+      "priority": "P6",
+      "title": "DevOps: Add Blue-Green Deployment Strategy",
+      "body": "## Priority: P6 - DevOps\n\n## Description\nZero-downtime deployments with blue-green.\n\n## Implementation\n- Vercel preview deployments\n- Promote to production after validation\n- Instant rollback capability\n\n## Why Important\nReduce deployment risk.",
+      "labels": ["devops"]
+    },
+    {
+      "priority": "P6",
+      "title": "DevOps: Add Database Backup Verification Automation",
+      "body": "## Priority: P6 - DevOps\n\n## Description\nAutomatically verify backups are restorable.\n\n## Process\n1. Create test database\n2. Restore from latest backup\n3. Run validation queries\n4. Cleanup test database\n5. Alert if verification fails\n\n## Schedule\n- Weekly verification\n\n## Why Important\nBackups are useless if they can't be restored.",
+      "labels": ["devops", "backend", "compliance"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add Fathom Analytics for Privacy-Friendly Tracking",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nUse Fathom Analytics (privacy-friendly, GDPR compliant).\n\n## Benefits\n- No cookies\n- No GDPR consent needed\n- Simple, fast\n- Open source friendly\n\n## Cost\n- Free tier available\n- Or self-host (open source)\n\n## Why Important\nUnderstand usage without tracking users.",
+      "labels": ["monitoring", "frontend"]
+    },
+    {
+      "priority": "P7",
+      "title": "Free OSS: Add Plausible Analytics as Alternative",
+      "body": "## Priority: P7 - Free OSS Services\n\n## Description\nPlausible Analytics (privacy-friendly, lightweight).\n\n## Benefits\n- Open source\n- Self-hostable\n- No cookies\n- GDPR compliant\n- Very lightweight (<1KB script)\n\n## Why Important\nPrivacy-focused analytics.",
+      "labels": ["monitoring", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Billing - Invoice Generation from Completed Visits",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nAutomate invoice creation from completed visits.\n\n## Features\n- [ ] Select date range\n- [ ] Filter by client/payer\n- [ ] Review visit summary\n- [ ] Apply rates from service authorization\n- [ ] Generate PDF invoice\n- [ ] Send via email\n- [ ] Track payment status\n\n## Why Important\nStreamline billing process.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Payment Processing and Tracking",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nTrack payments against invoices.\n\n## Features\n- [ ] Record payment received\n- [ ] Payment method (check, ACH, credit card)\n- [ ] Apply to specific invoices\n- [ ] Track partial payments\n- [ ] Aging report (30/60/90 days)\n- [ ] Send payment reminders\n\n## Why Important\nCash flow management.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Reporting - Customizable Report Builder",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nBuild custom reports without code.\n\n## Features\n- [ ] Drag-and-drop fields\n- [ ] Filter and group\n- [ ] Save report templates\n- [ ] Schedule email delivery\n- [ ] Export to Excel/PDF\n\n## Common Reports\n- Caregiver hours by client\n- Visit compliance by state\n- Revenue by service type\n- Client satisfaction scores\n\n## Why Important\nAgencies need flexible reporting.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Document Management with Version Control",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nStore and version client/caregiver documents.\n\n## Features\n- [ ] Upload documents\n- [ ] Categorize (insurance, certification, etc.)\n- [ ] Version history\n- [ ] Expiration tracking\n- [ ] Alert on expiring docs\n- [ ] E-signature integration\n\n## Why Important\nCompliance requirement.",
+      "labels": ["enhancement", "backend", "frontend"]
+    },
+    {
+      "priority": "P2",
+      "title": "Feature: Multi-Language Support (Spanish, Vietnamese, Chinese)",
+      "body": "## Priority: P2 - User-Visible Features\n\n## Description\nSupport common languages in home care.\n\n## Languages (Phase 1)\n- English (default)\n- Spanish (high priority)\n- Vietnamese\n- Simplified Chinese\n\n## Implementation\n- i18next for React\n- Backend message catalogs\n- RTL support (if needed)\n\n## Why Important\nLarge non-English speaking caregiver population.",
+      "labels": ["enhancement", "frontend", "mobile"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Code Generation from Database Schema",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nGenerate TypeScript types from database schema.\n\n## Tools\n- kysely-codegen\n- Or custom script\n\n## Benefits\n- Always in sync\n- Type-safe queries\n- No manual updates\n\n## Why Important\nReduce type definition maintenance.",
+      "labels": ["dev-experience", "backend"]
+    },
+    {
+      "priority": "P3",
+      "title": "Dev Velocity: Add Automated API Documentation with Swagger UI",
+      "body": "## Priority: P3 - Dev Velocity\n\n## Description\nGenerate interactive API docs from code.\n\n## Implementation\n- Use JSDoc comments\n- Generate OpenAPI spec\n- Serve Swagger UI at `/api/docs`\n\n## Why Important\nEasier for contributors to understand API.",
+      "labels": ["documentation", "backend"]
+    },
+    {
+      "priority": "P4",
+      "title": "Security: Add Secrets Scanning in CI",
+      "body": "## Priority: P4 - Security\n\n## Description\nPrevent secrets from being committed.\n\n## Tools\n- Gitleaks (free)\n- TruffleHog (free)\n\n## Integration\n- Pre-commit hook\n- CI check\n- Block merge if secrets found\n\n## Why Important\nPrevent credential leaks.",
+      "labels": ["security", "devops"]
+    },
+    {
+      "priority": "P4",
+      "title": "Performance: Add Service Worker for Offline Functionality",
+      "body": "## Priority: P4 - Performance\n\n## Description\nEnable offline access to web app.\n\n## Features\n- Cache static assets\n- Cache API responses\n- Offline fallback page\n- Background sync\n\n## Why Important\nSame benefit as mobile offline-first.",
+      "labels": ["performance", "frontend"]
+    }
+  ]
+}

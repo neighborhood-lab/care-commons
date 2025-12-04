@@ -76,6 +76,16 @@ export const configureCsrfProtection = (app: Express): void => {
       return next();
     }
 
+    // Skip CSRF for public signup routes (no existing session)
+    if (req.path === '/signup' || req.path === '/organizations/register') {
+      return next();
+    }
+
+    // Skip CSRF for invitation acceptance (public route with token)
+    if (req.path === '/invitations/accept') {
+      return next();
+    }
+
     // Verify CSRF token
     // eslint-disable-next-line security/detect-object-injection
     const headerValue = req.headers[CSRF_HEADER_NAME];

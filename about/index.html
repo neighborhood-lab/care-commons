@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folk Care - Shared care software, community owned</title>
+  <meta name="description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/images/logo-1.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://about.folk.care/">
+  <meta property="og:title" content="Folk Care - Shared care software, community owned">
+  <meta property="og:description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
+  <meta property="og:image" content="https://about.folk.care/images/header-1.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://about.folk.care/">
+  <meta property="twitter:title" content="Folk Care - Shared care software, community owned">
+  <meta property="twitter:description" content="Open-source home care management software. Complete platform for care coordination, scheduling, compliance, and family engagement.">
+  <meta property="twitter:image" content="https://about.folk.care/images/header-1.png">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #2d3748;
+      background: #fdfcfb;
+    }
+
+    .nav {
+      background: linear-gradient(to bottom, rgba(253, 252, 251, 0.98), rgba(253, 252, 251, 0.95));
+      padding: 1rem 2rem;
+      border-bottom: 1px solid rgba(193, 122, 111, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(193, 122, 111, 0.15);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #4a5568;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #C17A6F;
+    }
+
+    .nav-links .nav-button {
+      background: linear-gradient(135deg, #C17A6F 0%, #D98B7A 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(193, 122, 111, 0.25);
+    }
+
+    .nav-links .nav-button:hover {
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(193, 122, 111, 0.35);
+    }
+
+    .header {
+      background: url('/images/background-1.png') center/cover;
+      color: #2d3748;
+      padding: 6rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid rgba(193, 122, 111, 0.2);
+    }
+
+    .logo {
+      width: 160px;
+      height: 160px;
+      margin-bottom: 2rem;
+      filter: drop-shadow(0 8px 16px rgba(193, 122, 111, 0.25));
+      position: relative;
+      z-index: 1;
+      border-radius: 50%;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 0 0 4px white, 0 8px 16px rgba(193, 122, 111, 0.25);
+    }
+
+    .header h1 {
+      font-size: 3.75rem;
+      margin-bottom: 1.5rem;
+      font-weight: 800;
+      position: relative;
+      z-index: 1;
+      letter-spacing: -0.02em;
+      color: #1a202c;
+      text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+      -webkit-text-stroke: 2px white;
+      paint-order: stroke fill;
+    }
+
+    .header p {
+      font-size: 1.85rem;
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #2d3748;
+      -webkit-text-stroke: 2px white;
+      paint-order: stroke fill;
+      text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8), 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-section {
+      padding: 0;
+      margin: 4rem 0;
+    }
+
+    .hero-image {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      overflow: hidden;
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(193, 122, 111, 0.2);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .section {
+      padding: 5rem 0;
+    }
+
+    .why-section {
+      background: linear-gradient(135deg,
+        rgba(127, 160, 137, 0.08) 0%,
+        rgba(232, 220, 200, 0.12) 50%,
+        rgba(127, 160, 137, 0.08) 100%);
+      padding: 5rem 2rem;
+      margin: 3rem 0;
+      border-radius: 0;
+      border-top: 2px solid rgba(127, 160, 137, 0.2);
+      border-bottom: 2px solid rgba(127, 160, 137, 0.2);
+    }
+
+    .section h2 {
+      font-size: 2.75rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      background: linear-gradient(135deg, #C17A6F 0%, #D98B7A 50%, #7FA089 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .section-intro {
+      text-align: center;
+      font-size: 1.3rem;
+      color: #718096;
+      max-width: 800px;
+      margin: 0 auto 4rem;
+      line-height: 1.8;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .feature {
+      background: linear-gradient(135deg, #ffffff 0%, rgba(232, 220, 200, 0.15) 100%);
+      padding: 2.5rem;
+      border-radius: 16px;
+      border: 2px solid rgba(193, 122, 111, 0.15);
+      box-shadow: 0 4px 12px rgba(193, 122, 111, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(180deg, #C17A6F 0%, #D98B7A 50%, #7FA089 100%);
+    }
+
+    .feature:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 35px rgba(193, 122, 111, 0.2);
+      border-color: rgba(193, 122, 111, 0.3);
+    }
+
+    .feature h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #2d3748;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .feature p {
+      color: #4a5568;
+      line-height: 1.8;
+      font-size: 1.05rem;
+    }
+
+    .cta {
+      background: linear-gradient(135deg,
+        rgba(193, 122, 111, 0.95) 0%,
+        rgba(217, 139, 122, 0.95) 50%,
+        rgba(127, 160, 137, 0.95) 100%);
+      color: white;
+      padding: 5rem 2rem;
+      text-align: center;
+      margin-top: 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .cta h2 {
+      color: white;
+      margin-bottom: 1rem;
+      font-size: 2.75rem;
+      position: relative;
+      z-index: 1;
+      -webkit-text-fill-color: white;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta p {
+      position: relative;
+      z-index: 1;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 1.25rem 2.5rem;
+      background: white;
+      color: #C17A6F;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      margin: 0.75rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 1;
+      font-size: 1.05rem;
+    }
+
+    .button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+      color: #C17A6F;
+    }
+
+    .button-secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    .button-secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: white;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    .footer {
+      background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+      color: #cbd5e1;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #D98B7A;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer a:hover {
+      color: #E8A896;
+    }
+
+    .footer p {
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 1rem;
+      }
+
+      .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .nav-logo {
+        width: 40px;
+        height: 40px;
+      }
+
+      .header {
+        padding: 4rem 1.5rem;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+      }
+
+      .header p {
+        font-size: 1.35rem;
+      }
+
+      .logo {
+        width: 120px;
+        height: 120px;
+      }
+
+      .section h2 {
+        font-size: 2rem;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .feature {
+        padding: 2rem;
+      }
+
+      .button {
+        display: block;
+        margin: 0.75rem auto;
+        max-width: 300px;
+      }
+
+      .hero-image {
+        padding: 0 1rem;
+      }
+
+      .hero-image img {
+        border-radius: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="https://about.folk.care" style="display: flex; align-items: center; text-decoration: none;">
+        <img src="/images/logo-1.png" alt="Folk Care Logo" class="nav-logo">
+      </a>
+      <div class="nav-links">
+        <a href="https://showcase.folk.care">Demo</a>
+        <a href="https://github.com/neighborhood-lab/folk-care">GitHub</a>
+        <a href="https://discord.gg/EkeXQZFq">Discord</a>
+        <a href="https://neighborhoodlab.substack.com/">Blog</a>
+        <a href="https://www.patreon.com/cw/neighborhood_lab">Patreon</a>
+        <a href="https://folk.care" class="nav-button">Launch Platform</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="header">
+    <img src="/images/logo-1.png" alt="Folk Care Logo" class="logo">
+    <h1>Folk Care</h1>
+    <p>Shared care software, community owned</p>
+  </header>
+
+  <div class="container">
+    <section class="section">
+      <h2>Complete Home Care Management Platform</h2>
+      <p class="section-intro">
+        Open-source software for care agencies, families, and communities. Built for transparency, compliance, and better care outcomes.
+      </p>
+
+      <div class="features">
+        <div class="feature">
+          <h3>Scheduling & Visits</h3>
+          <p>Intelligent scheduling with caregiver matching, automated recurring visits, and real-time availability tracking.</p>
+        </div>
+
+        <div class="feature">
+          <h3>EVV Compliance</h3>
+          <p>Built-in Electronic Visit Verification with GPS, mobile clock-in/out, and state-specific compliance (TX, FL, OH, CA, NY).</p>
+        </div>
+
+        <div class="feature">
+          <h3>Care Coordination</h3>
+          <p>Centralized client profiles, care plans, medication tracking, and task management for coordinated care delivery.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Family Engagement</h3>
+          <p>Family portal for updates, secure messaging, visit notes, and care plan access. Real-time transparency.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Billing & Invoicing</h3>
+          <p>Automated invoice generation from completed visits, insurance billing, payment tracking, and financial reporting.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Reporting & Analytics</h3>
+          <p>Compliance dashboards, caregiver performance metrics, client outcomes, and customizable reports.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="hero-section">
+      <div class="hero-image">
+        <img src="/images/header-1.png" alt="Folk Care - Caring for your community">
+      </div>
+    </div>
+
+    <section class="section why-section">
+      <h2>Why Folk Care?</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>Open Source</h3>
+          <p>Fully open-source under AGPL-3.0 license. No vendor lock-in. Community-driven development.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Compliance First</h3>
+          <p>Built for state regulations, Medicaid billing, and home care industry standards. EVV compliant out of the box.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Mobile First</h3>
+          <p>Native mobile apps for caregivers with offline support, GPS tracking, and digital signatures.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Privacy & Security</h3>
+          <p>HIPAA-ready architecture, encrypted data, audit logs, and fine-grained permissions.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Modern Stack</h3>
+          <p>TypeScript, React, PostgreSQL. Cloud-native with Vercel deployment. Battle-tested technologies.</p>
+        </div>
+
+        <div class="feature">
+          <h3>Community Owned</h3>
+          <p>By Neighborhood Lab - building software that serves communities, not shareholders.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="cta">
+    <div class="container">
+      <h2>Get Started</h2>
+      <p style="font-size: 1.2rem; margin-bottom: 2rem;">Try the demo, explore the code, or deploy your own instance.</p>
+      <a href="https://showcase.folk.care" class="button">Try Interactive Demo</a>
+      <a href="https://folk.care" class="button">Live Platform</a>
+      <a href="https://github.com/neighborhood-lab/folk-care" class="button button-secondary">View on GitHub</a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Neighborhood Lab. Open source under AGPL-3.0 License.</p>
+    <p style="margin-top: 1rem;">
+      <a href="https://github.com/neighborhood-lab/folk-care">GitHub</a> •
+      <a href="https://folk.care">Platform</a> •
+      <a href="https://showcase.folk.care">Demo</a>
+    </p>
+  </footer>
+</body>
+</html>

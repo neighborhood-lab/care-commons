@@ -1,6 +1,6 @@
-# Folk
+# Folk Care
 
-> **🚀 Soft Launch: December 1, 2025**  
+> **🚀 Soft Launch: December 1, 2025**
 > **Status:** Production Ready - Open Source
 
 [![CI](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml)
@@ -10,14 +10,14 @@
 
 Open-source home healthcare management platform with state-specific Electronic Visit Verification (EVV) compliance for all 50 states.
 
-## Why Folk?
+## Why Folk Care?
 
 Home healthcare agencies face a broken software market:
 - **Expensive**: $500-2000/month for basic features
 - **Inflexible**: Doesn't handle state-specific regulations (Texas HHAeXchange, Florida background screening, etc.)
 - **Vendor lock-in**: Proprietary systems with no data ownership
 
-**Folk** is different:
+**Folk Care** is different:
 - ✅ **Free & Open Source** - MIT license, full code access
 - ✅ **State-Specific Compliance** - Automatic EVV rules for TX, FL, and all 50 states
 - ✅ **Full Data Ownership** - Self-host or use our managed service
@@ -71,7 +71,7 @@ Family: family@tx.demo / demo1234
 
 ## Vision
 
-A human-scale alternative to enterprise care management systems. Folk emphasizes:
+A human-scale alternative to enterprise care management systems. Folk Care emphasizes:
 
 - 🏡 **Human-scale workflows** - Not enterprise excess
 - 🔒 **Local autonomy** - Runs offline and on-premises if needed
@@ -81,7 +81,7 @@ A human-scale alternative to enterprise care management systems. Folk emphasizes
 
 ## Architecture
 
-Folk is structured as a set of independently deployable **verticals** that share a common core:
+Folk Care is structured as a set of independently deployable **verticals** that share a common core:
 
 - Unified domain model shared across verticals
 - Event-driven data flows for visit lifecycle
@@ -495,6 +495,8 @@ npm run db:migrate:rollback
 
 Folk supports deployment to **Vercel** with **Neon PostgreSQL** for production-ready, serverless hosting.
 
+**💰 Hosting Costs:** Starting at **$0/month** (free tier) or **$20-30/month** for small agencies. See **[Hosting Costs Documentation](./docs/HOSTING_COSTS.md)** for detailed pricing, scaling paths, and cost optimization strategies.
+
 ### Prerequisites for Cloud Deployment
 
 1. **Vercel Account** - Sign up at [vercel.com](https://vercel.com)
@@ -697,7 +699,7 @@ See [LICENSE](./LICENSE) for details.
 
 ---
 
-**Folk** is brought to you by [Neighborhood Lab](https://neighborhoodlab.org) 🏡
+**Folk Care** is brought to you by [Neighborhood Lab](https://neighborhoodlab.org) 🏡
 
 Software for the people who care.
 

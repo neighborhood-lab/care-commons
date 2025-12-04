@@ -10,8 +10,10 @@ export * from './types/caregiver.js';
 // Repository
 export { CaregiverRepository } from './repository/caregiver-repository.js';
 
-// Service
+// Services
 export { CaregiverService } from './service/caregiver-service.js';
+export { CaregiverImportService } from './service/caregiver-import-service.js';
+export type { CaregiverImportRow } from './service/caregiver-import-service.js';
 
 // Credential & Compliance Services
 export { 

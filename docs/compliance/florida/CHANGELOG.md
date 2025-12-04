@@ -228,5 +228,5 @@ Florida is large and diverse:
 
 ---
 
-**Folk** - Shared care software, community owned  
+**Folk Care** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

@@ -870,5 +870,5 @@ All PHI must be protected per HIPAA Privacy and Security Rules.
 
 ---
 
-**Folk** - Shared care software, community owned  
+**Folk Care** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

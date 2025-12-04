@@ -1141,5 +1141,5 @@ excellence, and meaningful impact.**
 
 ---
 
-**Folk** - Shared care software, community owned  
+**Folk Care** - Shared care software, community owned  
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

@@ -541,19 +541,29 @@ export interface UpdateClientInput {
 }
 
 /**
+ * Sort options for client search
+ */
+export type ClientSortField = 'name' | 'created_at' | 'last_visit_date';
+export type ClientSortOrder = 'asc' | 'desc';
+
+/**
  * Client search filters
  */
 export interface ClientSearchFilters {
-  query?: string; // Search by name, client number
+  query?: string; // Search by name, client number, address
   organizationId?: UUID;
   branchId?: UUID;
   status?: ClientStatus[];
   programId?: UUID;
+  serviceTypeId?: UUID; // Filter by service type from service_patterns
   assignedCaregiver?: UUID;
+  coordinatorId?: UUID; // Filter by assigned care coordinator
   riskType?: RiskType[];
   minAge?: number;
   maxAge?: number;
   city?: string;
   state?: string;
   hasActiveServices?: boolean;
+  sortBy?: ClientSortField;
+  sortOrder?: ClientSortOrder;
 }

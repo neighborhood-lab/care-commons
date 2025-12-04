@@ -1,7 +1,7 @@
 {
   "name": "@folkcare/time-tracking-evv",
   "version": "0.1.0",
-  "description": "Time Tracking & Electronic Visit Verification (EVV) - Accurate timing and location evidence of visits",
+  "description": "Folk Care Time Tracking & EVV - visit timing and location verification for compliance",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
