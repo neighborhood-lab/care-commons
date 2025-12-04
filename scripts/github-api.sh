@@ -24,7 +24,8 @@ Commands:
   pr-create <title> <body> <head> <base> Create a pull request
   issue-list [state]                     List issues (open/closed/all)
   pr-list [state]                        List pull requests
-  
+  workflow-runs-list [count]             List recent workflow runs (default: 5)
+
 Examples:
   # Create issue
   $0 issue-create "Fix bug" "Bug description" "bug,HUMAN"
@@ -122,6 +123,24 @@ list_prs() {
   api_call GET "/pulls?state=$state" | jq -r '.[] | "#\(.number) \(.title)"'
 }
 
+list_workflow_runs() {
+  local count="${1:-5}"
+  api_call GET "/actions/runs?per_page=$count" | jq -r '.workflow_runs[] |
+    "\(.id)\t\(.name)\t\(.status)\t\(.conclusion // "in_progress")\t\(.head_sha[0:7])\t\(.created_at)\t\(.html_url)"' |
+    while IFS=$'\t' read -r id name status conclusion sha created url; do
+      local status_icon="⏳"
+      if [ "$conclusion" = "success" ]; then
+        status_icon="✅"
+      elif [ "$conclusion" = "failure" ]; then
+        status_icon="❌"
+      elif [ "$conclusion" = "cancelled" ]; then
+        status_icon="🚫"
+      fi
+      echo "$status_icon $name ($sha) - $status/$conclusion - $created"
+      echo "   $url"
+    done
+}
+
 # Main command dispatcher
 case "${1:-}" in
   issue-create)
@@ -137,6 +156,9 @@ case "${1:-}" in
     ;;
   pr-list)
     list_prs "${2:-open}"
+    ;;
+  workflow-runs-list)
+    list_workflow_runs "${2:-5}"
     ;;
   *)
     usage
