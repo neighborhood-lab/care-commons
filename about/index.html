@@ -96,9 +96,11 @@
     }
 
     .header {
-      background: linear-gradient(135deg,
-        rgba(232, 220, 200, 0.4) 0%,
-        rgba(232, 220, 200, 0.6) 50%,
+      background: linear-gradient(to bottom,
+        rgba(253, 252, 251, 1) 0%,
+        rgba(253, 252, 251, 0.8) 15%,
+        rgba(232, 220, 200, 0.4) 30%,
+        rgba(232, 220, 200, 0.6) 70%,
         rgba(232, 220, 200, 0.4) 100%),
         url('/images/background-1.png') center/cover;
       background-blend-mode: overlay;
@@ -130,6 +132,9 @@
       position: relative;
       z-index: 1;
       border-radius: 50%;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 0 0 4px white, 0 8px 16px rgba(193, 122, 111, 0.25);
     }
 
     .header h1 {
@@ -141,6 +146,8 @@
       letter-spacing: -0.02em;
       color: #1a202c;
       text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+      -webkit-text-stroke: 2px white;
+      paint-order: stroke fill;
     }
 
     .header p {
@@ -152,6 +159,8 @@
       font-weight: 500;
       letter-spacing: -0.01em;
       color: #4a5568;
+      -webkit-text-stroke: 1.5px white;
+      paint-order: stroke fill;
     }
 
     .hero-section {
@@ -434,7 +443,7 @@
   <nav class="nav">
     <div class="nav-container">
       <a href="https://about.folk.care" style="display: flex; align-items: center; text-decoration: none;">
-        <img src="/images/logo-1.png" alt="Folk Care Logo" class="nav-logo">
+        <img src="/images/logo-2.png" alt="Folk Care Logo" class="nav-logo">
       </a>
       <div class="nav-links">
         <a href="https://showcase.folk.care">Demo</a>
@@ -452,12 +461,6 @@
     <h1>Folk Care</h1>
     <p>Shared care software, community owned</p>
   </header>
-
-  <div class="hero-section">
-    <div class="hero-image">
-      <img src="/images/header-1.png" alt="Folk Care - Caring for your community">
-    </div>
-  </div>
 
   <div class="container">
     <section class="section">
@@ -498,6 +501,12 @@
         </div>
       </div>
     </section>
+
+    <div class="hero-section">
+      <div class="hero-image">
+        <img src="/images/header-1.png" alt="Folk Care - Caring for your community">
+      </div>
+    </div>
 
     <section class="section why-section">
       <h2>Why Folk Care?</h2>
