@@ -33,10 +33,6 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel Environment Information
-        working-directory: about
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
       - name: Build About Site
         working-directory: about
         run: |
@@ -45,9 +41,8 @@ jobs:
 
       - name: Deploy to Vercel Production
         id: deploy
-        working-directory: about
         run: |
-          DEPLOYMENT_URL=$(vercel deploy dist --prod --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy about/dist --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "✅ About site deployed: $DEPLOYMENT_URL"
 
