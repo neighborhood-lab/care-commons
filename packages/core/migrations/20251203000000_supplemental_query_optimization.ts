@@ -56,34 +56,25 @@ export async function up(knex: Knex): Promise<void> {
   // CLIENTS - Enhanced Search and Filter
   // ============================================================================
 
-  // Optimize client list with status + last visit date (dashboard common query)
+  // Optimize client list with status and intake date (dashboard common query)
+  // Note: last_visit_date not on clients table - would require JOIN with visits
   await knex.raw(`
-    CREATE INDEX IF NOT EXISTS idx_clients_status_activity
-    ON clients(organization_id, status, last_visit_date DESC)
+    CREATE INDEX IF NOT EXISTS idx_clients_status_org
+    ON clients(organization_id, status, intake_date DESC)
     WHERE deleted_at IS NULL
   `);
 
   // ============================================================================
-  // CAREGIVERS - Availability and Assignment Optimization
+  // CAREGIVERS - Active Status Optimization
   // ============================================================================
 
-  // Optimize caregiver availability queries (active + has availability)
+  // Optimize caregiver active status queries
+  // Note: availability_schedule and certification_expiry_date not in base schema
   await knex.raw(`
-    CREATE INDEX IF NOT EXISTS idx_caregivers_availability
+    CREATE INDEX IF NOT EXISTS idx_caregivers_active_status
     ON caregivers(organization_id, status)
     WHERE deleted_at IS NULL
       AND status IN ('ACTIVE', 'ON_LEAVE')
-      AND availability_schedule IS NOT NULL
-  `);
-
-  // Optimize caregiver certification expiry monitoring
-  await knex.raw(`
-    CREATE INDEX IF NOT EXISTS idx_caregivers_cert_expiry
-    ON caregivers(organization_id, certification_expiry_date)
-    WHERE deleted_at IS NULL
-      AND status = 'ACTIVE'
-      AND certification_expiry_date IS NOT NULL
-      AND certification_expiry_date <= CURRENT_DATE + INTERVAL '90 days'
   `);
 
   // ============================================================================
@@ -109,9 +100,8 @@ export async function down(knex: Knex): Promise<void> {
   // Drop all indexes in reverse order
   await knex.raw('DROP INDEX IF EXISTS idx_users_org_role');
   await knex.raw('DROP INDEX IF EXISTS idx_users_email_active');
-  await knex.raw('DROP INDEX IF EXISTS idx_caregivers_cert_expiry');
-  await knex.raw('DROP INDEX IF EXISTS idx_caregivers_availability');
-  await knex.raw('DROP INDEX IF EXISTS idx_clients_status_activity');
+  await knex.raw('DROP INDEX IF EXISTS idx_caregivers_active_status');
+  await knex.raw('DROP INDEX IF EXISTS idx_clients_status_org');
   await knex.raw('DROP INDEX IF EXISTS idx_evv_exceptions');
   await knex.raw('DROP INDEX IF EXISTS idx_evv_compliance_reporting');
   await knex.raw('DROP INDEX IF EXISTS idx_visits_unassigned_priority');
