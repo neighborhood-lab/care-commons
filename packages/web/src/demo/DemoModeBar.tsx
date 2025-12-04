@@ -54,7 +54,7 @@ export function DemoModeBar() {
         <div className="flex items-center justify-between flex-wrap gap-2">
           {/* Left section: Demo badge + Persona info */}
           <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2 ml-2">
+            <div className="flex items-center gap-2 ml-6">
               <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
               <span className="font-bold text-sm">DEMO MODE</span>
             </div>
