@@ -312,5 +312,5 @@ Configure protection rules (require approvals, etc.)
 
 ---
 
-**Folk** - Shared care software, community owned  
+**Folk Care** - Shared care software, community owned  
 Security is everyone's responsibility - protect your secrets!

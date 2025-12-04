@@ -2,6 +2,7 @@
   "name": "@folkcare/web",
   "version": "0.1.0",
   "private": true,
+  "description": "Folk Care Web - React frontend for coordinators and administrators",
   "//1": "════════════════════════════════════════════════════════════════",
   "//2": "⚠️  FRONTEND ESM PACKAGE - Vite requires type:module",
   "//3": "════════════════════════════════════════════════════════════════",

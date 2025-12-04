@@ -1,12 +1,86 @@
 /**
  * Health Check Routes
  *
- * Provides health check endpoint for monitoring and development
+ * Provides comprehensive health check endpoint for monitoring and development
  */
 
 import { Router } from 'express';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+import os from 'node:os';
 import type { Database } from '@folkcare/core';
 import { GeocodingService } from '@folkcare/core';
+import { testUpstashConnection, getUpstashClient } from '../config/upstash.js';
+import { getRedisClient } from '../middleware/rate-limit.js';
+
+const execAsync = promisify(exec);
+
+/**
+ * Get disk space information
+ * Returns disk usage for the root filesystem
+ */
+async function getDiskSpace(): Promise<{ used: number; available: number; total: number; percentUsed: number }> {
+  try {
+    // Use df command to get disk space (works on Linux/macOS)
+    const { stdout } = await execAsync('df -k / | tail -1');
+    const parts = stdout.trim().split(/\s+/);
+
+    // df output: Filesystem 1K-blocks Used Available Use% Mounted
+    // Validate we have enough parts
+    if (parts.length < 5) {
+      return { used: 0, available: 0, total: 0, percentUsed: 0 };
+    }
+
+    const total = parseInt(parts[1] ?? '0') * 1024; // Convert KB to bytes
+    const used = parseInt(parts[2] ?? '0') * 1024;
+    const available = parseInt(parts[3] ?? '0') * 1024;
+    const percentUsed = parseInt(parts[4] ?? '0');
+
+    return { used, available, total, percentUsed };
+  } catch {
+    // Fallback if df command fails (e.g., on Windows)
+    return { used: 0, available: 0, total: 0, percentUsed: 0 };
+  }
+}
+
+/**
+ * Get memory usage information
+ * Returns Node.js process memory usage and system memory
+ */
+function getMemoryUsage(): { process: { heapUsed: number; heapTotal: number; external: number; rss: number }; system: { total: number; used: number; free: number; percentUsed: number } } {
+  const mem = process.memoryUsage();
+  const totalMemory = os.totalmem();
+  const freeMemory = os.freemem();
+  const usedMemory = totalMemory - freeMemory;
+
+  return {
+    process: {
+      heapUsed: mem.heapUsed,
+      heapTotal: mem.heapTotal,
+      external: mem.external,
+      rss: mem.rss, // Resident Set Size
+    },
+    system: {
+      total: totalMemory,
+      used: usedMemory,
+      free: freeMemory,
+      percentUsed: Math.round((usedMemory / totalMemory) * 100),
+    },
+  };
+}
+
+/**
+ * Calculate disk status based on usage percentage
+ */
+function getDiskStatus(percentUsed: number): 'ok' | 'warning' | 'critical' {
+  if (percentUsed < 85) {
+    return 'ok';
+  }
+  if (percentUsed < 95) {
+    return 'warning';
+  }
+  return 'critical';
+}
 
 export function createHealthRouter(db: Database): Router {
   const router = Router();
@@ -14,21 +88,88 @@ export function createHealthRouter(db: Database): Router {
   router.get('/', async (_req, res) => {
     try {
       // Check database connection
+      const dbStart = Date.now();
       await db.query('SELECT 1');
+      const dbLatency = Date.now() - dbStart;
+
+      // Check Redis connections
+      const upstashClient = getUpstashClient();
+      const rateLimitClient = getRedisClient();
+      const redisStatus = {
+        upstash: (upstashClient !== null) ? 'configured' : 'not-configured',
+        rateLimit: (rateLimitClient !== null) ? 'connected' : 'in-memory-fallback',
+      };
+
+      // Test Upstash connection if available
+      if (upstashClient !== null) {
+        const upstashHealthy = await testUpstashConnection();
+        redisStatus.upstash = upstashHealthy ? 'healthy' : 'unhealthy';
+      }
+
+      // Get resource usage
+      const memory = getMemoryUsage();
+      const disk = await getDiskSpace();
+
+      // Determine overall status
+      const isHealthy =
+        dbLatency < 1000 && // Database responds within 1s
+        memory.system.percentUsed < 95 && // System memory < 95%
+        disk.percentUsed < 90; // Disk usage < 90%
+
+      // Calculate disk status
+      const diskStatus = getDiskStatus(disk.percentUsed);
 
       res.json({
-        status: 'healthy',
+        status: isHealthy ? 'healthy' : 'degraded',
         timestamp: new Date().toISOString(),
-        database: 'connected',
-        uptime: process.uptime(),
-        environment: process.env.NODE_ENV
+        checks: {
+          database: {
+            status: dbLatency < 1000 ? 'ok' : 'slow',
+            latency: dbLatency,
+          },
+          redis: {
+            status: redisStatus.upstash === 'healthy' || redisStatus.upstash === 'not-configured' ? 'ok' : 'unhealthy',
+            upstash: redisStatus.upstash,
+            rateLimit: redisStatus.rateLimit,
+          },
+          api: {
+            status: 'ok',
+            uptime: process.uptime(),
+            environment: process.env.NODE_ENV,
+          },
+          memory: {
+            status: memory.system.percentUsed < 90 ? 'ok' : 'high',
+            system: {
+              used: memory.system.used,
+              free: memory.system.free,
+              total: memory.system.total,
+              percentUsed: memory.system.percentUsed,
+            },
+            process: {
+              heapUsed: memory.process.heapUsed,
+              heapTotal: memory.process.heapTotal,
+              rss: memory.process.rss,
+            },
+          },
+          disk: {
+            status: diskStatus,
+            used: disk.used,
+            available: disk.available,
+            total: disk.total,
+            percentUsed: disk.percentUsed,
+          },
+        },
       });
     } catch (error) {
       res.status(503).json({
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        database: 'disconnected',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        checks: {
+          database: {
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Unknown error',
+          },
+        },
       });
     }
   });

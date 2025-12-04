@@ -82,7 +82,7 @@ export class EmailService implements IEmailService {
     // Initialize Resend client if API key is provided
     this.resend = (config.apiKey != null && config.apiKey !== '') ? new Resend(config.apiKey) : null;
     this.fromAddress = config.fromAddress ?? 'noreply@folkcare.com';
-    this.fromName = config.fromName ?? 'Folk';
+    this.fromName = config.fromName ?? 'Folk Care';
     this.replyTo = config.replyTo ?? 'support@folkcare.com';
     this.baseUrl = config.baseUrl ?? 'https://folkcare.com';
 

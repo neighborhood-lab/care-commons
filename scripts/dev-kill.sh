@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Kill any orphaned Care Commons development processes
+# Kill any orphaned Folk development processes
 
-echo "🔍 Searching for Care Commons development processes..."
+echo "🔍 Searching for Folk development processes..."
 
 # Get the project root directory
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"

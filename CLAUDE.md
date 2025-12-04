@@ -11,6 +11,8 @@
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Claude Code Setup](#claude-code-setup)
+- [Multi-Agent Development](#multi-agent-development-setup)
 - [Architecture Overview](#architecture-overview)
 - [Project Structure](#project-structure)
 - [Key Patterns](#key-patterns)
@@ -31,9 +33,12 @@ cd folkcare
 nvm use  # Use Node.js 22.x
 npm install
 
+# Start Docker services (PostgreSQL + Redis)
+docker compose up -d
+
 # Database setup
-cp .env.example packages/core/.env
-# Edit packages/core/.env with your DATABASE_URL
+cp .env.example .env
+# .env is already configured for Docker (no manual editing needed)
 
 # Run migrations and seed
 npm run db:migrate
@@ -53,6 +58,191 @@ npm run typecheck    # Type check all packages
 npm run test         # Run all tests
 ./scripts/check.sh   # Full validation (lint + typecheck + test + build)
 ```
+
+---
+
+## Claude Code Setup
+
+### Required MCP Servers
+
+Claude Code uses Model Context Protocol (MCP) servers to extend capabilities. This project requires the following MCP servers:
+
+**Essential Servers** (required):
+- `sequential-thinking` - Extended reasoning for complex problems
+- `fetch` - Web content retrieval with image support
+- `filesystem` - File operations with proper permissions
+- `github` - GitHub API access (issues, PRs, commits)
+- `postgres` - Direct database queries and schema inspection
+- `discord` - Discord channel read/write access
+
+**Installation**:
+```bash
+# Set up secrets first
+source .secrets.txt
+
+# Add GitHub MCP
+claude mcp add github npx -- -y @modelcontextprotocol/server-github -e GITHUB_TOKEN=$GITHUB_TOKEN
+
+# Add PostgreSQL MCP
+claude mcp add postgres npx -- -y @modelcontextprotocol/server-postgres $DATABASE_URL_PRODUCTION
+
+# Add Discord MCP
+claude mcp add discord npx -- -y @iflow-mcp/discord-mcp-server -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN
+
+# Verify all servers
+claude mcp list
+```
+
+### Custom Slash Commands
+
+The `.claude/commands/` directory contains project-specific slash commands:
+
+| Command | Description |
+|---------|-------------|
+| `/quick-check` | Run lint + typecheck (fast validation) |
+| `/full-check` | Run complete CI suite (lint + typecheck + test + build) |
+| `/capture-showcase` | Capture screenshots of local showcase |
+| `/capture-production` | Capture screenshots of production showcase |
+| `/db-reset-local` | Reset local database with demo data |
+| `/github-status` | Check GitHub Actions workflow status |
+| `/vercel-status` | Check recent Vercel deployments |
+
+### Environment Variables
+
+Ensure these are set in your shell and accessible to Claude Code:
+
+```bash
+# Required for GitHub MCP
+GITHUB_TOKEN=ghp_...
+
+# Required for PostgreSQL MCP
+DATABASE_URL_PRODUCTION=postgresql://...
+DATABASE_URL_PREVIEW=postgresql://...
+
+# Required for deployment operations
+VERCEL_TOKEN=...
+DISCORD_WEBHOOK_URL=...
+
+# Required for Discord MCP
+DISCORD_BOT_TOKEN=...
+DISCORD_GUILD_ID=...
+DISCORD_CHANNEL_ID=...
+```
+
+All secrets should be stored in `.secrets.txt` (gitignored) and sourced when needed.
+
+### Discord Integration
+
+The project supports two-way Discord communication with the dev-team channel:
+
+**1. Discord MCP Server** (for Claude Code):
+- Installed via `@iflow-mcp/discord-mcp-server`
+- Provides tools for reading/writing Discord messages within Claude Code
+- Requires `DISCORD_BOT_TOKEN` environment variable
+
+**2. Discord.js Service** (`scripts/discord-service.ts`):
+- Programmatic Discord access via CLI or Node.js API
+- Can be used in scripts, workflows, and automation
+
+**Usage**:
+```bash
+# Read recent messages
+npx tsx scripts/discord-service.ts read 10
+
+# Send a message
+npx tsx scripts/discord-service.ts send "Deploy complete! 🚀"
+
+# Use in scripts
+export DISCORD_BOT_TOKEN=...
+export DISCORD_GUILD_ID=...
+export DISCORD_CHANNEL_ID=...
+npx tsx scripts/discord-service.ts send "Update from automation"
+```
+
+**Setup**:
+1. Create Discord bot application at https://discord.com/developers/applications
+2. Enable "Message Content" intent in Bot settings
+3. Invite bot to server with proper permissions (Read Messages, Send Messages)
+4. Add credentials to `.secrets.txt`:
+   - `DISCORD_BOT_TOKEN` - Bot token from Developer Portal
+   - `DISCORD_GUILD_ID` - Server ID (right-click server → Copy ID)
+   - `DISCORD_CHANNEL_ID` - Channel ID (right-click channel → Copy ID)
+
+### Screenshot Verification Workflow
+
+Screenshots are the #1 verification technique. After making UI changes:
+
+1. Capture local screenshots: `/capture-showcase`
+2. Review in `ui-screenshots-personas/showcase/`
+3. Deploy to develop branch
+4. Capture production screenshots: `/capture-production`
+5. Compare to verify deployment
+
+### Multi-Agent Development Setup
+
+Multiple Claude Code instances can work in parallel on different features. Each instance needs isolated configuration:
+
+**Per-Instance Configuration:**
+
+1. **Separate checkout directory** - Each agent in their own clone
+2. **Unique Discord bot** - Different bot token, same guild/channel
+3. **Unique port numbers** - Avoid conflicts when running dev servers
+4. **Separate local database** - Different database name for each agent
+5. **Own .secrets.txt** - Instance-specific credentials
+
+**Port Configuration:**
+
+Default ports (used by primary instance):
+- Backend API: `3000` (packages/app)
+- Web frontend: `5173` (packages/web)
+- Mobile Expo: `8081` (packages/mobile)
+
+Secondary instance should use:
+- Backend API: `3001` (set `PORT=3001` in .env)
+- Web frontend: `5174` (Vite auto-increments if 5173 taken)
+- Mobile Expo: `8082` (set in package.json expo start script)
+
+**Database Setup:**
+
+All instances share the same Docker PostgreSQL container but use separate databases:
+```bash
+# Start Docker PostgreSQL (shared by both agents)
+docker compose up -d
+
+# Primary instance database: folk-care-0 (created automatically by docker-compose)
+
+# Secondary instance (Tove): Create separate database
+docker exec -it folk-care-0-db psql -U postgres -c 'CREATE DATABASE "folk-care-0-tove"'
+```
+
+Update root `.env` with instance-specific DATABASE_URL:
+```bash
+# Brian's .env (primary)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/folk-care-0
+
+# Tove's .env (secondary)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/folk-care-0-tove
+```
+
+**Coordination Guidelines:**
+
+- **Branch isolation**: Each agent works on separate feature branches
+- **Discord communication**: Both agents post to dev-team channel
+- **GitHub coordination**: Use issue assignments and PR reviews
+- **Avoid conflicts**: Don't modify same files simultaneously
+- **Sync frequently**: Pull from develop before starting new work
+
+**Agent Identity:**
+
+Primary instance (Brian Leader Bot):
+- User: bedwards
+- Email: brian.mabry.edwards@gmail.com
+- Discord: Brian Leader Bot
+
+Secondary instance (Tove):
+- User: tove-bot
+- Email: br.ianmabryedwards@gmail.com
+- Discord: Tove
 
 ---
 
@@ -782,5 +972,5 @@ See **[AGENTS.md](./AGENTS.md)** for comprehensive workflow details.
 
 ---
 
-**Folk** - Shared care software, community owned  
+**Folk Care** - Shared care software, community owned
 Brought to you by [Neighborhood Lab](https://neighborhoodlab.org)

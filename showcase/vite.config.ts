@@ -22,8 +22,8 @@ export default defineConfig({
     },
     dedupe: ['react', 'react-dom'],
   },
-  // GitHub Pages deployment configuration
-  base: '/folkcare/',
+  // GitHub Pages deployment with custom domain (showcase.folk.care)
+  base: '/',
   build: {
     outDir: 'dist',
     sourcemap: false,

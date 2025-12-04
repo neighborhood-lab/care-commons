@@ -17,20 +17,19 @@ const initRedis = async (): Promise<void> => {
   }
 
   try {
-    // Determine if TLS is required based on URL protocol
-    // Upstash uses rediss:// for TLS connections
-    const useTLS = redisUrl.startsWith('rediss://');
+    // Upstash Redis uses TLS by default (redis:// protocol with TLS enabled)
+    // Local Redis typically uses redis:// without TLS
+    const isUpstash = redisUrl.includes('upstash.io');
 
     const clientOptions: Redis.RedisClientOptions = {
       url: redisUrl,
     };
 
-    // Enable TLS for Upstash and other cloud Redis providers
-    if (useTLS) {
+    // Enable TLS for Upstash (always required)
+    if (isUpstash) {
       clientOptions.socket = {
         tls: true,
-        // Disable certificate verification for Vercel deployments
-        // (Vercel's serverless functions may have issues with cert chains)
+        // Upstash certificates are valid, but disable verification for Vercel compatibility
         rejectUnauthorized: false,
       };
     }
@@ -42,13 +41,20 @@ const initRedis = async (): Promise<void> => {
     });
 
     redisClient.on('connect', () => {
-      console.log(`Redis connected successfully for rate limiting (TLS: ${useTLS})`);
+      console.log(
+        `Redis connected successfully for rate limiting (${isUpstash ? 'Upstash' : 'Local'})`
+      );
+    });
+
+    redisClient.on('reconnecting', () => {
+      console.log('Redis reconnecting for rate limiting...');
     });
 
     await redisClient.connect();
+    console.log('✅ Redis rate limiting initialized');
   } catch (error) {
     console.error('Failed to connect to Redis for rate limiting:', error);
-    console.log('Falling back to in-memory rate limiting');
+    console.log('⚠️  Falling back to in-memory rate limiting');
     redisClient = null;
   }
 };

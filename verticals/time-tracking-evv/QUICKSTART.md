@@ -342,4 +342,4 @@ Questions? Issues?
 
 ---
 
-**Folk** - Shared care software, community owned
+**Folk Care** - Shared care software, community owned

@@ -6,7 +6,12 @@
 
 // Load environment variables FIRST, before any other imports
 import dotenv from "dotenv";
-dotenv.config({ path: '../../.env', quiet: true });
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, '../../../.env'), quiet: true });
 
 // Initialize error tracking EARLY (before other imports that might throw)
 // Skip initialization during test imports (when VERCEL env is set) or in test mode
@@ -25,6 +30,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import { securityHeaders } from './middleware/security-headers';
 import { configureCsrfProtection } from './middleware/csrf';
 import { generalApiLimiter } from './middleware/rate-limit';
+import { demoReadOnlyMiddleware } from './middleware/demo-read-only';
 import { initializeDatabase, getDatabase } from '@folkcare/core';
 import { initCacheService } from '@folkcare/core/service/cache.service';
 import { setupRoutes } from './routes/index';
@@ -175,6 +181,10 @@ function setupMiddleware(): void {
 
   // User context extraction
   app.use(authContextMiddleware);
+
+  // Demo read-only mode (blocks writes for demo accounts)
+  // Must be after authContextMiddleware to have user info
+  app.use(demoReadOnlyMiddleware);
 
   // Apply general rate limiter to all API routes
   app.use('/api', generalApiLimiter);

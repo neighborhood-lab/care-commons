@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🔍 Verifying Care Commons Mobile Installation..."
+echo "🔍 Verifying Folk Mobile Installation..."
 echo ""
 
 # Colors

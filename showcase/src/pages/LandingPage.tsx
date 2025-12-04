@@ -169,7 +169,7 @@ export const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
-          Folk Showcase
+          Folk Care Showcase
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
           Experience the complete care coordination platform from multiple perspectives.
@@ -513,7 +513,7 @@ export const LandingPage: React.FC = () => {
             to="/why"
             className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
           >
-            Why Folk?
+            Why Folk Care?
             <ArrowRight className="h-5 w-5" />
           </Link>
         </div>

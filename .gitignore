@@ -200,6 +200,9 @@ packages/core/migrations/*.d.ts.map
 .vercel
 .DS_Store
 *.png
+# Exception: Allow marketing and about site images
+!marketing/*.png
+!about/public/images/*.png
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Mobile-specific (React Native / Expo)
@@ -240,3 +243,5 @@ ui-screenshots-personas/ios-simulator/
 ui-screenshots-personas/production/
 ui-screenshots-production-comprehensive/
 .secrets.txt
+session-ses_*.md
+.discord-secrets

@@ -2,6 +2,7 @@
   "name": "@folkcare/showcase",
   "version": "0.1.0",
   "private": true,
+  "description": "Folk Care Showcase - static demo with localStorage for GitHub Pages",
   "type": "module",
   "engines": {
     "node": "22.x",

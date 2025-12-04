@@ -5,7 +5,7 @@
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
-  "description": "Caregiver & Staff Management vertical for Folk",
+  "description": "Folk Care Caregiver & Staff Management - workforce coordination and credentialing",
   "engines": {
     "node": "22.x"
   },

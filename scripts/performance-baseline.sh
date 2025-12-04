@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Establish performance baselines for Care Commons
+# Establish performance baselines for Folk
 
 set -e
 
@@ -10,7 +10,7 @@ RESULTS_DIR="tests/load/results"
 mkdir -p "${RESULTS_DIR}"
 
 echo "========================================="
-echo "Care Commons Performance Baseline Test"
+echo "Folk Performance Baseline Test"
 echo "========================================="
 echo "Base URL: ${BASE_URL}"
 echo "Date: $(date)"

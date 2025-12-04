@@ -1,7 +1,7 @@
 {
   "name": "@folkcare/visit-notes",
   "version": "0.1.0",
-  "description": "Visit notes and documentation vertical with rich text, templates, and signatures",
+  "description": "Folk Care Visit Notes - documentation with rich text, templates, and signatures",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

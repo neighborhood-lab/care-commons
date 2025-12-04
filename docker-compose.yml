@@ -18,12 +18,12 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: folkcare-db
+    container_name: folk-care-0-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: folkcare
+      POSTGRES_DB: folk-care-0
     ports:
       - "5432:5432"
     volumes:
@@ -61,7 +61,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: folkcare-redis
+    container_name: folk-care-0-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
@@ -81,7 +81,7 @@ services:
   # Email: admin@folkcare.local / Password: admin
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: folkcare-pgadmin
+    container_name: folk-care-0-pgadmin
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@folkcare.local
@@ -103,7 +103,7 @@ services:
   # Access at http://localhost:8081
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: folkcare-redis-commander
+    container_name: folk-care-0-redis-commander
     restart: unless-stopped
     environment:
       REDIS_HOSTS: local:redis:6379
@@ -121,7 +121,7 @@ services:
   # Web UI: http://localhost:8025
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: folkcare-mailhog
+    container_name: folk-care-0-mailhog
     restart: unless-stopped
     ports:
       - "1025:1025"  # SMTP server

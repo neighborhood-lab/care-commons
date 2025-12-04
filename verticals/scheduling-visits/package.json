@@ -5,7 +5,7 @@
   "//2": "⚠️  ESM VERTICAL - type:module required",
   "//3": "════════════════════════════════════════════════════════════════",
   "type": "module",
-  "description": "Scheduling & Visit Management vertical for Folk",
+  "description": "Folk Care Scheduling & Visit Management - calendar coordination and visit tracking",
   "engines": {
     "node": "22.x"
   },
