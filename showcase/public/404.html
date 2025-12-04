@@ -10,10 +10,10 @@
       // Store the current URL (including the path) in sessionStorage
       // and then redirect to the base URL. The main app will restore
       // the path from sessionStorage.
-      // GitHub Pages SPA workaround - redirect to base path /folkcare/
+      // GitHub Pages SPA workaround - redirect to root path
       sessionStorage.redirect = location.href;
-      // Always redirect to the base /folkcare/ path, not just parent directory
-      var basePath = '/folkcare/';
+      // Redirect to root path (showcase.folk.care custom domain)
+      var basePath = '/';
       location.replace(location.protocol + '//' + location.host + basePath);
     </script>
   </head>
