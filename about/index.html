@@ -96,15 +96,7 @@
     }
 
     .header {
-      background: linear-gradient(to bottom,
-        rgba(253, 252, 251, 1) 0%,
-        rgba(253, 252, 251, 0.95) 20%,
-        rgba(253, 252, 251, 0.85) 40%,
-        rgba(253, 252, 251, 0.7) 60%,
-        rgba(253, 252, 251, 0.4) 80%,
-        rgba(253, 252, 251, 0.1) 100%),
-        url('/images/background-1.png') center/cover;
-      background-blend-mode: overlay;
+      background: url('/images/background-1.png') center/cover;
       color: #2d3748;
       padding: 6rem 2rem;
       text-align: center;
@@ -120,8 +112,13 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+      background:
+        linear-gradient(to bottom,
+          rgba(253, 252, 251, 0.95) 0%,
+          rgba(253, 252, 251, 0.7) 15%,
+          transparent 30%
+        ),
+        radial-gradient(ellipse 70% 50% at center 45%, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
       pointer-events: none;
     }
 
