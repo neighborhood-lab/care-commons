@@ -495,6 +495,8 @@ npm run db:migrate:rollback
 
 Folk supports deployment to **Vercel** with **Neon PostgreSQL** for production-ready, serverless hosting.
 
+**💰 Hosting Costs:** Starting at **$0/month** (free tier) or **$20-30/month** for small agencies. See **[Hosting Costs Documentation](./docs/HOSTING_COSTS.md)** for detailed pricing, scaling paths, and cost optimization strategies.
+
 ### Prerequisites for Cloud Deployment
 
 1. **Vercel Account** - Sign up at [vercel.com](https://vercel.com)
