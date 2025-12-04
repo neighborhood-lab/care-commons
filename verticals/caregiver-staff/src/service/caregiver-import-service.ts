@@ -396,7 +396,6 @@ export class CaregiverImportService implements ImportService<CaregiverImportRow,
   /**
    * Import caregivers from parsed records
    */
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   async import(records: CaregiverImportRow[], options: ImportOptions): Promise<ImportResult<Caregiver>> {
     const startedAt = new Date();
     const errors: ImportError[] = [];
@@ -690,6 +689,7 @@ export class CaregiverImportService implements ImportService<CaregiverImportRow,
       organizationId: input.organizationId,
       branchIds: input.branchIds,
       primaryBranchId: input.primaryBranchId,
+      // eslint-disable-next-line sonarjs/pseudo-random
       employeeNumber: 'PREVIEW-' + Math.random().toString(36).substring(7).toUpperCase(),
       firstName: input.firstName,
       lastName: input.lastName,
