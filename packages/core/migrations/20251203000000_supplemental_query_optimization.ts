@@ -82,23 +82,25 @@ export async function up(knex: Knex): Promise<void> {
   // ============================================================================
 
   // Optimize user login queries (email lookup is critical path)
+  // Note: users table has 'status' column, not 'is_active'
   await knex.raw(`
     CREATE INDEX IF NOT EXISTS idx_users_email_active
     ON users(email)
-    WHERE deleted_at IS NULL AND is_active = true
+    WHERE deleted_at IS NULL AND status = 'ACTIVE'
   `);
 
   // Optimize user → organization lookups (common in auth middleware)
+  // Note: users table uses 'roles' array, not singular 'role' column
   await knex.raw(`
-    CREATE INDEX IF NOT EXISTS idx_users_org_role
-    ON users(organization_id, role)
-    WHERE deleted_at IS NULL AND is_active = true
+    CREATE INDEX IF NOT EXISTS idx_users_org_status
+    ON users(organization_id, status)
+    WHERE deleted_at IS NULL AND status = 'ACTIVE'
   `);
 }
 
 export async function down(knex: Knex): Promise<void> {
   // Drop all indexes in reverse order
-  await knex.raw('DROP INDEX IF EXISTS idx_users_org_role');
+  await knex.raw('DROP INDEX IF EXISTS idx_users_org_status');
   await knex.raw('DROP INDEX IF EXISTS idx_users_email_active');
   await knex.raw('DROP INDEX IF EXISTS idx_caregivers_active_status');
   await knex.raw('DROP INDEX IF EXISTS idx_clients_status_org');
