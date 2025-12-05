@@ -151,9 +151,17 @@ export class CacheService {
           await this.redis.del(keys);
         }
       } else {
-        // Memory cache: simple prefix matching
+        // Memory cache: glob-style pattern matching
         const keysToDelete: string[] = [];
-        const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+        // Escape regex metacharacters, then convert glob wildcards to regex
+        // This prevents regex injection while preserving glob * and ? functionality
+        const escapedPattern = pattern
+          // eslint-disable-next-line unicorn/better-regex
+          .replace(/[.+^${}()|[\]\\]/g, '\\$&') // Escape regex metacharacters (keep readable)
+          .replace(/\*/g, '.*')                  // Convert glob * to regex .*
+          .replace(/\?/g, '.');                  // Convert glob ? to regex .
+        // eslint-disable-next-line security/detect-non-literal-regexp
+        const regex = new RegExp('^' + escapedPattern + '$'); // Safe: pattern is escaped above
         for (const key of this.memoryCache.keys()) {
           if (regex.test(key)) {
             keysToDelete.push(key);
