@@ -1,4 +1,5 @@
-import { Play, Clock, FileVideo, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, Clock, FileVideo, BookOpen, X } from 'lucide-react';
 import { ShowcaseLayout } from '../components/ShowcaseLayout';
 
 interface Video {
@@ -141,12 +142,24 @@ const videos: Video[] = [
   }
 ];
 
-function VideoCard({ video }: { video: Video }) {
+function VideoCard({ video, onClick }: { video: Video; onClick: () => void }) {
   return (
-    <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+    <div
+      className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      aria-label={`Play video: ${video.title}`}
+    >
       <div className="relative bg-gray-200 aspect-video">
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors cursor-pointer">
+          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
             <Play className="w-8 h-8 text-white ml-1" />
           </div>
         </div>
@@ -163,15 +176,100 @@ function VideoCard({ video }: { video: Video }) {
   );
 }
 
+function VideoModal({ video, onClose }: { video: Video; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="video-modal-title"
+    >
+      <div
+        className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+          <h2 id="video-modal-title" className="text-xl font-semibold text-gray-900">{video.title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close video"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {/* Placeholder Video Player */}
+          <div className="aspect-video bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg flex items-center justify-center mb-4">
+            <div className="text-center p-8">
+              <FileVideo className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Video Placeholder
+              </h3>
+              <p className="text-gray-600 text-sm max-w-md mx-auto">
+                This is a placeholder for the video <strong>{video.title}</strong>.
+                In a production deployment, this would play the actual video tutorial.
+              </p>
+              <div className="mt-4 text-sm text-gray-500">
+                Duration: {video.duration}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                {video.category}
+              </span>
+            </div>
+            <h3 className="font-semibold text-gray-900">Description</h3>
+            <p className="text-gray-700">{video.description}</p>
+          </div>
+
+          <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+            <p className="text-sm text-amber-800">
+              <strong>Note:</strong> Video content is currently in production. These placeholders
+              demonstrate the video library structure. Final videos will include screen recordings,
+              voice-over narration, and closed captions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function VideosPage() {
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const categories = Array.from(new Set(videos.map(v => v.category)));
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedVideo) {
+        setSelectedVideo(null);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [selectedVideo]);
+
   return (
-    <ShowcaseLayout
-      title="Video Walkthroughs"
-      description="Watch detailed video guides to learn how to use Folk effectively."
-    >
-      {/* Coming Soon Banner */}
+    <>
+      {selectedVideo && (
+        <VideoModal
+          video={selectedVideo}
+          onClose={() => setSelectedVideo(null)}
+        />
+      )}
+
+      <ShowcaseLayout
+        title="Video Walkthroughs"
+        description="Watch detailed video guides to learn how to use Folk effectively."
+      >
+        {/* Coming Soon Banner */}
       <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
         <div className="flex items-center gap-2">
           <span className="text-amber-600 font-semibold">Coming Soon</span>
@@ -227,7 +325,11 @@ export function VideosPage() {
             {videos
               .filter(video => video.category === category)
               .map(video => (
-                <VideoCard key={video.url} video={video} />
+                <VideoCard
+                  key={video.url}
+                  video={video}
+                  onClick={() => setSelectedVideo(video)}
+                />
               ))}
           </div>
         </section>
@@ -264,5 +366,6 @@ export function VideosPage() {
         </div>
       </div>
     </ShowcaseLayout>
+    </>
   );
 }
