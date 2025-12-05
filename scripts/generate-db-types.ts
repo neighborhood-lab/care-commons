@@ -36,7 +36,7 @@ function mapPostgresTypeToTS(pgType: string, udtName: string): string {
   // Handle specific UDT types
   if (udtName === 'uuid') return 'string';
   if (udtName === 'timestamptz' || udtName === 'timestamp') return 'Date | string';
-  if (udtName === 'jsonb' || udtName === 'json') return 'Record<string, any>';
+  if (udtName === 'jsonb' || udtName === 'json') return 'Record<string, unknown>';
   if (udtName === 'bool') return 'boolean';
   if (udtName === 'int4' || udtName === 'int8' || udtName === 'float4' || udtName === 'float8' || udtName === 'numeric') return 'number';
 
@@ -66,10 +66,10 @@ function mapPostgresTypeToTS(pgType: string, udtName: string): string {
     'timestamp without time zone': 'Date | string',
     'time': 'string',
     'uuid': 'string',
-    'json': 'Record<string, any>',
-    'jsonb': 'Record<string, any>',
+    'json': 'Record<string, unknown>',
+    'jsonb': 'Record<string, unknown>',
     'bytea': 'Buffer',
-    'ARRAY': 'any[]',
+    'ARRAY': 'unknown[]',
   };
 
   return typeMap[pgType] || 'any';

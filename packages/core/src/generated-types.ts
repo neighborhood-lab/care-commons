@@ -4,7 +4,7 @@
  * Auto-generated from database schema.
  * Do not edit manually - run 'npm run db:generate-types' to regenerate.
  *
- * Generated: 2025-12-05T16:50:22.844Z
+ * Generated: 2025-12-05T17:21:02.014Z
  */
 
 /**
@@ -26,7 +26,7 @@ export interface AbTestAssignments {
   wasCompleted?: boolean;
   responseTimeMinutes?: number;
   clientSatisfactionRating?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   /** Timestamp when record was last updated */
@@ -56,7 +56,7 @@ export interface AchBatches {
   companyName: string;
   companyId: string;
   companyEntryDescription: string;
-  paymentIds?: Record<string, any>;
+  paymentIds?: Record<string, unknown>;
   transactionCount?: number;
   totalDebitAmount?: number;
   totalCreditAmount?: number;
@@ -73,7 +73,7 @@ export interface AchBatches {
   settlementConfirmation?: string;
   hasReturns?: boolean;
   returnCount?: number;
-  returns?: Record<string, any>;
+  returns?: Record<string, unknown>;
   notes?: string;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -107,7 +107,7 @@ export interface AssignmentProposals {
   caregiverId: string;
   matchScore: number;
   matchQuality: string;
-  matchReasons?: Record<string, any>;
+  matchReasons?: Record<string, unknown>;
   proposalStatus?: string;
   proposedBy: string;
   proposedAt?: Date | string;
@@ -165,7 +165,7 @@ export interface AuditChecklistResponses {
   itemId: string;
   response: string;
   notes?: string;
-  evidenceUrls?: Record<string, any>;
+  evidenceUrls?: Record<string, unknown>;
   respondedBy: string;
   respondedByName: string;
   respondedAt: Date | string;
@@ -203,7 +203,7 @@ export interface AuditEvents {
   resourceId: string;
   action: string;
   result: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -234,7 +234,7 @@ export interface AuditFindings {
   standardReference?: string;
   regulatoryRequirement?: string;
   evidenceDescription?: string;
-  evidenceUrls?: Record<string, any>;
+  evidenceUrls?: Record<string, unknown>;
   observedBy: string;
   observedByName: string;
   observedAt: Date | string;
@@ -284,8 +284,8 @@ export interface AuditRevision {
   timestamp?: Date | string;
   userId: string;
   operation: string;
-  changes: Record<string, any>;
-  snapshot: Record<string, any>;
+  changes: Record<string, unknown>;
+  snapshot: Record<string, unknown>;
   reason?: string;
   ipAddress?: string;
   userAgent?: string;
@@ -310,12 +310,12 @@ export interface AuditTemplates {
   templateName: string;
   description: string;
   auditType: string;
-  applicableScope: Record<string, any>;
+  applicableScope: Record<string, unknown>;
   standardsReference?: string;
   templateVersion: string;
   effectiveDate: Date | string;
   expiryDate?: Date | string;
-  checklistSections: Record<string, any>;
+  checklistSections: Record<string, unknown>;
   isActive?: boolean;
   usageCount?: number;
   lastUsedAt?: Date | string;
@@ -360,9 +360,9 @@ export interface Audits {
   actualEndDate?: Date | string;
   leadAuditorId: string;
   leadAuditorName: string;
-  auditorIds?: Record<string, any>;
+  auditorIds?: Record<string, unknown>;
   standardsReference?: string;
-  auditCriteria?: Record<string, any>;
+  auditCriteria?: Record<string, unknown>;
   templateId?: string;
   totalFindings?: number;
   criticalFindings?: number;
@@ -372,7 +372,7 @@ export interface Audits {
   overallRating?: string;
   executiveSummary?: string;
   recommendations?: string;
-  attachmentUrls?: Record<string, any>;
+  attachmentUrls?: Record<string, unknown>;
   reviewedBy?: string;
   reviewedAt?: Date | string;
   approvedBy?: string;
@@ -414,7 +414,7 @@ export interface AuthEvents {
   email?: string;
   ipAddress?: string;
   userAgent?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   result: string;
   failureReason?: string;
 }
@@ -455,8 +455,8 @@ export interface BillableItems {
   units: number;
   unitRate: number;
   subtotal: number;
-  modifiers?: Record<string, any>;
-  adjustments?: Record<string, any>;
+  modifiers?: Record<string, unknown>;
+  adjustments?: Record<string, unknown>;
   finalAmount: number;
   authorizationId?: string;
   authorizationNumber?: string;
@@ -466,7 +466,7 @@ export interface BillableItems {
   payerType: string;
   payerName: string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   invoiceId?: string;
   invoiceDate?: Date | string;
   claimId?: string;
@@ -485,7 +485,7 @@ export interface BillableItems {
   paidDate?: Date | string;
   paymentId?: string;
   notes?: string;
-  tags?: Record<string, any>;
+  tags?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -536,7 +536,7 @@ export interface BillingUsage {
   status?: string;
   isBilled?: boolean;
   billedDate?: Date | string;
-  dailySnapshots?: Record<string, any>;
+  dailySnapshots?: Record<string, unknown>;
   notes?: string;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -568,9 +568,9 @@ export interface Branches {
   code?: string;
   phone?: string;
   email?: string;
-  address: Record<string, any>;
-  serviceArea?: Record<string, any>;
-  settings?: Record<string, any>;
+  address: Record<string, unknown>;
+  serviceArea?: Record<string, unknown>;
+  settings?: Record<string, unknown>;
   status?: string;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -604,7 +604,7 @@ export interface BulkMatchRequests {
   branchId?: string;
   dateFrom: Date | string;
   dateTo: Date | string;
-  openShiftIds?: Record<string, any>;
+  openShiftIds?: Record<string, unknown>;
   configurationId?: string;
   optimizationGoal?: string;
   requestedBy: string;
@@ -653,7 +653,7 @@ export interface CarePlanProgressReports {
   goalsAchieved?: number;
   goalsInProgress?: number;
   goalsAtRisk?: number;
-  goalProgress?: Record<string, any>;
+  goalProgress?: Record<string, unknown>;
   overallSummary: string;
   concernsNoted?: string;
   recommendationsForFamily?: string;
@@ -703,35 +703,35 @@ export interface CarePlans {
   supervisorId?: string;
   physicianId?: string;
   assessmentSummary?: string;
-  medicalDiagnosis?: any[][];
-  functionalLimitations?: any[][];
-  goals?: Record<string, any>;
-  interventions?: Record<string, any>;
-  taskTemplates?: Record<string, any>;
-  serviceFrequency?: Record<string, any>;
+  medicalDiagnosis?: unknown[][];
+  functionalLimitations?: unknown[][];
+  goals?: Record<string, unknown>;
+  interventions?: Record<string, unknown>;
+  taskTemplates?: Record<string, unknown>;
+  serviceFrequency?: Record<string, unknown>;
   estimatedHoursPerWeek?: number;
   authorizedBy?: string;
   authorizedDate?: Date | string;
   authorizationNumber?: string;
-  payerSource?: Record<string, any>;
+  payerSource?: Record<string, unknown>;
   authorizationHours?: number;
   authorizationStartDate?: Date | string;
   authorizationEndDate?: Date | string;
-  requiredDocumentation?: Record<string, any>;
-  signatureRequirements?: Record<string, any>;
-  restrictions?: any[][];
-  precautions?: any[][];
-  allergies?: Record<string, any>;
-  contraindications?: any[][];
-  progressNotes?: Record<string, any>;
-  outcomesMeasured?: Record<string, any>;
-  regulatoryRequirements?: any[][];
+  requiredDocumentation?: Record<string, unknown>;
+  signatureRequirements?: Record<string, unknown>;
+  restrictions?: unknown[][];
+  precautions?: unknown[][];
+  allergies?: Record<string, unknown>;
+  contraindications?: unknown[][];
+  progressNotes?: Record<string, unknown>;
+  outcomesMeasured?: Record<string, unknown>;
+  regulatoryRequirements?: unknown[][];
   complianceStatus?: string;
   lastComplianceCheck?: Date | string;
-  modificationHistory?: Record<string, any>;
+  modificationHistory?: Record<string, unknown>;
   notes?: string;
-  tags?: any[][];
-  customFields?: Record<string, any>;
+  tags?: unknown[][];
+  customFields?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -742,7 +742,7 @@ export interface CarePlans {
   deletedAt?: Date | string;
   deletedBy?: string;
   stateJurisdiction?: string;
-  stateSpecificData?: Record<string, any>;
+  stateSpecificData?: Record<string, unknown>;
   orderSource?: string;
   orderingProviderId?: string;
   orderingProviderName?: string;
@@ -809,7 +809,7 @@ export interface CaregiverDeductions {
   isStatutory?: boolean;
   employerMatch?: number;
   employerMatchPercentage?: number;
-  garnishmentOrder?: Record<string, any>;
+  garnishmentOrder?: Record<string, unknown>;
   isActive?: boolean;
   effectiveFrom?: Date | string;
   effectiveTo?: Date | string;
@@ -876,15 +876,15 @@ export interface CaregiverPreferenceProfiles {
   id?: string;
   caregiverId: string;
   organizationId: string;
-  preferredDaysOfWeek?: Record<string, any>;
-  preferredTimeRanges?: Record<string, any>;
-  preferredShiftTypes?: Record<string, any>;
-  preferredClientIds?: Record<string, any>;
-  preferredClientTypes?: Record<string, any>;
-  preferredServiceTypes?: Record<string, any>;
+  preferredDaysOfWeek?: Record<string, unknown>;
+  preferredTimeRanges?: Record<string, unknown>;
+  preferredShiftTypes?: Record<string, unknown>;
+  preferredClientIds?: Record<string, unknown>;
+  preferredClientTypes?: Record<string, unknown>;
+  preferredServiceTypes?: Record<string, unknown>;
   maxTravelDistance?: number;
-  preferredZipCodes?: any[][];
-  avoidZipCodes?: any[][];
+  preferredZipCodes?: unknown[][];
+  avoidZipCodes?: unknown[][];
   maxShiftsPerDay?: number;
   maxShiftsPerWeek?: number;
   maxHoursPerWeek?: number;
@@ -893,7 +893,7 @@ export interface CaregiverPreferenceProfiles {
   willingToWorkWeekends?: boolean;
   willingToWorkHolidays?: boolean;
   acceptAutoAssignment?: boolean;
-  notificationMethods?: Record<string, any>;
+  notificationMethods?: Record<string, unknown>;
   quietHoursStart?: any;
   quietHoursEnd?: any;
   lastUpdated?: Date | string;
@@ -961,7 +961,7 @@ export interface CaregiverStateScreenings {
   expirationDate?: Date | string;
   confirmationNumber?: string;
   clearanceNumber?: string;
-  results?: Record<string, any>;
+  results?: Record<string, unknown>;
   notes?: string;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -999,18 +999,18 @@ export interface Caregivers {
   ssn?: string;
   gender?: string;
   pronouns?: string;
-  primaryPhone: Record<string, any>;
-  alternatePhone?: Record<string, any>;
+  primaryPhone: Record<string, unknown>;
+  alternatePhone?: Record<string, unknown>;
   email: string;
   preferredContactMethod?: string;
-  communicationPreferences?: Record<string, any>;
+  communicationPreferences?: Record<string, unknown>;
   language?: string;
-  languages?: any[][];
+  languages?: unknown[][];
   ethnicity?: string;
-  race?: any[][];
-  primaryAddress: Record<string, any>;
-  mailingAddress?: Record<string, any>;
-  emergencyContacts?: Record<string, any>;
+  race?: unknown[][];
+  primaryAddress: Record<string, unknown>;
+  mailingAddress?: Record<string, unknown>;
+  emergencyContacts?: Record<string, unknown>;
   employmentType: string;
   employmentStatus?: string;
   hireDate: Date | string;
@@ -1018,24 +1018,24 @@ export interface Caregivers {
   terminationReason?: string;
   rehireEligible?: boolean;
   role: string;
-  permissions?: any[][];
+  permissions?: unknown[][];
   supervisorId?: string;
-  credentials?: Record<string, any>;
-  backgroundCheck?: Record<string, any>;
-  drugScreening?: Record<string, any>;
-  healthScreening?: Record<string, any>;
-  training?: Record<string, any>;
-  skills?: Record<string, any>;
-  specializations?: any[][];
-  availability: Record<string, any>;
-  workPreferences?: Record<string, any>;
+  credentials?: Record<string, unknown>;
+  backgroundCheck?: Record<string, unknown>;
+  drugScreening?: Record<string, unknown>;
+  healthScreening?: Record<string, unknown>;
+  training?: Record<string, unknown>;
+  skills?: Record<string, unknown>;
+  specializations?: unknown[][];
+  availability: Record<string, unknown>;
+  workPreferences?: Record<string, unknown>;
   maxHoursPerWeek?: number;
   minHoursPerWeek?: number;
   willingToTravel?: boolean;
   maxTravelDistance?: number;
-  payRate: Record<string, any>;
-  alternatePayRates?: Record<string, any>;
-  payrollInfo?: Record<string, any>;
+  payRate: Record<string, unknown>;
+  alternatePayRates?: Record<string, unknown>;
+  payrollInfo?: Record<string, unknown>;
   performanceRating?: number;
   lastReviewDate?: Date | string;
   nextReviewDate?: Date | string;
@@ -1046,9 +1046,9 @@ export interface Caregivers {
   restrictedClients?: string[];
   status?: string;
   statusReason?: string;
-  documents?: Record<string, any>;
+  documents?: Record<string, unknown>;
   notes?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -1058,7 +1058,7 @@ export interface Caregivers {
   version?: number;
   deletedAt?: Date | string;
   deletedBy?: string;
-  stateSpecific?: Record<string, any>;
+  stateSpecific?: Record<string, unknown>;
   timezone?: string;
   /** Flag indicating this is demo/seed data */
   isDemoData?: boolean;
@@ -1092,8 +1092,8 @@ export interface Claims {
   clientName: string;
   invoiceId: string;
   invoiceNumber: string;
-  billableItemIds: Record<string, any>;
-  lineItems: Record<string, any>;
+  billableItemIds: Record<string, unknown>;
+  lineItems: Record<string, unknown>;
   totalCharges: number;
   totalApproved?: number;
   totalPaid?: number;
@@ -1105,7 +1105,7 @@ export interface Claims {
   submissionBatchId?: string;
   controlNumber?: string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   processingDate?: Date | string;
   paymentDate?: Date | string;
   denialReason?: string;
@@ -1120,7 +1120,7 @@ export interface Claims {
   eraReceivedDate?: Date | string;
   eraDocumentId?: string;
   claimFormUrl?: string;
-  supportingDocumentIds?: Record<string, any>;
+  supportingDocumentIds?: Record<string, unknown>;
   notes?: string;
   internalNotes?: string;
   /** Timestamp when record was created */
@@ -1188,7 +1188,7 @@ export interface ClientAuthorizations {
   authorizationDate: Date | string;
   effectiveDate: Date | string;
   expirationDate: Date | string;
-  authorizedServices?: Record<string, any>;
+  authorizedServices?: Record<string, unknown>;
   totalAuthorizedUnits?: number;
   usedUnits?: number;
   remainingUnits?: number;
@@ -1200,7 +1200,7 @@ export interface ClientAuthorizations {
   lastReviewDate?: Date | string;
   nextReviewDue?: Date | string;
   notes?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -1239,7 +1239,7 @@ export interface ClientCarePlanAccessLogs {
   portalSessionId?: string;
   timeSpentSeconds?: number;
   fullyRead?: boolean;
-  accessibilityFeatures?: Record<string, any>;
+  accessibilityFeatures?: Record<string, unknown>;
 }
 
 /**
@@ -1309,8 +1309,8 @@ export interface ClientPortalAccess {
   invitationSentAt?: Date | string;
   invitationExpiresAt?: Date | string;
   activatedAt?: Date | string;
-  accessibilityPreferences?: Record<string, any>;
-  notificationPreferences?: Record<string, any>;
+  accessibilityPreferences?: Record<string, unknown>;
+  notificationPreferences?: Record<string, unknown>;
   passwordResetRequired?: boolean;
   passwordChangedAt?: Date | string;
   failedLoginAttempts?: number;
@@ -1354,9 +1354,9 @@ export interface ClientPortalPreferences {
   emailNotifications?: boolean;
   smsNotifications?: boolean;
   pushNotifications?: boolean;
-  notificationSchedule?: Record<string, any>;
-  dashboardLayout?: Record<string, any>;
-  widgetPreferences?: Record<string, any>;
+  notificationSchedule?: Record<string, unknown>;
+  dashboardLayout?: Record<string, unknown>;
+  widgetPreferences?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   /** Timestamp when record was last updated */
@@ -1389,7 +1389,7 @@ export interface ClientPortalSessions {
   ipAddress: string;
   userAgent?: string;
   deviceType?: string;
-  deviceInfo?: Record<string, any>;
+  deviceInfo?: Record<string, unknown>;
   status?: string;
 }
 
@@ -1477,7 +1477,7 @@ export interface ClientVideoCallSessions {
   clientNotes?: string;
   clientRating?: number;
   clientFeedback?: string;
-  qualityMetrics?: Record<string, any>;
+  qualityMetrics?: Record<string, unknown>;
   captionsEnabled?: boolean;
   signLanguageInterpreter?: boolean;
   languagePreference?: string;
@@ -1565,31 +1565,31 @@ export interface Clients {
   ssn?: string;
   gender?: string;
   pronouns?: string;
-  primaryPhone?: Record<string, any>;
-  alternatePhone?: Record<string, any>;
+  primaryPhone?: Record<string, unknown>;
+  alternatePhone?: Record<string, unknown>;
   email?: string;
   preferredContactMethod?: string;
-  communicationPreferences?: Record<string, any>;
+  communicationPreferences?: Record<string, unknown>;
   language?: string;
   ethnicity?: string;
-  race?: Record<string, any>;
+  race?: Record<string, unknown>;
   maritalStatus?: string;
   veteranStatus?: boolean;
-  primaryAddress: Record<string, any>;
-  secondaryAddresses?: Record<string, any>;
-  livingArrangement?: Record<string, any>;
-  mobilityInfo?: Record<string, any>;
-  emergencyContacts?: Record<string, any>;
-  authorizedContacts?: Record<string, any>;
-  primaryPhysician?: Record<string, any>;
-  pharmacy?: Record<string, any>;
-  insurance?: Record<string, any>;
+  primaryAddress: Record<string, unknown>;
+  secondaryAddresses?: Record<string, unknown>;
+  livingArrangement?: Record<string, unknown>;
+  mobilityInfo?: Record<string, unknown>;
+  emergencyContacts?: Record<string, unknown>;
+  authorizedContacts?: Record<string, unknown>;
+  primaryPhysician?: Record<string, unknown>;
+  pharmacy?: Record<string, unknown>;
+  insurance?: Record<string, unknown>;
   medicalRecordNumber?: string;
-  programs?: Record<string, any>;
-  serviceEligibility: Record<string, any>;
-  fundingSources?: Record<string, any>;
-  riskFlags?: Record<string, any>;
-  allergies?: Record<string, any>;
+  programs?: Record<string, unknown>;
+  serviceEligibility: Record<string, unknown>;
+  fundingSources?: Record<string, unknown>;
+  riskFlags?: Record<string, unknown>;
+  allergies?: Record<string, unknown>;
   specialInstructions?: string;
   accessInstructions?: string;
   status?: string;
@@ -1598,7 +1598,7 @@ export interface Clients {
   dischargeReason?: string;
   referralSource?: string;
   notes?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -1608,8 +1608,8 @@ export interface Clients {
   version?: number;
   deletedAt?: Date | string;
   deletedBy?: string;
-  stateSpecific?: Record<string, any>;
-  coordinates?: Record<string, any>;
+  stateSpecific?: Record<string, unknown>;
+  coordinates?: Record<string, unknown>;
   geocodingConfidence?: string;
   geocodedAt?: Date | string;
   geocodingFailed?: boolean;
@@ -1647,7 +1647,7 @@ export interface ClinicalVisitNotes {
   assessment?: string;
   plan?: string;
   narrativeNote?: string;
-  interventionsPerformed?: Record<string, any>;
+  interventionsPerformed?: Record<string, unknown>;
   patientResponse?: string;
   safetyIncidents?: boolean;
   incidentDescription?: string;
@@ -1669,7 +1669,7 @@ export interface ClinicalVisitNotes {
   amendedBy?: string;
   originalNoteId?: string;
   isEncrypted?: boolean;
-  encryptedFields?: Record<string, any>;
+  encryptedFields?: Record<string, unknown>;
   deletedAt?: Date | string;
   deletedBy?: string;
   /** Timestamp when record was created */
@@ -1720,7 +1720,7 @@ export interface ComplianceDeadlines {
   blocksAssignment?: boolean;
   lastNotifiedAt?: Date | string;
   notificationCount?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   /** Timestamp when record was last updated */
@@ -1751,8 +1751,8 @@ export interface CorrectiveActions {
   actionType: string;
   status?: string;
   rootCause?: string;
-  contributingFactors?: Record<string, any>;
-  specificActions: Record<string, any>;
+  contributingFactors?: Record<string, unknown>;
+  specificActions: Record<string, unknown>;
   responsiblePersonId: string;
   responsiblePersonName: string;
   targetCompletionDate: Date | string;
@@ -1761,15 +1761,15 @@ export interface CorrectiveActions {
   estimatedCost?: number;
   actualCost?: number;
   monitoringPlan?: string;
-  successCriteria?: Record<string, any>;
+  successCriteria?: Record<string, unknown>;
   verificationMethod?: string;
-  progressUpdates?: Record<string, any>;
+  progressUpdates?: Record<string, unknown>;
   completionPercentage?: number;
   verifiedBy?: string;
   verifiedAt?: Date | string;
   verificationNotes?: string;
   effectivenessRating?: string;
-  attachmentUrls?: Record<string, any>;
+  attachmentUrls?: Record<string, unknown>;
   organizationId: string;
   branchId?: string;
   /** Timestamp when record was created */
@@ -1807,7 +1807,7 @@ export interface DomainMappings {
   sslExpiresAt?: Date | string;
   autoRenewSsl?: boolean;
   dnsStatus?: string;
-  dnsRecords?: Record<string, any>;
+  dnsRecords?: Record<string, unknown>;
   dnsVerifiedAt?: Date | string;
   lastDnsCheckAt?: Date | string;
   redirectToDomain?: string;
@@ -1815,7 +1815,7 @@ export interface DomainMappings {
   includeWww?: boolean;
   status?: string;
   errorMessage?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   activatedAt?: Date | string;
   activatedBy?: string;
   suspendedAt?: Date | string;
@@ -1854,12 +1854,12 @@ export interface EmailTemplates {
   bodyText: string;
   bodyHtml?: string;
   previewText?: string;
-  availableVariables?: Record<string, any>;
-  defaultValues?: Record<string, any>;
+  availableVariables?: Record<string, unknown>;
+  defaultValues?: Record<string, unknown>;
   fromName?: string;
   fromEmail?: string;
   replyToEmail?: string;
-  attachments?: Record<string, any>;
+  attachments?: Record<string, unknown>;
   customCss?: string;
   useOrgBranding?: boolean;
   language?: string;
@@ -1905,8 +1905,8 @@ export interface EvvAccessLog {
   accessedByIp?: any;
   accessType: string;
   accessReason?: string;
-  fieldsAccessed?: Record<string, any>;
-  searchFilters?: Record<string, any>;
+  fieldsAccessed?: Record<string, unknown>;
+  searchFilters?: Record<string, unknown>;
   exportFormat?: string;
   exportDestination?: string;
 }
@@ -1935,7 +1935,7 @@ export interface EvvExceptionQueue {
   exceptionCode: string;
   exceptionSeverity: string;
   exceptionDescription: string;
-  issues: Record<string, any>;
+  issues: Record<string, unknown>;
   issueCount: number;
   detectedAt?: Date | string;
   detectedBy: string;
@@ -1982,8 +1982,8 @@ export interface EvvOriginalData {
   originalClockInTime: Date | string;
   originalClockOutTime?: Date | string;
   originalDuration?: number;
-  originalClockInLocation: Record<string, any>;
-  originalClockOutLocation?: Record<string, any>;
+  originalClockInLocation: Record<string, unknown>;
+  originalClockOutLocation?: Record<string, unknown>;
   originalClockInDevice: string;
   originalClockOutDevice?: string;
   originalVerificationMethod: string;
@@ -2028,29 +2028,29 @@ export interface EvvRecords {
   caregiverEmployeeId: string;
   caregiverNpi?: string;
   serviceDate: Date | string;
-  serviceAddress: Record<string, any>;
+  serviceAddress: Record<string, unknown>;
   clockInTime: Date | string;
   clockOutTime?: Date | string;
   totalDuration?: number;
-  clockInVerification: Record<string, any>;
-  clockOutVerification?: Record<string, any>;
-  midVisitChecks?: Record<string, any>;
-  pauseEvents?: Record<string, any>;
-  exceptionEvents?: Record<string, any>;
+  clockInVerification: Record<string, unknown>;
+  clockOutVerification?: Record<string, unknown>;
+  midVisitChecks?: Record<string, unknown>;
+  pauseEvents?: Record<string, unknown>;
+  exceptionEvents?: Record<string, unknown>;
   recordStatus?: string;
   verificationLevel: string;
-  complianceFlags?: Record<string, any>;
+  complianceFlags?: Record<string, unknown>;
   integrityHash: string;
   integrityChecksum: string;
   recordedAt?: Date | string;
   recordedBy: string;
-  syncMetadata: Record<string, any>;
+  syncMetadata: Record<string, unknown>;
   submittedToPayor?: Date | string;
   payorApprovalStatus?: string;
-  stateSpecificData?: Record<string, any>;
-  caregiverAttestation?: Record<string, any>;
-  clientAttestation?: Record<string, any>;
-  supervisorReview?: Record<string, any>;
+  stateSpecificData?: Record<string, unknown>;
+  caregiverAttestation?: Record<string, unknown>;
+  clientAttestation?: Record<string, unknown>;
+  supervisorReview?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -2090,10 +2090,10 @@ export interface EvvRevision {
   revisedByRole: string;
   revisedAt?: Date | string;
   fieldPath: string;
-  originalValue: Record<string, any>;
-  newValue: Record<string, any>;
+  originalValue: Record<string, unknown>;
+  newValue: Record<string, unknown>;
   justification: string;
-  supportingDocuments?: Record<string, any>;
+  supportingDocuments?: Record<string, unknown>;
   requiresApproval?: boolean;
   approvalStatus?: string;
   approvedBy?: string;
@@ -2139,7 +2139,7 @@ export interface EvvStateConfig {
   aggregatorEndpoint: string;
   aggregatorApiKeyEncrypted?: string;
   programType: string;
-  allowedClockMethods: Record<string, any>;
+  allowedClockMethods: Record<string, unknown>;
   requiresGpsForMobile?: boolean;
   geoPerimeterTolerance?: number;
   clockInGracePeriod?: number;
@@ -2148,8 +2148,8 @@ export interface EvvStateConfig {
   vmurEnabled?: boolean;
   vmurApprovalRequired?: boolean;
   vmurReasonCodesRequired?: boolean;
-  additionalAggregators?: Record<string, any>;
-  mcoRequirements?: Record<string, any>;
+  additionalAggregators?: Record<string, unknown>;
+  mcoRequirements?: Record<string, unknown>;
   isActive?: boolean;
   effectiveFrom: Date | string;
   effectiveTo?: Date | string;
@@ -2165,7 +2165,7 @@ export interface EvvStateConfig {
   aggregatorAuthEndpoint?: string;
   aggregatorClientId?: string;
   aggregatorClientSecretEncrypted?: string;
-  aggregatorMetadata?: Record<string, any>;
+  aggregatorMetadata?: Record<string, unknown>;
 }
 
 /**
@@ -2197,11 +2197,11 @@ export interface EvvStateValidationRules {
   requiresClientAttestation?: boolean;
   allowManualOverride?: boolean;
   manualOverrideRequiresSupervisor?: boolean;
-  manualOverrideReasonCodes?: Record<string, any>;
+  manualOverrideReasonCodes?: Record<string, unknown>;
   retentionYears?: number;
   immutableAfterDays?: number;
   stateDepartment?: string;
-  statePrograms?: Record<string, any>;
+  statePrograms?: Record<string, unknown>;
   lenientRuralPolicy?: boolean;
   hcbsWaiverFocus?: boolean;
   nonMedicalExempt?: boolean;
@@ -2324,7 +2324,7 @@ export interface FamilyMembers {
   invitationSentAt?: Date | string;
   invitationAcceptedAt?: Date | string;
   receiveNotifications?: boolean;
-  notificationPreferences?: Record<string, any>;
+  notificationPreferences?: Record<string, unknown>;
   lastLoginAt?: Date | string;
   passwordResetRequired?: boolean;
   organizationId: string;
@@ -2411,7 +2411,7 @@ export interface FamilyVisitSummaries {
   actualEndTime?: Date | string;
   caregiverName: string;
   caregiverPhotoUrl?: string;
-  tasksCompleted?: Record<string, any>;
+  tasksCompleted?: Record<string, unknown>;
   visitNotes?: string;
   status: string;
   cancellationReason?: string;
@@ -2452,16 +2452,16 @@ export interface FeatureFlags {
   isEnabled?: boolean;
   enabledAt?: Date | string;
   enabledBy?: string;
-  configuration?: Record<string, any>;
-  limits?: Record<string, any>;
+  configuration?: Record<string, unknown>;
+  limits?: Record<string, unknown>;
   rolloutPercentage?: number;
   rolloutUserIds?: string[];
   rolloutBranchIds?: string[];
   billingTier?: string;
   monthlyCost?: number;
   requiresUpgrade?: boolean;
-  dependsOn?: any[][];
-  conflictsWith?: any[][];
+  dependsOn?: unknown[][];
+  conflictsWith?: unknown[][];
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -2495,7 +2495,7 @@ export interface Geofences {
   radiusMeters: number;
   radiusType?: string;
   shape?: string;
-  polygonPoints?: Record<string, any>;
+  polygonPoints?: Record<string, unknown>;
   isActive?: boolean;
   allowedVariance?: number;
   calibratedAt?: Date | string;
@@ -2573,7 +2573,7 @@ export interface Incidents {
   followUpRequired?: boolean;
   followUpCompletedAt?: Date | string;
   followUpNotes?: string;
-  attachmentUrls?: any[][];
+  attachmentUrls?: unknown[][];
   resolutionNotes?: string;
   resolvedAt?: Date | string;
   resolvedBy?: string;
@@ -2609,7 +2609,7 @@ export interface InviteTokens {
   email: string;
   firstName?: string;
   lastName?: string;
-  roles?: any[][];
+  roles?: unknown[][];
   branchIds?: string[];
   expiresAt: Date | string;
   status?: string;
@@ -2646,15 +2646,15 @@ export interface Invoices {
   payerId: string;
   payerType: string;
   payerName: string;
-  payerAddress?: Record<string, any>;
+  payerAddress?: Record<string, unknown>;
   clientId?: string;
   clientName?: string;
   periodStart: Date | string;
   periodEnd: Date | string;
   invoiceDate: Date | string;
   dueDate: Date | string;
-  billableItemIds: Record<string, any>;
-  lineItems: Record<string, any>;
+  billableItemIds: Record<string, unknown>;
+  lineItems: Record<string, unknown>;
   subtotal: number;
   taxAmount?: number;
   taxRate?: number;
@@ -2664,21 +2664,21 @@ export interface Invoices {
   paidAmount?: number;
   balanceDue: number;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   submittedDate?: Date | string;
   submittedBy?: string;
   submissionMethod?: string;
   submissionConfirmation?: string;
   paymentTerms?: string;
   lateFeeRate?: number;
-  payments?: Record<string, any>;
+  payments?: Record<string, unknown>;
   pdfUrl?: string;
-  documentIds?: Record<string, any>;
-  claimIds?: Record<string, any>;
+  documentIds?: Record<string, unknown>;
+  claimIds?: Record<string, unknown>;
   claimStatus?: string;
   notes?: string;
   internalNotes?: string;
-  tags?: Record<string, any>;
+  tags?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -2761,7 +2761,7 @@ export interface MatchHistory {
   assignedSuccessfully?: boolean;
   rejectionReason?: string;
   configurationId?: string;
-  configurationSnapshot?: Record<string, any>;
+  configurationSnapshot?: Record<string, unknown>;
   responseTimeMinutes?: number;
   notes?: string;
   /** Timestamp when record was created */
@@ -2793,7 +2793,7 @@ export interface MatchingConfigurations {
   branchId?: string;
   name: string;
   description?: string;
-  weights?: Record<string, any>;
+  weights?: Record<string, unknown>;
   maxTravelDistance?: number;
   maxTravelTime?: number;
   requireExactSkillMatch?: boolean;
@@ -2892,8 +2892,8 @@ export interface Medications {
   endDate?: Date | string;
   status?: string;
   refillsRemaining?: number;
-  sideEffects?: Record<string, any>;
-  warnings?: Record<string, any>;
+  sideEffects?: Record<string, unknown>;
+  warnings?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -2963,7 +2963,7 @@ export interface Messages {
   senderType: string;
   senderName: string;
   messageText: string;
-  attachmentUrls?: any[][];
+  attachmentUrls?: unknown[][];
   status?: string;
   readAt?: Date | string;
   readBy?: string[];
@@ -3002,13 +3002,13 @@ export interface MlModels {
   modelVersion: string;
   targetVariable: string;
   modelArtifact: string;
-  featureImportance?: Record<string, any>;
-  hyperparameters?: Record<string, any>;
+  featureImportance?: Record<string, unknown>;
+  hyperparameters?: Record<string, unknown>;
   trainingSamples: number;
   trainingStartedAt: Date | string;
   trainingCompletedAt: Date | string;
-  trainingMetrics: Record<string, any>;
-  validationMetrics?: Record<string, any>;
+  trainingMetrics: Record<string, unknown>;
+  validationMetrics?: Record<string, unknown>;
   status?: string;
   deployedAt?: Date | string;
   archivedAt?: Date | string;
@@ -3041,7 +3041,7 @@ export interface MlPredictions {
   caregiverId: string;
   assignmentProposalId?: string;
   predictedScore: number;
-  predictionDetails?: Record<string, any>;
+  predictionDetails?: Record<string, unknown>;
   ruleBasedScore: number;
   hybridScore: number;
   mlWeight: number;
@@ -3076,7 +3076,7 @@ export interface MlTrainingData {
   openShiftId?: string;
   caregiverId?: string;
   visitId?: string;
-  features: Record<string, any>;
+  features: Record<string, unknown>;
   wasAccepted?: boolean;
   wasCompleted?: boolean;
   wasNoShow?: boolean;
@@ -3119,7 +3119,7 @@ export interface MobileDevices {
   appVersion: string;
   manufacturer?: string;
   model?: string;
-  deviceCapabilities?: Record<string, any>;
+  deviceCapabilities?: Record<string, unknown>;
   pushToken?: string;
   pushProvider?: string;
   pushEnabled?: boolean;
@@ -3131,7 +3131,7 @@ export interface MobileDevices {
   isTrusted?: boolean;
   trustedAt?: Date | string;
   trustedBy?: string;
-  securityFlags?: Record<string, any>;
+  securityFlags?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -3168,14 +3168,14 @@ export interface OpenShifts {
   timezone?: string;
   serviceTypeId: string;
   serviceTypeName: string;
-  taskIds?: Record<string, any>;
-  requiredSkills?: Record<string, any>;
-  requiredCertifications?: Record<string, any>;
-  preferredCaregivers?: Record<string, any>;
-  blockedCaregivers?: Record<string, any>;
+  taskIds?: Record<string, unknown>;
+  requiredSkills?: Record<string, unknown>;
+  requiredCertifications?: Record<string, unknown>;
+  preferredCaregivers?: Record<string, unknown>;
+  blockedCaregivers?: Record<string, unknown>;
   genderPreference?: string;
   languagePreference?: string;
-  address: Record<string, any>;
+  address: Record<string, unknown>;
   latitude?: number;
   longitude?: number;
   priority?: string;
@@ -3184,11 +3184,11 @@ export interface OpenShifts {
   matchingStatus?: string;
   lastMatchedAt?: Date | string;
   matchAttempts?: number;
-  proposedAssignments?: Record<string, any>;
-  rejectedCaregivers?: Record<string, any>;
+  proposedAssignments?: Record<string, unknown>;
+  rejectedCaregivers?: Record<string, unknown>;
   clientInstructions?: string;
   internalNotes?: string;
-  tags?: any[][];
+  tags?: unknown[][];
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -3233,8 +3233,8 @@ export interface OrganizationBranding {
   brandName?: string;
   tagline?: string;
   customCss?: string;
-  themeOverrides?: Record<string, any>;
-  componentOverrides?: Record<string, any>;
+  themeOverrides?: Record<string, unknown>;
+  componentOverrides?: Record<string, unknown>;
   termsOfServiceUrl?: string;
   privacyPolicyUrl?: string;
   supportEmail?: string;
@@ -3276,9 +3276,9 @@ export interface Organizations {
   phone?: string;
   email?: string;
   website?: string;
-  primaryAddress: Record<string, any>;
-  billingAddress?: Record<string, any>;
-  settings?: Record<string, any>;
+  primaryAddress: Record<string, unknown>;
+  billingAddress?: Record<string, unknown>;
+  settings?: Record<string, unknown>;
   status?: string;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -3318,7 +3318,7 @@ export interface PayPeriods {
   endDate: Date | string;
   payDate: Date | string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   cutoffDate?: Date | string;
   approvalDeadline?: Date | string;
   payRunId?: string;
@@ -3365,7 +3365,7 @@ export interface PayRuns {
   runNumber: string;
   runType: string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   initiatedAt?: Date | string;
   initiatedBy?: string;
   calculatedAt?: Date | string;
@@ -3373,7 +3373,7 @@ export interface PayRuns {
   approvedBy?: string;
   processedAt?: Date | string;
   processedBy?: string;
-  payStubIds?: Record<string, any>;
+  payStubIds?: Record<string, unknown>;
   totalPayStubs?: number;
   totalCaregivers?: number;
   totalHours?: number;
@@ -3397,12 +3397,12 @@ export interface PayRuns {
   cashAmount?: number;
   payrollRegisterUrl?: string;
   taxReportUrl?: string;
-  exportFiles?: Record<string, any>;
-  complianceChecks?: Record<string, any>;
+  exportFiles?: Record<string, unknown>;
+  complianceChecks?: Record<string, unknown>;
   compliancePassed?: boolean;
   hasErrors?: boolean;
-  errors?: Record<string, any>;
-  warnings?: Record<string, any>;
+  errors?: Record<string, unknown>;
+  warnings?: Record<string, unknown>;
   notes?: string;
   internalNotes?: string;
   /** Timestamp when record was created */
@@ -3438,7 +3438,7 @@ export interface PayStubs {
   timeSheetId: string;
   caregiverName: string;
   caregiverEmployeeId: string;
-  caregiverAddress?: Record<string, any>;
+  caregiverAddress?: Record<string, unknown>;
   payPeriodStartDate: Date | string;
   payPeriodEndDate: Date | string;
   payDate: Date | string;
@@ -3465,7 +3465,7 @@ export interface PayStubs {
   otherEarnings?: number;
   currentGrossPay: number;
   yearToDateGrossPay: number;
-  deductions?: Record<string, any>;
+  deductions?: Record<string, unknown>;
   federalIncomeTax?: number;
   stateIncomeTax?: number;
   localIncomeTax?: number;
@@ -3504,7 +3504,7 @@ export interface PayStubs {
   checkDate?: Date | string;
   checkStatus?: string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   calculatedAt: Date | string;
   calculatedBy?: string;
   approvedAt?: Date | string;
@@ -3553,15 +3553,15 @@ export interface Payers {
   medicaidProviderId?: string;
   medicareProviderId?: string;
   taxId?: string;
-  address?: Record<string, any>;
+  address?: Record<string, unknown>;
   phone?: string;
   fax?: string;
   email?: string;
   website?: string;
-  billingAddress?: Record<string, any>;
+  billingAddress?: Record<string, unknown>;
   billingEmail?: string;
   billingPortalUrl?: string;
-  submissionMethods?: Record<string, any>;
+  submissionMethods?: Record<string, unknown>;
   ediPayerId?: string;
   clearinghouseId?: string;
   paymentTermsDays?: number;
@@ -3573,7 +3573,7 @@ export interface Payers {
   averagePaymentDays?: number;
   denialRate?: number;
   notes?: string;
-  contacts?: Record<string, any>;
+  contacts?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -3622,7 +3622,7 @@ export interface PaymentRecords {
   checkClearedDate?: Date | string;
   checkImageUrl?: string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   initiatedAt: Date | string;
   initiatedBy: string;
   processedAt?: Date | string;
@@ -3676,17 +3676,17 @@ export interface Payments {
   depositedDate?: Date | string;
   paymentMethod: string;
   referenceNumber?: string;
-  allocations?: Record<string, any>;
+  allocations?: Record<string, unknown>;
   unappliedAmount?: number;
   bankAccountId?: string;
   depositSlipNumber?: string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   isReconciled?: boolean;
   reconciledDate?: Date | string;
   reconciledBy?: string;
   imageUrl?: string;
-  documentIds?: Record<string, any>;
+  documentIds?: Record<string, unknown>;
   notes?: string;
   internalNotes?: string;
   /** Timestamp when record was created */
@@ -3757,10 +3757,10 @@ export interface Programs {
   description?: string;
   programType?: string;
   fundingSource?: string;
-  eligibilityCriteria?: Record<string, any>;
-  serviceTypes?: any[][];
+  eligibilityCriteria?: Record<string, unknown>;
+  serviceTypes?: unknown[][];
   hourlyRate?: number;
-  settings?: Record<string, any>;
+  settings?: Record<string, unknown>;
   status?: string;
   startDate?: Date | string;
   endDate?: Date | string;
@@ -3800,16 +3800,16 @@ export interface ProgressNotes {
   authorName: string;
   authorRole: string;
   content: string;
-  goalProgress?: Record<string, any>;
-  observations?: Record<string, any>;
-  concerns?: any[][];
-  recommendations?: any[][];
+  goalProgress?: Record<string, unknown>;
+  observations?: Record<string, unknown>;
+  concerns?: unknown[][];
+  recommendations?: unknown[][];
   reviewedBy?: string;
   reviewedAt?: Date | string;
   approved?: boolean;
-  attachments?: any[][];
-  signature?: Record<string, any>;
-  tags?: any[][];
+  attachments?: unknown[][];
+  signature?: Record<string, unknown>;
+  tags?: unknown[][];
   isPrivate?: boolean;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -3871,7 +3871,7 @@ export interface PushNotifications {
   notificationType: string;
   title: string;
   body: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   priority?: string;
   scheduledFor?: Date | string;
   status?: string;
@@ -3943,7 +3943,7 @@ export interface RateSchedules {
   payerName?: string;
   effectiveFrom: Date | string;
   effectiveTo?: Date | string;
-  rates: Record<string, any>;
+  rates: Record<string, unknown>;
   status?: string;
   approvedBy?: string;
   approvedAt?: Date | string;
@@ -4007,7 +4007,7 @@ export interface RegistryCheckResults {
   status: string;
   confirmationNumber?: string;
   performedBy: string;
-  listingDetails?: Record<string, any>;
+  listingDetails?: Record<string, unknown>;
   documentPath?: string;
   notes?: string;
   /** Timestamp when record was created */
@@ -4047,8 +4047,8 @@ export interface RnDelegations {
   delegatedToCredentialNumber?: string;
   taskCategory: string;
   taskDescription: string;
-  specificSkillsDelegated: any[][];
-  limitations?: any[][];
+  specificSkillsDelegated: unknown[][];
+  limitations?: unknown[][];
   trainingProvided?: boolean;
   trainingDate?: Date | string;
   trainingMethod?: string;
@@ -4066,7 +4066,7 @@ export interface RnDelegations {
   revokedBy?: string;
   revokedAt?: Date | string;
   ahcaDelegationFormNumber?: string;
-  stateSpecificData?: Record<string, any>;
+  stateSpecificData?: Record<string, unknown>;
   notes?: string;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -4098,13 +4098,13 @@ export interface ScheduleOptimizations {
   organizationId: string;
   branchId?: string;
   scheduleDate: Date | string;
-  shiftIds: Record<string, any>;
-  caregiverIds?: Record<string, any>;
+  shiftIds: Record<string, unknown>;
+  caregiverIds?: Record<string, unknown>;
   primaryGoal: string;
-  constraints?: Record<string, any>;
+  constraints?: Record<string, unknown>;
   status?: string;
-  assignments?: Record<string, any>;
-  metrics?: Record<string, any>;
+  assignments?: Record<string, unknown>;
+  metrics?: Record<string, unknown>;
   optimizationScore?: number;
   computationTimeMs?: number;
   iterations?: number;
@@ -4178,7 +4178,7 @@ export interface SecurityEvents {
   userId?: string;
   ipAddress: string;
   userAgent: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
 }
@@ -4221,16 +4221,16 @@ export interface ServiceAuthorizations {
   billedUnits?: number;
   requiresReferral?: boolean;
   referralNumber?: string;
-  allowedProviders?: Record<string, any>;
+  allowedProviders?: Record<string, unknown>;
   locationRestrictions?: string;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   reviewedBy?: string;
   reviewedAt?: Date | string;
   reviewNotes?: string;
   lowUnitsThreshold?: number;
   expirationWarningDays?: number;
-  documentIds?: Record<string, any>;
+  documentIds?: Record<string, unknown>;
   notes?: string;
   internalNotes?: string;
   /** Timestamp when record was created */
@@ -4244,9 +4244,9 @@ export interface ServiceAuthorizations {
   deletedBy?: string;
   carePlanId?: string;
   stateJurisdiction?: string;
-  serviceCodes?: any[][];
+  serviceCodes?: unknown[][];
   unitsUsed?: number;
-  stateSpecificData?: Record<string, any>;
+  stateSpecificData?: Record<string, unknown>;
   unitsRemaining?: number;
 }
 
@@ -4274,14 +4274,14 @@ export interface ServicePatterns {
   patternType: string;
   serviceTypeId: string;
   serviceTypeName: string;
-  taskTemplateIds?: Record<string, any>;
-  recurrence: Record<string, any>;
+  taskTemplateIds?: Record<string, unknown>;
+  recurrence: Record<string, unknown>;
   duration: number;
   flexibilityWindow?: number;
-  requiredSkills?: Record<string, any>;
-  requiredCertifications?: Record<string, any>;
-  preferredCaregivers?: Record<string, any>;
-  blockedCaregivers?: Record<string, any>;
+  requiredSkills?: Record<string, unknown>;
+  requiredCertifications?: Record<string, unknown>;
+  preferredCaregivers?: Record<string, unknown>;
+  blockedCaregivers?: Record<string, unknown>;
   genderPreference?: string;
   languagePreference?: string;
   preferredTimeOfDay?: string;
@@ -4333,8 +4333,8 @@ export interface ShiftRequirements {
   serviceType: string;
   startTime: Date | string;
   endTime: Date | string;
-  requiredSkills?: any[][];
-  requiredCertifications?: any[][];
+  requiredSkills?: unknown[][];
+  requiredCertifications?: unknown[][];
   languagePreference?: string;
   genderPreference?: string;
   maxDistanceMiles?: number;
@@ -4371,17 +4371,17 @@ export interface StateAggregatorSubmissions {
   evvRecordId: string;
   aggregatorId: string;
   aggregatorType: string;
-  submissionPayload: Record<string, any>;
+  submissionPayload: Record<string, unknown>;
   submissionFormat: string;
   submittedAt?: Date | string;
   submittedBy: string;
   submissionStatus?: string;
-  aggregatorResponse?: Record<string, any>;
+  aggregatorResponse?: Record<string, unknown>;
   aggregatorConfirmationId?: string;
   aggregatorReceivedAt?: Date | string;
   errorCode?: string;
   errorMessage?: string;
-  errorDetails?: Record<string, any>;
+  errorDetails?: Record<string, unknown>;
   retryCount?: number;
   maxRetries?: number;
   nextRetryAt?: Date | string;
@@ -4419,7 +4419,7 @@ export interface Subscriptions {
   caregiverLimit: number;
   visitLimit?: number;
   status: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   currentPeriodStart: Date | string;
   currentPeriodEnd: Date | string;
   trialStart?: Date | string;
@@ -4428,10 +4428,10 @@ export interface Subscriptions {
   canceledAt?: Date | string;
   endedAt?: Date | string;
   paymentMethodId?: string;
-  paymentMethodDetails?: Record<string, any>;
+  paymentMethodDetails?: Record<string, unknown>;
   lastInvoiceDate?: Date | string;
   lastInvoiceStatus?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   cancellationReason?: string;
   notes?: string;
   /** Timestamp when record was created */
@@ -4462,21 +4462,21 @@ export interface SyncConflicts {
   entityType: string;
   entityId: string;
   fieldName: string;
-  localValue: Record<string, any>;
+  localValue: Record<string, unknown>;
   localUpdatedAt: Date | string;
-  remoteValue: Record<string, any>;
+  remoteValue: Record<string, unknown>;
   remoteUpdatedAt: Date | string;
   clientVersion: number;
   serverVersion: number;
   resolutionStrategy?: string;
   resolutionStatus?: string;
-  resolvedValue?: Record<string, any>;
+  resolvedValue?: Record<string, unknown>;
   resolvedByType?: string;
   resolvedByUserId?: string;
   resolvedAt?: Date | string;
   resolutionNotes?: string;
   organizationId: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   /** Timestamp when record was last updated */
@@ -4507,10 +4507,10 @@ export interface SyncMetadata {
   operation: string;
   clientTimestamp: Date | string;
   serverTimestamp?: Date | string;
-  changeData?: Record<string, any>;
+  changeData?: Record<string, unknown>;
   changeHash?: string;
   syncStatus?: string;
-  conflictData?: Record<string, any>;
+  conflictData?: Record<string, unknown>;
   syncError?: string;
   retryCount?: number;
   /** Timestamp when record was created */
@@ -4541,7 +4541,7 @@ export interface SyncQueue {
   operationType: string;
   entityType: string;
   entityId: string;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   deviceId: string;
   userId: string;
   organizationId: string;
@@ -4550,7 +4550,7 @@ export interface SyncQueue {
   nextRetryAt?: Date | string;
   status?: string;
   errorMessage?: string;
-  errorDetails?: Record<string, any>;
+  errorDetails?: Record<string, unknown>;
   priority?: number;
   clientVersion?: number;
   serverVersion?: number;
@@ -4594,10 +4594,10 @@ export interface TaskInstances {
   completedAt?: Date | string;
   completedBy?: string;
   completionNote?: string;
-  completionSignature?: Record<string, any>;
-  completionPhoto?: any[][];
-  verificationData?: Record<string, any>;
-  qualityCheckResponses?: Record<string, any>;
+  completionSignature?: Record<string, unknown>;
+  completionPhoto?: unknown[][];
+  verificationData?: Record<string, unknown>;
+  qualityCheckResponses?: Record<string, unknown>;
   skippedAt?: Date | string;
   skippedBy?: string;
   skipReason?: string;
@@ -4608,7 +4608,7 @@ export interface TaskInstances {
   issueReportedBy?: string;
   requiredSignature?: boolean;
   requiredNote?: boolean;
-  customFieldValues?: Record<string, any>;
+  customFieldValues?: Record<string, unknown>;
   notes?: string;
   /** Timestamp when record was created */
   createdAt?: Date | string;
@@ -4623,7 +4623,7 @@ export interface TaskInstances {
   supervisorReviewedAt?: Date | string;
   delegationAuthorityId?: string;
   skillLevelRequired?: string;
-  stateSpecificTaskData?: Record<string, any>;
+  stateSpecificTaskData?: Record<string, unknown>;
   /** Flag indicating this is demo/seed data */
   isDemoData?: boolean;
 }
@@ -4706,9 +4706,9 @@ export interface TexasVmur {
   approvedByName?: string;
   approvedAt?: Date | string;
   denialReason?: string;
-  originalData: Record<string, any>;
-  correctedData: Record<string, any>;
-  changesSummary: Record<string, any>;
+  originalData: Record<string, unknown>;
+  correctedData: Record<string, unknown>;
+  changesSummary: Record<string, unknown>;
   submittedToAggregator?: boolean;
   aggregatorConfirmation?: string;
   submittedAt?: Date | string;
@@ -4743,18 +4743,18 @@ export interface TimeEntries {
   clientId: string;
   entryType: string;
   entryTimestamp: Date | string;
-  location: Record<string, any>;
+  location: Record<string, unknown>;
   deviceId: string;
-  deviceInfo: Record<string, any>;
+  deviceInfo: Record<string, unknown>;
   integrityHash: string;
   serverReceivedAt?: Date | string;
-  syncMetadata: Record<string, any>;
+  syncMetadata: Record<string, unknown>;
   offlineRecorded?: boolean;
   offlineRecordedAt?: Date | string;
   status?: string;
   verificationPassed: boolean;
-  verificationIssues?: Record<string, any>;
-  manualOverride?: Record<string, any>;
+  verificationIssues?: Record<string, unknown>;
+  manualOverride?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -4786,7 +4786,7 @@ export interface TimeSheets {
   caregiverId: string;
   caregiverName: string;
   caregiverEmployeeId: string;
-  timeEntries?: Record<string, any>;
+  timeEntries?: Record<string, unknown>;
   regularHours?: number;
   overtimeHours?: number;
   doubleTimeHours?: number;
@@ -4806,22 +4806,22 @@ export interface TimeSheets {
   sickEarnings?: number;
   otherEarnings?: number;
   grossEarnings?: number;
-  bonuses?: Record<string, any>;
-  reimbursements?: Record<string, any>;
-  adjustments?: Record<string, any>;
+  bonuses?: Record<string, unknown>;
+  reimbursements?: Record<string, unknown>;
+  adjustments?: Record<string, unknown>;
   totalAdjustments?: number;
   totalGrossPay?: number;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   submittedAt?: Date | string;
   submittedBy?: string;
   approvedAt?: Date | string;
   approvedBy?: string;
   approvalNotes?: string;
   hasDiscrepancies?: boolean;
-  discrepancyFlags?: Record<string, any>;
-  evvRecordIds?: Record<string, any>;
-  visitIds?: Record<string, any>;
+  discrepancyFlags?: Record<string, unknown>;
+  evvRecordIds?: Record<string, unknown>;
+  visitIds?: Record<string, unknown>;
   notes?: string;
   reviewNotes?: string;
   /** Timestamp when record was created */
@@ -4858,15 +4858,15 @@ export interface Users {
   firstName: string;
   lastName: string;
   phone?: string;
-  roles?: any[][];
-  permissions?: any[][];
+  roles?: unknown[][];
+  permissions?: unknown[][];
   branchIds?: string[];
   status?: string;
   lastLoginAt?: Date | string;
   passwordChangedAt?: Date | string;
   failedLoginAttempts?: number;
   lockedUntil?: Date | string;
-  settings?: Record<string, any>;
+  settings?: Record<string, unknown>;
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
@@ -4887,7 +4887,7 @@ export interface Users {
   lastFailedLoginAt?: Date | string;
   lastLoginIp?: string;
   lastLoginUserAgent?: string;
-  mobilePreferences?: Record<string, any>;
+  mobilePreferences?: Record<string, unknown>;
   mobileAccessEnabled?: boolean;
   lastMobileLogin?: Date | string;
   timezone?: string;
@@ -4958,8 +4958,8 @@ export interface VisitNoteTemplates {
   category?: string;
   templateText: string;
   templateHtml?: string;
-  prompts?: Record<string, any>;
-  defaultActivities?: Record<string, any>;
+  prompts?: Record<string, unknown>;
+  defaultActivities?: Record<string, unknown>;
   requiresSignature?: boolean;
   requiresIncidentFlag?: boolean;
   requiresSupervisorReview?: boolean;
@@ -5004,7 +5004,7 @@ export interface VisitNotes {
   noteText: string;
   noteHtml?: string;
   templateId?: string;
-  activitiesPerformed?: Record<string, any>;
+  activitiesPerformed?: Record<string, unknown>;
   clientMood?: string;
   clientConditionNotes?: string;
   isIncident?: boolean;
@@ -5089,33 +5089,33 @@ export interface Visits {
   assignedAt?: Date | string;
   assignedBy?: string;
   assignmentMethod?: string;
-  address: Record<string, any>;
-  locationVerification?: Record<string, any>;
-  taskIds?: Record<string, any>;
-  requiredSkills?: Record<string, any>;
-  requiredCertifications?: Record<string, any>;
+  address: Record<string, unknown>;
+  locationVerification?: Record<string, unknown>;
+  taskIds?: Record<string, unknown>;
+  requiredSkills?: Record<string, unknown>;
+  requiredCertifications?: Record<string, unknown>;
   status?: string;
-  statusHistory?: Record<string, any>;
+  statusHistory?: Record<string, unknown>;
   isUrgent?: boolean;
   isPriority?: boolean;
   requiresSupervision?: boolean;
-  riskFlags?: Record<string, any>;
+  riskFlags?: Record<string, unknown>;
   verificationMethod?: string;
-  verificationData?: Record<string, any>;
+  verificationData?: Record<string, unknown>;
   completionNotes?: string;
   tasksCompleted?: number;
   tasksTotal?: number;
   incidentReported?: boolean;
   signatureRequired?: boolean;
   signatureCaptured?: boolean;
-  signatureData?: Record<string, any>;
+  signatureData?: Record<string, unknown>;
   billableHours?: number;
   billingStatus?: string;
   billingNotes?: string;
   clientInstructions?: string;
   caregiverInstructions?: string;
   internalNotes?: string;
-  tags?: any[][];
+  tags?: unknown[][];
   /** Timestamp when record was created */
   createdAt?: Date | string;
   createdBy: string;
