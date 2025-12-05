@@ -79,6 +79,8 @@
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "vite": "^7.2.2",
-    "vitest": "^4.0.8"
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.0.8",
+    "workbox-window": "^7.4.0"
   }
 }
