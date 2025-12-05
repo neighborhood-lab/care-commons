@@ -40,7 +40,12 @@ export default function (data) {
   const payload = JSON.stringify({
     visitId,
     gpsCoordinates: {
+      // Security Note: Math.random() is acceptable here for load test data generation
+      // This is NOT used for cryptographic purposes, authentication, or security tokens
+      // Load tests only need pseudo-random GPS coordinates for realistic test scenarios
+      // lgtm[js/insecure-randomness]
       latitude: 30.2672 + Math.random() * 0.01,
+      // lgtm[js/insecure-randomness]
       longitude: -97.7431 + Math.random() * 0.01,
       accuracy: 10,
     },
