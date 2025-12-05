@@ -20,11 +20,9 @@ function sanitizeString(str: string): string {
   sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
   sanitized = sanitized.replace(/\bon\w+\s*=\s*[^\s>]*/gi, '');
 
-  // Remove javascript: protocol
-  sanitized = sanitized.replace(/javascript:/gi, '');
-
-  // Remove data: protocol for potential data URIs
-  sanitized = sanitized.replace(/data:text\/html/gi, '');
+  // Remove dangerous URL schemes (javascript:, data:, vbscript:, file:, etc.)
+  // Use comprehensive check instead of incomplete regex that only checked specific patterns
+  sanitized = sanitized.replace(/\b(javascript|data|vbscript|file|about):/gi, '');
 
   return sanitized;
 }
