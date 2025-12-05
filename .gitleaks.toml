@@ -19,10 +19,12 @@ paths = [
   '''.*/fixtures/.*''',
   '''.*/mocks/.*''',
   '''.*/__tests__/.*''',
-  # Ignore documentation
+  # Ignore documentation (contains example/placeholder keys for setup guides)
   '''README\.md''',
   '''CLAUDE\.md''',
   '''AGENTS\.md''',
+  '''STRIPE_SETUP_GUIDE\.md''',
+  '''VERCEL_ENV_SETUP\.md''',
   '''docs/.*''',
   # Ignore session files (Claude Code conversation logs)
   '''session-.*\.md$''',
