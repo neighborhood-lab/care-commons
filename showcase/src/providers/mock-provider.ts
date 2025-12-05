@@ -129,6 +129,12 @@ export const createMockProvider = (seedData: MockDataStore): DataProvider => {
 
   const saveToStorage = () => {
     try {
+      // SECURITY WARNING: localStorage stores data in clear text and is accessible to all scripts
+      // This showcase demo uses localStorage for convenience ONLY
+      // NEVER use localStorage for sensitive data in production:
+      // - Authentication tokens should use httpOnly cookies
+      // - User credentials should never be stored client-side
+      // - PII/PHI must be encrypted or kept server-side only
       localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
     } catch (error) {
       console.warn('Failed to save to localStorage:', error);

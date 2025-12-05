@@ -61,10 +61,11 @@ function sanitizeString(str: string): string {
   // This preserves standalone < and > characters
   sanitized = sanitized.replace(/<\/?[a-z][^>]*>/gi, '');
   
-  // Remove javascript: protocol
+  // Remove dangerous URL schemes (javascript:, data:, vbscript:, file:, etc.)
+  // Use comprehensive check instead of incomplete regex
   // eslint-disable-next-line sonarjs/code-eval
-  sanitized = sanitized.replace(/javascript:/gi, '');
-  
+  sanitized = sanitized.replace(/\b(javascript|data|vbscript|file|about):/gi, '');
+
   return sanitized;
 }
 

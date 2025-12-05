@@ -148,6 +148,12 @@ export class ShowcaseApiProvider implements ApiProvider {
 
   private saveAuthState(): void {
     if (this.persistData && this.currentUser) {
+      // SECURITY WARNING: localStorage stores data in clear text and is accessible to all scripts
+      // This showcase demo uses localStorage for convenience ONLY
+      // NEVER use localStorage for authentication tokens or sensitive data in production:
+      // - Use httpOnly cookies for auth tokens to prevent XSS attacks
+      // - Never store passwords or credentials client-side
+      // - Keep PII/PHI encrypted or server-side only
       localStorage.setItem(AUTH_KEY, JSON.stringify({ userId: this.currentUser.id }));
     }
   }
