@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Calendar, momentLocalizer, View, SlotInfo } from 'react-big-calendar';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { Calendar, momentLocalizer, View, SlotInfo, EventProps } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Plus, List, Layout } from 'lucide-react';
+import { CalendarDays, Plus, List, Layout, Home, Phone, Building2, ZoomIn, ZoomOut, Clock } from 'lucide-react';
 import { useCalendarVisits, useVisitApi, useCaregiverAvailability } from '../hooks/useVisits';
 import { useAuth } from '@/core/hooks';
 import { EmptyState } from '@/core/components/feedback/EmptyState';
@@ -12,6 +12,25 @@ import { MiniCalendar, VisitStatusLegend } from '../components';
 import type { Visit } from '../types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
+
+// Density modes for week view
+type DensityMode = 'comfortable' | 'compact' | 'ultra-compact';
+
+// Time range presets
+type TimeRange = 'full' | 'business' | 'extended';
+
+const TIME_RANGES: Record<TimeRange, { min: number; max: number; label: string }> = {
+  full: { min: 6, max: 22, label: '6 AM - 10 PM' },
+  business: { min: 8, max: 18, label: '8 AM - 6 PM' },
+  extended: { min: 5, max: 23, label: '5 AM - 11 PM' },
+};
+
+const DENSITY_CONFIG: Record<DensityMode, { step: number; timeslots: number; minEventHeight: number; label: string }> = {
+  comfortable: { step: 30, timeslots: 2, minEventHeight: 50, label: 'Comfortable' },
+  compact: { step: 15, timeslots: 4, minEventHeight: 35, label: 'Compact' },
+  'ultra-compact': { step: 15, timeslots: 4, minEventHeight: 25, label: 'Ultra-Compact' },
+};
+
 
 // Color palette for caregivers (reusable across visits)
 const CAREGIVER_COLORS = [
@@ -36,6 +55,77 @@ interface CalendarEvent {
   color: string;
 }
 
+// Custom Event Component with tooltip and icon
+interface CustomEventProps extends EventProps<CalendarEvent> {
+  densityMode: DensityMode;
+}
+
+// Render the appropriate icon for a visit type
+const VisitTypeIconRenderer: React.FC<{ serviceTypeName: string; className?: string }> = ({ serviceTypeName, className }) => {
+  const name = serviceTypeName.toLowerCase();
+  if (name.includes('home') || name.includes('personal')) return <Home className={className} />;
+  if (name.includes('phone') || name.includes('call')) return <Phone className={className} />;
+  if (name.includes('clinic') || name.includes('office')) return <Building2 className={className} />;
+  return <Clock className={className} />;
+};
+
+const CustomEvent: React.FC<CustomEventProps> = ({ event, densityMode }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const isUltraCompact = densityMode === 'ultra-compact';
+
+  const clientName = event.resource.clientFirstName && event.resource.clientLastName
+    ? `${event.resource.clientFirstName} ${event.resource.clientLastName}`
+    : 'Unknown Client';
+
+  const startTime = moment(event.start).format('h:mm A');
+  const endTime = moment(event.end).format('h:mm A');
+  const duration = moment(event.end).diff(moment(event.start), 'minutes');
+  const durationText = duration >= 60
+    ? `${Math.floor(duration / 60)}h ${duration % 60}m`
+    : `${duration}m`;
+
+  return (
+    <div
+      className="relative h-full w-full"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      {/* Event content */}
+      <div className={`flex items-start gap-1 h-full overflow-hidden ${isUltraCompact ? 'px-1' : 'px-2 py-1'}`}>
+        <VisitTypeIconRenderer
+          serviceTypeName={event.resource.serviceTypeName}
+          className={`flex-shrink-0 ${isUltraCompact ? 'h-3 w-3' : 'h-4 w-4'}`}
+        />
+        {!isUltraCompact && (
+          <span className="truncate text-xs font-medium">{event.title}</span>
+        )}
+      </div>
+
+      {/* Tooltip */}
+      {showTooltip && (
+        <div className="absolute left-full top-0 ml-2 z-50 bg-gray-900 text-white text-xs rounded-lg shadow-lg p-3 min-w-[200px] pointer-events-none">
+          <div className="font-semibold mb-1">{clientName}</div>
+          <div className="text-gray-300 mb-2">{event.resource.serviceTypeName}</div>
+          <div className="flex items-center gap-2 text-gray-300">
+            <Clock className="h-3 w-3" />
+            <span>{startTime} - {endTime} ({durationText})</span>
+          </div>
+          {event.resource.assignedCaregiverId && (
+            <div className="mt-2 pt-2 border-t border-gray-700 text-gray-300">
+              Caregiver Assigned
+            </div>
+          )}
+          {event.resource.status === 'UNASSIGNED' && (
+            <div className="mt-2 pt-2 border-t border-gray-700 text-amber-400 font-medium">
+              Needs Assignment
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Setup the localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop<CalendarEvent>(Calendar);
@@ -52,6 +142,52 @@ export const CalendarView: React.FC = () => {
   const [showMiniCalendar, setShowMiniCalendar] = useState(true);
   const [showLegend, setShowLegend] = useState(true);
   const [selectedBranches] = useState<string[]>([]);
+
+  // Week view UX controls
+  const [densityMode, setDensityMode] = useState<DensityMode>(() => {
+    // Load from localStorage or default to comfortable
+    const saved = localStorage.getItem('calendar-density');
+    return (saved as DensityMode) ?? 'comfortable';
+  });
+  const [timeRange, setTimeRange] = useState<TimeRange>(() => {
+    const saved = localStorage.getItem('calendar-time-range');
+    return (saved as TimeRange) ?? 'full';
+  });
+
+  // Ref for calendar container (for auto-scroll)
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Save preferences to localStorage
+  useEffect(() => {
+    localStorage.setItem('calendar-density', densityMode);
+  }, [densityMode]);
+
+  useEffect(() => {
+    localStorage.setItem('calendar-time-range', timeRange);
+  }, [timeRange]);
+
+  // Auto-scroll to current time on week view
+  useEffect(() => {
+    if (view !== 'week' || !calendarRef.current) {
+      return;
+    }
+
+    // Wait for calendar to render
+    const timer = setTimeout(() => {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const timeSlotHeight = densityMode === 'comfortable' ? 60 : 40;
+      const { min } = TIME_RANGES[timeRange];
+      const scrollTo = Math.max(0, (currentHour - min - 1) * timeSlotHeight);
+
+      const scrollContainer = calendarRef.current?.querySelector('.rbc-time-content');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollTo;
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [view, timeRange, densityMode]);
 
   // Calculate date range for calendar based on current view
   const { startDate, endDate } = useMemo(() => {
@@ -534,6 +670,42 @@ export const CalendarView: React.FC = () => {
               </button>
             </div>
 
+            {/* Week View Controls (only show in week/day view) */}
+            {(view === 'week' || view === 'day') && (
+              <div className="flex items-center gap-3 border-l pl-4">
+                {/* Density Control */}
+                <div className="flex items-center gap-2">
+                  <ZoomOut className="h-4 w-4 text-gray-400" />
+                  <select
+                    value={densityMode}
+                    onChange={(e) => setDensityMode(e.target.value as DensityMode)}
+                    className="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                    title="Display density"
+                  >
+                    <option value="comfortable">Comfortable</option>
+                    <option value="compact">Compact</option>
+                    <option value="ultra-compact">Ultra-Compact</option>
+                  </select>
+                  <ZoomIn className="h-4 w-4 text-gray-400" />
+                </div>
+
+                {/* Time Range Control */}
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  <select
+                    value={timeRange}
+                    onChange={(e) => setTimeRange(e.target.value as TimeRange)}
+                    className="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                    title="Time range"
+                  >
+                    <option value="business">Business Hours (8 AM - 6 PM)</option>
+                    <option value="full">Full Day (6 AM - 10 PM)</option>
+                    <option value="extended">Extended (5 AM - 11 PM)</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
             {/* Refresh Button */}
             <button
               onClick={() => refetch()}
@@ -627,7 +799,13 @@ export const CalendarView: React.FC = () => {
               size="lg"
             />
           ) : (
-            <div className="bg-white rounded-lg shadow-sm h-full p-4">
+            <div
+              ref={calendarRef}
+              className={`bg-white rounded-lg shadow-sm h-full p-4 calendar-${densityMode}`}
+              style={{
+                ['--event-min-height' as string]: `${DENSITY_CONFIG[densityMode].minEventHeight}px`,
+              }}
+            >
               <DragAndDropCalendar
                 localizer={localizer}
                 events={events}
@@ -647,12 +825,12 @@ export const CalendarView: React.FC = () => {
                   return user?.roles.some(role => ['COORDINATOR', 'ORG_ADMIN', 'SUPER_ADMIN'].includes(role)) ?? false;
                 }}
                 style={{ height: '100%' }}
-                step={15}
-                timeslots={4}
+                step={DENSITY_CONFIG[densityMode].step}
+                timeslots={DENSITY_CONFIG[densityMode].timeslots}
                 defaultView="week"
                 views={['month', 'week', 'day']}
-                min={new Date(2025, 0, 1, 6, 0)} // Start at 6 AM
-                max={new Date(2025, 0, 1, 22, 0)} // End at 10 PM
+                min={new Date(2025, 0, 1, TIME_RANGES[timeRange].min, 0)}
+                max={new Date(2025, 0, 1, TIME_RANGES[timeRange].max, 0)}
                 messages={{
                   next: 'Next',
                   previous: 'Previous',
@@ -660,6 +838,9 @@ export const CalendarView: React.FC = () => {
                   month: 'Month',
                   week: 'Week',
                   day: 'Day',
+                }}
+                components={{
+                  event: (props) => <CustomEvent {...props} densityMode={densityMode} />,
                 }}
               />
             </div>
