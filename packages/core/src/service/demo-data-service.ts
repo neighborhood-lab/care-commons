@@ -57,11 +57,12 @@ export class DemoDataService {
     // Note: The seed-demo.ts script needs to be updated to accept organization_id parameter
     try {
       await new Promise<void>((resolve, reject) => {
+        // eslint-disable-next-line sonarjs/no-os-command-from-path
         const child = spawn('npx', ['tsx', 'packages/core/scripts/seed-demo.ts'], {
           cwd: process.cwd(),
           env: {
             ...process.env,
-            DATABASE_URL: process.env.DATABASE_URL || '',
+            DATABASE_URL: process.env.DATABASE_URL ?? '',
             ORG_ID: organizationId
           },
           stdio: ['ignore', 'pipe', 'pipe']
