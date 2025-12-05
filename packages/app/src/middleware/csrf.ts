@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import cookieParser from 'cookie-parser';
 import type { Express, Request, Response, NextFunction } from 'express';
+import { csrfTokenLimiter } from './rate-limit.js';
 
 // Custom CSRF protection implementation (csurf is deprecated)
 // Uses double-submit cookie pattern
@@ -122,8 +123,8 @@ export const configureCsrfProtection = (app: Express): void => {
     next();
   });
 
-  // Endpoint to get CSRF token
-  app.get('/api/csrf-token', (req: Request, res: Response) => {
+  // Endpoint to get CSRF token (rate limited to prevent token harvesting)
+  app.get('/api/csrf-token', csrfTokenLimiter, (req: Request, res: Response) => {
     res.json({ csrfToken: (req as Request & { csrfToken?: string }).csrfToken });
   });
 };

@@ -1,15 +1,19 @@
 /**
  * Sync API Routes
- * 
+ *
  * Provides offline sync capabilities for mobile devices
  */
 
 import { Router, type Request, type Response } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
+import { syncLimiter } from '../middleware/rate-limit.js';
 
 export function createSyncRouter(db: Database): Router {
   const router = Router();
   const authMiddleware = new AuthMiddleware(db);
+
+  // Apply rate limiting to all sync endpoints
+  router.use(syncLimiter);
 
   // All sync routes require authentication
   router.use(authMiddleware.requireAuth);
