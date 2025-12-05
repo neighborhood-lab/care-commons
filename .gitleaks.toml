@@ -19,38 +19,34 @@ paths = [
   '''.*/fixtures/.*''',
   '''.*/mocks/.*''',
   '''.*/__tests__/.*''',
+  # Ignore documentation
+  '''README\.md''',
+  '''CLAUDE\.md''',
+  '''AGENTS\.md''',
+  '''docs/.*''',
+  # Ignore session files (Claude Code conversation logs)
+  '''session-.*\.md$''',
+  # Ignore third-party dependencies
+  '''packages/mobile/ios/Pods/.*''',
+  '''packages/mobile/android/.*''',
+  '''node_modules/.*''',
 ]
 
-# Ignore example/template files
+# Ignore example/template files and false positive patterns
 regexes = [
+  # Example/template files
   '''\.env\.example''',
   '''\.env\.template''',
   '''example.*password.*''',
   '''demo.*token.*''',
   '''placeholder.*key.*''',
-]
-
-# Ignore documentation
-[allowlist.paths]
-paths = [
-  '''README\.md''',
-  '''CLAUDE\.md''',
-  '''AGENTS\.md''',
-  '''docs/.*''',
-]
-
-# Ignore specific false positive patterns
-[allowlist.regexes]
-regexes = [
   # Example tokens in documentation
   '''ghp_example.*''',
   '''sk-example.*''',
-
   # Test/demo database URLs
   '''postgresql://postgres:postgres@localhost''',
   '''DATABASE_URL_TEST''',
   '''DATABASE_URL_EXAMPLE''',
-
   # Placeholder API keys in docs
   '''your-api-key-here''',
   '''YOUR_.*_KEY''',
