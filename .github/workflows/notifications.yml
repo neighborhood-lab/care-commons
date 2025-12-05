@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Check previous run status
         id: check_previous
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const runs = await github.rest.actions.listWorkflowRuns({
