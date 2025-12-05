@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import sanitizeHtml from 'sanitize-html';
 
 export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
   // Sanitize request body
@@ -45,27 +46,25 @@ function sanitizeObject(obj: any): any {
 }
 
 /**
- * Sanitize a string by removing:
- * - HTML tags and attributes
+ * Sanitize a string using proper HTML sanitization library
+ * instead of vulnerable regex patterns.
+ *
+ * Removes:
+ * - All HTML tags and attributes
  * - Script tags and their contents
  * - JavaScript event handlers
  * - JavaScript protocol URLs
+ * - Data URLs
  */
 function sanitizeString(str: string): string {
-  let sanitized = str;
-  
-  // Remove script tags and their contents
-  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  
-  // Remove HTML tags (opening/closing tags starting with a letter)
-  // This preserves standalone < and > characters
-  sanitized = sanitized.replace(/<\/?[a-z][^>]*>/gi, '');
-  
-  // Remove javascript: protocol
-  // eslint-disable-next-line sonarjs/code-eval
-  sanitized = sanitized.replace(/javascript:/gi, '');
-  
-  return sanitized;
+  // Use sanitize-html library for proper, secure HTML sanitization
+  // This prevents XSS attacks that can bypass regex-based filters
+  return sanitizeHtml(str, {
+    allowedTags: [], // Strip all HTML tags
+    allowedAttributes: {}, // Strip all attributes
+    disallowedTagsMode: 'discard', // Remove tags entirely
+    enforceHtmlBoundary: false, // Don't require valid HTML document
+  });
 }
 
 // SQL injection protection (additional layer beyond parameterized queries)
