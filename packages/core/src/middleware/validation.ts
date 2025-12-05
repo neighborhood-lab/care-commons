@@ -7,28 +7,40 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { z, type ZodType, ZodError } from 'zod';
-import sanitizeHtml from 'sanitize-html';
 
 /**
- * Sanitize strings to prevent XSS attacks using proper HTML sanitization library
- * instead of vulnerable regex patterns.
+ * Sanitize a string to prevent XSS attacks
  *
- * Removes:
- * - All HTML tags and attributes
- * - Script tags and their contents
- * - JavaScript event handlers
- * - JavaScript protocol URLs
- * - Data URLs
+ * This approach:
+ * 1. Removes dangerous URL protocols (javascript:, data:, vbscript:, file:, about:)
+ * 2. Removes script/style tags and their content
+ * 3. Strips remaining HTML tags and attributes
+ * 4. Preserves plain text special characters like <>
+ *
+ * Note: We first remove URL protocols, then script tags, then other HTML tags.
+ * This order prevents attackers from hiding malicious code in various ways.
  */
 function sanitizeString(str: string): string {
-  // Use sanitize-html library for proper, secure HTML sanitization
-  // This prevents XSS attacks that can bypass regex-based filters
-  return sanitizeHtml(str, {
-    allowedTags: [], // Strip all HTML tags
-    allowedAttributes: {}, // Strip all attributes
-    disallowedTagsMode: 'discard', // Remove tags entirely
-    enforceHtmlBoundary: false, // Don't require valid HTML document
-  });
+  // Step 1: Remove dangerous URL protocols from plain text
+  // Match protocols at word boundaries to avoid false positives
+  const protocolPattern = /\b(javascript|data|vbscript|file|about):/gi;
+  let sanitized = str.replace(protocolPattern, '');
+
+  // Step 2: Remove script and style tags INCLUDING their content
+  // This prevents XSS attacks via script injection
+  sanitized = sanitized.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  sanitized = sanitized.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
+
+  // Step 3: Strip remaining HTML tags (but preserve plain text < and >)
+  // Match tags that have at least one alphanumeric character for the tag name
+  // This preserves "<>" when it's not part of an HTML tag
+  sanitized = sanitized.replace(/<\/?[a-z][\s\S]*?>/gi, '');
+
+  // Step 4: Remove HTML event handlers that might be in remaining attributes
+  // Matches: onclick="..." onerror="..." etc.
+  sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
+
+  return sanitized;
 }
 
 /**
