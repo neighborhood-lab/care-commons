@@ -64,13 +64,13 @@ function sanitizeString(str: string): string {
 
   // Step 2: Remove script and style tags INCLUDING their content
   // This prevents XSS attacks via script injection
-  sanitized = sanitized.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-  sanitized = sanitized.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
+  sanitized = sanitized.replace(/<script\b[^>]*>[\S\s]*?<\/script>/gi, '');
+  sanitized = sanitized.replace(/<style\b[^>]*>[\S\s]*?<\/style>/gi, '');
 
   // Step 3: Strip remaining HTML tags (but preserve plain text < and >)
   // Match tags that have at least one alphanumeric character for the tag name
   // This preserves "<>" when it's not part of an HTML tag
-  sanitized = sanitized.replace(/<\/?[a-z][\s\S]*?>/gi, '');
+  sanitized = sanitized.replace(/<\/?[a-z][\S\s]*?>/gi, '');
 
   // Step 4: Remove HTML event handlers that might be in remaining attributes
   // Matches: onclick="..." onerror="..." etc.
