@@ -72,7 +72,7 @@ function mapPostgresTypeToTS(pgType: string, udtName: string): string {
     'ARRAY': 'unknown[]',
   };
 
-  return typeMap[pgType] || 'any';
+  return typeMap[pgType] || 'unknown';
 }
 
 function toPascalCase(str: string): string {

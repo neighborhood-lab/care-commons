@@ -4,7 +4,7 @@
  * Auto-generated from database schema.
  * Do not edit manually - run 'npm run db:generate-types' to regenerate.
  *
- * Generated: 2025-12-05T17:21:02.014Z
+ * Generated: 2025-12-05T18:46:53.112Z
  */
 
 /**
@@ -894,8 +894,8 @@ export interface CaregiverPreferenceProfiles {
   willingToWorkHolidays?: boolean;
   acceptAutoAssignment?: boolean;
   notificationMethods?: Record<string, unknown>;
-  quietHoursStart?: any;
-  quietHoursEnd?: any;
+  quietHoursStart?: unknown;
+  quietHoursEnd?: unknown;
   lastUpdated?: Date | string;
   updatedBy: string;
   /** Timestamp when record was created */
@@ -1153,7 +1153,7 @@ export interface ClientAccessAudit {
   accessType: string;
   accessTimestamp?: Date | string;
   accessReason?: string;
-  ipAddress?: any;
+  ipAddress?: unknown;
   userAgent?: string;
   disclosureRecipient?: string;
   disclosureMethod?: string;
@@ -1902,7 +1902,7 @@ export interface EvvAccessLog {
   accessedBy: string;
   accessedByName: string;
   accessedByRole: string;
-  accessedByIp?: any;
+  accessedByIp?: unknown;
   accessType: string;
   accessReason?: string;
   fieldsAccessed?: Record<string, unknown>;
@@ -3162,8 +3162,8 @@ export interface OpenShifts {
   visitId: string;
   clientId: string;
   scheduledDate: Date | string;
-  startTime: any;
-  endTime: any;
+  startTime: unknown;
+  endTime: unknown;
   duration: number;
   timezone?: string;
   serviceTypeId: string;
@@ -4285,8 +4285,8 @@ export interface ServicePatterns {
   genderPreference?: string;
   languagePreference?: string;
   preferredTimeOfDay?: string;
-  mustStartBy?: any;
-  mustEndBy?: any;
+  mustStartBy?: unknown;
+  mustEndBy?: unknown;
   authorizedHoursPerWeek?: number;
   authorizedVisitsPerWeek?: number;
   authorizationStartDate?: Date | string;
@@ -4587,7 +4587,7 @@ export interface TaskInstances {
   category: string;
   instructions: string;
   scheduledDate: Date | string;
-  scheduledTime?: any;
+  scheduledTime?: unknown;
   timeOfDay?: string;
   estimatedDuration?: number;
   status?: string;
@@ -5078,8 +5078,8 @@ export interface Visits {
   serviceTypeId: string;
   serviceTypeName: string;
   scheduledDate: Date | string;
-  scheduledStartTime: any;
-  scheduledEndTime: any;
+  scheduledStartTime: unknown;
+  scheduledEndTime: unknown;
   scheduledDuration: number;
   timezone?: string;
   actualStartTime?: Date | string;
