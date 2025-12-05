@@ -1,15 +1,19 @@
 /**
  * Mobile API Routes
- * 
+ *
  * Provides mobile-optimized endpoints for caregiver mobile app
  */
 
 import { Router, type Request, type Response } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
+import { mobileLimiter } from '../middleware/rate-limit.js';
 
 export function createMobileRouter(db: Database): Router {
   const router = Router();
   const authMiddleware = new AuthMiddleware(db);
+
+  // Apply rate limiting to all mobile endpoints
+  router.use(mobileLimiter);
 
   // All mobile routes require authentication
   router.use(authMiddleware.requireAuth);

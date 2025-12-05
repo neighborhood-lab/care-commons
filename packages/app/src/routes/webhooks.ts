@@ -1,13 +1,17 @@
 /**
  * Webhooks Routes
- * 
+ *
  * Handles incoming webhooks from external services (Stripe, etc.)
  */
 
 import express, { Request, Response } from 'express';
 import { getDatabase, BillingRepository, createEmailService, createStripeService } from '@folkcare/core';
+import { webhookLimiter } from '../middleware/rate-limit.js';
 
 const router = express.Router();
+
+// Apply rate limiting to all webhook endpoints
+router.use(webhookLimiter);
 
 /**
  * Stripe webhook handler
