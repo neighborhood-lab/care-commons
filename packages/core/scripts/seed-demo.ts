@@ -247,6 +247,219 @@ const TEXAS_LOCATIONS = [
   },
 ] as const;
 
+// Florida cities with realistic neighborhoods and zip codes
+const FLORIDA_LOCATIONS = [
+  {
+    city: 'Miami',
+    neighborhoods: ['Brickell', 'Coral Gables', 'Coconut Grove', 'Little Havana', 'Wynwood', 'Downtown', 'Design District'],
+    streets: ['Biscayne Boulevard', 'Coral Way', 'Flagler Street', 'Collins Avenue', 'Calle Ocho', 'Ocean Drive', 'Lincoln Road'],
+    zipCodes: ['33101', '33125', '33129', '33130', '33131', '33133', '33134', '33137', '33139', '33145'],
+    areaCode: '305',
+    coordinates: { lat: 25.7617, lng: -80.1918 }
+  },
+  {
+    city: 'Orlando',
+    neighborhoods: ['Downtown', 'Winter Park', 'College Park', 'Thornton Park', 'Mills 50', 'Lake Nona', 'Baldwin Park'],
+    streets: ['Orange Avenue', 'Colonial Drive', 'International Drive', 'Mills Avenue', 'Park Avenue', 'Robinson Street', 'Church Street'],
+    zipCodes: ['32801', '32803', '32804', '32806', '32807', '32819', '32827', '32789', '32792', '32835'],
+    areaCode: '407',
+    coordinates: { lat: 28.5383, lng: -81.3792 }
+  },
+  {
+    city: 'Tampa',
+    neighborhoods: ['South Tampa', 'Ybor City', 'Seminole Heights', 'Hyde Park', 'Westshore', 'Channelside', 'Palma Ceia'],
+    streets: ['Kennedy Boulevard', 'Dale Mabry Highway', 'Hillsborough Avenue', 'Bayshore Boulevard', 'Nebraska Avenue', 'Armenia Avenue', 'MacDill Avenue'],
+    zipCodes: ['33601', '33602', '33603', '33606', '33607', '33609', '33610', '33611', '33629', '33647'],
+    areaCode: '813',
+    coordinates: { lat: 27.9506, lng: -82.4572 }
+  },
+  {
+    city: 'Jacksonville',
+    neighborhoods: ['San Marco', 'Riverside', 'Avondale', 'Springfield', 'Mandarin', 'Southside', 'Murray Hill'],
+    streets: ['Atlantic Boulevard', 'Beach Boulevard', 'San Jose Boulevard', 'Roosevelt Boulevard', 'Arlington Road', 'Hendricks Avenue', 'University Boulevard'],
+    zipCodes: ['32202', '32204', '32205', '32206', '32207', '32210', '32211', '32216', '32223', '32258'],
+    areaCode: '904',
+    coordinates: { lat: 30.3322, lng: -81.6557 }
+  },
+  {
+    city: 'Fort Lauderdale',
+    neighborhoods: ['Las Olas', 'Victoria Park', 'Rio Vista', 'Wilton Manors', 'Coral Ridge', 'Harbor Beach', 'Lauderdale Beach'],
+    streets: ['Las Olas Boulevard', 'Federal Highway', 'Andrews Avenue', 'Sunrise Boulevard', 'Oakland Park Boulevard', 'Commercial Boulevard', 'Broward Boulevard'],
+    zipCodes: ['33301', '33304', '33305', '33306', '33308', '33311', '33315', '33316', '33334', '33394'],
+    areaCode: '954',
+    coordinates: { lat: 26.1224, lng: -80.1373 }
+  },
+] as const;
+
+// Ohio cities with realistic neighborhoods and zip codes
+const OHIO_LOCATIONS = [
+  {
+    city: 'Columbus',
+    neighborhoods: ['Short North', 'German Village', 'Clintonville', 'Grandview Heights', 'Victorian Village', 'Olde Town East', 'Bexley'],
+    streets: ['High Street', 'Broad Street', 'Main Street', 'Third Street', 'Fourth Street', 'Lane Avenue', 'Olentangy River Road'],
+    zipCodes: ['43201', '43202', '43203', '43205', '43206', '43209', '43212', '43214', '43215', '43221'],
+    areaCode: '614',
+    coordinates: { lat: 39.9612, lng: -82.9988 }
+  },
+  {
+    city: 'Cleveland',
+    neighborhoods: ['Ohio City', 'Tremont', 'Downtown', 'University Circle', 'Lakewood', 'Detroit Shoreway', 'Gordon Square'],
+    streets: ['Euclid Avenue', 'Carnegie Avenue', 'Superior Avenue', 'Detroit Avenue', 'Lorain Avenue', 'St Clair Avenue', 'Chester Avenue'],
+    zipCodes: ['44101', '44102', '44103', '44106', '44107', '44113', '44114', '44115', '44118', '44122'],
+    areaCode: '216',
+    coordinates: { lat: 41.4993, lng: -81.6944 }
+  },
+  {
+    city: 'Cincinnati',
+    neighborhoods: ['Over-the-Rhine', 'Hyde Park', 'Mount Adams', 'Clifton', 'Northside', 'Oakley', 'Anderson Township'],
+    streets: ['Vine Street', 'Main Street', 'Reading Road', 'Madison Road', 'Montgomery Road', 'Central Parkway', 'Gilbert Avenue'],
+    zipCodes: ['45202', '45206', '45208', '45209', '45212', '45219', '45220', '45223', '45226', '45230'],
+    areaCode: '513',
+    coordinates: { lat: 39.1031, lng: -84.5120 }
+  },
+  {
+    city: 'Toledo',
+    neighborhoods: ['Old West End', 'Downtown', 'Ottawa Hills', 'Sylvania', 'Perrysburg', 'West Toledo', 'South Toledo'],
+    streets: ['Summit Street', 'Monroe Street', 'Secor Road', 'Reynolds Road', 'Central Avenue', 'Bancroft Street', 'Dorr Street'],
+    zipCodes: ['43604', '43606', '43607', '43608', '43609', '43610', '43611', '43612', '43613', '43615'],
+    areaCode: '419',
+    coordinates: { lat: 41.6528, lng: -83.5379 }
+  },
+  {
+    city: 'Akron',
+    neighborhoods: ['Highland Square', 'Merriman Valley', 'West Hill', 'Ellet', 'Goodyear Heights', 'Firestone Park', 'Fairlawn'],
+    streets: ['Market Street', 'Main Street', 'Exchange Street', 'Portage Trail', 'West Market Street', 'South Main Street', 'Arlington Street'],
+    zipCodes: ['44301', '44302', '44303', '44304', '44305', '44306', '44307', '44308', '44310', '44313'],
+    areaCode: '330',
+    coordinates: { lat: 41.0814, lng: -81.5190 }
+  },
+] as const;
+
+// California cities with realistic neighborhoods and zip codes
+const CALIFORNIA_LOCATIONS = [
+  {
+    city: 'Los Angeles',
+    neighborhoods: ['Hollywood', 'Silver Lake', 'Venice', 'Santa Monica', 'Echo Park', 'Los Feliz', 'Downtown LA'],
+    streets: ['Sunset Boulevard', 'Hollywood Boulevard', 'Wilshire Boulevard', 'Santa Monica Boulevard', 'Melrose Avenue', 'Vermont Avenue', 'Western Avenue'],
+    zipCodes: ['90001', '90012', '90026', '90027', '90028', '90029', '90034', '90036', '90046', '90068'],
+    areaCode: '323',
+    coordinates: { lat: 34.0522, lng: -118.2437 }
+  },
+  {
+    city: 'San Diego',
+    neighborhoods: ['Gaslamp Quarter', 'North Park', 'Hillcrest', 'La Jolla', 'Pacific Beach', 'Ocean Beach', 'Mission Hills'],
+    streets: ['Broadway', 'University Avenue', 'El Cajon Boulevard', 'India Street', 'Fifth Avenue', 'Market Street', 'Harbor Drive'],
+    zipCodes: ['92101', '92102', '92103', '92104', '92107', '92109', '92110', '92116', '92120', '92130'],
+    areaCode: '619',
+    coordinates: { lat: 32.7157, lng: -117.1611 }
+  },
+  {
+    city: 'San Francisco',
+    neighborhoods: ['Mission District', 'Castro', 'Noe Valley', 'Pacific Heights', 'Marina', 'SOMA', 'Haight-Ashbury'],
+    streets: ['Market Street', 'Van Ness Avenue', 'Mission Street', 'Valencia Street', 'Geary Boulevard', 'Divisadero Street', 'Folsom Street'],
+    zipCodes: ['94102', '94103', '94107', '94110', '94114', '94115', '94117', '94118', '94122', '94131'],
+    areaCode: '415',
+    coordinates: { lat: 37.7749, lng: -122.4194 }
+  },
+  {
+    city: 'San Jose',
+    neighborhoods: ['Downtown', 'Willow Glen', 'Japantown', 'Rose Garden', 'Almaden', 'Evergreen', 'Santana Row'],
+    streets: ['Santa Clara Street', 'San Carlos Street', 'Stevens Creek Boulevard', 'Bascom Avenue', 'Almaden Expressway', 'First Street', 'Monterey Road'],
+    zipCodes: ['95110', '95112', '95113', '95116', '95117', '95118', '95120', '95124', '95125', '95126'],
+    areaCode: '408',
+    coordinates: { lat: 37.3382, lng: -121.8863 }
+  },
+  {
+    city: 'Sacramento',
+    neighborhoods: ['Midtown', 'East Sacramento', 'Land Park', 'Oak Park', 'Tahoe Park', 'Curtis Park', 'Downtown'],
+    streets: ['J Street', 'K Street', 'L Street', 'Broadway', 'Folsom Boulevard', 'Freeport Boulevard', 'Stockton Boulevard'],
+    zipCodes: ['95814', '95816', '95817', '95818', '95819', '95820', '95822', '95825', '95826', '95831'],
+    areaCode: '916',
+    coordinates: { lat: 38.5816, lng: -121.4944 }
+  },
+] as const;
+
+// New York cities with realistic neighborhoods and zip codes
+const NEW_YORK_LOCATIONS = [
+  {
+    city: 'New York City',
+    neighborhoods: ['Manhattan', 'Brooklyn Heights', 'Harlem', 'Upper East Side', 'Upper West Side', 'Greenwich Village', 'Williamsburg'],
+    streets: ['Broadway', 'Fifth Avenue', 'Madison Avenue', 'Park Avenue', 'Lexington Avenue', 'Amsterdam Avenue', 'Columbus Avenue'],
+    zipCodes: ['10001', '10002', '10003', '10010', '10011', '10012', '10013', '10014', '10019', '10021'],
+    areaCode: '212',
+    coordinates: { lat: 40.7128, lng: -74.0060 }
+  },
+  {
+    city: 'Buffalo',
+    neighborhoods: ['Elmwood Village', 'Allentown', 'North Buffalo', 'South Buffalo', 'Delaware District', 'Parkside', 'University District'],
+    streets: ['Main Street', 'Delaware Avenue', 'Elmwood Avenue', 'Hertel Avenue', 'Niagara Street', 'Broadway', 'Bailey Avenue'],
+    zipCodes: ['14201', '14202', '14203', '14204', '14206', '14207', '14208', '14209', '14210', '14211'],
+    areaCode: '716',
+    coordinates: { lat: 42.8864, lng: -78.8784 }
+  },
+  {
+    city: 'Rochester',
+    neighborhoods: ['Park Avenue', 'South Wedge', 'East End', 'North Winton Village', 'Brighton', 'Corn Hill', 'Charlotte'],
+    streets: ['East Avenue', 'Park Avenue', 'Monroe Avenue', 'South Avenue', 'Culver Road', 'Joseph Avenue', 'Dewey Avenue'],
+    zipCodes: ['14604', '14607', '14608', '14609', '14610', '14611', '14613', '14614', '14617', '14620'],
+    areaCode: '585',
+    coordinates: { lat: 43.1566, lng: -77.6088 }
+  },
+  {
+    city: 'Albany',
+    neighborhoods: ['Center Square', 'Delaware Avenue', 'Pine Hills', 'Buckingham Pond', 'Helderberg', 'New Scotland', 'Mansion'],
+    streets: ['State Street', 'Lark Street', 'Madison Avenue', 'Central Avenue', 'New Scotland Avenue', 'Delaware Avenue', 'Washington Avenue'],
+    zipCodes: ['12202', '12203', '12204', '12205', '12206', '12207', '12208', '12209', '12210', '12211'],
+    areaCode: '518',
+    coordinates: { lat: 42.6526, lng: -73.7562 }
+  },
+  {
+    city: 'Syracuse',
+    neighborhoods: ['Downtown', 'University Hill', 'Westcott', 'Eastwood', 'Strathmore', 'Tipp Hill', 'Sedgwick'],
+    streets: ['State Street', 'Salina Street', 'Erie Boulevard', 'James Street', 'Genesee Street', 'South Salina Street', 'West Genesee Street'],
+    zipCodes: ['13202', '13203', '13204', '13205', '13206', '13207', '13208', '13210', '13214', '13224'],
+    areaCode: '315',
+    coordinates: { lat: 43.0481, lng: -76.1474 }
+  },
+] as const;
+
+// State locations mapping - allows dynamic state selection
+type StateCode = 'TX' | 'FL' | 'OH' | 'CA' | 'NY';
+
+const STATE_LOCATIONS: Record<StateCode, readonly typeof TEXAS_LOCATIONS[number][]> = {
+  TX: TEXAS_LOCATIONS,
+  FL: FLORIDA_LOCATIONS,
+  OH: OHIO_LOCATIONS,
+  CA: CALIFORNIA_LOCATIONS,
+  NY: NEW_YORK_LOCATIONS,
+};
+
+const STATE_NAMES: Record<StateCode, string> = {
+  TX: 'Texas',
+  FL: 'Florida',
+  OH: 'Ohio',
+  CA: 'California',
+  NY: 'New York',
+};
+
+// Get target state from command line or environment (default: TX)
+const TARGET_STATE: StateCode = (() => {
+  const arg = process.argv.find(a => a.startsWith('--state='));
+  if (arg) {
+    const stateCode = arg.split('=')[1]?.toUpperCase() as StateCode;
+    if (STATE_LOCATIONS[stateCode]) {
+      return stateCode;
+    }
+    console.warn(`⚠️  Unknown state "${stateCode}", defaulting to TX`);
+  }
+  return (process.env.SEED_STATE?.toUpperCase() as StateCode) || 'TX';
+})();
+
+// Get the locations for the target state
+const CURRENT_STATE_LOCATIONS = STATE_LOCATIONS[TARGET_STATE];
+
+console.log(`🗺️  Target state: ${STATE_NAMES[TARGET_STATE]} (${TARGET_STATE}) with ${CURRENT_STATE_LOCATIONS.length} cities`);
+
 // Culturally diverse names reflecting Texas demographics
 const TEXAS_NAMES = {
   // Hispanic/Latino names (approx 40% of Texas population)
@@ -469,8 +682,11 @@ function selectMedicalCondition(age: number) {
   return eligibleConditions[0] || AGE_APPROPRIATE_CONDITIONS[0];
 }
 
-// Helper to generate realistic Texas address
-function generateTexasAddress(location: typeof TEXAS_LOCATIONS[number]): {
+// Helper type for location data
+type LocationData = typeof TEXAS_LOCATIONS[number];
+
+// Helper to generate realistic address for any state
+function generateAddress(location: LocationData): {
   street: string;
   city: string;
   zipCode: string;
@@ -532,8 +748,8 @@ function generateClient(
   systemUserId: string,
   locationIndex: number
 ): ClientData {
-  // Select Texas location for geographic clustering
-  const location = TEXAS_LOCATIONS[locationIndex % TEXAS_LOCATIONS.length];
+  // Select location for geographic clustering (uses current state)
+  const location = CURRENT_STATE_LOCATIONS[locationIndex % CURRENT_STATE_LOCATIONS.length];
 
   // Generate age-appropriate date of birth (65-95 years old)
   const age = faker.number.int({ min: 65, max: 95 });
@@ -545,14 +761,14 @@ function generateClient(
   // Determine gender (realistic distribution)
   const gender = secureRandom() < 0.60 ? 'FEMALE' : 'MALE'; // 60% female in elderly care
 
-  // Generate culturally diverse Texas name
+  // Generate culturally diverse name (using Texas names for all states for now)
   const { firstName, lastName } = generateTexasName(gender);
 
   // Select age-appropriate medical condition
   const medicalCondition = selectMedicalCondition(age);
 
-  // Generate realistic Texas address
-  const addressData = generateTexasAddress(location);
+  // Generate realistic address for the target state
+  const addressData = generateAddress(location);
 
   // Phone number with correct Texas area code
   const phone = `${location.areaCode}-555-${String(index).padStart(4, '0')}`;
@@ -576,7 +792,7 @@ function generateClient(
   const hasMedicare = age >= 65; // Nearly all 65+ have Medicare
   const hasMedicaid = secureRandom() < 0.35; // 35% also have Medicaid (dual-eligible)
 
-  const medicaidNumber = hasMedicaid ? `MC-TX-${faker.string.numeric(7)}` : null;
+  const medicaidNumber = hasMedicaid ? `MC-${TARGET_STATE}-${faker.string.numeric(7)}` : null;
   const medicareNumber = hasMedicare ? `MCR${faker.string.numeric(9)}${randomElement(['A', 'B', 'C', 'D'])}` : null;
 
   // Select mobility level and care type from medical condition
@@ -587,12 +803,12 @@ function generateClient(
     id: uuidv4(),
     organizationId: orgId,
     branchId,
-    clientNumber: `CL-TX-${location.city.substring(0, 3).toUpperCase()}-${String(index).padStart(4, '0')}`,
+    clientNumber: `CL-${TARGET_STATE}-${location.city.substring(0, 3).toUpperCase()}-${String(index).padStart(4, '0')}`,
     firstName,
     lastName,
     dateOfBirth: dob,
     gender,
-    state: 'TX',
+    state: TARGET_STATE,
     city: location.city,
     address: addressData.street,
     zipCode: addressData.zipCode,
@@ -643,8 +859,8 @@ function generateCaregiver(
   systemUserId: string,
   locationIndex: number
 ): CaregiverData {
-  // Select Texas location for geographic clustering
-  const location = TEXAS_LOCATIONS[locationIndex % TEXAS_LOCATIONS.length];
+  // Select location for geographic clustering (uses current state)
+  const location = CURRENT_STATE_LOCATIONS[locationIndex % CURRENT_STATE_LOCATIONS.length];
 
   // Caregiver age (22-65, most in 30-50 range)
   const age = faker.number.int({ min: 22, max: 65 });
@@ -656,14 +872,14 @@ function generateCaregiver(
   // Gender distribution (caregiving is female-dominated)
   const gender = secureRandom() < 0.75 ? 'FEMALE' : 'MALE'; // 75% female
 
-  // Generate culturally diverse Texas name
+  // Generate culturally diverse name (using Texas names for all states for now)
   const { firstName, lastName } = generateTexasName(gender);
 
   // Hire date (1-3 years ago, with some recent hires)
   const hireDate = randomDateBetween(daysAgo(1095), daysAgo(30));
 
-  // Generate realistic Texas address
-  const addressData = generateTexasAddress(location);
+  // Generate realistic address for the target state
+  const addressData = generateAddress(location);
 
   // Phone number with correct area code
   const phone = `${location.areaCode}-${faker.string.numeric(3)}-${faker.string.numeric(4)}`;
@@ -714,7 +930,7 @@ function generateCaregiver(
     id: uuidv4(),
     organizationId: orgId,
     branchId,
-    employeeNumber: `CG-TX-${location.city.substring(0, 3).toUpperCase()}-${String(index).padStart(4, '0')}`,
+    employeeNumber: `CG-${TARGET_STATE}-${location.city.substring(0, 3).toUpperCase()}-${String(index).padStart(4, '0')}`,
     firstName,
     lastName,
     dateOfBirth: dob,
@@ -723,7 +939,7 @@ function generateCaregiver(
     email,
     address: addressData.street,
     city: location.city,
-    state: 'TX',
+    state: TARGET_STATE,
     zipCode: addressData.zipCode,
     hireDate,
     employmentType,
@@ -1153,17 +1369,17 @@ async function seedDatabase() {
       console.log('✅ Previous demo data cleared (production data untouched)\n');
       
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 3: Generate and insert clients (60 total: distributed across Texas cities)
+      // STEP 3: Generate and insert clients (60 total: distributed across state cities)
       // ═══════════════════════════════════════════════════════════════════════════
 
-      console.log(`👥 Creating ${SEED_CONFIG.clients} Texas-based clients...`);
+      console.log(`👥 Creating ${SEED_CONFIG.clients} ${STATE_NAMES[TARGET_STATE]}-based clients...`);
 
       const clients: ClientData[] = [];
-      const clientsPerLocation = Math.ceil(SEED_CONFIG.clients / TEXAS_LOCATIONS.length);
+      const clientsPerLocation = Math.ceil(SEED_CONFIG.clients / CURRENT_STATE_LOCATIONS.length);
 
       let clientIndex = 1;
-      for (let locationIndex = 0; locationIndex < TEXAS_LOCATIONS.length; locationIndex++) {
-        const location = TEXAS_LOCATIONS[locationIndex];
+      for (let locationIndex = 0; locationIndex < CURRENT_STATE_LOCATIONS.length; locationIndex++) {
+        const location = CURRENT_STATE_LOCATIONS[locationIndex];
         const clientsForThisLocation = Math.min(clientsPerLocation, SEED_CONFIG.clients - clients.length);
 
         console.log(`   📍 ${location.city}: Creating ${clientsForThisLocation} clients...`);
@@ -1252,17 +1468,17 @@ async function seedDatabase() {
       console.log(`✅ Created ${clients.length} clients\n`);
       
       // ═══════════════════════════════════════════════════════════════════════════
-      // STEP 4: Generate and insert caregivers (35 total: distributed across Texas cities)
+      // STEP 4: Generate and insert caregivers (35 total: distributed across state cities)
       // ═══════════════════════════════════════════════════════════════════════════
 
-      console.log(`👨‍⚕️ Creating ${SEED_CONFIG.caregivers} Texas-based caregivers...`);
+      console.log(`👨‍⚕️ Creating ${SEED_CONFIG.caregivers} ${STATE_NAMES[TARGET_STATE]}-based caregivers...`);
 
       const caregivers: CaregiverData[] = [];
-      const caregiversPerLocation = Math.ceil(SEED_CONFIG.caregivers / TEXAS_LOCATIONS.length);
+      const caregiversPerLocation = Math.ceil(SEED_CONFIG.caregivers / CURRENT_STATE_LOCATIONS.length);
 
       let caregiverIndex = 1;
-      for (let locationIndex = 0; locationIndex < TEXAS_LOCATIONS.length; locationIndex++) {
-        const location = TEXAS_LOCATIONS[locationIndex];
+      for (let locationIndex = 0; locationIndex < CURRENT_STATE_LOCATIONS.length; locationIndex++) {
+        const location = CURRENT_STATE_LOCATIONS[locationIndex];
         const caregiversForThisLocation = Math.min(caregiversPerLocation, SEED_CONFIG.caregivers - caregivers.length);
 
         console.log(`   📍 ${location.city}: Creating ${caregiversForThisLocation} caregivers...`);
