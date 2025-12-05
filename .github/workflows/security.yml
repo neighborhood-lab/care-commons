@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - production
+      - develop
     paths-ignore:
       - "**.md"
   pull_request:
     branches:
       - production
+      - develop
     paths-ignore:
       - "**.md"
   schedule:
