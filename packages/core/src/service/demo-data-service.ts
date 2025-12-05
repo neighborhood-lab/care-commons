@@ -8,10 +8,7 @@
 import { Database } from '../db/connection.js';
 import type { UUID } from '../types/base.js';
 import { NotFoundError } from '../errors/app-errors.js';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-
-const execAsync = promisify(exec);
+import { spawn } from 'node:child_process';
 
 export interface DemoDataStats {
   clients: number;
@@ -56,19 +53,48 @@ export class DemoDataService {
       await this.clearDemoData(organizationId);
     }
 
-    // Run the seeding script
+    // Run the seeding script securely using spawn to prevent command injection
     // Note: The seed-demo.ts script needs to be updated to accept organization_id parameter
     try {
-      const { stdout, stderr } = await execAsync(
-        `DATABASE_URL="${process.env.DATABASE_URL}" ORG_ID="${organizationId}" npx tsx packages/core/scripts/seed-demo.ts`,
-        { cwd: process.cwd() }
-      );
+      await new Promise<void>((resolve, reject) => {
+        const child = spawn('npx', ['tsx', 'packages/core/scripts/seed-demo.ts'], {
+          cwd: process.cwd(),
+          env: {
+            ...process.env,
+            DATABASE_URL: process.env.DATABASE_URL || '',
+            ORG_ID: organizationId
+          },
+          stdio: ['ignore', 'pipe', 'pipe']
+        });
 
-      if (stderr !== '') {
-        console.error('Seed script stderr:', stderr);
-      }
+        let stdout = '';
+        let stderr = '';
 
-      console.log('Seed script output:', stdout);
+        child.stdout?.on('data', (data) => {
+          stdout += data.toString();
+        });
+
+        child.stderr?.on('data', (data) => {
+          stderr += data.toString();
+        });
+
+        child.on('close', (code) => {
+          if (stderr !== '') {
+            console.error('Seed script stderr:', stderr);
+          }
+          console.log('Seed script output:', stdout);
+
+          if (code !== 0) {
+            reject(new Error(`Seed script exited with code ${code}`));
+          } else {
+            resolve();
+          }
+        });
+
+        child.on('error', (error) => {
+          reject(error);
+        });
+      });
     } catch (error) {
       console.error('Failed to run seed script:', error);
       throw new Error('Failed to seed demo data');
