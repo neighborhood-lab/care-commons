@@ -23,24 +23,16 @@ export function DemoModeBar() {
   const [isPersonaMenuOpen, setIsPersonaMenuOpen] = useState(false);
   const location = useLocation();
 
+  // Don't show anything if demo session is not active
+  if (!isActive || !session) {
+    return null;
+  }
+
   // Check if we're on the login page (no sidebar)
   const isLoginPage = location.pathname === '/login';
 
   // Apply left padding on desktop for pages with sidebar
   const containerClass = isLoginPage ? '' : 'lg:pl-64';
-
-  if (!isActive || !session) {
-    return (
-      <div className="bg-blue-600 text-white shadow-md">
-        <div className={`px-4 py-2 ${containerClass}`}>
-          <div className="flex items-center gap-3">
-            <span className="font-bold text-sm">DEMO MODE</span>
-            <span className="text-xs opacity-90">Try the platform with sample data • No real PHI</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const expiresAt = new Date(session.expiresAt);
   const now = new Date();
