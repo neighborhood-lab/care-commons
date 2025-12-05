@@ -45,3 +45,132 @@
     @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
   }
 }
+
+/* React Big Calendar - Week View Density Styles */
+/* Comfortable mode - larger time slots, easier to read */
+.calendar-comfortable .rbc-time-slot {
+  min-height: 30px;
+}
+
+.calendar-comfortable .rbc-event {
+  min-height: var(--event-min-height, 50px);
+  padding: 4px 8px;
+  font-size: 0.875rem;
+}
+
+.calendar-comfortable .rbc-event-label {
+  font-size: 0.75rem;
+}
+
+/* Compact mode - medium density */
+.calendar-compact .rbc-time-slot {
+  min-height: 20px;
+}
+
+.calendar-compact .rbc-event {
+  min-height: var(--event-min-height, 35px);
+  padding: 2px 6px;
+  font-size: 0.75rem;
+}
+
+.calendar-compact .rbc-event-label {
+  font-size: 0.625rem;
+}
+
+.calendar-compact .rbc-time-gutter .rbc-label {
+  font-size: 0.75rem;
+}
+
+/* Ultra-compact mode - maximum density */
+.calendar-ultra-compact .rbc-time-slot {
+  min-height: 12px;
+}
+
+.calendar-ultra-compact .rbc-event {
+  min-height: var(--event-min-height, 25px);
+  padding: 1px 4px;
+  font-size: 0.625rem;
+}
+
+.calendar-ultra-compact .rbc-event-label {
+  display: none;
+}
+
+.calendar-ultra-compact .rbc-time-gutter .rbc-label {
+  font-size: 0.625rem;
+}
+
+/* Shared calendar improvements */
+.calendar-comfortable,
+.calendar-compact,
+.calendar-ultra-compact {
+  /* Improve event appearance */
+  .rbc-event {
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .rbc-event:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Better time column */
+  .rbc-time-gutter {
+    background-color: #f9fafb;
+  }
+
+  /* Current time indicator */
+  .rbc-current-time-indicator {
+    background-color: #ef4444;
+    height: 2px;
+  }
+
+  .rbc-current-time-indicator::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444;
+    border-radius: 50%;
+  }
+
+  /* Header styling */
+  .rbc-header {
+    padding: 8px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  /* Today column highlight */
+  .rbc-today {
+    background-color: rgba(59, 130, 246, 0.05);
+  }
+
+  /* Time slot hover */
+  .rbc-day-slot .rbc-time-slot {
+    border-top: 1px solid #f3f4f6;
+  }
+
+  /* Scrollbar styling */
+  .rbc-time-content {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f9fafb;
+  }
+
+  .rbc-time-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .rbc-time-content::-webkit-scrollbar-track {
+    background: #f9fafb;
+  }
+
+  .rbc-time-content::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 4px;
+  }
+}
