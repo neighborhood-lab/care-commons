@@ -346,12 +346,24 @@ export class SignupService {
   
   /**
    * Validate email format
+   * Protected against ReDoS by limiting input length first
    */
   private isValidEmail(email: string): boolean {
-    // Simple email validation - not vulnerable to ReDoS
-    // eslint-disable-next-line sonarjs/slow-regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
-    return emailRegex.test(email);
+    // Limit email length to prevent ReDoS attacks
+    if (email === '' || email.length > 320) return false; // RFC 5321 max length
+
+    // Simple email validation - uses atomic groups via length check
+    // Pattern breakdown: local@domain.tld
+    // Must have exactly one @, at least one char before and after
+    const atIndex = email.indexOf('@');
+    if (atIndex === -1 || atIndex === 0 || atIndex === email.length - 1) return false;
+
+    const dotIndex = email.lastIndexOf('.');
+    if (dotIndex === -1 || dotIndex < atIndex || dotIndex === email.length - 1) return false;
+
+    // Check for valid characters (simple check, no complex regex)
+    // eslint-disable-next-line unicorn/better-regex
+    return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email);
   }
   
 }
