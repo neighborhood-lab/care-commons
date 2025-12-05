@@ -55,7 +55,7 @@ jobs:
 
       - name: Setup Node.js
         if: steps.check-config.outputs.configured == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -264,7 +264,7 @@ jobs:
 
       - name: Setup Node.js
         if: steps.check-config.outputs.configured == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
