@@ -34,27 +34,46 @@ jobs:
     permissions:
       contents: read
       issues: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Check backup configuration
+        id: check-config
+        run: |
+          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
+            echo "⚠️ DATABASE_URL secret not configured - skipping backup"
+            echo "This is expected for development/testing environments."
+            echo "To enable backups, configure DATABASE_URL secret in repository settings."
+            echo "configured=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "✅ Backup secrets configured"
+          echo "configured=true" >> $GITHUB_OUTPUT
+
       - name: Setup Node.js
+        if: steps.check-config.outputs.configured == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Setup npm
+        if: steps.check-config.outputs.configured == 'true'
         run: npm install -g npm@${{ env.NPM_VERSION }}
-      
+
       - name: Install dependencies
+        if: steps.check-config.outputs.configured == 'true'
         run: npm ci
-      
+
       - name: Build packages
+        if: steps.check-config.outputs.configured == 'true'
         run: npm run build
       
       - name: Install PostgreSQL 17 client
+        if: steps.check-config.outputs.configured == 'true'
         run: |
           # Add PostgreSQL APT repository for version 17
           sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
@@ -74,11 +93,13 @@ jobs:
           pg_dump --version
       
       - name: Install Neon CLI
+        if: steps.check-config.outputs.configured == 'true'
         run: |
           curl -fsSL https://neon.tech/install.sh | bash
           echo "$HOME/.neon/bin" >> $GITHUB_PATH
-      
+
       - name: Install AWS CLI
+        if: steps.check-config.outputs.configured == 'true'
         continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -87,9 +108,11 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
       
       - name: Create backup directory
+        if: steps.check-config.outputs.configured == 'true'
         run: mkdir -p /tmp/backups
-      
+
       - name: Run backup
+        if: steps.check-config.outputs.configured == 'true'
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
@@ -108,7 +131,7 @@ jobs:
           npx tsx scripts/backup-neon.ts --type "$BACKUP_TYPE"
       
       - name: Verify backup
-        if: github.event.inputs.verify != 'false'
+        if: steps.check-config.outputs.configured == 'true' && github.event.inputs.verify != 'false'
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
@@ -118,15 +141,15 @@ jobs:
         run: npx tsx scripts/backup-neon.ts --verify
       
       - name: Upload backup artifacts (for debugging)
-        if: failure()
+        if: failure() && steps.check-config.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: backup-logs
           path: /tmp/backups/*.log
           retention-days: 7
-      
+
       - name: Notify on failure
-        if: failure()
+        if: failure() && steps.check-config.outputs.configured == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -161,7 +184,7 @@ jobs:
             core.setOutput('issue-number', issue.data.number);
       
       - name: Send Slack notification on failure
-        if: failure()
+        if: failure() && steps.check-config.outputs.configured == 'true'
         continue-on-error: true
         uses: slackapi/slack-github-action@v2
         with:
@@ -222,23 +245,38 @@ jobs:
     name: Verify Backup Retention Policy
     runs-on: ubuntu-latest
     needs: backup
-    
+    if: success()
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Check configuration
+        id: check-config
+        run: |
+          if [ -z "${{ secrets.NEON_API_KEY }}" ] || [ -z "${{ secrets.NEON_PROJECT_ID }}" ]; then
+            echo "⚠️ Neon secrets not configured - skipping retention verification"
+            echo "configured=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "✅ Neon secrets configured"
+          echo "configured=true" >> $GITHUB_OUTPUT
+
       - name: Setup Node.js
+        if: steps.check-config.outputs.configured == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install Neon CLI
+        if: steps.check-config.outputs.configured == 'true'
         run: |
           curl -fsSL https://neon.tech/install.sh | bash
           echo "$HOME/.neon/bin" >> $GITHUB_PATH
-      
+
       - name: Verify retention policy
+        if: steps.check-config.outputs.configured == 'true'
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
@@ -265,6 +303,7 @@ jobs:
           fi
       
       - name: Verify backup count
+        if: steps.check-config.outputs.configured == 'true'
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
