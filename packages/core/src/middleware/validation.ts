@@ -9,20 +9,36 @@ import { Request, Response, NextFunction } from 'express';
 import { z, type ZodType, ZodError } from 'zod';
 
 /**
- * Sanitize strings to prevent XSS attacks
- * Removes potentially dangerous HTML/JavaScript
+ * Sanitize a string to prevent XSS attacks
+ *
+ * This approach:
+ * 1. Removes dangerous URL protocols (javascript:, data:, vbscript:, file:, about:)
+ * 2. Removes script/style tags and their content
+ * 3. Strips remaining HTML tags and attributes
+ * 4. Preserves plain text special characters like <>
+ *
+ * Note: We first remove URL protocols, then script tags, then other HTML tags.
+ * This order prevents attackers from hiding malicious code in various ways.
  */
 function sanitizeString(str: string): string {
-  // Remove script tags and their content
-  let sanitized = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  // Step 1: Remove dangerous URL protocols from plain text
+  // Match protocols at word boundaries to avoid false positives
+  const protocolPattern = /\b(javascript|data|vbscript|file|about):/gi;
+  let sanitized = str.replace(protocolPattern, '');
 
-  // Remove event handlers (onclick, onerror, etc.)
+  // Step 2: Remove script and style tags INCLUDING their content
+  // This prevents XSS attacks via script injection
+  sanitized = sanitized.replace(/<script\b[^>]*>[\S\s]*?<\/script>/gi, '');
+  sanitized = sanitized.replace(/<style\b[^>]*>[\S\s]*?<\/style>/gi, '');
+
+  // Step 3: Strip remaining HTML tags (but preserve plain text < and >)
+  // Match tags that have at least one alphanumeric character for the tag name
+  // This preserves "<>" when it's not part of an HTML tag
+  sanitized = sanitized.replace(/<\/?[a-z][\S\s]*?>/gi, '');
+
+  // Step 4: Remove HTML event handlers that might be in remaining attributes
+  // Matches: onclick="..." onerror="..." etc.
   sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
-  sanitized = sanitized.replace(/\bon\w+\s*=\s*[^\s>]*/gi, '');
-
-  // Remove dangerous URL schemes (javascript:, data:, vbscript:, file:, etc.)
-  // Use comprehensive check instead of incomplete regex that only checked specific patterns
-  sanitized = sanitized.replace(/\b(javascript|data|vbscript|file|about):/gi, '');
 
   return sanitized;
 }
