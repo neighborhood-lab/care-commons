@@ -91,7 +91,7 @@ export class CacheService {
         return null;
       }
     } catch (error) {
-      console.error(`Cache get error for key ${key}:`, error);
+      console.error('Cache get error for key:', key, error);
       return null;
     }
   }
@@ -121,7 +121,7 @@ export class CacheService {
         }
       }
     } catch (error) {
-      console.error(`Cache set error for key ${key}:`, error);
+      console.error('Cache set error for key:', key, error);
     }
   }
 
@@ -136,7 +136,7 @@ export class CacheService {
         this.memoryCache.delete(key);
       }
     } catch (error) {
-      console.error(`Cache delete error for key ${key}:`, error);
+      console.error('Cache delete error for key:', key, error);
     }
   }
 
@@ -164,7 +164,7 @@ export class CacheService {
         }
       }
     } catch (error) {
-      console.error(`Cache delete pattern error for pattern ${pattern}:`, error);
+      console.error('Cache delete pattern error for pattern:', pattern, error);
     }
   }
 

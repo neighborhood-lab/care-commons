@@ -43,7 +43,7 @@ export class GeocodingService {
       case 'nominatim':
         return this.geocodeWithNominatim(fullAddress);
       default:
-        throw new Error(`Unknown geocoding provider: ${this.provider}`);
+        throw new Error('Unknown geocoding provider: ' + this.provider);
     }
   }
 
@@ -82,7 +82,7 @@ export class GeocodingService {
         };
       }
 
-      console.warn(`Geocoding failed for: ${address}`, data.status);
+      console.warn('Geocoding failed for address:', address, 'status:', data.status);
       return null;
     } catch (error) {
       console.error('Geocoding error:', error);
@@ -133,7 +133,7 @@ export class GeocodingService {
         };
       }
 
-      console.warn(`Geocoding failed for: ${address}`);
+      console.warn('Geocoding failed for address:', address);
       return null;
     } catch (error) {
       console.error('Geocoding error:', error);
@@ -178,7 +178,7 @@ export class GeocodingService {
         };
       }
 
-      console.warn(`Geocoding failed for: ${address}`);
+      console.warn('Geocoding failed for address:', address);
       return null;
     } catch (error) {
       console.error('Geocoding error:', error);

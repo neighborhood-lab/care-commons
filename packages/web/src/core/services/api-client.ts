@@ -113,7 +113,10 @@ class ApiClientImpl implements ApiClient {
               retryableStatuses: url.includes('/auth/') ? [500, 502, 503, 504] : [429, 500, 502, 503, 504],
               onRetry: (attempt, delayMs, error) => {
                 console.warn(
-                  `Request to ${url} failed (attempt ${attempt}), retrying in ${delayMs}ms...`,
+                  'Request failed, retrying...',
+                  'url:', url,
+                  'attempt:', attempt,
+                  'delay:', delayMs + 'ms',
                   error
                 );
               },
