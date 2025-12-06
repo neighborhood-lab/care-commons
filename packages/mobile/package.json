@@ -57,7 +57,7 @@
     "expo-status-bar": "~3.0.8",
     "fast-base64-decode": "^2.0.0",
     "fbjs": "^3.0.5",
-    "react": "19.1.0",
+    "react": "19.2.1",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-get-random-values": "~1.11.0",
