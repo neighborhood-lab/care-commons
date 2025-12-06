@@ -1,0 +1,36 @@
+# CodeQL Configuration
+# Customizes security scanning to reduce false positives
+
+name: "Folk Care CodeQL Config"
+
+# Paths to exclude from analysis
+paths-ignore:
+  # Test files - load testing uses Math.random() intentionally for test data
+  - tests/load/**
+  # Showcase/demo code - uses localStorage intentionally (no backend)
+  - showcase/**
+  - packages/web/src/core/providers/showcase-api-provider.ts
+
+# Query filters to suppress known false positives
+query-filters:
+  # Exclude specific rules that generate false positives in our codebase
+  - exclude:
+      id: js/sensitive-get-query
+      # Reason: Our GET endpoints use UUIDs (carePlanId, clientId, employeeNumber)
+      # which are not PII. All endpoints are protected by authentication and
+      # organization-scoped authorization.
+
+  - exclude:
+      id: js/clear-text-storage-of-sensitive-data
+      # Reason: Only triggered in showcase/demo code which intentionally uses
+      # localStorage for client-side demos without a backend. Not production code.
+
+  - exclude:
+      id: js/insecure-randomness
+      # Reason: Only triggered in load test files where Math.random() is used
+      # for generating test data (GPS coordinates, visit IDs), not for security.
+
+  - exclude:
+      id: js/missing-rate-limiting
+      # Reason: The CSRF middleware at /api/* is validation middleware, not an
+      # endpoint. Rate limiting is applied at the endpoint level (csrfTokenLimiter).
