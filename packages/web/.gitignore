@@ -4,6 +4,7 @@ node_modules
 # Build output
 dist
 dist-showcase
+dev-dist
 build
 .turbo
 
