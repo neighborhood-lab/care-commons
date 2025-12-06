@@ -23,6 +23,7 @@ Commands:
   issue-create <title> <body> [labels]   Create an issue
   issue-comment <issue_num> <body>       Add comment to an issue
   pr-create <title> <body> <head> <base> Create a pull request
+  pr-merge <pr_num> [method] [title]     Merge a pull request (method: merge|squash|rebase, default: squash)
   issue-list [state]                     List issues (open/closed/all)
   pr-list [state]                        List pull requests
   workflow-runs-list [count]             List recent workflow runs (default: 5)
@@ -36,6 +37,9 @@ Examples:
 
   # Create PR
   $0 pr-create "Add feature" "PR body" "feature/branch" "develop"
+
+  # Merge PR
+  $0 pr-merge 123 squash "feat: add new feature"
 
   # List open issues
   $0 issue-list open
@@ -165,6 +169,36 @@ list_workflow_runs() {
     done
 }
 
+merge_pr() {
+  local pr_num="$1"
+  local method="${2:-squash}"
+  local title="${3:-}"
+
+  # Get PR details to use default title if not provided
+  if [ -z "$title" ]; then
+    local pr_data=$(api_call GET "/pulls/$pr_num")
+    title=$(echo "$pr_data" | jq -r '.title')
+  fi
+
+  local payload=$(jq -n \
+    --arg title "$title" \
+    --arg method "$method" \
+    '{commit_title: $title, merge_method: $method}')
+
+  local response=$(api_call PUT "/pulls/$pr_num/merge" "$payload")
+  local merged=$(echo "$response" | jq -r '.merged')
+
+  if [ "$merged" = "true" ]; then
+    local sha=$(echo "$response" | jq -r '.sha')
+    echo "✓ PR #$pr_num merged successfully"
+    echo "  Commit: $sha"
+  else
+    echo "✗ Failed to merge PR #$pr_num"
+    echo "$response" | jq -r '.message // .errors'
+    exit 1
+  fi
+}
+
 # Main command dispatcher
 case "${1:-}" in
   issue-create)
@@ -178,6 +212,10 @@ case "${1:-}" in
   pr-create)
     [ $# -lt 5 ] && usage
     create_pr "$2" "$3" "$4" "$5"
+    ;;
+  pr-merge)
+    [ $# -lt 2 ] && usage
+    merge_pr "$2" "${3:-squash}" "${4:-}"
     ;;
   issue-list)
     list_issues "${2:-open}"
