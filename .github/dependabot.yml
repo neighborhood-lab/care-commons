@@ -15,6 +15,18 @@ updates:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
+    # Ignore packages with known incompatibilities
+    ignore:
+      # Zod v4 incompatible with @hookform/resolvers v5 (wait for v6)
+      # See: https://github.com/react-hook-form/resolvers/issues
+      - dependency-name: "zod"
+        update-types: ["version-update:semver-major"]
+      # React Native updates often require manual testing
+      - dependency-name: "react-native"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      # WatermelonDB major updates need careful migration
+      - dependency-name: "@nozbe/watermelondb"
+        update-types: ["version-update:semver-major"]
     # Group minor and patch updates together
     groups:
       production-dependencies:
