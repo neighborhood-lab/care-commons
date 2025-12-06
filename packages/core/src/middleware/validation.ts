@@ -12,13 +12,16 @@ import sanitizeHtml from 'sanitize-html';
 /**
  * Dangerous URI protocols that can execute code.
  * Must be stripped before any other sanitization.
+ * Note: These strings are used for pattern matching/removal, not for code execution.
  */
+/* eslint-disable sonarjs/code-eval -- These are patterns to BLOCK, not execute */
 const DANGEROUS_URI_PROTOCOLS = [
-  'javascript:',
-  'data:text/html',
-  'data:application',
-  'vbscript:',
+  'javascript:', // XSS via href/src attributes
+  'data:text/html', // XSS via embedded HTML
+  'data:application', // potential binary exploits
+  'vbscript:', // IE legacy XSS
 ];
+/* eslint-enable sonarjs/code-eval */
 
 /**
  * Sanitize a string to prevent XSS attacks.
@@ -37,9 +40,9 @@ function sanitizeString(str: string): string {
       const lowerResult = result.toLowerCase();
       const index = lowerResult.indexOf(protocol.toLowerCase());
       if (index !== -1) {
-        // Remove everything from the protocol to the end of that "word"
+        // Remove the protocol prefix to neutralize it
         // This handles javascript:alert(...), data:text/html,..., etc.
-        result = result.substring(0, index) + result.substring(index + protocol.length);
+        result = result.slice(0, index) + result.slice(index + protocol.length);
         hasProtocol = true;
       }
     }
