@@ -64,9 +64,17 @@ class NeonBackupManager {
       monthlyRetentionMonths: Number(process.env.MONTHLY_RETENTION_MONTHS ?? '12'),
     };
 
-    // Ensure backup directory exists
+    // Ensure backup directory exists - handle permission errors gracefully
     if (!existsSync(this.config.backupDir)) {
-      mkdirSync(this.config.backupDir, { recursive: true });
+      try {
+        mkdirSync(this.config.backupDir, { recursive: true });
+      } catch (error) {
+        // Log warning but don't fail - directory creation will be retried when backup runs
+        logger.warn(
+          { error, backupDir: this.config.backupDir },
+          'Failed to create backup directory in constructor - will retry during backup'
+        );
+      }
     }
   }
 
@@ -85,14 +93,20 @@ class NeonBackupManager {
     const branchName = `backup-${timestamp}`;
 
     try {
+      logger.info({ branchName, projectId: this.config.neonProjectId }, 'Executing neon branches create command...');
+
       // Create branch from main (instant snapshot)
-      const { stdout } = await execAsync(
+      const { stdout, stderr } = await execAsync(
         `neon branches create --name "${branchName}" --project-id "${this.config.neonProjectId}" --output json`,
         { env: { ...process.env, NEON_API_KEY: this.config.neonApiKey } }
       );
 
+      if (stderr) {
+        logger.warn({ stderr }, 'Neon CLI produced stderr output');
+      }
+
       const branch = JSON.parse(stdout);
-      logger.info({ branchId: branch.id, branchName }, 'Branch backup created');
+      logger.info({ branchId: branch.id, branchName }, 'Branch backup created successfully');
 
       return {
         type: 'branch',
@@ -101,13 +115,28 @@ class NeonBackupManager {
         success: true,
       };
     } catch (error) {
-      logger.error({ error, branchName }, 'Failed to create branch backup');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const stderr = (error as any).stderr || '';
+      const stdout = (error as any).stdout || '';
+
+      logger.error(
+        {
+          error: errorMessage,
+          stderr,
+          stdout,
+          branchName,
+          projectId: this.config.neonProjectId,
+          hasNeonApiKey: !!this.config.neonApiKey,
+        },
+        'Failed to create branch backup - check Neon CLI installation and credentials'
+      );
+
       return {
         type: 'branch',
         timestamp,
         identifier: branchName,
         success: false,
-        error: error instanceof Error ? error.message : String(error),
+        error: `Neon branch backup failed: ${errorMessage}${stderr ? ` | stderr: ${stderr}` : ''}`,
       };
     }
   }
@@ -119,26 +148,58 @@ class NeonBackupManager {
   async createDumpBackup(): Promise<BackupResult> {
     logger.info('Creating pg_dump backup...');
 
-    if (!this.config.databaseUrl) {
-      throw new Error('DATABASE_URL required for dump backups');
-    }
-
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `folkcare_${timestamp}.dump`;
+
+    if (!this.config.databaseUrl) {
+      logger.warn('DATABASE_URL not configured - skipping dump backup');
+      return {
+        type: 'dump',
+        timestamp,
+        identifier: filename,
+        success: false,
+        error: 'DATABASE_URL not configured',
+      };
+    }
+
     const filepath = join(this.config.backupDir, filename);
 
+    // Ensure backup directory exists before creating dump
+    if (!existsSync(this.config.backupDir)) {
+      try {
+        mkdirSync(this.config.backupDir, { recursive: true });
+      } catch (error) {
+        logger.error({ error, backupDir: this.config.backupDir }, 'Failed to create backup directory');
+        return {
+          type: 'dump',
+          timestamp,
+          identifier: filename,
+          success: false,
+          error: `Failed to create backup directory: ${error instanceof Error ? error.message : String(error)}`,
+        };
+      }
+    }
+
     try {
+      logger.info({ filepath, filename }, 'Executing pg_dump command...');
+
       // Create pg_dump (custom format, compressed)
-      await execAsync(
+      const { stderr } = await execAsync(
         `pg_dump "${this.config.databaseUrl}" -F c -b -v -f "${filepath}"`,
         { maxBuffer: 100 * 1024 * 1024 } // 100MB buffer
       );
+
+      if (stderr && !stderr.includes('pg_dump: [archiver (db)]')) {
+        // pg_dump writes verbose output to stderr, which is normal
+        // Only log if it's not the normal verbose output
+        logger.debug({ stderr }, 'pg_dump stderr output');
+      }
 
       // Get file size
       const stats = await stat(filepath);
       const sizeInMB = (stats.size / (1024 * 1024)).toFixed(2);
 
-      logger.info({ filename, size: `${sizeInMB} MB` }, 'Dump backup created');
+      logger.info({ filename, size: `${sizeInMB} MB`, filepath }, 'Dump backup created successfully');
 
       // Upload to S3 if configured
       if (this.config.s3Bucket) {
@@ -153,13 +214,28 @@ class NeonBackupManager {
         success: true,
       };
     } catch (error) {
-      logger.error({ error, filename }, 'Failed to create dump backup');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const stderr = (error as any).stderr || '';
+      const stdout = (error as any).stdout || '';
+
+      logger.error(
+        {
+          error: errorMessage,
+          stderr,
+          stdout,
+          filename,
+          filepath,
+          hasDatabaseUrl: !!this.config.databaseUrl,
+        },
+        'Failed to create dump backup - check pg_dump installation and database connection'
+      );
+
       return {
         type: 'dump',
         timestamp,
         identifier: filename,
         success: false,
-        error: error instanceof Error ? error.message : String(error),
+        error: `pg_dump failed: ${errorMessage}${stderr ? ` | stderr: ${stderr.substring(0, 500)}` : ''}`,
       };
     }
   }
@@ -387,12 +463,33 @@ class NeonBackupManager {
         results.push(dumpResult);
       }
 
-      // Cleanup old backups
-      await this.cleanupOldBackups();
+      // Check if any backups were actually created
+      if (results.length === 0) {
+        logger.warn(
+          'No backups were created - all backup types skipped due to missing configuration. ' +
+          'This is expected if DATABASE_URL, NEON_API_KEY, and NEON_PROJECT_ID secrets are not configured. ' +
+          'To enable backups, configure the required secrets in repository settings.'
+        );
+        return results;
+      }
 
-      // Verify backups
-      if (type === 'dump' || type === 'both') {
-        await this.verifyLatestBackup();
+      // Check if all backups failed
+      const allFailed = results.every(r => !r.success);
+      if (allFailed) {
+        const errors = results.map(r => r.error).filter(Boolean).join('; ');
+        logger.error({ results }, `All backup attempts failed: ${errors}`);
+        throw new Error(`All backup attempts failed: ${errors}`);
+      }
+
+      // Cleanup old backups (only if at least one backup succeeded)
+      const anySucceeded = results.some(r => r.success);
+      if (anySucceeded) {
+        await this.cleanupOldBackups();
+
+        // Verify backups
+        if (type === 'dump' || type === 'both') {
+          await this.verifyLatestBackup();
+        }
       }
 
       logger.info({ results }, 'Backup process completed');
