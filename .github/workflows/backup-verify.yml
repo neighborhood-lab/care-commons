@@ -1,0 +1,234 @@
+name: Backup Verification
+
+on:
+  # Weekly verification every Sunday at 3 AM UTC (10 PM EST Saturday / 7 PM PST Saturday)
+  schedule:
+    - cron: '0 3 * * 0'
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '22'
+  NPM_VERSION: '10.9.4'
+
+jobs:
+  verify-restoration:
+    name: Verify Backup Restoration
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check verification configuration
+        id: check-config
+        run: |
+          if [ -z "${{ secrets.DATABASE_URL }}" ] || [ -z "${{ secrets.NEON_API_KEY }}" ] || [ -z "${{ secrets.NEON_PROJECT_ID }}" ]; then
+            echo "⚠️ Required secrets not configured - skipping verification"
+            echo "This is expected for development/testing environments."
+            echo "To enable backup verification, configure DATABASE_URL, NEON_API_KEY, and NEON_PROJECT_ID secrets."
+            echo "configured=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "✅ Verification secrets configured"
+          echo "configured=true" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        if: steps.check-config.outputs.configured == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup npm
+        if: steps.check-config.outputs.configured == 'true'
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        if: steps.check-config.outputs.configured == 'true'
+        run: npm ci
+
+      - name: Build packages
+        if: steps.check-config.outputs.configured == 'true'
+        run: npm run build
+
+      - name: Install PostgreSQL 17 client
+        if: steps.check-config.outputs.configured == 'true'
+        run: |
+          # Add PostgreSQL APT repository for version 17
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+
+          # Verify installation
+          dpkg -l | grep postgresql-client
+
+          # Set PostgreSQL 17 bin directory as highest priority in PATH
+          echo "/usr/lib/postgresql/17/bin" >> $GITHUB_PATH
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+
+          # Verify versions
+          which pg_dump
+          pg_dump --version
+          which pg_restore
+          pg_restore --version
+          which psql
+          psql --version
+
+      - name: Install Neon CLI
+        if: steps.check-config.outputs.configured == 'true'
+        run: |
+          curl -fsSL https://neon.tech/install.sh | bash
+          echo "$HOME/.neon/bin" >> $GITHUB_PATH
+
+          # Verify Neon CLI installation
+          neon --version
+
+      - name: Create backup directory
+        if: steps.check-config.outputs.configured == 'true'
+        run: mkdir -p /tmp/backups
+
+      - name: Download latest backup
+        if: steps.check-config.outputs.configured == 'true'
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_DIR: /tmp/backups
+          PATH: /usr/lib/postgresql/17/bin:${{ env.PATH }}
+        run: |
+          echo "Creating a fresh backup for verification testing..."
+          npx tsx scripts/backup-neon.ts --type dump
+
+          # List backup files
+          echo "Backup files created:"
+          ls -lh /tmp/backups/
+
+      - name: Run comprehensive backup restoration verification
+        if: steps.check-config.outputs.configured == 'true'
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_DIR: /tmp/backups
+          PATH: /usr/lib/postgresql/17/bin:${{ env.PATH }}
+        run: |
+          echo "Running comprehensive backup restoration verification..."
+          echo "This will:"
+          echo "  1. Create a temporary test database branch"
+          echo "  2. Restore the latest backup to the test branch"
+          echo "  3. Run validation queries to ensure data integrity"
+          echo "  4. Clean up the test branch"
+          echo ""
+
+          npx tsx scripts/backup-neon.ts --verify-restoration
+
+      - name: Notify on success
+        if: success() && steps.check-config.outputs.configured == 'true'
+        run: |
+          echo "✅ Backup restoration verification PASSED"
+          echo "The latest backup is confirmed to be restorable and valid."
+
+      - name: Create issue on failure
+        if: failure() && steps.check-config.outputs.configured == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Backup Restoration Verification Failed',
+              body: `
+                ## Backup Restoration Verification Failure
+
+                **Workflow:** ${context.workflow}
+                **Run:** ${context.runNumber}
+                **Time:** ${new Date().toISOString()}
+                **Branch:** ${context.ref}
+
+                [View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+
+                ### What This Means
+                The weekly backup restoration verification test has failed. This means:
+                - The latest backup file may be corrupted
+                - The backup restoration process may have issues
+                - Database schema validation failed
+                - **Backups may not be usable in a disaster recovery scenario**
+
+                ### Action Required (URGENT)
+                1. ⚠️ **Investigate immediately** - this is a critical compliance and data integrity issue
+                2. Check workflow logs for specific error messages
+                3. Manually test backup restoration:
+                   \`\`\`bash
+                   npx tsx scripts/backup-neon.ts --verify-restoration
+                   \`\`\`
+                4. Verify Neon API credentials are valid
+                5. Verify DATABASE_URL is accessible
+                6. Check PostgreSQL client tools are working correctly
+                7. If issues persist, create a new backup manually and verify it:
+                   \`\`\`bash
+                   npx tsx scripts/backup-neon.ts --type dump
+                   npx tsx scripts/backup-neon.ts --verify-restoration
+                   \`\`\`
+
+                ### HIPAA Compliance Note
+                **This is a critical compliance issue.** Backups MUST be verified to be restorable.
+                If backups cannot be restored, we are not in compliance with HIPAA backup requirements.
+
+                This issue must be resolved within 24 hours.
+
+                cc: @bedwards (repository owner)
+              `,
+              labels: ['bug', 'critical', 'compliance', 'backup', 'HUMAN']
+            });
+
+            core.setOutput('issue-number', issue.data.number);
+
+      - name: Send Discord notification on failure
+        if: failure() && steps.check-config.outputs.configured == 'true'
+        continue-on-error: true
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "Discord webhook not configured, skipping notification"
+            exit 0
+          fi
+
+          curl -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "content": "🚨 **CRITICAL: Backup Restoration Verification Failed**",
+              "embeds": [{
+                "title": "Backup Restoration Verification Failed",
+                "description": "The weekly backup restoration test has failed. **Backups may not be usable in disaster recovery.**",
+                "color": 15158332,
+                "fields": [
+                  {
+                    "name": "Workflow",
+                    "value": "'"${{ github.workflow }}"'",
+                    "inline": true
+                  },
+                  {
+                    "name": "Time",
+                    "value": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'",
+                    "inline": true
+                  },
+                  {
+                    "name": "Action Required",
+                    "value": "Investigate immediately - check GitHub Actions logs and test restoration manually",
+                    "inline": false
+                  }
+                ],
+                "footer": {
+                  "text": "HIPAA Compliance Alert - Must resolve within 24 hours"
+                },
+                "url": "'"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"'"
+              }]
+            }'
