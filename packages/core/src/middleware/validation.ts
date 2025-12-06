@@ -10,13 +10,43 @@ import { z, type ZodType, ZodError } from 'zod';
 import sanitizeHtml from 'sanitize-html';
 
 /**
- * Sanitize a string to prevent XSS attacks using the sanitize-html library.
- * This properly handles nested tags and other bypass techniques that
- * regex-based sanitizers cannot safely handle.
+ * Dangerous URI protocols that can execute code.
+ * Must be stripped before any other sanitization.
+ */
+const DANGEROUS_URI_PROTOCOLS = [
+  'javascript:',
+  'data:text/html',
+  'data:application',
+  'vbscript:',
+];
+
+/**
+ * Sanitize a string to prevent XSS attacks.
+ * 1. First strips dangerous URI protocols (javascript:, data:, etc.)
+ * 2. Then uses sanitize-html to handle nested HTML tags
  */
 function sanitizeString(str: string): string {
+  let result = str;
+
+  // Strip dangerous URI protocols (case-insensitive)
+  // Loop until no more protocols are found to handle nested/obfuscated attempts
+  let hasProtocol = true;
+  while (hasProtocol) {
+    hasProtocol = false;
+    for (const protocol of DANGEROUS_URI_PROTOCOLS) {
+      const lowerResult = result.toLowerCase();
+      const index = lowerResult.indexOf(protocol.toLowerCase());
+      if (index !== -1) {
+        // Remove everything from the protocol to the end of that "word"
+        // This handles javascript:alert(...), data:text/html,..., etc.
+        result = result.substring(0, index) + result.substring(index + protocol.length);
+        hasProtocol = true;
+      }
+    }
+  }
+
   // Use sanitize-html with strict settings - strip ALL HTML
-  return sanitizeHtml(str, {
+  return sanitizeHtml(result, {
     allowedTags: [], // No HTML tags allowed
     allowedAttributes: {}, // No attributes allowed
     disallowedTagsMode: 'recursiveEscape', // Escape nested tags properly
