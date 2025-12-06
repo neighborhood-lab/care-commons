@@ -1,0 +1,292 @@
+# Issues derived from competitive/analysis.md - Folk Care Strategic Product Vision
+# Format: title<TAB>body<TAB>labels
+
+# ============================================
+# ELDERLY PATIENT FEATURES (Issues 1-25)
+# ============================================
+
+[Patient] Caregiver continuity tracking	Track and display caregiver assignment history per patient. Show which caregivers have worked with each patient and for how long, to support continuity of care.	enhancement,patient-experience
+[Patient] Preferred caregiver matching	Allow patients/families to indicate preferred caregivers. Scheduling should prioritize these matches when possible.	enhancement,patient-experience,scheduling
+[Patient] Visit schedule visibility for patients	Create a simple, accessible view for patients to see upcoming visits - who's coming and when. Large fonts, high contrast, minimal complexity.	enhancement,patient-experience,accessibility
+[Patient] Caregiver photo display	Show caregiver photos in patient-facing views so patients know who to expect at their door.	enhancement,patient-experience,mobile
+[Patient] Routine preferences documentation	Allow documentation of patient routines and preferences (morning rituals, meal preferences, TV shows, etc.) that caregivers can reference.	enhancement,patient-experience,care-plans
+[Patient] Simple arrival notifications	Send simple text/call notifications to patients when caregiver is on their way. Configurable by patient preference.	enhancement,patient-experience,notifications
+[Patient] Minimal-friction patient interface	Design patient-facing features for elderly users: large buttons, simple language, no nested menus, voice support.	enhancement,patient-experience,accessibility,ux
+[Patient] Patient dignity safeguards	Ensure all patient-facing communications treat them as adults, not children. Avoid patronizing language in all UI text.	enhancement,patient-experience,ux
+[Patient] Patient feedback mechanism	Simple way for patients to indicate satisfaction with visits without complex surveys. Thumbs up/down or single emoji.	enhancement,patient-experience,feedback
+[Patient] Emergency contact quick-dial	One-tap emergency contact calling from patient view of the app.	enhancement,patient-experience,mobile,safety
+[Patient] Medication reminder integration	Optional medication reminders that sync with care plan medication schedules.	enhancement,patient-experience,care-plans,medications
+[Patient] Patient-caregiver messaging	Simple, accessible messaging between patients and their regular caregivers.	enhancement,patient-experience,communication
+[Patient] Visit history for patients	Let patients see a simple history of past visits - who came and when.	enhancement,patient-experience
+[Patient] Accessibility audit - vision impairment	Audit all patient-facing UI for vision impairment accessibility. Screen reader support, high contrast modes.	enhancement,accessibility,patient-experience
+[Patient] Accessibility audit - hearing impairment	Ensure all audio notifications have visual alternatives. Captions for any video content.	enhancement,accessibility,patient-experience
+[Patient] Accessibility audit - motor impairment	Large touch targets, voice control options, reduced need for precise gestures.	enhancement,accessibility,patient-experience
+[Patient] Patient language preferences	Support multiple languages in patient-facing UI. Start with Spanish, expand based on user demographics.	enhancement,accessibility,patient-experience,i18n
+[Patient] Care transition documentation	When patient moves or changes agencies, provide clear handoff documentation for continuity.	enhancement,patient-experience,data-portability
+[Patient] Patient-controlled data sharing	Let patients control what information is shared with family members vs. kept private.	enhancement,patient-experience,privacy
+[Patient] Gentle technology onboarding	Create a simple onboarding flow for elderly patients who may be technology-averse.	enhancement,patient-experience,ux,onboarding
+[Patient] Offline patient information access	Ensure patient-facing features work even with poor connectivity (common in elderly homes).	enhancement,patient-experience,offline-first
+[Patient] Large print documentation export	Allow care plans and schedules to be exported/printed in large print format.	enhancement,patient-experience,accessibility
+[Patient] Voice-activated visit info	"Hey, who's coming today?" - voice query support for visit information.	enhancement,patient-experience,accessibility,ai
+[Patient] Patient wellness check-ins	Optional daily wellness check-in prompts that alert coordinators if not completed.	enhancement,patient-experience,safety
+[Patient] Respect for patient autonomy	Design features that support patient decision-making rather than overriding it. Patient can decline visits, modify schedules.	enhancement,patient-experience,ux
+
+# ============================================
+# FAMILY PORTAL FEATURES (Issues 26-55)
+# ============================================
+
+[Family] Real-time visit visibility	Family dashboard showing current/upcoming visits, caregiver assignments, and visit status.	enhancement,family-portal
+[Family] Visit completion notifications	Notify family members when visits start and complete. Configurable frequency.	enhancement,family-portal,notifications
+[Family] Caregiver notes access	Allow families to view caregiver notes from visits (with appropriate privacy controls).	enhancement,family-portal,care-plans
+[Family] Family-caregiver messaging	Secure messaging between family members and caregivers, with audit trail.	enhancement,family-portal,communication
+[Family] Family-coordinator messaging	Direct line to care coordinator for questions and concerns.	enhancement,family-portal,communication
+[Family] Billing transparency	Clear, understandable billing information. No surprise charges. Line-item detail.	enhancement,family-portal,billing
+[Family] Invoice history and download	Complete invoice history with PDF download capability.	enhancement,family-portal,billing
+[Family] Payment portal integration	Easy online payment options. Don't force paper checks in 2025.	enhancement,family-portal,billing
+[Family] Care plan visibility	Family can view current care plan and goals. Understand what care is being provided.	enhancement,family-portal,care-plans
+[Family] Care plan change notifications	Alert families when care plans are modified. Track changes over time.	enhancement,family-portal,care-plans,notifications
+[Family] Medication tracking visibility	Families can see medication administration records and schedules.	enhancement,family-portal,medications
+[Family] Health trend visibility	Simple visualizations of patient health trends over time (weight, vitals, mood).	enhancement,family-portal,analytics
+[Family] Emergency contact management	Families can update emergency contacts directly through portal.	enhancement,family-portal
+[Family] Document upload/download	Families can upload relevant documents (insurance, medical records) and download care documentation.	enhancement,family-portal,documents
+[Family] Multiple family member access	Support multiple family members with different access levels (primary contact vs. read-only).	enhancement,family-portal,permissions
+[Family] Family caregiver coordination	For cases with both professional and family caregivers, coordinate schedules and handoffs.	enhancement,family-portal,scheduling
+[Family] Vacation/travel planning	Easy way for families to adjust schedules when patient is traveling or family is visiting.	enhancement,family-portal,scheduling
+[Family] Agency contact information	Clear display of agency contact info, hours, after-hours emergency line.	enhancement,family-portal
+[Family] Family onboarding guide	Welcome guide for new families explaining how to use the portal and what to expect.	enhancement,family-portal,onboarding
+[Family] Satisfaction surveys	Periodic (non-annoying) satisfaction surveys to gather family feedback.	enhancement,family-portal,feedback
+[Family] Issue reporting mechanism	Easy way for families to report concerns without confrontation.	enhancement,family-portal,feedback
+[Family] Family mobile app	Dedicated mobile app for family members (not just web portal).	enhancement,family-portal,mobile
+[Family] Push notifications	Mobile push notifications for important updates (configurable).	enhancement,family-portal,mobile,notifications
+[Family] Photo sharing from visits	Optional photo sharing from caregivers to families (with patient consent).	enhancement,family-portal,communication
+[Family] Video check-in capability	Optional video calls between families and patients during visits.	enhancement,family-portal,communication
+[Family] Care coordination calendar	Shared calendar showing all care-related appointments (doctor visits, therapy, home care).	enhancement,family-portal,scheduling
+[Family] Family respite coordination	For family caregivers, coordinate respite care scheduling.	enhancement,family-portal,scheduling
+[Family] Transition of care support	When patient hospitalized or moves to facility, support family through transition.	enhancement,family-portal,care-plans
+[Family] Grief and bereavement resources	Sensitive handling of end-of-life situations with appropriate resources.	enhancement,family-portal
+[Family] Family data export	Families can export all data related to their loved one's care.	enhancement,family-portal,data-portability
+
+# ============================================
+# CAREGIVER MOBILE FEATURES (Issues 56-95)
+# ============================================
+
+[Caregiver] Offline-first clock in/out	EVV clock in/out must work completely offline. Sync when connectivity returns.	enhancement,mobile,offline-first,evv
+[Caregiver] Offline care plan access	Caregivers can view care plans and tasks offline. Pre-sync before visits.	enhancement,mobile,offline-first,care-plans
+[Caregiver] Offline note-taking	Take visit notes offline that sync automatically later.	enhancement,mobile,offline-first
+[Caregiver] Background sync with retry	Robust background sync that handles intermittent connectivity gracefully.	enhancement,mobile,offline-first
+[Caregiver] Sync status visibility	Clear indicator showing what's synced and what's pending.	enhancement,mobile,offline-first,ux
+[Caregiver] Voice-to-text notes	Dictate visit notes rather than typing on small screens.	enhancement,mobile,ai
+[Caregiver] Smart documentation prompts	AI-powered prompts based on care plan and previous notes. "Did you check blood pressure today?"	enhancement,mobile,ai,care-plans
+[Caregiver] One-tap task completion	Simple checkboxes for care plan tasks. Minimal taps to document.	enhancement,mobile,ux,care-plans
+[Caregiver] Photo documentation	Easy photo capture for wound care, medication verification, home safety issues.	enhancement,mobile,documentation
+[Caregiver] Signature capture	Electronic signature capture for required documentation.	enhancement,mobile,documentation,compliance
+[Caregiver] GPS-based location verification	GPS verification for EVV without feeling like surveillance. Clear explanation of why it's needed.	enhancement,mobile,evv
+[Caregiver] Schedule view optimization	Mobile-optimized schedule view. Today's visits at a glance.	enhancement,mobile,scheduling,ux
+[Caregiver] Turn-by-turn navigation	One-tap navigation to patient addresses.	enhancement,mobile
+[Caregiver] Patient quick-view	Quick access to patient info, preferences, and care plan before arriving.	enhancement,mobile,care-plans
+[Caregiver] Emergency protocols access	Offline access to emergency protocols and patient emergency info.	enhancement,mobile,safety,offline-first
+[Caregiver] Incident reporting	Easy incident/accident reporting from mobile with photo upload.	enhancement,mobile,safety,documentation
+[Caregiver] Shift swap requests	Request shift swaps with other caregivers directly from mobile.	enhancement,mobile,scheduling
+[Caregiver] Availability updates	Update availability directly from mobile app.	enhancement,mobile,scheduling
+[Caregiver] Time-off requests	Request PTO/time off from mobile.	enhancement,mobile,scheduling
+[Caregiver] Pay stub access	View pay stubs and earnings from mobile.	enhancement,mobile,payroll
+[Caregiver] Direct deposit management	Manage direct deposit settings from mobile.	enhancement,mobile,payroll
+[Caregiver] Training access on mobile	Complete required training modules from mobile app.	enhancement,mobile,training
+[Caregiver] Certification tracking	View certification status and expiration dates.	enhancement,mobile,compliance,training
+[Caregiver] In-app messaging with coordinator	Message coordinator directly when issues arise.	enhancement,mobile,communication
+[Caregiver] Patient family messaging	Communicate with patient families through app (with appropriate boundaries).	enhancement,mobile,communication
+[Caregiver] Battery-efficient design	Minimize battery drain for all-day mobile use.	enhancement,mobile,performance
+[Caregiver] Low-bandwidth mode	Reduce data usage for caregivers with limited data plans.	enhancement,mobile,performance
+[Caregiver] Quick actions widget	Home screen widget for common actions (clock in, view next visit).	enhancement,mobile,ux
+[Caregiver] Biometric login	Face ID / fingerprint login for quick, secure access.	enhancement,mobile,security
+[Caregiver] Dark mode support	Dark mode for low-light environments.	enhancement,mobile,ux
+[Caregiver] Accessibility features	VoiceOver/TalkBack support, dynamic text sizing.	enhancement,mobile,accessibility
+[Caregiver] Multi-language support	App available in multiple languages based on caregiver demographics.	enhancement,mobile,i18n
+[Caregiver] Offline map caching	Cache maps for areas where caregivers work frequently.	enhancement,mobile,offline-first
+[Caregiver] Visit notes templates	Customizable note templates for common visit types.	enhancement,mobile,documentation
+[Caregiver] Medication administration recording	Easy medication admin documentation with time stamps.	enhancement,mobile,medications,documentation
+[Caregiver] Vital signs entry	Quick entry for vital signs with normal range indicators.	enhancement,mobile,documentation
+[Caregiver] Care plan task suggestions	AI suggests tasks based on patient condition and history.	enhancement,mobile,ai,care-plans
+[Caregiver] Mileage tracking	Automatic mileage tracking between visits for reimbursement.	enhancement,mobile
+[Caregiver] Professional development tracking	Track continuing education hours and certifications.	enhancement,mobile,training
+[Caregiver] Caregiver community features	Connect with other caregivers for peer support (opt-in).	enhancement,mobile,community
+
+# ============================================
+# NURSE CLINICAL FEATURES (Issues 96-125)
+# ============================================
+
+[Nurse] Clinical assessment tools	Digital versions of standard clinical assessments (OASIS, etc.).	enhancement,clinical,documentation
+[Nurse] Wound care documentation	Specialized wound documentation with photo comparison over time.	enhancement,clinical,documentation
+[Nurse] Medication reconciliation	Tools for medication reconciliation during home visits.	enhancement,clinical,medications
+[Nurse] Drug interaction checking	Alert for potential drug interactions when documenting medications.	enhancement,clinical,medications,safety
+[Nurse] Vital signs trending	Visualize vital signs over time with alert thresholds.	enhancement,clinical,analytics
+[Nurse] Clinical decision support	Evidence-based prompts and guidelines integrated into workflow.	enhancement,clinical,ai
+[Nurse] Care plan clinical sections	Nurse-specific sections in care plans (skilled nursing goals, interventions).	enhancement,clinical,care-plans
+[Nurse] Physician communication tools	Easy secure messaging with patient's physicians.	enhancement,clinical,communication
+[Nurse] Order management	Track and manage physician orders.	enhancement,clinical,documentation
+[Nurse] Lab result tracking	Document and track lab results over time.	enhancement,clinical,documentation
+[Nurse] Clinical documentation review	Workflow for reviewing and co-signing caregiver documentation.	enhancement,clinical,documentation
+[Nurse] Patient education documentation	Track patient/family education provided during visits.	enhancement,clinical,documentation
+[Nurse] Infection control protocols	Quick access to infection control guidelines and documentation.	enhancement,clinical,safety,documentation
+[Nurse] Fall risk assessment	Standardized fall risk assessment tools.	enhancement,clinical,safety
+[Nurse] Pain assessment tools	Standardized pain scales and tracking.	enhancement,clinical,documentation
+[Nurse] Cognitive assessment tools	Tools for documenting cognitive status and changes.	enhancement,clinical,documentation
+[Nurse] Nutrition assessment	Nutritional status documentation and tracking.	enhancement,clinical,documentation
+[Nurse] Skin assessment	Full body skin assessment documentation with body map.	enhancement,clinical,documentation
+[Nurse] Care coordination notes	Document care coordination activities (calls to physicians, referrals).	enhancement,clinical,documentation
+[Nurse] Supervisory visit documentation	Document supervisory visits of aides/caregivers.	enhancement,clinical,documentation,compliance
+[Nurse] Patient decline indicators	AI-assisted identification of patients at risk for decline/hospitalization.	enhancement,clinical,ai,analytics
+[Nurse] Telehealth visit support	Support for telehealth nursing visits when appropriate.	enhancement,clinical,telehealth
+[Nurse] Clinical alerts and reminders	Reminders for recurring assessments, medication reviews, etc.	enhancement,clinical,notifications
+[Nurse] Clinical quality metrics	Dashboard of clinical quality indicators for caseload.	enhancement,clinical,analytics
+[Nurse] Evidence-based care protocols	Library of evidence-based care protocols accessible during visits.	enhancement,clinical,documentation
+[Nurse] Interdisciplinary communication	Coordination tools with PT, OT, SW, and other disciplines.	enhancement,clinical,communication
+[Nurse] Clinical handoff documentation	Structured handoff when transferring patients to another nurse.	enhancement,clinical,documentation
+[Nurse] Home safety assessment	Standardized home safety assessment tools.	enhancement,clinical,safety
+[Nurse] Caregiver competency verification	Tools for assessing and documenting caregiver competencies.	enhancement,clinical,training,compliance
+[Nurse] Mobile clinical documentation	Full clinical documentation capability on mobile (not just basic notes).	enhancement,clinical,mobile
+
+# ============================================
+# SCHEDULER FEATURES (Issues 126-165)
+# ============================================
+
+[Scheduler] Intelligent schedule suggestions	AI suggests optimal caregiver-patient matches based on skills, location, continuity, preferences.	enhancement,scheduling,ai
+[Scheduler] Drag-and-drop schedule board	Visual schedule board with drag-and-drop assignment.	enhancement,scheduling,ux
+[Scheduler] Real-time availability view	See caregiver availability in real-time, including pending time-off.	enhancement,scheduling
+[Scheduler] Conflict detection	Automatic detection of scheduling conflicts (double-booking, travel time).	enhancement,scheduling
+[Scheduler] Travel time calculation	Calculate realistic travel times between visits.	enhancement,scheduling
+[Scheduler] Overtime alerts	Alert before scheduling pushes caregivers into overtime.	enhancement,scheduling,payroll
+[Scheduler] Skill matching	Match caregiver skills/certifications to patient requirements.	enhancement,scheduling
+[Scheduler] Continuity scoring	Show continuity score - how often patient sees same caregiver.	enhancement,scheduling,analytics
+[Scheduler] Open shift management	Manage and fill open shifts efficiently.	enhancement,scheduling
+[Scheduler] Callout handling	Quick workflow for handling same-day callouts and finding coverage.	enhancement,scheduling
+[Scheduler] Bulk schedule changes	Make changes to multiple visits at once (holiday adjustments, etc.).	enhancement,scheduling
+[Scheduler] Schedule templates	Create and apply schedule templates for recurring patterns.	enhancement,scheduling
+[Scheduler] Authorization tracking	Track visit authorizations and alert when running low.	enhancement,scheduling,billing,compliance
+[Scheduler] Schedule optimization reports	Reports on schedule efficiency, travel time, utilization.	enhancement,scheduling,analytics
+[Scheduler] Caregiver utilization dashboard	See utilization rates across all caregivers.	enhancement,scheduling,analytics
+[Scheduler] Patient preference visibility	Quick view of patient preferences during scheduling.	enhancement,scheduling
+[Scheduler] Geographic clustering	Optimize schedules to minimize travel (geographic clustering).	enhancement,scheduling,ai
+[Scheduler] Weekend/holiday scheduling	Special handling for weekend and holiday scheduling.	enhancement,scheduling
+[Scheduler] On-call schedule management	Manage on-call rotations and escalations.	enhancement,scheduling
+[Scheduler] Schedule change notifications	Automatic notifications when schedules change.	enhancement,scheduling,notifications
+[Scheduler] Missed visit alerts	Real-time alerts for missed clock-ins.	enhancement,scheduling,evv,notifications
+[Scheduler] Late arrival tracking	Track and report on late arrivals patterns.	enhancement,scheduling,analytics
+[Scheduler] Scheduler mobile app	Mobile app for schedulers to handle urgent issues on the go.	enhancement,scheduling,mobile
+[Scheduler] Schedule forecasting	Forecast staffing needs based on historical patterns.	enhancement,scheduling,ai,analytics
+[Scheduler] Caregiver preferences learning	Learn caregiver preferences over time (shift times, locations, patients).	enhancement,scheduling,ai
+[Scheduler] Patient preferences learning	Learn patient preferences over time (caregiver gender, language, etc.).	enhancement,scheduling,ai
+[Scheduler] Automated schedule generation	Option to auto-generate schedules with manual override.	enhancement,scheduling,ai
+[Scheduler] Schedule approval workflow	Workflow for supervisory approval of schedules.	enhancement,scheduling
+[Scheduler] Integration with caregiver calendars	Sync schedules to caregiver personal calendars (Google, Apple).	enhancement,scheduling,integrations
+[Scheduler] Recurrence patterns	Support complex recurrence patterns (every other week, first Monday, etc.).	enhancement,scheduling
+[Scheduler] Visit duration flexibility	Handle variable visit durations based on care needs.	enhancement,scheduling
+[Scheduler] Break time management	Ensure caregivers get required breaks in long shifts.	enhancement,scheduling,compliance
+[Scheduler] Split shift support	Support for split shifts (common in home care).	enhancement,scheduling
+[Scheduler] Multi-location patients	Handle patients who split time between locations.	enhancement,scheduling
+[Scheduler] Scheduler workload balancing	Balance scheduling workload across multiple schedulers.	enhancement,scheduling
+[Scheduler] Schedule change audit trail	Complete audit trail of all schedule changes.	enhancement,scheduling,compliance
+[Scheduler] Undo/redo for schedule changes	Ability to undo accidental schedule changes.	enhancement,scheduling,ux
+[Scheduler] Schedule scenario planning	"What if" scenario planning for schedule changes.	enhancement,scheduling
+[Scheduler] Caregiver burnout indicators	Flag caregivers at risk of burnout based on hours and patterns.	enhancement,scheduling,ai,analytics
+[Scheduler] Patient visit frequency optimization	Suggest optimal visit frequency based on patient needs and outcomes.	enhancement,scheduling,ai,care-plans
+
+# ============================================
+# BUSINESS OWNER FEATURES (Issues 166-205)
+# ============================================
+
+[Business] Revenue dashboard	Real-time revenue dashboard with key metrics.	enhancement,analytics,billing
+[Business] Margin analysis by payer	Profitability analysis by payer source.	enhancement,analytics,billing
+[Business] Margin analysis by service	Profitability analysis by service type.	enhancement,analytics,billing
+[Business] Staff cost analysis	Understand labor costs as percentage of revenue.	enhancement,analytics,payroll
+[Business] Overtime cost tracking	Track and analyze overtime costs.	enhancement,analytics,payroll
+[Business] Caregiver productivity metrics	Metrics on caregiver productivity without surveillance.	enhancement,analytics
+[Business] Patient census tracking	Track patient census over time with projections.	enhancement,analytics
+[Business] Referral source tracking	Track where patients come from (hospital, physician, word of mouth).	enhancement,analytics
+[Business] Conversion rate tracking	Track inquiry to admission conversion rates.	enhancement,analytics
+[Business] Retention metrics	Patient and caregiver retention analytics.	enhancement,analytics
+[Business] Quality metrics dashboard	Key quality indicators (hospitalizations, satisfaction, etc.).	enhancement,analytics
+[Business] Compliance dashboard	Overview of compliance status across all requirements.	enhancement,analytics,compliance
+[Business] Accounts receivable aging	AR aging report with collection tracking.	enhancement,billing,analytics
+[Business] Cash flow projection	Project cash flow based on billing cycles and payer mix.	enhancement,billing,analytics
+[Business] Budget vs. actual reporting	Compare actual performance to budget.	enhancement,analytics
+[Business] Growth opportunity analysis	Identify geographic or service areas for expansion.	enhancement,analytics,ai
+[Business] Competitor analysis tools	Track competitive landscape and market share.	enhancement,analytics
+[Business] Benchmark comparisons	Compare metrics to industry benchmarks.	enhancement,analytics
+[Business] Custom report builder	Build custom reports without developer assistance.	enhancement,analytics
+[Business] Scheduled report delivery	Automated report delivery via email.	enhancement,analytics
+[Business] Data export for accountants	Easy export of financial data for external accountants.	enhancement,billing,data-portability
+[Business] Multi-location management	Manage multiple locations from single dashboard.	enhancement,analytics
+[Business] User access audit	Audit trail of user access and actions.	enhancement,security,compliance
+[Business] Role-based permissions	Granular role-based access control.	enhancement,security,permissions
+[Business] Business continuity planning	Tools for disaster recovery and business continuity.	enhancement,security
+[Business] Insurance tracking	Track business insurance policies and renewals.	enhancement,compliance
+[Business] Contract management	Manage payer contracts and rate schedules.	enhancement,billing
+[Business] Rate schedule management	Maintain rate schedules by payer and service.	enhancement,billing
+[Business] Claims denial management	Track and manage claims denials.	enhancement,billing
+[Business] Electronic claims submission	Submit claims electronically to all major payers.	enhancement,billing
+[Business] ERA/EOB processing	Automated processing of electronic remittance advice.	enhancement,billing
+[Business] Patient eligibility verification	Real-time eligibility verification.	enhancement,billing
+[Business] Prior authorization tracking	Track prior authorizations and renewals.	enhancement,billing,compliance
+[Business] Payroll integration	Integration with major payroll providers.	enhancement,payroll,integrations
+[Business] Tax document generation	Generate required tax documents (W-2, 1099, etc.).	enhancement,payroll,compliance
+[Business] State compliance tracking	Track compliance requirements by state.	enhancement,compliance
+[Business] License renewal tracking	Track license renewals for business and staff.	enhancement,compliance
+[Business] Audit preparation tools	Tools to prepare for state and payer audits.	enhancement,compliance
+[Business] Strategic planning tools	Business planning and goal tracking.	enhancement,analytics
+[Business] Investor/board reporting	Reports suitable for investors or board members.	enhancement,analytics
+
+# ============================================
+# DATA PORTABILITY & OPEN SOURCE (Issues 206-225)
+# ============================================
+
+[Data] One-click full export	Export all agency data in one click (JSON, CSV).	enhancement,data-portability
+[Data] FHIR export format	Export patient data in FHIR R4 format.	enhancement,data-portability,interoperability
+[Data] HL7 export format	Export data in HL7 format for legacy systems.	enhancement,data-portability,interoperability
+[Data] Incremental backup export	Regular automated backups that agencies own.	enhancement,data-portability,security
+[Data] Migration tools to competitors	Tools to migrate data TO other systems (yes, competitors).	enhancement,data-portability
+[Data] Migration tools from competitors	Tools to migrate data FROM other systems.	enhancement,data-portability
+[Data] API access at all tiers	Full API access included in base product, not upsold.	enhancement,data-portability,api
+[Data] API documentation	Comprehensive API documentation for integrations.	enhancement,api,documentation
+[Data] Webhook support	Webhooks for real-time integrations.	enhancement,api,integrations
+[Data] Self-hosting documentation	Clear documentation for self-hosting deployment.	enhancement,documentation,open-source
+[Data] Docker deployment	Easy Docker-based deployment for self-hosters.	enhancement,infrastructure,open-source
+[Data] Kubernetes deployment	Kubernetes deployment for larger self-hosters.	enhancement,infrastructure,open-source
+[Data] Database schema documentation	Public database schema documentation.	enhancement,documentation,open-source
+[Data] Contribution guidelines	Clear guidelines for community contributions.	enhancement,documentation,open-source
+[Data] Plugin/extension architecture	Architecture for community plugins and extensions.	enhancement,open-source
+[Data] Theming/white-labeling	Allow agencies to customize branding.	enhancement,ux,open-source
+[Data] Multi-tenant self-hosting	Support for MSPs hosting multiple agencies.	enhancement,infrastructure,open-source
+[Data] Backup verification tools	Tools to verify backup integrity.	enhancement,data-portability,security
+[Data] Data retention policies	Configurable data retention with compliant deletion.	enhancement,compliance,data-portability
+[Data] Audit log export	Export audit logs for compliance and legal.	enhancement,compliance,data-portability
+
+# ============================================
+# AI & INTELLIGENCE FEATURES (Issues 226-250)
+# ============================================
+
+[AI] Caregiver burnout prediction	Predict caregiver burnout risk from hours, patterns, and cancellations.	enhancement,ai,analytics
+[AI] Patient hospitalization risk	Identify patients at risk of hospitalization from visit data.	enhancement,ai,analytics,clinical
+[AI] Documentation quality scoring	Score documentation quality and suggest improvements.	enhancement,ai,documentation
+[AI] Voice note transcription	Transcribe voice notes to text with medical terminology support.	enhancement,ai,mobile
+[AI] Smart note summarization	Summarize long visit notes for quick review.	enhancement,ai,documentation
+[AI] Anomaly detection in vitals	Detect anomalies in vital sign patterns.	enhancement,ai,clinical,safety
+[AI] Care plan effectiveness scoring	Score care plan effectiveness based on outcomes.	enhancement,ai,care-plans,analytics
+[AI] Scheduling optimization engine	AI engine for optimal schedule generation.	enhancement,ai,scheduling
+[AI] Natural language care plan creation	Create care plans from natural language descriptions.	enhancement,ai,care-plans
+[AI] Automated compliance checking	AI checks documentation for compliance gaps.	enhancement,ai,compliance
+[AI] Sentiment analysis of notes	Detect sentiment changes in caregiver notes that might indicate issues.	enhancement,ai,analytics
+[AI] Medication interaction alerts	AI-powered medication interaction checking.	enhancement,ai,medications,safety
+[AI] Visit duration prediction	Predict visit duration based on patient needs and history.	enhancement,ai,scheduling
+[AI] Staffing demand prediction	Predict staffing needs based on census and acuity.	enhancement,ai,scheduling,analytics
+[AI] Revenue forecasting	AI-powered revenue forecasting.	enhancement,ai,analytics,billing
+[AI] Churn prediction	Predict patient and caregiver churn.	enhancement,ai,analytics
+[AI] Optimal visit frequency	Suggest optimal visit frequency per patient.	enhancement,ai,care-plans,scheduling
+[AI] Document auto-fill	Auto-fill documentation based on previous visits.	enhancement,ai,documentation,ux
+[AI] Smart task prioritization	Prioritize caregiver tasks based on patient condition.	enhancement,ai,care-plans,mobile
+[AI] Caregiver-patient matching	AI-powered optimal caregiver-patient matching.	enhancement,ai,scheduling
+[AI] Training recommendations	Recommend training based on caregiver assignments.	enhancement,ai,training
+[AI] Quality improvement suggestions	AI suggests quality improvement initiatives.	enhancement,ai,analytics
+[AI] Predictive maintenance alerts	Predict issues before they become problems.	enhancement,ai,analytics
+[AI] Natural language querying	Ask questions about data in natural language.	enhancement,ai,analytics
+[AI] Automated report generation	Generate narrative reports from data automatically.	enhancement,ai,analytics,documentation
