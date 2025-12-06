@@ -142,7 +142,7 @@ jobs:
       
       - name: Upload backup artifacts (for debugging)
         if: failure() && steps.check-config.outputs.configured == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: backup-logs
           path: /tmp/backups/*.log

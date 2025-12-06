@@ -131,7 +131,7 @@ jobs:
 
       - name: Upload HTML test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-report-${{ matrix.browser }}
           path: playwright-report/
@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload JUnit test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: junit-results-${{ matrix.browser }}
           path: test-results/junit.xml
@@ -147,7 +147,7 @@ jobs:
 
       - name: Upload test videos
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-videos-${{ matrix.browser }}
           path: test-results/
@@ -155,7 +155,7 @@ jobs:
 
       - name: Upload screenshots
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-screenshots-${{ matrix.browser }}
           path: test-results/**/*.png
@@ -249,7 +249,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-report-mobile
           path: playwright-report/
@@ -276,7 +276,7 @@ jobs:
           find artifacts -name "*.json" -exec cp {} merged-report/ \;
 
       - name: Upload merged report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-test-report-merged
           path: merged-report/
