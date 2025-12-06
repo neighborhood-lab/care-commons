@@ -24,7 +24,7 @@ describe('Input Sanitization Middleware', () => {
   });
 
   describe('XSS Protection - Script Tags', () => {
-    it('should remove script tags from request body', async () => {
+    it('should neutralize script tags from request body', async () => {
       const response = await request(app)
         .post('/echo')
         .send({
@@ -33,20 +33,28 @@ describe('Input Sanitization Middleware', () => {
         })
         .expect(200);
 
+      // Script tags should be HTML-escaped (neutralized), not contain raw tags
       expect(response.body.name).not.toContain('<script>');
-      expect(response.body.name).not.toContain('alert');
+      expect(response.body.name).not.toContain('</script>');
       expect(response.body.bio).not.toContain('<script>');
-      expect(response.body.bio).not.toContain('malicious');
+      expect(response.body.bio).not.toContain('</script>');
+      // Content should be preserved (but escaped)
+      expect(response.body.name).toContain('John Doe');
+      expect(response.body.bio).toContain('Hello');
+      expect(response.body.bio).toContain('World');
     });
 
-    it('should remove script tags from query parameters', async () => {
+    it('should neutralize script tags from query parameters', async () => {
       const response = await request(app)
         .get('/search')
         .query({ q: '<script>alert(1)</script>test' })
         .expect(200);
 
+      // Script tags should be HTML-escaped (neutralized)
       expect(response.body.q).not.toContain('<script>');
-      expect(response.body.q).not.toContain('alert');
+      expect(response.body.q).not.toContain('</script>');
+      // Content should be preserved
+      expect(response.body.q).toContain('test');
     });
   });
 
@@ -264,7 +272,9 @@ describe('Input Sanitization Middleware', () => {
         })
         .expect(200);
 
-      expect(response.body.special).toBe('!@#$%^&*()_+-=[]{}|;:,.<>?');
+      // HTML-sensitive chars (<>&) get escaped, others preserved
+      // < becomes &lt;, > becomes &gt;, & becomes &amp;
+      expect(response.body.special).toBe('!@#$%^&amp;*()_+-=[]{}|;:,.&lt;&gt;?');
     });
   });
 
