@@ -357,6 +357,20 @@ jobs:
         with:
           name: build-artifacts
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Check performance budgets
+        run: |
+          echo "🔍 Checking performance budgets..."
+          npx tsx scripts/check-performance-budgets.ts
+
       - name: Analyze bundle sizes
         run: |
           echo "📦 Analyzing bundle sizes..."

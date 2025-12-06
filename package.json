@@ -54,6 +54,7 @@
     "test:visual:update": "playwright test --config=playwright.visual.config.ts --update-snapshots",
     "lint": "turbo run lint",
     "typecheck": "turbo run build && tsc -b",
+    "perf:check": "npm run build:web && tsx scripts/check-performance-budgets.ts",
     "db:migrate": "cd packages/core && npm run db:migrate",
     "db:migrate:rollback": "cd packages/core && npm run db:migrate:rollback",
     "db:migrate:status": "cd packages/core && npm run db:migrate:status",
