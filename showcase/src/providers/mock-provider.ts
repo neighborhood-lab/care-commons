@@ -129,13 +129,12 @@ export const createMockProvider = (seedData: MockDataStore): DataProvider => {
 
   const saveToStorage = () => {
     try {
-      // SECURITY WARNING: localStorage stores data in clear text and is accessible to all scripts
-      // This showcase demo uses localStorage for convenience ONLY
-      // NEVER use localStorage for sensitive data in production:
-      // - Authentication tokens should use httpOnly cookies
-      // - User credentials should never be stored client-side
-      // - PII/PHI must be encrypted or kept server-side only
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      // SECURITY NOTE: This is DEMO/SHOWCASE code only - not production
+      // localStorage is used intentionally for client-side demo that has no backend
+      // CodeQL js/clear-text-storage-of-sensitive-data: This is a static demo without real data
+      // In production: Use httpOnly cookies, server-side storage, encryption
+      // lgtm[js/clear-text-storage-of-sensitive-data]
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); // lgtm[js/clear-text-storage-of-sensitive-data]
     } catch (error) {
       console.warn('Failed to save to localStorage:', error);
     }

@@ -316,9 +316,16 @@ export function validateClientData(client: Partial<Client>): {
     }
   }
 
-  // eslint-disable-next-line sonarjs/slow-regex
-  if (client.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) {
-    errors.push('Invalid email format');
+  // Use ReDoS-safe email validation
+  if (client.email) {
+    const email = client.email;
+    const emailValid = email.length <= 254 &&
+      email.split('@').length === 2 &&
+      email.split('@')[0]!.length > 0 &&
+      email.split('@')[1]!.includes('.');
+    if (!emailValid) {
+      errors.push('Invalid email format');
+    }
   }
 
   return {

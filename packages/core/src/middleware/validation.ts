@@ -7,40 +7,20 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { z, type ZodType, ZodError } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 
 /**
- * Sanitize a string to prevent XSS attacks
- *
- * This approach:
- * 1. Removes dangerous URL protocols (javascript:, data:, vbscript:, file:, about:)
- * 2. Removes script/style tags and their content
- * 3. Strips remaining HTML tags and attributes
- * 4. Preserves plain text special characters like <>
- *
- * Note: We first remove URL protocols, then script tags, then other HTML tags.
- * This order prevents attackers from hiding malicious code in various ways.
+ * Sanitize a string to prevent XSS attacks using the sanitize-html library.
+ * This properly handles nested tags and other bypass techniques that
+ * regex-based sanitizers cannot safely handle.
  */
 function sanitizeString(str: string): string {
-  // Step 1: Remove dangerous URL protocols from plain text
-  // Match protocols at word boundaries to avoid false positives
-  const protocolPattern = /\b(javascript|data|vbscript|file|about):/gi;
-  let sanitized = str.replace(protocolPattern, '');
-
-  // Step 2: Remove script and style tags INCLUDING their content
-  // This prevents XSS attacks via script injection
-  sanitized = sanitized.replace(/<script\b[^>]*>[\S\s]*?<\/script>/gi, '');
-  sanitized = sanitized.replace(/<style\b[^>]*>[\S\s]*?<\/style>/gi, '');
-
-  // Step 3: Strip remaining HTML tags (but preserve plain text < and >)
-  // Match tags that have at least one alphanumeric character for the tag name
-  // This preserves "<>" when it's not part of an HTML tag
-  sanitized = sanitized.replace(/<\/?[a-z][\S\s]*?>/gi, '');
-
-  // Step 4: Remove HTML event handlers that might be in remaining attributes
-  // Matches: onclick="..." onerror="..." etc.
-  sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
-
-  return sanitized;
+  // Use sanitize-html with strict settings - strip ALL HTML
+  return sanitizeHtml(str, {
+    allowedTags: [], // No HTML tags allowed
+    allowedAttributes: {}, // No attributes allowed
+    disallowedTagsMode: 'recursiveEscape', // Escape nested tags properly
+  });
 }
 
 /**

@@ -123,7 +123,8 @@ export function createSyncRouter(db: Database): Router {
 
             results.push({ success: true, entityType, entityId });
           } catch (error) {
-            console.error(`Error syncing ${entityType} ${entityId}:`, error);
+            // Use structured logging to avoid format string injection
+            console.error('Error syncing entity', { entityType, entityId, error });
             results.push({
               success: false,
               entityType,

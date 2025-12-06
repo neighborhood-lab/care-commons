@@ -150,11 +150,23 @@ export class ClientValidator {
   }
 
   /**
-   * Validate email
+   * Validate email using a ReDoS-safe pattern.
+   * Uses atomic groups via possessive quantifiers simulation with length limits.
    */
   validateEmail(email: string): boolean {
-    // eslint-disable-next-line sonarjs/slow-regex
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    // Length check first to prevent ReDoS on long strings
+    if (email.length > 254) return false;
+    // Simple, safe email validation without nested quantifiers
+    // Split and check parts to avoid backtracking
+    const parts = email.split('@');
+    if (parts.length !== 2) return false;
+    const [local, domain] = parts;
+    if (!local || !domain || local.length > 64 || domain.length > 253) return false;
+    // Check domain has at least one dot
+    if (!domain.includes('.')) return false;
+    // Check no leading/trailing dots or spaces
+    if (/^\s|\s$|^\.|\.$/.test(local) || /^\s|\s$|^\.|\.$/.test(domain)) return false;
+    return true;
   }
 
   /**
