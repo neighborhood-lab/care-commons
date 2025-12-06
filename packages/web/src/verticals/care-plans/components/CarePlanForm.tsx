@@ -60,7 +60,7 @@ export const CarePlanForm: React.FC<CarePlanFormProps> = ({
     getValues,
     formState: { errors },
   } = useForm<CarePlanFormData>({
-    resolver: zodResolver(carePlanSchema),
+    resolver: zodResolver(carePlanSchema as any),
     defaultValues: {
       clientId: initialData?.clientId ?? '',
       organizationId: initialData?.organizationId ?? '',

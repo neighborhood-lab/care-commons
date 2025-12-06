@@ -178,7 +178,7 @@ function ProfileSettings({ userProfile, isLoading, onSuccess, onError }: Setting
     formState: { errors },
     reset,
   } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(profileSchema as any),
     defaultValues: {
       firstName: userProfile?.firstName ?? '',
       lastName: userProfile?.lastName ?? '',
@@ -294,7 +294,7 @@ function AccountSettings({ onSuccess, onError }: Readonly<Omit<SettingsSectionPr
     formState: { errors },
     reset,
   } = useForm<PasswordFormData>({
-    resolver: zodResolver(passwordSchema),
+    resolver: zodResolver(passwordSchema as any),
     defaultValues: {
       currentPassword: '',
       newPassword: '',
@@ -390,7 +390,7 @@ function PreferencesSettings({ onSuccess, onError }: Readonly<Omit<SettingsSecti
     formState: { errors },
     reset,
   } = useForm<PreferencesFormData>({
-    resolver: zodResolver(preferencesSchema),
+    resolver: zodResolver(preferencesSchema as any),
     defaultValues: {
       emailNotifications: true,
       pushNotifications: false,
@@ -554,7 +554,7 @@ function TeamSettings({ organizationId, onSuccess, onError }: TeamSettingsProps)
     formState: { errors },
     reset,
   } = useForm<InviteFormData>({
-    resolver: zodResolver(inviteSchema),
+    resolver: zodResolver(inviteSchema as any),
     defaultValues: {
       email: '',
       firstName: '',
