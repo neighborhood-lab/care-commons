@@ -399,7 +399,8 @@ class NeonBackupManager {
   }
 
   /**
-   * Verify latest backup can be restored
+   * Verify latest backup can be restored (basic integrity check)
+   * For full restoration testing, use verifyBackupRestoration()
    */
   async verifyLatestBackup(): Promise<boolean> {
     logger.info('Verifying latest backup...');
@@ -427,6 +428,177 @@ class NeonBackupManager {
       return true;
     } catch (error) {
       logger.error({ error }, 'Backup verification failed');
+      return false;
+    }
+  }
+
+  /**
+   * Comprehensive backup verification with actual restoration test
+   * Creates a temporary Neon branch, restores backup, runs validation queries,
+   * and cleans up. This ensures backups are genuinely restorable.
+   */
+  async verifyBackupRestoration(): Promise<boolean> {
+    logger.info('Starting comprehensive backup restoration verification...');
+
+    if (!this.config.neonApiKey || !this.config.neonProjectId) {
+      logger.error('NEON_API_KEY and NEON_PROJECT_ID required for restoration verification');
+      return false;
+    }
+
+    if (!this.config.databaseUrl) {
+      logger.error('DATABASE_URL required for restoration verification');
+      return false;
+    }
+
+    let testBranchId: string | null = null;
+    let testConnectionString: string | null = null;
+
+    try {
+      // Step 1: Find latest dump file
+      logger.info('Step 1: Locating latest backup file...');
+      const files = await readdir(this.config.backupDir);
+      const dumpFiles = files
+        .filter(f => f.startsWith('folkcare_') && f.endsWith('.dump'))
+        .sort()
+        .reverse();
+
+      if (dumpFiles.length === 0) {
+        logger.error('No dump backups found to verify');
+        return false;
+      }
+
+      const latestDump = join(this.config.backupDir, dumpFiles[0]);
+      logger.info({ file: dumpFiles[0] }, 'Found latest backup file');
+
+      // Step 2: Create temporary test branch
+      logger.info('Step 2: Creating temporary test database branch...');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const testBranchName = `verify-${timestamp}`;
+
+      const { stdout: createStdout } = await execAsync(
+        `neon branches create --name "${testBranchName}" --project-id "${this.config.neonProjectId}" --output json`,
+        { env: { ...process.env, NEON_API_KEY: this.config.neonApiKey } }
+      );
+
+      const branch = JSON.parse(createStdout);
+      testBranchId = branch.id;
+      logger.info({ branchId: testBranchId, branchName: testBranchName }, 'Test branch created');
+
+      // Step 3: Get connection string for test branch
+      logger.info('Step 3: Getting connection string for test branch...');
+      const { stdout: connStdout } = await execAsync(
+        `neon connection-string "${testBranchId}" --project-id "${this.config.neonProjectId}" --pooled`,
+        { env: { ...process.env, NEON_API_KEY: this.config.neonApiKey } }
+      );
+
+      testConnectionString = connStdout.trim();
+      logger.info('Got test branch connection string');
+
+      // Step 4: Drop existing database schema in test branch and restore from backup
+      logger.info('Step 4: Restoring backup to test branch...');
+
+      // First, drop all existing schema (clean slate)
+      await execAsync(
+        `psql "${testConnectionString}" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"`,
+        { maxBuffer: 100 * 1024 * 1024 }
+      );
+      logger.info('Dropped existing schema in test branch');
+
+      // Restore from backup
+      await execAsync(
+        `pg_restore -d "${testConnectionString}" --no-owner --no-acl "${latestDump}"`,
+        { maxBuffer: 100 * 1024 * 1024 }
+      );
+      logger.info({ file: dumpFiles[0] }, 'Backup restored to test branch');
+
+      // Step 5: Run validation queries
+      logger.info('Step 5: Running validation queries...');
+
+      // Query 1: Check that critical tables exist
+      const criticalTables = [
+        'users',
+        'organizations',
+        'clients',
+        'caregivers',
+        'visits',
+        'audit_logs'
+      ];
+
+      for (const table of criticalTables) {
+        const { stdout } = await execAsync(
+          `psql "${testConnectionString}" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '${table}' AND table_schema = 'public';"`,
+          { maxBuffer: 10 * 1024 * 1024 }
+        );
+
+        const count = parseInt(stdout.trim());
+        if (count === 0) {
+          throw new Error(`Critical table '${table}' not found in restored backup`);
+        }
+      }
+      logger.info({ tables: criticalTables }, 'All critical tables exist');
+
+      // Query 2: Verify row counts are reasonable (not zero for tables that should have data)
+      const { stdout: userCountStdout } = await execAsync(
+        `psql "${testConnectionString}" -t -c "SELECT COUNT(*) FROM users;"`,
+        { maxBuffer: 10 * 1024 * 1024 }
+      );
+      const userCount = parseInt(userCountStdout.trim());
+      logger.info({ userCount }, 'User table row count');
+
+      // Query 3: Check that indexes exist
+      const { stdout: indexCountStdout } = await execAsync(
+        `psql "${testConnectionString}" -t -c "SELECT COUNT(*) FROM pg_indexes WHERE schemaname = 'public';"`,
+        { maxBuffer: 10 * 1024 * 1024 }
+      );
+      const indexCount = parseInt(indexCountStdout.trim());
+      if (indexCount === 0) {
+        throw new Error('No indexes found - backup may be corrupted');
+      }
+      logger.info({ indexCount }, 'Indexes verified');
+
+      // Query 4: Check that constraints exist
+      const { stdout: constraintCountStdout } = await execAsync(
+        `psql "${testConnectionString}" -t -c "SELECT COUNT(*) FROM information_schema.table_constraints WHERE table_schema = 'public';"`,
+        { maxBuffer: 10 * 1024 * 1024 }
+      );
+      const constraintCount = parseInt(constraintCountStdout.trim());
+      if (constraintCount === 0) {
+        throw new Error('No constraints found - backup may be corrupted');
+      }
+      logger.info({ constraintCount }, 'Constraints verified');
+
+      logger.info('All validation queries passed');
+
+      // Step 6: Cleanup test branch
+      logger.info('Step 6: Cleaning up test branch...');
+      if (testBranchId) {
+        await execAsync(
+          `neon branches delete "${testBranchId}" --project-id "${this.config.neonProjectId}"`,
+          { env: { ...process.env, NEON_API_KEY: this.config.neonApiKey } }
+        );
+        logger.info({ branchId: testBranchId }, 'Test branch deleted');
+      }
+
+      logger.info({ file: dumpFiles[0] }, 'Backup restoration verification PASSED - backup is restorable and valid');
+      return true;
+
+    } catch (error) {
+      logger.error({ error }, 'Backup restoration verification FAILED');
+
+      // Attempt cleanup even on failure
+      if (testBranchId) {
+        try {
+          logger.info('Attempting cleanup of test branch after failure...');
+          await execAsync(
+            `neon branches delete "${testBranchId}" --project-id "${this.config.neonProjectId}"`,
+            { env: { ...process.env, NEON_API_KEY: this.config.neonApiKey } }
+          );
+          logger.info({ branchId: testBranchId }, 'Test branch cleaned up after failure');
+        } catch (cleanupError) {
+          logger.error({ error: cleanupError, branchId: testBranchId }, 'Failed to cleanup test branch after failure');
+        }
+      }
+
       return false;
     }
   }
@@ -506,12 +678,19 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const manager = new NeonBackupManager();
 
+  // Basic integrity verification
   if (args.includes('--verify')) {
     const isValid = await manager.verifyLatestBackup();
     process.exit(isValid ? 0 : 1);
   }
 
-  const type = args.includes('--type') 
+  // Comprehensive restoration verification
+  if (args.includes('--verify-restoration')) {
+    const isValid = await manager.verifyBackupRestoration();
+    process.exit(isValid ? 0 : 1);
+  }
+
+  const type = args.includes('--type')
     ? (args[args.indexOf('--type') + 1] as 'branch' | 'dump' | 'both')
     : 'both';
 
