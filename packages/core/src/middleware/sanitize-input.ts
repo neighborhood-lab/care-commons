@@ -1,25 +1,52 @@
 import type { Request, Response, NextFunction } from 'express';
+import sanitizeHtml from 'sanitize-html';
 
-export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
-  // Sanitize request body
-  if (req.body != null && typeof req.body === 'object') {
-    req.body = sanitizeObject(req.body) as typeof req.body;
+/**
+ * Dangerous URI protocols that can execute code.
+ * Must be stripped before any other sanitization.
+ * Note: These strings are used for pattern matching/removal, not for code execution.
+ */
+/* eslint-disable sonarjs/code-eval -- These are patterns to BLOCK, not execute */
+const DANGEROUS_URI_PROTOCOLS = [
+  'javascript:', // XSS via href/src attributes
+  'data:text/html', // XSS via embedded HTML
+  'data:application', // potential binary exploits
+  'vbscript:', // IE legacy XSS
+];
+/* eslint-enable sonarjs/code-eval */
+
+/**
+ * Sanitize a string to prevent XSS attacks.
+ * 1. First strips dangerous URI protocols (javascript:, data:, etc.)
+ * 2. Then uses sanitize-html to handle nested HTML tags
+ */
+function sanitizeString(str: string): string {
+  let result = str;
+
+  // Strip dangerous URI protocols (case-insensitive)
+  // Loop until no more protocols are found to handle nested/obfuscated attempts
+  let hasProtocol = true;
+  while (hasProtocol) {
+    hasProtocol = false;
+    for (const protocol of DANGEROUS_URI_PROTOCOLS) {
+      const lowerResult = result.toLowerCase();
+      const index = lowerResult.indexOf(protocol.toLowerCase());
+      if (index !== -1) {
+        // Remove the protocol prefix to neutralize it
+        // This handles javascript:alert(...), data:text/html,..., etc.
+        result = result.slice(0, index) + result.slice(index + protocol.length);
+        hasProtocol = true;
+      }
+    }
   }
 
-  // Sanitize query parameters
-  // Note: req.query has a getter but no setter, so we need to define our own property
-  if (req.query != null && typeof req.query === 'object') {
-    const sanitizedQuery = sanitizeObject(req.query);
-    Object.defineProperty(req, 'query', {
-      value: sanitizedQuery,
-      writable: true,
-      enumerable: true,
-      configurable: true
-    });
-  }
-
-  next();
-};
+  // Use sanitize-html with strict settings - strip ALL HTML
+  return sanitizeHtml(result, {
+    allowedTags: [], // No HTML tags allowed
+    allowedAttributes: {}, // No attributes allowed
+    disallowedTagsMode: 'recursiveEscape', // Escape nested tags properly
+  });
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function sanitizeObject(obj: any): any {
@@ -44,40 +71,26 @@ function sanitizeObject(obj: any): any {
   return obj;
 }
 
-/**
- * Sanitize a string to prevent XSS attacks
- *
- * This approach:
- * 1. Removes dangerous URL protocols (javascript:, data:, vbscript:, file:, about:)
- * 2. Removes script/style tags and their content
- * 3. Strips remaining HTML tags and attributes
- * 4. Preserves plain text special characters like <>
- *
- * Note: We first remove URL protocols, then script tags, then other HTML tags.
- * This order prevents attackers from hiding malicious code in various ways.
- */
-function sanitizeString(str: string): string {
-  // Step 1: Remove dangerous URL protocols from plain text
-  // Match protocols at word boundaries to avoid false positives
-  const protocolPattern = /\b(javascript|data|vbscript|file|about):/gi;
-  let sanitized = str.replace(protocolPattern, '');
+export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
+  // Sanitize request body
+  if (req.body != null && typeof req.body === 'object') {
+    req.body = sanitizeObject(req.body) as typeof req.body;
+  }
 
-  // Step 2: Remove script and style tags INCLUDING their content
-  // This prevents XSS attacks via script injection
-  sanitized = sanitized.replace(/<script\b[^>]*>[\S\s]*?<\/script>/gi, '');
-  sanitized = sanitized.replace(/<style\b[^>]*>[\S\s]*?<\/style>/gi, '');
+  // Sanitize query parameters
+  // Note: req.query has a getter but no setter, so we need to define our own property
+  if (req.query != null && typeof req.query === 'object') {
+    const sanitizedQuery = sanitizeObject(req.query);
+    Object.defineProperty(req, 'query', {
+      value: sanitizedQuery,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    });
+  }
 
-  // Step 3: Strip remaining HTML tags (but preserve plain text < and >)
-  // Match tags that have at least one alphanumeric character for the tag name
-  // This preserves "<>" when it's not part of an HTML tag
-  sanitized = sanitized.replace(/<\/?[a-z][\S\s]*?>/gi, '');
-
-  // Step 4: Remove HTML event handlers that might be in remaining attributes
-  // Matches: onclick="..." onerror="..." etc.
-  sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
-
-  return sanitized;
-}
+  next();
+};
 
 // SQL injection protection (additional layer beyond parameterized queries)
 export const validateNoSQLInjection = (value: string): boolean => {

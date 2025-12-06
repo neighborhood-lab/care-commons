@@ -56,7 +56,12 @@ export const configureCsrfProtection = (app: Express): void => {
   });
 
   // Apply CSRF protection to state-changing routes
-  app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+  // Security note: This is middleware that runs on every /api request, not an endpoint
+  // Rate limiting is applied at the endpoint level (see csrfTokenLimiter below)
+  // The CSRF verification itself doesn't need rate limiting since it only validates
+  // existing tokens and doesn't perform expensive operations or issue new tokens
+  // lgtm[js/missing-rate-limiting]
+  app.use('/api', (req: Request, res: Response, next: NextFunction) => { // lgtm[js/missing-rate-limiting]
     // Skip CSRF for GET, HEAD, OPTIONS (safe methods)
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
       return next();

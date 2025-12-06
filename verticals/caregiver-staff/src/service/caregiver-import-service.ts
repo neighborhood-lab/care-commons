@@ -6,6 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+import { randomBytes } from 'crypto';
 import {
   ImportOptions,
   ImportResult,
@@ -689,8 +690,8 @@ export class CaregiverImportService implements ImportService<CaregiverImportRow,
       organizationId: input.organizationId,
       branchIds: input.branchIds,
       primaryBranchId: input.primaryBranchId,
-      // eslint-disable-next-line sonarjs/pseudo-random
-      employeeNumber: 'PREVIEW-' + Math.random().toString(36).substring(7).toUpperCase(),
+      // Use cryptographically secure random bytes for employee number generation
+      employeeNumber: 'PREVIEW-' + randomBytes(4).toString('hex').toUpperCase(),
       firstName: input.firstName,
       lastName: input.lastName,
       dateOfBirth: input.dateOfBirth,
@@ -808,12 +809,17 @@ export class CaregiverImportService implements ImportService<CaregiverImportRow,
   }
 
   /**
-   * Validate email format
+   * Validate email format using ReDoS-safe logic
    */
   private isValidEmail(email: string): boolean {
-    // Simple email validation - more complex patterns are vulnerable to ReDoS
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // eslint-disable-line sonarjs/slow-regex
-    return emailRegex.test(email);
+    // Use string operations instead of regex to prevent ReDoS
+    if (email.length > 254) return false;
+    const parts = email.split('@');
+    if (parts.length !== 2) return false;
+    const [local, domain] = parts;
+    if (!local || !domain || local.length > 64 || domain.length > 253) return false;
+    if (!domain.includes('.')) return false;
+    return true;
   }
 
   /**

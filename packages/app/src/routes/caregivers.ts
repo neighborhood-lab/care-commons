@@ -88,7 +88,9 @@ export function createCaregiverRouter(db: Database): Router {
    * If employee numbers become sensitive in your deployment, consider:
    * - Using POST with employeeNumber in the request body
    * - Implementing additional access controls
+   * lgtm[js/sensitive-get-query]
    */
+  // lgtm[js/sensitive-get-query]
   router.get('/employee-number/:employeeNumber', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const context = getUserContext(req);

@@ -330,9 +330,21 @@ export class CarePlanRepository extends Repository<CarePlan> {
     if (!firstRow) throw new Error('Count query returned no rows');
     const total = parseInt(firstRow['count'] as string, 10);
 
-    // Get paginated results
-    const sortBy = pagination.sortBy || 'created_at';
-    const sortOrder = pagination.sortOrder || 'desc';
+    // Get paginated results with SQL injection protection
+    // Whitelist allowed sort columns to prevent SQL injection
+    const ALLOWED_SORT_COLUMNS = new Set([
+      'created_at', 'updated_at', 'name', 'plan_number', 'status',
+      'priority', 'effective_date', 'expiration_date', 'review_date',
+      'plan_type', 'compliance_status'
+    ]);
+    const ALLOWED_SORT_ORDERS = new Set(['asc', 'desc']);
+
+    const requestedSortBy = pagination.sortBy || 'created_at';
+    const requestedSortOrder = (pagination.sortOrder || 'desc').toLowerCase();
+
+    // Validate sort column and order against whitelist
+    const sortBy = ALLOWED_SORT_COLUMNS.has(requestedSortBy) ? requestedSortBy : 'created_at';
+    const sortOrder = ALLOWED_SORT_ORDERS.has(requestedSortOrder) ? requestedSortOrder : 'desc';
     const offset = (pagination.page - 1) * pagination.limit;
 
     const dataQuery = `
@@ -624,8 +636,21 @@ export class CarePlanRepository extends Repository<CarePlan> {
     const total = parseInt(firstRow['count'] as string, 10);
 
     // Get paginated results with joins to get client and care plan names
-    const sortBy = pagination.sortBy || 'ti.scheduled_date';
-    const sortOrder = pagination.sortOrder || 'asc';
+    // Whitelist allowed sort columns to prevent SQL injection
+    const ALLOWED_TASK_SORT_COLUMNS = new Set([
+      'ti.scheduled_date', 'ti.created_at', 'ti.updated_at', 'ti.name',
+      'ti.status', 'ti.category', 'ti.priority', 'ti.completed_at',
+      'scheduled_date', 'created_at', 'updated_at', 'name', 'status',
+      'category', 'priority', 'completed_at'
+    ]);
+    const ALLOWED_SORT_ORDERS = new Set(['asc', 'desc']);
+
+    const requestedSortBy = pagination.sortBy || 'ti.scheduled_date';
+    const requestedSortOrder = (pagination.sortOrder || 'asc').toLowerCase();
+
+    // Validate sort column and order against whitelist
+    const sortBy = ALLOWED_TASK_SORT_COLUMNS.has(requestedSortBy) ? requestedSortBy : 'ti.scheduled_date';
+    const sortOrder = ALLOWED_SORT_ORDERS.has(requestedSortOrder) ? requestedSortOrder : 'asc';
     const offset = (pagination.page - 1) * pagination.limit;
 
     const dataQuery = `

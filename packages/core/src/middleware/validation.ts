@@ -7,40 +7,53 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { z, type ZodType, ZodError } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 
 /**
- * Sanitize a string to prevent XSS attacks
- *
- * This approach:
- * 1. Removes dangerous URL protocols (javascript:, data:, vbscript:, file:, about:)
- * 2. Removes script/style tags and their content
- * 3. Strips remaining HTML tags and attributes
- * 4. Preserves plain text special characters like <>
- *
- * Note: We first remove URL protocols, then script tags, then other HTML tags.
- * This order prevents attackers from hiding malicious code in various ways.
+ * Dangerous URI protocols that can execute code.
+ * Must be stripped before any other sanitization.
+ * Note: These strings are used for pattern matching/removal, not for code execution.
+ */
+/* eslint-disable sonarjs/code-eval -- These are patterns to BLOCK, not execute */
+const DANGEROUS_URI_PROTOCOLS = [
+  'javascript:', // XSS via href/src attributes
+  'data:text/html', // XSS via embedded HTML
+  'data:application', // potential binary exploits
+  'vbscript:', // IE legacy XSS
+];
+/* eslint-enable sonarjs/code-eval */
+
+/**
+ * Sanitize a string to prevent XSS attacks.
+ * 1. First strips dangerous URI protocols (javascript:, data:, etc.)
+ * 2. Then uses sanitize-html to handle nested HTML tags
  */
 function sanitizeString(str: string): string {
-  // Step 1: Remove dangerous URL protocols from plain text
-  // Match protocols at word boundaries to avoid false positives
-  const protocolPattern = /\b(javascript|data|vbscript|file|about):/gi;
-  let sanitized = str.replace(protocolPattern, '');
+  let result = str;
 
-  // Step 2: Remove script and style tags INCLUDING their content
-  // This prevents XSS attacks via script injection
-  sanitized = sanitized.replace(/<script\b[^>]*>[\S\s]*?<\/script>/gi, '');
-  sanitized = sanitized.replace(/<style\b[^>]*>[\S\s]*?<\/style>/gi, '');
+  // Strip dangerous URI protocols (case-insensitive)
+  // Loop until no more protocols are found to handle nested/obfuscated attempts
+  let hasProtocol = true;
+  while (hasProtocol) {
+    hasProtocol = false;
+    for (const protocol of DANGEROUS_URI_PROTOCOLS) {
+      const lowerResult = result.toLowerCase();
+      const index = lowerResult.indexOf(protocol.toLowerCase());
+      if (index !== -1) {
+        // Remove the protocol prefix to neutralize it
+        // This handles javascript:alert(...), data:text/html,..., etc.
+        result = result.slice(0, index) + result.slice(index + protocol.length);
+        hasProtocol = true;
+      }
+    }
+  }
 
-  // Step 3: Strip remaining HTML tags (but preserve plain text < and >)
-  // Match tags that have at least one alphanumeric character for the tag name
-  // This preserves "<>" when it's not part of an HTML tag
-  sanitized = sanitized.replace(/<\/?[a-z][\S\s]*?>/gi, '');
-
-  // Step 4: Remove HTML event handlers that might be in remaining attributes
-  // Matches: onclick="..." onerror="..." etc.
-  sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
-
-  return sanitized;
+  // Use sanitize-html with strict settings - strip ALL HTML
+  return sanitizeHtml(result, {
+    allowedTags: [], // No HTML tags allowed
+    allowedAttributes: {}, // No attributes allowed
+    disallowedTagsMode: 'recursiveEscape', // Escape nested tags properly
+  });
 }
 
 /**

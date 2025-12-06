@@ -35,18 +35,19 @@ export function setup() {
 }
 
 export default function (data) {
-  const visitId = `visit-${Math.floor(Math.random() * 1000)}`;
+  // Security justification: Math.random() is acceptable for load test data generation
+  // This generates non-sensitive test identifiers and mock GPS coordinates
+  // NOT used for cryptographic purposes, authentication, or security tokens
+  // CodeQL: js/insecure-randomness - false positive for test data generation
+  const visitId = `visit-${Math.floor(Math.random() * 1000)}`; // lgtm[js/insecure-randomness]
 
   const payload = JSON.stringify({
     visitId,
     gpsCoordinates: {
-      // Security Note: Math.random() is acceptable here for load test data generation
-      // This is NOT used for cryptographic purposes, authentication, or security tokens
-      // Load tests only need pseudo-random GPS coordinates for realistic test scenarios
       // lgtm[js/insecure-randomness]
-      latitude: 30.2672 + Math.random() * 0.01,
+      latitude: 30.2672 + Math.random() * 0.01, // lgtm[js/insecure-randomness]
       // lgtm[js/insecure-randomness]
-      longitude: -97.7431 + Math.random() * 0.01,
+      longitude: -97.7431 + Math.random() * 0.01, // lgtm[js/insecure-randomness]
       accuracy: 10,
     },
     deviceInfo: {

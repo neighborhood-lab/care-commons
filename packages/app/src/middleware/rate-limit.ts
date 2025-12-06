@@ -19,7 +19,16 @@ const initRedis = async (): Promise<void> => {
   try {
     // Upstash Redis uses TLS by default (redis:// protocol with TLS enabled)
     // Local Redis typically uses redis:// without TLS
-    const isUpstash = redisUrl.includes('upstash.io');
+    // Use URL parsing to safely check the hostname
+    let isUpstash = false;
+    try {
+      const parsedUrl = new URL(redisUrl);
+      // Strict check: hostname must end with .upstash.io
+      isUpstash = parsedUrl.hostname.endsWith('.upstash.io');
+    } catch {
+      // Invalid URL format - treat as local Redis
+      isUpstash = false;
+    }
 
     const clientOptions: Redis.RedisClientOptions = {
       url: redisUrl,
