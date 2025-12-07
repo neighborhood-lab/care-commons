@@ -23,7 +23,6 @@ import {
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
-import * as FileSystem from 'expo-file-system';
 
 interface PhotoData {
   uri: string;
@@ -99,24 +98,10 @@ export default function PhotoCaptureScreen({ route, navigation }: any) {
     if (!capturedPhoto) return;
 
     try {
-      // Create photos directory if it doesn't exist
-      // Use cacheDirectory for temporary storage (will be synced to backend)
-      const photosDir = `${FileSystem.cacheDirectory}photos/`;
-      const dirInfo = await FileSystem.getInfoAsync(photosDir);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(photosDir, { intermediates: true });
-      }
-
-      // Generate unique filename
+      // TODO: Implement proper file storage after expo-file-system is configured
+      // For now, keep photo in captured location (will be synced to backend)
       const timestamp = new Date().toISOString();
-      const filename = `${visitId}_${taskId}_${Date.now()}.jpg`;
-      const newUri = `${photosDir}${filename}`;
-
-      // Move photo to permanent storage
-      await FileSystem.moveAsync({
-        from: capturedPhoto,
-        to: newUri,
-      });
+      const newUri = capturedPhoto; // Temporary: use captured photo URI directly
 
       const photoData: PhotoData = {
         uri: newUri,
@@ -152,15 +137,9 @@ export default function PhotoCaptureScreen({ route, navigation }: any) {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            const photoToDelete = photos[index];
-            try {
-              // Delete physical file
-              await FileSystem.deleteAsync(photoToDelete.uri, { idempotent: true });
-              // Remove from state
-              setPhotos(photos.filter((_, i) => i !== index));
-            } catch (error) {
-              console.error('Photo deletion error:', error);
-            }
+            // TODO: Delete physical file after expo-file-system is configured
+            // For now, just remove from state
+            setPhotos(photos.filter((_, i) => i !== index));
           },
         },
       ]
