@@ -8,7 +8,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@folkcare/scheduling-visits';
-import { ComplianceCheckingService, complianceCheckRequestSchema } from '@folkcare/visit-notes';
+import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService } from '@folkcare/visit-notes';
 import knex from 'knex';
 
 /**
@@ -1111,7 +1111,7 @@ export function createVisitRouter(db: Database): Router {
     }
   });
 
-  // POST /visits/compliance-check
+// POST /visits/compliance-check
   // Automated compliance checking for visits (AI-powered)
   // eslint-disable-next-line sonarjs/cognitive-complexity -- Sequential validation guards are inherently branchy
   router.post('/compliance-check', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
@@ -1226,6 +1226,32 @@ export function createVisitRouter(db: Database): Router {
       next(error);
     } finally {
       await knexDb.destroy();
+    }
+  });
+
+  // POST /visits/:visitId/notes/:noteId/quality-score
+  // Score documentation quality for a visit note
+  router.post('/:visitId/notes/:noteId/quality-score', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForQuality = getKnexInstance();
+    try {
+      const { noteId } = req.params;
+
+      if (noteId === undefined || noteId === '') {
+        res.status(400).json({ success: false, error: 'Note ID is required' });
+        return;
+      }
+
+      const qualityService = new DocumentationQualityService(knexDbForQuality);
+      const result = await qualityService.scoreDocumentationQuality({ noteId });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDbForQuality.destroy();
     }
   });
 

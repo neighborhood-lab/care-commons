@@ -78,5 +78,14 @@ export {
   type VisitComplianceResult,
 } from './services/compliance-checking-service.js';
 
+// Documentation Quality (AI-powered scoring)
+export {
+  DocumentationQualityService,
+  type QualityScoreRequest,
+  type DocumentationQualityResult,
+  type DimensionScore,
+  type QualityDimension,
+} from './services/documentation-quality-service.js';
+
 // Routes
 export { createVisitNotesHandlers } from './routes/index.js';
