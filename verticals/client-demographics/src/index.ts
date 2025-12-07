@@ -19,6 +19,21 @@ export * from './service/client-service';
 export * from './service/client-audit-service';
 export * from './service/client-import-service';
 
+// Clinical AI - Hospitalization Risk Prediction
+export {
+  HospitalizationRiskService,
+  type HospitalizationRiskAssessment,
+  type HospitalizationRiskLevel,
+  type ClinicalRiskFactor,
+  type RiskFactorCategory,
+  type InterventionRecommendation,
+  type InterventionCategory,
+  type PatientClinicalData,
+  type ChronicCondition,
+  type Medication,
+  type IClinicalDataProvider,
+} from './services/hospitalization-risk-service';
+
 // Validation
 export * from './validation/client-validator';
 
