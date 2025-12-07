@@ -238,11 +238,23 @@ Primary instance (Brian Leader Bot):
 - User: bedwards
 - Email: brian.mabry.edwards@gmail.com
 - Discord: Brian Leader Bot
+- GitHub: May use gh CLI and GitHub API
 
 Secondary instance (Tove):
 - User: tove-bot
 - Email: br.ianmabryedwards@gmail.com
-- Discord: Tove
+- Discord: Tove Bot
+- GitHub: May use gh CLI and GitHub API
+
+Tertiary instance (Gaute):
+- User: gaute-bot
+- Email: bri.anmabryedwards@gmail.com
+- Discord: Gaute Bot
+- GitHub: **RESTRICTED** - May only use git locally (commits, pushes)
+  - ❌ NO gh CLI usage
+  - ❌ NO GitHub API writes (issues, PRs, comments)
+  - ✅ May READ GitHub API as bedwards (issues/PRs only)
+  - ✅ Use git for all version control operations
 
 ---
 
@@ -477,10 +489,38 @@ app.post('/api/clients', async (req, res) => {
 
 ### GitHub Operations (IMPORTANT)
 
-**Use REST API, NOT `gh` CLI**
+**Agent-Specific GitHub Access:**
 
-The `gh` CLI uses GraphQL which has strict rate limits and blocks new accounts. Use our **SINGLE** REST API wrapper instead:
+**bedwards (Brian Leader Bot) and tove-bot (Tove Bot):**
+- ✅ May use `gh` CLI for all operations (issues, PRs, comments, merges)
+- ✅ May use GitHub API (REST or GraphQL)
+- ✅ Full GitHub access
 
+**gaute-bot (Gaute Bot) - RESTRICTED:**
+- ❌ NO `gh` CLI usage
+- ❌ NO GitHub API writes (cannot create issues, PRs, or comments)
+- ✅ May READ GitHub API as bedwards (read issues/PRs only)
+- ✅ Use git locally for all version control (commits, pushes to branches)
+- **Why restricted:** GraphQL rate limits and account permission issues
+
+**GitHub CLI Usage (bedwards & tove-bot only):**
+
+```bash
+# Create an issue
+gh issue create --repo neighborhood-lab/folk-care --title "Title" --body "Body"
+
+# Create a pull request
+gh pr create --repo neighborhood-lab/folk-care --title "Title" --body "Body"
+
+# Merge a PR
+gh pr merge 123 --repo neighborhood-lab/folk-care --squash
+
+# List issues/PRs
+gh issue list --repo neighborhood-lab/folk-care
+gh pr list --repo neighborhood-lab/folk-care
+```
+
+**REST API Wrapper (fallback option):**
 ```bash
 # Set your GitHub token
 export GITHUB_TOKEN="ghp_your_token_here"
@@ -496,14 +536,10 @@ export GITHUB_TOKEN="ghp_your_token_here"
 ./scripts/github-api.sh pr-list open
 ```
 
-**CRITICAL - Single Entry Point:**
-- ✅ **ADD to `scripts/github-api.sh`** when you need new GitHub functionality
-- ❌ **DO NOT create separate scripts** (`gh-issue.sh`, `gh-pr.sh`, etc.)
-- ✅ **One script for ALL GitHub operations**
-
 **Why?**
+- ✅ gh CLI: Most convenient for bedwards & tove-bot
 - ✅ REST API: 5,000 calls/hour, works for all accounts
-- ❌ GraphQL (gh CLI): Rate limited, blocked for new accounts
+- ❌ GraphQL (gh CLI): Rate limited for new accounts like gaute-bot
 - See `scripts/README.md` for detailed usage
 
 ### Database
