@@ -398,6 +398,8 @@ export class BurnoutRepository {
       const prevDate = sortedDates[i - 1];
       const currDate = sortedDates[i];
 
+      if (!prevDate || !currDate) continue;
+
       const daysDiff = Math.floor(
         (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24)
       );

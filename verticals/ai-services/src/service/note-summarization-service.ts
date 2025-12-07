@@ -75,7 +75,8 @@ export class NoteSummarizationService {
     });
 
     // Parse response
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    const firstContentBlock = message.content[0];
+    const responseText = firstContentBlock && firstContentBlock.type === 'text' ? firstContentBlock.text : '';
     const parsed = this.parseAIResponse(responseText, request.includeSentiment, request.includeKeywords);
 
     const summarized: SummarizedNote = {
@@ -183,7 +184,8 @@ Return ONLY the JSON object, no additional text.`;
       ],
     });
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}';
+    const firstBlock = message.content[0];
+    const responseText = firstBlock && firstBlock.type === 'text' ? firstBlock.text : '{}';
     try {
       return JSON.parse(responseText) as KeywordExtractionResult;
     } catch {

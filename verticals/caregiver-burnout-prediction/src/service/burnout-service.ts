@@ -83,7 +83,7 @@ export class BurnoutService {
 
     // Get prior score for trending (if exists)
     const snapshots = await this.repository.getBurnoutSnapshots(caregiverId, 1);
-    const priorRiskScore = snapshots.length > 0 ? snapshots[0].riskScore : null;
+    const priorRiskScore = snapshots.length > 0 ? (snapshots[0]?.riskScore ?? null) : null;
     const trend = this.calculator.determineTrend(riskScore, priorRiskScore);
 
     // Save snapshot for future trending
