@@ -239,7 +239,9 @@ export class DataExportService {
       // Get all unique columns across all records
       const columns = new Set<string>();
       for (const record of records) {
-        Object.keys(record as object).forEach(key => columns.add(key));
+        for (const key of Object.keys(record as object)) {
+          columns.add(key);
+        }
       }
       const columnArray = Array.from(columns);
 
