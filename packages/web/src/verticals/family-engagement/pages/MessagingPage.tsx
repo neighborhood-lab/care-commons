@@ -65,7 +65,7 @@ const DEMO_MESSAGES: Message[] = [
     senderId: 'coord-1',
     senderName: 'Linda Martinez',
     senderRole: 'coordinator',
-    content: 'Good morning Sarah! Yes, Maria reported that Dorothy had oatmeal and fruit for breakfast. She's doing well today.',
+    content: 'Good morning Sarah! Yes, Maria reported that Dorothy had oatmeal and fruit for breakfast. She\'s doing well today.',
     timestamp: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
     read: true,
   },
@@ -84,7 +84,7 @@ const DEMO_MESSAGES: Message[] = [
 export default function MessagingPage() {
   const [conversations] = useState<Conversation[]>(DEMO_CONVERSATIONS);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(
-    DEMO_CONVERSATIONS[0]
+    DEMO_CONVERSATIONS[0] ?? null
   );
   const [messages, setMessages] = useState<Message[]>(DEMO_MESSAGES);
   const [newMessage, setNewMessage] = useState('');
@@ -123,7 +123,7 @@ export default function MessagingPage() {
         senderId: 'coord-1',
         senderName: 'Linda Martinez',
         senderRole: 'coordinator',
-        content: 'Thanks for reaching out! I'll check on that and get back to you shortly.',
+        content: 'Thanks for reaching out! I\'ll check on that and get back to you shortly.',
         timestamp: new Date().toISOString(),
         read: false,
       };
