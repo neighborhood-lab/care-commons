@@ -6,12 +6,14 @@
 
 import type { Request, Response } from 'express';
 import { MedicationService } from '../service/medication-service.js';
+import { MedicationInteractionService } from '../service/medication-interaction-service.js';
 import type { UserContext, Role } from '@folkcare/core';
 import { ValidationError, PermissionError, NotFoundError } from '@folkcare/core';
 import {
   createMedicationSchema,
   updateMedicationSchema,
   recordAdministrationSchema,
+  checkInteractionsSchema,
 } from '../validation/medication-validator.js';
 import { ZodError } from 'zod';
 
@@ -264,6 +266,32 @@ export function createMedicationHandlers(service: MedicationService) {
         res.json(administrations);
       } catch (error) {
         handleError(error, res, 'fetching client administrations');
+      }
+    },
+
+    /**
+     * POST /api/medications/check-interactions
+     * Check medication interactions for a client
+     */
+    checkInteractions: async (req: Request, res: Response): Promise<void> => {
+      try {
+        const validatedData = checkInteractionsSchema.parse(req.body);
+
+        // Use the interaction service (get db from service)
+        const db = (service as any).db; // Access private db from medicationService
+        const interactionService = new MedicationInteractionService(db);
+
+        const result = await interactionService.checkMedicationInteractions({
+          clientId: validatedData.clientId,
+          newMedicationName: validatedData.newMedicationName,
+          newMedicationDosage: validatedData.newMedicationDosage,
+          newMedicationRoute: validatedData.newMedicationRoute,
+          medicationIds: validatedData.medicationIds,
+        });
+
+        res.json(result);
+      } catch (error) {
+        handleError(error, res, 'checking medication interactions');
       }
     },
   };

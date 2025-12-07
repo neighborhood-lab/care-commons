@@ -129,8 +129,28 @@ export const recordAdministrationSchema = z
   );
 
 /**
+ * Check Medication Interactions Input Schema
+ */
+export const checkInteractionsSchema = z.object({
+  clientId: z.string().uuid(),
+  newMedicationName: z.string().min(1).max(200).optional(),
+  newMedicationDosage: z.string().min(1).max(100).optional(),
+  newMedicationRoute: z.string().optional(),
+  medicationIds: z.array(z.string().uuid()).optional(),
+}).refine(
+  (data) => {
+    // Either newMedicationName or medicationIds must be provided
+    return !!data.newMedicationName || (data.medicationIds && data.medicationIds.length > 0);
+  },
+  {
+    message: 'Either newMedicationName or medicationIds must be provided',
+  }
+);
+
+/**
  * Export type inferences
  */
 export type CreateMedicationInput = z.infer<typeof createMedicationSchema>;
 export type UpdateMedicationInput = z.infer<typeof updateMedicationSchema>;
 export type RecordAdministrationInput = z.infer<typeof recordAdministrationSchema>;
+export type CheckInteractionsInput = z.infer<typeof checkInteractionsSchema>;

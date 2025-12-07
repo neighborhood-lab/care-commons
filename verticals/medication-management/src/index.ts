@@ -17,11 +17,22 @@ export type {
   MedicationWithStatus,
 } from './types/medication.js';
 
+// Interaction Service Types
+export type {
+  MedicationInteractionRequest,
+  MedicationInteractionResult,
+  DrugInteraction,
+  AllergyAlert,
+  ConditionAlert,
+  InteractionSeverity,
+} from './service/medication-interaction-service.js';
+
 // Repositories
 export { MedicationRepository, MedicationAdministrationRepository } from './repository/medication-repository.js';
 
 // Services
 export { MedicationService } from './service/medication-service.js';
+export { MedicationInteractionService } from './service/medication-interaction-service.js';
 
 // Validation
 export {
@@ -31,6 +42,7 @@ export {
   createMedicationSchema,
   updateMedicationSchema,
   recordAdministrationSchema,
+  checkInteractionsSchema,
 } from './validation/medication-validator.js';
 
 // API Handlers

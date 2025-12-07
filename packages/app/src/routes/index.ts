@@ -126,6 +126,9 @@ function createMedicationRouter(handlers: ReturnType<typeof createMedicationHand
   router.post('/medications/:medicationId/administer', handlers.recordAdministration);
   router.get('/medications/:medicationId/administrations', handlers.getMedicationAdministrations);
 
+  // Medication interaction checking endpoint
+  router.post('/medications/check-interactions', handlers.checkInteractions);
+
   return router;
 }
 
