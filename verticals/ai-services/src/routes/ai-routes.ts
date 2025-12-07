@@ -70,7 +70,7 @@ const extractKeywordsSchema = z.object({
 /**
  * Create AI services router
  */
-export function createAIRoutes(db: Database): Router {
+export function createAIRoutes(_db: Database): Router {
   const router = Router();
 
   // Initialize AI service (in production, API key would come from env)
