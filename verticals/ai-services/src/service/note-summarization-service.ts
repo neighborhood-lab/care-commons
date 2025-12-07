@@ -64,7 +64,7 @@ export class NoteSummarizationService {
 
     // Call Claude API
     const message = await this.client.messages.create({
-      model: this.config.defaultModel === 'claude-haiku' ? 'claude-3-5-haiku-20241022' : 'claude-sonnet-4-20250514',
+      model: this.config.defaultModel === 'claude-haiku' ? 'claude-3-5-haiku-20241022' : 'claude-sonnet-4-5-20250929',
       max_tokens: this.config.maxTokens,
       temperature: this.config.temperature,
       messages: [
