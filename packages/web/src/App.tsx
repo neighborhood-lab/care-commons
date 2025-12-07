@@ -20,6 +20,7 @@ import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
 import BulkNotificationsPage from './pages/coordinators/BulkNotificationsPage';
 import ClientIntakeWorkflow from './pages/clients/ClientIntakeWorkflow';
+import CaregiverTrainingDashboard from './pages/caregivers/CaregiverTrainingDashboard';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { QADashboard, AuditsPage, AuditDetailPage, CorrectiveActionsPage } from './verticals/quality-assurance';
 import { CaregiverList } from './verticals/caregivers';
@@ -220,6 +221,16 @@ function AppRoutes() {
           <ProtectedRoute permission="caregivers:read">
             <AppShell>
               <CaregiverList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/caregivers/:id/training"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CaregiverTrainingDashboard />
             </AppShell>
           </ProtectedRoute>
         }
