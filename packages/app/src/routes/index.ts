@@ -51,6 +51,7 @@ import { createVerificationRouter } from './verification.js';
 import { createImportRoutes } from './import-routes.js';
 import { createBillingRouter } from './billing.js';
 import { createComplianceRouter } from './compliance.js';
+import exportRouter from './export.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -376,6 +377,10 @@ export function setupRoutes(app: Express, db: Database): void {
   const complianceRouter = createComplianceRouter(db);
   app.use('/api/compliance', generalApiLimiter, complianceRouter);
   console.log('  ✓ Compliance Autopilot routes registered (with rate limiting)');
+
+  // Data Export routes
+  app.use('/api/export', generalApiLimiter, exportRouter);
+  console.log('  ✓ Data Export routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }

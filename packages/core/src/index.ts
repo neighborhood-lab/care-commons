@@ -74,6 +74,7 @@ export * from './utils/password-validator';
 export * from './utils/sensitive-data-filter';
 export * from './middleware/sanitize-input';
 export * from './services/account-lockout.service';
+export * from './services/data-export.service';
 export * from './sync/index';
 export * from './demo/index';
 export * from './providers/index';
