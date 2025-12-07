@@ -211,7 +211,7 @@ const COURSE_CATALOG = [
 
 export default function CaregiverTrainingDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'certifications' | 'training' | 'catalog'>('overview');
-  const [selectedCert, setSelectedCert] = useState<Certification | null>(null);
+  const [_selectedCert, setSelectedCert] = useState<Certification | null>(null);
 
   const certStats = {
     total: DEMO_CERTIFICATIONS.length,
