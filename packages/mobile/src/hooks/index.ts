@@ -4,3 +4,4 @@
 
 export * from './useFormValidation';
 export * from './useSyncStatus';
+export * from './useTaskPrioritization';

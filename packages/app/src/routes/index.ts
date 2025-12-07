@@ -9,6 +9,7 @@ import { Database, PermissionService, UserRepository, AuthMiddleware } from '@fo
 import { createClientRouter, ClientService, ClientRepository } from '@folkcare/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@folkcare/care-plans-tasks';
 import { createCarePlanHandlers } from '@folkcare/care-plans-tasks';
+import { createTaskPrioritizationRoutes } from '@folkcare/care-plans-tasks';
 import { createHealthRouter } from './health';
 import { createMetricsRouter } from './metrics';
 import { createAuthRouter } from './auth';
@@ -248,6 +249,11 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   const carePlanRouter = createCarePlanRouter(carePlanHandlers, db);
   app.use('/api', generalApiLimiter, carePlanRouter);
   console.log('  ✓ Care Plans & Tasks routes registered (with rate limiting)');
+
+  // Task Prioritization routes (AI-powered)
+  const taskPrioritizationRouter = createTaskPrioritizationRoutes(db);
+  app.use('/api', generalApiLimiter, taskPrioritizationRouter);
+  console.log('  ✓ Task Prioritization routes registered (with rate limiting)');
 
   // Caregiver & Staff Management routes
   const caregiverRouter = createCaregiverRouter(db);
