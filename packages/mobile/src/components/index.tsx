@@ -10,6 +10,7 @@ import React from 'react';
 export { ConflictResolutionModal } from './ConflictResolutionModal';
 export { OfflineIndicator } from './OfflineIndicator';
 export { PrioritizedTaskList } from './care-plans/PrioritizedTaskList';
+export { MedicationInteractionAlerts } from './medications/MedicationInteractionAlerts';
 import {
   Pressable,
   Text,

@@ -22,6 +22,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@folkcare/core": "^0.1.0",
     "date-fns": "^4.1.0",
     "uuid": "^13.0.0",
