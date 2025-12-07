@@ -87,5 +87,14 @@ export {
   type QualityDimension,
 } from './services/documentation-quality-service.js';
 
+// Hospitalization Risk (AI-powered prediction)
+export {
+  HospitalizationRiskService,
+  type HospitalizationRiskRequest,
+  type HospitalizationRiskResult,
+  type RiskLevel,
+  type RiskFactor,
+} from './services/hospitalization-risk-service.js';
+
 // Routes
 export { createVisitNotesHandlers } from './routes/index.js';
