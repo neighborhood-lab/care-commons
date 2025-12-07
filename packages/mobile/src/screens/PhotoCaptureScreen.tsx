@@ -100,7 +100,8 @@ export default function PhotoCaptureScreen({ route, navigation }: any) {
 
     try {
       // Create photos directory if it doesn't exist
-      const photosDir = `${FileSystem.documentDirectory}photos/`;
+      // Use cacheDirectory for temporary storage (will be synced to backend)
+      const photosDir = `${FileSystem.cacheDirectory}photos/`;
       const dirInfo = await FileSystem.getInfoAsync(photosDir);
       if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(photosDir, { intermediates: true });
