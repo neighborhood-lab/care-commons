@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@folkcare/core": "^0.1.0",
     "pg": "^8.11.3",
     "zod": "^3.22.4"

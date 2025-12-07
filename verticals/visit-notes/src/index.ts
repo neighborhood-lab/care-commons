@@ -55,3 +55,15 @@ export {
   type TranscriptionResult,
   type StructuredNoteData,
 } from './services/voice-transcription-service.js';
+
+// Note Autofill (AI-powered suggestions)
+export {
+  NoteAutofillService,
+  createNoteAutofillService,
+  type AutofillServiceConfig,
+  type AutofillSuggestions,
+  type AutofillRequest,
+} from './services/note-autofill-service.js';
+
+// Routes
+export { createVisitNotesHandlers } from './routes/index.js';
