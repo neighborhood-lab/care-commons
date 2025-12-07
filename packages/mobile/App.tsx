@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
+import VisitDetailsScreen from './src/screens/VisitDetailsScreen';
 
 const Tab = createBottomTabNavigator();
+const VisitsStack = createNativeStackNavigator();
 
 // Dashboard Screen - IMPROVED
 function DashboardScreen({ navigation }: any) {
@@ -364,10 +367,10 @@ function VisitsScreen({ navigation }: any) {
       </View>
       
       {visits.map((visit) => (
-        <TouchableOpacity 
-          key={visit.id} 
+        <TouchableOpacity
+          key={visit.id}
           style={styles.visitListCard}
-          onPress={() => navigation.navigate('ClockIn')}
+          onPress={() => navigation.navigate('VisitDetails', { visitId: visit.id })}
         >
           <View style={styles.visitCardHeader}>
             <Text style={styles.visitClientName}>{visit.client}</Text>
@@ -392,16 +395,30 @@ function VisitsScreen({ navigation }: any) {
             >
               <Text style={styles.visitActionText}>🗺️ Navigate</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.visitActionButton, styles.visitActionPrimary]}
-              onPress={() => navigation.navigate('ClockIn')}
+              onPress={() => navigation.navigate('VisitDetails', { visitId: visit.id })}
             >
-              <Text style={styles.visitActionTextPrimary}>Clock In →</Text>
+              <Text style={styles.visitActionTextPrimary}>View Details →</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       ))}
     </ScrollView>
+  );
+}
+
+// Visits Stack Navigator - wraps Visits List and Visit Details
+function VisitsStackNavigator() {
+  return (
+    <VisitsStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <VisitsStack.Screen name="VisitsList" component={VisitsScreen} />
+      <VisitsStack.Screen name="VisitDetails" component={VisitDetailsScreen} />
+    </VisitsStack.Navigator>
   );
 }
 
@@ -424,9 +441,9 @@ export default function App() {
               tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📊</Text>,
             }}
           />
-          <Tab.Screen 
-            name="Visits" 
-            component={VisitsScreen}
+          <Tab.Screen
+            name="Visits"
+            component={VisitsStackNavigator}
             options={{
               tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📅</Text>,
               title: 'My Visits'
