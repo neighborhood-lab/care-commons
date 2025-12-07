@@ -20,14 +20,14 @@ import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
 import BulkNotificationsPage from './pages/coordinators/BulkNotificationsPage';
+import ClientIntakeWorkflow from './pages/clients/ClientIntakeWorkflow';
+import CaregiverTrainingDashboard from './pages/caregivers/CaregiverTrainingDashboard';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { QADashboard, AuditsPage, AuditDetailPage, CorrectiveActionsPage } from './verticals/quality-assurance';
 import { CaregiverList } from './verticals/caregivers';
 import { PayrollReports, CaregiverPayStubs, PayStubList, PayStubDetail, PayPeriodManagement } from './verticals/payroll-processing';
 import { MatchAnalyticsDashboard } from './verticals/shift-matching';
 import { DemoModeBar } from './demo';
-import CaregiverTrainingDashboard from './pages/caregivers/CaregiverTrainingDashboard';
-import ClientIntakeWorkflow from './pages/clients/ClientIntakeWorkflow';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
 import {
   FamilyDashboard,
@@ -155,6 +155,18 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/clients/intake"
+        element={
+          <ProtectedRoute
+            requiredRoles={['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'ADMIN', 'COORDINATOR']}
+          >
+            <AppShell>
+              <ClientIntakeWorkflow />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/clients/dashboard"
         element={
           <ProtectedRoute>
@@ -225,7 +237,11 @@ function AppRoutes() {
         }
       />
       <Route
+<<<<<<< HEAD
+        path="/caregivers/:id/training"
+=======
         path="/caregivers/training"
+>>>>>>> origin/develop
         element={
           <ProtectedRoute>
             <AppShell>
