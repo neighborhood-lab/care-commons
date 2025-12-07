@@ -19,6 +19,7 @@ import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
 import BulkNotificationsPage from './pages/coordinators/BulkNotificationsPage';
+import ClientIntakeWorkflow from './pages/clients/ClientIntakeWorkflow';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { QADashboard, AuditsPage, AuditDetailPage, CorrectiveActionsPage } from './verticals/quality-assurance';
 import { CaregiverList } from './verticals/caregivers';
@@ -147,6 +148,18 @@ function AppRoutes() {
           <ProtectedRoute permission="clients:read">
             <AppShell>
               <ClientList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/clients/intake"
+        element={
+          <ProtectedRoute
+            requiredRoles={['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'ADMIN', 'COORDINATOR']}
+          >
+            <AppShell>
+              <ClientIntakeWorkflow />
             </AppShell>
           </ProtectedRoute>
         }
