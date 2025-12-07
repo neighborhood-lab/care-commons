@@ -237,11 +237,7 @@ function AppRoutes() {
         }
       />
       <Route
-<<<<<<< HEAD
         path="/caregivers/:id/training"
-=======
-        path="/caregivers/training"
->>>>>>> origin/develop
         element={
           <ProtectedRoute>
             <AppShell>

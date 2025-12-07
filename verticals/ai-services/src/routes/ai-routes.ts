@@ -210,7 +210,7 @@ export function createAIRoutes(_db: Database): Router {
    * GET /ai/cache-stats
    * Get summarization cache statistics
    */
-  router.get('/ai/cache-stats', (req: Request, res: Response) => {
+  router.get('/ai/cache-stats', (_req: Request, res: Response) => {
     const stats = aiService.getCacheStats();
     res.json({
       success: true,
@@ -222,7 +222,7 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/clear-cache
    * Clear the summarization cache
    */
-  router.post('/ai/clear-cache', (req: Request, res: Response) => {
+  router.post('/ai/clear-cache', (_req: Request, res: Response) => {
     aiService.clearCache();
     res.json({
       success: true,
