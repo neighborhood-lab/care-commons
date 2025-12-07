@@ -29,6 +29,7 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * GET /api/burnout/caregiver/:caregiverId/risk
    * Get current burnout risk for a specific caregiver
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.get('/burnout/caregiver/:caregiverId/risk', async (req: AuthenticatedRequest, res, next) => {
     try {
       const caregiverId = req.params.caregiverId!;
@@ -57,6 +58,7 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * GET /api/burnout/caregiver/:caregiverId/trend
    * Get historical burnout risk trend for a caregiver
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.get('/burnout/caregiver/:caregiverId/trend', async (req: AuthenticatedRequest, res, next) => {
     try {
       const caregiverId = req.params.caregiverId!;
@@ -84,6 +86,7 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * GET /api/burnout/organization/:organizationId/at-risk
    * Get list of caregivers at burnout risk in organization
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.get('/burnout/organization/:organizationId/at-risk', async (req: AuthenticatedRequest, res, next) => {
     try {
       const organizationId = req.params.organizationId!;
@@ -111,6 +114,7 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * POST /api/burnout/organization/:organizationId/report
    * Generate comprehensive burnout report for organization
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/burnout/organization/:organizationId/report', async (req: AuthenticatedRequest, res, next) => {
     try {
       const organizationId = req.params.organizationId!;
@@ -139,6 +143,7 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * POST /api/burnout/caregiver/:caregiverId/calculate
    * Manually trigger burnout risk calculation (admin/coordinator only)
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/burnout/caregiver/:caregiverId/calculate', async (req: AuthenticatedRequest, res, next) => {
     try {
       // Permission check: only coordinator or admin
