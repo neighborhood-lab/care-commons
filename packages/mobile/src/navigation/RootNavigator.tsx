@@ -31,6 +31,7 @@ import { SignatureScreen } from '../screens/visits/SignatureScreen';
 import { PhotoGalleryScreen } from '../screens/visits/PhotoGalleryScreen';
 import { VisitNotesScreen } from '../screens/visits/VisitNotesScreen';
 import { SyncStatusScreen } from '../screens/profile/SyncStatusScreen';
+import IncidentReportScreen from '../screens/incidents/IncidentReportScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -60,6 +61,11 @@ export type RootStackParamList = {
     evvRecordId?: string;
   };
   SyncStatus: undefined;
+  IncidentReport: {
+    visitId: string;
+    clientId: string;
+    clientName: string;
+  };
 };
 
 export type MainTabParamList = {
@@ -229,6 +235,14 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               component={SyncStatusScreen}
               options={{
                 title: 'Sync Status',
+              }}
+            />
+            <RootStack.Screen
+              name="IncidentReport"
+              component={IncidentReportScreen}
+              options={{
+                title: 'Report Incident',
+                presentation: 'modal',
               }}
             />
           </>
