@@ -32,6 +32,14 @@ export type {
   IVisitHistoryProvider,
 } from './service/schedule-optimization-service.js';
 
+// Missed Visit Alerts (EVV Compliance)
+export { MissedVisitAlertService } from './service/missed-visit-alert-service.js';
+export type {
+  MissedVisitAlert,
+  MissedVisitStats,
+} from './service/missed-visit-alert-service.js';
+export { createMissedVisitAlertsRoutes } from './api/missed-visit-alerts-routes.js';
+
 // AI Services (Cloudflare Workers AI, Cohere)
 export { CloudflareAIService, createCloudflareAIService } from './service/cloudflare-ai-service.js';
 export type {
