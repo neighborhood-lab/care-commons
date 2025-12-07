@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
 interface Caregiver {
   id: string;
@@ -6,13 +6,6 @@ interface Caregiver {
   color: string;
   skills: string[];
   availability: { [key: string]: boolean };
-}
-
-interface Client {
-  id: string;
-  name: string;
-  address: string;
-  requiredSkills: string[];
 }
 
 interface Visit {
@@ -55,27 +48,6 @@ const DEMO_CAREGIVERS: Caregiver[] = [
     color: '#f59e0b',
     skills: ['medication', 'meal-prep', 'transportation'],
     availability: { '2025-12-09': true, '2025-12-10': true, '2025-12-11': true },
-  },
-];
-
-const DEMO_CLIENTS: Client[] = [
-  {
-    id: 'cl-1',
-    name: 'Robert Johnson',
-    address: '123 Oak St',
-    requiredSkills: ['medication', 'mobility'],
-  },
-  {
-    id: 'cl-2',
-    name: 'Patricia Williams',
-    address: '456 Maple Ave',
-    requiredSkills: ['wound-care', 'bathing'],
-  },
-  {
-    id: 'cl-3',
-    name: 'Michael Davis',
-    address: '789 Pine Rd',
-    requiredSkills: ['meal-prep', 'medication'],
   },
 ];
 
@@ -130,13 +102,12 @@ export default function ScheduleBuilderPage() {
   const [selectedDate, setSelectedDate] = useState<string>('2025-12-09');
   const [visits, setVisits] = useState<Visit[]>(DEMO_VISITS);
   const [draggedVisit, setDraggedVisit] = useState<Visit | null>(null);
-  const [unassignedVisits, setUnassignedVisits] = useState<Visit[]>([]);
   const [viewMode, setViewMode] = useState<'week' | 'day'>('day');
 
-  useEffect(() => {
-    const unassigned = visits.filter(v => v.status === 'unassigned' && v.date === selectedDate);
-    setUnassignedVisits(unassigned);
-  }, [visits, selectedDate]);
+  const unassignedVisits = useMemo(
+    () => visits.filter(v => v.status === 'unassigned' && v.date === selectedDate),
+    [visits, selectedDate]
+  );
 
   const handleDragStart = (visit: Visit) => {
     setDraggedVisit(visit);
@@ -150,7 +121,7 @@ export default function ScheduleBuilderPage() {
     if (!draggedVisit) return;
 
     const [hours] = timeSlot.split(':').map(Number);
-    const endHour = hours + draggedVisit.duration;
+    const endHour = (hours ?? 0) + draggedVisit.duration;
     const endTime = `${String(endHour).padStart(2, '0')}:00`;
 
     const updatedVisit: Visit = {
@@ -183,7 +154,7 @@ export default function ScheduleBuilderPage() {
       if (v.caregiverId !== caregiverId || v.date !== selectedDate) return false;
       const [startHour] = v.startTime.split(':').map(Number);
       const [endHour] = v.endTime.split(':').map(Number);
-      return hour >= startHour && hour < endHour;
+      return hour >= (startHour ?? 0) && hour < (endHour ?? 24);
     });
   };
 
@@ -192,13 +163,14 @@ export default function ScheduleBuilderPage() {
     return caregiver?.availability[selectedDate] ?? false;
   };
 
-  const getNextWeekDates = () => {
-    const dates = [];
+  const getNextWeekDates = (): string[] => {
+    const dates: string[] = [];
     const today = new Date('2025-12-09');
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
-      dates.push(date.toISOString().split('T')[0]);
+      const dateStr = date.toISOString().split('T')[0];
+      if (dateStr) dates.push(dateStr);
     }
     return dates;
   };
@@ -353,7 +325,7 @@ export default function ScheduleBuilderPage() {
                             : undefined
                         }
                       >
-                        {isOccupied && visit && slot.hour === parseInt(visit.startTime.split(':')[0]) && (
+                        {isOccupied && visit && slot.hour === parseInt(visit.startTime.split(':')[0] ?? '0') && (
                           <div
                             style={{
                               ...styles.visitBlock,
