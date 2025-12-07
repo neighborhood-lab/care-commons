@@ -18,6 +18,7 @@ import { VisitList, CalendarView } from './verticals/scheduling-visits';
 import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
+import BulkNotificationsPage from './pages/coordinators/BulkNotificationsPage';
 import { AdminDashboard as AnalyticsAdminDashboard, CoordinatorDashboard, ReportsPage } from './app/pages/analytics';
 import { QADashboard, AuditsPage, AuditDetailPage, CorrectiveActionsPage } from './verticals/quality-assurance';
 import { CaregiverList } from './verticals/caregivers';
@@ -544,6 +545,18 @@ function AppRoutes() {
           >
             <AppShell>
               <ComplianceDashboard />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/coordinators/notifications"
+        element={
+          <ProtectedRoute
+            requiredRoles={['SUPER_ADMIN', 'ORG_ADMIN', 'BRANCH_ADMIN', 'ADMIN', 'COORDINATOR']}
+          >
+            <AppShell>
+              <BulkNotificationsPage />
             </AppShell>
           </ProtectedRoute>
         }
