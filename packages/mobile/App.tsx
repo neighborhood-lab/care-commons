@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
+import { ThemeProvider, useTheme, type ThemeMode } from './src/contexts/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -405,44 +406,136 @@ function VisitsScreen({ navigation }: any) {
   );
 }
 
-// Main App
-export default function App() {
+// Settings Screen
+function SettingsScreen() {
+  const { theme, themeMode, setThemeMode } = useTheme();
+
+  const themeModes: Array<{ value: ThemeMode; label: string; icon: string }> = [
+    { value: 'light', label: 'Light', icon: '☀️' },
+    { value: 'dark', label: 'Dark', icon: '🌙' },
+    { value: 'system', label: 'System', icon: '⚙️' },
+  ];
+
+  return (
+    <ScrollView style={[styles.scrollContainer, { backgroundColor: theme.colors.background }]}>
+      <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
+        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Settings</Text>
+      </View>
+
+      <View style={[styles.settingsSection, { backgroundColor: theme.colors.card }]}>
+        <Text style={[styles.settingsSectionTitle, { color: theme.colors.text }]}>Appearance</Text>
+
+        <View style={styles.settingsItem}>
+          <Text style={[styles.settingsLabel, { color: theme.colors.text }]}>Theme</Text>
+          <View style={styles.themeOptions}>
+            {themeModes.map((mode) => (
+              <TouchableOpacity
+                key={mode.value}
+                style={[
+                  styles.themeOption,
+                  {
+                    backgroundColor: themeMode === mode.value ? theme.colors.primary : theme.colors.surface,
+                    borderColor: theme.colors.border,
+                  },
+                ]}
+                onPress={() => setThemeMode(mode.value)}
+              >
+                <Text style={styles.themeIcon}>{mode.icon}</Text>
+                <Text
+                  style={[
+                    styles.themeLabel,
+                    {
+                      color: themeMode === mode.value ? '#FFFFFF' : theme.colors.text,
+                    },
+                  ]}
+                >
+                  {mode.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={[styles.settingsItem, { borderTopColor: theme.colors.divider }]}>
+          <Text style={[styles.settingsLabel, { color: theme.colors.text }]}>Current Theme</Text>
+          <Text style={[styles.settingsValue, { color: theme.colors.textSecondary }]}>
+            {theme.isDark ? 'Dark Mode' : 'Light Mode'}
+          </Text>
+        </View>
+      </View>
+
+      <View style={[styles.settingsSection, { backgroundColor: theme.colors.card }]}>
+        <Text style={[styles.settingsSectionTitle, { color: theme.colors.text }]}>About</Text>
+        <View style={styles.settingsItem}>
+          <Text style={[styles.settingsLabel, { color: theme.colors.text }]}>Version</Text>
+          <Text style={[styles.settingsValue, { color: theme.colors.textSecondary }]}>1.0.0</Text>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+// App Content - uses theme
+function AppContent() {
+  const { theme } = useTheme();
+
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style={theme.isDark ? 'light' : 'dark'} />
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={{
-            tabBarActiveTintColor: '#2196F3',
+            tabBarActiveTintColor: theme.colors.primary,
+            tabBarInactiveTintColor: theme.colors.textSecondary,
+            tabBarStyle: {
+              backgroundColor: theme.colors.surface,
+              borderTopColor: theme.colors.border,
+            },
             headerShown: false,
           }}
         >
-          <Tab.Screen 
-            name="Dashboard" 
+          <Tab.Screen
+            name="Dashboard"
             component={DashboardScreen}
             options={{
               tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📊</Text>,
             }}
           />
-          <Tab.Screen 
-            name="Visits" 
+          <Tab.Screen
+            name="Visits"
             component={VisitsScreen}
             options={{
               tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📅</Text>,
               title: 'My Visits'
             }}
           />
-          <Tab.Screen 
-            name="ClockIn" 
+          <Tab.Screen
+            name="ClockIn"
             component={ClockInScreen}
             options={{
               tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>⏰</Text>,
               title: 'Clock In/Out'
             }}
           />
+          <Tab.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>⚙️</Text>,
+            }}
+          />
         </Tab.Navigator>
       </NavigationContainer>
     </>
+  );
+}
+
+// Main App
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 
@@ -980,6 +1073,53 @@ const styles = StyleSheet.create({
   visitActionTextPrimary: {
     fontSize: 14,
     color: 'white',
+    fontWeight: '600',
+  },
+  // Settings Screen Styles
+  settingsSection: {
+    marginHorizontal: 16,
+    marginVertical: 12,
+    borderRadius: 12,
+    padding: 16,
+  },
+  settingsSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  settingsItem: {
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'transparent',
+  },
+  settingsLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  settingsValue: {
+    fontSize: 14,
+  },
+  themeOptions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  themeOption: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  themeIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  themeLabel: {
+    fontSize: 12,
     fontWeight: '600',
   },
 });
