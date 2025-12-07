@@ -26,6 +26,8 @@ import { CaregiverList } from './verticals/caregivers';
 import { PayrollReports, CaregiverPayStubs, PayStubList, PayStubDetail, PayPeriodManagement } from './verticals/payroll-processing';
 import { MatchAnalyticsDashboard } from './verticals/shift-matching';
 import { DemoModeBar } from './demo';
+import CaregiverTrainingDashboard from './pages/caregivers/CaregiverTrainingDashboard';
+import ClientIntakeWorkflow from './pages/clients/ClientIntakeWorkflow';
 import { FamilyPortalLayout } from './app/layouts/FamilyPortalLayout';
 import {
   FamilyDashboard,
@@ -173,6 +175,16 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/clients/new/intake"
+        element={
+          <ProtectedRoute permission="clients:write">
+            <AppShell>
+              <ClientIntakeWorkflow />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/clients/:clientId/medications"
         element={
           <ProtectedRoute>
@@ -208,6 +220,16 @@ function AppRoutes() {
           <ProtectedRoute permission="caregivers:read">
             <AppShell>
               <CaregiverList />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/caregivers/training"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <CaregiverTrainingDashboard />
             </AppShell>
           </ProtectedRoute>
         }
