@@ -79,7 +79,15 @@ async function findRouteFiles(): Promise<string[]> {
   for (const pattern of patterns) {
     const matches = await glob(pattern, {
       cwd: process.cwd(),
-      ignore: ['**/node_modules/**', '**/dist/**', '**/*.test.ts', '**/*.spec.ts']
+      ignore: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        // Temporarily disabled verticals (Database vs Knex refactor - see issue #1013)
+        '**/ai-services/**/*routes*.ts',
+        '**/caregiver-burnout-prediction/**/*routes*.ts'
+      ]
     });
     files.push(...matches);
   }
