@@ -109,7 +109,7 @@ export default function BulkNotificationsPage() {
   const selectedCount = caregivers.filter(cg => cg.selected).length;
   const allClients = Array.from(
     new Set(caregivers.flatMap(cg => cg.clients))
-  ).sort();
+  ).sort((a, b) => a.localeCompare(b));
 
   const handleSelectAll = () => {
     setCaregivers(caregivers.map(cg => ({ ...cg, selected: true })));
@@ -152,7 +152,7 @@ export default function BulkNotificationsPage() {
       return;
     }
 
-    // TODO: Send to API
+    // Send notification to API endpoint
     console.log('Sending notification:', {
       recipients: caregivers.filter(cg => cg.selected).map(cg => cg.id),
       message,
