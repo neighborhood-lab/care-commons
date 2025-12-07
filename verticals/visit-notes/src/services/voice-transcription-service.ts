@@ -154,7 +154,7 @@ export class VoiceTranscriptionService {
   ): Promise<TranscriptionResult> {
     const startTime = Date.now();
 
-    const response = await fetch(
+    const response = await globalThis.fetch(
       `https://api.cloudflare.com/client/v4/accounts/${this.cloudflareAccountId}/ai/run/@cf/openai/whisper-large-v3-turbo`,
       {
         method: 'POST',
@@ -252,10 +252,10 @@ export class VoiceTranscriptionService {
     }
 
     // Extract vital signs
-    const bpMatch = transcription.match(/blood pressure\s+(\d{2,3})\s*[/over]\s*(\d{2,3})/i);
-    const hrMatch = transcription.match(/heart rate\s+(\d{2,3})/i);
-    const tempMatch = transcription.match(/temperature\s+(\d{2,3}(?:\.\d)?)/i);
-    const o2Match = transcription.match(/oxygen\s+(?:saturation\s+)?(\d{2,3})%?/i);
+    const bpMatch = /blood pressure\s+(\d{2,3})\s*[/over]\s*(\d{2,3})/i.exec(transcription);
+    const hrMatch = /heart rate\s+(\d{2,3})/i.exec(transcription);
+    const tempMatch = /temperature\s+(\d{2,3}(?:\.\d)?)/i.exec(transcription);
+    const o2Match = /oxygen\s+(?:saturation\s+)?(\d{2,3})%?/i.exec(transcription);
 
     if (bpMatch || hrMatch || tempMatch || o2Match) {
       result.vitalSigns = {};
