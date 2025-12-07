@@ -44,6 +44,8 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // Increase max file size to cache the large JS bundle
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
         // Cache API responses
         runtimeCaching: [
           {

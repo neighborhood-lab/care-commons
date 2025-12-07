@@ -193,7 +193,7 @@ function setupMiddleware(): void {
 /**
  * Setup API routes
  */
-function setupApiRoutes(): void {
+async function setupApiRoutes(): Promise<void> {
   const db = getDatabase();
 
   // Root endpoint - API overview
@@ -231,7 +231,7 @@ function setupApiRoutes(): void {
   });
 
   // Setup vertical routes
-  setupRoutes(app, db);
+  await setupRoutes(app, db);
 
   // 404 handler
   app.use(notFoundHandler);
@@ -283,7 +283,7 @@ export async function createApp(): Promise<express.Express> {
 
   // Setup middleware and routes
   setupMiddleware();
-  setupApiRoutes();
+  await setupApiRoutes();
 
   return app;
 }

@@ -14,7 +14,7 @@ import type {
 } from './types/burnout.js';
 
 // Authenticated request with user context
-interface AuthenticatedRequest extends Request {
+interface AuthenticatedRequest extends Request<any, any, any, any> {
   user?: {
     id: string;
     organizationId: string;
