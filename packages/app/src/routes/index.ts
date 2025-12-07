@@ -391,5 +391,11 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api/export', generalApiLimiter, exportRouter);
   console.log('  ✓ Data Export routes registered (with rate limiting)');
 
+  // AI Services routes (note summarization, sentiment analysis)
+  const { createAIRoutes } = await import('@folkcare/ai-services');
+  const aiRouter = createAIRoutes(db);
+  app.use('/api', generalApiLimiter, aiRouter);
+  console.log('  ✓ AI Services routes registered (with rate limiting)');
+
   console.log('API routes setup complete\n');
 }
