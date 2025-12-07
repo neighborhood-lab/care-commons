@@ -15,6 +15,7 @@ import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayrollDashboard, PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { VisitList, CalendarView } from './verticals/scheduling-visits';
+import ScheduleBuilderPage from './pages/scheduling/ScheduleBuilderPage';
 import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
@@ -227,6 +228,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <CalendarView />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scheduling/builder"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <ScheduleBuilderPage />
             </AppShell>
           </ProtectedRoute>
         }
