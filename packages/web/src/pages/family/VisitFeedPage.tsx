@@ -94,7 +94,7 @@ const DEMO_UPDATES: VisitUpdate[] = [
 ];
 
 export default function VisitFeedPage() {
-  const [updates, setUpdates] = useState<VisitUpdate[]>(DEMO_UPDATES);
+  const [updates] = useState<VisitUpdate[]>(DEMO_UPDATES);
   const [filter, setFilter] = useState<'all' | 'today' | 'this-week'>('all');
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
