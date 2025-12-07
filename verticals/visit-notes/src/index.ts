@@ -47,3 +47,11 @@ export {
 // Repositories
 export { NoteTemplateRepository } from './repository/note-template-repository.js';
 export { VisitNoteRepository } from './repository/visit-note-repository.js';
+
+// Voice Transcription (FREE AI)
+export {
+  VoiceTranscriptionService,
+  createVoiceTranscriptionService,
+  type TranscriptionResult,
+  type StructuredNoteData,
+} from './services/voice-transcription-service.js';
