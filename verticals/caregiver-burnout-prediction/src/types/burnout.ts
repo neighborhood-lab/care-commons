@@ -8,8 +8,6 @@
  * caregivers before burnout leads to turnover.
  */
 
-export type UUID = string;
-
 /**
  * Burnout risk level categories
  */
@@ -73,9 +71,9 @@ export interface BurnoutIndicators {
  */
 export interface CaregiverBurnoutRisk {
   // Identity
-  caregiverId: UUID;
+  caregiverId: string;
   caregiverName: string;
-  organizationId: UUID;
+  organizationId: string;
 
   // Risk assessment
   riskScore: number;                  // 0-100
@@ -107,8 +105,8 @@ export interface BurnoutFactor {
  * Burnout alert for coordinator dashboard
  */
 export interface BurnoutAlert {
-  alertId: UUID;
-  caregiverId: UUID;
+  alertId: string;
+  caregiverId: string;
   caregiverName: string;
   riskScore: number;
   riskLevel: BurnoutRiskLevel;
@@ -117,16 +115,16 @@ export interface BurnoutAlert {
   recommendations: string[];
   createdAt: Date;
   acknowledgedAt: Date | null;
-  acknowledgedBy: UUID | null;
+  acknowledgedBy: string | null;
 }
 
 /**
  * Historical snapshot of burnout risk for trending
  */
 export interface BurnoutSnapshot {
-  snapshotId: UUID;
-  caregiverId: UUID;
-  organizationId: UUID;
+  snapshotId: string;
+  caregiverId: string;
+  organizationId: string;
   snapshotDate: Date;
   riskScore: number;
   riskLevel: BurnoutRiskLevel;
@@ -137,7 +135,7 @@ export interface BurnoutSnapshot {
  * Burnout report for organization-level analysis
  */
 export interface OrganizationBurnoutReport {
-  organizationId: UUID;
+  organizationId: string;
   reportDate: Date;
   analysisPeriod: AnalysisPeriod;
 
@@ -190,7 +188,7 @@ export interface DateRange {
  * Request to calculate burnout risk
  */
 export interface CalculateBurnoutRiskRequest {
-  caregiverId: UUID;
+  caregiverId: string;
   analysisPeriod?: AnalysisPeriod;
   config?: Partial<BurnoutCalculationConfig>;
 }
@@ -199,7 +197,7 @@ export interface CalculateBurnoutRiskRequest {
  * Request to generate organization-wide burnout report
  */
 export interface GenerateBurnoutReportRequest {
-  organizationId: UUID;
+  organizationId: string;
   analysisPeriod?: AnalysisPeriod;
   includeHealthy?: boolean;  // Default: false (only at-risk and above)
 }

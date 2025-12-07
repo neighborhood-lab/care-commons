@@ -7,7 +7,6 @@
 
 import type { Knex } from 'knex';
 import type {
-  UUID,
   AnalysisPeriod,
   CaregiverBurnoutRisk,
   OrganizationBurnoutReport,
@@ -20,8 +19,8 @@ import { BurnoutRepository } from '../repository/burnout-repository.js';
 import { BurnoutCalculator, DEFAULT_BURNOUT_CONFIG } from './burnout-calculator.js';
 
 export interface UserContext {
-  userId: UUID;
-  organizationId: UUID;
+  userId: string;
+  organizationId: string;
   role: string;
 }
 
@@ -194,7 +193,7 @@ export class BurnoutService {
    * Get caregivers at risk in an organization (for dashboard alerts)
    */
   async getAtRiskCaregivers(
-    organizationId: UUID,
+    organizationId: string,
     context: UserContext,
     analysisPeriod: AnalysisPeriod = 'LAST_4_WEEKS'
   ): Promise<CaregiverBurnoutRisk[]> {
@@ -211,7 +210,7 @@ export class BurnoutService {
    * Get burnout trend history for a caregiver
    */
   async getCaregiverBurnoutTrend(
-    caregiverId: UUID,
+    caregiverId: string,
     context: UserContext,
     weeksBack: number = 12
   ): Promise<Array<{ date: Date; riskScore: number; riskLevel: string }>> {

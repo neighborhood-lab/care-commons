@@ -117,6 +117,7 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/batch-summarize
    * Summarize multiple notes at once
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/ai/batch-summarize', async (req: Request, res: Response): Promise<void> => {
     try {
       const data = batchSummarizeSchema.parse(req.body) as BatchSummarizeRequest;
@@ -148,6 +149,7 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/daily-summary
    * Generate daily summary for a client
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/ai/daily-summary', async (req: Request, res: Response): Promise<void> => {
     try {
       const data = dailySummarySchema.parse(req.body) as DailySummaryRequest;
@@ -179,6 +181,7 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/extract-keywords
    * Extract keywords from note content
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/ai/extract-keywords', async (req: Request, res: Response): Promise<void> => {
     try {
       const data = extractKeywordsSchema.parse(req.body);

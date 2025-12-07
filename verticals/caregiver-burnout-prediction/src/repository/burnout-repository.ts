@@ -7,7 +7,6 @@
 
 import type { Knex } from 'knex';
 import type {
-  UUID,
   DateRange,
   BurnoutIndicators,
   BurnoutSnapshot,
@@ -20,7 +19,7 @@ export class BurnoutRepository {
    * Get caregiver's work hours and patterns over a date range
    */
   async getCaregiverWorkloadMetrics(
-    caregiverId: UUID,
+    caregiverId: string,
     dateRange: DateRange
   ): Promise<{
     avgHoursPerWeek: number;
@@ -94,7 +93,7 @@ export class BurnoutRepository {
    * Get caregiver reliability metrics (no-shows, cancellations, late arrivals)
    */
   async getCaregiverReliabilityMetrics(
-    caregiverId: UUID,
+    caregiverId: string,
     dateRange: DateRange
   ): Promise<{
     noShowRate: number;
@@ -136,7 +135,7 @@ export class BurnoutRepository {
    * Get EVV compliance issue counts
    */
   async getCaregiverComplianceMetrics(
-    caregiverId: UUID,
+    caregiverId: string,
     dateRange: DateRange
   ): Promise<{
     geofenceViolationCount: number;
@@ -191,7 +190,7 @@ export class BurnoutRepository {
    * Get caregiver performance trends
    */
   async getCaregiverPerformanceTrends(
-    caregiverId: UUID,
+    caregiverId: string,
     currentRange: DateRange,
     priorRange: DateRange
   ): Promise<{
@@ -232,7 +231,7 @@ export class BurnoutRepository {
    * Get external compliance factors (expiring credentials, overdue training)
    */
   async getCaregiverExternalFactors(
-    caregiverId: UUID
+    caregiverId: string
   ): Promise<{
     credentialsExpiringCount: number;
     trainingOverdueCount: number;
@@ -271,7 +270,7 @@ export class BurnoutRepository {
    * Get all burnout indicators for a caregiver in one call
    */
   async getCaregiverBurnoutIndicators(
-    caregiverId: UUID,
+    caregiverId: string,
     currentRange: DateRange,
     priorRange: DateRange
   ): Promise<BurnoutIndicators> {
@@ -317,12 +316,12 @@ export class BurnoutRepository {
    * Save burnout risk snapshot for historical trending
    */
   async saveBurnoutSnapshot(
-    caregiverId: UUID,
-    organizationId: UUID,
+    caregiverId: string,
+    organizationId: string,
     riskScore: number,
     riskLevel: string,
     indicators: BurnoutIndicators
-  ): Promise<UUID> {
+  ): Promise<string> {
     const [row] = await this.db('caregiver_burnout_snapshots')
       .insert({
         id: this.db.raw('gen_random_uuid()'),
@@ -343,7 +342,7 @@ export class BurnoutRepository {
    * Get historical burnout snapshots for trending
    */
   async getBurnoutSnapshots(
-    caregiverId: UUID,
+    caregiverId: string,
     limit: number = 12
   ): Promise<BurnoutSnapshot[]> {
     const rows = await this.db('caregiver_burnout_snapshots')
@@ -366,8 +365,8 @@ export class BurnoutRepository {
   /**
    * Get all caregivers in an organization for batch processing
    */
-  async getOrganizationCaregivers(organizationId: UUID): Promise<
-    Array<{ caregiverId: UUID; caregiverName: string }>
+  async getOrganizationCaregivers(organizationId: string): Promise<
+    Array<{ caregiverId: string; caregiverName: string }>
   > {
     const rows = await this.db('caregivers')
       .where({
@@ -390,7 +389,8 @@ export class BurnoutRepository {
   private calculateConsecutiveDays(dates: Date[]): number {
     if (dates.length === 0) return 0;
 
-    const sortedDates = dates.sort((a, b) => a.getTime() - b.getTime());
+    // Create sorted copy to avoid mutation
+    const sortedDates = [...dates].sort((a, b) => a.getTime() - b.getTime());
     let maxStreak = 1;
     let currentStreak = 1;
 
@@ -420,7 +420,7 @@ export class BurnoutRepository {
    * Calculate EVV compliance rate for a caregiver in a date range
    */
   private async calculateComplianceRate(
-    caregiverId: UUID,
+    caregiverId: string,
     dateRange: DateRange
   ): Promise<number> {
     const records = await this.db('evv_records')
