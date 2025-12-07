@@ -20,6 +20,26 @@ export * from './types/schedule';
 export { ScheduleService } from './service/schedule-service.js';
 export type { IClientAddressProvider, ICredentialComplianceProvider } from './service/schedule-service.js';
 
+// AI Scheduling Optimization
+export { ScheduleOptimizationService } from './service/schedule-optimization-service.js';
+export type {
+  CaregiverSuggestion,
+  ScoreBreakdown,
+  ConflictDetail,
+  OptimizationRequest,
+  GeographicCluster,
+  ICaregiverProfileProvider,
+  IVisitHistoryProvider,
+} from './service/schedule-optimization-service.js';
+
+// AI Services (Cloudflare Workers AI, Cohere)
+export { CloudflareAIService, createCloudflareAIService } from './service/cloudflare-ai-service.js';
+export type {
+  TextEmbeddingResponse,
+  TextGenerationResponse,
+  PreferenceAnalysis,
+} from './service/cloudflare-ai-service.js';
+
 // Providers
 export * from './providers';
 
