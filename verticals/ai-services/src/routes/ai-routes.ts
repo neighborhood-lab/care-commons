@@ -13,8 +13,6 @@ import type {
   SummarizeNoteRequest,
   BatchSummarizeRequest,
   DailySummaryRequest,
-  NoteType,
-  SummarizationStrategy,
 } from '../types/ai-types.js';
 
 // Validation schemas
@@ -87,7 +85,8 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/summarize-note
    * Summarize a single note
    */
-  router.post('/ai/summarize-note', async (req: Request, res: Response) => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  router.post('/ai/summarize-note', async (req: Request, res: Response): Promise<void> => {
     try {
       const data = summarizeNoteSchema.parse(req.body) as SummarizeNoteRequest;
 
@@ -118,7 +117,7 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/batch-summarize
    * Summarize multiple notes at once
    */
-  router.post('/ai/batch-summarize', async (req: Request, res: Response) => {
+  router.post('/ai/batch-summarize', async (req: Request, res: Response): Promise<void> => {
     try {
       const data = batchSummarizeSchema.parse(req.body) as BatchSummarizeRequest;
 
@@ -149,7 +148,7 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/daily-summary
    * Generate daily summary for a client
    */
-  router.post('/ai/daily-summary', async (req: Request, res: Response) => {
+  router.post('/ai/daily-summary', async (req: Request, res: Response): Promise<void> => {
     try {
       const data = dailySummarySchema.parse(req.body) as DailySummaryRequest;
 
@@ -180,7 +179,7 @@ export function createAIRoutes(_db: Database): Router {
    * POST /ai/extract-keywords
    * Extract keywords from note content
    */
-  router.post('/ai/extract-keywords', async (req: Request, res: Response) => {
+  router.post('/ai/extract-keywords', async (req: Request, res: Response): Promise<void> => {
     try {
       const data = extractKeywordsSchema.parse(req.body);
 

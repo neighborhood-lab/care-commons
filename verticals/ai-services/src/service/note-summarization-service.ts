@@ -7,7 +7,6 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import type {
-  UUID,
   NoteType,
   SummarizationStrategy,
   SentimentCategory,
@@ -152,7 +151,7 @@ export class NoteSummarizationService {
   /**
    * Generate a daily summary for a client
    */
-  async generateDailySummary(request: DailySummaryRequest): Promise<DailySummary> {
+  async generateDailySummary(_request: DailySummaryRequest): Promise<DailySummary> {
     // This would fetch all notes/activities for the client on the given date
     // For now, returning a structured response that shows the pattern
     throw new Error('Not implemented: generateDailySummary requires database integration');
@@ -294,7 +293,7 @@ ${content}
   /**
    * Generate cache key for a summarization request
    */
-  private getCacheKey(noteId: UUID, strategy: SummarizationStrategy): string {
+  private getCacheKey(noteId: string, strategy: SummarizationStrategy): string {
     return `${noteId}:${strategy}`;
   }
 

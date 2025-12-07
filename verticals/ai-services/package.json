@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc --composite false && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 10",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

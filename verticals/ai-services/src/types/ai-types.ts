@@ -5,8 +5,6 @@
  * sentiment analysis, and other ML/AI capabilities.
  */
 
-export type UUID = string;
-
 /**
  * Supported note types for summarization
  */
@@ -40,7 +38,7 @@ export type SentimentCategory =
  * Request to summarize a single note
  */
 export interface SummarizeNoteRequest {
-  noteId: UUID;
+  noteId: string;
   noteType: NoteType;
   content: string;
   strategy?: SummarizationStrategy;
@@ -52,7 +50,7 @@ export interface SummarizeNoteRequest {
  * Result of note summarization
  */
 export interface SummarizedNote {
-  noteId: UUID;
+  noteId: string;
   noteType: NoteType;
   originalLength: number;
   summary: string;
@@ -75,7 +73,7 @@ export interface SummarizedNote {
  */
 export interface BatchSummarizeRequest {
   notes: Array<{
-    noteId: UUID;
+    noteId: string;
     noteType: NoteType;
     content: string;
   }>;
@@ -98,7 +96,7 @@ export interface BatchSummarizeResult {
  * Request to generate a daily summary for a client
  */
 export interface DailySummaryRequest {
-  clientId: UUID;
+  clientId: string;
   date: string; // YYYY-MM-DD
   includeVisits: boolean;
   includeMedications: boolean;
@@ -110,7 +108,7 @@ export interface DailySummaryRequest {
  * Daily summary for a client (all activities for one day)
  */
 export interface DailySummary {
-  clientId: UUID;
+  clientId: string;
   date: string;
   summary: string;
   sentiment: SentimentCategory;
