@@ -22,6 +22,19 @@ const exportRequestSchema = z.object({
   tables: z.array(z.string()).optional(),
 });
 
+// Validation schema for audit log export
+const auditLogExportSchema = z.object({
+  format: z.enum(['json', 'csv']),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  userId: z.string().uuid().optional(),
+  eventType: z.string().optional(),
+  resource: z.string().optional(),
+  action: z.string().optional(),
+  includeRevisions: z.boolean().optional().default(true),
+  includeSecurityEvents: z.boolean().optional().default(true),
+});
+
 /**
  * Get export metadata (preview before download)
  *
@@ -75,6 +88,47 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   // Set appropriate content type and filename
   const timestamp = new Date().toISOString().replace(/[.:]/g, '-');
   const filename = `folkcare-export-${organizationId.slice(0, 8)}-${timestamp}.${validatedBody.format}`;
+
+  if (validatedBody.format === 'json') {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.json(result.data);
+  } else {
+    // CSV format
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(result.data);
+  }
+}));
+
+/**
+ * Export audit logs
+ *
+ * @route POST /export/audit-logs
+ * @security Requires authentication and admin privileges
+ * @body {format, startDate?, endDate?, userId?, eventType?, resource?, action?, includeRevisions?, includeSecurityEvents?}
+ */
+router.post('/audit-logs', asyncHandler(async (req: Request, res: Response) => {
+  // Get organization ID from authenticated user
+  const organizationId = req.user?.organizationId;
+
+  if (organizationId === undefined) {
+    res.status(400).json({ error: 'Organization ID required' });
+    return;
+  }
+
+  // Validate request body
+  const validatedBody = auditLogExportSchema.parse(req.body);
+
+  const exportService = new DataExportService();
+  const result = await exportService.exportAuditLogs({
+    organizationId,
+    ...validatedBody,
+  });
+
+  // Set appropriate content type and filename
+  const timestamp = new Date().toISOString().replace(/[.:]/g, '-');
+  const filename = `folkcare-audit-logs-${organizationId.slice(0, 8)}-${timestamp}.${validatedBody.format}`;
 
   if (validatedBody.format === 'json') {
     res.setHeader('Content-Type', 'application/json');

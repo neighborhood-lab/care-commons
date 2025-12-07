@@ -19,6 +19,41 @@ export interface ExportResult {
   };
 }
 
+export interface AuditLogFilters {
+  organizationId: string;
+  startDate?: string;
+  endDate?: string;
+  userId?: string;
+  eventType?: string;
+  resource?: string;
+  action?: string;
+  includeRevisions?: boolean;
+  includeSecurityEvents?: boolean;
+  format: 'json' | 'csv';
+}
+
+export interface AuditLogExportResult {
+  format: 'json' | 'csv';
+  data: unknown;
+  metadata: {
+    organizationId: string;
+    exportedAt: string;
+    eventCount: number;
+    revisionCount: number;
+    securityEventCount: number;
+    dateRange: {
+      start: string | null;
+      end: string | null;
+    };
+    filters: {
+      userId?: string;
+      eventType?: string;
+      resource?: string;
+      action?: string;
+    };
+  };
+}
+
 /**
  * Data Export Service
  *
@@ -341,6 +376,222 @@ export class DataExportService {
       tables: tableStats,
       totalRecords,
       estimatedSize,
+    };
+  }
+
+  /**
+   * Build base filter conditions for audit log queries
+   */
+  private buildBaseConditions(
+    organizationId: string,
+    startDate?: string,
+    endDate?: string,
+    userId?: string
+  ): { conditions: string[]; params: unknown[]; paramIndex: number } {
+    const conditions: string[] = ['organization_id = $1'];
+    const params: unknown[] = [organizationId];
+    let paramIndex = 2;
+
+    if (startDate !== undefined) {
+      conditions.push(`timestamp >= $${paramIndex}`);
+      params.push(startDate);
+      paramIndex++;
+    }
+
+    if (endDate !== undefined) {
+      conditions.push(`timestamp <= $${paramIndex}`);
+      params.push(endDate);
+      paramIndex++;
+    }
+
+    if (userId !== undefined) {
+      conditions.push(`user_id = $${paramIndex}`);
+      params.push(userId);
+      paramIndex++;
+    }
+
+    return { conditions, params, paramIndex };
+  }
+
+  /**
+   * Export audit_events with additional filters
+   */
+  private async exportAuditEvents(
+    conditions: string[],
+    params: unknown[],
+    paramIndex: number,
+    eventType?: string,
+    resource?: string,
+    action?: string
+  ): Promise<unknown[]> {
+    const eventConditions = [...conditions];
+    const eventParams = [...params];
+    let eventParamIndex = paramIndex;
+
+    if (eventType !== undefined) {
+      eventConditions.push(`event_type = $${eventParamIndex}`);
+      eventParams.push(eventType);
+      eventParamIndex++;
+    }
+
+    if (resource !== undefined) {
+      eventConditions.push(`resource = $${eventParamIndex}`);
+      eventParams.push(resource);
+      eventParamIndex++;
+    }
+
+    if (action !== undefined) {
+      eventConditions.push(`action = $${eventParamIndex}`);
+      eventParams.push(action);
+      eventParamIndex++;
+    }
+
+    const query = `SELECT * FROM audit_events WHERE ${eventConditions.join(' AND ')} ORDER BY timestamp DESC`;
+    const result = await this.db.query(query, eventParams);
+    return result.rows;
+  }
+
+  /**
+   * Export security_events filtered by organization users
+   */
+  private async exportSecurityEvents(
+    organizationId: string,
+    startDate?: string,
+    endDate?: string,
+    userId?: string
+  ): Promise<unknown[]> {
+    const securityConditions: string[] = [];
+    const securityParams: unknown[] = [];
+    let securityParamIndex = 1;
+
+    if (startDate !== undefined) {
+      securityConditions.push(`created_at >= $${securityParamIndex}`);
+      securityParams.push(startDate);
+      securityParamIndex++;
+    }
+
+    if (endDate !== undefined) {
+      securityConditions.push(`created_at <= $${securityParamIndex}`);
+      securityParams.push(endDate);
+      securityParamIndex++;
+    }
+
+    if (userId !== undefined) {
+      securityConditions.push(`user_id = $${securityParamIndex}`);
+      securityParams.push(userId);
+      securityParamIndex++;
+    }
+
+    // Get users from this organization to filter security events
+    const orgUsersResult = await this.db.query<{ id: string }>(
+      'SELECT id FROM users WHERE organization_id = $1',
+      [organizationId]
+    );
+    const userIds = orgUsersResult.rows.map(row => row.id);
+
+    if (userIds.length === 0) {
+      return [];
+    }
+
+    securityConditions.push(`user_id = ANY($${securityParamIndex})`);
+    securityParams.push(userIds);
+
+    const whereClause = securityConditions.length > 0 ? `WHERE ${securityConditions.join(' AND ')}` : '';
+    const query = `SELECT * FROM security_events ${whereClause} ORDER BY created_at DESC`;
+    const result = await this.db.query(query, securityParams);
+    return result.rows;
+  }
+
+  /**
+   * Export audit logs with filtering options for compliance and legal purposes
+   */
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+  async exportAuditLogs(filters: AuditLogFilters): Promise<AuditLogExportResult> {
+    const {
+      organizationId,
+      startDate,
+      endDate,
+      userId,
+      eventType,
+      resource,
+      action,
+      includeRevisions = true,
+      includeSecurityEvents = true,
+      format,
+    } = filters;
+
+    const exportData: Record<string, unknown[]> = {};
+
+    // Build base conditions
+    const { conditions, params, paramIndex } = this.buildBaseConditions(
+      organizationId,
+      startDate,
+      endDate,
+      userId
+    );
+
+    // Export audit_events
+    const auditEvents = await this.exportAuditEvents(
+      conditions,
+      params,
+      paramIndex,
+      eventType,
+      resource,
+      action
+    );
+    exportData.audit_events = auditEvents;
+
+    // Export audit_revisions if requested
+    let revisions: unknown[] = [];
+    if (includeRevisions) {
+      const query = `SELECT * FROM audit_revisions WHERE ${conditions.join(' AND ')} ORDER BY timestamp DESC`;
+      const result = await this.db.query(query, params);
+      revisions = result.rows;
+      exportData.audit_revisions = revisions;
+    }
+
+    // Export security_events if requested
+    let securityEvents: unknown[] = [];
+    if (includeSecurityEvents) {
+      securityEvents = await this.exportSecurityEvents(organizationId, startDate, endDate, userId);
+      exportData.security_events = securityEvents;
+    }
+
+    const metadata = {
+      organizationId,
+      exportedAt: new Date().toISOString(),
+      eventCount: auditEvents.length,
+      revisionCount: revisions.length,
+      securityEventCount: securityEvents.length,
+      dateRange: {
+        start: startDate ?? null,
+        end: endDate ?? null,
+      },
+      filters: {
+        userId,
+        eventType,
+        resource,
+        action,
+      },
+    };
+
+    if (format === 'json') {
+      return {
+        format: 'json',
+        data: {
+          metadata,
+          data: exportData,
+        },
+        metadata,
+      };
+    }
+
+    // CSV format - flatten and combine logs
+    const csvData = this.convertToCSV(exportData);
+    return {
+      format: 'csv',
+      data: csvData,
+      metadata,
     };
   }
 }
