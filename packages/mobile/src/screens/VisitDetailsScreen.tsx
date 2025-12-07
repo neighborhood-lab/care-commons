@@ -99,7 +99,7 @@ const DEMO_VISIT: Visit = {
   ],
 };
 
-export default function VisitDetailsScreen({ route, navigation }: any) {
+export default function VisitDetailsScreen({ route: _route, navigation }: any) {
   const [visit, setVisit] = useState<Visit>(DEMO_VISIT);
   const [visitNotes, setVisitNotes] = useState('');
 

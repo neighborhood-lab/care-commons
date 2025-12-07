@@ -21,18 +21,6 @@ import {
 import * as Location from 'expo-location';
 import * as Device from 'expo-device';
 
-interface ClockInOutScreenProps {
-  route: {
-    params: {
-      visitId: string;
-      clientName: string;
-      clientAddress: string;
-      action: 'clockIn' | 'clockOut';
-    };
-  };
-  navigation: any;
-}
-
 interface VisitEvent {
   visitId: string;
   action: 'clock_in' | 'clock_out';
@@ -45,14 +33,14 @@ interface VisitEvent {
   deviceOSVersion: string;
 }
 
-export default function ClockInOutScreen({ route, navigation }: ClockInOutScreenProps) {
+export default function ClockInOutScreen({ route, navigation }: any) {
   const { visitId, clientName, clientAddress, action } = route.params;
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [locationPermission, setLocationPermission] = useState<boolean>(false);
 
   useEffect(() => {
     requestLocationPermission();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const requestLocationPermission = async () => {
@@ -69,7 +57,6 @@ export default function ClockInOutScreen({ route, navigation }: ClockInOutScreen
         );
         return;
       }
-      setLocationPermission(true);
 
       // Get current location
       setIsLoading(true);
