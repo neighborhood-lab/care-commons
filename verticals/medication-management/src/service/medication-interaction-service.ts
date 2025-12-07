@@ -139,9 +139,9 @@ export class MedicationInteractionService {
     try {
       const textContent = content as { type: 'text'; text: string };
       analysisResult = JSON.parse(textContent.text);
-    } catch (error) {
+    } catch (parseError) {
       const textContent = content as { type: 'text'; text: string };
-      console.error('Failed to parse AI response:', textContent.text);
+      console.error('Failed to parse AI response:', textContent.text, parseError);
       throw new Error('Failed to parse medication interaction analysis');
     }
 
@@ -199,8 +199,10 @@ export class MedicationInteractionService {
 
     const currentMedsList = currentMedications
       .map(
-        (med, index) =>
-          `${index + 1}. ${med.medication_name}${med.generic_name ? ` (${med.generic_name})` : ''} - ${med.dosage} ${med.route} ${med.frequency}`,
+        (med, index) => {
+          const genericPart = med.generic_name ? ` (${med.generic_name})` : '';
+          return `${index + 1}. ${med.medication_name}${genericPart} - ${med.dosage} ${med.route} ${med.frequency}`;
+        }
       )
       .join('\n');
 
