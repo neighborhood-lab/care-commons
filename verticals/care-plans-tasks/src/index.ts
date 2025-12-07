@@ -35,3 +35,16 @@ export {
 
 // API Handlers
 export { createCarePlanHandlers } from './api/care-plan-handlers';
+
+// Task Prioritization Service
+export {
+  TaskPrioritizationService,
+  createTaskPrioritizationService,
+  type TaskPrioritizationConfig,
+  type PrioritizedTask,
+  type PrioritizeTasksRequest,
+  type TaskPrioritizationResult,
+} from './services/task-prioritization-service';
+
+// Task Prioritization Routes
+export { createTaskPrioritizationRoutes } from './routes/task-prioritization-routes';
