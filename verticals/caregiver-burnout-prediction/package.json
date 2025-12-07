@@ -13,7 +13,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@folkcare/core": "workspace:*",
+    "@folkcare/core": "^0.1.0",
     "knex": "^3.0.0"
   },
   "devDependencies": {
