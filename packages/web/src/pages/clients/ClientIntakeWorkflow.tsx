@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
  * Reduces intake time from 60 min → 20 min with validation and auto-save.
  */
 
+type CareLevel = 'independent' | 'assistance' | 'dependent';
+
 interface IntakeData {
   // Step 1: Demographics & Contact
   firstName: string;
@@ -44,18 +46,18 @@ interface IntakeData {
 
   // Step 2: Care Assessment
   adls: {
-    bathing: 'independent' | 'assistance' | 'dependent';
-    dressing: 'independent' | 'assistance' | 'dependent';
-    toileting: 'independent' | 'assistance' | 'dependent';
-    transferring: 'independent' | 'assistance' | 'dependent';
-    feeding: 'independent' | 'assistance' | 'dependent';
+    bathing: CareLevel;
+    dressing: CareLevel;
+    toileting: CareLevel;
+    transferring: CareLevel;
+    feeding: CareLevel;
   };
   iadls: {
-    housekeeping: 'independent' | 'assistance' | 'dependent';
-    laundry: 'independent' | 'assistance' | 'dependent';
-    mealPrep: 'independent' | 'assistance' | 'dependent';
-    medication: 'independent' | 'assistance' | 'dependent';
-    transportation: 'independent' | 'assistance' | 'dependent';
+    housekeeping: CareLevel;
+    laundry: CareLevel;
+    mealPrep: CareLevel;
+    medication: CareLevel;
+    transportation: CareLevel;
   };
   mobility: 'ambulatory' | 'walker' | 'wheelchair' | 'bedbound';
   cognitive: 'normal' | 'mild' | 'moderate' | 'severe';
@@ -157,7 +159,7 @@ export default function ClientIntakeWorkflow() {
   const updateNestedData = (parent: string, field: string, value: any) => {
     setIntakeData((prev) => ({
       ...prev,
-      [parent]: { ...(prev[parent] as any), [field]: value },
+      [parent]: { ...((prev as any)[parent] || {}), [field]: value },
     }));
   };
 
@@ -416,7 +418,7 @@ export default function ClientIntakeWorkflow() {
                         value={contact.name}
                         onChange={(e) => {
                           const contacts = [...(intakeData.emergencyContacts || [])];
-                          contacts[index].name = e.target.value;
+                          if (contacts[index]) contacts[index].name = e.target.value;
                           updateData('emergencyContacts', contacts);
                         }}
                         placeholder="Contact name"
@@ -430,7 +432,7 @@ export default function ClientIntakeWorkflow() {
                         value={contact.relationship}
                         onChange={(e) => {
                           const contacts = [...(intakeData.emergencyContacts || [])];
-                          contacts[index].relationship = e.target.value;
+                          if (contacts[index]) contacts[index].relationship = e.target.value;
                           updateData('emergencyContacts', contacts);
                         }}
                         placeholder="Daughter, Son, etc."
@@ -444,7 +446,7 @@ export default function ClientIntakeWorkflow() {
                         value={contact.phone}
                         onChange={(e) => {
                           const contacts = [...(intakeData.emergencyContacts || [])];
-                          contacts[index].phone = e.target.value;
+                          if (contacts[index]) contacts[index].phone = e.target.value;
                           updateData('emergencyContacts', contacts);
                         }}
                         placeholder="(555) 123-4567"
@@ -587,7 +589,7 @@ export default function ClientIntakeWorkflow() {
                       value={med.name}
                       onChange={(e) => {
                         const meds = [...(intakeData.medications || [])];
-                        meds[index].name = e.target.value;
+                        if (meds[index]) meds[index].name = e.target.value;
                         updateData('medications', meds);
                       }}
                       placeholder="Medication name"
@@ -600,7 +602,7 @@ export default function ClientIntakeWorkflow() {
                       value={med.dosage}
                       onChange={(e) => {
                         const meds = [...(intakeData.medications || [])];
-                        meds[index].dosage = e.target.value;
+                        if (meds[index]) meds[index].dosage = e.target.value;
                         updateData('medications', meds);
                       }}
                       placeholder="Dosage (e.g., 10mg)"
@@ -613,7 +615,7 @@ export default function ClientIntakeWorkflow() {
                       value={med.frequency}
                       onChange={(e) => {
                         const meds = [...(intakeData.medications || [])];
-                        meds[index].frequency = e.target.value;
+                        if (meds[index]) meds[index].frequency = e.target.value;
                         updateData('medications', meds);
                       }}
                       placeholder="Frequency (e.g., 2x daily)"
