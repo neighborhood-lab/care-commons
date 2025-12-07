@@ -8,7 +8,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@folkcare/scheduling-visits';
-import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService } from '@folkcare/visit-notes';
+import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService } from '@folkcare/visit-notes';
 import knex from 'knex';
 
 /**
@@ -1268,6 +1268,32 @@ export function createVisitRouter(db: Database): Router {
 
       const riskService = new HospitalizationRiskService((db as any).db);
       const result = await riskService.predictHospitalizationRisk({
+        clientId,
+        lookbackDays: lookbackDays || 30,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // POST /visits/vitals-anomalies
+  // Detect anomalies in vital signs patterns
+  router.post('/vitals-anomalies', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { clientId, lookbackDays } = req.body;
+
+      if (!clientId) {
+        res.status(400).json({ success: false, error: 'Client ID is required' });
+        return;
+      }
+
+      const vitalsService = new VitalsAnomalyService((db as any).db);
+      const result = await vitalsService.detectVitalsAnomalies({
         clientId,
         lookbackDays: lookbackDays || 30,
       });
