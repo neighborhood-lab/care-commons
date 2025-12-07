@@ -8,7 +8,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@folkcare/scheduling-visits';
-import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService } from '@folkcare/visit-notes';
+import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService } from '@folkcare/visit-notes';
 import knex from 'knex';
 
 /**
@@ -1295,6 +1295,33 @@ export function createVisitRouter(db: Database): Router {
       const vitalsService = new VitalsAnomalyService((db as any).db);
       const result = await vitalsService.detectVitalsAnomalies({
         clientId,
+        lookbackDays: lookbackDays || 30,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // POST /visits/sentiment-analysis
+  // Analyze sentiment in visit notes to detect burnout, distress, concerns
+  router.post('/sentiment-analysis', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { clientId, caregiverId, lookbackDays } = req.body;
+
+      if (!clientId && !caregiverId) {
+        res.status(400).json({ success: false, error: 'Either clientId or caregiverId is required' });
+        return;
+      }
+
+      const sentimentService = new SentimentAnalysisService((db as any).db);
+      const result = await sentimentService.analyzeSentiment({
+        clientId,
+        caregiverId,
         lookbackDays: lookbackDays || 30,
       });
 
