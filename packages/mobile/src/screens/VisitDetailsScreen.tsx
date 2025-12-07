@@ -135,6 +135,15 @@ export default function VisitDetailsScreen({ route, navigation }: any) {
     ]);
   };
 
+  const handleClockOut = () => {
+    navigation.navigate('ClockInOut', {
+      visitId: visit.id,
+      clientName: visit.clientName,
+      clientAddress: visit.clientAddress,
+      action: 'clockOut'
+    });
+  };
+
   const completedTasks = visit.tasks.filter(t => t.completed).length;
   const totalTasks = visit.tasks.length;
   const progress = Math.round((completedTasks / totalTasks) * 100);
@@ -258,17 +267,27 @@ export default function VisitDetailsScreen({ route, navigation }: any) {
         />
       </View>
 
-      {/* Save Button */}
+      {/* Clock Out Button */}
       <TouchableOpacity
         style={[
-          styles.saveButton,
+          styles.clockOutButton,
           completedTasks === 0 && styles.saveButtonDisabled
         ]}
-        onPress={handleSaveNotes}
+        onPress={handleClockOut}
         disabled={completedTasks === 0}
       >
         <Text style={styles.saveButtonText}>
-          {completedTasks === 0 ? 'Complete Tasks to Save' : 'Save Visit & Complete'}
+          {completedTasks === 0 ? 'Complete Tasks to Clock Out' : '🕐 Clock Out & Complete Visit'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Save Notes Button */}
+      <TouchableOpacity
+        style={styles.saveNotesButton}
+        onPress={handleSaveNotes}
+      >
+        <Text style={styles.saveNotesButtonText}>
+          💾 Save Notes (without clocking out)
         </Text>
       </TouchableOpacity>
 
@@ -481,6 +500,34 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
+  },
+  clockOutButton: {
+    backgroundColor: '#2196F3',
+    margin: 16,
+    marginBottom: 8,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  saveNotesButton: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#2196F3',
+  },
+  saveNotesButtonText: {
+    color: '#2196F3',
+    fontSize: 14,
+    fontWeight: '600',
   },
   saveButtonDisabled: {
     backgroundColor: '#CCC',

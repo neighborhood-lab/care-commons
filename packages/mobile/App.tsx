@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import VisitDetailsScreen from './src/screens/VisitDetailsScreen';
+import ClockInOutScreen from './src/screens/ClockInOutScreen';
 
 const Tab = createBottomTabNavigator();
 const VisitsStack = createNativeStackNavigator();
@@ -389,11 +390,22 @@ function VisitsScreen({ navigation }: any) {
           )}
           
           <View style={styles.visitActions}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.visitActionButton}
               onPress={() => Alert.alert('Navigation', 'Opening maps...')}
             >
               <Text style={styles.visitActionText}>🗺️ Navigate</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.visitActionButton, styles.visitActionSuccess]}
+              onPress={() => navigation.navigate('ClockInOut', {
+                visitId: visit.id,
+                clientName: visit.client,
+                clientAddress: visit.address,
+                action: 'clockIn'
+              })}
+            >
+              <Text style={styles.visitActionTextPrimary}>🕐 Clock In</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.visitActionButton, styles.visitActionPrimary]}
@@ -408,7 +420,7 @@ function VisitsScreen({ navigation }: any) {
   );
 }
 
-// Visits Stack Navigator - wraps Visits List and Visit Details
+// Visits Stack Navigator - wraps Visits List, Visit Details, and Clock In/Out
 function VisitsStackNavigator() {
   return (
     <VisitsStack.Navigator
@@ -418,6 +430,7 @@ function VisitsStackNavigator() {
     >
       <VisitsStack.Screen name="VisitsList" component={VisitsScreen} />
       <VisitsStack.Screen name="VisitDetails" component={VisitDetailsScreen} />
+      <VisitsStack.Screen name="ClockInOut" component={ClockInOutScreen} />
     </VisitsStack.Navigator>
   );
 }
@@ -988,6 +1001,9 @@ const styles = StyleSheet.create({
   },
   visitActionPrimary: {
     backgroundColor: '#2196F3',
+  },
+  visitActionSuccess: {
+    backgroundColor: '#4CAF50',
   },
   visitActionText: {
     fontSize: 14,
