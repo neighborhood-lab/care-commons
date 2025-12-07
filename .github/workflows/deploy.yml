@@ -81,7 +81,37 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Install dependencies
-        run: npm ci || (npm cache clean --force && npm ci)
+        run: |
+          # Retry npm ci with exponential backoff to handle transient network issues
+          # Common issue: supabase package postinstall downloads CLI from GitHub
+          max_attempts=3
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "📦 Installing dependencies (attempt $attempt/$max_attempts)..."
+
+            if npm ci; then
+              echo "✅ Dependencies installed successfully"
+              exit 0
+            fi
+
+            if [ $attempt -lt $max_attempts ]; then
+              wait_time=$((attempt * 30))
+              echo "⚠️  Installation failed, waiting ${wait_time}s before retry..."
+              sleep $wait_time
+
+              # Clear cache on second attempt
+              if [ $attempt -eq 2 ]; then
+                echo "🧹 Clearing npm cache..."
+                npm cache clean --force
+              fi
+            fi
+
+            attempt=$((attempt + 1))
+          done
+
+          echo "❌ Failed to install dependencies after $max_attempts attempts"
+          exit 1
 
       - name: Build packages
         run: |
@@ -111,7 +141,7 @@ jobs:
           echo "Deploy type: ${{ github.event.inputs.deploy_type }}"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: build-artifacts
           path: packages/*/dist
@@ -151,7 +181,37 @@ jobs:
           path: .
 
       - name: Install dependencies
-        run: npm ci || (npm cache clean --force && npm ci)
+        run: |
+          # Retry npm ci with exponential backoff to handle transient network issues
+          # Common issue: supabase package postinstall downloads CLI from GitHub
+          max_attempts=3
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "📦 Installing dependencies (attempt $attempt/$max_attempts)..."
+
+            if npm ci; then
+              echo "✅ Dependencies installed successfully"
+              exit 0
+            fi
+
+            if [ $attempt -lt $max_attempts ]; then
+              wait_time=$((attempt * 30))
+              echo "⚠️  Installation failed, waiting ${wait_time}s before retry..."
+              sleep $wait_time
+
+              # Clear cache on second attempt
+              if [ $attempt -eq 2 ]; then
+                echo "🧹 Clearing npm cache..."
+                npm cache clean --force
+              fi
+            fi
+
+            attempt=$((attempt + 1))
+          done
+
+          echo "❌ Failed to install dependencies after $max_attempts attempts"
+          exit 1
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -253,7 +313,37 @@ jobs:
           path: .
 
       - name: Install dependencies
-        run: npm ci || (npm cache clean --force && npm ci)
+        run: |
+          # Retry npm ci with exponential backoff to handle transient network issues
+          # Common issue: supabase package postinstall downloads CLI from GitHub
+          max_attempts=3
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "📦 Installing dependencies (attempt $attempt/$max_attempts)..."
+
+            if npm ci; then
+              echo "✅ Dependencies installed successfully"
+              exit 0
+            fi
+
+            if [ $attempt -lt $max_attempts ]; then
+              wait_time=$((attempt * 30))
+              echo "⚠️  Installation failed, waiting ${wait_time}s before retry..."
+              sleep $wait_time
+
+              # Clear cache on second attempt
+              if [ $attempt -eq 2 ]; then
+                echo "🧹 Clearing npm cache..."
+                npm cache clean --force
+              fi
+            fi
+
+            attempt=$((attempt + 1))
+          done
+
+          echo "❌ Failed to install dependencies after $max_attempts attempts"
+          exit 1
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest

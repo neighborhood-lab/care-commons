@@ -302,6 +302,30 @@ export function VisitDetailScreen() {
             <Button
               variant="secondary"
               size="lg"
+              onPress={() => navigation.navigate('MedicationAdministration', {
+                visitId: visit.id,
+                clientName: visit.clientName,
+                clientId: visit.clientId,
+              })}
+              style={styles.secondaryButton}
+            >
+              💊 Medications
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              onPress={() => navigation.navigate('IncidentReport', {
+                visitId: visit.id,
+                clientId: visit.clientId,
+                clientName: visit.clientName,
+              })}
+              style={styles.secondaryButton}
+            >
+              ⚠️ Report Incident
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
               onPress={() => navigation.navigate('VisitDocumentation', { visitId: visit.id })}
               style={styles.secondaryButton}
             >

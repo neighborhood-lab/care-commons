@@ -15,6 +15,7 @@ import { InvoiceList, InvoiceDetail } from './verticals/billing-invoicing';
 import { PayrollDashboard, PayRunList, PayRunDetail } from './verticals/payroll-processing';
 import { OpenShiftList, OpenShiftDetail } from './verticals/shift-matching';
 import { VisitList, CalendarView } from './verticals/scheduling-visits';
+import ScheduleBuilderPage from './pages/scheduling/ScheduleBuilderPage';
 import { MedicationListPage } from './pages/medications/MedicationListPage';
 import { IncidentListPage } from './pages/incidents/IncidentListPage';
 import { CreateIncidentPage } from './pages/incidents/CreateIncidentPage';
@@ -186,6 +187,16 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/clients/new/intake"
+        element={
+          <ProtectedRoute permission="clients:write">
+            <AppShell>
+              <ClientIntakeWorkflow />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/clients/:clientId/medications"
         element={
           <ProtectedRoute>
@@ -226,7 +237,11 @@ function AppRoutes() {
         }
       />
       <Route
+<<<<<<< HEAD
         path="/caregivers/:id/training"
+=======
+        path="/caregivers/training"
+>>>>>>> origin/develop
         element={
           <ProtectedRoute>
             <AppShell>
@@ -251,6 +266,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell>
               <CalendarView />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scheduling/builder"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <ScheduleBuilderPage />
             </AppShell>
           </ProtectedRoute>
         }

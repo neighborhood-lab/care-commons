@@ -322,6 +322,15 @@ export function setupRoutes(app: Express, db: Database): void {
   app.use('/api', generalApiLimiter, incidentRouter);
   console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
 
+  // Caregiver Burnout Prediction routes
+  const burnoutRouter = Router();
+  const authMiddleware2 = new AuthMiddleware(db);
+  burnoutRouter.use(authMiddleware2.requireAuth);
+  const { createBurnoutRoutes } = await import('@folkcare/caregiver-burnout-prediction');
+  createBurnoutRoutes(burnoutRouter, db);
+  app.use('/api', generalApiLimiter, burnoutRouter);
+  console.log('  ✓ Caregiver Burnout Prediction routes registered (with rate limiting)');
+
   // Family Engagement routes
   const familyMemberRepo = new FamilyMemberRepository(db);
   const notificationRepo = new NotificationRepository(db);
@@ -381,6 +390,12 @@ export function setupRoutes(app: Express, db: Database): void {
   // Data Export routes
   app.use('/api/export', generalApiLimiter, exportRouter);
   console.log('  ✓ Data Export routes registered (with rate limiting)');
+
+  // AI Services routes (note summarization, sentiment analysis)
+  const { createAIRoutes } = await import('@folkcare/ai-services');
+  const aiRouter = createAIRoutes(db);
+  app.use('/api', generalApiLimiter, aiRouter);
+  console.log('  ✓ AI Services routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }

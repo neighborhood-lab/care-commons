@@ -40,6 +40,19 @@ export { TexasNurseAideRegistryService } from './services/registry-checks/texas-
 export { TexasEmployeeMisconductRegistryService } from './services/registry-checks/texas-employee-misconduct-registry.js';
 export { FloridaLevel2ScreeningService } from './services/registry-checks/florida-level2-screening.js';
 
+// Burnout Prevention
+export {
+  BurnoutPredictionService,
+  type BurnoutRiskAssessment,
+  type BurnoutRiskLevel,
+  type RiskFactor,
+  type RiskFactorCategory,
+  type InterventionSuggestion,
+  type InterventionCategory,
+  type IWorkPatternProvider,
+  type CaregiverWorkPattern,
+} from './services/burnout-prediction-service.js';
+
 // Validation
 export { CaregiverValidator } from './validation/caregiver-validator.js';
 

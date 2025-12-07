@@ -83,7 +83,7 @@ jobs:
 
       - name: Upload comprehensive coverage reports
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./packages/*/coverage/lcov.info,./verticals/*/coverage/lcov.info
@@ -110,7 +110,7 @@ jobs:
 
       - name: Upload build artifacts
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: comprehensive-build-artifacts
           path: |
