@@ -42,6 +42,8 @@ export {
   updateNoteTemplateSchema,
   visitNoteSearchFiltersSchema,
   templateSearchFiltersSchema,
+  complianceCheckRequestSchema,
+  type ComplianceCheckRequestInput,
 } from './validation/index.js';
 
 // Repositories

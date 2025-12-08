@@ -3,15 +3,23 @@
  *
  * AI-powered automated compliance checking for home health documentation.
  * Validates against Medicare, Medicaid, and state regulatory requirements.
+ *
+ * Security: Includes prompt injection protection, cost controls, and safe logging.
+ * Performance: Uses lookup maps instead of O(n²) filter operations.
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { Knex } from 'knex';
 
+// Cost control constants
+const MAX_VISITS_PER_CHECK = 50;
+const MAX_LOOKBACK_DAYS = 30;
+const MAX_TEXT_LENGTH = 1000; // Per field in prompt
+
 export interface ComplianceCheckRequest {
   visitId?: string; // Check compliance for a specific visit
   clientId?: string; // Check compliance for all recent client visits
-  lookbackDays?: number; // Default 7 days
+  lookbackDays?: number; // Default 7 days, max 30
 }
 
 export type ComplianceCategory =
@@ -78,6 +86,8 @@ export interface ComplianceCheckResult {
 
 export class ComplianceCheckingService {
   private anthropic: Anthropic;
+  private readonly MODEL =
+    process.env.COMPLIANCE_CHECK_MODEL || 'claude-3-5-haiku-20241022';
 
   constructor(private db: Knex) {
     if (!process.env.ANTHROPIC_API_KEY) {
@@ -89,10 +99,30 @@ export class ComplianceCheckingService {
   }
 
   /**
+   * Sanitize text for safe inclusion in prompts.
+   * Prevents prompt injection attacks by removing dangerous patterns.
+   */
+  private sanitizeForPrompt(text: string | null | undefined): string {
+    if (!text) return 'Not documented';
+
+    return (
+      text
+        // Remove prompt injection patterns
+        .replace(/IGNORE (ALL )?PREVIOUS INSTRUCTIONS/gi, '[REDACTED]')
+        .replace(/SYSTEM:|ASSISTANT:|USER:|HUMAN:/gi, '[REDACTED]')
+        .replace(/<\/?system>|<\/?user>|<\/?assistant>/gi, '[REDACTED]')
+        .replace(/```[\s\S]*?```/g, '[CODE BLOCK REDACTED]')
+        // Limit length
+        .substring(0, MAX_TEXT_LENGTH)
+    );
+  }
+
+  /**
    * Check compliance for visits using Claude AI
    */
   async checkCompliance(request: ComplianceCheckRequest): Promise<ComplianceCheckResult> {
-    const lookbackDays = request.lookbackDays || 7;
+    // Apply cost controls
+    const lookbackDays = Math.min(request.lookbackDays || 7, MAX_LOOKBACK_DAYS);
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - lookbackDays);
@@ -120,6 +150,9 @@ export class ComplianceCheckingService {
       visitsQuery = visitsQuery.where('visits.client_id', request.clientId);
     }
 
+    // Apply visit limit
+    visitsQuery = visitsQuery.limit(MAX_VISITS_PER_CHECK);
+
     const visits = await visitsQuery;
 
     if (visits.length === 0) {
@@ -138,6 +171,14 @@ export class ComplianceCheckingService {
         recommendations: [],
         summary: 'No visits found in the specified period.',
       };
+    }
+
+    // Check if limit was hit
+    if (visits.length >= MAX_VISITS_PER_CHECK) {
+      // Log warning (without exposing sensitive data)
+      console.warn(
+        `Compliance check hit visit limit. Analyzing ${MAX_VISITS_PER_CHECK} of potentially more visits.`,
+      );
     }
 
     // Fetch related data for each visit
@@ -160,12 +201,40 @@ export class ComplianceCheckingService {
         .catch(() => []), // Table might not exist
     ]);
 
-    // Group by visit
+    // Use lookup maps for O(n) complexity instead of O(n²) filter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const notesByVisit: Record<string, any[]> = {};
+    for (const note of visitNotes) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const visitId = (note as any).visit_id as string;
+      if (!notesByVisit[visitId]) notesByVisit[visitId] = [];
+      notesByVisit[visitId]!.push(note);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const evvByVisit: Record<string, any[]> = {};
+    for (const evv of evvRecords) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const visitId = (evv as any).visit_id as string;
+      if (!evvByVisit[visitId]) evvByVisit[visitId] = [];
+      evvByVisit[visitId]!.push(evv);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const signaturesByVisit: Record<string, any[]> = {};
+    for (const sig of signatures) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const visitId = (sig as any).visit_id as string;
+      if (!signaturesByVisit[visitId]) signaturesByVisit[visitId] = [];
+      signaturesByVisit[visitId]!.push(sig);
+    }
+
+    // Group by visit using lookup maps
     const visitData = visits.map((visit) => ({
       ...visit,
-      notes: visitNotes.filter((n) => n.visit_id === visit.id),
-      evv: evvRecords.filter((e) => e.visit_id === visit.id),
-      signatures: signatures.filter((s) => s.visit_id === visit.id),
+      notes: notesByVisit[visit.id] || [],
+      evv: evvByVisit[visit.id] || [],
+      signatures: signaturesByVisit[visit.id] || [],
     }));
 
     // Build prompt for Claude
@@ -173,7 +242,7 @@ export class ComplianceCheckingService {
 
     // Call Claude AI
     const message = await this.anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',
+      model: this.MODEL,
       max_tokens: 8192,
       temperature: 0.1, // Very low for regulatory accuracy
       messages: [
@@ -194,9 +263,9 @@ export class ComplianceCheckingService {
     try {
       const textContent = content as { type: 'text'; text: string };
       analysisResult = JSON.parse(textContent.text);
-    } catch (error) {
-      const textContent = content as { type: 'text'; text: string };
-      console.error('Failed to parse AI response:', textContent.text);
+    } catch {
+      // Log error safely without exposing AI response content
+      console.error('Failed to parse AI compliance check response as JSON');
       throw new Error('Failed to parse compliance check results');
     }
 
@@ -223,7 +292,42 @@ export class ComplianceCheckingService {
   /**
    * Build compliance check prompt for Claude
    */
-  private buildComplianceCheckPrompt(visitData: any[], lookbackDays: number): string {
+  private buildComplianceCheckPrompt(
+    visitData: Array<{
+      id: string;
+      scheduled_start: string;
+      client_first_name?: string;
+      client_last_name?: string;
+      caregiver_first_name?: string;
+      caregiver_last_name?: string;
+      status?: string;
+      scheduled_duration_minutes?: number;
+      actual_start?: string;
+      actual_end?: string;
+      notes: Array<{
+        visit_date?: string;
+        note_type?: string;
+        subjective_notes?: string;
+        objective_notes?: string;
+        assessment?: string;
+        plan?: string;
+        narrative_note?: string;
+        safety_incidents?: boolean;
+      }>;
+      evv: Array<{
+        clock_in_time?: string;
+        clock_out_time?: string;
+        location_verified?: boolean;
+        verification_method?: string;
+      }>;
+      signatures: Array<{
+        signer_name?: string;
+        signer_relationship?: string;
+        signed_at?: string;
+      }>;
+    }>,
+    lookbackDays: number,
+  ): string {
     const visitsDetail = visitData
       .map(
         (visit, index) =>
@@ -231,8 +335,8 @@ export class ComplianceCheckingService {
 === VISIT ${index + 1} ===
 Visit ID: ${visit.id}
 Date: ${visit.scheduled_start}
-Client: ${visit.client_first_name} ${visit.client_last_name}
-Caregiver: ${visit.caregiver_first_name || 'Unknown'} ${visit.caregiver_last_name || ''}
+Client: ${this.sanitizeForPrompt(visit.client_first_name)} ${this.sanitizeForPrompt(visit.client_last_name)}
+Caregiver: ${this.sanitizeForPrompt(visit.caregiver_first_name) || 'Unknown'} ${this.sanitizeForPrompt(visit.caregiver_last_name) || ''}
 Status: ${visit.status}
 Scheduled Duration: ${visit.scheduled_duration_minutes || 'N/A'} minutes
 Actual Start: ${visit.actual_start || 'Not recorded'}
@@ -243,14 +347,14 @@ ${
   visit.notes.length > 0
     ? visit.notes
         .map(
-          (note: any) => `
+          (note) => `
   - Date: ${note.visit_date}
   - Type: ${note.note_type || 'General'}
-  - Subjective: ${note.subjective_notes || 'Not documented'}
-  - Objective: ${note.objective_notes || 'Not documented'}
-  - Assessment: ${note.assessment || 'Not documented'}
-  - Plan: ${note.plan || 'Not documented'}
-  - Narrative: ${note.narrative_note || 'Not documented'}
+  - Subjective: ${this.sanitizeForPrompt(note.subjective_notes)}
+  - Objective: ${this.sanitizeForPrompt(note.objective_notes)}
+  - Assessment: ${this.sanitizeForPrompt(note.assessment)}
+  - Plan: ${this.sanitizeForPrompt(note.plan)}
+  - Narrative: ${this.sanitizeForPrompt(note.narrative_note)}
   - Safety Incidents: ${note.safety_incidents ? 'YES' : 'No'}`,
         )
         .join('\n')
@@ -262,7 +366,7 @@ ${
   visit.evv.length > 0
     ? visit.evv
         .map(
-          (evv: any) => `
+          (evv) => `
   - Clock In: ${evv.clock_in_time || 'Not recorded'}
   - Clock Out: ${evv.clock_out_time || 'Not recorded'}
   - Location Verified: ${evv.location_verified ? 'Yes' : 'No'}
@@ -277,8 +381,8 @@ ${
   visit.signatures.length > 0
     ? visit.signatures
         .map(
-          (sig: any) => `
-  - Signer: ${sig.signer_name || 'Unknown'}
+          (sig) => `
+  - Signer: ${this.sanitizeForPrompt(sig.signer_name) || 'Unknown'}
   - Relationship: ${sig.signer_relationship || 'Unknown'}
   - Date: ${sig.signed_at || 'Not recorded'}`,
         )
