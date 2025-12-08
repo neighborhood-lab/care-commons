@@ -5,7 +5,7 @@
  * and scoring algorithms. Handles permission checking, caching, and result formatting.
  */
 
-import type { Knex } from 'knex';
+import type { Database } from '@folkcare/core';
 import type {
   AnalysisPeriod,
   CaregiverBurnoutRisk,
@@ -25,10 +25,12 @@ export interface UserContext {
 }
 
 export class BurnoutService {
+  private db: Database;
   private repository: BurnoutRepository;
   private calculator: BurnoutCalculator;
 
-  constructor(private db: Knex) {
+  constructor(db: Database) {
+    this.db = db;
     this.repository = new BurnoutRepository(db);
     this.calculator = new BurnoutCalculator(DEFAULT_BURNOUT_CONFIG);
   }
@@ -51,10 +53,18 @@ export class BurnoutService {
     }
 
     // Fetch caregiver info and verify org access
-    const caregiver = await this.db('caregivers')
-      .where({ id: caregiverId })
-      .first('id', 'first_name', 'last_name', 'organization_id', 'max_hours_per_week');
+    const caregiverResult = await this.db.query<{
+      id: string;
+      first_name: string;
+      last_name: string;
+      organization_id: string;
+      max_hours_per_week: number | null;
+    }>(
+      'SELECT id, first_name, last_name, organization_id, max_hours_per_week FROM caregivers WHERE id = $1 LIMIT 1',
+      [caregiverId]
+    );
 
+    const caregiver = caregiverResult.rows[0];
     if (!caregiver) {
       throw new Error(`Caregiver ${caregiverId} not found`);
     }
@@ -215,9 +225,11 @@ export class BurnoutService {
     weeksBack: number = 12
   ): Promise<Array<{ date: Date; riskScore: number; riskLevel: string }>> {
     // Verify caregiver access
-    const caregiver = await this.db('caregivers')
-      .where({ id: caregiverId })
-      .first('organization_id');
+    const caregiverResult = await this.db.query<{ organization_id: string }>(
+      'SELECT organization_id FROM caregivers WHERE id = $1 LIMIT 1',
+      [caregiverId]
+    );
+    const caregiver = caregiverResult.rows[0];
 
     if (!caregiver) {
       throw new Error(`Caregiver ${caregiverId} not found`);
