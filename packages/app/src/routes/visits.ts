@@ -5,9 +5,23 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Database, isValidUUID, ComplianceAutopilotService } from '@folkcare/core';
+import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@folkcare/scheduling-visits';
+import { ComplianceCheckingService, complianceCheckRequestSchema } from '@folkcare/visit-notes';
+import knex from 'knex';
+
+/**
+ * Create a Knex instance for AI services that need it.
+ * Note: Consider adding a getKnex() function to @folkcare/core in the future.
+ */
+function getKnexInstance(): ReturnType<typeof knex> {
+  const connectionString = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/folk-care-0';
+  return knex({
+    client: 'pg',
+    connection: connectionString,
+  });
+}
 
 /**
  * Validates date range parameters for calendar/list endpoints
@@ -1094,6 +1108,124 @@ export function createVisitRouter(db: Database): Router {
       });
     } catch (error) {
       next(error);
+    }
+  });
+
+  // POST /visits/compliance-check
+  // Automated compliance checking for visits (AI-powered)
+  // eslint-disable-next-line sonarjs/cognitive-complexity -- Sequential validation guards are inherently branchy
+  router.post('/compliance-check', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    const auditService = new AuditService(db);
+
+    try {
+      // Validate request body using Zod
+      const parseResult = complianceCheckRequestSchema.safeParse(req.body);
+      if (parseResult.success === false) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid request parameters',
+          details: parseResult.error.issues,
+        });
+        return;
+      }
+
+      const { visitId, clientId, lookbackDays } = parseResult.data;
+
+      // Get user context for permission checking
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (!req.user) {
+        res.status(401).json({ success: false, error: 'Unauthorized' });
+        return;
+      }
+
+      const user = req.user;
+
+      // Create user context for audit logging
+      const context: UserContext = {
+        userId: user.userId,
+        organizationId: user.organizationId ?? '',
+        roles: user.roles ?? [],
+        permissions: user.permissions ?? [],
+        branchIds: user.branchIds ?? [],
+      };
+
+      // Check that user has permission to read visits (required for compliance checking)
+      // The requireAuth middleware already ensures the user is authenticated
+      // Here we ensure they have proper organization context
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (!context.organizationId) {
+        res.status(403).json({
+          success: false,
+          error: 'User must belong to an organization to perform compliance checks',
+        });
+        return;
+      }
+
+      // Run compliance check
+      const complianceService = new ComplianceCheckingService(knexDb);
+      const effectiveLookbackDays = lookbackDays ?? 7;
+      const result = await complianceService.checkCompliance({
+        visitId,
+        clientId,
+        lookbackDays: effectiveLookbackDays,
+      });
+
+      // Log audit event for HIPAA compliance
+      await auditService.logEvent(context, {
+        eventType: 'DATA_ACCESS',
+        resource: 'COMPLIANCE_CHECK',
+        resourceId: visitId ?? clientId ?? 'all',
+        action: 'COMPLIANCE_CHECK',
+        result: 'SUCCESS',
+        metadata: {
+          visitId,
+          clientId,
+          lookbackDays,
+          visitCount: result.visitResults.length,
+          overallStatus: result.overallStatus,
+          criticalIssueCount: result.criticalIssues.length,
+        },
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      // Log failure audit event
+      const user = req.user;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (user) {
+        const context: UserContext = {
+          userId: user.userId,
+          organizationId: user.organizationId ?? '',
+          roles: user.roles ?? [],
+          permissions: user.permissions ?? [],
+          branchIds: user.branchIds ?? [],
+        };
+        const bodyVisitId = typeof req.body?.visitId === 'string' ? req.body.visitId : null;
+        const bodyClientId = typeof req.body?.clientId === 'string' ? req.body.clientId : null;
+        await auditService.logEvent(context, {
+          eventType: 'DATA_ACCESS',
+          resource: 'COMPLIANCE_CHECK',
+          resourceId: bodyVisitId ?? bodyClientId ?? 'all',
+          action: 'COMPLIANCE_CHECK',
+          result: 'FAILURE',
+          metadata: {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          },
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        }).catch(() => {
+          // Swallow audit logging errors to not mask original error
+        });
+      }
+      next(error);
+    } finally {
+      await knexDb.destroy();
     }
   });
 

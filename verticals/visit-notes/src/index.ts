@@ -42,6 +42,8 @@ export {
   updateNoteTemplateSchema,
   visitNoteSearchFiltersSchema,
   templateSearchFiltersSchema,
+  complianceCheckRequestSchema,
+  type ComplianceCheckRequestInput,
 } from './validation/index.js';
 
 // Repositories
@@ -64,6 +66,17 @@ export {
   type AutofillSuggestions,
   type AutofillRequest,
 } from './services/note-autofill-service.js';
+
+// Compliance Checking (AI-powered regulatory compliance)
+export {
+  ComplianceCheckingService,
+  type ComplianceCheckRequest,
+  type ComplianceCheckResult,
+  type ComplianceCategory,
+  type ComplianceStatus,
+  type ComplianceViolation,
+  type VisitComplianceResult,
+} from './services/compliance-checking-service.js';
 
 // Routes
 export { createVisitNotesHandlers } from './routes/index.js';

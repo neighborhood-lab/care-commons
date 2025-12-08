@@ -259,3 +259,21 @@ export const templateSearchFiltersSchema = z.object({
 });
 
 export type TemplateSearchFilters = z.infer<typeof templateSearchFiltersSchema>;
+
+/**
+ * Compliance Check Request
+ */
+
+export const complianceCheckRequestSchema = z.object({
+  visitId: z.string().uuid().optional(),
+  clientId: z.string().uuid().optional(),
+  lookbackDays: z.number().int().min(1).max(30).optional().default(7),
+}).refine(
+  (data) => data.visitId || data.clientId || (!data.visitId && !data.clientId),
+  {
+    message: 'Provide either visitId, clientId, or neither (for all recent visits)',
+    path: ['visitId'],
+  }
+);
+
+export type ComplianceCheckRequestInput = z.infer<typeof complianceCheckRequestSchema>;
