@@ -4,9 +4,20 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService } from '@folkcare/analytics-reporting';
-import { ExportService } from '@folkcare/analytics-reporting';
-import type { AnalyticsQueryOptions, ExportFormat, Report } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, PredictiveMaintenanceService } from '@folkcare/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory } from '@folkcare/analytics-reporting';
+import knex from 'knex';
+
+/**
+ * Create a Knex instance for AI services that need it.
+ */
+function getKnexInstance(): ReturnType<typeof knex> {
+  const connectionString = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/folk-care-0';
+  return knex({
+    client: 'pg',
+    connection: connectionString,
+  });
+}
 
 export function createAnalyticsRouter(db: Database): Router {
   const router = Router();
@@ -249,6 +260,36 @@ export function createAnalyticsRouter(db: Database): Router {
       res.send(exportData);
     } catch (error) {
       next(error);
+    }
+  });
+
+  /**
+   * POST /api/analytics/predictive-alerts
+   * Generate AI-powered predictive maintenance alerts
+   */
+  router.post('/predictive-alerts', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { categories, lookbackDays, minSeverity } = req.body as {
+        categories?: AlertCategory[];
+        lookbackDays?: number;
+        minSeverity?: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
+      };
+
+      const service = new PredictiveMaintenanceService(knexDb);
+      const result = await service.generateAlerts({
+        organizationId: user.organizationId,
+        categories,
+        lookbackDays: lookbackDays ?? 30,
+        minSeverity,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
     }
   });
 

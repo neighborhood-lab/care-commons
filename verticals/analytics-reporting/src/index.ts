@@ -39,5 +39,16 @@ export { AnalyticsService } from './service/analytics-service';
 export { ReportService } from './service/report-service';
 export { ExportService } from './service/export-service';
 
+// Predictive Maintenance (AI-powered)
+export {
+  PredictiveMaintenanceService,
+  type PredictiveMaintenanceRequest,
+  type PredictiveMaintenanceResult,
+  type PredictiveAlert,
+  type AlertCategory,
+  type AlertSeverity as PredictiveAlertSeverity,
+  type AlertUrgency,
+} from './service/predictive-maintenance-service';
+
 // Repository exports
 export { AnalyticsRepository } from './repository/analytics-repository';
