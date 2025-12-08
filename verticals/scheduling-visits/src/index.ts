@@ -72,3 +72,16 @@ export * from './utils/schedule-utils';
 
 // API / Integration
 export { VisitProvider, createVisitProvider } from './api/visit-provider';
+
+// Staffing Demand Prediction (AI-powered)
+export { StaffingDemandPredictionService } from './service/staffing-demand-prediction-service.js';
+export type {
+  StaffingDemandRequest,
+  StaffingDemandResult,
+  WeeklyDemand,
+  ServiceTypeDemand,
+  StaffingGap,
+  DemandConfidence,
+  DemandTrend,
+  UrgencyLevel,
+} from './service/staffing-demand-prediction-service.js';
