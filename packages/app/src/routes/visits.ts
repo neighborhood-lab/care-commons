@@ -1113,6 +1113,7 @@ export function createVisitRouter(db: Database): Router {
 
   // POST /visits/compliance-check
   // Automated compliance checking for visits (AI-powered)
+  // eslint-disable-next-line sonarjs/cognitive-complexity -- Sequential validation guards are inherently branchy
   router.post('/compliance-check', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
     const knexDb = getKnexInstance();
     const auditService = new AuditService(db);
@@ -1120,7 +1121,7 @@ export function createVisitRouter(db: Database): Router {
     try {
       // Validate request body using Zod
       const parseResult = complianceCheckRequestSchema.safeParse(req.body);
-      if (!parseResult.success) {
+      if (parseResult.success === false) {
         res.status(400).json({
           success: false,
           error: 'Invalid request parameters',
@@ -1196,7 +1197,8 @@ export function createVisitRouter(db: Database): Router {
     } catch (error) {
       // Log failure audit event
       const user = req.user;
-      if (user !== undefined && user !== null) {
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (user) {
         const context: UserContext = {
           userId: user.userId,
           organizationId: user.organizationId ?? '',
