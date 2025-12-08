@@ -188,7 +188,7 @@ export function MedicationInteractionAlerts({
   onDismiss,
   onProceed,
   onContactPhysician,
-}: MedicationInteractionAlertsProps): JSX.Element {
+}: MedicationInteractionAlertsProps): React.ReactElement {
   if (loading) {
     return (
       <View style={styles.container}>

@@ -1,5 +1,3 @@
-/* global fetch */
-
 /**
  * Voice Transcription Service
  *
