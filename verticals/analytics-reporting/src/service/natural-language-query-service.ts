@@ -151,7 +151,7 @@ Return ONLY valid JSON:
     });
 
     const content = message.content[0];
-    if (!content || content.type !== 'text') {
+    if (content?.type !== 'text') {
       throw new Error('Failed to interpret question');
     }
 
@@ -540,7 +540,7 @@ Return only the answer text, no quotes or formatting.`,
     });
 
     const content = message.content[0];
-    if (!content || content.type !== 'text') {
+    if (content?.type !== 'text') {
       return 'I found the data you requested.';
     }
 
@@ -573,7 +573,7 @@ Return only a JSON array of 3 question strings:
     });
 
     const content = message.content[0];
-    if (!content || content.type !== 'text') {
+    if (content?.type !== 'text') {
       return [];
     }
 
