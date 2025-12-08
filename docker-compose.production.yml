@@ -1,0 +1,183 @@
+# Folk Care - Production Docker Compose
+#
+# Self-hosting deployment for home healthcare agencies
+#
+# Quick start:
+#   1. Copy .env.docker.example to .env.docker and configure
+#   2. docker compose -f docker-compose.production.yml up -d
+#   3. docker compose -f docker-compose.production.yml exec app npm run db:migrate
+#   4. docker compose -f docker-compose.production.yml exec app npm run db:seed
+#   5. Access at http://localhost:3000
+#
+# Production deployment:
+#   - Use a reverse proxy (nginx/traefik) for HTTPS
+#   - Set strong passwords in .env.docker
+#   - Configure external database for high availability
+#   - Set up regular backups
+
+services:
+  # ============================================
+  # Folk Care Application
+  # ============================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: folkcare:latest
+    container_name: folkcare-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-folkcare}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      # Optional AI features (Claude API)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Optional email (Resend)
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      # Optional analytics
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - folkcare
+    labels:
+      - "com.folkcare.description=Folk Care Application Server"
+
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: folkcare-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-folkcare}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-folkcare}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - folkcare
+    # Performance tuning for small-medium deployments
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=768MB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+    labels:
+      - "com.folkcare.description=Folk Care PostgreSQL Database"
+
+  # ============================================
+  # Redis Cache
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: folkcare-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - folkcare
+    labels:
+      - "com.folkcare.description=Folk Care Redis Cache"
+
+  # ============================================
+  # Optional: Nginx Reverse Proxy
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: folkcare-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      - app
+    networks:
+      - folkcare
+    profiles:
+      - proxy
+    labels:
+      - "com.folkcare.description=Folk Care Nginx Reverse Proxy"
+
+  # ============================================
+  # Optional: Database Backup Service
+  # ============================================
+  backup:
+    image: postgres:16-alpine
+    container_name: folkcare-backup
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATABASE: ${POSTGRES_DB:-folkcare}
+    volumes:
+      - ./backups:/backups
+    entrypoint: >
+      sh -c "pg_dump -Fc > /backups/folkcare-$$(date +%Y%m%d-%H%M%S).dump &&
+             find /backups -name '*.dump' -mtime +7 -delete &&
+             echo 'Backup completed successfully'"
+    depends_on:
+      - postgres
+    networks:
+      - folkcare
+    profiles:
+      - backup
+    labels:
+      - "com.folkcare.description=Folk Care Database Backup"
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  nginx_cache:
+    driver: local
+
+networks:
+  folkcare:
+    driver: bridge
+    name: folkcare-network
