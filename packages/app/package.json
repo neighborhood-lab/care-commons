@@ -36,6 +36,7 @@
     "@folkcare/scheduling-visits": "*",
     "@folkcare/shift-matching": "*",
     "@folkcare/time-tracking-evv": "*",
+    "@folkcare/visit-notes": "*",
     "@types/multer": "^2.0.0",
     "@types/papaparse": "^5.5.0",
     "@upstash/ratelimit": "^2.0.7",
