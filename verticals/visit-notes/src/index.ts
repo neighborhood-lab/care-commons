@@ -96,5 +96,14 @@ export {
   type RiskFactor,
 } from './services/hospitalization-risk-service.js';
 
+// Vitals Anomaly Detection (AI-powered monitoring)
+export {
+  VitalsAnomalyService,
+  type VitalsAnomalyRequest,
+  type VitalsAnomalyResult,
+  type VitalAnomaly,
+  type AnomalySeverity,
+} from './services/vitals-anomaly-service.js';
+
 // Routes
 export { createVisitNotesHandlers } from './routes/index.js';
