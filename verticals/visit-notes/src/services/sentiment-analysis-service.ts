@@ -207,9 +207,9 @@ export class SentimentAnalysisService {
     try {
       const textContent = content as { type: 'text'; text: string };
       analysisResult = JSON.parse(textContent.text);
-    } catch (error) {
+    } catch (parseError) {
       const textContent = content as { type: 'text'; text: string };
-      console.error('Failed to parse AI response:', textContent.text);
+      console.error('Failed to parse AI response:', textContent.text, parseError);
       throw new Error('Failed to parse sentiment analysis');
     }
 
@@ -252,7 +252,7 @@ export class SentimentAnalysisService {
    * Build sentiment analysis prompt for Claude
    */
   private buildSentimentAnalysisPrompt(
-    notes: any[],
+    notes: Array<Record<string, unknown>>,
     lookbackDays: number,
     clientName?: string,
     caregiverName?: string,
