@@ -4,8 +4,8 @@
  * REST endpoints for calculating and retrieving caregiver burnout risk data.
  */
 
-import type { Router, Request } from 'express';
-import type { Knex } from 'knex';
+import type { Router, Request, Response, NextFunction } from 'express';
+import type { Database, TokenPayload } from '@folkcare/core';
 import { BurnoutService } from './service/burnout-service.js';
 import type {
   CalculateBurnoutRiskRequest,
@@ -14,15 +14,18 @@ import type {
 } from './types/burnout.js';
 
 // Authenticated request with user context
-interface AuthenticatedRequest extends Request<any, any, any, any> {
-  user?: {
-    id: string;
-    organizationId: string;
-    role: string;
-  };
+interface AuthenticatedRequest extends Request {
+  user?: TokenPayload;
 }
 
-export function createBurnoutRoutes(router: Router, db: Knex): void {
+// Helper type for request body
+interface ReportRequestBody {
+  analysisPeriod?: AnalysisPeriod;
+  includeHealthy?: boolean;
+  config?: Record<string, unknown>;
+}
+
+export function createBurnoutRoutes(router: Router, db: Database): void {
   const burnoutService = new BurnoutService(db);
 
   /**
@@ -30,15 +33,15 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * Get current burnout risk for a specific caregiver
    */
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.get('/burnout/caregiver/:caregiverId/risk', async (req: AuthenticatedRequest, res, next) => {
+  router.get('/burnout/caregiver/:caregiverId/risk', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const caregiverId = req.params.caregiverId!;
+      const caregiverId = req.params.caregiverId as string;
       const analysisPeriod = (req.query.period as AnalysisPeriod) || 'LAST_4_WEEKS';
 
       const context = {
-        userId: req.user!.id,
+        userId: req.user!.userId,
         organizationId: req.user!.organizationId,
-        role: req.user!.role,
+        role: req.user!.roles[0] || 'caregiver',
       };
 
       const request: CalculateBurnoutRiskRequest = {
@@ -59,15 +62,15 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * Get historical burnout risk trend for a caregiver
    */
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.get('/burnout/caregiver/:caregiverId/trend', async (req: AuthenticatedRequest, res, next) => {
+  router.get('/burnout/caregiver/:caregiverId/trend', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const caregiverId = req.params.caregiverId!;
+      const caregiverId = req.params.caregiverId as string;
       const weeksBack = parseInt(req.query.weeks as string) || 12;
 
       const context = {
-        userId: req.user!.id,
+        userId: req.user!.userId,
         organizationId: req.user!.organizationId,
-        role: req.user!.role,
+        role: req.user!.roles[0] || 'caregiver',
       };
 
       const trend = await burnoutService.getCaregiverBurnoutTrend(
@@ -87,15 +90,15 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * Get list of caregivers at burnout risk in organization
    */
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.get('/burnout/organization/:organizationId/at-risk', async (req: AuthenticatedRequest, res, next) => {
+  router.get('/burnout/organization/:organizationId/at-risk', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const organizationId = req.params.organizationId!;
+      const organizationId = req.params.organizationId as string;
       const analysisPeriod = (req.query.period as AnalysisPeriod) || 'LAST_4_WEEKS';
 
       const context = {
-        userId: req.user!.id,
+        userId: req.user!.userId,
         organizationId: req.user!.organizationId,
-        role: req.user!.role,
+        role: req.user!.roles[0] || 'caregiver',
       };
 
       const atRiskCaregivers = await burnoutService.getAtRiskCaregivers(
@@ -115,20 +118,21 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * Generate comprehensive burnout report for organization
    */
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/burnout/organization/:organizationId/report', async (req: AuthenticatedRequest, res, next) => {
+  router.post('/burnout/organization/:organizationId/report', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const organizationId = req.params.organizationId!;
+      const organizationId = req.params.organizationId as string;
+      const body = req.body as ReportRequestBody;
 
       const context = {
-        userId: req.user!.id,
+        userId: req.user!.userId,
         organizationId: req.user!.organizationId,
-        role: req.user!.role,
+        role: req.user!.roles[0] || 'caregiver',
       };
 
       const request: GenerateBurnoutReportRequest = {
         organizationId,
-        analysisPeriod: req.body.analysisPeriod || 'LAST_4_WEEKS',
-        includeHealthy: req.body.includeHealthy || false,
+        analysisPeriod: body.analysisPeriod || 'LAST_4_WEEKS',
+        includeHealthy: body.includeHealthy || false,
       };
 
       const report = await burnoutService.generateOrganizationBurnoutReport(request, context);
@@ -144,26 +148,28 @@ export function createBurnoutRoutes(router: Router, db: Knex): void {
    * Manually trigger burnout risk calculation (admin/coordinator only)
    */
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/burnout/caregiver/:caregiverId/calculate', async (req: AuthenticatedRequest, res, next) => {
+  router.post('/burnout/caregiver/:caregiverId/calculate', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       // Permission check: only coordinator or admin
-      if (!['coordinator', 'admin'].includes(req.user!.role)) {
+      const userRole = req.user!.roles[0] || '';
+      if (!['coordinator', 'admin'].includes(userRole)) {
         res.status(403).json({ error: 'Permission denied' });
         return;
       }
 
-      const caregiverId = req.params.caregiverId!;
+      const caregiverId = req.params.caregiverId as string;
+      const body = req.body as ReportRequestBody;
 
       const context = {
-        userId: req.user!.id,
+        userId: req.user!.userId,
         organizationId: req.user!.organizationId,
-        role: req.user!.role,
+        role: userRole,
       };
 
       const request: CalculateBurnoutRiskRequest = {
         caregiverId,
-        analysisPeriod: req.body.analysisPeriod || 'LAST_4_WEEKS',
-        config: req.body.config, // Optional custom config
+        analysisPeriod: body.analysisPeriod || 'LAST_4_WEEKS',
+        config: body.config, // Optional custom config
       };
 
       const risk = await burnoutService.calculateCaregiverBurnoutRisk(request, context);

@@ -332,16 +332,15 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
 
   // Caregiver Burnout Prediction routes
-  // DISABLED: Re-enable after refactoring to use Database class instead of Knex
-  // The vertical was written for Knex but the app uses Database (pg Pool)
-  // See issue: https://github.com/neighborhood-lab/folk-care/issues/1013
-  // const burnoutRouter = Router();
-  // const authMiddleware2 = new AuthMiddleware(db);
-  // burnoutRouter.use(authMiddleware2.requireAuth);
-  // const { createBurnoutRoutes } = await import('@folkcare/caregiver-burnout-prediction');
-  // createBurnoutRoutes(burnoutRouter, db);
-  // app.use('/api', generalApiLimiter, burnoutRouter);
-  // console.log('  ✓ Caregiver Burnout Prediction routes registered (with rate limiting)');
+  const burnoutRouter = Router();
+  const authMiddleware2 = new AuthMiddleware(db);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  burnoutRouter.use(authMiddleware2.requireAuth as any);
+  const { createBurnoutRoutes } = await import('@folkcare/caregiver-burnout-prediction');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createBurnoutRoutes(burnoutRouter as any, db);
+  app.use('/api', generalApiLimiter, burnoutRouter);
+  console.log('  ✓ Caregiver Burnout Prediction routes registered (with rate limiting)');
 
   // Family Engagement routes
   const familyMemberRepo = new FamilyMemberRepository(db);
@@ -404,12 +403,11 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   console.log('  ✓ Data Export routes registered (with rate limiting)');
 
   // AI Services routes (note summarization, sentiment analysis)
-  // DISABLED: Re-enable after fixing Express type version conflicts
-  // See issue: https://github.com/neighborhood-lab/folk-care/issues/1013
-  // const { createAIRoutes } = await import('@folkcare/ai-services');
-  // const aiRouter = createAIRoutes(db);
-  // app.use('/api', generalApiLimiter, aiRouter);
-  // console.log('  ✓ AI Services routes registered (with rate limiting)');
+  const { createAIRoutes } = await import('@folkcare/ai-services');
+  const aiRouter = createAIRoutes(db);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  app.use('/api', generalApiLimiter, aiRouter as any);
+  console.log('  ✓ AI Services routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }
