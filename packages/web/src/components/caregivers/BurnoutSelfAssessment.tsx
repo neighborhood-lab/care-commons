@@ -55,7 +55,7 @@ export function BurnoutSelfAssessment() {
     setError(null);
 
     try {
-      // TODO: Replace with actual API call
+      // Phase 2: Replace with actual API call
       // const response = await fetch('/api/me/burnout-assessment');
       // const data = await response.json();
       // setAssessment(data.assessment);

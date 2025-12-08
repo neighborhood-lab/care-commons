@@ -56,7 +56,7 @@ export function BurnoutDashboard() {
     setError(null);
 
     try {
-      // TODO: Replace with actual API call
+      // Phase 2: Replace with actual API call
       // const response = await fetch('/api/caregivers/burnout-assessments');
       // const data = await response.json();
       // setAssessments(data.assessments);

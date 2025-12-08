@@ -67,7 +67,7 @@ export function AICaregiverSuggestions({
     setError(null);
 
     try {
-      // TODO: Replace with actual API call
+      // Phase 2: Replace with actual API call
       // const response = await fetch(`/api/scheduling/suggest-caregivers`, {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },

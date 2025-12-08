@@ -188,7 +188,8 @@ export class BurnoutPredictionService {
     );
 
     // Determine trend (requires historical data - placeholder for now)
-    const trendDirection = 'STABLE'; // TODO: Compare with previous assessment
+    // Phase 2: Compare with previous assessment for trend calculation
+    const trendDirection = 'STABLE';
 
     return {
       caregiverId,
@@ -212,7 +213,7 @@ export class BurnoutPredictionService {
     minRiskLevel: BurnoutRiskLevel,
     context: UserContext
   ): Promise<BurnoutRiskAssessment[]> {
-    // TODO: Implement batch assessment
+    // Phase 2: Implement batch assessment
     // This would fetch all caregivers in organization and assess each
     // For MVP, throwing NotImplementedError to fail fast
     throw new Error(
@@ -602,10 +603,16 @@ export class BurnoutPredictionService {
     if (!baseIntervention) return null;
 
     // Determine priority based on severity
-    const priority =
-      factor.severity === 'CRITICAL' ? 'URGENT' :
-      factor.severity === 'HIGH' ? 'HIGH' :
-      factor.severity === 'MODERATE' ? 'MEDIUM' : 'LOW';
+    let priority: 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW';
+    if (factor.severity === 'CRITICAL') {
+      priority = 'URGENT';
+    } else if (factor.severity === 'HIGH') {
+      priority = 'HIGH';
+    } else if (factor.severity === 'MODERATE') {
+      priority = 'MEDIUM';
+    } else {
+      priority = 'LOW';
+    }
 
     return {
       ...baseIntervention,

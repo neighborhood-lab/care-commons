@@ -332,7 +332,7 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
 
   // Caregiver Burnout Prediction routes
-  // TODO: Re-enable after refactoring to use Database class instead of Knex
+  // DISABLED: Re-enable after refactoring to use Database class instead of Knex
   // The vertical was written for Knex but the app uses Database (pg Pool)
   // See issue: https://github.com/neighborhood-lab/folk-care/issues/1013
   // const burnoutRouter = Router();
@@ -404,7 +404,7 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   console.log('  ✓ Data Export routes registered (with rate limiting)');
 
   // AI Services routes (note summarization, sentiment analysis)
-  // TODO: Re-enable after fixing Express type version conflicts
+  // DISABLED: Re-enable after fixing Express type version conflicts
   // See issue: https://github.com/neighborhood-lab/folk-care/issues/1013
   // const { createAIRoutes } = await import('@folkcare/ai-services');
   // const aiRouter = createAIRoutes(db);

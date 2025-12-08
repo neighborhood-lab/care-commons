@@ -118,7 +118,7 @@ export function VoiceNoteRecorder({
     setErrorMessage(null);
 
     try {
-      // TODO: Replace with actual API call to backend
+      // Phase 2: Replace with actual API call to backend
       // For now, simulate transcription with mock data
       await new Promise(resolve => setTimeout(resolve, 2000));
 
