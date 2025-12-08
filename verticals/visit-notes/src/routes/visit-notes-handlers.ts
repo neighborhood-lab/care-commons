@@ -7,6 +7,7 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import type { NoteAutofillService } from '../services/note-autofill-service.js';
+import type { DocumentationQualityService } from '../services/documentation-quality-service.js';
 
 /**
  * Handle errors consistently across all handlers
@@ -36,7 +37,10 @@ const autofillRequestSchema = z.object({
 /**
  * Create API handlers for visit notes
  */
-export function createVisitNotesHandlers(autofillService: NoteAutofillService) {
+export function createVisitNotesHandlers(
+  autofillService: NoteAutofillService,
+  qualityService: DocumentationQualityService,
+) {
   return {
     /**
      * POST /visit-notes/autofill-suggestions
@@ -65,6 +69,34 @@ export function createVisitNotesHandlers(autofillService: NoteAutofillService) {
         }
 
         handleError(error, res, 'getting autofill suggestions');
+      }
+    },
+
+    /**
+     * POST /visit-notes/quality-score
+     * Get AI-powered quality score for a visit note
+     */
+    scoreQuality: async (req: Request, res: Response): Promise<void> => {
+      try {
+        const { noteId } = z.object({ noteId: z.string().uuid() }).parse(req.body);
+
+        const result = await qualityService.scoreDocumentationQuality({ noteId });
+
+        res.json({
+          success: true,
+          data: result,
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          res.status(400).json({
+            success: false,
+            error: 'Validation error',
+            details: error.errors,
+          });
+          return;
+        }
+
+        handleError(error, res, 'scoring documentation quality');
       }
     },
   };
