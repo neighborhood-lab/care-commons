@@ -105,5 +105,16 @@ export {
   type AnomalySeverity,
 } from './services/vitals-anomaly-service.js';
 
+// Sentiment Analysis (AI-powered emotional pattern detection)
+export {
+  SentimentAnalysisService,
+  type SentimentAnalysisRequest,
+  type SentimentAnalysisResult,
+  type SentimentCategory,
+  type ConcernType,
+  type ConcernAlert,
+  type SentimentTrend,
+} from './services/sentiment-analysis-service.js';
+
 // Routes
 export { createVisitNotesHandlers } from './routes/index.js';
