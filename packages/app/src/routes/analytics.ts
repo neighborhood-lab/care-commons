@@ -4,9 +4,20 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService } from '@folkcare/analytics-reporting';
-import { ExportService } from '@folkcare/analytics-reporting';
-import type { AnalyticsQueryOptions, ExportFormat, Report } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, QualityImprovementService } from '@folkcare/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report, QualityDomain } from '@folkcare/analytics-reporting';
+import knex from 'knex';
+
+/**
+ * Create a Knex instance for AI services that need it.
+ */
+function getKnexInstance(): ReturnType<typeof knex> {
+  const connectionString = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/folk-care-0';
+  return knex({
+    client: 'pg',
+    connection: connectionString,
+  });
+}
 
 export function createAnalyticsRouter(db: Database): Router {
   const router = Router();
@@ -249,6 +260,38 @@ export function createAnalyticsRouter(db: Database): Router {
       res.send(exportData);
     } catch (error) {
       next(error);
+    }
+  });
+
+  /**
+   * POST /api/analytics/quality-improvement
+   * Generate AI-powered quality improvement suggestions
+   */
+  router.post('/quality-improvement', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { domains, lookbackDays, maxSuggestions, focusAreas } = req.body as {
+        domains?: QualityDomain[];
+        lookbackDays?: number;
+        maxSuggestions?: number;
+        focusAreas?: string[];
+      };
+
+      const service = new QualityImprovementService(knexDb);
+      const result = await service.generateSuggestions({
+        organizationId: user.organizationId,
+        domains,
+        lookbackDays: lookbackDays ?? 30,
+        maxSuggestions: maxSuggestions ?? 10,
+        focusAreas,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
     }
   });
 
