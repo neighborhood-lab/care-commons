@@ -8,6 +8,18 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@folkcare/scheduling-visits';
+import { ComplianceCheckingService } from '@folkcare/visit-notes';
+import knex from 'knex';
+
+// Create a Knex instance for AI services that need it
+// TODO: Consider adding a getKnex() function to @folkcare/core
+function getKnexInstance() {
+  const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/folk-care-0';
+  return knex({
+    client: 'pg',
+    connection: connectionString,
+  });
+}
 
 /**
  * Validates date range parameters for calendar/list endpoints
@@ -1094,6 +1106,31 @@ export function createVisitRouter(db: Database): Router {
       });
     } catch (error) {
       next(error);
+    }
+  });
+
+  // POST /visits/compliance-check
+  // Automated compliance checking for visits
+  router.post('/compliance-check', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const { visitId, clientId, lookbackDays } = req.body;
+
+      const complianceService = new ComplianceCheckingService(knexDb);
+      const result = await complianceService.checkCompliance({
+        visitId,
+        clientId,
+        lookbackDays: lookbackDays || 7,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
     }
   });
 
