@@ -158,9 +158,9 @@ export class VitalsAnomalyService {
     try {
       const textContent = content as { type: 'text'; text: string };
       analysisResult = JSON.parse(textContent.text);
-    } catch (error) {
+    } catch (parseError) {
       const textContent = content as { type: 'text'; text: string };
-      console.error('Failed to parse AI response:', textContent.text);
+      console.error('Failed to parse AI response:', textContent.text, parseError);
       throw new Error('Failed to parse vitals anomaly analysis');
     }
 
@@ -198,8 +198,12 @@ export class VitalsAnomalyService {
   /**
    * Build anomaly detection prompt for Claude
    */
-  private buildAnomalyDetectionPrompt(client: any, vitals: any[], lookbackDays: number): string {
-    const clientAge = this.calculateAge(client.date_of_birth);
+  private buildAnomalyDetectionPrompt(
+    client: Record<string, unknown>,
+    vitals: Array<Record<string, unknown>>,
+    lookbackDays: number,
+  ): string {
+    const clientAge = this.calculateAge(String(client.date_of_birth ?? ''));
     const medicalHistoryList = client.medical_history
       ? Array.isArray(client.medical_history)
         ? client.medical_history.join(', ')
