@@ -41,3 +41,15 @@ export { ExportService } from './service/export-service';
 
 // Repository exports
 export { AnalyticsRepository } from './repository/analytics-repository';
+
+// Churn Prediction (AI-powered)
+export { ChurnPredictionService } from './service/churn-prediction-service.js';
+export type {
+  ChurnPredictionRequest,
+  ChurnPredictionResult,
+  ClientChurnPrediction,
+  CaregiverChurnPrediction,
+  ChurnRiskLevel,
+  ChurnConfidence,
+  RiskFactor,
+} from './service/churn-prediction-service.js';

@@ -4,9 +4,20 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService } from '@folkcare/analytics-reporting';
-import { ExportService } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, ChurnPredictionService } from '@folkcare/analytics-reporting';
 import type { AnalyticsQueryOptions, ExportFormat, Report } from '@folkcare/analytics-reporting';
+import knex from 'knex';
+
+/**
+ * Create a Knex instance for AI services that need it.
+ */
+function getKnexInstance(): ReturnType<typeof knex> {
+  const connectionString = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/folk-care-0';
+  return knex({
+    client: 'pg',
+    connection: connectionString,
+  });
+}
 
 export function createAnalyticsRouter(db: Database): Router {
   const router = Router();
@@ -249,6 +260,47 @@ export function createAnalyticsRouter(db: Database): Router {
       res.send(exportData);
     } catch (error) {
       next(error);
+    }
+  });
+
+  /**
+   * POST /api/analytics/churn-prediction
+   * AI-powered churn prediction for clients and caregivers
+   */
+  router.post('/churn-prediction', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForChurn = getKnexInstance();
+    try {
+      const organizationId = req.user?.organizationId;
+
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const { branchId, entityType, entityId, lookbackDays } = req.body as {
+        branchId?: string;
+        entityType?: 'CLIENT' | 'CAREGIVER' | 'BOTH';
+        entityId?: string;
+        lookbackDays?: number;
+      };
+
+      const churnService = new ChurnPredictionService(knexDbForChurn);
+      const result = await churnService.predictChurn({
+        organizationId,
+        branchId,
+        entityType: entityType ?? 'BOTH',
+        entityId,
+        lookbackDays: lookbackDays ?? 90,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDbForChurn.destroy();
     }
   });
 
