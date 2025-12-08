@@ -4,7 +4,7 @@
  * Integrates all vertical route handlers with the Express app
  */
 
-import { Express, Router } from 'express';
+import { Express, Router, type RequestHandler } from 'express';
 import { Database, PermissionService, UserRepository, AuthMiddleware } from '@folkcare/core';
 import { createClientRouter, ClientService, ClientRepository } from '@folkcare/client-demographics';
 import { CarePlanService, CarePlanRepository } from '@folkcare/care-plans-tasks';
@@ -332,16 +332,23 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   console.log('  ✓ Incident Reporting routes registered (with rate limiting)');
 
   // Caregiver Burnout Prediction routes
-  // DISABLED: Re-enable after refactoring to use Database class instead of Knex
-  // The vertical was written for Knex but the app uses Database (pg Pool)
-  // See issue: https://github.com/neighborhood-lab/folk-care/issues/1013
-  // const burnoutRouter = Router();
-  // const authMiddleware2 = new AuthMiddleware(db);
-  // burnoutRouter.use(authMiddleware2.requireAuth);
-  // const { createBurnoutRoutes } = await import('@folkcare/caregiver-burnout-prediction');
-  // createBurnoutRoutes(burnoutRouter, db);
-  // app.use('/api', generalApiLimiter, burnoutRouter);
-  // console.log('  ✓ Caregiver Burnout Prediction routes registered (with rate limiting)');
+  const { createBurnoutHandlers } = await import('@folkcare/caregiver-burnout-prediction');
+  const burnoutHandlers = createBurnoutHandlers(db);
+  const burnoutRouter = Router();
+  const burnoutAuthMiddleware = new AuthMiddleware(db);
+  burnoutRouter.use(burnoutAuthMiddleware.requireAuth);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  burnoutRouter.get('/burnout/caregiver/:caregiverId/risk', burnoutHandlers.getCaregiverRisk as unknown as RequestHandler);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  burnoutRouter.get('/burnout/caregiver/:caregiverId/trend', burnoutHandlers.getCaregiverTrend as unknown as RequestHandler);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  burnoutRouter.get('/burnout/organization/:organizationId/at-risk', burnoutHandlers.getAtRiskCaregivers as unknown as RequestHandler);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  burnoutRouter.post('/burnout/organization/:organizationId/report', burnoutHandlers.generateOrganizationReport as unknown as RequestHandler);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  burnoutRouter.post('/burnout/caregiver/:caregiverId/calculate', burnoutHandlers.calculateCaregiverRisk as unknown as RequestHandler);
+  app.use('/api', generalApiLimiter, burnoutRouter);
+  console.log('  ✓ Caregiver Burnout Prediction routes registered (with rate limiting)');
 
   // Family Engagement routes
   const familyMemberRepo = new FamilyMemberRepository(db);
@@ -404,12 +411,10 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   console.log('  ✓ Data Export routes registered (with rate limiting)');
 
   // AI Services routes (note summarization, sentiment analysis)
-  // DISABLED: Re-enable after fixing Express type version conflicts
-  // See issue: https://github.com/neighborhood-lab/folk-care/issues/1013
-  // const { createAIRoutes } = await import('@folkcare/ai-services');
-  // const aiRouter = createAIRoutes(db);
-  // app.use('/api', generalApiLimiter, aiRouter);
-  // console.log('  ✓ AI Services routes registered (with rate limiting)');
+  const { createAIRoutes } = await import('@folkcare/ai-services');
+  const aiRouter = createAIRoutes(db);
+  app.use('/api', generalApiLimiter, aiRouter as unknown as Router);
+  console.log('  ✓ AI Services routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }

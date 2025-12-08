@@ -15,5 +15,5 @@ export { BurnoutCalculator, DEFAULT_BURNOUT_CONFIG } from './service/burnout-cal
 // Repository
 export { BurnoutRepository } from './repository/burnout-repository.js';
 
-// Routes
-export { createBurnoutRoutes } from './routes.js';
+// Handlers
+export { createBurnoutHandlers, createBurnoutRoutes } from './routes.js';
