@@ -9,6 +9,7 @@ import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserCo
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@folkcare/scheduling-visits';
 import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService } from '@folkcare/visit-notes';
+import { VisitDurationPredictionService } from '@folkcare/scheduling-visits';
 import knex from 'knex';
 
 /**
@@ -1258,18 +1259,19 @@ export function createVisitRouter(db: Database): Router {
   // POST /visits/hospitalization-risk
   // Predict hospitalization risk for a client
   router.post('/hospitalization-risk', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForRisk = getKnexInstance();
     try {
-      const { clientId, lookbackDays } = req.body;
+      const { clientId, lookbackDays } = req.body as { clientId?: string; lookbackDays?: number };
 
-      if (!clientId) {
+      if (clientId === undefined || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
 
-      const riskService = new HospitalizationRiskService((db as any).db);
+      const riskService = new HospitalizationRiskService(knexDbForRisk);
       const result = await riskService.predictHospitalizationRisk({
         clientId,
-        lookbackDays: lookbackDays || 30,
+        lookbackDays: lookbackDays ?? 30,
       });
 
       res.json({
@@ -1278,24 +1280,27 @@ export function createVisitRouter(db: Database): Router {
       });
     } catch (error) {
       next(error);
+    } finally {
+      await knexDbForRisk.destroy();
     }
   });
 
   // POST /visits/vitals-anomalies
   // Detect anomalies in vital signs patterns
   router.post('/vitals-anomalies', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForVitals = getKnexInstance();
     try {
-      const { clientId, lookbackDays } = req.body;
+      const { clientId, lookbackDays } = req.body as { clientId?: string; lookbackDays?: number };
 
-      if (!clientId) {
+      if (clientId === undefined || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
 
-      const vitalsService = new VitalsAnomalyService((db as any).db);
+      const vitalsService = new VitalsAnomalyService(knexDbForVitals);
       const result = await vitalsService.detectVitalsAnomalies({
         clientId,
-        lookbackDays: lookbackDays || 30,
+        lookbackDays: lookbackDays ?? 30,
       });
 
       res.json({
@@ -1304,25 +1309,28 @@ export function createVisitRouter(db: Database): Router {
       });
     } catch (error) {
       next(error);
+    } finally {
+      await knexDbForVitals.destroy();
     }
   });
 
   // POST /visits/sentiment-analysis
   // Analyze sentiment in visit notes to detect burnout, distress, concerns
   router.post('/sentiment-analysis', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForSentiment = getKnexInstance();
     try {
-      const { clientId, caregiverId, lookbackDays } = req.body;
+      const { clientId, caregiverId, lookbackDays } = req.body as { clientId?: string; caregiverId?: string; lookbackDays?: number };
 
-      if (!clientId && !caregiverId) {
+      if ((clientId === undefined || clientId === '') && (caregiverId === undefined || caregiverId === '')) {
         res.status(400).json({ success: false, error: 'Either clientId or caregiverId is required' });
         return;
       }
 
-      const sentimentService = new SentimentAnalysisService((db as any).db);
+      const sentimentService = new SentimentAnalysisService(knexDbForSentiment);
       const result = await sentimentService.analyzeSentiment({
         clientId,
         caregiverId,
-        lookbackDays: lookbackDays || 30,
+        lookbackDays: lookbackDays ?? 30,
       });
 
       res.json({
@@ -1331,6 +1339,51 @@ export function createVisitRouter(db: Database): Router {
       });
     } catch (error) {
       next(error);
+    } finally {
+      await knexDbForSentiment.destroy();
+    }
+  });
+
+  // POST /visits/predict-duration
+  // Predict visit duration based on client needs and history
+  router.post('/predict-duration', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForDuration = getKnexInstance();
+    try {
+      const { clientId, visitType, caregiverId, scheduledDate, tasksPlanned } = req.body as {
+        clientId?: string;
+        visitType?: string;
+        caregiverId?: string;
+        scheduledDate?: string;
+        tasksPlanned?: string[];
+      };
+
+      if (clientId === undefined || clientId === '') {
+        res.status(400).json({ success: false, error: 'Client ID is required' });
+        return;
+      }
+
+      if (visitType === undefined || visitType === '') {
+        res.status(400).json({ success: false, error: 'Visit type is required' });
+        return;
+      }
+
+      const durationService = new VisitDurationPredictionService(knexDbForDuration);
+      const result = await durationService.predictDuration({
+        clientId,
+        visitType,
+        caregiverId,
+        scheduledDate,
+        tasksPlanned,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDbForDuration.destroy();
     }
   });
 
