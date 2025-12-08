@@ -8,7 +8,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository } from '@folkcare/scheduling-visits';
-import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService } from '@folkcare/visit-notes';
+import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService, ReportGenerationService } from '@folkcare/visit-notes';
 import knex from 'knex';
 
 /**
@@ -1259,17 +1259,17 @@ export function createVisitRouter(db: Database): Router {
   // Predict hospitalization risk for a client
   router.post('/hospitalization-risk', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { clientId, lookbackDays } = req.body;
+      const { clientId, lookbackDays } = req.body as { clientId?: string; lookbackDays?: number };
 
-      if (!clientId) {
+      if (clientId == null || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
 
-      const riskService = new HospitalizationRiskService((db as any).db);
+      const riskService = new HospitalizationRiskService(getKnexInstance());
       const result = await riskService.predictHospitalizationRisk({
         clientId,
-        lookbackDays: lookbackDays || 30,
+        lookbackDays: lookbackDays ?? 30,
       });
 
       res.json({
@@ -1285,17 +1285,17 @@ export function createVisitRouter(db: Database): Router {
   // Detect anomalies in vital signs patterns
   router.post('/vitals-anomalies', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { clientId, lookbackDays } = req.body;
+      const { clientId, lookbackDays } = req.body as { clientId?: string; lookbackDays?: number };
 
-      if (!clientId) {
+      if (clientId == null || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
 
-      const vitalsService = new VitalsAnomalyService((db as any).db);
+      const vitalsService = new VitalsAnomalyService(getKnexInstance());
       const result = await vitalsService.detectVitalsAnomalies({
         clientId,
-        lookbackDays: lookbackDays || 30,
+        lookbackDays: lookbackDays ?? 30,
       });
 
       res.json({
@@ -1311,18 +1311,61 @@ export function createVisitRouter(db: Database): Router {
   // Analyze sentiment in visit notes to detect burnout, distress, concerns
   router.post('/sentiment-analysis', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { clientId, caregiverId, lookbackDays } = req.body;
+      const { clientId, caregiverId, lookbackDays } = req.body as { clientId?: string; caregiverId?: string; lookbackDays?: number };
 
-      if (!clientId && !caregiverId) {
+      if ((clientId == null || clientId === '') && (caregiverId == null || caregiverId === '')) {
         res.status(400).json({ success: false, error: 'Either clientId or caregiverId is required' });
         return;
       }
 
-      const sentimentService = new SentimentAnalysisService((db as any).db);
+      const sentimentService = new SentimentAnalysisService(getKnexInstance());
       const result = await sentimentService.analyzeSentiment({
         clientId,
         caregiverId,
-        lookbackDays: lookbackDays || 30,
+        lookbackDays: lookbackDays ?? 30,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // POST /visits/generate-report
+  // Generate AI-powered narrative reports from visit data
+  router.post('/generate-report', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { reportType, format, clientId, caregiverId, organizationId, startDate, endDate, includeRecommendations, customPrompt } = req.body as {
+        reportType?: string;
+        format?: string;
+        clientId?: string;
+        caregiverId?: string;
+        organizationId?: string;
+        startDate?: string;
+        endDate?: string;
+        includeRecommendations?: boolean;
+        customPrompt?: string;
+      };
+
+      if (reportType == null || reportType === '') {
+        res.status(400).json({ success: false, error: 'Report type is required' });
+        return;
+      }
+
+      const reportService = new ReportGenerationService(getKnexInstance());
+      const result = await reportService.generateReport({
+        reportType: reportType as import('@folkcare/visit-notes').ReportType,
+        format: format as import('@folkcare/visit-notes').ReportFormat | undefined,
+        clientId,
+        caregiverId,
+        organizationId,
+        startDate,
+        endDate,
+        includeRecommendations,
+        customPrompt,
       });
 
       res.json({
