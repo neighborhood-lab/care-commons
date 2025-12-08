@@ -176,9 +176,9 @@ export class HospitalizationRiskService {
     try {
       const textContent = content as { type: 'text'; text: string };
       analysisResult = JSON.parse(textContent.text);
-    } catch (error) {
+    } catch (parseError) {
       const textContent = content as { type: 'text'; text: string };
-      console.error('Failed to parse AI response:', textContent.text);
+      console.error('Failed to parse AI response:', textContent.text, parseError);
       throw new Error('Failed to parse hospitalization risk analysis');
     }
 
@@ -214,15 +214,15 @@ export class HospitalizationRiskService {
    * Build comprehensive risk assessment prompt for Claude
    */
   private buildRiskAssessmentPrompt(
-    client: any,
-    visitNotes: any[],
-    vitals: any[],
-    incidents: any[],
-    medications: any[],
-    hospitalizations: any[],
+    client: Record<string, unknown>,
+    visitNotes: Array<Record<string, unknown>>,
+    vitals: Array<Record<string, unknown>>,
+    incidents: Array<Record<string, unknown>>,
+    medications: Array<Record<string, unknown>>,
+    hospitalizations: Array<Record<string, unknown>>,
     lookbackDays: number,
   ): string {
-    const clientAge = this.calculateAge(client.date_of_birth);
+    const clientAge = this.calculateAge(String(client.date_of_birth ?? ''));
     const medicalHistoryList = client.medical_history
       ? Array.isArray(client.medical_history)
         ? client.medical_history.join(', ')
@@ -395,7 +395,7 @@ Provide your risk assessment now:`;
   /**
    * Summarize vitals trends
    */
-  private summarizeVitals(vitals: any[]): string {
+  private summarizeVitals(vitals: Array<Record<string, unknown>>): string {
     if (vitals.length === 0) {
       return 'No vital signs recorded in this period';
     }
