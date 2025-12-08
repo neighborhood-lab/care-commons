@@ -23,9 +23,11 @@
     "lint": "eslint . --ext ts --max-warnings 150 --ignore-pattern 'dist-vercel/**'"
   },
   "dependencies": {
+    "@folkcare/ai-services": "*",
     "@folkcare/analytics-reporting": "*",
     "@folkcare/billing-invoicing": "*",
     "@folkcare/care-plans-tasks": "*",
+    "@folkcare/caregiver-burnout-prediction": "*",
     "@folkcare/caregiver-staff": "*",
     "@folkcare/client-demographics": "*",
     "@folkcare/core": "*",
