@@ -48,6 +48,16 @@ export type {
   PreferenceAnalysis,
 } from './service/cloudflare-ai-service.js';
 
+// Visit Duration Prediction (AI-powered)
+export { VisitDurationPredictionService } from './service/visit-duration-prediction-service.js';
+export type {
+  DurationPredictionRequest,
+  VisitDurationPrediction,
+  DurationRange,
+  DurationFactor,
+  ConfidenceLevel,
+} from './service/visit-duration-prediction-service.js';
+
 // Providers
 export * from './providers';
 
@@ -62,3 +72,16 @@ export * from './utils/schedule-utils';
 
 // API / Integration
 export { VisitProvider, createVisitProvider } from './api/visit-provider';
+
+// Staffing Demand Prediction (AI-powered)
+export { StaffingDemandPredictionService } from './service/staffing-demand-prediction-service.js';
+export type {
+  StaffingDemandRequest,
+  StaffingDemandResult,
+  WeeklyDemand,
+  ServiceTypeDemand,
+  StaffingGap,
+  DemandConfidence,
+  DemandTrend,
+  UrgencyLevel,
+} from './service/staffing-demand-prediction-service.js';
