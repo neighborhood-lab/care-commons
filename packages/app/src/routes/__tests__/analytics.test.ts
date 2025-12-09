@@ -56,6 +56,11 @@ vi.mock('@folkcare/analytics-reporting', () => ({
       generateSuggestions: vi.fn().mockResolvedValue({ suggestions: [] }),
     };
   }),
+  ChurnPredictionService: vi.fn().mockImplementation(function () {
+    return {
+      predictChurn: vi.fn().mockResolvedValue({ predictions: [] }),
+    };
+  }),
 }));
 
 // Mock core module
@@ -228,7 +233,7 @@ describe('Analytics Routes', () => {
   });
 
   describe('Route Count', () => {
-    it('should have exactly 11 analytics routes configured', () => {
+    it('should have exactly 12 analytics routes configured', () => {
       const routes = router.stack
         .filter((layer: RouterLayer) => layer.route)
         .map((layer: RouterLayer) => ({
@@ -236,7 +241,7 @@ describe('Analytics Routes', () => {
           methods: Object.keys(layer.route.methods),
         }));
 
-      // 11 endpoints total:
+      // 12 endpoints total:
       // GET /kpis
       // GET /compliance-alerts
       // GET /revenue-trends
@@ -248,7 +253,8 @@ describe('Analytics Routes', () => {
       // POST /query (natural language querying)
       // POST /predictive-alerts (AI predictive maintenance)
       // POST /quality-improvement (AI quality improvement suggestions)
-      expect(routes.length).toBe(11);
+      // POST /churn-prediction (AI churn prediction)
+      expect(routes.length).toBe(12);
     });
   });
 

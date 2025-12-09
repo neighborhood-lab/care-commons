@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService, QualityImprovementService } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService, QualityImprovementService, ChurnPredictionService } from '@folkcare/analytics-reporting';
 import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory, QualityDomain } from '@folkcare/analytics-reporting';
 import knex from 'knex';
 
@@ -355,6 +355,47 @@ export function createAnalyticsRouter(db: Database): Router {
       });
 
       res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/churn-prediction
+   * AI-powered churn prediction for clients and caregivers
+   */
+  router.post('/churn-prediction', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const organizationId = req.user?.organizationId;
+
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const { branchId, entityType, entityId, lookbackDays } = req.body as {
+        branchId?: string;
+        entityType?: 'CLIENT' | 'CAREGIVER' | 'BOTH';
+        entityId?: string;
+        lookbackDays?: number;
+      };
+
+      const churnService = new ChurnPredictionService(knexDb);
+      const result = await churnService.predictChurn({
+        organizationId,
+        branchId,
+        entityType: entityType ?? 'BOTH',
+        entityId,
+        lookbackDays: lookbackDays ?? 90,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
     } catch (error) {
       next(error);
     } finally {
