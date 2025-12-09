@@ -10,6 +10,7 @@ import { createClientRouter, ClientService, ClientRepository } from '@folkcare/c
 import { CarePlanService, CarePlanRepository } from '@folkcare/care-plans-tasks';
 import { createCarePlanHandlers } from '@folkcare/care-plans-tasks';
 import { createTaskPrioritizationRoutes, createNaturalLanguageCarePlanRoutes } from '@folkcare/care-plans-tasks';
+import { createOptimalVisitFrequencyRoutes } from '@folkcare/scheduling-visits';
 import { createHealthRouter } from './health';
 import { createMetricsRouter } from './metrics';
 import { createAuthRouter } from './auth';
@@ -272,6 +273,11 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   const visitRouter = createVisitRouter(db);
   app.use('/api/visits', generalApiLimiter, visitRouter);
   console.log('  ✓ Visit & Scheduling routes registered (with rate limiting)');
+
+  // Optimal Visit Frequency routes (AI-powered)
+  const optimalFrequencyRouter = createOptimalVisitFrequencyRoutes(db);
+  app.use('/api', generalApiLimiter, optimalFrequencyRouter);
+  console.log('  ✓ Optimal Visit Frequency routes registered (with rate limiting)');
 
   // Demo routes (interactive demo system) - includes EVV clock-in/out
   const demoRouter = createDemoRouter(db);
