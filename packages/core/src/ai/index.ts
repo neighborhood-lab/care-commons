@@ -87,3 +87,18 @@ export {
   getProviderForFeature,
   getProviderForCategory,
 } from './providers/provider-factory.js';
+
+// Usage Tracking
+export type {
+  AIUsageMetrics,
+  AIUsageRecord,
+  AIUsageSummary,
+  AIUsageFilter,
+  CostBreakdown,
+  FeatureUsage,
+} from './ai-usage-repository.js';
+
+export {
+  AIUsageRepository,
+  createAIUsageRepository,
+} from './ai-usage-repository.js';
