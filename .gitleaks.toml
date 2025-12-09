@@ -26,6 +26,11 @@ paths = [
   '''STRIPE_SETUP_GUIDE\.md''',
   '''VERCEL_ENV_SETUP\.md''',
   '''docs/.*''',
+  # Ignore example/documentation files with placeholder tokens
+  '''.*EXAMPLES\.md''',
+  '''.*MIGRATION\.md''',
+  '''FEATURE_IMPLEMENTATION_SUMMARY\.md''',
+  '''DEPLOYMENT_NEXT_STEPS\.md''',
   # Ignore session files (Claude Code conversation logs)
   '''session-.*\.md$''',
   # Ignore third-party dependencies
@@ -52,5 +57,9 @@ regexes = [
   # Placeholder API keys in docs
   '''your-api-key-here''',
   '''YOUR_.*_KEY''',
+  '''YOUR_TOKEN''',
   '''REPLACE_WITH_YOUR_.*''',
+  # Curl example auth headers with placeholder tokens
+  '''Authorization: Bearer YOUR_TOKEN''',
+  '''Bearer YOUR_TOKEN''',
 ]
