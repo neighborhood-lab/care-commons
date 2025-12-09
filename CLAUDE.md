@@ -63,34 +63,28 @@ npm run test         # Run all tests
 
 ## Claude Code Setup
 
-### Required MCP Servers
+### MCP Servers - PERMANENTLY DISABLED
 
-Claude Code uses Model Context Protocol (MCP) servers to extend capabilities. This project requires the following MCP servers:
+**DO NOT ENABLE MCP SERVERS. EVER.**
 
-**Essential Servers** (required):
-- `sequential-thinking` - Extended reasoning for complex problems
-- `fetch` - Web content retrieval with image support
-- `filesystem` - File operations with proper permissions
-- `github` - GitHub API access (issues, PRs, commits)
-- `postgres` - Direct database queries and schema inspection
-- `discord` - Discord channel read/write access
+MCP servers are a security risk. See [Anthropic's MCP Security Guide](https://www.anthropic.com/engineering/code-execution-with-mcp).
 
-**Installation**:
+**Why MCP is disabled**:
+1. **Security risk** - MCP servers can execute arbitrary code on your machine
+2. **Redundant** - Claude Code has native tools for everything we need:
+   - File operations: `Read`, `Write`, `Edit`, `Glob`, `Grep`
+   - Web fetching: `WebFetch`, `WebSearch`
+   - GitHub: `gh` CLI works perfectly
+   - Database: Use `psql` CLI or application code
+   - Discord: Use webhook with `curl`
+3. **Attack surface** - Every MCP server is a potential vulnerability
+
+**If you see `claude mcp add` suggested anywhere, IGNORE IT.**
+
+**Verify MCP is disabled**:
 ```bash
-# Set up secrets first
-source .secrets.txt
-
-# Add GitHub MCP
-claude mcp add github npx -- -y @modelcontextprotocol/server-github -e GITHUB_TOKEN=$GITHUB_TOKEN
-
-# Add PostgreSQL MCP
-claude mcp add postgres npx -- -y @modelcontextprotocol/server-postgres $DATABASE_URL_PRODUCTION
-
-# Add Discord MCP
-claude mcp add discord npx -- -y @iflow-mcp/discord-mcp-server -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN
-
-# Verify all servers
 claude mcp list
+# Should output: "No MCP servers configured"
 ```
 
 ### Custom Slash Commands
@@ -117,56 +111,50 @@ GITHUB_TOKEN=ghp_...
 
 # Required for PostgreSQL MCP
 DATABASE_URL_PRODUCTION=postgresql://...
-DATABASE_URL_PREVIEW=postgresql://...
 
 # Required for deployment operations
 VERCEL_TOKEN=...
-DISCORD_WEBHOOK_URL=...
-
-# Required for Discord MCP
-DISCORD_BOT_TOKEN=...
-DISCORD_GUILD_ID=...
-DISCORD_CHANNEL_ID=...
+DISCORD_WEBHOOK_URL=...  # Use webhooks instead of MCP for Discord
 ```
 
 All secrets should be stored in `.secrets.txt` (gitignored) and sourced when needed.
 
-### Discord Integration
+### CLI Script (Unified Interface)
 
-The project supports two-way Discord communication with the dev-team channel:
+Use the unified CLI script for Discord, GitHub, and other operations:
 
-**1. Discord MCP Server** (for Claude Code):
-- Installed via `@iflow-mcp/discord-mcp-server`
-- Provides tools for reading/writing Discord messages within Claude Code
-- Requires `DISCORD_BOT_TOKEN` environment variable
-
-**2. Discord.js Service** (`scripts/discord-service.ts`):
-- Programmatic Discord access via CLI or Node.js API
-- Can be used in scripts, workflows, and automation
-
-**Usage**:
 ```bash
-# Read recent messages
-npx tsx scripts/discord-service.ts read 10
+# Discord (via webhook - secure, no bot token)
+./scripts/cli.sh discord send "Hello world"
+./scripts/cli.sh discord send "## Status Update\n\nAll tests passing."
 
-# Send a message
-npx tsx scripts/discord-service.ts send "Deploy complete! 🚀"
+# GitHub (via REST API)
+./scripts/cli.sh github issue-list
+./scripts/cli.sh github issue-create "Title" "Body" "label1,label2"
+./scripts/cli.sh github pr-list
+./scripts/cli.sh github workflow-list
 
-# Use in scripts
-export DISCORD_BOT_TOKEN=...
-export DISCORD_GUILD_ID=...
-export DISCORD_CHANNEL_ID=...
-npx tsx scripts/discord-service.ts send "Update from automation"
+# For Tove Bot (uses different secrets)
+./scripts/cli.sh --agent tove-bot discord send "Hello from Tove!"
+./scripts/cli.sh --agent tove-bot github issue-list
 ```
 
-**Setup**:
-1. Create Discord bot application at https://discord.com/developers/applications
-2. Enable "Message Content" intent in Bot settings
-3. Invite bot to server with proper permissions (Read Messages, Send Messages)
-4. Add credentials to `.secrets.txt`:
-   - `DISCORD_BOT_TOKEN` - Bot token from Developer Portal
-   - `DISCORD_GUILD_ID` - Server ID (right-click server → Copy ID)
-   - `DISCORD_CHANNEL_ID` - Channel ID (right-click channel → Copy ID)
+**Note**: You can also use `gh` CLI directly - both agents have full GitHub access.
+
+### Agent Secrets Structure
+
+Each agent has its own secrets file:
+```
+.secrets.txt                        # Brian Leader Bot (bedwards)
+.secrets/tove-bot/.secrets.txt      # Tove Bot
+```
+
+Required variables in each secrets file:
+```bash
+GITHUB_TOKEN=ghp_...
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+VERCEL_TOKEN=...  # optional
+```
 
 ### Screenshot Verification Workflow
 
@@ -238,23 +226,17 @@ Primary instance (Brian Leader Bot):
 - User: bedwards
 - Email: brian.mabry.edwards@gmail.com
 - Discord: Brian Leader Bot
-- GitHub: May use gh CLI and GitHub API
+- Secrets: `.secrets.txt` (root)
+- GitHub: Full access (`gh` CLI and GitHub API)
 
 Secondary instance (Tove):
 - User: tove-bot
 - Email: br.ianmabryedwards@gmail.com
 - Discord: Tove Bot
-- GitHub: May use gh CLI and GitHub API
+- Secrets: `.secrets/tove-bot/.secrets.txt`
+- GitHub: Full access (`gh` CLI and GitHub API)
 
-Tertiary instance (Gaute):
-- User: gaute-bot
-- Email: bri.anmabryedwards@gmail.com
-- Discord: Gaute Bot
-- GitHub: **RESTRICTED** - May only use git locally (commits, pushes)
-  - ❌ NO gh CLI usage
-  - ❌ NO GitHub API writes (issues, PRs, comments)
-  - ✅ May READ GitHub API as bedwards (issues/PRs only)
-  - ✅ Use git for all version control operations
+**Note**: Both agents have full GitHub access. Rate limit issues have been resolved.
 
 ---
 

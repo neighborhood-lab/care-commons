@@ -242,6 +242,9 @@ packages/web/dist-showcase
 ui-screenshots-personas/ios-simulator/
 ui-screenshots-personas/production/
 ui-screenshots-production-comprehensive/
+# Agent secrets (each agent has own directory)
 .secrets.txt
+.secrets/
+!.secrets/**/*.example
 session-ses_*.md
 .discord-secrets

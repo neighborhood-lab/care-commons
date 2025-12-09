@@ -1,6 +1,3 @@
-/* eslint-disable unicorn/prefer-module */
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-implied-eval */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-undef */
 
@@ -69,8 +66,8 @@ export class PasswordValidator {
       const warning = result.feedback.warning;
       feedback.push(
         `Password is too weak (strength: ${result.score}/4). ${
-          (warning != null && warning !== '') 
-            ? warning 
+          warning !== ''
+            ? warning
             : result.feedback.suggestions.join('. ')
         }`
       );
