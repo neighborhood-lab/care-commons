@@ -1,5 +1,9 @@
 #!/bin/bash
 set -e
+# CRITICAL: pipefail ensures pipeline fails if ANY command fails, not just the last one.
+# Without this, `turbo run test | tee | tail` would succeed even if turbo fails,
+# because tail always succeeds. DO NOT REMOVE THIS LINE.
+set -o pipefail
 
 # Colors for output
 RED='\033[0;31m'
