@@ -112,3 +112,5 @@ export * from './import/index';
 export * from './compliance/autopilot/index';
 // Demo Data Service
 export { DemoDataService, type DemoDataStats } from './service/demo-data-service.js';
+// AI Provider Abstraction Layer
+export * from './ai/index.js';

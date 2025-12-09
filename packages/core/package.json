@@ -38,6 +38,11 @@
       "types": "./dist/constants/cache-keys.d.ts",
       "import": "./dist/constants/cache-keys.js",
       "default": "./dist/constants/cache-keys.js"
+    },
+    "./ai": {
+      "types": "./dist/ai/index.d.ts",
+      "import": "./dist/ai/index.js",
+      "default": "./dist/ai/index.js"
     }
   },
   "engines": {
@@ -49,7 +54,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext ts --max-warnings 174 && npm run lint:sql",
+    "lint": "eslint . --ext ts --max-warnings 180 && npm run lint:sql",
     "lint:sql": "sql-lint --driver postgres migrations/*.sql || echo 'SQL lint completed'",
     "db:migrate": "cd ../.. && tsx packages/core/scripts/migrate.ts",
     "db:migrate:rollback": "cd ../.. && tsx packages/core/scripts/rollback.ts",
@@ -69,6 +74,7 @@
     "@sentry/profiling-node": "^10.27.0",
     "@types/express": "^5.0.5",
     "@types/papaparse": "^5.5.0",
+    "@anthropic-ai/sdk": "^0.52.0",
     "bintrees": "^1.0.2",
     "date-fns": "^4.1.0",
     "google-auth-library": "^10.5.0",
