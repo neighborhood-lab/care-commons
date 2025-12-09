@@ -48,3 +48,17 @@ export {
 
 // Task Prioritization Routes
 export { createTaskPrioritizationRoutes } from './routes/task-prioritization-routes';
+
+// Natural Language Care Plan Service (AI-powered)
+export {
+  NaturalLanguageCarePlanService,
+  createNaturalLanguageCarePlanService,
+  type NaturalLanguageCarePlanRequest,
+  type NaturalLanguageCarePlanResult,
+  type GeneratedGoal,
+  type GeneratedIntervention,
+  type GeneratedTaskTemplate,
+} from './services/natural-language-care-plan-service';
+
+// Natural Language Care Plan Routes
+export { createNaturalLanguageCarePlanRoutes } from './routes/natural-language-care-plan-routes';
