@@ -62,3 +62,21 @@ export {
 
 // Natural Language Care Plan Routes
 export { createNaturalLanguageCarePlanRoutes } from './routes/natural-language-care-plan-routes';
+
+// Care Plan Effectiveness Scoring Service (AI-powered)
+export {
+  CarePlanEffectivenessService,
+  type EffectivenessScoreRequest,
+  type CarePlanEffectivenessScore,
+  type EffectivenessRating,
+  type TrendDirection,
+  type GoalProgress,
+  type TaskMetrics,
+  type HealthTrend,
+  type IncidentSummary,
+  type DimensionScore,
+  type EffectivenessRecommendation,
+} from './services/care-plan-effectiveness-service';
+
+// Care Plan Effectiveness Routes
+export { createCarePlanEffectivenessRoutes } from './routes/care-plan-effectiveness-routes';
