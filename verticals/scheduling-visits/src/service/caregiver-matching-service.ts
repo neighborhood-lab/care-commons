@@ -413,8 +413,8 @@ Rating: ${c.rating.toFixed(1)}/5
 Current Week: ${workload.scheduledHours.toFixed(1)}hrs scheduled (${workload.visitCount} visits)
 Max Hours/Week: ${c.maxHoursPerWeek}
 Available Hours: ${Math.max(0, c.maxHoursPerWeek - workload.scheduledHours).toFixed(1)}
-Past Care with this Client: ${pastVisits} visits${pastRating > 0 ? ` (avg rating: ${pastRating.toFixed(1)})` : ''}
-Location: ${c.latitude && c.longitude ? `${c.latitude}, ${c.longitude}` : 'Not specified'}`;
+Past Care with this Client: ${pastVisits} visits${pastRating > 0 ? ' (avg rating: ' + pastRating.toFixed(1) + ')' : ''}
+Location: ${c.latitude && c.longitude ? c.latitude + ', ' + c.longitude : 'Not specified'}`;
       })
       .join('\n---');
 
