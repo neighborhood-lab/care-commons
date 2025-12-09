@@ -315,7 +315,7 @@ Be specific and actionable. Focus on predictive insights, not just current probl
     });
 
     const content = message.content[0];
-    if (!content || content.type !== 'text') {
+    if (content?.type !== 'text') {
       return [];
     }
 
