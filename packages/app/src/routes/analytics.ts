@@ -4,8 +4,8 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService } from '@folkcare/analytics-reporting';
-import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService, QualityImprovementService } from '@folkcare/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory, QualityDomain } from '@folkcare/analytics-reporting';
 import knex from 'knex';
 
 /**
@@ -320,6 +320,38 @@ export function createAnalyticsRouter(db: Database): Router {
         categories,
         lookbackDays: lookbackDays ?? 30,
         minSeverity,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/quality-improvement
+   * Generate AI-powered quality improvement suggestions
+   */
+  router.post('/quality-improvement', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { domains, lookbackDays, maxSuggestions, focusAreas } = req.body as {
+        domains?: QualityDomain[];
+        lookbackDays?: number;
+        maxSuggestions?: number;
+        focusAreas?: string[];
+      };
+
+      const service = new QualityImprovementService(knexDb);
+      const result = await service.generateSuggestions({
+        organizationId: user.organizationId,
+        domains,
+        lookbackDays: lookbackDays ?? 30,
+        maxSuggestions: maxSuggestions ?? 10,
+        focusAreas,
       });
 
       res.json({ success: true, data: result });
