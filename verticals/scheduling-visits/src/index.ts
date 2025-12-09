@@ -96,3 +96,14 @@ export type {
   MatchConfidence,
   MatchFactor,
 } from './service/caregiver-matching-service.js';
+
+// Optimal Visit Frequency (AI-powered)
+export { OptimalVisitFrequencyService } from './service/optimal-visit-frequency-service.js';
+export type {
+  FrequencyRecommendationRequest,
+  OptimalFrequencyRecommendation,
+  VisitTypeFrequency,
+  RiskFactor as FrequencyRiskFactor,
+  CostImpact,
+} from './service/optimal-visit-frequency-service.js';
+export { createOptimalVisitFrequencyRoutes } from './api/optimal-visit-frequency-routes.js';
