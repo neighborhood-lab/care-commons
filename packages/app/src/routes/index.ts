@@ -11,6 +11,7 @@ import { CarePlanService, CarePlanRepository } from '@folkcare/care-plans-tasks'
 import { createCarePlanHandlers } from '@folkcare/care-plans-tasks';
 import { createTaskPrioritizationRoutes, createNaturalLanguageCarePlanRoutes, createCarePlanEffectivenessRoutes } from '@folkcare/care-plans-tasks';
 import { createOptimalVisitFrequencyRoutes } from '@folkcare/scheduling-visits';
+import { createTrainingRecommendationRoutes } from '@folkcare/caregiver-staff';
 import { createHealthRouter } from './health';
 import { createMetricsRouter } from './metrics';
 import { createAuthRouter } from './auth';
@@ -273,6 +274,11 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   const caregiverRouter = createCaregiverRouter(db);
   app.use('/api/caregivers', generalApiLimiter, caregiverRouter);
   console.log('  ✓ Caregiver & Staff Management routes registered (with rate limiting)');
+
+  // Training Recommendations routes (AI-powered)
+  const trainingRecommendationRouter = createTrainingRecommendationRoutes(db);
+  app.use('/api/caregivers', generalApiLimiter, trainingRecommendationRouter);
+  console.log('  ✓ Training Recommendations routes registered (with rate limiting)');
 
   // Visit & Scheduling routes
   const visitRouter = createVisitRouter(db);

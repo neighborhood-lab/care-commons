@@ -56,5 +56,20 @@ export {
 // Validation
 export { CaregiverValidator } from './validation/caregiver-validator.js';
 
+// Training Recommendations (AI-powered)
+export {
+  TrainingRecommendationService,
+  type TrainingRecommendationRequest,
+  type TrainingPlan,
+  type TrainingRecommendation,
+  type SkillGap,
+  type CredentialStatus,
+  type PerformanceIndicator,
+  type TrainingPriority,
+  type TrainingCategory,
+  type TrainingFormat,
+} from './services/training-recommendation-service.js';
+export { createTrainingRecommendationRoutes } from './routes/training-recommendation-routes.js';
+
 // Utilities
 export * from './utils/caregiver-utils.js';
