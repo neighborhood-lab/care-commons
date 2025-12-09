@@ -1403,12 +1403,12 @@ export function createVisitRouter(db: Database): Router {
         tasksPlanned?: string[];
       };
 
-      if (clientId === undefined || clientId === '') {
+      if (clientId == null || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
 
-      if (visitType === undefined || visitType === '') {
+      if (visitType == null || visitType === '') {
         res.status(400).json({ success: false, error: 'Visit type is required' });
         return;
       }

@@ -4,9 +4,20 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService } from '@folkcare/analytics-reporting';
-import { ExportService } from '@folkcare/analytics-reporting';
-import type { AnalyticsQueryOptions, ExportFormat, Report } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService, QualityImprovementService, ChurnPredictionService } from '@folkcare/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory, QualityDomain } from '@folkcare/analytics-reporting';
+import knex from 'knex';
+
+/**
+ * Create a Knex instance for AI services that need it.
+ */
+function getKnexInstance(): ReturnType<typeof knex> {
+  const connectionString = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/folk-care-0';
+  return knex({
+    client: 'pg',
+    connection: connectionString,
+  });
+}
 
 export function createAnalyticsRouter(db: Database): Router {
   const router = Router();
@@ -249,6 +260,146 @@ export function createAnalyticsRouter(db: Database): Router {
       res.send(exportData);
     } catch (error) {
       next(error);
+    }
+  });
+
+  /**
+   * POST /api/analytics/query
+   * Natural language query endpoint - ask questions about data in plain English
+   */
+  router.post('/query', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { question, context } = req.body as {
+        question?: string;
+        context?: {
+          clientId?: string;
+          caregiverId?: string;
+          dateRange?: { startDate: string; endDate: string };
+        };
+      };
+
+      if (question == null || question === '' || typeof question !== 'string') {
+        res.status(400).json({ success: false, error: 'Question is required' });
+        return;
+      }
+      const queryService = new NaturalLanguageQueryService(knexDb);
+      const result = await queryService.query({
+        question,
+        organizationId: user.organizationId,
+        userId: user.userId,
+        context,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/predictive-alerts
+   * Generate AI-powered predictive maintenance alerts
+   */
+  router.post('/predictive-alerts', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { categories, lookbackDays, minSeverity } = req.body as {
+        categories?: AlertCategory[];
+        lookbackDays?: number;
+        minSeverity?: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
+      };
+
+      const service = new PredictiveMaintenanceService(knexDb);
+      const result = await service.generateAlerts({
+        organizationId: user.organizationId,
+        categories,
+        lookbackDays: lookbackDays ?? 30,
+        minSeverity,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/quality-improvement
+   * Generate AI-powered quality improvement suggestions
+   */
+  router.post('/quality-improvement', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { domains, lookbackDays, maxSuggestions, focusAreas } = req.body as {
+        domains?: QualityDomain[];
+        lookbackDays?: number;
+        maxSuggestions?: number;
+        focusAreas?: string[];
+      };
+
+      const service = new QualityImprovementService(knexDb);
+      const result = await service.generateSuggestions({
+        organizationId: user.organizationId,
+        domains,
+        lookbackDays: lookbackDays ?? 30,
+        maxSuggestions: maxSuggestions ?? 10,
+        focusAreas,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/churn-prediction
+   * AI-powered churn prediction for clients and caregivers
+   */
+  router.post('/churn-prediction', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const organizationId = req.user?.organizationId;
+
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const { branchId, entityType, entityId, lookbackDays } = req.body as {
+        branchId?: string;
+        entityType?: 'CLIENT' | 'CAREGIVER' | 'BOTH';
+        entityId?: string;
+        lookbackDays?: number;
+      };
+
+      const churnService = new ChurnPredictionService(knexDb);
+      const result = await churnService.predictChurn({
+        organizationId,
+        branchId,
+        entityType: entityType ?? 'BOTH',
+        entityId,
+        lookbackDays: lookbackDays ?? 90,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
     }
   });
 
