@@ -1,6 +1,6 @@
-# The Hidden Cost of AI in Home Care Software
+# AI Costs in Home Care Software
 
-## Why AI-Powered Healthcare Features Are Worth Every Penny—And How We're Making Them Accessible
+## What We Learned Auditing Fifteen AI Features
 
 ---
 
