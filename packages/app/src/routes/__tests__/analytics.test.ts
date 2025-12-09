@@ -41,6 +41,26 @@ vi.mock('@folkcare/analytics-reporting', () => ({
       getMimeType: vi.fn().mockReturnValue('text/csv'),
     };
   }),
+  NaturalLanguageQueryService: vi.fn().mockImplementation(function () {
+    return {
+      query: vi.fn().mockResolvedValue({ answer: 'Mock response' }),
+    };
+  }),
+  PredictiveMaintenanceService: vi.fn().mockImplementation(function () {
+    return {
+      generateAlerts: vi.fn().mockResolvedValue({ alerts: [] }),
+    };
+  }),
+  QualityImprovementService: vi.fn().mockImplementation(function () {
+    return {
+      generateSuggestions: vi.fn().mockResolvedValue({ suggestions: [] }),
+    };
+  }),
+  ChurnPredictionService: vi.fn().mockImplementation(function () {
+    return {
+      predictChurn: vi.fn().mockResolvedValue({ predictions: [] }),
+    };
+  }),
 }));
 
 // Mock core module
@@ -213,7 +233,7 @@ describe('Analytics Routes', () => {
   });
 
   describe('Route Count', () => {
-    it('should have exactly 8 analytics routes configured', () => {
+    it('should have exactly 12 analytics routes configured', () => {
       const routes = router.stack
         .filter((layer: RouterLayer) => layer.route)
         .map((layer: RouterLayer) => ({
@@ -221,7 +241,7 @@ describe('Analytics Routes', () => {
           methods: Object.keys(layer.route.methods),
         }));
 
-      // 8 endpoints total:
+      // 12 endpoints total:
       // GET /kpis
       // GET /compliance-alerts
       // GET /revenue-trends
@@ -230,7 +250,11 @@ describe('Analytics Routes', () => {
       // GET /caregiver-performance
       // GET /caregiver-performance/:caregiverId
       // POST /export
-      expect(routes.length).toBe(8);
+      // POST /query (natural language querying)
+      // POST /predictive-alerts (AI predictive maintenance)
+      // POST /quality-improvement (AI quality improvement suggestions)
+      // POST /churn-prediction (AI churn prediction)
+      expect(routes.length).toBe(12);
     });
   });
 

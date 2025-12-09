@@ -4,8 +4,8 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService, ExportService, ChurnPredictionService } from '@folkcare/analytics-reporting';
-import type { AnalyticsQueryOptions, ExportFormat, Report } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService, QualityImprovementService, ChurnPredictionService } from '@folkcare/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory, QualityDomain } from '@folkcare/analytics-reporting';
 import knex from 'knex';
 
 /**
@@ -264,11 +264,110 @@ export function createAnalyticsRouter(db: Database): Router {
   });
 
   /**
+   * POST /api/analytics/query
+   * Natural language query endpoint - ask questions about data in plain English
+   */
+  router.post('/query', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { question, context } = req.body as {
+        question?: string;
+        context?: {
+          clientId?: string;
+          caregiverId?: string;
+          dateRange?: { startDate: string; endDate: string };
+        };
+      };
+
+      if (question == null || question === '' || typeof question !== 'string') {
+        res.status(400).json({ success: false, error: 'Question is required' });
+        return;
+      }
+      const queryService = new NaturalLanguageQueryService(knexDb);
+      const result = await queryService.query({
+        question,
+        organizationId: user.organizationId,
+        userId: user.userId,
+        context,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/predictive-alerts
+   * Generate AI-powered predictive maintenance alerts
+   */
+  router.post('/predictive-alerts', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { categories, lookbackDays, minSeverity } = req.body as {
+        categories?: AlertCategory[];
+        lookbackDays?: number;
+        minSeverity?: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
+      };
+
+      const service = new PredictiveMaintenanceService(knexDb);
+      const result = await service.generateAlerts({
+        organizationId: user.organizationId,
+        categories,
+        lookbackDays: lookbackDays ?? 30,
+        minSeverity,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/quality-improvement
+   * Generate AI-powered quality improvement suggestions
+   */
+  router.post('/quality-improvement', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { domains, lookbackDays, maxSuggestions, focusAreas } = req.body as {
+        domains?: QualityDomain[];
+        lookbackDays?: number;
+        maxSuggestions?: number;
+        focusAreas?: string[];
+      };
+
+      const service = new QualityImprovementService(knexDb);
+      const result = await service.generateSuggestions({
+        organizationId: user.organizationId,
+        domains,
+        lookbackDays: lookbackDays ?? 30,
+        maxSuggestions: maxSuggestions ?? 10,
+        focusAreas,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
    * POST /api/analytics/churn-prediction
    * AI-powered churn prediction for clients and caregivers
    */
   router.post('/churn-prediction', async (req: Request, res: Response, next: NextFunction) => {
-    const knexDbForChurn = getKnexInstance();
+    const knexDb = getKnexInstance();
     try {
       const organizationId = req.user?.organizationId;
 
@@ -284,7 +383,7 @@ export function createAnalyticsRouter(db: Database): Router {
         lookbackDays?: number;
       };
 
-      const churnService = new ChurnPredictionService(knexDbForChurn);
+      const churnService = new ChurnPredictionService(knexDb);
       const result = await churnService.predictChurn({
         organizationId,
         branchId,
@@ -300,7 +399,7 @@ export function createAnalyticsRouter(db: Database): Router {
     } catch (error) {
       next(error);
     } finally {
-      await knexDbForChurn.destroy();
+      await knexDb.destroy();
     }
   });
 

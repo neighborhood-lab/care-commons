@@ -39,6 +39,39 @@ export { AnalyticsService } from './service/analytics-service';
 export { ReportService } from './service/report-service';
 export { ExportService } from './service/export-service';
 
+// Natural Language Query (AI-powered)
+export {
+  NaturalLanguageQueryService,
+  type NaturalLanguageQueryRequest,
+  type QueryResult,
+  type QueryInterpretation,
+  type QueryCategory,
+} from './service/natural-language-query-service';
+
+// Predictive Maintenance (AI-powered)
+export {
+  PredictiveMaintenanceService,
+  type PredictiveMaintenanceRequest,
+  type PredictiveMaintenanceResult,
+  type PredictiveAlert,
+  type AlertCategory,
+  type AlertSeverity as PredictiveAlertSeverity,
+  type AlertUrgency,
+} from './service/predictive-maintenance-service';
+
+// Quality Improvement (AI-powered)
+export {
+  QualityImprovementService,
+  type QualityImprovementRequest,
+  type QualityImprovementResult,
+  type ImprovementInitiative,
+  type QualityDomain,
+  type ImprovementPriority,
+  type ImprovementEffort,
+  type ImprovementStatus,
+  type QualityMetric,
+} from './service/quality-improvement-service';
+
 // Repository exports
 export { AnalyticsRepository } from './repository/analytics-repository';
 
