@@ -191,28 +191,42 @@ export class AnthropicProvider implements AIProvider {
 
   /**
    * Extract JSON from a response that may contain markdown or extra text
+   * Uses string manipulation instead of regex to avoid ReDoS vulnerabilities
    */
   private extractJSON(text: string): string {
-    // Try to find JSON in code blocks first
-    // eslint-disable-next-line sonarjs/slow-regex -- acceptable for small AI response text
-    const codeBlockRegex = /```(?:json)?\s*([\S\s]*?)```/;
-    const codeBlockMatch = codeBlockRegex.exec(text);
-    const codeBlockContent = codeBlockMatch?.[1];
-    if (codeBlockContent !== undefined && codeBlockContent !== '') {
-      return codeBlockContent.trim();
+    const trimmed = text.trim();
+
+    // Try to find JSON in code blocks first (```json ... ``` or ``` ... ```)
+    const codeBlockStart = trimmed.indexOf('```');
+    if (codeBlockStart !== -1) {
+      const afterStart = trimmed.indexOf('\n', codeBlockStart);
+      if (afterStart !== -1) {
+        const codeBlockEnd = trimmed.indexOf('```', afterStart);
+        if (codeBlockEnd !== -1) {
+          const content = trimmed.slice(afterStart + 1, codeBlockEnd).trim();
+          if (content !== '') {
+            return content;
+          }
+        }
+      }
     }
 
-    // Try to find JSON object or array directly
-    // eslint-disable-next-line sonarjs/slow-regex -- acceptable for small AI response text
-    const jsonRegex = /({[\S\s]*}|\[[\S\s]*])/;
-    const jsonMatch = jsonRegex.exec(text);
-    const jsonContent = jsonMatch?.[1];
-    if (jsonContent !== undefined && jsonContent !== '') {
-      return jsonContent.trim();
+    // Try to find JSON object directly (first { to last })
+    const objectStart = trimmed.indexOf('{');
+    const objectEnd = trimmed.lastIndexOf('}');
+    if (objectStart !== -1 && objectEnd > objectStart) {
+      return trimmed.slice(objectStart, objectEnd + 1);
+    }
+
+    // Try to find JSON array directly (first [ to last ])
+    const arrayStart = trimmed.indexOf('[');
+    const arrayEnd = trimmed.lastIndexOf(']');
+    if (arrayStart !== -1 && arrayEnd > arrayStart) {
+      return trimmed.slice(arrayStart, arrayEnd + 1);
     }
 
     // Return as-is and let JSON.parse fail with a clear error
-    return text.trim();
+    return trimmed;
   }
 }
 
