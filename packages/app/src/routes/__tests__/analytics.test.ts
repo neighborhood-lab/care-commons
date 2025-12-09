@@ -221,7 +221,7 @@ describe('Analytics Routes', () => {
           methods: Object.keys(layer.route.methods),
         }));
 
-      // 9 endpoints total:
+      // 10 endpoints total:
       // GET /kpis
       // GET /compliance-alerts
       // GET /revenue-trends
@@ -231,7 +231,8 @@ describe('Analytics Routes', () => {
       // GET /caregiver-performance/:caregiverId
       // POST /export
       // POST /query (natural language querying)
-      expect(routes.length).toBe(9);
+      // POST /predictive-alerts (AI predictive maintenance)
+      expect(routes.length).toBe(10);
     });
   });
 

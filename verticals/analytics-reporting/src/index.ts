@@ -48,5 +48,16 @@ export {
   type QueryCategory,
 } from './service/natural-language-query-service';
 
+// Predictive Maintenance (AI-powered)
+export {
+  PredictiveMaintenanceService,
+  type PredictiveMaintenanceRequest,
+  type PredictiveMaintenanceResult,
+  type PredictiveAlert,
+  type AlertCategory,
+  type AlertSeverity as PredictiveAlertSeverity,
+  type AlertUrgency,
+} from './service/predictive-maintenance-service';
+
 // Repository exports
 export { AnalyticsRepository } from './repository/analytics-repository';

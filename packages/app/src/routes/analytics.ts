@@ -4,8 +4,8 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService, ExportService, NaturalLanguageQueryService } from '@folkcare/analytics-reporting';
-import type { AnalyticsQueryOptions, ExportFormat, Report } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService } from '@folkcare/analytics-reporting';
+import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory } from '@folkcare/analytics-reporting';
 import knex from 'knex';
 
 /**
@@ -290,6 +290,36 @@ export function createAnalyticsRouter(db: Database): Router {
         organizationId: user.organizationId,
         userId: user.userId,
         context,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
+    }
+  });
+
+  /**
+   * POST /api/analytics/predictive-alerts
+   * Generate AI-powered predictive maintenance alerts
+   */
+  router.post('/predictive-alerts', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { categories, lookbackDays, minSeverity } = req.body as {
+        categories?: AlertCategory[];
+        lookbackDays?: number;
+        minSeverity?: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
+      };
+
+      const service = new PredictiveMaintenanceService(knexDb);
+      const result = await service.generateAlerts({
+        organizationId: user.organizationId,
+        categories,
+        lookbackDays: lookbackDays ?? 30,
+        minSeverity,
       });
 
       res.json({ success: true, data: result });
