@@ -8,7 +8,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
 import { ScheduleRepository, StaffingDemandPredictionService } from '@folkcare/scheduling-visits';
-import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService } from '@folkcare/visit-notes';
+import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService, ReportGenerationService } from '@folkcare/visit-notes';
 import { VisitDurationPredictionService } from '@folkcare/scheduling-visits';
 import knex from 'knex';
 
@@ -1263,7 +1263,7 @@ export function createVisitRouter(db: Database): Router {
     try {
       const { clientId, lookbackDays } = req.body as { clientId?: string; lookbackDays?: number };
 
-      if (clientId === undefined || clientId === '') {
+      if (clientId == null || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
@@ -1292,7 +1292,7 @@ export function createVisitRouter(db: Database): Router {
     try {
       const { clientId, lookbackDays } = req.body as { clientId?: string; lookbackDays?: number };
 
-      if (clientId === undefined || clientId === '') {
+      if (clientId == null || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
@@ -1321,7 +1321,7 @@ export function createVisitRouter(db: Database): Router {
     try {
       const { clientId, caregiverId, lookbackDays } = req.body as { clientId?: string; caregiverId?: string; lookbackDays?: number };
 
-      if ((clientId === undefined || clientId === '') && (caregiverId === undefined || caregiverId === '')) {
+      if ((clientId == null || clientId === '') && (caregiverId == null || caregiverId === '')) {
         res.status(400).json({ success: false, error: 'Either clientId or caregiverId is required' });
         return;
       }
@@ -1344,6 +1344,52 @@ export function createVisitRouter(db: Database): Router {
     }
   });
 
+  // POST /visits/generate-report
+  // Generate AI-powered narrative reports from visit data
+  router.post('/generate-report', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForReport = getKnexInstance();
+    try {
+      const { reportType, format, clientId, caregiverId, organizationId, startDate, endDate, includeRecommendations, customPrompt } = req.body as {
+        reportType?: string;
+        format?: string;
+        clientId?: string;
+        caregiverId?: string;
+        organizationId?: string;
+        startDate?: string;
+        endDate?: string;
+        includeRecommendations?: boolean;
+        customPrompt?: string;
+      };
+
+      if (reportType == null || reportType === '') {
+        res.status(400).json({ success: false, error: 'Report type is required' });
+        return;
+      }
+
+      const reportService = new ReportGenerationService(knexDbForReport);
+      const result = await reportService.generateReport({
+        reportType: reportType as import('@folkcare/visit-notes').ReportType,
+        format: format as import('@folkcare/visit-notes').ReportFormat | undefined,
+        clientId,
+        caregiverId,
+        organizationId,
+        startDate,
+        endDate,
+        includeRecommendations,
+        customPrompt,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDbForReport.destroy();
+    }
+  });
+
   // POST /visits/predict-duration
   // Predict visit duration based on client needs and history
   router.post('/predict-duration', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
@@ -1357,12 +1403,12 @@ export function createVisitRouter(db: Database): Router {
         tasksPlanned?: string[];
       };
 
-      if (clientId === undefined || clientId === '') {
+      if (clientId == null || clientId === '') {
         res.status(400).json({ success: false, error: 'Client ID is required' });
         return;
       }
 
-      if (visitType === undefined || visitType === '') {
+      if (visitType == null || visitType === '') {
         res.status(400).json({ success: false, error: 'Visit type is required' });
         return;
       }

@@ -39,6 +39,15 @@ export { AnalyticsService } from './service/analytics-service';
 export { ReportService } from './service/report-service';
 export { ExportService } from './service/export-service';
 
+// Natural Language Query (AI-powered)
+export {
+  NaturalLanguageQueryService,
+  type NaturalLanguageQueryRequest,
+  type QueryResult,
+  type QueryInterpretation,
+  type QueryCategory,
+} from './service/natural-language-query-service';
+
 // Quality Improvement (AI-powered)
 export {
   QualityImprovementService,
