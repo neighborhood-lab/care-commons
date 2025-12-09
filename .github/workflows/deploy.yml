@@ -174,7 +174,7 @@ jobs:
         run: npm install -g npm@10.9.4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: build-artifacts
           path: .
@@ -306,7 +306,7 @@ jobs:
         run: npm install -g npm@10.9.4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: build-artifacts
           path: .
