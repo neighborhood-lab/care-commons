@@ -149,12 +149,13 @@ describe('Billing Routes', () => {
           methods: Object.keys(layer.route.methods),
         }));
 
-      // 4 endpoints total:
+      // 5 endpoints total:
       // GET /invoices
       // GET /summary
       // GET /invoices/:id
       // GET /invoices/:id/payments
-      expect(routes.length).toBe(4);
+      // POST /forecast
+      expect(routes.length).toBe(5);
     });
   });
 
