@@ -1,0 +1,20 @@
+# Folk Care ConfigMap
+# Non-sensitive configuration values
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: folkcare-config
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/component: config
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  # Database configuration (credentials in secrets)
+  POSTGRES_DB: "folkcare"
+  POSTGRES_USER: "postgres"
+  # Redis configuration
+  REDIS_URL: "redis://redis:6379"
+  # PostgreSQL connection (password from secret)
+  # DATABASE_URL is constructed in deployment using secret

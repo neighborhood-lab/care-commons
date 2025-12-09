@@ -1,0 +1,8 @@
+# Folk Care Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/part-of: folkcare

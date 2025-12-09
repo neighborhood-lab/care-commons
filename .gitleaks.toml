@@ -37,6 +37,9 @@ paths = [
   '''packages/mobile/ios/Pods/.*''',
   '''packages/mobile/android/.*''',
   '''node_modules/.*''',
+  # Ignore Kubernetes manifest templates with placeholder secrets
+  '''k8s/secrets\.yaml''',
+  '''deploy/k8s/.*''',
 ]
 
 # Ignore example/template files and false positive patterns
