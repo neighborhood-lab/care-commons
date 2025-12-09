@@ -1,0 +1,53 @@
+# Folk Care Ingress
+# Provides external access to the application
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: folkcare-ingress
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/component: ingress
+  annotations:
+    # Nginx Ingress Controller annotations
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    # Enable CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-connections: "5"
+    # SSL redirect (enable when TLS is configured)
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # For cert-manager automatic TLS
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  # Uncomment for TLS/HTTPS
+  # tls:
+  #   - hosts:
+  #       - folkcare.example.com
+  #     secretName: folkcare-tls
+  rules:
+    - host: folkcare.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: folkcare-app
+                port:
+                  number: 80
+    # Alternative: path-based routing without host (for testing)
+    # - http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: folkcare-app
+    #             port:
+    #               number: 80
