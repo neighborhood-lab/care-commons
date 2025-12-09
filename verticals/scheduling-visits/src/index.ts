@@ -85,3 +85,14 @@ export type {
   DemandTrend,
   UrgencyLevel,
 } from './service/staffing-demand-prediction-service.js';
+
+// Caregiver-Patient Matching (AI-powered)
+export { CaregiverMatchingService } from './service/caregiver-matching-service.js';
+export type {
+  MatchingRequest,
+  MatchingResult,
+  CaregiverMatch,
+  MatchScore,
+  MatchConfidence,
+  MatchFactor,
+} from './service/caregiver-matching-service.js';

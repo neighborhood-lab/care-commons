@@ -7,7 +7,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
-import { ScheduleRepository, StaffingDemandPredictionService } from '@folkcare/scheduling-visits';
+import { ScheduleRepository, StaffingDemandPredictionService, CaregiverMatchingService } from '@folkcare/scheduling-visits';
 import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService, ReportGenerationService } from '@folkcare/visit-notes';
 import { VisitDurationPredictionService } from '@folkcare/scheduling-visits';
 import knex from 'knex';
@@ -1467,6 +1467,67 @@ export function createVisitRouter(db: Database): Router {
       next(error);
     } finally {
       await knexDbForStaffing.destroy();
+    }
+  });
+
+  // POST /visits/caregiver-matching
+  // AI-powered caregiver-patient matching based on skills, availability, and preferences
+  router.post('/caregiver-matching', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForMatching = getKnexInstance();
+    try {
+      const organizationId = req.user?.organizationId;
+
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ success: false, error: 'Unauthorized' });
+        return;
+      }
+
+      const {
+        clientId,
+        serviceType,
+        requiredCertifications,
+        preferredSchedule,
+        maxDistanceMiles,
+        preferredLanguages,
+        excludeCaregiverIds,
+        maxResults,
+      } = req.body as {
+        clientId?: string;
+        serviceType?: string;
+        requiredCertifications?: string[];
+        preferredSchedule?: { dayOfWeek: number; startTime: string; endTime: string }[];
+        maxDistanceMiles?: number;
+        preferredLanguages?: string[];
+        excludeCaregiverIds?: string[];
+        maxResults?: number;
+      };
+
+      if (clientId == null || clientId === '') {
+        res.status(400).json({ success: false, error: 'Client ID is required' });
+        return;
+      }
+
+      const matchingService = new CaregiverMatchingService(knexDbForMatching);
+      const result = await matchingService.findMatches({
+        organizationId,
+        clientId,
+        serviceType,
+        requiredCertifications,
+        preferredSchedule,
+        maxDistanceMiles,
+        preferredLanguages,
+        excludeCaregiverIds,
+        maxResults,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDbForMatching.destroy();
     }
   });
 
