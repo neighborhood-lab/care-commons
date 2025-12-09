@@ -7,7 +7,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, isValidUUID, ComplianceAutopilotService, AuditService, UserContext } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context.js';
-import { ScheduleRepository } from '@folkcare/scheduling-visits';
+import { ScheduleRepository, StaffingDemandPredictionService } from '@folkcare/scheduling-visits';
 import { ComplianceCheckingService, complianceCheckRequestSchema, DocumentationQualityService, HospitalizationRiskService, VitalsAnomalyService, SentimentAnalysisService } from '@folkcare/visit-notes';
 import { VisitDurationPredictionService } from '@folkcare/scheduling-visits';
 import knex from 'knex';
@@ -1384,6 +1384,43 @@ export function createVisitRouter(db: Database): Router {
       next(error);
     } finally {
       await knexDbForDuration.destroy();
+    }
+  });
+
+  // POST /visits/staffing-demand
+  // AI-powered staffing demand prediction based on census and acuity
+  router.post('/staffing-demand', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForStaffing = getKnexInstance();
+    try {
+      const organizationId = req.user?.organizationId;
+
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ success: false, error: 'Unauthorized' });
+        return;
+      }
+
+      const { branchId, forecastWeeks, serviceType } = req.body as {
+        branchId?: string;
+        forecastWeeks?: number;
+        serviceType?: string;
+      };
+
+      const staffingService = new StaffingDemandPredictionService(knexDbForStaffing);
+      const result = await staffingService.predictStaffingDemand({
+        organizationId,
+        branchId,
+        forecastWeeks: forecastWeeks ?? 4,
+        serviceType,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDbForStaffing.destroy();
     }
   });
 
