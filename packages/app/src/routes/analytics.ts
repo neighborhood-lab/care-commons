@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { AnalyticsService, ExportService, PredictiveMaintenanceService } from '@folkcare/analytics-reporting';
+import { AnalyticsService, ExportService, NaturalLanguageQueryService, PredictiveMaintenanceService } from '@folkcare/analytics-reporting';
 import type { AnalyticsQueryOptions, ExportFormat, Report, AlertCategory } from '@folkcare/analytics-reporting';
 import knex from 'knex';
 
@@ -260,6 +260,43 @@ export function createAnalyticsRouter(db: Database): Router {
       res.send(exportData);
     } catch (error) {
       next(error);
+    }
+  });
+
+  /**
+   * POST /api/analytics/query
+   * Natural language query endpoint - ask questions about data in plain English
+   */
+  router.post('/query', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDb = getKnexInstance();
+    try {
+      const user = req.user!;
+      const { question, context } = req.body as {
+        question?: string;
+        context?: {
+          clientId?: string;
+          caregiverId?: string;
+          dateRange?: { startDate: string; endDate: string };
+        };
+      };
+
+      if (question == null || question === '' || typeof question !== 'string') {
+        res.status(400).json({ success: false, error: 'Question is required' });
+        return;
+      }
+      const queryService = new NaturalLanguageQueryService(knexDb);
+      const result = await queryService.query({
+        question,
+        organizationId: user.organizationId,
+        userId: user.userId,
+        context,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDb.destroy();
     }
   });
 

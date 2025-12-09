@@ -116,5 +116,15 @@ export {
   type SentimentTrend,
 } from './services/sentiment-analysis-service.js';
 
+// Report Generation (AI-powered narrative reports)
+export {
+  ReportGenerationService,
+  type ReportGenerationRequest,
+  type GeneratedReport,
+  type ReportSection,
+  type ReportType,
+  type ReportFormat,
+} from './services/report-generation-service.js';
+
 // Routes
 export { createVisitNotesHandlers } from './routes/index.js';
