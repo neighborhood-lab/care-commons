@@ -87,3 +87,27 @@ export {
   getProviderForFeature,
   getProviderForCategory,
 } from './providers/provider-factory.js';
+
+// Usage tracking
+export {
+  AIUsageService,
+  createAIUsageService,
+  AIUsageRepository,
+  createAIUsageRepository,
+  calculateCostCents,
+  calculateManualCostCents,
+  calculateHoursAutomated,
+  getModelCost,
+  FEATURE_TIME_SAVINGS,
+} from './usage/index.js';
+
+export type {
+  AIUsageRecord,
+  CreateAIUsageInput,
+  AIUsageDailySummary,
+  OrganizationUsageSummary,
+  FeatureUsageSummary,
+  ProviderUsageSummary,
+  AIValueMetrics,
+  UsageTimePeriod,
+} from './usage/index.js';

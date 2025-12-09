@@ -55,6 +55,7 @@ import { createImportRoutes } from './import-routes.js';
 import { createBillingRouter } from './billing.js';
 import { createComplianceRouter } from './compliance.js';
 import exportRouter from './export.js';
+import { createAIUsageRouter } from './ai-usage.js';
 
 /**
  * Helper to create router from care plan handlers object
@@ -430,6 +431,11 @@ export async function setupRoutes(app: Express, db: Database): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   app.use('/api', generalApiLimiter, aiRouter as any);
   console.log('  ✓ AI Services routes registered (with rate limiting)');
+
+  // AI Usage tracking routes
+  const aiUsageRouter = createAIUsageRouter(db);
+  app.use('/api', generalApiLimiter, aiUsageRouter);
+  console.log('  ✓ AI Usage tracking routes registered (with rate limiting)');
 
   console.log('API routes setup complete\n');
 }
