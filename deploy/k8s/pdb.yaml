@@ -1,0 +1,29 @@
+# Folk Care Pod Disruption Budget
+# Ensures high availability during cluster maintenance
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: folkcare-app-pdb
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: folkcare
+      app.kubernetes.io/component: app
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: folkcare-postgres-pdb
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: folkcare
+      app.kubernetes.io/component: postgres

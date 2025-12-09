@@ -1,0 +1,16 @@
+# Folk Care Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: folkcare-config
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  # PostgreSQL settings
+  POSTGRES_DB: "folkcare"
+  # Redis settings
+  REDIS_HOST: "folkcare-redis"
+  REDIS_PORT: "6379"

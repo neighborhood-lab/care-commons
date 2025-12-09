@@ -1,0 +1,65 @@
+# Folk Care Database Backup CronJob
+# Runs daily backups at 2 AM UTC
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: folkcare-backup
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/component: backup
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: postgres:16-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  BACKUP_FILE="/backups/folkcare-$(date +%Y%m%d-%H%M%S).dump"
+                  echo "Starting backup to $BACKUP_FILE..."
+                  pg_dump -Fc -h folkcare-postgres -U postgres -d folkcare > "$BACKUP_FILE"
+                  echo "Backup completed successfully!"
+                  # Cleanup old backups (keep last 7 days)
+                  find /backups -name "*.dump" -mtime +7 -delete
+                  echo "Cleanup completed. Current backups:"
+                  ls -la /backups/
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: folkcare-postgres-secrets
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backups
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: folkcare-backup-pvc
+---
+# Backup Storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: folkcare-backup-pvc
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/component: backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

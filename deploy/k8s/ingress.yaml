@@ -1,0 +1,55 @@
+# Folk Care Ingress
+# Supports both nginx-ingress and traefik
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: folkcare-ingress
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+  annotations:
+    # For nginx-ingress
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    # For traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    # For cert-manager (automatic TLS)
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx  # or "traefik"
+  tls:
+    - hosts:
+        - folkcare.example.com  # REPLACE with your domain
+      secretName: folkcare-tls
+  rules:
+    - host: folkcare.example.com  # REPLACE with your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: folkcare-app
+                port:
+                  number: 80
+---
+# Alternative: LoadBalancer Service (if not using Ingress)
+# Uncomment to expose directly with a cloud load balancer
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: folkcare-loadbalancer
+#   namespace: folkcare
+#   labels:
+#     app.kubernetes.io/name: folkcare
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - port: 443
+#       targetPort: 3000
+#       name: https
+#   selector:
+#     app.kubernetes.io/name: folkcare
+#     app.kubernetes.io/component: app

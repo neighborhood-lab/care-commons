@@ -1,0 +1,106 @@
+# Folk Care PostgreSQL StatefulSet
+# Using StatefulSet for stable network identity and persistent storage
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: folkcare-postgres
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/component: postgres
+spec:
+  serviceName: folkcare-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: folkcare
+      app.kubernetes.io/component: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: folkcare
+        app.kubernetes.io/component: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: folkcare-postgres-secrets
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: folkcare-config
+                  key: POSTGRES_DB
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          args:
+            - "-c"
+            - "max_connections=100"
+            - "-c"
+            - "shared_buffers=256MB"
+            - "-c"
+            - "effective_cache_size=768MB"
+            - "-c"
+            - "maintenance_work_mem=64MB"
+            - "-c"
+            - "checkpoint_completion_target=0.9"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: folkcare-postgres
+  namespace: folkcare
+  labels:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/component: postgres
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  selector:
+    app.kubernetes.io/name: folkcare
+    app.kubernetes.io/component: postgres
