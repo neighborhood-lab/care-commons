@@ -17,3 +17,15 @@ export * from './validation/billing-validator';
 
 // Export utilities
 export * from './utils/billing-calculations';
+
+// Revenue Forecasting (AI-powered)
+export { RevenueForecastingService } from './service/revenue-forecasting-service.js';
+export type {
+  RevenueForecastRequest,
+  RevenueForecastResult,
+  MonthlyForecast,
+  RevenueFactor,
+  ForecastScenario,
+  ForecastConfidence,
+  TrendDirection,
+} from './service/revenue-forecasting-service.js';

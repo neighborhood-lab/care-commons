@@ -6,7 +6,19 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { Database, AuthMiddleware } from '@folkcare/core';
-import { BillingRepository, InvoiceSearchFilters, InvoiceStatus } from '@folkcare/billing-invoicing';
+import { BillingRepository, InvoiceSearchFilters, InvoiceStatus, RevenueForecastingService } from '@folkcare/billing-invoicing';
+import knex from 'knex';
+
+/**
+ * Create a Knex instance for AI services that need it.
+ */
+function getKnexInstance(): ReturnType<typeof knex> {
+  const connectionString = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/folk-care-0';
+  return knex({
+    client: 'pg',
+    connection: connectionString,
+  });
+}
 
 function isInvoiceStatus(value: string): value is InvoiceStatus {
   return ['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'SENT', 'SUBMITTED', 
@@ -160,6 +172,43 @@ export function createBillingRouter(db: Database): Router {
       res.json(invoice.payments);
     } catch (error) {
       next(error);
+    }
+  });
+
+  /**
+   * POST /api/billing/forecast
+   * Generate AI-powered revenue forecast
+   */
+  router.post('/forecast', async (req: Request, res: Response, next: NextFunction) => {
+    const knexDbForForecast = getKnexInstance();
+    try {
+      const organizationId = req.user?.organizationId;
+
+      if (typeof organizationId !== 'string') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const { forecastMonths, includeScenarios } = req.body as {
+        forecastMonths?: number;
+        includeScenarios?: boolean;
+      };
+
+      const forecastService = new RevenueForecastingService(knexDbForForecast);
+      const result = await forecastService.forecastRevenue({
+        organizationId,
+        forecastMonths: forecastMonths ?? 6,
+        includeScenarios: includeScenarios ?? true,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    } finally {
+      await knexDbForForecast.destroy();
     }
   });
 
