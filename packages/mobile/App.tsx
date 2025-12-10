@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { ThemeProvider, useTheme, ThemeColors } from './src/themes';
 import MileageScreen from './src/screens/mileage/MileageScreen';
+import { navigationService } from './src/services/navigation.service';
 
 const Tab = createBottomTabNavigator();
 
@@ -686,7 +687,10 @@ function DashboardScreen({ navigation }: { navigation: { navigate: (screen: stri
           <Text style={styles.nextVisitDistance}>🚗 2.3 mi (8 min drive)</Text>
           <Text style={styles.nextVisitSchedule}>⏰ 9:00 AM - 1:00 PM</Text>
         </View>
-        <TouchableOpacity style={styles.startRouteButton} onPress={() => Alert.alert('Navigation', 'Opening maps...')}>
+        <TouchableOpacity
+          style={styles.startRouteButton}
+          onPress={() => navigationService.navigateTo({ address: '123 Main St, Austin, TX', label: 'Robert Johnson' })}
+        >
           <Text style={styles.startRouteText}>🗺️ Start Navigation</Text>
         </TouchableOpacity>
       </View>
@@ -999,7 +1003,10 @@ function VisitsScreen({ navigation }: { navigation: { navigate: (screen: string)
           )}
 
           <View style={styles.visitActions}>
-            <TouchableOpacity style={styles.visitActionButton} onPress={() => Alert.alert('Navigation', 'Opening maps...')}>
+            <TouchableOpacity
+              style={styles.visitActionButton}
+              onPress={() => navigationService.navigateTo({ address: visit.address, label: visit.client })}
+            >
               <Text style={styles.visitActionText}>🗺️ Navigate</Text>
             </TouchableOpacity>
             <TouchableOpacity
