@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { ThemeProvider, useTheme, ThemeColors } from './src/themes';
+import MileageScreen from './src/screens/mileage/MileageScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -1125,6 +1126,14 @@ function AppContent() {
             options={{
               tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📅</Text>,
               title: 'My Visits',
+            }}
+          />
+          <Tab.Screen
+            name="Mileage"
+            component={MileageScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🚗</Text>,
+              title: 'Mileage',
             }}
           />
           <Tab.Screen
