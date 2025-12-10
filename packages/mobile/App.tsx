@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { ThemeProvider, useTheme, ThemeColors } from './src/themes';
 import MileageScreen from './src/screens/mileage/MileageScreen';
+import TimeOffScreen from './src/screens/timeoff/TimeOffScreen';
 import { navigationService } from './src/services/navigation.service';
 
 const Tab = createBottomTabNavigator();
@@ -1149,6 +1150,14 @@ function AppContent() {
             options={{
               tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>⏰</Text>,
               title: 'Clock In/Out',
+            }}
+          />
+          <Tab.Screen
+            name="TimeOff"
+            component={TimeOffScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📅</Text>,
+              title: 'Time Off',
             }}
           />
           <Tab.Screen
