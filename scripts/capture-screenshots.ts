@@ -608,9 +608,9 @@ async function main(): Promise<void> {
     ? 'https://folk.care' 
     : process.env.BASE_URL || 'http://localhost:5173';
   
-  // Showcase always uses /folkcare/ base path (for GitHub Pages compatibility)
+  // Showcase is deployed to showcase.folk.care on GitHub Pages
   const showcaseUrl = isProduction
-    ? 'https://folk.care'
+    ? 'https://showcase.folk.care'
     : process.env.SHOWCASE_URL || 'http://localhost:5173/folkcare';
 
   const outputDir = join(process.cwd(), isProduction ? 'ui-screenshots-production-comprehensive' : 'ui-screenshots-personas');
