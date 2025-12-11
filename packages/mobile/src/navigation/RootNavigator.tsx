@@ -33,6 +33,7 @@ import { VisitNotesScreen } from '../screens/visits/VisitNotesScreen';
 import { SyncStatusScreen } from '../screens/profile/SyncStatusScreen';
 import MedicationAdministrationScreen from '../screens/medications/MedicationAdministrationScreen';
 import IncidentReportScreen from '../screens/incidents/IncidentReportScreen';
+import { TrainingScreen } from '../screens/training/TrainingScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -72,6 +73,7 @@ export type RootStackParamList = {
     clientId: string;
     clientName: string;
   };
+  Training: undefined;
 };
 
 export type MainTabParamList = {
@@ -256,6 +258,13 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               options={{
                 title: 'Report Incident',
                 presentation: 'modal',
+              }}
+            />
+            <RootStack.Screen
+              name="Training"
+              component={TrainingScreen}
+              options={{
+                title: 'Training',
               }}
             />
           </>
