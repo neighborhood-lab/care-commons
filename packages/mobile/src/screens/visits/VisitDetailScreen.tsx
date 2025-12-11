@@ -302,6 +302,18 @@ export function VisitDetailScreen() {
             <Button
               variant="secondary"
               size="lg"
+              onPress={() => navigation.navigate('CarePlan', {
+                clientId: visit.clientId,
+                clientName: visit.clientName,
+                visitId: visit.id,
+              })}
+              style={styles.secondaryButton}
+            >
+              📋 Care Plan
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
               onPress={() => navigation.navigate('MedicationAdministration', {
                 visitId: visit.id,
                 clientName: visit.clientName,

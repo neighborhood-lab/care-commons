@@ -33,6 +33,7 @@ import { VisitNotesScreen } from '../screens/visits/VisitNotesScreen';
 import { SyncStatusScreen } from '../screens/profile/SyncStatusScreen';
 import MedicationAdministrationScreen from '../screens/medications/MedicationAdministrationScreen';
 import IncidentReportScreen from '../screens/incidents/IncidentReportScreen';
+import { CarePlanScreen } from '../screens/careplan/CarePlanScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -71,6 +72,11 @@ export type RootStackParamList = {
     visitId: string;
     clientId: string;
     clientName: string;
+  };
+  CarePlan: {
+    clientId: string;
+    clientName: string;
+    visitId?: string;
   };
 };
 
@@ -256,6 +262,13 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               options={{
                 title: 'Report Incident',
                 presentation: 'modal',
+              }}
+            />
+            <RootStack.Screen
+              name="CarePlan"
+              component={CarePlanScreen}
+              options={{
+                title: 'Care Plan',
               }}
             />
           </>
