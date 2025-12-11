@@ -147,3 +147,18 @@ export type {
   EscalationResult,
 } from './service/on-call-schedule-service.js';
 export { createOnCallRoutes } from './api/on-call-routes.js';
+
+// Split Shift Support
+export { SplitShiftService } from './service/split-shift-service.js';
+export type {
+  SplitShiftPart,
+  SplitShiftConfig,
+  SplitShiftGroup,
+  SplitShiftVisit,
+  SplitShiftStatus,
+  CreateSplitShiftInput,
+  SplitShiftPartInput,
+  SplitShiftValidation,
+  SplitShiftPayrollSummary,
+} from './service/split-shift-service.js';
+export { createSplitShiftRoutes } from './api/split-shift-routes.js';
