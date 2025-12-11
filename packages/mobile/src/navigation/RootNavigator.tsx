@@ -35,6 +35,7 @@ import MedicationAdministrationScreen from '../screens/medications/MedicationAdm
 import IncidentReportScreen from '../screens/incidents/IncidentReportScreen';
 import { CarePlanScreen } from '../screens/careplan/CarePlanScreen';
 import { TrainingScreen } from '../screens/training/TrainingScreen';
+import { DirectDepositScreen } from '../screens/payroll/DirectDepositScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -78,6 +79,7 @@ export type RootStackParamList = {
     clientId: string;
   };
   Training: undefined;
+  DirectDeposit: undefined;
 };
 
 export type MainTabParamList = {
@@ -276,6 +278,13 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               component={TrainingScreen}
               options={{
                 title: 'Training',
+              }}
+            />
+            <RootStack.Screen
+              name="DirectDeposit"
+              component={DirectDepositScreen}
+              options={{
+                title: 'Direct Deposit',
               }}
             />
           </>
