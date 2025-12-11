@@ -107,3 +107,13 @@ export type {
   CostImpact,
 } from './service/optimal-visit-frequency-service.js';
 export { createOptimalVisitFrequencyRoutes } from './api/optimal-visit-frequency-routes.js';
+
+// Overtime Alerts
+export { OvertimeAlertService, STATE_OVERTIME_CONFIGS } from './service/overtime-alert-service.js';
+export type {
+  OvertimeAlertSeverity,
+  OvertimeConfig,
+  OvertimeCheckResult,
+  OvertimeAlert,
+} from './service/overtime-alert-service.js';
+export { createOvertimeAlertsRoutes } from './api/overtime-alerts-routes.js';

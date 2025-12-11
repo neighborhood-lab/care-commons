@@ -22,7 +22,7 @@ import {
   TextInput,
   Platform,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTheme, ThemeColors } from '../../themes';
 import {
   timeOffService,
@@ -287,7 +287,7 @@ export function TimeOffScreen() {
                 mode="date"
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                 minimumDate={new Date()}
-                onChange={(event, date) => {
+                onChange={(_event: DateTimePickerEvent, date?: Date) => {
                   setShowStartPicker(Platform.OS === 'ios');
                   if (date) {
                     setStartDate(date);
@@ -309,7 +309,7 @@ export function TimeOffScreen() {
                 mode="date"
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                 minimumDate={startDate}
-                onChange={(event, date) => {
+                onChange={(_event: DateTimePickerEvent, date?: Date) => {
                   setShowEndPicker(Platform.OS === 'ios');
                   if (date) {
                     setEndDate(date);
