@@ -6,7 +6,30 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'showcase-html-serve',
+      enforce: 'pre',
+      configureServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          // Rewrite HTML page requests to serve index-showcase.html
+          const url = req.url || '';
+          // Match routes but not assets - serve showcase HTML for SPA routes
+          if (
+            url.startsWith('/folkcare') &&
+            !url.includes('.') &&
+            !url.includes('/@') &&
+            !url.includes('/src/') &&
+            !url.includes('/node_modules')
+          ) {
+            req.url = '/folkcare/index-showcase.html';
+          }
+          next();
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
