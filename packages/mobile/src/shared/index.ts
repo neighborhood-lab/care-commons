@@ -159,6 +159,18 @@ export {
  * Mobile-specific types and constants
  */
 
+/**
+ * Emergency contact for quick-dial functionality
+ */
+export interface EmergencyContact {
+  id: string;
+  name: string;
+  relationship: string;
+  phone: string;
+  isPrimary: boolean;
+  type: 'family' | 'medical' | 'agency' | 'emergency_services';
+}
+
 export const MOBILE_APP_VERSION = '0.1.0';
 export const MOBILE_BUILD_NUMBER = 1;
 
@@ -211,26 +223,28 @@ export interface MobileVisit {
   branchId: string; // UUID
   clientId: string; // UUID
   caregiverId: string; // UUID
-  
+
   // Schedule
   scheduledStartTime: Date;
   scheduledEndTime: Date;
   scheduledDuration: number; // minutes
-  
+
   // Client info
   clientName: string;
   clientAddress: ServiceAddress;
-  
+  clientPhone?: string; // Client's direct phone
+  emergencyContacts?: EmergencyContact[]; // Emergency contacts for quick-dial
+
   // Service
   serviceTypeCode: string;
   serviceTypeName: string;
-  
+
   // Status
   status: VisitStatus;
-  
+
   // EVV record (if started)
   evvRecordId: string | null; // UUID
-  
+
   // Offline support
   isSynced: boolean;
   lastModifiedAt: Date;

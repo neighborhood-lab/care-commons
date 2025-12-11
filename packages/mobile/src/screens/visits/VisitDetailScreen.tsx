@@ -14,13 +14,14 @@ import {
   Alert,
   Linking,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Card, CardContent, Badge, Button } from '../../components/index';
 import { format } from 'date-fns';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
-import type { MobileVisit } from '../../shared/index';
+import type { MobileVisit, EmergencyContact } from '../../shared/index';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type RouteProps = NativeStackScreenProps<RootStackParamList, 'VisitDetail'>['route'];
@@ -70,6 +71,33 @@ export function VisitDetailScreen() {
         isSynced: true,
         lastModifiedAt: new Date(),
         syncPending: false,
+        clientPhone: '(512) 555-0101',
+        emergencyContacts: [
+          {
+            id: 'ec-1',
+            name: 'Michael Chen',
+            relationship: 'Son',
+            phone: '(512) 555-0102',
+            isPrimary: true,
+            type: 'family',
+          },
+          {
+            id: 'ec-2',
+            name: 'Dr. Sarah Williams',
+            relationship: 'Primary Care Physician',
+            phone: '(512) 555-0200',
+            isPrimary: false,
+            type: 'medical',
+          },
+          {
+            id: 'ec-3',
+            name: 'Home Care Agency',
+            relationship: 'Care Coordinator',
+            phone: '(512) 555-0300',
+            isPrimary: false,
+            type: 'agency',
+          },
+        ],
       };
 
       // Mock tasks
@@ -116,9 +144,60 @@ export function VisitDetailScreen() {
     }
   };
 
+  const handleCallContact = useCallback((phone: string, name: string) => {
+    const phoneNumber = phone.replace(/[^\d]/g, ''); // Strip non-numeric
+    const url = Platform.select({
+      ios: `tel:${phoneNumber}`,
+      android: `tel:${phoneNumber}`,
+    });
+
+    if (url) {
+      Linking.canOpenURL(url).then(supported => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Alert.alert('Cannot Call', `Unable to call ${name}. Phone: ${phone}`);
+        }
+      });
+    }
+  }, []);
+
   const handleCallClient = () => {
-    // TODO: Add phone number to visit data
-    Alert.alert('Call Client', 'Phone number not available');
+    if (visit?.clientPhone) {
+      handleCallContact(visit.clientPhone, visit.clientName);
+    } else {
+      Alert.alert('Call Client', 'Phone number not available');
+    }
+  };
+
+  const handleCall911 = () => {
+    Alert.alert(
+      'Emergency Call',
+      'Are you sure you want to call 911?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Call 911',
+          style: 'destructive',
+          onPress: () => handleCallContact('911', 'Emergency Services'),
+        },
+      ]
+    );
+  };
+
+  const getContactIcon = (type: EmergencyContact['type']) => {
+    switch (type) {
+      case 'family':
+        return '👨‍👩‍👧';
+      case 'medical':
+        return '🏥';
+      case 'agency':
+        return '📞';
+      case 'emergency_services':
+        return '🚨';
+      default:
+        return '📱';
+    }
   };
 
   const handleStartVisit = () => {
@@ -222,6 +301,63 @@ export function VisitDetailScreen() {
               Call Client
             </Button>
           </View>
+        </CardContent>
+      </Card>
+
+      {/* Emergency Contacts Card - Prominent for Quick Access */}
+      <Card style={[styles.card, styles.emergencyCard]}>
+        <CardContent>
+          <View style={styles.emergencyHeader}>
+            <Text style={styles.emergencyTitle}>Emergency Contacts</Text>
+            <TouchableOpacity
+              style={styles.call911Button}
+              onPress={handleCall911}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.call911Text}>🚨 911</Text>
+            </TouchableOpacity>
+          </View>
+
+          {visit.emergencyContacts && visit.emergencyContacts.length > 0 ? (
+            <View style={styles.contactList}>
+              {visit.emergencyContacts.map((contact) => (
+                <TouchableOpacity
+                  key={contact.id}
+                  style={[
+                    styles.contactItem,
+                    contact.isPrimary && styles.primaryContact,
+                  ]}
+                  onPress={() => handleCallContact(contact.phone, contact.name)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.contactInfo}>
+                    <View style={styles.contactNameRow}>
+                      <Text style={styles.contactIcon}>
+                        {getContactIcon(contact.type)}
+                      </Text>
+                      <Text style={styles.contactName}>{contact.name}</Text>
+                      {contact.isPrimary && (
+                        <Badge variant="primary" size="sm">
+                          Primary
+                        </Badge>
+                      )}
+                    </View>
+                    <Text style={styles.contactRelationship}>
+                      {contact.relationship}
+                    </Text>
+                    <Text style={styles.contactPhone}>{contact.phone}</Text>
+                  </View>
+                  <View style={styles.callIconContainer}>
+                    <Text style={styles.callIcon}>📞</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.noContactsText}>
+              No emergency contacts on file
+            </Text>
+          )}
         </CardContent>
       </Card>
 
@@ -554,5 +690,96 @@ const styles = StyleSheet.create({
     color: '#92400E',
     fontWeight: '500',
     textAlign: 'center',
+  },
+  // Emergency Contacts Styles
+  emergencyCard: {
+    borderWidth: 2,
+    borderColor: '#FCA5A5',
+    backgroundColor: '#FEF2F2',
+  },
+  emergencyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  emergencyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#DC2626',
+  },
+  call911Button: {
+    backgroundColor: '#DC2626',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  call911Text: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  contactList: {
+    gap: 12,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  primaryContact: {
+    borderColor: '#3B82F6',
+    borderWidth: 2,
+  },
+  contactInfo: {
+    flex: 1,
+  },
+  contactNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  contactIcon: {
+    fontSize: 16,
+  },
+  contactName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  contactRelationship: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginLeft: 24,
+    marginBottom: 2,
+  },
+  contactPhone: {
+    fontSize: 14,
+    color: '#3B82F6',
+    fontWeight: '500',
+    marginLeft: 24,
+  },
+  callIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#10B981',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  callIcon: {
+    fontSize: 20,
+  },
+  noContactsText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingVertical: 12,
   },
 });
