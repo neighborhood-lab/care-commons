@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,204 +7,340 @@ import {
   TextInput,
   Alert,
   StyleSheet,
+  ActivityIndicator,
+  Share,
 } from 'react-native';
-import { Camera, CameraView } from 'expo-camera';
+import {
+  medicationService,
+  type Medication,
+  type AdministrationStatus,
+  type MARRecord,
+} from '../../services/medication.service';
 
-interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  route: string;
-  frequency: string;
-  scheduledTime: string;
-  instructions?: string;
-  isPRN: boolean;
-  remainingCount?: number;
-}
-
-interface MedicationAdministration {
-  medicationId: string;
-  administeredAt: string;
-  administeredBy: string;
-  dosageGiven: string;
-  route: string;
-  notes?: string;
-  photoUri?: string;
-  patientRefused: boolean;
-  refusalReason?: string;
-  witnessInitials?: string;
-}
-
-const DEMO_MEDICATIONS: Medication[] = [
-  {
-    id: 'med-1',
-    name: 'Lisinopril',
-    dosage: '10mg',
-    route: 'Oral',
-    frequency: 'Once daily',
-    scheduledTime: '09:00',
-    instructions: 'Take with food',
-    isPRN: false,
-    remainingCount: 28,
-  },
-  {
-    id: 'med-2',
-    name: 'Metformin',
-    dosage: '500mg',
-    route: 'Oral',
-    frequency: 'Twice daily',
-    scheduledTime: '09:00',
-    instructions: 'Take with meals',
-    isPRN: false,
-    remainingCount: 56,
-  },
-  {
-    id: 'med-3',
-    name: 'Tylenol',
-    dosage: '325mg',
-    route: 'Oral',
-    frequency: 'As needed',
-    scheduledTime: 'PRN',
-    instructions: 'For pain or fever. Max 4000mg per day',
-    isPRN: true,
-    remainingCount: 20,
-  },
-];
+type ActionMode = 'administer' | 'refuse' | 'missed' | 'held' | null;
 
 export default function MedicationAdministrationScreen({ route, navigation }: any) {
   const { visitId, clientName, clientId } = route.params;
 
-  const [medications, setMedications] = useState<Medication[]>(DEMO_MEDICATIONS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [medications, setMedications] = useState<Medication[]>([]);
+  const [marRecords, setMarRecords] = useState<MARRecord[]>([]);
   const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
+  const [actionMode, setActionMode] = useState<ActionMode>(null);
   const [administrationNotes, setAdministrationNotes] = useState('');
   const [refusalReason, setRefusalReason] = useState('');
+  const [missedReason, setMissedReason] = useState('');
+  const [heldReason, setHeldReason] = useState('');
   const [witnessInitials, setWitnessInitials] = useState('');
-  const [showCamera, setShowCamera] = useState(false);
+  const [witnessName, setWitnessName] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [administeredMeds, setAdministeredMeds] = useState<Set<string>>(new Set());
-  const [refusedMeds, setRefusedMeds] = useState<Set<string>>(new Set());
+
+  // Load medications and records
+  const loadData = useCallback(async () => {
+    try {
+      const [meds, records] = await Promise.all([
+        medicationService.getMedicationsForClient(clientId),
+        medicationService.getMARRecordsForVisit(visitId),
+      ]);
+      setMedications(meds);
+      setMarRecords(records);
+    } catch (error) {
+      console.error('Failed to load medications:', error);
+      Alert.alert('Error', 'Failed to load medications');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [clientId, visitId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const resetForm = () => {
+    setSelectedMedication(null);
+    setActionMode(null);
+    setAdministrationNotes('');
+    setRefusalReason('');
+    setMissedReason('');
+    setHeldReason('');
+    setWitnessInitials('');
+    setWitnessName('');
+    setPhotoUri(null);
+  };
 
   const handleAdminister = (medication: Medication) => {
     setSelectedMedication(medication);
+    setActionMode('administer');
     setAdministrationNotes('');
     setPhotoUri(null);
     setWitnessInitials('');
-  };
-
-  const confirmAdministration = () => {
-    if (!selectedMedication) return;
-
-    const administration: MedicationAdministration = {
-      medicationId: selectedMedication.id,
-      administeredAt: new Date().toISOString(),
-      administeredBy: 'Current Caregiver', // TODO: Get from auth context
-      dosageGiven: selectedMedication.dosage,
-      route: selectedMedication.route,
-      notes: administrationNotes,
-      photoUri: photoUri || undefined,
-      patientRefused: false,
-      witnessInitials: witnessInitials || undefined,
-    };
-
-    // TODO: Send to API
-    console.log('Medication administered:', administration);
-
-    setAdministeredMeds(prev => new Set([...prev, selectedMedication.id]));
-    setSelectedMedication(null);
-
-    Alert.alert(
-      'Success',
-      `${selectedMedication.name} administered and documented`,
-      [{ text: 'OK' }]
-    );
+    setWitnessName('');
   };
 
   const handleRefusal = (medication: Medication) => {
     setSelectedMedication(medication);
+    setActionMode('refuse');
     setRefusalReason('');
   };
 
-  const confirmRefusal = () => {
-    if (!selectedMedication || !refusalReason.trim()) {
-      Alert.alert('Required', 'Please provide a reason for refusal');
+  const handleMissed = (medication: Medication) => {
+    setSelectedMedication(medication);
+    setActionMode('missed');
+    setMissedReason('');
+  };
+
+  const handleHeld = (medication: Medication) => {
+    setSelectedMedication(medication);
+    setActionMode('held');
+    setHeldReason('');
+  };
+
+  const confirmAdministration = useCallback(async () => {
+    if (!selectedMedication || isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await medicationService.recordAdministration({
+        medicationId: selectedMedication.id,
+        medicationName: selectedMedication.name,
+        clientId,
+        visitId,
+        scheduledTime: selectedMedication.scheduledTimes[0] || 'PRN',
+        scheduledDate: today,
+        dosage: `${selectedMedication.dosage}${selectedMedication.unit}`,
+        route: selectedMedication.route,
+        notes: administrationNotes || undefined,
+        photoUri: photoUri || undefined,
+        witnessName: witnessName || undefined,
+        witnessInitials: witnessInitials || undefined,
+      });
+
+      await loadData();
+      resetForm();
+
+      Alert.alert('Success', `${selectedMedication.name} administered and documented`);
+    } catch (error) {
+      console.error('Failed to record administration:', error);
+      Alert.alert('Error', 'Failed to record administration');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [selectedMedication, isSubmitting, clientId, visitId, administrationNotes, photoUri, witnessName, witnessInitials, loadData]);
+
+  const confirmRefusal = useCallback(async () => {
+    if (!selectedMedication || !refusalReason.trim() || isSubmitting) {
+      if (!refusalReason.trim()) {
+        Alert.alert('Required', 'Please provide a reason for refusal');
+      }
       return;
     }
+    setIsSubmitting(true);
 
-    const refusal: MedicationAdministration = {
-      medicationId: selectedMedication.id,
-      administeredAt: new Date().toISOString(),
-      administeredBy: 'Current Caregiver',
-      dosageGiven: selectedMedication.dosage,
-      route: selectedMedication.route,
-      patientRefused: true,
-      refusalReason,
-      notes: administrationNotes,
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await medicationService.recordRefusal({
+        medicationId: selectedMedication.id,
+        medicationName: selectedMedication.name,
+        clientId,
+        visitId,
+        scheduledTime: selectedMedication.scheduledTimes[0] || 'PRN',
+        scheduledDate: today,
+        dosage: `${selectedMedication.dosage}${selectedMedication.unit}`,
+        route: selectedMedication.route,
+        refusalReason,
+        notes: administrationNotes || undefined,
+      });
+
+      await loadData();
+      resetForm();
+
+      Alert.alert('Documented', `Refusal of ${selectedMedication.name} has been recorded`);
+    } catch (error) {
+      console.error('Failed to record refusal:', error);
+      Alert.alert('Error', 'Failed to record refusal');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [selectedMedication, refusalReason, isSubmitting, clientId, visitId, administrationNotes, loadData]);
+
+  const confirmMissed = useCallback(async () => {
+    if (!selectedMedication || !missedReason.trim() || isSubmitting) {
+      if (!missedReason.trim()) {
+        Alert.alert('Required', 'Please provide a reason why the medication was missed');
+      }
+      return;
+    }
+    setIsSubmitting(true);
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await medicationService.recordMissed({
+        medicationId: selectedMedication.id,
+        medicationName: selectedMedication.name,
+        clientId,
+        visitId,
+        scheduledTime: selectedMedication.scheduledTimes[0] || 'PRN',
+        scheduledDate: today,
+        dosage: `${selectedMedication.dosage}${selectedMedication.unit}`,
+        route: selectedMedication.route,
+        missedReason,
+        notes: administrationNotes || undefined,
+      });
+
+      await loadData();
+      resetForm();
+
+      Alert.alert('Documented', `Missed dose of ${selectedMedication.name} has been recorded`);
+    } catch (error) {
+      console.error('Failed to record missed:', error);
+      Alert.alert('Error', 'Failed to record missed dose');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [selectedMedication, missedReason, isSubmitting, clientId, visitId, administrationNotes, loadData]);
+
+  const confirmHeld = useCallback(async () => {
+    if (!selectedMedication || !heldReason.trim() || isSubmitting) {
+      if (!heldReason.trim()) {
+        Alert.alert('Required', 'Please provide a reason why the medication was held');
+      }
+      return;
+    }
+    setIsSubmitting(true);
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await medicationService.recordHeld({
+        medicationId: selectedMedication.id,
+        medicationName: selectedMedication.name,
+        clientId,
+        visitId,
+        scheduledTime: selectedMedication.scheduledTimes[0] || 'PRN',
+        scheduledDate: today,
+        dosage: `${selectedMedication.dosage}${selectedMedication.unit}`,
+        route: selectedMedication.route,
+        heldReason,
+        notes: administrationNotes || undefined,
+      });
+
+      await loadData();
+      resetForm();
+
+      Alert.alert('Documented', `${selectedMedication.name} held - documented`);
+    } catch (error) {
+      console.error('Failed to record held:', error);
+      Alert.alert('Error', 'Failed to record held medication');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [selectedMedication, heldReason, isSubmitting, clientId, visitId, administrationNotes, loadData]);
+
+  const handleExportMAR = useCallback(async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const exportData = await medicationService.generateMARExport(clientId, clientName, weekAgo, today);
+
+      const summary = `MAR Report for ${clientName}\n` +
+        `Date Range: ${exportData.dateRange.start} to ${exportData.dateRange.end}\n\n` +
+        `Medications: ${exportData.medications.length}\n` +
+        `Records: ${exportData.records.length}\n\n` +
+        exportData.records.map((r) => {
+          const statusInfo = medicationService.getStatusInfo(r.status);
+          return `${r.medicationName} - ${statusInfo.label} (${r.scheduledDate} ${r.scheduledTime})`;
+        }).join('\n');
+
+      await Share.share({
+        message: summary,
+        title: `MAR Report - ${clientName}`,
+      });
+    } catch (error) {
+      console.error('Failed to export MAR:', error);
+      Alert.alert('Error', 'Failed to generate MAR export');
+    }
+  }, [clientId, clientName]);
+
+  const getMedicationStatus = (medId: string): AdministrationStatus => {
+    const record = marRecords.find((r) => r.medicationId === medId);
+    return record?.status || 'pending';
+  };
+
+  const getStatusColor = (status: AdministrationStatus) => {
+    return medicationService.getStatusInfo(status).color;
+  };
+
+  const getStatusText = (status: AdministrationStatus) => {
+    const info = medicationService.getStatusInfo(status);
+    return `${info.icon} ${info.label}`;
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text style={styles.loadingText}>Loading medications...</Text>
+      </View>
+    );
+  }
+
+  if (selectedMedication && actionMode) {
+    const getHeaderTitle = () => {
+      switch (actionMode) {
+        case 'administer': return 'Administer Medication';
+        case 'refuse': return 'Document Refusal';
+        case 'missed': return 'Document Missed Dose';
+        case 'held': return 'Document Held Medication';
+        default: return 'Medication';
+      }
     };
 
-    // TODO: Send to API
-    console.log('Medication refusal documented:', refusal);
-
-    setRefusedMeds(prev => new Set([...prev, selectedMedication.id]));
-    setSelectedMedication(null);
-
-    Alert.alert(
-      'Documented',
-      `Refusal of ${selectedMedication.name} has been recorded`,
-      [{ text: 'OK' }]
-    );
-  };
-
-  const getMedicationStatus = (medId: string): 'pending' | 'administered' | 'refused' => {
-    if (administeredMeds.has(medId)) return 'administered';
-    if (refusedMeds.has(medId)) return 'refused';
-    return 'pending';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'administered': return '#10b981';
-      case 'refused': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'administered': return '✓ Given';
-      case 'refused': return '✕ Refused';
-      default: return 'Pending';
-    }
-  };
-
-  if (selectedMedication) {
-    const isRefusal = refusalReason.length > 0 || refusedMeds.has(selectedMedication.id);
+    const routeInfo = medicationService.getRouteInfo(selectedMedication.route);
 
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => setSelectedMedication(null)}>
+          <TouchableOpacity onPress={resetForm}>
             <Text style={styles.backButton}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            {isRefusal ? 'Document Refusal' : 'Administer Medication'}
-          </Text>
+          <Text style={styles.headerTitle}>{getHeaderTitle()}</Text>
         </View>
 
         <ScrollView style={styles.content}>
           <View style={styles.medicationCard}>
             <Text style={styles.medicationName}>{selectedMedication.name}</Text>
-            <Text style={styles.medicationDetail}>Dosage: {selectedMedication.dosage}</Text>
-            <Text style={styles.medicationDetail}>Route: {selectedMedication.route}</Text>
-            <Text style={styles.medicationDetail}>Time: {selectedMedication.scheduledTime}</Text>
+            {selectedMedication.genericName && (
+              <Text style={styles.medicationGeneric}>({selectedMedication.genericName})</Text>
+            )}
+            <Text style={styles.medicationDetail}>
+              Dosage: {selectedMedication.dosage}{selectedMedication.unit}
+            </Text>
+            <Text style={styles.medicationDetail}>
+              Route: {routeInfo.label} ({routeInfo.abbreviation})
+            </Text>
+            <Text style={styles.medicationDetail}>
+              Time: {selectedMedication.scheduledTimes.join(', ') || 'PRN'}
+            </Text>
             {selectedMedication.instructions && (
               <View style={styles.instructionsBox}>
                 <Text style={styles.instructionsLabel}>Instructions:</Text>
                 <Text style={styles.instructionsText}>{selectedMedication.instructions}</Text>
               </View>
             )}
+            {selectedMedication.warnings && selectedMedication.warnings.length > 0 && (
+              <View style={styles.warningBox}>
+                <Text style={styles.warningLabel}>Warnings:</Text>
+                {selectedMedication.warnings.map((w, i) => (
+                  <Text key={i} style={styles.warningText}>• {w}</Text>
+                ))}
+              </View>
+            )}
           </View>
 
-          {!isRefusal ? (
+          {actionMode === 'administer' && (
             <>
               <View style={styles.section}>
                 <Text style={styles.sectionLabel}>Administration Notes (Optional)</Text>
@@ -219,10 +355,16 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.sectionLabel}>Witness Initials (Optional)</Text>
+                <Text style={styles.sectionLabel}>Witness (Optional)</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter initials if witnessed"
+                  placeholder="Witness name"
+                  value={witnessName}
+                  onChangeText={setWitnessName}
+                />
+                <TextInput
+                  style={[styles.input, { marginTop: 8 }]}
+                  placeholder="Witness initials"
                   value={witnessInitials}
                   onChangeText={setWitnessInitials}
                   maxLength={4}
@@ -231,7 +373,7 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.sectionLabel}>Photo Documentation (Optional)</Text>
+                <Text style={styles.sectionLabel}>Photo of Pill Bottle (Optional)</Text>
                 {photoUri ? (
                   <View>
                     <Text style={styles.photoPlaceholder}>📷 Photo captured</Text>
@@ -255,19 +397,26 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.refuseButton}
-                  onPress={() => setRefusalReason('Patient refused')}
+                  onPress={() => setActionMode('refuse')}
                 >
                   <Text style={styles.refuseButtonText}>Patient Refused</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.confirmButton}
+                  style={[styles.confirmButton, isSubmitting && styles.buttonDisabled]}
                   onPress={confirmAdministration}
+                  disabled={isSubmitting}
                 >
-                  <Text style={styles.confirmButtonText}>Confirm Administration</Text>
+                  {isSubmitting ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <Text style={styles.confirmButtonText}>Confirm</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </>
-          ) : (
+          )}
+
+          {actionMode === 'refuse' && (
             <>
               <View style={styles.section}>
                 <Text style={styles.sectionLabel}>Refusal Reason *</Text>
@@ -294,20 +443,109 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
               </View>
 
               <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => {
-                    setSelectedMedication(null);
-                    setRefusalReason('');
-                  }}
-                >
+                <TouchableOpacity style={styles.cancelButton} onPress={resetForm}>
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.confirmButton}
+                  style={[styles.confirmButton, isSubmitting && styles.buttonDisabled]}
                   onPress={confirmRefusal}
+                  disabled={isSubmitting}
                 >
-                  <Text style={styles.confirmButtonText}>Document Refusal</Text>
+                  {isSubmitting ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <Text style={styles.confirmButtonText}>Document Refusal</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          {actionMode === 'missed' && (
+            <>
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Reason Missed *</Text>
+                <TextInput
+                  style={styles.textArea}
+                  placeholder="Why was this dose missed? (Required)"
+                  value={missedReason}
+                  onChangeText={setMissedReason}
+                  multiline
+                  numberOfLines={4}
+                />
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Additional Notes (Optional)</Text>
+                <TextInput
+                  style={styles.textArea}
+                  placeholder="Any additional observations..."
+                  value={administrationNotes}
+                  onChangeText={setAdministrationNotes}
+                  multiline
+                  numberOfLines={4}
+                />
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.cancelButton} onPress={resetForm}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.confirmButton, isSubmitting && styles.buttonDisabled]}
+                  onPress={confirmMissed}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <Text style={styles.confirmButtonText}>Document Missed</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          {actionMode === 'held' && (
+            <>
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Reason Held *</Text>
+                <TextInput
+                  style={styles.textArea}
+                  placeholder="Why was this medication held? (e.g., MD order, clinical reason)"
+                  value={heldReason}
+                  onChangeText={setHeldReason}
+                  multiline
+                  numberOfLines={4}
+                />
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Additional Notes (Optional)</Text>
+                <TextInput
+                  style={styles.textArea}
+                  placeholder="Any additional observations..."
+                  value={administrationNotes}
+                  onChangeText={setAdministrationNotes}
+                  multiline
+                  numberOfLines={4}
+                />
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.cancelButton} onPress={resetForm}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.confirmButton, isSubmitting && styles.buttonDisabled]}
+                  onPress={confirmHeld}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <Text style={styles.confirmButtonText}>Document Held</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </>
@@ -317,15 +555,27 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
     );
   }
 
+  // Calculate summary counts from MAR records
+  const givenCount = marRecords.filter((r) => r.status === 'administered').length;
+  const refusedCount = marRecords.filter((r) => r.status === 'refused').length;
+  const missedCount = marRecords.filter((r) => r.status === 'missed').length;
+  const heldCount = marRecords.filter((r) => r.status === 'held').length;
+  const pendingCount = medications.length - givenCount - refusedCount - missedCount - heldCount;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>← Back to Visit</Text>
         </TouchableOpacity>
-        <View>
-          <Text style={styles.headerTitle}>Medications</Text>
-          <Text style={styles.headerSubtitle}>{clientName}</Text>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.headerTitle}>Medications</Text>
+            <Text style={styles.headerSubtitle}>{clientName}</Text>
+          </View>
+          <TouchableOpacity style={styles.exportButton} onPress={handleExportMAR}>
+            <Text style={styles.exportButtonText}>Export MAR</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -337,27 +587,34 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
           </View>
           <View style={styles.summaryItem}>
             <Text style={[styles.summaryValue, { color: '#10b981' }]}>
-              {administeredMeds.size}
+              {givenCount}
             </Text>
             <Text style={styles.summaryLabel}>Given</Text>
           </View>
           <View style={styles.summaryItem}>
             <Text style={[styles.summaryValue, { color: '#ef4444' }]}>
-              {refusedMeds.size}
+              {refusedCount}
             </Text>
             <Text style={styles.summaryLabel}>Refused</Text>
           </View>
           <View style={styles.summaryItem}>
+            <Text style={[styles.summaryValue, { color: '#f59e0b' }]}>
+              {missedCount + heldCount}
+            </Text>
+            <Text style={styles.summaryLabel}>Missed/Held</Text>
+          </View>
+          <View style={styles.summaryItem}>
             <Text style={[styles.summaryValue, { color: '#6b7280' }]}>
-              {medications.length - administeredMeds.size - refusedMeds.size}
+              {pendingCount > 0 ? pendingCount : 0}
             </Text>
             <Text style={styles.summaryLabel}>Pending</Text>
           </View>
         </View>
 
         <View style={styles.medicationList}>
-          {medications.map(med => {
+          {medications.map((med) => {
             const status = getMedicationStatus(med.id);
+            const routeInfo = medicationService.getRouteInfo(med.route);
             return (
               <View key={med.id} style={styles.medicationItem}>
                 <View style={styles.medicationInfo}>
@@ -373,10 +630,10 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
                     </View>
                   </View>
                   <Text style={styles.medicationItemDetail}>
-                    {med.dosage} • {med.route} • {med.frequency}
+                    {med.dosage}{med.unit} • {routeInfo.abbreviation}
                   </Text>
                   <Text style={styles.medicationItemTime}>
-                    {med.isPRN ? 'PRN - As needed' : `Scheduled: ${med.scheduledTime}`}
+                    {med.isPRN ? 'PRN - As needed' : `Scheduled: ${med.scheduledTimes.join(', ')}`}
                   </Text>
                   {med.remainingCount !== undefined && (
                     <Text style={styles.medicationItemCount}>
@@ -398,6 +655,23 @@ export default function MedicationAdministrationScreen({ route, navigation }: an
                       onPress={() => handleRefusal(med)}
                     >
                       <Text style={styles.refuseSmallButtonText}>Refused</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {status === 'pending' && (
+                  <View style={styles.secondaryActions}>
+                    <TouchableOpacity
+                      style={styles.missedButton}
+                      onPress={() => handleMissed(med)}
+                    >
+                      <Text style={styles.missedButtonText}>Missed</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.heldButton}
+                      onPress={() => handleHeld(med)}
+                    >
+                      <Text style={styles.heldButtonText}>Held</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -668,5 +942,90 @@ const styles = StyleSheet.create({
     color: '#3b82f6',
     fontSize: 14,
     fontWeight: '600',
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  exportButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  exportButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  secondaryActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  missedButton: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#f59e0b',
+  },
+  missedButtonText: {
+    color: '#f59e0b',
+    fontWeight: '500',
+    fontSize: 12,
+  },
+  heldButton: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#8b5cf6',
+  },
+  heldButtonText: {
+    color: '#8b5cf6',
+    fontWeight: '500',
+    fontSize: 12,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  medicationGeneric: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
+  warningBox: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: '#fef2f2',
+    borderRadius: 6,
+    borderLeftWidth: 4,
+    borderLeftColor: '#ef4444',
+  },
+  warningLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#991b1b',
+    marginBottom: 4,
+  },
+  warningText: {
+    fontSize: 14,
+    color: '#991b1b',
   },
 });
