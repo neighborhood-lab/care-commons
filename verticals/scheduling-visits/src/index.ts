@@ -117,3 +117,16 @@ export type {
   OvertimeAlert,
 } from './service/overtime-alert-service.js';
 export { createOvertimeAlertsRoutes } from './api/overtime-alerts-routes.js';
+
+// Callout Handling
+export { CalloutHandlingService } from './service/callout-handling-service.js';
+export type {
+  CalloutReason,
+  CalloutUrgencyLevel,
+  Callout,
+  AffectedVisit,
+  ReplacementCandidate,
+  CalloutHandlingResult,
+  CreateCalloutInput,
+} from './service/callout-handling-service.js';
+export { createCalloutRoutes } from './api/callout-routes.js';
