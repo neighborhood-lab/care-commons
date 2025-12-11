@@ -386,6 +386,19 @@ export function ProfileScreen() {
             <Text style={styles.linkArrow}>›</Text>
           </Pressable>
 
+          <Pressable
+            style={[styles.settingItem, styles.settingItemBorder]}
+            onPress={() => navigation.navigate('DirectDeposit')}
+          >
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Direct Deposit</Text>
+              <Text style={styles.settingDesc}>
+                Manage bank accounts and payment settings
+              </Text>
+            </View>
+            <Text style={styles.linkArrow}>›</Text>
+          </Pressable>
+
           <View style={[styles.settingItem, styles.settingItemBorder]}>
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Notifications</Text>
