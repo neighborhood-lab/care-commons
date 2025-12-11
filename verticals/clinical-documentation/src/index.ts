@@ -28,3 +28,18 @@ export type {
   HandoffSummary,
 } from './service/clinical-handoff-service.js';
 export { createHandoffRoutes } from './api/handoff-routes.js';
+
+// Lab Results
+export { LabResultService } from './service/lab-result-service.js';
+export type {
+  LabInterpretation,
+  LabSource,
+  LabResultType,
+  LabResult,
+  CreateLabResultTypeInput,
+  CreateLabResultInput,
+  UpdateLabResultInput,
+  LabResultTrend,
+  LabResultSummary,
+} from './service/lab-result-service.js';
+export { createLabResultRoutes } from './api/lab-result-routes.js';
