@@ -177,3 +177,17 @@ export type {
   AddScenarioVisitInput,
 } from './service/schedule-scenario-service.js';
 export { createScenarioRoutes } from './api/scenario-routes.js';
+
+// Schedule Undo/Redo
+export { ScheduleUndoRedoService } from './service/schedule-undo-redo-service.js';
+export type {
+  ChangeType,
+  EntityType,
+  ScheduleChange,
+  RecordChangeInput,
+  UndoResult,
+  RedoResult,
+  ChangeHistoryOptions,
+  UndoStack,
+} from './service/schedule-undo-redo-service.js';
+export { createUndoRedoRoutes } from './api/undo-redo-routes.js';

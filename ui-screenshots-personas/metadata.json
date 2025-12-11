@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-12-05T21:04:01.133Z",
+  "timestamp": "2025-12-10T00:36:17.927Z",
   "environment": {
     "webUrl": "http://localhost:5173",
     "showcaseUrl": "http://localhost:5173/folkcare"
@@ -11,8 +11,8 @@
   "personas": [],
   "stats": {
     "total": 23,
-    "success": 23,
-    "failed": 0,
+    "success": 0,
+    "failed": 23,
     "failedRoutes": []
   }
 }
