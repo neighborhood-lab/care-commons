@@ -34,6 +34,7 @@ import { SyncStatusScreen } from '../screens/profile/SyncStatusScreen';
 import MedicationAdministrationScreen from '../screens/medications/MedicationAdministrationScreen';
 import IncidentReportScreen from '../screens/incidents/IncidentReportScreen';
 import { CarePlanScreen } from '../screens/careplan/CarePlanScreen';
+import { TrainingScreen } from '../screens/training/TrainingScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -76,6 +77,7 @@ export type RootStackParamList = {
   CarePlan: {
     clientId: string;
   };
+  Training: undefined;
 };
 
 export type MainTabParamList = {
@@ -267,6 +269,13 @@ export function RootNavigator({ isAuthenticated }: { isAuthenticated: boolean })
               component={CarePlanScreen}
               options={{
                 title: 'Care Plan',
+              }}
+            />
+            <RootStack.Screen
+              name="Training"
+              component={TrainingScreen}
+              options={{
+                title: 'Training',
               }}
             />
           </>
