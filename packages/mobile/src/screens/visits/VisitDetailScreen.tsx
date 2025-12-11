@@ -375,6 +375,14 @@ export function VisitDetailScreen() {
               </Text>
             </View>
           ))}
+          <Button
+            variant="secondary"
+            size="md"
+            onPress={() => navigation.navigate('CarePlan', { clientId: visit.clientId })}
+            style={styles.carePlanButton}
+          >
+            📋 View Full Care Plan
+          </Button>
         </CardContent>
       </Card>
 
@@ -616,6 +624,9 @@ const styles = StyleSheet.create({
   taskTextCompleted: {
     textDecorationLine: 'line-through',
     color: '#9CA3AF',
+  },
+  carePlanButton: {
+    marginTop: 12,
   },
   timeline: {
     paddingLeft: 8,

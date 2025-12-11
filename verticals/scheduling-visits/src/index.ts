@@ -130,3 +130,20 @@ export type {
   CreateCalloutInput,
 } from './service/callout-handling-service.js';
 export { createCalloutRoutes } from './api/callout-routes.js';
+
+// On-Call Schedule Management
+export { OnCallScheduleService } from './service/on-call-schedule-service.js';
+export type {
+  OnCallPeriodType,
+  OnCallStatus,
+  EscalationLevel,
+  OnCallShift,
+  OnCallRotation,
+  RotationPattern,
+  CreateOnCallShiftInput,
+  CreateRotationInput,
+  OnCallCoverageStatus,
+  CoverageGap,
+  EscalationResult,
+} from './service/on-call-schedule-service.js';
+export { createOnCallRoutes } from './api/on-call-routes.js';
