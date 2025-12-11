@@ -33,6 +33,20 @@ export { MedicationRepository, MedicationAdministrationRepository } from './repo
 // Services
 export { MedicationService } from './service/medication-service.js';
 export { MedicationInteractionService } from './service/medication-interaction-service.js';
+export { MedicationReconciliationService } from './service/medication-reconciliation-service.js';
+export type {
+  InformationSource,
+  ReconciliationStatus,
+  AdherenceAssessment,
+  ReconciliationItemStatus,
+  MedicationReconciliation,
+  ReconciliationItem,
+  StartReconciliationInput,
+  AddReconciliationItemInput,
+  CompleteReconciliationInput,
+  SignReconciliationInput,
+  ReconciliationSummary,
+} from './service/medication-reconciliation-service.js';
 
 // Validation
 export {
@@ -47,3 +61,4 @@ export {
 
 // API Handlers
 export { createMedicationHandlers } from './api/medication-handlers.js';
+export { createMedicationReconciliationRoutes } from './api/medication-reconciliation-routes.js';
