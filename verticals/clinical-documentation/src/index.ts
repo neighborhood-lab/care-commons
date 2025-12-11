@@ -43,3 +43,25 @@ export type {
   LabResultSummary,
 } from './service/lab-result-service.js';
 export { createLabResultRoutes } from './api/lab-result-routes.js';
+
+// Physician Communications
+export { PhysicianCommunicationService } from './service/physician-communication-service.js';
+export type {
+  CommunicationType,
+  CommunicationUrgency,
+  ContactMethod,
+  CommunicationStatus,
+  PreferredContact,
+  RelationshipType,
+  Physician,
+  ClientPhysician,
+  PhysicianCommunication,
+  CommunicationTemplate,
+  CreatePhysicianInput,
+  UpdatePhysicianInput,
+  AddClientPhysicianInput,
+  CreateCommunicationInput,
+  RecordResponseInput,
+  CommunicationSummary,
+} from './service/physician-communication-service.js';
+export { createPhysicianCommunicationRoutes } from './api/physician-communication-routes.js';
