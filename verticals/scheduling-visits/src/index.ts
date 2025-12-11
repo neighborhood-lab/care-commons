@@ -162,3 +162,18 @@ export type {
   SplitShiftPayrollSummary,
 } from './service/split-shift-service.js';
 export { createSplitShiftRoutes } from './api/split-shift-routes.js';
+
+// Schedule Scenario Planning
+export { ScheduleScenarioService } from './service/schedule-scenario-service.js';
+export type {
+  ScenarioStatus,
+  ScenarioType,
+  ScheduleScenario,
+  ScenarioVisit,
+  ScenarioChangeType,
+  ScenarioComparison,
+  CreateScenarioInput,
+  ScenarioChangeInput,
+  AddScenarioVisitInput,
+} from './service/schedule-scenario-service.js';
+export { createScenarioRoutes } from './api/scenario-routes.js';
