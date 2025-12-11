@@ -388,6 +388,19 @@ export function ProfileScreen() {
 
           <Pressable
             style={[styles.settingItem, styles.settingItemBorder]}
+            onPress={() => navigation.navigate('Training')}
+          >
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Training</Text>
+              <Text style={styles.settingDesc}>
+                Complete required training modules
+              </Text>
+            </View>
+            <Text style={styles.linkArrow}>›</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.settingItem, styles.settingItemBorder]}
             onPress={() => navigation.navigate('DirectDeposit')}
           >
             <View style={styles.settingInfo}>
