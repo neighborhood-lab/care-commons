@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,50 +7,20 @@ import {
   TextInput,
   Alert,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
-
-type IncidentType =
-  | 'fall'
-  | 'injury'
-  | 'medication_error'
-  | 'behavioral'
-  | 'property_damage'
-  | 'missing_items'
-  | 'abuse_neglect'
-  | 'emergency_911'
-  | 'other';
-
-type InjurySeverity = 'none' | 'minor' | 'moderate' | 'severe' | 'life_threatening';
-
-interface IncidentReport {
-  id: string;
-  visitId: string;
-  clientId: string;
-  clientName: string;
-  incidentType: IncidentType;
-  occurredAt: string;
-  reportedAt: string;
-  reportedBy: string;
-  description: string;
-  injurySeverity: InjurySeverity;
-  injuryLocation?: string;
-  actionsTaken: string[];
-  witnessName?: string;
-  witnessPhone?: string;
-  photoUris: string[];
-  location: {
-    latitude: number;
-    longitude: number;
-  };
-  familyNotified: boolean;
-  emergencyServicesContacted: boolean;
-}
+import {
+  incidentService,
+  type IncidentType,
+  type InjurySeverity,
+} from '../../services/incident.service';
 
 const INCIDENT_TYPES: Array<{ value: IncidentType; label: string; icon: string }> = [
   { value: 'fall', label: 'Fall', icon: '🤕' },
   { value: 'injury', label: 'Injury', icon: '🩹' },
   { value: 'medication_error', label: 'Medication Error', icon: '💊' },
   { value: 'behavioral', label: 'Behavioral Issue', icon: '😤' },
+  { value: 'equipment_failure', label: 'Equipment Failure', icon: '🔧' },
   { value: 'property_damage', label: 'Property Damage', icon: '🔨' },
   { value: 'missing_items', label: 'Missing Items', icon: '🔍' },
   { value: 'abuse_neglect', label: 'Abuse/Neglect', icon: '⚠️' },
@@ -86,12 +56,17 @@ export default function IncidentReportScreen({ route, navigation }: any) {
   const [description, setDescription] = useState('');
   const [injurySeverity, setInjurySeverity] = useState<InjurySeverity>('none');
   const [injuryLocation, setInjuryLocation] = useState('');
+  const [injuryDescription, setInjuryDescription] = useState('');
   const [actionsTaken, setActionsTaken] = useState<string[]>([]);
   const [witnessName, setWitnessName] = useState('');
   const [witnessPhone, setWitnessPhone] = useState('');
+  const [witnessStatement, setWitnessStatement] = useState('');
   const [photoUris, setPhotoUris] = useState<string[]>([]);
   const [familyNotified, setFamilyNotified] = useState(false);
   const [emergencyServicesContacted, setEmergencyServicesContacted] = useState(false);
+  const [followUpRequired, setFollowUpRequired] = useState(false);
+  const [followUpNotes, setFollowUpNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleAction = (action: string) => {
     if (actionsTaken.includes(action)) {
@@ -136,49 +111,89 @@ export default function IncidentReportScreen({ route, navigation }: any) {
     submitReport();
   };
 
-  const submitReport = () => {
-    const report: IncidentReport = {
-      id: `incident-${Date.now()}`,
-      visitId,
-      clientId,
-      clientName,
-      incidentType: incidentType!,
-      occurredAt: new Date().toISOString(),
-      reportedAt: new Date().toISOString(),
-      reportedBy: 'Current Caregiver', // TODO: Get from auth context
-      description,
-      injurySeverity,
-      injuryLocation: injuryLocation || undefined,
-      actionsTaken,
-      witnessName: witnessName || undefined,
-      witnessPhone: witnessPhone || undefined,
-      photoUris,
-      location: {
-        latitude: 30.2672,
-        longitude: -97.7431,
-      },
-      familyNotified,
-      emergencyServicesContacted: emergencyServicesContacted || incidentType === 'emergency_911',
-    };
+  const submitReport = useCallback(async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
-    // TODO: Save to database and sync to server
-    console.log('Incident report submitted:', report);
-
-    Alert.alert(
-      'Report Submitted',
-      `Incident report has been submitted and your supervisor has been notified.${
-        incidentType === 'abuse_neglect' || injurySeverity === 'life_threatening'
-          ? '\n\nThis is a HIGH PRIORITY incident. Coordinator has been alerted immediately.'
-          : ''
-      }`,
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
+    try {
+      const report = await incidentService.submitIncident({
+        visitId,
+        clientId,
+        clientName,
+        incidentType: incidentType!,
+        description,
+        occurredAt: new Date().toISOString(),
+        location: {
+          latitude: 30.2672, // TODO: Get from device location
+          longitude: -97.7431,
         },
-      ]
-    );
-  };
+        injurySeverity,
+        injuryLocation: injuryLocation || undefined,
+        injuryDescription: injuryDescription || undefined,
+        actionsTaken,
+        witnessName: witnessName || undefined,
+        witnessPhone: witnessPhone || undefined,
+        witnessStatement: witnessStatement || undefined,
+        photoUris,
+        familyNotified,
+        emergencyServicesContacted: emergencyServicesContacted || incidentType === 'emergency_911',
+        followUpRequired,
+        followUpNotes: followUpNotes || undefined,
+      });
+
+      const severityInfo = incidentService.getSeverityInfo(report.severity);
+      const isHighPriority =
+        report.severity === 'critical' || report.severity === 'high';
+
+      Alert.alert(
+        'Report Submitted',
+        `Incident report has been submitted and your supervisor has been notified.${
+          isHighPriority
+            ? `\n\n⚠️ This is a ${severityInfo.label.toUpperCase()} PRIORITY incident. Coordinator has been alerted immediately.`
+            : ''
+        }${
+          report.followUpRequired && report.followUpDueDate
+            ? `\n\n📋 Follow-up required by ${new Date(report.followUpDueDate).toLocaleDateString()}`
+            : ''
+        }`,
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Failed to submit incident report:', error);
+      Alert.alert(
+        'Submission Failed',
+        'Failed to submit incident report. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [
+    isSubmitting,
+    visitId,
+    clientId,
+    clientName,
+    incidentType,
+    description,
+    injurySeverity,
+    injuryLocation,
+    injuryDescription,
+    actionsTaken,
+    witnessName,
+    witnessPhone,
+    witnessStatement,
+    photoUris,
+    familyNotified,
+    emergencyServicesContacted,
+    followUpRequired,
+    followUpNotes,
+    navigation,
+  ]);
 
   // Step 1: Type Selection
   if (step === 'type') {
@@ -290,15 +305,29 @@ export default function IncidentReportScreen({ route, navigation }: any) {
           </View>
 
           {injurySeverity !== 'none' && (
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>Injury Location</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., Left knee, right forearm, head..."
-                value={injuryLocation}
-                onChangeText={setInjuryLocation}
-              />
-            </View>
+            <>
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Injury Location</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., Left knee, right forearm, head..."
+                  value={injuryLocation}
+                  onChangeText={setInjuryLocation}
+                />
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Injury Description</Text>
+                <TextInput
+                  style={styles.textArea}
+                  placeholder="Describe the injury in detail (appearance, bleeding, swelling, etc.)..."
+                  value={injuryDescription}
+                  onChangeText={setInjuryDescription}
+                  multiline
+                  numberOfLines={4}
+                />
+              </View>
+            </>
           )}
 
           <View style={styles.section}>
@@ -316,6 +345,16 @@ export default function IncidentReportScreen({ route, navigation }: any) {
               onChangeText={setWitnessPhone}
               keyboardType="phone-pad"
             />
+            {witnessName ? (
+              <TextInput
+                style={[styles.textArea, { marginTop: 8 }]}
+                placeholder="Witness statement (what did they see/hear?)"
+                value={witnessStatement}
+                onChangeText={setWitnessStatement}
+                multiline
+                numberOfLines={3}
+              />
+            ) : null}
           </View>
 
           <View style={styles.section}>
@@ -446,6 +485,45 @@ export default function IncidentReportScreen({ route, navigation }: any) {
             )}
           </View>
 
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Follow-up</Text>
+            <TouchableOpacity
+              style={[
+                styles.notificationOption,
+                followUpRequired && styles.notificationOptionChecked,
+              ]}
+              onPress={() => setFollowUpRequired(!followUpRequired)}
+            >
+              <View
+                style={[
+                  styles.notificationCheckbox,
+                  followUpRequired && styles.notificationCheckboxChecked,
+                ]}
+              >
+                {followUpRequired && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <View>
+                <Text style={styles.notificationLabel}>
+                  Follow-up Required
+                </Text>
+                <Text style={styles.notificationSubtext}>
+                  Check if this incident requires follow-up action
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {followUpRequired && (
+              <TextInput
+                style={[styles.textArea, { marginTop: 8 }]}
+                placeholder="Describe what follow-up is needed..."
+                value={followUpNotes}
+                onChangeText={setFollowUpNotes}
+                multiline
+                numberOfLines={3}
+              />
+            )}
+          </View>
+
           <TouchableOpacity
             style={styles.nextButton}
             onPress={() => setStep('review')}
@@ -545,6 +623,16 @@ export default function IncidentReportScreen({ route, navigation }: any) {
           </Text>
         </View>
 
+        {followUpRequired && (
+          <View style={styles.reviewSection}>
+            <Text style={styles.reviewLabel}>Follow-up Required</Text>
+            <Text style={[styles.reviewValue, { color: '#f59e0b' }]}>📋 Yes</Text>
+            {followUpNotes && (
+              <Text style={styles.reviewSubValue}>{followUpNotes}</Text>
+            )}
+          </View>
+        )}
+
         {(incidentType === 'abuse_neglect' ||
           injurySeverity === 'life_threatening' ||
           injurySeverity === 'severe') && (
@@ -559,8 +647,16 @@ export default function IncidentReportScreen({ route, navigation }: any) {
           </View>
         )}
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Submit Incident Report</Text>
+        <TouchableOpacity
+          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+          onPress={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.submitButtonText}>Submit Incident Report</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -881,6 +977,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
   },
   cancelButton: {
     backgroundColor: 'white',
