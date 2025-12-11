@@ -2,16 +2,18 @@
  * Visit Notes Screen - Enhanced
  *
  * Rich text notes for visit documentation with:
- * - Template selection
+ * - Template selection by category with customizable fields
  * - Voice-to-text input
  * - Activities performed checkboxes
  * - Client mood/condition assessment
  * - Incident reporting with severity
+ * - Auto-fill from care plan
+ * - Save as new template
  * - Offline storage and API sync
  * - 24-hour modification lock (compliance)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -22,6 +24,7 @@ import {
   Alert,
   FlatList,
   Switch,
+  Modal,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button } from '../../components/index';
@@ -30,40 +33,26 @@ import { Q } from '@nozbe/watermelondb';
 import { database } from '../../database/index';
 import type { VisitNote } from '../../database/models/VisitNote';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
+import {
+  visitNotesTemplateService,
+  type VisitNoteTemplate,
+  type TemplateCategory,
+  type TemplateVariable,
+} from '../../services/visitnotes-template.service';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VisitNotes'>;
 
-const DEFAULT_TEMPLATES = [
-  {
-    id: 'template-1',
-    name: 'Client in Good Spirits',
-    category: 'GENERAL',
-    text: 'Client was in good spirits and responsive. All scheduled services were completed as planned.',
-  },
-  {
-    id: 'template-2',
-    name: 'Assisted with ADLs',
-    category: 'ADL',
-    text: 'Assisted client with activities of daily living including bathing, dressing, and meal preparation. Client tolerated activities well.',
-  },
-  {
-    id: 'template-3',
-    name: 'Vital Signs Checked',
-    category: 'VITAL_SIGNS',
-    text: 'Vital signs checked and recorded. Blood pressure: [BP], Pulse: [PULSE], Temperature: [TEMP]. All readings within normal range.',
-  },
-  {
-    id: 'template-4',
-    name: 'Medication Reminder',
-    category: 'CLINICAL',
-    text: 'Reminded client to take prescribed medications. Client took medications as scheduled without issues.',
-  },
-  {
-    id: 'template-5',
-    name: 'Mobility Assistance',
-    category: 'ADL',
-    text: 'Provided mobility assistance and fall prevention support. Client used walker/cane safely throughout visit.',
-  },
+// Template categories for filtering
+const TEMPLATE_CATEGORIES: { value: TemplateCategory; label: string; icon: string }[] = [
+  { value: 'personal_care', label: 'Personal Care', icon: '🛁' },
+  { value: 'medication', label: 'Medication', icon: '💊' },
+  { value: 'meal_prep', label: 'Meal Prep', icon: '🍽️' },
+  { value: 'companionship', label: 'Companionship', icon: '💬' },
+  { value: 'transportation', label: 'Transportation', icon: '🚗' },
+  { value: 'housekeeping', label: 'Housekeeping', icon: '🧹' },
+  { value: 'vital_signs', label: 'Vital Signs', icon: '❤️' },
+  { value: 'mobility', label: 'Mobility', icon: '🚶' },
+  { value: 'general', label: 'General', icon: '📝' },
 ];
 
 const COMMON_ACTIVITIES = [
@@ -115,13 +104,33 @@ export function VisitNotesScreen({ route, navigation }: Props) {
   const [incidentDescription, setIncidentDescription] = useState('');
   
   // UI state
-  const [templates, setTemplates] = useState<typeof DEFAULT_TEMPLATES>([]);
+  const [templates, setTemplates] = useState<VisitNoteTemplate[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<TemplateCategory | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<VisitNoteTemplate | null>(null);
+  const [templateVariables, setTemplateVariables] = useState<Record<string, string>>({});
+  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [existingNotes, setExistingNotes] = useState<VisitNote[]>([]);
 
   const voiceService = new VoiceService(database);
+
+  const loadTemplates = useCallback(async () => {
+    try {
+      if (selectedCategory) {
+        const categoryTemplates = await visitNotesTemplateService.getTemplatesByCategory(selectedCategory);
+        setTemplates(categoryTemplates);
+      } else {
+        const allTemplates = await visitNotesTemplateService.getAllTemplates();
+        setTemplates(allTemplates);
+      }
+    } catch (error) {
+      console.error('Load templates error:', error);
+    }
+  }, [selectedCategory]);
 
   /**
    * Load templates and existing notes
@@ -132,13 +141,12 @@ export function VisitNotesScreen({ route, navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadTemplates = async () => {
-    try {
-      setTemplates(DEFAULT_TEMPLATES);
-    } catch (error) {
-      console.error('Load templates error:', error);
-    }
-  };
+  /**
+   * Reload templates when category changes
+   */
+  useEffect(() => {
+    void loadTemplates();
+  }, [selectedCategory, loadTemplates]);
 
   const loadExistingNotes = async () => {
     try {
@@ -156,9 +164,73 @@ export function VisitNotesScreen({ route, navigation }: Props) {
   /**
    * Handle template selection
    */
-  const handleSelectTemplate = (template: typeof DEFAULT_TEMPLATES[0]) => {
-    setNoteText(template.text);
+  const handleSelectTemplate = (template: VisitNoteTemplate) => {
+    if (template.variables.length > 0) {
+      // Template has variables - show modal for customization
+      setSelectedTemplate(template);
+      // Initialize with default values
+      const defaults: Record<string, string> = {};
+      template.variables.forEach((v) => {
+        if (v.defaultValue) {
+          defaults[v.key] = v.defaultValue;
+        }
+      });
+      setTemplateVariables(defaults);
+      setShowTemplateModal(true);
+    } else {
+      // No variables - apply directly
+      setNoteText((prev) => prev + (prev ? '\n\n' : '') + template.text);
+    }
     setShowTemplates(false);
+  };
+
+  /**
+   * Apply template with filled variables
+   */
+  const handleApplyTemplate = () => {
+    if (!selectedTemplate) return;
+
+    const filledText = visitNotesTemplateService.fillTemplate(selectedTemplate, templateVariables);
+    setNoteText((prev) => prev + (prev ? '\n\n' : '') + filledText);
+    setShowTemplateModal(false);
+    setSelectedTemplate(null);
+    setTemplateVariables({});
+  };
+
+  /**
+   * Handle variable value change
+   */
+  const handleVariableChange = (key: string, value: string) => {
+    setTemplateVariables((prev) => ({ ...prev, [key]: value }));
+  };
+
+  /**
+   * Save current note text as a new template
+   */
+  const handleSaveAsTemplate = async () => {
+    if (!newTemplateName.trim()) {
+      Alert.alert('Error', 'Please enter a template name');
+      return;
+    }
+    if (!noteText.trim()) {
+      Alert.alert('Error', 'No text to save as template');
+      return;
+    }
+
+    try {
+      await visitNotesTemplateService.saveCustomTemplate(
+        newTemplateName.trim(),
+        'custom',
+        noteText.trim()
+      );
+      Alert.alert('Success', 'Template saved successfully');
+      setShowSaveTemplateModal(false);
+      setNewTemplateName('');
+      void loadTemplates();
+    } catch (error) {
+      console.error('Save template error:', error);
+      Alert.alert('Error', 'Failed to save template');
+    }
   };
 
   /**
@@ -318,18 +390,87 @@ export function VisitNotesScreen({ route, navigation }: Props) {
   /**
    * Render template item
    */
-  const renderTemplate = ({ item }: { item: typeof DEFAULT_TEMPLATES[0] }) => (
-    <Pressable
-      style={styles.templateItem}
-      onPress={() => handleSelectTemplate(item)}
-    >
-      <Text style={styles.templateName}>{item.name}</Text>
-      <Text style={styles.templateCategory}>{item.category}</Text>
-      <Text style={styles.templatePreview} numberOfLines={2}>
-        {item.text}
-      </Text>
-    </Pressable>
-  );
+  const renderTemplate = ({ item }: { item: VisitNoteTemplate }) => {
+    const categoryInfo = visitNotesTemplateService.getCategoryInfo(item.category);
+    return (
+      <Pressable
+        style={styles.templateItem}
+        onPress={() => handleSelectTemplate(item)}
+      >
+        <View style={styles.templateHeader}>
+          <Text style={styles.templateIcon}>{categoryInfo.icon}</Text>
+          <View style={styles.templateInfo}>
+            <Text style={styles.templateName}>{item.name}</Text>
+            <Text style={[styles.templateCategory, { color: categoryInfo.color }]}>
+              {categoryInfo.label}
+            </Text>
+          </View>
+        </View>
+        <Text style={styles.templatePreview} numberOfLines={2}>
+          {item.text}
+        </Text>
+        {item.variables.length > 0 && (
+          <View style={styles.templateVariableBadge}>
+            <Text style={styles.templateVariableText}>
+              {item.variables.length} customizable field{item.variables.length > 1 ? 's' : ''}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    );
+  };
+
+  /**
+   * Render variable input field
+   */
+  const renderVariableInput = (variable: TemplateVariable) => {
+    const value = templateVariables[variable.key] || '';
+
+    if (variable.type === 'select' && variable.options) {
+      return (
+        <View key={variable.key} style={styles.variableContainer}>
+          <Text style={styles.variableLabel}>{variable.label}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.variableOptions}>
+              {variable.options.map((option) => (
+                <Pressable
+                  key={option}
+                  style={[
+                    styles.variableOption,
+                    value === option && styles.variableOptionSelected,
+                  ]}
+                  onPress={() => handleVariableChange(variable.key, option)}
+                >
+                  <Text
+                    style={[
+                      styles.variableOptionText,
+                      value === option && styles.variableOptionTextSelected,
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+      );
+    }
+
+    return (
+      <View key={variable.key} style={styles.variableContainer}>
+        <Text style={styles.variableLabel}>{variable.label}</Text>
+        <TextInput
+          style={styles.variableInput}
+          placeholder={variable.placeholder}
+          placeholderTextColor="#9CA3AF"
+          value={value}
+          onChangeText={(text) => handleVariableChange(variable.key, text)}
+          keyboardType={variable.type === 'number' ? 'numeric' : 'default'}
+        />
+      </View>
+    );
+  };
 
   /**
    * Render existing note
@@ -388,14 +529,64 @@ export function VisitNotesScreen({ route, navigation }: Props) {
           </Pressable>
 
           {showTemplates && (
-            <FlatList
-              data={templates}
-              renderItem={renderTemplate}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.templateList}
-            />
+            <>
+              {/* Category Filter */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.categoryFilter}
+              >
+                <Pressable
+                  style={[
+                    styles.categoryChip,
+                    !selectedCategory && styles.categoryChipSelected,
+                  ]}
+                  onPress={() => setSelectedCategory(null)}
+                >
+                  <Text
+                    style={[
+                      styles.categoryChipText,
+                      !selectedCategory && styles.categoryChipTextSelected,
+                    ]}
+                  >
+                    All
+                  </Text>
+                </Pressable>
+                {TEMPLATE_CATEGORIES.map((cat) => (
+                  <Pressable
+                    key={cat.value}
+                    style={[
+                      styles.categoryChip,
+                      selectedCategory === cat.value && styles.categoryChipSelected,
+                    ]}
+                    onPress={() => setSelectedCategory(cat.value)}
+                  >
+                    <Text style={styles.categoryChipIcon}>{cat.icon}</Text>
+                    <Text
+                      style={[
+                        styles.categoryChipText,
+                        selectedCategory === cat.value && styles.categoryChipTextSelected,
+                      ]}
+                    >
+                      {cat.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+              {/* Template List */}
+              <FlatList
+                data={templates}
+                renderItem={renderTemplate}
+                keyExtractor={(item) => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.templateList}
+                ListEmptyComponent={
+                  <Text style={styles.noTemplates}>No templates in this category</Text>
+                }
+              />
+            </>
           )}
         </View>
 
@@ -552,6 +743,17 @@ export function VisitNotesScreen({ route, navigation }: Props) {
               {isRecording ? 'Stop Recording' : 'Voice to Text'}
             </Text>
           </Pressable>
+
+          {/* Save as Template Button */}
+          {noteText.trim().length > 0 && (
+            <Pressable
+              style={styles.saveTemplateButton}
+              onPress={() => setShowSaveTemplateModal(true)}
+            >
+              <Text style={styles.saveTemplateIcon}>⭐</Text>
+              <Text style={styles.saveTemplateText}>Save as Template</Text>
+            </Pressable>
+          )}
         </View>
 
         {/* Existing Notes */}
@@ -587,6 +789,107 @@ export function VisitNotesScreen({ route, navigation }: Props) {
           {isSaving ? 'Saving...' : 'Save Note'}
         </Button>
       </View>
+
+      {/* Template Variables Modal */}
+      <Modal
+        visible={showTemplateModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowTemplateModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Customize Template</Text>
+              <Pressable onPress={() => setShowTemplateModal(false)}>
+                <Text style={styles.modalClose}>✕</Text>
+              </Pressable>
+            </View>
+
+            {selectedTemplate && (
+              <>
+                <Text style={styles.modalSubtitle}>{selectedTemplate.name}</Text>
+
+                <ScrollView style={styles.modalBody}>
+                  {selectedTemplate.variables.map(renderVariableInput)}
+
+                  <View style={styles.templatePreviewContainer}>
+                    <Text style={styles.templatePreviewLabel}>Preview:</Text>
+                    <Text style={styles.templatePreviewText}>
+                      {visitNotesTemplateService.fillTemplate(selectedTemplate, templateVariables)}
+                    </Text>
+                  </View>
+                </ScrollView>
+
+                <View style={styles.modalFooter}>
+                  <Pressable
+                    style={styles.modalCancelButton}
+                    onPress={() => setShowTemplateModal(false)}
+                  >
+                    <Text style={styles.modalCancelText}>Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.modalApplyButton}
+                    onPress={handleApplyTemplate}
+                  >
+                    <Text style={styles.modalApplyText}>Apply Template</Text>
+                  </Pressable>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Save as Template Modal */}
+      <Modal
+        visible={showSaveTemplateModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowSaveTemplateModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Save as Template</Text>
+              <Pressable onPress={() => setShowSaveTemplateModal(false)}>
+                <Text style={styles.modalClose}>✕</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.modalBody}>
+              <Text style={styles.variableLabel}>Template Name</Text>
+              <TextInput
+                style={styles.variableInput}
+                placeholder="Enter a name for this template"
+                placeholderTextColor="#9CA3AF"
+                value={newTemplateName}
+                onChangeText={setNewTemplateName}
+              />
+
+              <Text style={styles.templatePreviewLabel}>Template Content:</Text>
+              <Text style={styles.templatePreviewText} numberOfLines={5}>
+                {noteText}
+              </Text>
+            </View>
+
+            <View style={styles.modalFooter}>
+              <Pressable
+                style={styles.modalCancelButton}
+                onPress={() => setShowSaveTemplateModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={styles.modalApplyButton}
+                onPress={handleSaveAsTemplate}
+              >
+                <Text style={styles.modalApplyText}>Save Template</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -903,5 +1206,221 @@ const styles = StyleSheet.create({
   },
   footerButton: {
     flex: 1,
+  },
+  // Category filter styles
+  categoryFilter: {
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginRight: 8,
+  },
+  categoryChipSelected: {
+    backgroundColor: '#2563EB',
+    borderColor: '#2563EB',
+  },
+  categoryChipIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  categoryChipText: {
+    fontSize: 12,
+    color: '#374151',
+  },
+  categoryChipTextSelected: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  noTemplates: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    fontStyle: 'italic',
+    padding: 20,
+  },
+  // Enhanced template styles
+  templateHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  templateIcon: {
+    fontSize: 24,
+    marginRight: 10,
+  },
+  templateInfo: {
+    flex: 1,
+  },
+  templateVariableBadge: {
+    marginTop: 8,
+    backgroundColor: '#FEF3C7',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+  templateVariableText: {
+    fontSize: 10,
+    color: '#92400E',
+    fontWeight: '500',
+  },
+  // Save as template button
+  saveTemplateButton: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: '#FEF3C7',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+  },
+  saveTemplateIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  saveTemplateText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#92400E',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  modalClose: {
+    fontSize: 20,
+    color: '#6B7280',
+  },
+  modalBody: {
+    padding: 20,
+    maxHeight: 400,
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    gap: 12,
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  modalCancelButton: {
+    flex: 1,
+    padding: 14,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  modalApplyButton: {
+    flex: 1,
+    padding: 14,
+    backgroundColor: '#2563EB',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalApplyText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  // Variable input styles
+  variableContainer: {
+    marginBottom: 16,
+  },
+  variableLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  variableInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 12,
+    fontSize: 14,
+    color: '#111827',
+  },
+  variableOptions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  variableOption: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  variableOptionSelected: {
+    backgroundColor: '#2563EB',
+    borderColor: '#2563EB',
+  },
+  variableOptionText: {
+    fontSize: 12,
+    color: '#374151',
+  },
+  variableOptionTextSelected: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  // Template preview styles
+  templatePreviewContainer: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+  },
+  templatePreviewLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  templatePreviewText: {
+    fontSize: 14,
+    color: '#111827',
+    lineHeight: 20,
   },
 });
