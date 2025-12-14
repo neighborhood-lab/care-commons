@@ -131,7 +131,8 @@ export async function up(knex: Knex): Promise<void> {
     // Related entities
     table.uuid('related_visit_id').references('id').inTable('visits');
     table.uuid('medication_id').references('id').inTable('medications');
-    table.uuid('care_plan_task_id').references('id').inTable('care_plan_tasks');
+    // NOTE: care_plan_tasks table not yet created, will add FK constraint when available
+    table.uuid('care_plan_task_id');
 
     // Clinical notes
     table.text('clinical_notes');
