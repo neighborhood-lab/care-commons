@@ -39,6 +39,13 @@ export type {
   StaffCostTrendDataPoint,
   StaffCostAnalysis,
   StaffCostQueryOptions,
+  // Margin Analysis types
+  ServiceType,
+  ServiceMarginMetrics,
+  MarginTrendDataPoint,
+  PayerMarginBreakdown,
+  ServiceMarginAnalysis,
+  MarginAnalysisQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -46,6 +53,7 @@ export { AnalyticsService } from './service/analytics-service';
 export { ReportService } from './service/report-service';
 export { ExportService } from './service/export-service';
 export { StaffCostAnalysisService } from './service/staff-cost-analysis-service';
+export { MarginAnalysisService } from './service/margin-analysis-service';
 
 // Natural Language Query (AI-powered)
 export {

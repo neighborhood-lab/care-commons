@@ -413,3 +413,152 @@ export interface StaffCostQueryOptions {
   includeTrends?: boolean;
   trendPeriods?: number; // Number of months for trend data
 }
+
+// ============================================================================
+// Margin Analysis Types
+// ============================================================================
+
+/**
+ * Service type for margin analysis
+ */
+export type ServiceType =
+  | 'PERSONAL_CARE'
+  | 'HOMEMAKER'
+  | 'COMPANION'
+  | 'RESPITE'
+  | 'SKILLED_NURSING'
+  | 'PHYSICAL_THERAPY'
+  | 'OCCUPATIONAL_THERAPY'
+  | 'SPEECH_THERAPY'
+  | 'HOSPICE'
+  | 'OTHER';
+
+/**
+ * Margin metrics for a service type
+ */
+export interface ServiceMarginMetrics {
+  serviceType: ServiceType;
+  serviceName: string;
+
+  // Volume metrics
+  totalVisits: number;
+  totalHours: number;
+  uniqueClients: number;
+
+  // Revenue metrics
+  grossRevenue: number;
+  adjustments: number;
+  netRevenue: number;
+
+  // Cost metrics
+  directLaborCost: number;
+  indirectCost: number;
+  totalCost: number;
+
+  // Margin calculations
+  grossMargin: number;
+  grossMarginPercentage: number;
+  netMargin: number;
+  netMarginPercentage: number;
+
+  // Efficiency metrics
+  revenuePerHour: number;
+  costPerHour: number;
+  marginPerHour: number;
+  averageVisitDuration: number;
+}
+
+/**
+ * Margin trend data point
+ */
+export interface MarginTrendDataPoint {
+  period: string; // e.g., "2025-01"
+  serviceType: ServiceType;
+  grossRevenue: number;
+  totalCost: number;
+  grossMargin: number;
+  grossMarginPercentage: number;
+}
+
+/**
+ * Payer-level margin breakdown
+ */
+export interface PayerMarginBreakdown {
+  payerId: string;
+  payerName: string;
+  payerType: 'MEDICARE' | 'MEDICAID' | 'PRIVATE_INSURANCE' | 'PRIVATE_PAY' | 'OTHER';
+  totalRevenue: number;
+  totalCost: number;
+  margin: number;
+  marginPercentage: number;
+  visitCount: number;
+  averageReimbursementRate: number;
+}
+
+/**
+ * Service margin analysis result
+ */
+export interface ServiceMarginAnalysis {
+  period: DateRange;
+  organizationId: string;
+  branchId?: string;
+
+  // Summary metrics
+  summary: {
+    totalGrossRevenue: number;
+    totalNetRevenue: number;
+    totalCost: number;
+    overallGrossMargin: number;
+    overallGrossMarginPercentage: number;
+    overallNetMargin: number;
+    overallNetMarginPercentage: number;
+    totalVisits: number;
+    totalHours: number;
+  };
+
+  // Breakdown by service type
+  byService: ServiceMarginMetrics[];
+
+  // Breakdown by payer (optional)
+  byPayer?: PayerMarginBreakdown[];
+
+  // Trends over time (optional)
+  trends?: MarginTrendDataPoint[];
+
+  // Top performers
+  topPerformingServices: Array<{
+    serviceType: ServiceType;
+    serviceName: string;
+    marginPercentage: number;
+    marginContribution: number; // Dollar amount contributed to total margin
+  }>;
+
+  // Services needing attention
+  lowMarginServices: Array<{
+    serviceType: ServiceType;
+    serviceName: string;
+    marginPercentage: number;
+    potentialIssue: string;
+    recommendation: string;
+  }>;
+
+  // Benchmarks
+  benchmarks: {
+    targetGrossMarginPercentage: number;
+    industryAverageGrossMarginPercentage: number;
+    status: 'ABOVE_TARGET' | 'AT_TARGET' | 'BELOW_TARGET' | 'CRITICAL';
+  };
+}
+
+/**
+ * Margin analysis query options
+ */
+export interface MarginAnalysisQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  dateRange: DateRange;
+  serviceTypes?: ServiceType[];
+  includePayerBreakdown?: boolean;
+  includeTrends?: boolean;
+  trendPeriods?: number;
+}
