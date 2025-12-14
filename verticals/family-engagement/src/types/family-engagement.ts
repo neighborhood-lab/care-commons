@@ -1364,3 +1364,224 @@ export interface InvoicePDFData {
   paymentInstructions?: string;
   footerText?: string;
 }
+
+// ============================================================================
+// Agency Contact Information Types
+// ============================================================================
+
+/**
+ * Day of week for business hours
+ */
+export type DayOfWeek =
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY'
+  | 'SUNDAY';
+
+/**
+ * Contact type for staff
+ */
+export type AgencyContactType =
+  | 'MAIN_OFFICE'
+  | 'BILLING'
+  | 'SCHEDULING'
+  | 'CARE_COORDINATION'
+  | 'EMERGENCY'
+  | 'AFTER_HOURS'
+  | 'NURSE_LINE'
+  | 'SOCIAL_WORKER';
+
+/**
+ * Business hours for a specific day
+ */
+export interface BusinessHours {
+  dayOfWeek: DayOfWeek;
+  isOpen: boolean;
+  openTime?: string; // HH:mm format
+  closeTime?: string; // HH:mm format
+  notes?: string; // e.g., "Closed for lunch 12-1pm"
+}
+
+/**
+ * Holiday closure or special hours
+ */
+export interface HolidaySchedule {
+  date: string; // YYYY-MM-DD
+  name: string; // e.g., "Christmas Day"
+  isClosed: boolean;
+  specialHours?: {
+    openTime: string;
+    closeTime: string;
+  };
+  notes?: string;
+}
+
+/**
+ * Agency contact person or department
+ */
+export interface AgencyContact {
+  id: UUID;
+  contactType: AgencyContactType;
+  displayName: string;
+  description?: string;
+  phoneNumber: string;
+  phoneExtension?: string;
+  email?: string;
+  isAvailable24Hours: boolean;
+  availableHours?: BusinessHours[];
+  isPrimaryContact: boolean;
+  sortOrder: number;
+}
+
+/**
+ * Full agency contact information for family portal
+ * Clear display of all contact options with hours
+ */
+export interface AgencyContactInfo {
+  /** Organization ID */
+  organizationId: UUID;
+
+  /** Organization name */
+  organizationName: string;
+
+  /** Organization logo URL */
+  logoUrl?: string;
+
+  // ---- Primary Contact Information ----
+
+  /** Main office phone number */
+  mainPhone: string;
+
+  /** Main office fax number */
+  faxNumber?: string;
+
+  /** General email address */
+  generalEmail: string;
+
+  /** Website URL */
+  websiteUrl?: string;
+
+  // ---- Physical Address ----
+
+  /** Street address */
+  streetAddress: string;
+
+  /** Suite/unit number */
+  suiteNumber?: string;
+
+  /** City */
+  city: string;
+
+  /** State/Province */
+  state: string;
+
+  /** ZIP/Postal code */
+  postalCode: string;
+
+  /** Country */
+  country: string;
+
+  // ---- Business Hours ----
+
+  /** Regular business hours by day */
+  businessHours: BusinessHours[];
+
+  /** Timezone for business hours */
+  timezone: string;
+
+  /** Holiday schedule and closures */
+  holidaySchedule: HolidaySchedule[];
+
+  // ---- Emergency & After-Hours ----
+
+  /** Emergency phone number (24/7) */
+  emergencyPhone: string;
+
+  /** Emergency instructions */
+  emergencyInstructions: string;
+
+  /** After-hours phone number */
+  afterHoursPhone?: string;
+
+  /** After-hours instructions */
+  afterHoursInstructions?: string;
+
+  /** Nurse hotline (if available) */
+  nurseHotline?: string;
+
+  // ---- Department Contacts ----
+
+  /** List of department/staff contacts */
+  departmentContacts: AgencyContact[];
+
+  // ---- Additional Information ----
+
+  /** Message for families */
+  welcomeMessage?: string;
+
+  /** Special announcements */
+  announcements?: AgencyAnnouncement[];
+
+  /** Last updated timestamp */
+  lastUpdated: Timestamp;
+}
+
+/**
+ * Agency announcement for families
+ */
+export interface AgencyAnnouncement {
+  id: UUID;
+  title: string;
+  message: string;
+  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+  effectiveFrom: Timestamp;
+  effectiveTo?: Timestamp;
+  dismissible: boolean;
+}
+
+/**
+ * Office status (open/closed/limited)
+ */
+export type OfficeStatus = 'OPEN' | 'CLOSED' | 'LIMITED_HOURS' | 'EMERGENCY_ONLY';
+
+/**
+ * Current agency status for quick display
+ */
+export interface AgencyStatusInfo {
+  /** Current office status */
+  currentStatus: OfficeStatus;
+
+  /** Status message */
+  statusMessage: string;
+
+  /** When office opens/closes next */
+  nextStatusChange?: {
+    status: OfficeStatus;
+    time: Timestamp;
+    message: string;
+  };
+
+  /** Is currently within business hours */
+  isBusinessHours: boolean;
+
+  /** Is emergency line available */
+  emergencyAvailable: boolean;
+
+  /** Urgent announcements to display */
+  urgentAnnouncements: AgencyAnnouncement[];
+}
+
+/**
+ * Input for getting agency contact info
+ */
+export interface GetAgencyContactInfoInput {
+  familyMemberId: UUID;
+  clientId: UUID;
+  /** Include full holiday schedule */
+  includeHolidaySchedule?: boolean;
+  /** Include announcements */
+  includeAnnouncements?: boolean;
+}
