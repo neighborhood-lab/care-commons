@@ -131,6 +131,25 @@ export type LossType =
   | 'ANTICIPATORY';     // Terminal diagnosis, preparing for loss
 
 /**
+ * Preferred contact method for bereavement support
+ */
+export type ContactMethod =
+  | 'PHONE'
+  | 'EMAIL'
+  | 'IN_PERSON'
+  | 'NO_CONTACT';
+
+/**
+ * Contact frequency for bereavement support
+ */
+export type ContactFrequency =
+  | 'DAILY'
+  | 'WEEKLY'
+  | 'BIWEEKLY'
+  | 'MONTHLY'
+  | 'AS_NEEDED';
+
+/**
  * Bereavement support record for a family
  */
 export interface BereavementSupport extends Entity {
@@ -157,8 +176,8 @@ export interface BereavementSupport extends Entity {
   specialConsiderations?: string; // Cultural, religious, etc.
 
   // Communication preferences
-  preferredContactMethod?: 'PHONE' | 'EMAIL' | 'IN_PERSON' | 'NO_CONTACT';
-  contactFrequency?: 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'AS_NEEDED';
+  preferredContactMethod?: ContactMethod;
+  contactFrequency?: ContactFrequency;
   doNotContactUntil?: string;  // Family requested no contact until date
 
   // Follow-up tracking
@@ -381,8 +400,8 @@ export interface CreateBereavementSupportInput {
   assignedCoordinatorId?: UUID;
   initialAssessmentNotes?: string;
   specialConsiderations?: string;
-  preferredContactMethod?: 'PHONE' | 'EMAIL' | 'IN_PERSON' | 'NO_CONTACT';
-  contactFrequency?: 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'AS_NEEDED';
+  preferredContactMethod?: ContactMethod;
+  contactFrequency?: ContactFrequency;
   organizationId: UUID;
   branchId: UUID;
 }
@@ -396,8 +415,8 @@ export interface UpdateBereavementSupportInput {
   assignedCoordinatorId?: UUID;
   supportPlanNotes?: string;
   specialConsiderations?: string;
-  preferredContactMethod?: 'PHONE' | 'EMAIL' | 'IN_PERSON' | 'NO_CONTACT';
-  contactFrequency?: 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'AS_NEEDED';
+  preferredContactMethod?: ContactMethod;
+  contactFrequency?: ContactFrequency;
   doNotContactUntil?: string;
   nextFollowUpDate?: string;
 }
