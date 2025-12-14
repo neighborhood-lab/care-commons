@@ -1585,3 +1585,301 @@ export interface GetAgencyContactInfoInput {
   /** Include announcements */
   includeAnnouncements?: boolean;
 }
+
+// ============================================================================
+// Family Onboarding Guide Types
+// ============================================================================
+
+/**
+ * Onboarding step status
+ */
+export type OnboardingStepStatus =
+  | 'NOT_STARTED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'SKIPPED';
+
+/**
+ * Type of onboarding content
+ */
+export type OnboardingContentType =
+  | 'WELCOME' // Welcome message
+  | 'VIDEO' // Tutorial video
+  | 'ARTICLE' // Text article
+  | 'CHECKLIST' // Checklist of items
+  | 'INTERACTIVE' // Interactive tutorial
+  | 'FAQ'; // Frequently asked questions
+
+/**
+ * Onboarding step category
+ */
+export type OnboardingCategory =
+  | 'GETTING_STARTED' // Initial setup
+  | 'PORTAL_NAVIGATION' // How to use the portal
+  | 'CARE_TEAM' // Meet your care team
+  | 'COMMUNICATION' // How to communicate
+  | 'SCHEDULING' // Understanding schedules
+  | 'BILLING' // Billing and payments
+  | 'DOCUMENTS' // Document management
+  | 'EMERGENCY' // Emergency procedures
+  | 'RESOURCES'; // Additional resources
+
+/**
+ * Single onboarding step
+ */
+export interface OnboardingStep extends Entity {
+  /** Step identifier */
+  stepId: string;
+
+  /** Display order */
+  order: number;
+
+  /** Category of this step */
+  category: OnboardingCategory;
+
+  /** Step title */
+  title: string;
+
+  /** Brief description */
+  description: string;
+
+  /** Content type */
+  contentType: OnboardingContentType;
+
+  /** Estimated time to complete (minutes) */
+  estimatedMinutes: number;
+
+  /** Is this step required */
+  isRequired: boolean;
+
+  /** Can this step be skipped */
+  canSkip: boolean;
+
+  /** Icon identifier for UI */
+  iconName?: string;
+
+  /** Organization ID */
+  organizationId: UUID;
+}
+
+/**
+ * Content for an onboarding step
+ */
+export interface OnboardingStepContent {
+  stepId: string;
+
+  /** Main content (markdown) */
+  bodyContent: string;
+
+  /** Video URL if applicable */
+  videoUrl?: string;
+
+  /** Video thumbnail */
+  videoThumbnail?: string;
+
+  /** Video duration in seconds */
+  videoDurationSeconds?: number;
+
+  /** Checklist items if applicable */
+  checklistItems?: OnboardingChecklistItem[];
+
+  /** FAQ items if applicable */
+  faqItems?: OnboardingFAQItem[];
+
+  /** Tips or highlights */
+  tips?: string[];
+
+  /** Action button text */
+  actionButtonText?: string;
+
+  /** Action button URL */
+  actionButtonUrl?: string;
+
+  /** Related steps */
+  relatedStepIds?: string[];
+}
+
+/**
+ * Checklist item for onboarding
+ */
+export interface OnboardingChecklistItem {
+  id: string;
+  text: string;
+  description?: string;
+  isRequired: boolean;
+  helpUrl?: string;
+}
+
+/**
+ * FAQ item for onboarding
+ */
+export interface OnboardingFAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+}
+
+/**
+ * Family member's progress through onboarding
+ */
+export interface FamilyOnboardingProgress extends Entity {
+  /** Family member ID */
+  familyMemberId: UUID;
+
+  /** Client ID */
+  clientId: UUID;
+
+  /** Overall completion percentage */
+  overallProgress: number;
+
+  /** Steps progress */
+  stepProgress: OnboardingStepProgress[];
+
+  /** When onboarding was started */
+  startedAt: Timestamp;
+
+  /** When onboarding was completed */
+  completedAt?: Timestamp;
+
+  /** Is onboarding complete */
+  isComplete: boolean;
+
+  /** Time spent on onboarding (minutes) */
+  totalTimeSpentMinutes: number;
+
+  /** Organization ID */
+  organizationId: UUID;
+}
+
+/**
+ * Progress for a single onboarding step
+ */
+export interface OnboardingStepProgress {
+  stepId: string;
+  status: OnboardingStepStatus;
+  startedAt?: Timestamp;
+  completedAt?: Timestamp;
+  skippedAt?: Timestamp;
+  timeSpentMinutes: number;
+  checklistProgress?: OnboardingChecklistProgress[];
+}
+
+/**
+ * Progress for checklist items
+ */
+export interface OnboardingChecklistProgress {
+  itemId: string;
+  isChecked: boolean;
+  checkedAt?: Timestamp;
+}
+
+/**
+ * Complete onboarding guide for display
+ */
+export interface FamilyOnboardingGuide {
+  /** Family member's name for personalization */
+  familyMemberName: string;
+
+  /** Client's name */
+  clientName: string;
+
+  /** Welcome message */
+  welcomeMessage: string;
+
+  /** Organization name */
+  organizationName: string;
+
+  /** Care coordinator contact */
+  careCoordinatorContact?: {
+    name: string;
+    phone: string;
+    email: string;
+    photoUrl?: string;
+  };
+
+  /** All onboarding steps */
+  steps: OnboardingStepWithContent[];
+
+  /** Family member's progress */
+  progress: FamilyOnboardingProgress;
+
+  /** Categories with their steps */
+  categories: OnboardingCategoryInfo[];
+
+  /** Quick start tips */
+  quickStartTips: string[];
+
+  /** Emergency contact info (always visible) */
+  emergencyContact: {
+    phone: string;
+    instructions: string;
+  };
+}
+
+/**
+ * Onboarding step with content combined
+ */
+export interface OnboardingStepWithContent extends OnboardingStep {
+  content: OnboardingStepContent;
+  progress?: OnboardingStepProgress;
+}
+
+/**
+ * Category info for grouping steps
+ */
+export interface OnboardingCategoryInfo {
+  category: OnboardingCategory;
+  displayName: string;
+  description: string;
+  iconName: string;
+  stepCount: number;
+  completedCount: number;
+  isExpanded?: boolean;
+}
+
+/**
+ * Input for starting onboarding
+ */
+export interface StartOnboardingInput {
+  familyMemberId: UUID;
+  clientId: UUID;
+}
+
+/**
+ * Input for completing an onboarding step
+ */
+export interface CompleteOnboardingStepInput {
+  familyMemberId: UUID;
+  clientId: UUID;
+  stepId: string;
+  timeSpentMinutes?: number;
+  checklistProgress?: OnboardingChecklistProgress[];
+}
+
+/**
+ * Input for skipping an onboarding step
+ */
+export interface SkipOnboardingStepInput {
+  familyMemberId: UUID;
+  clientId: UUID;
+  stepId: string;
+}
+
+/**
+ * Onboarding completion summary
+ */
+export interface OnboardingCompletionSummary {
+  familyMemberId: UUID;
+  clientId: UUID;
+  completedStepsCount: number;
+  totalStepsCount: number;
+  skippedStepsCount: number;
+  totalTimeSpentMinutes: number;
+  completedAt: Timestamp;
+  nextRecommendedAction?: {
+    title: string;
+    description: string;
+    actionUrl: string;
+  };
+}
