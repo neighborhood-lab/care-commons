@@ -1,0 +1,188 @@
+/* Folk Care Tour Styles - Enhanced Driver.js Customization */
+
+/* Darker overlay for better focus on highlighted elements */
+.driver-overlay {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Highlight stage - rounded corners and subtle glow */
+.driver-active-element {
+  box-shadow:
+    0 0 0 4px rgba(59, 130, 246, 0.5),
+    0 0 20px rgba(59, 130, 246, 0.3) !important;
+  border-radius: 8px !important;
+}
+
+/* Popover styling - matches Folk Care design system */
+.driver-popover {
+  background-color: white !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  max-width: 400px !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* Popover arrow */
+.driver-popover-arrow {
+  border: none !important;
+}
+
+.driver-popover-arrow-side-left,
+.driver-popover-arrow-side-right,
+.driver-popover-arrow-side-top,
+.driver-popover-arrow-side-bottom {
+  background-color: white !important;
+}
+
+/* Title styling */
+.driver-popover-title {
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+  padding: 16px 20px 0 !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+/* Description styling */
+.driver-popover-description {
+  font-size: 0.9375rem !important;
+  color: #4b5563 !important;
+  padding: 8px 20px 16px !important;
+  margin: 0 !important;
+  line-height: 1.6 !important;
+}
+
+/* Progress indicator */
+.driver-popover-progress-text {
+  font-size: 0.75rem !important;
+  color: #9ca3af !important;
+  padding: 0 20px 12px !important;
+  border-top: 1px solid #f3f4f6 !important;
+  margin-top: 0 !important;
+  padding-top: 12px !important;
+}
+
+/* Footer with buttons */
+.driver-popover-footer {
+  background-color: #f9fafb !important;
+  padding: 12px 16px !important;
+  border-top: 1px solid #e5e7eb !important;
+  display: flex !important;
+  gap: 8px !important;
+}
+
+/* Button base styles */
+.driver-popover-footer button {
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+/* Previous button */
+.driver-popover-prev-btn {
+  background-color: white !important;
+  color: #374151 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.driver-popover-prev-btn:hover {
+  background-color: #f9fafb !important;
+  border-color: #9ca3af !important;
+}
+
+/* Next button */
+.driver-popover-next-btn {
+  background-color: #2563eb !important;
+  color: white !important;
+  border: none !important;
+}
+
+.driver-popover-next-btn:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Close button (X) */
+.driver-popover-close-btn {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  border: none !important;
+  background-color: #f3f4f6 !important;
+  color: #6b7280 !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.driver-popover-close-btn:hover {
+  background-color: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* Done button (on last step) */
+.driver-popover-done-btn {
+  background-color: #059669 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.driver-popover-done-btn:hover {
+  background-color: #047857 !important;
+}
+
+/* Custom class for Folk Care tours */
+.folkcare-tour-popover {
+  animation: slideIn 0.2s ease-out !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .driver-popover {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px !important;
+  }
+
+  .driver-popover-title {
+    font-size: 1rem !important;
+    padding: 14px 16px 0 !important;
+  }
+
+  .driver-popover-description {
+    font-size: 0.875rem !important;
+    padding: 6px 16px 14px !important;
+  }
+
+  .driver-popover-footer {
+    padding: 10px 12px !important;
+  }
+
+  .driver-popover-footer button {
+    padding: 8px 12px !important;
+    font-size: 0.8125rem !important;
+  }
+}

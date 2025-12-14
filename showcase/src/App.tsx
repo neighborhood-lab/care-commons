@@ -56,8 +56,8 @@ export const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <DataProviderContextProvider provider={mockProvider}>
         <RoleProvider defaultRole="coordinator">
-          <TourProvider>
-            <BrowserRouter basename="/">
+          <BrowserRouter basename="/">
+            <TourProvider>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
@@ -89,9 +89,9 @@ export const App: React.FC = () => {
                 <Route path="/mobile/clients" element={<MobileClientsPage />} />
                 <Route path="/mobile/care-plans" element={<MobileCarePlansPage />} />
               </Routes>
-            </BrowserRouter>
+            </TourProvider>
             <Toaster position="top-right" />
-          </TourProvider>
+          </BrowserRouter>
         </RoleProvider>
       </DataProviderContextProvider>
     </QueryClientProvider>
