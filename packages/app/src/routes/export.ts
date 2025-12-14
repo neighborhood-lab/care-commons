@@ -2,13 +2,15 @@
  * Data Export routes
  *
  * Provides API endpoints for one-click full data export
+ * including FHIR R4 format for healthcare interoperability.
  */
 
 import { Router, type Router as RouterType, type Request, type Response } from 'express';
-import { DataExportService } from '@folkcare/core';
+import { DataExportService, FHIRExportService } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context';
 import { asyncHandler } from '@folkcare/core';
 import { z } from 'zod';
+import type { UUID } from '@folkcare/core';
 
 const router: RouterType = Router();
 
@@ -140,6 +142,113 @@ router.post('/audit-logs', asyncHandler(async (req: Request, res: Response) => {
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(result.data);
   }
+}));
+
+// ============================================================================
+// FHIR R4 Export Routes
+// ============================================================================
+
+// Validation schema for FHIR batch export
+const fhirBatchExportSchema = z.object({
+  clientIds: z.array(z.string().uuid()).min(1).max(100),
+  includeOrganization: z.boolean().optional().default(true),
+});
+
+/**
+ * Export single patient as FHIR R4 Bundle
+ *
+ * @route GET /export/fhir/patient/:clientId
+ * @security Requires authentication and organization scope
+ */
+router.get('/fhir/patient/:clientId', asyncHandler(async (req: Request, res: Response) => {
+  const organizationId = req.user?.organizationId;
+
+  if (organizationId === undefined) {
+    res.status(400).json({ error: 'Organization ID required' });
+    return;
+  }
+
+  const clientId = req.params.clientId;
+  if (clientId === undefined || clientId === '' || !z.string().uuid().safeParse(clientId).success) {
+    res.status(400).json({ error: 'Valid client ID required' });
+    return;
+  }
+
+  const includeOrganization = req.query.includeOrganization !== 'false';
+
+  const fhirService = new FHIRExportService();
+  const bundle = await fhirService.exportPatientBundle(
+    clientId as UUID,
+    organizationId,
+    { includeOrganization }
+  );
+
+  // Set FHIR-specific headers
+  const timestamp = new Date().toISOString().replace(/[.:]/g, '-');
+  const filename = `fhir-patient-${clientId.slice(0, 8)}-${timestamp}.json`;
+
+  res.setHeader('Content-Type', 'application/fhir+json');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.json(bundle);
+}));
+
+/**
+ * Export multiple patients as FHIR R4 searchset Bundle
+ *
+ * @route POST /export/fhir/patients
+ * @security Requires authentication and organization scope
+ * @body {clientIds: string[], includeOrganization?: boolean}
+ */
+router.post('/fhir/patients', asyncHandler(async (req: Request, res: Response) => {
+  const organizationId = req.user?.organizationId;
+
+  if (organizationId === undefined) {
+    res.status(400).json({ error: 'Organization ID required' });
+    return;
+  }
+
+  // Validate request body
+  const validatedBody = fhirBatchExportSchema.parse(req.body);
+
+  const fhirService = new FHIRExportService();
+  const bundle = await fhirService.exportPatientSearchSet(
+    validatedBody.clientIds as UUID[],
+    organizationId,
+    { includeOrganization: validatedBody.includeOrganization }
+  );
+
+  // Set FHIR-specific headers
+  const timestamp = new Date().toISOString().replace(/[.:]/g, '-');
+  const filename = `fhir-patients-${organizationId.slice(0, 8)}-${timestamp}.json`;
+
+  res.setHeader('Content-Type', 'application/fhir+json');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.json(bundle);
+}));
+
+/**
+ * Get FHIR export metadata (available patients and estimated size)
+ *
+ * @route GET /export/fhir/metadata
+ * @security Requires authentication and organization scope
+ */
+router.get('/fhir/metadata', asyncHandler(async (req: Request, res: Response) => {
+  const organizationId = req.user?.organizationId;
+
+  if (organizationId === undefined) {
+    res.status(400).json({ error: 'Organization ID required' });
+    return;
+  }
+
+  const fhirService = new FHIRExportService();
+  const metadata = await fhirService.getExportMetadata(organizationId);
+
+  res.json({
+    organizationId,
+    format: 'FHIR R4',
+    contentType: 'application/fhir+json',
+    ...metadata,
+  });
 }));
 
 export default router;
