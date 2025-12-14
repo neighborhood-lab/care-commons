@@ -4,6 +4,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codecovVitePlugin } from '@codecov/vite-plugin';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
+
+const isAnalyze = process.env.ANALYZE === 'true';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -94,6 +97,21 @@ export default defineConfig({
         branch: process.env.GITHUB_REF_NAME,
       },
     }),
+    // Bundle visualization - generates interactive treemap showing module sizes
+    // Only enabled when ANALYZE=true to avoid slowing down normal builds
+    // Run: npm run build:analyze (auto-opens dist/stats.html in browser)
+    // Templates: treemap (large deps), sunburst (hierarchy), network (relationships)
+    ...(isAnalyze
+      ? [
+          visualizer({
+            filename: 'dist/stats.html',
+            open: true,
+            gzipSize: true,
+            brotliSize: true,
+            template: 'treemap',
+          }),
+        ]
+      : []),
   ],
   resolve: {
     alias: {
