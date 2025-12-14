@@ -303,3 +303,113 @@ export interface PerformanceBenchmark {
   industryAverage?: number;
   status: 'ABOVE_TARGET' | 'AT_TARGET' | 'BELOW_TARGET' | 'CRITICAL';
 }
+
+// ============================================================================
+// Staff Cost Analysis Types
+// ============================================================================
+
+/**
+ * Staff role category for cost analysis
+ */
+export type StaffCategory =
+  | 'CAREGIVER'
+  | 'COORDINATOR'
+  | 'ADMINISTRATOR'
+  | 'NURSING'
+  | 'THERAPIST'
+  | 'OTHER';
+
+/**
+ * Cost breakdown by category
+ */
+export interface StaffCostByCategory {
+  category: StaffCategory;
+  headcount: number;
+  totalWages: number;
+  overtimeWages: number;
+  benefitsCost: number;
+  totalCost: number;
+  costPercentage: number; // Percentage of total labor cost
+  hoursWorked: number;
+  averageHourlyRate: number;
+}
+
+/**
+ * Labor cost metrics
+ */
+export interface LaborCostMetrics {
+  totalWages: number;
+  totalOvertime: number;
+  totalBenefits: number;
+  totalLaborCost: number;
+  totalRevenue: number;
+  laborCostPercentage: number; // Labor cost as % of revenue
+  productiveHours: number;
+  nonproductiveHours: number;
+  costPerBillableHour: number;
+}
+
+/**
+ * Staff cost trend data point
+ */
+export interface StaffCostTrendDataPoint {
+  period: string; // e.g., "2025-01", "2025-02"
+  totalLaborCost: number;
+  totalRevenue: number;
+  laborCostPercentage: number;
+  headcount: number;
+}
+
+/**
+ * Staff cost analysis result
+ */
+export interface StaffCostAnalysis {
+  period: DateRange;
+  organizationId: string;
+  branchId?: string;
+
+  // Summary metrics
+  summary: LaborCostMetrics;
+
+  // Breakdown by staff category
+  byCategory: StaffCostByCategory[];
+
+  // Cost trends over time
+  trends: StaffCostTrendDataPoint[];
+
+  // Benchmarks
+  benchmarks: {
+    targetLaborCostPercentage: number;
+    industryAverageLaborCostPercentage: number;
+    status: 'ABOVE_TARGET' | 'AT_TARGET' | 'BELOW_TARGET' | 'CRITICAL';
+  };
+
+  // Top cost drivers
+  topCostDrivers: Array<{
+    driver: string;
+    impact: number; // Dollar amount
+    description: string;
+  }>;
+
+  // Optimization opportunities
+  optimizationOpportunities: Array<{
+    opportunity: string;
+    potentialSavings: number;
+    effort: 'LOW' | 'MEDIUM' | 'HIGH';
+    description: string;
+  }>;
+}
+
+/**
+ * Staff cost query options
+ */
+export interface StaffCostQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  dateRange: DateRange;
+  includeSubBranches?: boolean;
+  categories?: StaffCategory[];
+  includeBenchmarks?: boolean;
+  includeTrends?: boolean;
+  trendPeriods?: number; // Number of months for trend data
+}

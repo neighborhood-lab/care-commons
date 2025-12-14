@@ -32,12 +32,20 @@ export type {
   RevenueCycleReport,
   AnalyticsQueryOptions,
   PerformanceBenchmark,
+  // Staff Cost Analysis types
+  StaffCategory,
+  StaffCostByCategory,
+  LaborCostMetrics,
+  StaffCostTrendDataPoint,
+  StaffCostAnalysis,
+  StaffCostQueryOptions,
 } from './types/analytics';
 
 // Service exports
 export { AnalyticsService } from './service/analytics-service';
 export { ReportService } from './service/report-service';
 export { ExportService } from './service/export-service';
+export { StaffCostAnalysisService } from './service/staff-cost-analysis-service';
 
 // Natural Language Query (AI-powered)
 export {
