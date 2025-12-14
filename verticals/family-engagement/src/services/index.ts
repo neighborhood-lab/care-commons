@@ -4,3 +4,4 @@
 
 export * from './family-engagement-service';
 export * from './satisfaction-survey-service';
+export * from './respite-service';

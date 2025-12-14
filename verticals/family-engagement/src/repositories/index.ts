@@ -3,3 +3,4 @@
  */
 
 export * from './family-engagement-repository';
+export * from './respite-repository';
