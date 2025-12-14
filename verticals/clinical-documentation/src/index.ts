@@ -104,3 +104,21 @@ export type {
   EducationSummary,
 } from './service/patient-education-service.js';
 export { createPatientEducationRoutes } from './api/patient-education-routes.js';
+
+// Care Protocols
+export { CareProtocolService } from './service/care-protocol-service.js';
+export type {
+  ProtocolType,
+  ProtocolPriority,
+  ComplianceStatus,
+  ProtocolCategory,
+  ProtocolStep,
+  CareProtocol,
+  ProtocolCompliance,
+  CreateProtocolCategoryInput,
+  CreateCareProtocolInput,
+  UpdateCareProtocolInput,
+  CreateProtocolComplianceInput,
+  ProtocolSummary,
+} from './service/care-protocol-service.js';
+export { createCareProtocolRoutes } from './api/care-protocol-routes.js';
