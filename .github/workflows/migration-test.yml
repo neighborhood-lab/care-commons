@@ -1,0 +1,421 @@
+name: Migration Testing
+
+on:
+  pull_request:
+    branches: [production, preview, develop]
+    paths:
+      - 'packages/core/migrations/**'
+      - 'packages/core/scripts/migrate*.ts'
+      - 'packages/core/scripts/rollback.ts'
+      - 'packages/core/knexfile.ts'
+  push:
+    branches: [develop]
+    paths:
+      - 'packages/core/migrations/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  NPM_VERSION: '10.9.4'
+
+jobs:
+  migration-up:
+    name: Test Migrations Up
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: folkcare_migration_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            verticals/*/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_migration_test
+          NODE_ENV: test
+        run: |
+          echo "🔄 Running all migrations..."
+          npm run db:migrate
+
+      - name: Verify migration status
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_migration_test
+          NODE_ENV: test
+        run: |
+          echo "📋 Checking migration status..."
+          npm run db:migrate:status
+
+      - name: Count migrations applied
+        env:
+          PGPASSWORD: postgres
+        run: |
+          echo "📊 Counting applied migrations..."
+          MIGRATION_COUNT=$(psql -h localhost -U postgres -d folkcare_migration_test -t -c "SELECT COUNT(*) FROM knex_migrations;")
+          echo "Applied migrations: $MIGRATION_COUNT"
+
+          # Verify migrations were actually applied
+          if [ "$MIGRATION_COUNT" -lt 1 ]; then
+            echo "❌ No migrations were applied!"
+            exit 1
+          fi
+          echo "✅ Migrations applied successfully"
+
+  migration-rollback:
+    name: Test Rollback
+    runs-on: ubuntu-latest
+    needs: migration-up
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: folkcare_rollback_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            verticals/*/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migrations up
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_rollback_test
+          NODE_ENV: test
+        run: |
+          echo "🔄 Running all migrations..."
+          npm run db:migrate
+
+      - name: Get migration count before rollback
+        env:
+          PGPASSWORD: postgres
+        run: |
+          BEFORE_COUNT=$(psql -h localhost -U postgres -d folkcare_rollback_test -t -c "SELECT COUNT(*) FROM knex_migrations;")
+          echo "BEFORE_COUNT=$BEFORE_COUNT" >> $GITHUB_ENV
+          echo "Migrations before rollback: $BEFORE_COUNT"
+
+      - name: Test rollback (last migration)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_rollback_test
+          NODE_ENV: test
+        run: |
+          echo "⏪ Rolling back last migration..."
+          npm run db:migrate:rollback
+
+      - name: Verify rollback worked
+        env:
+          PGPASSWORD: postgres
+        run: |
+          AFTER_COUNT=$(psql -h localhost -U postgres -d folkcare_rollback_test -t -c "SELECT COUNT(*) FROM knex_migrations;")
+          echo "Migrations after rollback: $AFTER_COUNT"
+
+          # Verify at least one migration was rolled back
+          if [ "$AFTER_COUNT" -ge "${{ env.BEFORE_COUNT }}" ]; then
+            echo "❌ Rollback did not reduce migration count!"
+            exit 1
+          fi
+          echo "✅ Rollback successful"
+
+      - name: Re-apply migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_rollback_test
+          NODE_ENV: test
+        run: |
+          echo "🔄 Re-applying migrations..."
+          npm run db:migrate
+          echo "✅ Migrations re-applied successfully"
+
+  schema-verification:
+    name: Verify Schema
+    runs-on: ubuntu-latest
+    needs: migration-up
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: folkcare_schema_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            verticals/*/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_schema_test
+          NODE_ENV: test
+        run: npm run db:migrate
+
+      - name: Verify core tables exist
+        env:
+          PGPASSWORD: postgres
+        run: |
+          echo "🔍 Verifying core tables..."
+
+          # List of core tables that must exist
+          CORE_TABLES="users organizations clients caregivers visits schedules"
+
+          for table in $CORE_TABLES; do
+            EXISTS=$(psql -h localhost -U postgres -d folkcare_schema_test -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '$table');")
+            if [ "$(echo $EXISTS | tr -d ' ')" = "t" ]; then
+              echo "✅ Table '$table' exists"
+            else
+              echo "❌ Table '$table' is missing!"
+              exit 1
+            fi
+          done
+
+      - name: Export schema summary
+        env:
+          PGPASSWORD: postgres
+        run: |
+          echo "📊 Schema Summary"
+          echo "================"
+
+          echo ""
+          echo "Tables:"
+          psql -h localhost -U postgres -d folkcare_schema_test -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;" | head -100
+
+          echo ""
+          echo "Total table count:"
+          psql -h localhost -U postgres -d folkcare_schema_test -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';"
+
+      - name: Check for common schema issues
+        env:
+          PGPASSWORD: postgres
+        run: |
+          echo "🔍 Checking for common schema issues..."
+
+          # Check for tables without primary keys
+          echo "Tables without primary keys:"
+          psql -h localhost -U postgres -d folkcare_schema_test -c "
+            SELECT t.table_name
+            FROM information_schema.tables t
+            LEFT JOIN information_schema.table_constraints tc
+              ON t.table_name = tc.table_name
+              AND tc.constraint_type = 'PRIMARY KEY'
+            WHERE t.table_schema = 'public'
+              AND t.table_type = 'BASE TABLE'
+              AND tc.constraint_name IS NULL
+              AND t.table_name NOT LIKE 'knex_%';
+          "
+
+          echo "✅ Schema verification complete"
+
+  seed-test:
+    name: Test with Seed Data
+    runs-on: ubuntu-latest
+    needs: schema-verification
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: folkcare_seed_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            verticals/*/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_seed_test
+          NODE_ENV: test
+        run: npm run db:migrate
+
+      - name: Seed database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/folkcare_seed_test
+          NODE_ENV: test
+        run: |
+          echo "🌱 Seeding database with demo data..."
+          npm run db:seed:demo
+
+      - name: Verify seed data
+        env:
+          PGPASSWORD: postgres
+        run: |
+          echo "🔍 Verifying seed data..."
+
+          # Check that key tables have data
+          echo "Users count:"
+          psql -h localhost -U postgres -d folkcare_seed_test -t -c "SELECT COUNT(*) FROM users;"
+
+          echo "Organizations count:"
+          psql -h localhost -U postgres -d folkcare_seed_test -t -c "SELECT COUNT(*) FROM organizations;"
+
+          echo "Clients count:"
+          psql -h localhost -U postgres -d folkcare_seed_test -t -c "SELECT COUNT(*) FROM clients;"
+
+          # Verify at least 1 user exists
+          USER_COUNT=$(psql -h localhost -U postgres -d folkcare_seed_test -t -c "SELECT COUNT(*) FROM users;")
+          if [ "$(echo $USER_COUNT | tr -d ' ')" -lt 1 ]; then
+            echo "❌ No users were seeded!"
+            exit 1
+          fi
+
+          echo "✅ Seed data verified"
+
+  migration-test-summary:
+    name: Migration Test Summary
+    runs-on: ubuntu-latest
+    needs: [migration-up, migration-rollback, schema-verification, seed-test]
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          echo "## Migration Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.migration-up.result }}" = "success" ]; then
+            echo "✅ Migration Up: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Migration Up: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.migration-rollback.result }}" = "success" ]; then
+            echo "✅ Rollback Test: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Rollback Test: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.schema-verification.result }}" = "success" ]; then
+            echo "✅ Schema Verification: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Schema Verification: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.seed-test.result }}" = "success" ]; then
+            echo "✅ Seed Test: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Seed Test: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Fail if any test failed
+        if: |
+          needs.migration-up.result != 'success' ||
+          needs.migration-rollback.result != 'success' ||
+          needs.schema-verification.result != 'success' ||
+          needs.seed-test.result != 'success'
+        run: |
+          echo "❌ One or more migration tests failed"
+          exit 1
