@@ -83,3 +83,24 @@ export type {
   OrderSummary,
 } from './service/order-service.js';
 export { createOrderRoutes } from './api/order-routes.js';
+
+// Patient Education
+export { PatientEducationService } from './service/patient-education-service.js';
+export type {
+  EducationCategory,
+  MaterialType,
+  LearnerType,
+  TeachingMethod,
+  ComprehensionLevel,
+  ReturnDemoResult,
+  LearningBarrier,
+  EducationTopic,
+  EducationMaterial,
+  PatientEducation,
+  CreateEducationTopicInput,
+  CreateEducationMaterialInput,
+  CreatePatientEducationInput,
+  UpdatePatientEducationInput,
+  EducationSummary,
+} from './service/patient-education-service.js';
+export { createPatientEducationRoutes } from './api/patient-education-routes.js';
