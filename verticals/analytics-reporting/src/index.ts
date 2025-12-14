@@ -131,6 +131,21 @@ export type {
   BenchmarkComparisonSummary,
   BenchmarkComparisonAnalysis,
   BenchmarkComparisonQueryOptions,
+  // Competitor Analysis types
+  CompetitorType,
+  CompetitorSize,
+  ThreatLevel,
+  MarketPosition,
+  CompetitorProfile,
+  MarketShareData,
+  MarketShareAnalysis,
+  CompetitivePositioning,
+  ServiceComparison,
+  PricingIntelligence,
+  SWOTAnalysis,
+  CompetitiveIntelligenceSummary,
+  CompetitorAnalysis,
+  CompetitorAnalysisQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -146,6 +161,7 @@ export { GrowthOpportunityService } from './service/growth-opportunity-service';
 export { InvestorBoardReportingService } from './service/investor-board-reporting-service';
 export { StrategicPlanningService } from './service/strategic-planning-service';
 export { BenchmarkComparisonService } from './service/benchmark-comparison-service';
+export { CompetitorAnalysisService } from './service/competitor-analysis-service';
 
 // Natural Language Query (AI-powered)
 export {

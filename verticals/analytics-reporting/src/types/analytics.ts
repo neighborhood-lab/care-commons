@@ -2417,3 +2417,339 @@ export interface BenchmarkComparisonQueryOptions {
   };
   benchmarkSources?: BenchmarkSource[];
 }
+
+// ============================================================================
+// Competitor Analysis Types
+// ============================================================================
+
+/**
+ * Competitor type classification
+ */
+export type CompetitorType =
+  | 'DIRECT'       // Same service area and offerings
+  | 'INDIRECT'     // Overlapping services (hospitals, nursing homes)
+  | 'EMERGING'     // New entrants
+  | 'POTENTIAL';   // Organizations that could enter market
+
+/**
+ * Competitor size category
+ */
+export type CompetitorSize =
+  | 'ENTERPRISE'   // Large multi-state operations
+  | 'REGIONAL'     // Multiple markets
+  | 'LOCAL'        // Single market
+  | 'STARTUP';     // New/small operations
+
+/**
+ * Competitive threat level
+ */
+export type ThreatLevel =
+  | 'HIGH'
+  | 'MEDIUM'
+  | 'LOW'
+  | 'MINIMAL';
+
+/**
+ * Market position category
+ */
+export type MarketPosition =
+  | 'LEADER'       // Dominant market share
+  | 'CHALLENGER'   // Strong position, competing for leadership
+  | 'FOLLOWER'     // Moderate position
+  | 'NICHE';       // Specialized focus
+
+/**
+ * Competitor profile
+ */
+export interface CompetitorProfile {
+  id: string;
+  name: string;
+  type: CompetitorType;
+  size: CompetitorSize;
+  marketPosition: MarketPosition;
+  threatLevel: ThreatLevel;
+
+  // Basic information
+  founded?: number;
+  headquarters?: string;
+  website?: string;
+  ownershipType: 'PRIVATE' | 'PUBLIC' | 'NON_PROFIT' | 'FRANCHISE' | 'UNKNOWN';
+
+  // Geographic footprint
+  serviceAreas: string[];
+  marketOverlap: number; // Percentage overlap with our service area
+
+  // Service offerings
+  serviceOfferings: Array<{
+    service: string;
+    available: boolean;
+    specialty?: boolean;
+    notes?: string;
+  }>;
+
+  // Financial estimates (where available)
+  estimatedRevenue?: number;
+  estimatedMarketShare?: number;
+  employeeCount?: number;
+  clientCount?: number;
+
+  // Payer mix
+  payerMix?: Array<{
+    payer: string;
+    percentage: number;
+  }>;
+
+  // Competitive attributes
+  strengths: string[];
+  weaknesses: string[];
+  differentiators: string[];
+
+  // Recent activity
+  recentNews: Array<{
+    date: string;
+    headline: string;
+    source?: string;
+    sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
+  }>;
+
+  // Rating/reputation
+  reputation?: {
+    overallRating?: number;
+    reviewCount?: number;
+    sources: Array<{
+      source: string;
+      rating: number;
+      reviewCount: number;
+    }>;
+  };
+
+  lastUpdated: string;
+  dataConfidence: 'HIGH' | 'MEDIUM' | 'LOW';
+}
+
+/**
+ * Market share data point
+ */
+export interface MarketShareData {
+  organizationId: string;
+  organizationName: string;
+  isOwnOrganization: boolean;
+  marketShare: number;
+  shareChange: number;       // Change from previous period
+  clientCount: number;
+  revenueEstimate: number;
+  growthRate: number;
+}
+
+/**
+ * Market share analysis
+ */
+export interface MarketShareAnalysis {
+  market: string;
+  totalMarketSize: number;
+  marketGrowthRate: number;
+  ourShare: number;
+  ourRank: number;
+  totalCompetitors: number;
+  concentration: number;      // HHI or similar measure
+  shares: MarketShareData[];
+  trends: Array<{
+    period: string;
+    ourShare: number;
+    topCompetitorShare: number;
+    marketSize: number;
+  }>;
+}
+
+/**
+ * Competitive positioning map
+ */
+export interface CompetitivePositioning {
+  xAxis: {
+    label: string;
+    description: string;
+  };
+  yAxis: {
+    label: string;
+    description: string;
+  };
+  positions: Array<{
+    organizationId: string;
+    organizationName: string;
+    isOwnOrganization: boolean;
+    xValue: number;
+    yValue: number;
+    bubbleSize: number;    // Market share or revenue
+  }>;
+  quadrants: {
+    topRight: string;      // e.g., "Premium Leaders"
+    topLeft: string;       // e.g., "Quality Focus"
+    bottomRight: string;   // e.g., "Cost Leaders"
+    bottomLeft: string;    // e.g., "Niche Players"
+  };
+}
+
+/**
+ * Service offering comparison
+ */
+export interface ServiceComparison {
+  serviceName: string;
+  category: string;
+  ourStatus: 'OFFERED' | 'PLANNED' | 'NOT_OFFERED';
+  competitorCoverage: number;   // Percentage of competitors offering
+  competitors: Array<{
+    competitorId: string;
+    competitorName: string;
+    offered: boolean;
+    specialization?: boolean;
+    notes?: string;
+  }>;
+  marketOpportunity: 'HIGH' | 'MEDIUM' | 'LOW';
+  recommendation?: string;
+}
+
+/**
+ * Pricing intelligence
+ */
+export interface PricingIntelligence {
+  serviceType: string;
+  ourRate: number;
+  marketAverage: number;
+  marketLow: number;
+  marketHigh: number;
+  percentile: number;           // Our position in the market
+  competitorRates: Array<{
+    competitorId: string;
+    competitorName: string;
+    rate: number;
+    notes?: string;
+  }>;
+  recommendation: 'INCREASE' | 'MAINTAIN' | 'DECREASE' | 'EVALUATE';
+  rationale: string;
+}
+
+/**
+ * SWOT analysis
+ */
+export interface SWOTAnalysis {
+  strengths: Array<{
+    factor: string;
+    description: string;
+    competitiveAdvantage: 'HIGH' | 'MEDIUM' | 'LOW';
+  }>;
+  weaknesses: Array<{
+    factor: string;
+    description: string;
+    riskLevel: 'HIGH' | 'MEDIUM' | 'LOW';
+    mitigation?: string;
+  }>;
+  opportunities: Array<{
+    factor: string;
+    description: string;
+    potential: 'HIGH' | 'MEDIUM' | 'LOW';
+    timeframe: 'SHORT' | 'MEDIUM' | 'LONG';
+    actionRequired?: string;
+  }>;
+  threats: Array<{
+    factor: string;
+    description: string;
+    severity: 'HIGH' | 'MEDIUM' | 'LOW';
+    likelihood: 'HIGH' | 'MEDIUM' | 'LOW';
+    response?: string;
+  }>;
+}
+
+/**
+ * Competitive intelligence summary
+ */
+export interface CompetitiveIntelligenceSummary {
+  organizationId: string;
+  analysisDate: string;
+  marketOverview: {
+    marketName: string;
+    totalMarketSize: number;
+    growthRate: number;
+    competitorCount: number;
+    ourMarketShare: number;
+    ourRank: number;
+  };
+  competitorCount: {
+    direct: number;
+    indirect: number;
+    emerging: number;
+    total: number;
+  };
+  threatAssessment: {
+    overallThreatLevel: ThreatLevel;
+    highThreatCompetitors: number;
+    keyThreats: string[];
+  };
+  keyFindings: string[];
+  recommendations: string[];
+}
+
+/**
+ * Comprehensive competitor analysis
+ */
+export interface CompetitorAnalysis {
+  generatedAt: string;
+  organizationId: string;
+
+  // Summary
+  summary: CompetitiveIntelligenceSummary;
+
+  // Competitor profiles
+  competitors: CompetitorProfile[];
+
+  // Market share analysis
+  marketShare: MarketShareAnalysis;
+
+  // Competitive positioning
+  positioning: CompetitivePositioning;
+
+  // Service comparisons
+  serviceComparisons: ServiceComparison[];
+
+  // Pricing intelligence
+  pricingIntelligence: PricingIntelligence[];
+
+  // SWOT analysis
+  swotAnalysis: SWOTAnalysis;
+
+  // Competitive trends
+  trends: Array<{
+    trend: string;
+    description: string;
+    impact: 'HIGH' | 'MEDIUM' | 'LOW';
+    timeframe: string;
+    affectedCompetitors: string[];
+    ourImplication: string;
+  }>;
+
+  // Strategic recommendations
+  strategicRecommendations: Array<{
+    priority: number;
+    area: string;
+    recommendation: string;
+    rationale: string;
+    competitorsAddressed: string[];
+    expectedOutcome: string;
+    timeframe: string;
+  }>;
+}
+
+/**
+ * Competitor analysis query options
+ */
+export interface CompetitorAnalysisQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  marketArea?: string;
+  includeIndirectCompetitors?: boolean;
+  includeEmergingCompetitors?: boolean;
+  includeMarketShare?: boolean;
+  includePricing?: boolean;
+  includeSWOT?: boolean;
+  competitorIds?: string[];
+  maxCompetitors?: number;
+}
