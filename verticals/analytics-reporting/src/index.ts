@@ -46,6 +46,15 @@ export type {
   PayerMarginBreakdown,
   ServiceMarginAnalysis,
   MarginAnalysisQueryOptions,
+  // Payer Margin Analysis types
+  PayerType,
+  PayerMarginMetrics,
+  PayerTrendDataPoint,
+  PayerContractInfo,
+  PayerComparison,
+  PayerOptimizationOpportunity,
+  PayerMarginAnalysis,
+  PayerMarginAnalysisQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -54,6 +63,7 @@ export { ReportService } from './service/report-service';
 export { ExportService } from './service/export-service';
 export { StaffCostAnalysisService } from './service/staff-cost-analysis-service';
 export { MarginAnalysisService } from './service/margin-analysis-service';
+export { PayerMarginAnalysisService } from './service/payer-margin-analysis-service';
 
 // Natural Language Query (AI-powered)
 export {

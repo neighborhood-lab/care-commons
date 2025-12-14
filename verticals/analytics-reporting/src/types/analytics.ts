@@ -562,3 +562,219 @@ export interface MarginAnalysisQueryOptions {
   includeTrends?: boolean;
   trendPeriods?: number;
 }
+
+// ============================================================================
+// Payer Margin Analysis Types
+// ============================================================================
+
+/**
+ * Payer type classification
+ */
+export type PayerType =
+  | 'MEDICARE'
+  | 'MEDICAID'
+  | 'PRIVATE_INSURANCE'
+  | 'PRIVATE_PAY'
+  | 'VA'
+  | 'WORKERS_COMP'
+  | 'MANAGED_CARE'
+  | 'OTHER';
+
+/**
+ * Detailed payer margin metrics
+ */
+export interface PayerMarginMetrics {
+  payerId: string;
+  payerName: string;
+  payerType: PayerType;
+
+  // Volume metrics
+  totalVisits: number;
+  totalHours: number;
+  uniqueClients: number;
+
+  // Revenue metrics
+  grossCharges: number;
+  contractualAdjustments: number;
+  billedAmount: number;
+  paidAmount: number;
+  writeOffs: number;
+  patientResponsibility: number;
+  outstandingAR: number;
+
+  // Collection metrics
+  collectionRate: number; // Paid / Billed
+  daysInAR: number;
+  cleanClaimRate: number;
+
+  // Denial metrics
+  denialCount: number;
+  denialAmount: number;
+  denialRate: number;
+  appealRate: number;
+  appealSuccessRate: number;
+  resubmissionCount: number;
+
+  // Cost metrics
+  directLaborCost: number;
+  indirectCost: number;
+  billingAdminCost: number;
+  totalCost: number;
+
+  // Margin calculations
+  grossMargin: number;
+  grossMarginPercentage: number;
+  netMargin: number;
+  netMarginPercentage: number;
+
+  // Efficiency metrics
+  revenuePerHour: number;
+  costPerHour: number;
+  marginPerHour: number;
+  averageReimbursementRate: number;
+  reimbursementVariance: number; // Variance from contracted rate
+}
+
+/**
+ * Payer trend data point
+ */
+export interface PayerTrendDataPoint {
+  period: string; // e.g., "2025-01"
+  payerId: string;
+  payerName: string;
+  billedAmount: number;
+  paidAmount: number;
+  margin: number;
+  marginPercentage: number;
+  collectionRate: number;
+  denialRate: number;
+}
+
+/**
+ * Payer contract details
+ */
+export interface PayerContractInfo {
+  payerId: string;
+  payerName: string;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  isRenegotiationDue: boolean;
+  daysTillExpiration?: number;
+  rateSchedule?: Record<string, number>; // Service code -> rate
+  lastRateIncrease?: string;
+  rateIncreasePercentage?: number;
+}
+
+/**
+ * Payer comparison metrics
+ */
+export interface PayerComparison {
+  payerId: string;
+  payerName: string;
+  payerType: PayerType;
+  marginPercentage: number;
+  collectionRate: number;
+  denialRate: number;
+  daysInAR: number;
+  volumePercentage: number; // % of total visits
+  revenuePercentage: number; // % of total revenue
+  performanceScore: number; // 0-100 composite score
+  rank: number;
+}
+
+/**
+ * Payer optimization opportunity
+ */
+export interface PayerOptimizationOpportunity {
+  payerId: string;
+  payerName: string;
+  opportunity: string;
+  category: 'RATE_INCREASE' | 'DENIAL_REDUCTION' | 'COLLECTION_IMPROVEMENT' | 'VOLUME_GROWTH' | 'CONTRACT_RENEGOTIATION';
+  potentialImpact: number; // Dollar amount
+  effort: 'LOW' | 'MEDIUM' | 'HIGH';
+  priority: number; // 1-10
+  description: string;
+  actionItems: string[];
+}
+
+/**
+ * Payer margin analysis result
+ */
+export interface PayerMarginAnalysis {
+  period: DateRange;
+  organizationId: string;
+  branchId?: string;
+
+  // Summary metrics
+  summary: {
+    totalBilledAmount: number;
+    totalPaidAmount: number;
+    totalOutstandingAR: number;
+    overallCollectionRate: number;
+    overallMargin: number;
+    overallMarginPercentage: number;
+    averageDaysInAR: number;
+    overallDenialRate: number;
+    totalPayerCount: number;
+    totalVisits: number;
+    totalHours: number;
+  };
+
+  // Breakdown by payer
+  byPayer: PayerMarginMetrics[];
+
+  // Payer rankings and comparison
+  payerRankings: PayerComparison[];
+
+  // Trends over time (optional)
+  trends?: PayerTrendDataPoint[];
+
+  // Contract information (optional)
+  contracts?: PayerContractInfo[];
+
+  // Top performers
+  topPerformingPayers: Array<{
+    payerId: string;
+    payerName: string;
+    marginPercentage: number;
+    reason: string;
+  }>;
+
+  // Payers needing attention
+  underperformingPayers: Array<{
+    payerId: string;
+    payerName: string;
+    marginPercentage: number;
+    primaryIssue: string;
+    recommendation: string;
+  }>;
+
+  // Optimization opportunities
+  optimizationOpportunities: PayerOptimizationOpportunity[];
+
+  // Benchmarks
+  benchmarks: {
+    targetCollectionRate: number;
+    industryAverageCollectionRate: number;
+    targetDenialRate: number;
+    industryAverageDenialRate: number;
+    targetDaysInAR: number;
+    industryAverageDaysInAR: number;
+    status: 'ABOVE_TARGET' | 'AT_TARGET' | 'BELOW_TARGET' | 'CRITICAL';
+  };
+}
+
+/**
+ * Payer margin analysis query options
+ */
+export interface PayerMarginAnalysisQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  dateRange: DateRange;
+  payerIds?: string[];
+  payerTypes?: PayerType[];
+  includeTrends?: boolean;
+  includeContracts?: boolean;
+  trendPeriods?: number;
+  minVisitThreshold?: number; // Minimum visits to include payer
+}
