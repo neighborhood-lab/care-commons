@@ -1271,3 +1271,253 @@ export interface BudgetVsActualQueryOptions {
   compareTopriorYear?: boolean;
   categories?: BudgetCategory[];
 }
+
+// ============================================================================
+// Growth Opportunity Analysis Types
+// ============================================================================
+
+/**
+ * Growth opportunity category
+ */
+export type GrowthOpportunityType =
+  | 'GEOGRAPHIC_EXPANSION'
+  | 'SERVICE_LINE_EXPANSION'
+  | 'PAYER_DIVERSIFICATION'
+  | 'CLIENT_SEGMENT_GROWTH'
+  | 'PARTNERSHIP_OPPORTUNITY'
+  | 'MARKET_PENETRATION';
+
+/**
+ * Market attractiveness level
+ */
+export type MarketAttractiveness = 'HIGH' | 'MEDIUM' | 'LOW';
+
+/**
+ * Competitive position
+ */
+export type CompetitivePosition = 'LEADER' | 'CHALLENGER' | 'FOLLOWER' | 'NICHE';
+
+/**
+ * Geographic area analysis
+ */
+export interface GeographicOpportunity {
+  areaId: string;
+  areaName: string;
+  areaType: 'ZIP_CODE' | 'CITY' | 'COUNTY' | 'STATE' | 'REGION';
+
+  // Demographics
+  totalPopulation: number;
+  elderlyPopulation: number; // 65+
+  elderlyPercentage: number;
+  populationGrowthRate: number;
+
+  // Current presence
+  currentClientCount: number;
+  currentCaregiverCount: number;
+  marketPenetration: number; // % of potential market served
+
+  // Market potential
+  estimatedMarketSize: number;
+  potentialClients: number;
+  untappedRevenue: number;
+
+  // Competition
+  competitorCount: number;
+  competitorDensity: number; // Per 10K elderly
+  marketShare: number;
+
+  // Opportunity metrics
+  attractiveness: MarketAttractiveness;
+  opportunityScore: number; // 0-100
+  investmentRequired: number;
+  estimatedROI: number;
+  timeToBreakeven: number; // Months
+
+  // Risks
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  riskFactors: string[];
+}
+
+/**
+ * Service line expansion opportunity
+ */
+export interface ServiceLineOpportunity {
+  serviceType: ServiceType;
+  serviceName: string;
+
+  // Current state
+  currentlyOffered: boolean;
+  currentRevenue: number;
+  currentClientCount: number;
+  currentMarketShare: number;
+
+  // Market opportunity
+  totalAddressableMarket: number;
+  demandTrend: 'GROWING' | 'STABLE' | 'DECLINING';
+  demandGrowthRate: number;
+  unmetDemand: number;
+
+  // Competitive landscape
+  competitorCount: number;
+  averageCompetitorPrice: number;
+  competitiveAdvantage?: string;
+
+  // Investment required
+  staffingNeeded: number;
+  trainingCost: number;
+  equipmentCost: number;
+  certificationCost: number;
+  totalInvestment: number;
+
+  // Expected returns
+  expectedRevenue: number;
+  expectedMargin: number;
+  timeToLaunch: number; // Months
+  paybackPeriod: number; // Months
+
+  // Opportunity assessment
+  opportunityScore: number; // 0-100
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  recommendation: string;
+}
+
+/**
+ * Payer diversification opportunity
+ */
+export interface PayerDiversificationOpportunity {
+  payerType: PayerType;
+  payerTypeName: string;
+
+  // Current state
+  currentPayerCount: number;
+  currentRevenue: number;
+  revenuePercentage: number;
+
+  // Opportunity
+  targetPayerCount: number;
+  potentialRevenue: number;
+  averageReimbursementRate: number;
+  reimbursementVsCurrentAvg: number; // Percentage difference
+
+  // Diversification benefit
+  riskReductionScore: number;
+  revenueStabilityImpact: number;
+
+  // Requirements
+  credentialingTime: number; // Months
+  complianceRequirements: string[];
+  investmentRequired: number;
+
+  // Assessment
+  opportunityScore: number;
+  recommendation: string;
+}
+
+/**
+ * Partnership opportunity
+ */
+export interface PartnershipOpportunity {
+  partnerType: 'HOSPITAL' | 'PHYSICIAN_GROUP' | 'SNF' | 'ACO' | 'HEALTH_PLAN' | 'COMMUNITY_ORG';
+  partnerTypeName: string;
+
+  // Potential
+  partnerCount: number;
+  referralPotential: number;
+  revenueOpportunity: number;
+
+  // Current state
+  existingPartners: number;
+  currentReferralVolume: number;
+
+  // Gap analysis
+  partnershipGap: number;
+  untappedReferrals: number;
+
+  // Assessment
+  strategicValue: 'HIGH' | 'MEDIUM' | 'LOW';
+  effortRequired: 'HIGH' | 'MEDIUM' | 'LOW';
+  opportunityScore: number;
+  recommendedApproach: string;
+}
+
+/**
+ * Growth opportunity summary
+ */
+export interface GrowthOpportunitySummary {
+  totalPotentialRevenue: number;
+  totalInvestmentRequired: number;
+  averageROI: number;
+  topOpportunityType: GrowthOpportunityType;
+  opportunityCount: number;
+  highPriorityCount: number;
+  mediumPriorityCount: number;
+  lowPriorityCount: number;
+}
+
+/**
+ * Growth opportunity analysis result
+ */
+export interface GrowthOpportunityAnalysis {
+  analyzedAt: string;
+  organizationId: string;
+  branchId?: string;
+
+  // Summary
+  summary: GrowthOpportunitySummary;
+
+  // Geographic opportunities
+  geographicOpportunities: GeographicOpportunity[];
+
+  // Service line opportunities
+  serviceLineOpportunities: ServiceLineOpportunity[];
+
+  // Payer diversification
+  payerDiversification: PayerDiversificationOpportunity[];
+
+  // Partnership opportunities
+  partnershipOpportunities: PartnershipOpportunity[];
+
+  // Prioritized recommendations
+  recommendations: Array<{
+    priority: number;
+    type: GrowthOpportunityType;
+    title: string;
+    description: string;
+    potentialRevenue: number;
+    investmentRequired: number;
+    timeframe: string;
+    nextSteps: string[];
+  }>;
+
+  // SWOT analysis
+  swotAnalysis: {
+    strengths: string[];
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
+  };
+
+  // Growth targets
+  growthTargets: {
+    currentAnnualRevenue: number;
+    projectedRevenue: number;
+    revenueGrowthTarget: number;
+    clientGrowthTarget: number;
+    marketShareTarget: number;
+  };
+}
+
+/**
+ * Growth opportunity query options
+ */
+export interface GrowthOpportunityQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  opportunityTypes?: GrowthOpportunityType[];
+  includeGeographic?: boolean;
+  includeServiceLine?: boolean;
+  includePayerDiversification?: boolean;
+  includePartnerships?: boolean;
+  geographicRadius?: number; // Miles from current service area
+  minimumOpportunityScore?: number;
+}

@@ -80,6 +80,17 @@ export type {
   BudgetVsActualAnalysis,
   BudgetDefinition,
   BudgetVsActualQueryOptions,
+  // Growth Opportunity Analysis types
+  GrowthOpportunityType,
+  MarketAttractiveness,
+  CompetitivePosition,
+  GeographicOpportunity,
+  ServiceLineOpportunity,
+  PayerDiversificationOpportunity,
+  PartnershipOpportunity,
+  GrowthOpportunitySummary,
+  GrowthOpportunityAnalysis,
+  GrowthOpportunityQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -91,6 +102,7 @@ export { MarginAnalysisService } from './service/margin-analysis-service';
 export { PayerMarginAnalysisService } from './service/payer-margin-analysis-service';
 export { ConversionTrackingService } from './service/conversion-tracking-service';
 export { BudgetVsActualService } from './service/budget-vs-actual-service';
+export { GrowthOpportunityService } from './service/growth-opportunity-service';
 
 // Natural Language Query (AI-powered)
 export {
