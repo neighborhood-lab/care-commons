@@ -118,3 +118,5 @@ export * from './ai/index.js';
 export * from './fhir/index.js';
 // HL7 v2.x Export
 export * from './hl7/index.js';
+// Plugin System
+export * from './plugins/index.js';
