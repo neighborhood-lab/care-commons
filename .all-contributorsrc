@@ -1,0 +1,36 @@
+{
+  "projectName": "folkcare",
+  "projectOwner": "neighborhood-lab",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": ["README.md"],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "bedwards",
+      "name": "Brian Edwards",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1234567?v=4",
+      "profile": "https://github.com/bedwards",
+      "contributions": ["code", "doc", "ideas", "projectManagement"]
+    },
+    {
+      "login": "tove-bot",
+      "name": "Tove Bot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/196489584?v=4",
+      "profile": "https://github.com/tove-bot",
+      "contributions": ["code", "doc", "bug"]
+    },
+    {
+      "login": "gaute-bot",
+      "name": "Gaute Bot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/197395178?v=4",
+      "profile": "https://github.com/gaute-bot",
+      "contributions": ["code", "doc"]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "contributorsSortAlphabetically": false
+}

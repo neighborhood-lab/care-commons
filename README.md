@@ -5,6 +5,7 @@
 
 [![CI](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/neighborhood-lab/folkcare/branch/develop/graph/badge.svg)](https://codecov.io/gh/neighborhood-lab/folkcare/tree/develop)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors)
 
 > **Software for the people who care.**
 
@@ -674,6 +675,30 @@ vercel promote <deployment-url> --scope <team-name>
 - [Care Plans & Tasks Library](./verticals/care-plans-tasks/README.md) - Care plans, goals, interventions, and task management
 - [Family Engagement Platform](./verticals/family-engagement/README.md) - Family portal, transparency, and communication features
 - [Core Package](./packages/core/README.md) - Core functionality documentation
+
+## Contributors
+
+Thanks to these wonderful people who have contributed to Folk Care:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/bedwards"><img src="https://avatars.githubusercontent.com/u/1234567?v=4" width="100px;" alt="Brian Edwards"/><br /><sub><b>Brian Edwards</b></sub></a><br /><a href="https://github.com/neighborhood-lab/folkcare/commits?author=bedwards" title="Code">💻</a> <a href="https://github.com/neighborhood-lab/folkcare/commits?author=bedwards" title="Documentation">📖</a> <a href="#ideas-bedwards" title="Ideas, Planning, & Feedback">🤔</a> <a href="#projectManagement-bedwards" title="Project Management">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tove-bot"><img src="https://avatars.githubusercontent.com/u/196489584?v=4" width="100px;" alt="Tove Bot"/><br /><sub><b>Tove Bot</b></sub></a><br /><a href="https://github.com/neighborhood-lab/folkcare/commits?author=tove-bot" title="Code">💻</a> <a href="https://github.com/neighborhood-lab/folkcare/commits?author=tove-bot" title="Documentation">📖</a> <a href="https://github.com/neighborhood-lab/folkcare/issues?q=author%3Atove-bot" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/gaute-bot"><img src="https://avatars.githubusercontent.com/u/197395178?v=4" width="100px;" alt="Gaute Bot"/><br /><sub><b>Gaute Bot</b></sub></a><br /><a href="https://github.com/neighborhood-lab/folkcare/commits?author=gaute-bot" title="Code">💻</a> <a href="https://github.com/neighborhood-lab/folkcare/commits?author=gaute-bot" title="Documentation">📖</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ## Contributing
 
