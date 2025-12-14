@@ -2157,3 +2157,263 @@ export interface StrategicPlanningQueryOptions {
   includeActionItems?: boolean;
   includeMilestones?: boolean;
 }
+
+// ============================================================================
+// Benchmark Comparison Types
+// ============================================================================
+
+/**
+ * Metric category for benchmarking
+ */
+export type BenchmarkCategory =
+  | 'FINANCIAL'
+  | 'OPERATIONAL'
+  | 'QUALITY'
+  | 'COMPLIANCE'
+  | 'WORKFORCE'
+  | 'GROWTH'
+  | 'CLIENT_SATISFACTION';
+
+/**
+ * Benchmark source type
+ */
+export type BenchmarkSource =
+  | 'INDUSTRY_AVERAGE'
+  | 'TOP_QUARTILE'
+  | 'TOP_DECILE'
+  | 'PEER_GROUP'
+  | 'REGIONAL'
+  | 'HISTORICAL_BEST'
+  | 'TARGET';
+
+/**
+ * Performance status against benchmark
+ */
+export type BenchmarkStatus =
+  | 'EXCELLENT'      // Top 10%
+  | 'ABOVE_AVERAGE'  // Top 25%
+  | 'AVERAGE'        // 25-75%
+  | 'BELOW_AVERAGE'  // Bottom 25%
+  | 'NEEDS_IMPROVEMENT'; // Bottom 10%
+
+/**
+ * Individual benchmark metric
+ */
+export interface BenchmarkMetric {
+  id: string;
+  name: string;
+  description: string;
+  category: BenchmarkCategory;
+  unit: string;             // '%', '$', 'days', 'hours', 'count', etc.
+  higherIsBetter: boolean;  // For determining performance status
+  currentValue: number;
+  industryAverage: number;
+  topQuartile: number;
+  topDecile: number;
+  peerGroupAverage?: number;
+  regionalAverage?: number;
+  historicalBest?: number;
+  targetValue?: number;
+  percentile: number;       // Organization's percentile rank (0-100)
+  status: BenchmarkStatus;
+  variance: number;         // Difference from industry average
+  variancePercentage: number;
+  trend: 'IMPROVING' | 'STABLE' | 'DECLINING';
+  trendData: Array<{
+    period: string;
+    value: number;
+    industryAverage: number;
+  }>;
+}
+
+/**
+ * Category-level benchmark summary
+ */
+export interface BenchmarkCategorySummary {
+  category: BenchmarkCategory;
+  overallScore: number;           // 0-100 composite score
+  status: BenchmarkStatus;
+  metricsCount: number;
+  metricsAboveAverage: number;
+  metricsBelowAverage: number;
+  topPerformingMetric: string;
+  needsImprovementMetric: string;
+  priorityActions: string[];
+}
+
+/**
+ * Peer group for comparison
+ */
+export interface PeerGroup {
+  id: string;
+  name: string;
+  description: string;
+  criteria: {
+    revenueRange?: { min: number; max: number };
+    employeeRange?: { min: number; max: number };
+    region?: string[];
+    serviceTypes?: string[];
+    clientCount?: { min: number; max: number };
+  };
+  memberCount: number;
+  averages: Record<string, number>;
+}
+
+/**
+ * Historical benchmark trend
+ */
+export interface BenchmarkTrend {
+  metricId: string;
+  metricName: string;
+  category: BenchmarkCategory;
+  periods: Array<{
+    period: string;
+    organizationValue: number;
+    industryAverage: number;
+    topQuartile: number;
+    percentile: number;
+    status: BenchmarkStatus;
+  }>;
+  overallTrend: 'IMPROVING' | 'STABLE' | 'DECLINING';
+  improvementRate: number;  // Rate of improvement per period
+  projectedNextPeriod: number;
+  projectedPercentile: number;
+}
+
+/**
+ * Benchmark gap analysis
+ */
+export interface BenchmarkGap {
+  metricId: string;
+  metricName: string;
+  category: BenchmarkCategory;
+  currentValue: number;
+  targetValue: number;
+  targetSource: BenchmarkSource;
+  gap: number;
+  gapPercentage: number;
+  estimatedEffort: 'LOW' | 'MEDIUM' | 'HIGH';
+  estimatedImpact: 'LOW' | 'MEDIUM' | 'HIGH';
+  priorityScore: number;    // Combination of effort and impact
+  recommendedActions: string[];
+  timeToClose: string;      // Estimated time to close gap
+  potentialROI?: number;
+}
+
+/**
+ * Benchmark comparison summary
+ */
+export interface BenchmarkComparisonSummary {
+  organizationId: string;
+  organizationName: string;
+  analysisDate: string;
+  periodCovered: DateRange;
+
+  // Overall performance
+  overallScore: number;           // 0-100 composite score
+  overallStatus: BenchmarkStatus;
+  overallPercentile: number;
+
+  // Category summaries
+  categorySummaries: BenchmarkCategorySummary[];
+
+  // Top metrics
+  strengthMetrics: Array<{
+    metricId: string;
+    metricName: string;
+    percentile: number;
+    value: number;
+  }>;
+
+  // Metrics needing improvement
+  improvementMetrics: Array<{
+    metricId: string;
+    metricName: string;
+    percentile: number;
+    value: number;
+    gap: number;
+  }>;
+
+  // Peer comparison
+  peerGroupComparison?: {
+    peerGroup: PeerGroup;
+    relativePosition: 'LEADER' | 'ABOVE_AVERAGE' | 'AVERAGE' | 'BELOW_AVERAGE' | 'LAGGARD';
+    rank: number;
+    totalPeers: number;
+  };
+}
+
+/**
+ * Comprehensive benchmark comparison analysis
+ */
+export interface BenchmarkComparisonAnalysis {
+  generatedAt: string;
+  organizationId: string;
+
+  // Summary
+  summary: BenchmarkComparisonSummary;
+
+  // Detailed metrics
+  metrics: BenchmarkMetric[];
+
+  // Historical trends
+  trends: BenchmarkTrend[];
+
+  // Gap analysis
+  gapAnalysis: BenchmarkGap[];
+
+  // Peer group comparisons
+  peerGroups?: PeerGroup[];
+
+  // Insights and recommendations
+  insights: Array<{
+    type: 'STRENGTH' | 'OPPORTUNITY' | 'RISK' | 'TREND';
+    title: string;
+    description: string;
+    metrics: string[];
+    impact: 'HIGH' | 'MEDIUM' | 'LOW';
+    actionable: boolean;
+  }>;
+
+  // Priority recommendations
+  recommendations: Array<{
+    priority: number;
+    category: BenchmarkCategory;
+    title: string;
+    description: string;
+    targetMetric: string;
+    currentValue: number;
+    targetValue: number;
+    estimatedImpact: string;
+    timeframe: string;
+  }>;
+
+  // Industry context
+  industryContext: {
+    industryName: string;
+    totalOrganizations: number;
+    dataAsOf: string;
+    keyTrends: string[];
+    regulatoryChanges: string[];
+  };
+}
+
+/**
+ * Benchmark comparison query options
+ */
+export interface BenchmarkComparisonQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  dateRange?: DateRange;
+  categories?: BenchmarkCategory[];
+  includeHistoricalTrends?: boolean;
+  includePeerComparison?: boolean;
+  includeGapAnalysis?: boolean;
+  peerGroupCriteria?: {
+    revenueRange?: { min: number; max: number };
+    employeeRange?: { min: number; max: number };
+    region?: string[];
+    serviceTypes?: string[];
+  };
+  benchmarkSources?: BenchmarkSource[];
+}

@@ -119,6 +119,18 @@ export type {
   StrategicPlanSummary,
   StrategicPlanningAnalysis,
   StrategicPlanningQueryOptions,
+  // Benchmark Comparison types
+  BenchmarkCategory,
+  BenchmarkSource,
+  BenchmarkStatus,
+  BenchmarkMetric,
+  BenchmarkCategorySummary,
+  PeerGroup,
+  BenchmarkTrend,
+  BenchmarkGap,
+  BenchmarkComparisonSummary,
+  BenchmarkComparisonAnalysis,
+  BenchmarkComparisonQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -133,6 +145,7 @@ export { BudgetVsActualService } from './service/budget-vs-actual-service';
 export { GrowthOpportunityService } from './service/growth-opportunity-service';
 export { InvestorBoardReportingService } from './service/investor-board-reporting-service';
 export { StrategicPlanningService } from './service/strategic-planning-service';
+export { BenchmarkComparisonService } from './service/benchmark-comparison-service';
 
 // Natural Language Query (AI-powered)
 export {
