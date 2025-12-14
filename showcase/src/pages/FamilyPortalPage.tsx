@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Users,
   MessageCircle,
@@ -119,9 +119,25 @@ export const FamilyPortalPage: React.FC = () => {
   const [visitFeedback, setVisitFeedback] = useState<Record<number, { rating: 'positive' | 'negative'; submitted: boolean }>>({});
   const [feedbackComment, setFeedbackComment] = useState<Record<number, string>>({});
   const [showThankYou, setShowThankYou] = useState<number | null>(null);
+  const thankYouTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const completedTasks = carePlanTasks.filter(t => t.completed).length;
   const totalTasks = carePlanTasks.length;
+
+  // Memoize pending feedback count to avoid recalculating on every render
+  const pendingFeedbackCount = useMemo(
+    () => recentVisitsForFeedback.filter(v => !visitFeedback[v.id]?.submitted).length,
+    [visitFeedback]
+  );
+
+  // Cleanup timeout on unmount to prevent memory leak
+  useEffect(() => {
+    return () => {
+      if (thankYouTimeoutRef.current) {
+        clearTimeout(thankYouTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleFeedback = (visitId: number, rating: 'positive' | 'negative') => {
     setVisitFeedback(prev => ({
@@ -136,7 +152,11 @@ export const FamilyPortalPage: React.FC = () => {
       [visitId]: { ...prev[visitId], submitted: true }
     }));
     setShowThankYou(visitId);
-    setTimeout(() => setShowThankYou(null), 3000);
+    // Clear any existing timeout before setting a new one
+    if (thankYouTimeoutRef.current) {
+      clearTimeout(thankYouTimeoutRef.current);
+    }
+    thankYouTimeoutRef.current = setTimeout(() => setShowThankYou(null), 3000);
   };
 
   return (
@@ -277,7 +297,7 @@ export const FamilyPortalPage: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">How Was Your Visit?</h3>
                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {recentVisitsForFeedback.filter(v => !visitFeedback[v.id]?.submitted).length} awaiting feedback
+                    {pendingFeedbackCount} awaiting feedback
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
@@ -310,9 +330,11 @@ export const FamilyPortalPage: React.FC = () => {
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3" role="group" aria-label="Rate this visit">
                               <button
                                 onClick={() => handleFeedback(visit.id, 'positive')}
+                                aria-label={`Rate visit with ${visit.caregiver} as great`}
+                                aria-pressed={feedback?.rating === 'positive'}
                                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 transition-all ${
                                   feedback?.rating === 'positive'
                                     ? 'bg-green-50 border-green-500 text-green-700'
@@ -324,6 +346,8 @@ export const FamilyPortalPage: React.FC = () => {
                               </button>
                               <button
                                 onClick={() => handleFeedback(visit.id, 'negative')}
+                                aria-label={`Rate visit with ${visit.caregiver} as could be better`}
+                                aria-pressed={feedback?.rating === 'negative'}
                                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 transition-all ${
                                   feedback?.rating === 'negative'
                                     ? 'bg-red-50 border-red-500 text-red-700'
