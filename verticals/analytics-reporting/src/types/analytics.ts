@@ -1521,3 +1521,330 @@ export interface GrowthOpportunityQueryOptions {
   geographicRadius?: number; // Miles from current service area
   minimumOpportunityScore?: number;
 }
+
+// ============================================================================
+// Investor/Board Reporting Types
+// ============================================================================
+
+/**
+ * Report period type for board reports
+ */
+export type ReportPeriodType = 'MONTHLY' | 'QUARTERLY' | 'ANNUAL' | 'YTD';
+
+/**
+ * Financial performance summary for investors
+ */
+export interface FinancialPerformanceSummary {
+  // Revenue metrics
+  totalRevenue: number;
+  revenueGrowthRate: number;
+  revenueVsPriorPeriod: number;
+  revenueVsBudget: number;
+  recurringRevenuePercentage: number;
+
+  // Profitability metrics
+  grossMargin: number;
+  grossMarginPercentage: number;
+  operatingMargin: number;
+  operatingMarginPercentage: number;
+  ebitda: number;
+  ebitdaMargin: number;
+  netIncome: number;
+  netIncomeMargin: number;
+
+  // Cash flow
+  operatingCashFlow: number;
+  freeCashFlow: number;
+  cashOnHand: number;
+  monthsOfRunway: number;
+
+  // Efficiency
+  revenuePerEmployee: number;
+  revenuePerClient: number;
+  costPerVisit: number;
+  collectionRate: number;
+}
+
+/**
+ * Operational metrics summary for board
+ */
+export interface OperationalMetricsSummary {
+  // Client metrics
+  totalClients: number;
+  activeClients: number;
+  newClientsThisPeriod: number;
+  clientGrowthRate: number;
+  clientChurnRate: number;
+  averageClientLifetime: number;
+  clientSatisfactionScore: number;
+
+  // Caregiver metrics
+  totalCaregivers: number;
+  activeCaregivers: number;
+  caregiverUtilizationRate: number;
+  caregiverTurnoverRate: number;
+  averageCaregiverTenure: number;
+  caregiverSatisfactionScore: number;
+
+  // Service delivery
+  totalVisits: number;
+  totalHours: number;
+  visitsPerClient: number;
+  hoursPerClient: number;
+  scheduleAdherenceRate: number;
+  visitCompletionRate: number;
+
+  // EVV compliance
+  evvComplianceRate: number;
+  evvExceptionRate: number;
+}
+
+/**
+ * Quality and compliance metrics
+ */
+export interface QualityComplianceMetrics {
+  // Quality scores
+  overallQualityScore: number;
+  careQualityScore: number;
+  serviceQualityScore: number;
+  documentationQualityScore: number;
+
+  // Compliance
+  regulatoryComplianceRate: number;
+  trainingComplianceRate: number;
+  backgroundCheckComplianceRate: number;
+  licensureComplianceRate: number;
+
+  // Incidents
+  incidentCount: number;
+  incidentRate: number; // Per 1000 visits
+  seriousIncidentCount: number;
+  complaintsCount: number;
+  complaintResolutionTime: number; // Days
+
+  // Audits
+  lastAuditDate: string;
+  lastAuditScore: number;
+  openDeficiencies: number;
+}
+
+/**
+ * Market position and growth metrics
+ */
+export interface MarketPositionMetrics {
+  // Market share
+  estimatedMarketShare: number;
+  marketShareChange: number;
+  marketRank: number;
+  competitorCount: number;
+
+  // Growth potential
+  totalAddressableMarket: number;
+  serviceableMarket: number;
+  marketGrowthRate: number;
+  expansionOpportunities: number;
+
+  // Geographic reach
+  serviceAreaCount: number;
+  countiesServed: number;
+  statesServed: number;
+  geographicCoverage: number;
+}
+
+/**
+ * Risk assessment for investors
+ */
+export interface RiskAssessment {
+  overallRiskLevel: 'LOW' | 'MODERATE' | 'ELEVATED' | 'HIGH';
+  riskScore: number; // 0-100
+
+  risks: Array<{
+    category: 'FINANCIAL' | 'OPERATIONAL' | 'REGULATORY' | 'MARKET' | 'STRATEGIC';
+    title: string;
+    description: string;
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    likelihood: 'UNLIKELY' | 'POSSIBLE' | 'LIKELY' | 'ALMOST_CERTAIN';
+    impact: string;
+    mitigation: string;
+    status: 'IDENTIFIED' | 'MITIGATING' | 'MITIGATED' | 'ACCEPTED';
+  }>;
+
+  riskTrend: 'IMPROVING' | 'STABLE' | 'WORSENING';
+}
+
+/**
+ * Key performance indicator with trend
+ */
+export interface BoardKPI {
+  name: string;
+  category: 'FINANCIAL' | 'OPERATIONAL' | 'QUALITY' | 'GROWTH';
+  currentValue: number;
+  priorPeriodValue: number;
+  yearAgoValue: number;
+  targetValue: number;
+  unit: string;
+  format: 'NUMBER' | 'CURRENCY' | 'PERCENTAGE' | 'RATIO';
+  trend: 'UP' | 'DOWN' | 'STABLE';
+  trendIsPositive: boolean;
+  status: 'EXCEEDING' | 'ON_TRACK' | 'AT_RISK' | 'BELOW_TARGET';
+  commentary?: string;
+}
+
+/**
+ * Strategic initiative status
+ */
+export interface StrategicInitiative {
+  id: string;
+  name: string;
+  description: string;
+  category: 'GROWTH' | 'EFFICIENCY' | 'QUALITY' | 'TECHNOLOGY' | 'COMPLIANCE';
+  owner: string;
+  startDate: string;
+  targetEndDate: string;
+  status: 'NOT_STARTED' | 'ON_TRACK' | 'AT_RISK' | 'DELAYED' | 'COMPLETED' | 'CANCELLED';
+  percentComplete: number;
+  budgetAllocated: number;
+  budgetSpent: number;
+  keyMilestones: Array<{
+    name: string;
+    dueDate: string;
+    status: 'PENDING' | 'COMPLETED' | 'MISSED';
+  }>;
+  challenges?: string;
+  nextSteps: string[];
+}
+
+/**
+ * Executive summary highlights
+ */
+export interface ExecutiveSummaryHighlights {
+  periodDescription: string;
+  overallPerformance: 'EXCELLENT' | 'GOOD' | 'SATISFACTORY' | 'NEEDS_IMPROVEMENT';
+
+  topAchievements: string[];
+  keyChallengess: string[];
+  criticalIssues: string[];
+
+  outlook: 'VERY_POSITIVE' | 'POSITIVE' | 'NEUTRAL' | 'CAUTIOUS' | 'CONCERNING';
+  outlookCommentary: string;
+
+  immediateActions: string[];
+  boardDecisionsNeeded: string[];
+}
+
+/**
+ * Comparison to prior periods
+ */
+export interface PeriodComparison {
+  currentPeriod: {
+    startDate: string;
+    endDate: string;
+    label: string;
+  };
+  priorPeriod: {
+    startDate: string;
+    endDate: string;
+    label: string;
+  };
+  yearAgoPeriod: {
+    startDate: string;
+    endDate: string;
+    label: string;
+  };
+
+  metrics: Array<{
+    name: string;
+    currentValue: number;
+    priorPeriodValue: number;
+    yearAgoValue: number;
+    priorPeriodChange: number;
+    yearOverYearChange: number;
+    unit: string;
+  }>;
+}
+
+/**
+ * Investor/Board report
+ */
+export interface InvestorBoardReport {
+  reportId: string;
+  organizationId: string;
+  organizationName: string;
+  branchId?: string;
+  branchName?: string;
+
+  // Report metadata
+  reportType: 'INVESTOR' | 'BOARD' | 'EXECUTIVE';
+  periodType: ReportPeriodType;
+  reportDate: string;
+  periodStart: string;
+  periodEnd: string;
+  preparedBy: string;
+  preparedAt: string;
+
+  // Executive summary
+  executiveSummary: ExecutiveSummaryHighlights;
+
+  // Key metrics
+  kpis: BoardKPI[];
+
+  // Detailed sections
+  financialPerformance: FinancialPerformanceSummary;
+  operationalMetrics: OperationalMetricsSummary;
+  qualityCompliance: QualityComplianceMetrics;
+  marketPosition: MarketPositionMetrics;
+  riskAssessment: RiskAssessment;
+
+  // Period comparisons
+  periodComparisons: PeriodComparison;
+
+  // Strategic initiatives
+  strategicInitiatives: StrategicInitiative[];
+
+  // Forward-looking
+  projections: {
+    nextPeriodRevenue: number;
+    nextPeriodMargin: number;
+    clientGrowthProjection: number;
+    keyAssumptions: string[];
+  };
+
+  // Appendix data
+  appendix?: {
+    detailedFinancials?: Record<string, number>;
+    regionalBreakdown?: Array<{
+      region: string;
+      revenue: number;
+      clients: number;
+      caregivers: number;
+    }>;
+    payerMix?: Array<{
+      payerType: string;
+      revenue: number;
+      percentage: number;
+    }>;
+    serviceBreakdown?: Array<{
+      serviceType: string;
+      revenue: number;
+      visits: number;
+      margin: number;
+    }>;
+  };
+}
+
+/**
+ * Investor/Board report query options
+ */
+export interface InvestorBoardReportQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  reportType: 'INVESTOR' | 'BOARD' | 'EXECUTIVE';
+  periodType: ReportPeriodType;
+  periodEnd?: string; // Defaults to current period
+  includePriorPeriodComparison?: boolean;
+  includeYearOverYearComparison?: boolean;
+  includeProjections?: boolean;
+  includeStrategicInitiatives?: boolean;
+  includeRiskAssessment?: boolean;
+  includeAppendix?: boolean;
+}

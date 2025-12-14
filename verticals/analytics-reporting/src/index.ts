@@ -91,6 +91,19 @@ export type {
   GrowthOpportunitySummary,
   GrowthOpportunityAnalysis,
   GrowthOpportunityQueryOptions,
+  // Investor/Board Reporting types
+  ReportPeriodType,
+  FinancialPerformanceSummary,
+  OperationalMetricsSummary,
+  QualityComplianceMetrics,
+  MarketPositionMetrics,
+  RiskAssessment,
+  BoardKPI,
+  StrategicInitiative,
+  ExecutiveSummaryHighlights,
+  PeriodComparison,
+  InvestorBoardReport,
+  InvestorBoardReportQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -103,6 +116,7 @@ export { PayerMarginAnalysisService } from './service/payer-margin-analysis-serv
 export { ConversionTrackingService } from './service/conversion-tracking-service';
 export { BudgetVsActualService } from './service/budget-vs-actual-service';
 export { GrowthOpportunityService } from './service/growth-opportunity-service';
+export { InvestorBoardReportingService } from './service/investor-board-reporting-service';
 
 // Natural Language Query (AI-powered)
 export {
