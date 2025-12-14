@@ -1,0 +1,106 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":preserveSemverRanges",
+    ":rebaseStalePrs",
+    ":semanticCommits",
+    ":disableDependencyDashboard"
+  ],
+  "description": "Automated dependency updates for Folk Care platform",
+  "labels": ["dependencies"],
+  "baseBranches": ["develop"],
+  "rangeStrategy": "bump",
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 5,
+  "timezone": "America/Chicago",
+  "schedule": ["after 6am and before 10am every weekday"],
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates (low risk)",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group minor updates weekly",
+      "matchUpdateTypes": ["minor"],
+      "groupName": "minor updates",
+      "schedule": ["on monday after 6am"],
+      "automerge": false
+    },
+    {
+      "description": "Require manual review for major updates",
+      "matchUpdateTypes": ["major"],
+      "groupName": "major updates",
+      "automerge": false,
+      "labels": ["dependencies", "breaking-change"],
+      "reviewers": ["bedwards"]
+    },
+    {
+      "description": "Group Vite and related packages",
+      "matchPackageNames": ["vite", "vitest"],
+      "matchPackagePrefixes": ["@vitejs/", "@vitest/"],
+      "groupName": "vite packages"
+    },
+    {
+      "description": "Group React ecosystem packages",
+      "matchPackageNames": ["react", "react-dom", "react-router-dom"],
+      "matchPackagePrefixes": ["@types/react"],
+      "groupName": "react packages"
+    },
+    {
+      "description": "Group TypeScript ecosystem",
+      "matchPackageNames": ["typescript"],
+      "matchPackagePrefixes": ["@typescript-eslint/"],
+      "groupName": "typescript packages"
+    },
+    {
+      "description": "Group ESLint packages",
+      "matchPackageNames": ["eslint"],
+      "matchPackagePrefixes": ["eslint-", "@eslint/"],
+      "groupName": "eslint packages"
+    },
+    {
+      "description": "Group testing packages",
+      "matchPackagePrefixes": ["@testing-library/"],
+      "groupName": "testing-library packages"
+    },
+    {
+      "description": "Group Turborepo packages",
+      "matchPackageNames": ["turbo"],
+      "matchPackagePrefixes": ["@turbo/"],
+      "groupName": "turborepo packages"
+    },
+    {
+      "description": "Security updates - create immediately",
+      "matchCategories": ["security"],
+      "automerge": false,
+      "labels": ["dependencies", "security"],
+      "prPriority": 10,
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Pin database driver versions",
+      "matchPackageNames": ["pg", "knex"],
+      "automerge": false,
+      "reviewers": ["bedwards"]
+    },
+    {
+      "description": "Pin Expo/React Native versions (mobile)",
+      "matchPackagePrefixes": ["expo", "@expo/", "react-native"],
+      "automerge": false,
+      "groupName": "expo/react-native packages",
+      "labels": ["dependencies", "mobile"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "security"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["on sunday after 6am"]
+  }
+}
