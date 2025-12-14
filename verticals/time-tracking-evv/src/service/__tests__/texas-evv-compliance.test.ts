@@ -21,8 +21,11 @@ describe('TexasEVVComplianceService', () => {
     longitude: -97.7431,
   };
 
-  const scheduledStartTime = new Date('2025-11-14T09:00:00Z');
-  const scheduledEndTime = new Date('2025-11-14T13:00:00Z');
+  // Use recent dates to avoid VMUR flag (records > 30 days old trigger VMUR)
+  const today = new Date();
+  const serviceDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1); // Yesterday
+  const scheduledStartTime = new Date(serviceDate.setHours(9, 0, 0, 0));
+  const scheduledEndTime = new Date(new Date(serviceDate).setHours(13, 0, 0, 0));
 
   beforeEach(() => {
     complianceService = createTexasComplianceService();
@@ -223,7 +226,8 @@ describe('TexasEVVComplianceService', () => {
   describe('Grace Period Validation', () => {
     it('should accept clock-in within 10-minute grace period (early)', () => {
       const evvRecord = createCompliantEVVRecord();
-      evvRecord.clockInTime = new Date('2025-11-14T08:55:00Z'); // 5 minutes early
+      // 5 minutes early
+      evvRecord.clockInTime = new Date(scheduledStartTime.getTime() - 5 * 60 * 1000);
 
       const result = complianceService.validateCompliance(
         evvRecord,
@@ -238,7 +242,8 @@ describe('TexasEVVComplianceService', () => {
 
     it('should accept clock-in within 10-minute grace period (late)', () => {
       const evvRecord = createCompliantEVVRecord();
-      evvRecord.clockInTime = new Date('2025-11-14T09:08:00Z'); // 8 minutes late
+      // 8 minutes late
+      evvRecord.clockInTime = new Date(scheduledStartTime.getTime() + 8 * 60 * 1000);
 
       const result = complianceService.validateCompliance(
         evvRecord,
@@ -253,7 +258,8 @@ describe('TexasEVVComplianceService', () => {
 
     it('should flag clock-in beyond grace period as VIOLATION', () => {
       const evvRecord = createCompliantEVVRecord();
-      evvRecord.clockInTime = new Date('2025-11-14T09:25:00Z'); // 25 minutes late
+      // 25 minutes late
+      evvRecord.clockInTime = new Date(scheduledStartTime.getTime() + 25 * 60 * 1000);
 
       const result = complianceService.validateCompliance(
         evvRecord,
@@ -270,6 +276,8 @@ describe('TexasEVVComplianceService', () => {
 
   describe('Multiple Violations', () => {
     it('should identify all violations in a non-compliant visit', () => {
+      // Create clock-in time 30 minutes after scheduled start
+      const lateClockIn = new Date(scheduledStartTime.getTime() + 30 * 60 * 1000);
       const evvRecord: EVVRecord = {
         ...createCompliantEVVRecord(),
         clientMedicaidId: undefined, // Missing required element
@@ -278,11 +286,11 @@ describe('TexasEVVComplianceService', () => {
           latitude: 30.2690, // 200m away - geofence violation
           longitude: -97.7431,
           accuracy: 20,
-          timestamp: new Date('2025-11-14T09:30:00Z'), // 30 min late - grace violation
+          timestamp: lateClockIn, // 30 min late - grace violation
           verified: true,
           deviceId: 'device-123',
         },
-        clockInTime: new Date('2025-11-14T09:30:00Z'),
+        clockInTime: lateClockIn,
       };
 
       const result = complianceService.validateCompliance(
@@ -321,7 +329,8 @@ describe('TexasEVVComplianceService', () => {
       });
 
       const evvRecord = createCompliantEVVRecord();
-      evvRecord.clockInTime = new Date('2025-11-14T09:12:00Z'); // 12 minutes late
+      // 12 minutes late
+      evvRecord.clockInTime = new Date(scheduledStartTime.getTime() + 12 * 60 * 1000);
 
       const result = customService.validateCompliance(
         evvRecord,
@@ -341,6 +350,18 @@ describe('TexasEVVComplianceService', () => {
 // ============================================================================
 
 function createCompliantEVVRecord(): EVVRecord {
+  // Use recent dates to avoid VMUR flag (records > 30 days old trigger VMUR)
+  const today = new Date();
+  const serviceDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1); // Yesterday
+  const clockInTime = new Date(serviceDate);
+  clockInTime.setHours(9, 0, 0, 0);
+  const clockOutTime = new Date(serviceDate);
+  clockOutTime.setHours(13, 0, 0, 0);
+  const recordedAt = new Date(serviceDate);
+  recordedAt.setHours(13, 5, 0, 0);
+  const syncedAt = new Date(serviceDate);
+  syncedAt.setHours(13, 6, 0, 0);
+
   return {
     id: 'evv-compliant-123',
     visitId: 'visit-123',
@@ -359,7 +380,7 @@ function createCompliantEVVRecord(): EVVRecord {
     caregiverEmployeeId: 'EMP-789',
     caregiverNationalProviderId: '1234567890',
 
-    serviceDate: new Date('2025-11-14'),
+    serviceDate: serviceDate,
 
     serviceAddress: {
       line1: '123 Main St',
@@ -373,8 +394,8 @@ function createCompliantEVVRecord(): EVVRecord {
       addressVerified: true,
     },
 
-    clockInTime: new Date('2025-11-14T09:00:00Z'),
-    clockOutTime: new Date('2025-11-14T13:00:00Z'),
+    clockInTime: clockInTime,
+    clockOutTime: clockOutTime,
     totalDuration: 240,
 
     clockInVerification: {
@@ -382,7 +403,7 @@ function createCompliantEVVRecord(): EVVRecord {
       latitude: 30.2672, // Same as address - perfect location
       longitude: -97.7431,
       accuracy: 15, // Good GPS accuracy
-      timestamp: new Date('2025-11-14T09:00:00Z'),
+      timestamp: clockInTime,
       verified: true,
       deviceId: 'device-123',
     },
@@ -392,7 +413,7 @@ function createCompliantEVVRecord(): EVVRecord {
       latitude: 30.2672,
       longitude: -97.7431,
       accuracy: 18,
-      timestamp: new Date('2025-11-14T13:00:00Z'),
+      timestamp: clockOutTime,
       verified: true,
       deviceId: 'device-123',
     },
@@ -403,17 +424,17 @@ function createCompliantEVVRecord(): EVVRecord {
     integrityHash: 'hash-123',
     integrityChecksum: 'checksum-123',
 
-    recordedAt: new Date('2025-11-14T13:05:00Z'),
+    recordedAt: recordedAt,
     recordedBy: 'caregiver-123',
     syncMetadata: {
       syncId: 'sync-123',
-      syncedAt: new Date('2025-11-14T13:06:00Z'),
+      syncedAt: syncedAt,
       deviceId: 'device-123',
       conflictResolved: false,
     },
 
-    createdAt: new Date('2025-11-14T13:05:00Z'),
-    updatedAt: new Date('2025-11-14T13:05:00Z'),
+    createdAt: recordedAt,
+    updatedAt: recordedAt,
   };
 }
 
@@ -428,7 +449,7 @@ function createGeofenceWarningEVVRecord(): EVVRecord {
     latitude: 30.2683, // ~120m north
     longitude: -97.7431,
     accuracy: 30, // GPS accuracy provides allowance
-    timestamp: new Date('2025-11-14T09:00:00Z'),
+    timestamp: record.clockInTime!, // Use the record's clock in time
     verified: true,
     deviceId: 'device-123',
   };
@@ -466,7 +487,7 @@ function createHighGPSAccuracyEVVRecord(): EVVRecord {
     latitude: 30.2672,
     longitude: -97.7431,
     accuracy: 150, // GPS accuracy > 100m requirement
-    timestamp: new Date('2025-11-14T09:00:00Z'),
+    timestamp: record.clockInTime!, // Use the record's clock in time
     verified: true,
     deviceId: 'device-123',
   };
