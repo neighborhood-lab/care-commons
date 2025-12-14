@@ -557,10 +557,12 @@ function generateClient(
   // Phone number with correct Texas area code
   const phone = `${location.areaCode}-555-${String(index).padStart(4, '0')}`;
 
-  // Email generation
-  const emailFirstName = firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // Remove accents for email
-  const emailLastName = lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const email = faker.internet.email({ firstName: emailFirstName, lastName: emailLastName }).toLowerCase();
+  // Email generation - use index to guarantee uniqueness (faker can generate duplicates)
+  const emailFirstName = firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const emailLastName = lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const emailDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'aol.com', 'att.net'];
+  const emailDomain = emailDomains[index % emailDomains.length];
+  const email = `${emailFirstName}.${emailLastName}.client${index}@${emailDomain}`;
 
   // Emergency contact (often family member with same last name)
   const emergencyGender = secureRandom() < 0.5 ? 'MALE' : 'FEMALE';
@@ -668,10 +670,12 @@ function generateCaregiver(
   // Phone number with correct area code
   const phone = `${location.areaCode}-${faker.string.numeric(3)}-${faker.string.numeric(4)}`;
 
-  // Email
-  const emailFirstName = firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const emailLastName = lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const email = faker.internet.email({ firstName: emailFirstName, lastName: emailLastName }).toLowerCase();
+  // Email - use index to guarantee uniqueness (faker can generate duplicates)
+  const emailFirstName = firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const emailLastName = lastName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const emailDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com'];
+  const emailDomain = emailDomains[index % emailDomains.length];
+  const email = `${emailFirstName}.${emailLastName}${index}@${emailDomain}`;
 
   // Certifications (CNAs, HHAs are common in Texas)
   const allCertifications = ['CNA', 'HHA', 'PCA', 'CPR', 'FIRST_AID', 'MEDICATION_AIDE'];
