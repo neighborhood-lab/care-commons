@@ -55,6 +55,19 @@ export type {
   PayerOptimizationOpportunity,
   PayerMarginAnalysis,
   PayerMarginAnalysisQueryOptions,
+  // Conversion Rate Tracking types
+  ReferralSource,
+  InquiryStatus,
+  DeclineReason,
+  Inquiry,
+  ConversionStageMetrics,
+  ConversionBySource,
+  ConversionTrendDataPoint,
+  CoordinatorConversionMetrics,
+  LostOpportunityAnalysis,
+  ConversionFunnelSummary,
+  ConversionRateAnalysis,
+  ConversionRateQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -64,6 +77,7 @@ export { ExportService } from './service/export-service';
 export { StaffCostAnalysisService } from './service/staff-cost-analysis-service';
 export { MarginAnalysisService } from './service/margin-analysis-service';
 export { PayerMarginAnalysisService } from './service/payer-margin-analysis-service';
+export { ConversionTrackingService } from './service/conversion-tracking-service';
 
 // Natural Language Query (AI-powered)
 export {

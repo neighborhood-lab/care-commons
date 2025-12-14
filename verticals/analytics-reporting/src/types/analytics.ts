@@ -778,3 +778,251 @@ export interface PayerMarginAnalysisQueryOptions {
   trendPeriods?: number;
   minVisitThreshold?: number; // Minimum visits to include payer
 }
+
+// ============================================================================
+// Conversion Rate Tracking Types
+// ============================================================================
+
+/**
+ * Inquiry/referral source types
+ */
+export type ReferralSource =
+  | 'HOSPITAL_DISCHARGE'
+  | 'PHYSICIAN_REFERRAL'
+  | 'SKILLED_NURSING_FACILITY'
+  | 'INSURANCE_COMPANY'
+  | 'FAMILY_SELF_REFERRAL'
+  | 'COMMUNITY_ORGANIZATION'
+  | 'WEBSITE'
+  | 'MARKETING_CAMPAIGN'
+  | 'WORD_OF_MOUTH'
+  | 'OTHER';
+
+/**
+ * Inquiry status in the pipeline
+ */
+export type InquiryStatus =
+  | 'NEW_INQUIRY'
+  | 'CONTACTED'
+  | 'ASSESSMENT_SCHEDULED'
+  | 'ASSESSMENT_COMPLETED'
+  | 'AUTHORIZATION_PENDING'
+  | 'READY_FOR_SERVICE'
+  | 'ADMITTED'
+  | 'DECLINED'
+  | 'LOST_TO_COMPETITOR'
+  | 'NOT_QUALIFIED'
+  | 'NO_RESPONSE';
+
+/**
+ * Decline reason categories
+ */
+export type DeclineReason =
+  | 'COST_CONCERNS'
+  | 'CHOSE_COMPETITOR'
+  | 'NO_LONGER_NEEDED'
+  | 'NOT_ELIGIBLE'
+  | 'NO_COVERAGE'
+  | 'LOCATION_NOT_SERVED'
+  | 'SERVICES_NOT_AVAILABLE'
+  | 'TIMING_ISSUES'
+  | 'FAMILY_DECISION'
+  | 'OTHER';
+
+/**
+ * Individual inquiry/lead record
+ */
+export interface Inquiry {
+  id: string;
+  organizationId: string;
+  branchId?: string;
+
+  // Client/prospect info
+  prospectName: string;
+  prospectPhone?: string;
+  prospectEmail?: string;
+
+  // Referral info
+  referralSource: ReferralSource;
+  referralSourceName?: string; // e.g., specific hospital name
+  referralDate: string;
+
+  // Pipeline status
+  status: InquiryStatus;
+  statusDate: string;
+
+  // Service needs
+  servicesRequested: string[];
+  estimatedHoursPerWeek?: number;
+  payerType?: PayerType;
+
+  // Outcome
+  admittedDate?: string;
+  declineReason?: DeclineReason;
+  declineNotes?: string;
+
+  // Timing metrics
+  daysToContact?: number;
+  daysToAssessment?: number;
+  daysToAdmission?: number;
+
+  // Assigned staff
+  assignedCoordinatorId?: string;
+  assignedCoordinatorName?: string;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Conversion rate metrics by stage
+ */
+export interface ConversionStageMetrics {
+  stage: InquiryStatus;
+  stageName: string;
+  count: number;
+  conversionRate: number; // % that move to next stage
+  avgDaysInStage: number;
+  dropOffCount: number;
+  dropOffRate: number;
+}
+
+/**
+ * Conversion metrics by referral source
+ */
+export interface ConversionBySource {
+  source: ReferralSource;
+  sourceName: string;
+  totalInquiries: number;
+  admissions: number;
+  conversionRate: number;
+  avgDaysToAdmission: number;
+  avgRevenuePerAdmission: number;
+  declineCount: number;
+  topDeclineReason?: DeclineReason;
+}
+
+/**
+ * Conversion trend data point
+ */
+export interface ConversionTrendDataPoint {
+  period: string; // e.g., "2025-01"
+  totalInquiries: number;
+  admissions: number;
+  conversionRate: number;
+  avgDaysToAdmission: number;
+  topSource: ReferralSource;
+}
+
+/**
+ * Coordinator performance in conversions
+ */
+export interface CoordinatorConversionMetrics {
+  coordinatorId: string;
+  coordinatorName: string;
+  assignedInquiries: number;
+  admissions: number;
+  conversionRate: number;
+  avgDaysToAdmission: number;
+  avgResponseTime: number; // Hours to first contact
+  inquiriesInProgress: number;
+}
+
+/**
+ * Lost opportunity analysis
+ */
+export interface LostOpportunityAnalysis {
+  reason: DeclineReason;
+  reasonName: string;
+  count: number;
+  percentage: number;
+  estimatedRevenueLost: number;
+  preventable: boolean;
+  recommendations: string[];
+}
+
+/**
+ * Conversion funnel summary
+ */
+export interface ConversionFunnelSummary {
+  totalInquiries: number;
+  contacted: number;
+  assessmentsScheduled: number;
+  assessmentsCompleted: number;
+  authorizationsPending: number;
+  readyForService: number;
+  admitted: number;
+  declined: number;
+  lostToCompetitor: number;
+  notQualified: number;
+  noResponse: number;
+  overallConversionRate: number;
+  avgDaysToAdmission: number;
+}
+
+/**
+ * Conversion rate analysis result
+ */
+export interface ConversionRateAnalysis {
+  period: DateRange;
+  organizationId: string;
+  branchId?: string;
+
+  // Summary funnel
+  funnel: ConversionFunnelSummary;
+
+  // Stage-by-stage conversion
+  byStage: ConversionStageMetrics[];
+
+  // Conversion by referral source
+  bySource: ConversionBySource[];
+
+  // Coordinator performance
+  byCoordinator: CoordinatorConversionMetrics[];
+
+  // Lost opportunity analysis
+  lostOpportunities: LostOpportunityAnalysis[];
+
+  // Trends over time (optional)
+  trends?: ConversionTrendDataPoint[];
+
+  // Top performers
+  topPerformingSources: Array<{
+    source: ReferralSource;
+    sourceName: string;
+    conversionRate: number;
+    reason: string;
+  }>;
+
+  // Areas needing improvement
+  improvementAreas: Array<{
+    area: string;
+    currentMetric: number;
+    targetMetric: number;
+    impact: string;
+    recommendation: string;
+  }>;
+
+  // Benchmarks
+  benchmarks: {
+    targetConversionRate: number;
+    industryAverageConversionRate: number;
+    targetDaysToAdmission: number;
+    industryAverageDaysToAdmission: number;
+    status: 'ABOVE_TARGET' | 'AT_TARGET' | 'BELOW_TARGET' | 'CRITICAL';
+  };
+}
+
+/**
+ * Conversion rate analysis query options
+ */
+export interface ConversionRateQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  dateRange: DateRange;
+  referralSources?: ReferralSource[];
+  coordinatorIds?: string[];
+  includeTrends?: boolean;
+  trendPeriods?: number;
+  includeCoordinatorMetrics?: boolean;
+}
