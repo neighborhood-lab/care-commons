@@ -1,0 +1,56 @@
+# Folk Care Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in the values
+# DO NOT commit terraform.tfvars to git (it contains secrets)
+
+# =============================================================================
+# Vercel Configuration
+# =============================================================================
+
+# Optional: Vercel team ID (leave null for personal account)
+vercel_team_id = null
+
+# GitHub repository configuration (defaults shown, change if needed)
+# vercel_git_repo = {
+#   type              = "github"
+#   repo              = "neighborhood-lab/folk-care"
+#   production_branch = "production"
+# }
+
+# =============================================================================
+# Neon Database Configuration
+# =============================================================================
+
+# REQUIRED: Your Neon organization ID
+# Find this in Neon Console → Account Settings → Organization settings
+neon_org_id = "org-xxxxxxxxxx"
+
+# Optional: Neon region (default: aws-us-east-1)
+# neon_region = "aws-us-east-1"
+
+# Optional: Compute size limits
+# neon_compute_size = {
+#   min_cu = 0.25
+#   max_cu = 2
+# }
+
+# =============================================================================
+# Upstash Redis Configuration
+# =============================================================================
+
+# Optional: Upstash region (default: us-east-1)
+# upstash_region = "us-east-1"
+
+# Optional: Enable TLS (default: true)
+# upstash_tls_enabled = true
+
+# =============================================================================
+# Application Secrets
+# =============================================================================
+
+# REQUIRED: JWT secret for authentication
+# Generate with: openssl rand -base64 32
+jwt_secret = "your-jwt-secret-here"
+
+# REQUIRED: Encryption key for sensitive data
+# Generate with: openssl rand -base64 32
+encryption_key = "your-encryption-key-here"

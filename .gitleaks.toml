@@ -40,6 +40,9 @@ paths = [
   # Ignore Kubernetes manifest templates with placeholder secrets
   '''k8s/secrets\.yaml''',
   '''deploy/k8s/.*''',
+  # Ignore Terraform example files with placeholder secrets
+  '''infra/terraform\.tfvars\.example''',
+  '''infra/README\.md''',
 ]
 
 # Ignore example/template files and false positive patterns
