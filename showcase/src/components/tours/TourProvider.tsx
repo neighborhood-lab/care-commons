@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { driver, DriveStep, Driver, Config } from 'driver.js';
 import 'driver.js/dist/driver.css';
+import './tour-styles.css';
 import {
   coordinatorOverviewSteps,
   createVisitSteps,
@@ -13,6 +15,11 @@ import {
   shiftMatchingSteps,
   payrollSteps
 } from './tour-steps';
+
+interface TourConfig {
+  steps: DriveStep[];
+  startPath: string;
+}
 
 interface TourContextValue {
   startTour: (tourId: string) => void;
@@ -28,22 +35,56 @@ export function useTour() {
   return context;
 }
 
-const tours: Record<string, DriveStep[]> = {
-  'coordinator-overview': coordinatorOverviewSteps,
-  'create-visit': createVisitSteps,
-  'caregiver-workflow': caregiverWorkflowSteps,
-  'family-portal': familyPortalSteps,
-  'admin-dashboard': adminDashboardSteps,
-  'client-management': clientManagementSteps,
-  'care-plan': carePlanSteps,
-  'billing': billingSteps,
-  'shift-matching': shiftMatchingSteps,
-  'payroll': payrollSteps
+// Tour configurations with their starting paths
+const tours: Record<string, TourConfig> = {
+  'coordinator-overview': {
+    steps: coordinatorOverviewSteps,
+    startPath: '/dashboard',
+  },
+  'create-visit': {
+    steps: createVisitSteps,
+    startPath: '/scheduling',
+  },
+  'caregiver-workflow': {
+    steps: caregiverWorkflowSteps,
+    startPath: '/mobile',
+  },
+  'family-portal': {
+    steps: familyPortalSteps,
+    startPath: '/family-portal',
+  },
+  'admin-dashboard': {
+    steps: adminDashboardSteps,
+    startPath: '/analytics',
+  },
+  'client-management': {
+    steps: clientManagementSteps,
+    startPath: '/clients',
+  },
+  'care-plan': {
+    steps: carePlanSteps,
+    startPath: '/care-plans',
+  },
+  'billing': {
+    steps: billingSteps,
+    startPath: '/billing',
+  },
+  'shift-matching': {
+    steps: shiftMatchingSteps,
+    startPath: '/shifts',
+  },
+  'payroll': {
+    steps: payrollSteps,
+    startPath: '/payroll',
+  },
 };
 
 export function TourProvider({ children }: { children: React.ReactNode }) {
   const [currentTour, setCurrentTour] = useState<string | null>(null);
   const driverInstance = useRef<Driver | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pendingTour = useRef<string | null>(null);
 
   // Clean up driver instance on unmount
   useEffect(() => {
@@ -54,29 +95,58 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // Start pending tour after navigation
+  useEffect(() => {
+    if (pendingTour.current) {
+      const tourId = pendingTour.current;
+      const tour = tours[tourId];
+
+      // Check if we're on the correct page
+      if (tour && location.pathname === tour.startPath) {
+        pendingTour.current = null;
+        // Small delay to ensure DOM is ready
+        const timeout = setTimeout(() => {
+          launchTour(tourId);
+        }, 300);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [location.pathname]);
+
   const stopTour = useCallback(() => {
     if (driverInstance.current) {
       driverInstance.current.destroy();
       driverInstance.current = null;
     }
     setCurrentTour(null);
+    pendingTour.current = null;
   }, []);
 
-  const startTour = useCallback((tourId: string) => {
-    const tourSteps = tours[tourId];
-    if (!tourSteps) {
+  const launchTour = useCallback((tourId: string) => {
+    const tour = tours[tourId];
+    if (!tour) {
       console.warn(`Tour "${tourId}" not found`);
       return;
     }
 
     // Stop any existing tour
-    stopTour();
+    if (driverInstance.current) {
+      driverInstance.current.destroy();
+      driverInstance.current = null;
+    }
 
-    // Create driver configuration
+    // Create driver configuration with enhanced styling
     const driverConfig: Config = {
       showProgress: true,
       showButtons: ['next', 'previous', 'close'],
-      steps: tourSteps,
+      steps: tour.steps,
+      animate: true,
+      smoothScroll: true,
+      allowClose: true,
+      overlayOpacity: 0.7,
+      stagePadding: 10,
+      stageRadius: 8,
+      popoverClass: 'folkcare-tour-popover',
       onDestroyStarted: () => {
         stopTour();
       },
@@ -90,6 +160,29 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     setCurrentTour(tourId);
     driverInstance.current.drive();
   }, [stopTour]);
+
+  const startTour = useCallback((tourId: string) => {
+    const tour = tours[tourId];
+    if (!tour) {
+      console.warn(`Tour "${tourId}" not found`);
+      return;
+    }
+
+    // Stop any existing tour
+    stopTour();
+
+    // Check if we need to navigate to the tour's start page
+    if (location.pathname !== tour.startPath) {
+      pendingTour.current = tourId;
+      navigate(tour.startPath);
+    } else {
+      // Already on the correct page, start immediately
+      // Small delay to ensure any modals/overlays are closed
+      setTimeout(() => {
+        launchTour(tourId);
+      }, 100);
+    }
+  }, [location.pathname, navigate, stopTour, launchTour]);
 
   return (
     <TourContext.Provider value={{ startTour, stopTour, currentTour }}>
