@@ -1026,3 +1026,248 @@ export interface ConversionRateQueryOptions {
   trendPeriods?: number;
   includeCoordinatorMetrics?: boolean;
 }
+
+// ============================================================================
+// Budget vs. Actual Reporting Types
+// ============================================================================
+
+/**
+ * Budget category types
+ */
+export type BudgetCategory =
+  | 'REVENUE'
+  | 'LABOR_COST'
+  | 'BENEFITS'
+  | 'SUPPLIES'
+  | 'EQUIPMENT'
+  | 'MARKETING'
+  | 'ADMINISTRATIVE'
+  | 'FACILITIES'
+  | 'PROFESSIONAL_SERVICES'
+  | 'TRAINING'
+  | 'TECHNOLOGY'
+  | 'OTHER';
+
+/**
+ * Budget period granularity
+ */
+export type BudgetPeriod = 'MONTHLY' | 'QUARTERLY' | 'ANNUAL';
+
+/**
+ * Variance status classification
+ */
+export type VarianceStatus =
+  | 'FAVORABLE'      // Actual is better than budget
+  | 'ON_TARGET'      // Within acceptable variance
+  | 'UNFAVORABLE'    // Actual is worse than budget
+  | 'CRITICAL';      // Significantly worse than budget
+
+/**
+ * Individual budget line item
+ */
+export interface BudgetLineItem {
+  id: string;
+  category: BudgetCategory;
+  categoryName: string;
+  subcategory?: string;
+  description?: string;
+
+  // Budget figures
+  budgetAmount: number;
+  annualBudget: number;
+  ytdBudget: number;
+
+  // Actual figures
+  actualAmount: number;
+  ytdActual: number;
+
+  // Variance calculations
+  variance: number; // Actual - Budget (positive = over budget for costs)
+  variancePercentage: number;
+  varianceStatus: VarianceStatus;
+
+  // Prior period comparison
+  priorPeriodActual?: number;
+  priorPeriodVariance?: number;
+}
+
+/**
+ * Budget vs actual by category summary
+ */
+export interface BudgetCategorySummary {
+  category: BudgetCategory;
+  categoryName: string;
+  budget: number;
+  actual: number;
+  variance: number;
+  variancePercentage: number;
+  varianceStatus: VarianceStatus;
+  lineItems: BudgetLineItem[];
+  percentOfTotalBudget: number;
+  percentOfTotalActual: number;
+}
+
+/**
+ * Monthly budget trend data point
+ */
+export interface BudgetTrendDataPoint {
+  period: string; // e.g., "2025-01"
+  month: number;
+  year: number;
+  budget: number;
+  actual: number;
+  variance: number;
+  variancePercentage: number;
+  cumulativeBudget: number;
+  cumulativeActual: number;
+  cumulativeVariance: number;
+}
+
+/**
+ * Budget forecast
+ */
+export interface BudgetForecast {
+  remainingPeriods: number;
+  projectedYearEndActual: number;
+  projectedYearEndVariance: number;
+  projectedYearEndVariancePercentage: number;
+  runRate: number; // Current monthly run rate
+  requiredRunRate: number; // Required to meet budget
+  forecastStatus: VarianceStatus;
+  assumptions: string[];
+}
+
+/**
+ * Variance explanation/note
+ */
+export interface VarianceExplanation {
+  category: BudgetCategory;
+  varianceAmount: number;
+  explanation: string;
+  isRecurring: boolean;
+  actionRequired: boolean;
+  recommendedAction?: string;
+}
+
+/**
+ * Budget vs actual analysis result
+ */
+export interface BudgetVsActualAnalysis {
+  period: DateRange;
+  budgetPeriod: BudgetPeriod;
+  organizationId: string;
+  branchId?: string;
+  fiscalYear: number;
+  periodNumber: number; // Month or quarter number
+
+  // Summary totals
+  summary: {
+    totalBudget: number;
+    totalActual: number;
+    totalVariance: number;
+    totalVariancePercentage: number;
+    varianceStatus: VarianceStatus;
+
+    // Revenue
+    revenueBudget: number;
+    revenueActual: number;
+    revenueVariance: number;
+    revenueVariancePercentage: number;
+
+    // Expenses
+    expenseBudget: number;
+    expenseActual: number;
+    expenseVariance: number;
+    expenseVariancePercentage: number;
+
+    // Net income
+    netIncomeBudget: number;
+    netIncomeActual: number;
+    netIncomeVariance: number;
+    netIncomeVariancePercentage: number;
+
+    // YTD figures
+    ytdBudget: number;
+    ytdActual: number;
+    ytdVariance: number;
+    ytdVariancePercentage: number;
+  };
+
+  // Breakdown by category
+  byCategory: BudgetCategorySummary[];
+
+  // Monthly trends
+  monthlyTrends: BudgetTrendDataPoint[];
+
+  // Forecast
+  forecast: BudgetForecast;
+
+  // Significant variances
+  significantVariances: Array<{
+    category: BudgetCategory;
+    categoryName: string;
+    variance: number;
+    variancePercentage: number;
+    impact: string;
+    trend: 'IMPROVING' | 'STABLE' | 'WORSENING';
+  }>;
+
+  // Variance explanations
+  varianceExplanations: VarianceExplanation[];
+
+  // Action items
+  actionItems: Array<{
+    priority: 'HIGH' | 'MEDIUM' | 'LOW';
+    category: BudgetCategory;
+    action: string;
+    potentialImpact: number;
+    deadline?: string;
+  }>;
+
+  // Benchmarks
+  benchmarks: {
+    expenseToRevenueRatio: number;
+    targetExpenseToRevenueRatio: number;
+    laborCostPercentage: number;
+    targetLaborCostPercentage: number;
+    status: VarianceStatus;
+  };
+}
+
+/**
+ * Budget definition for planning
+ */
+export interface BudgetDefinition {
+  id: string;
+  organizationId: string;
+  branchId?: string;
+  fiscalYear: number;
+  budgetPeriod: BudgetPeriod;
+  status: 'DRAFT' | 'APPROVED' | 'ACTIVE' | 'CLOSED';
+  approvedBy?: string;
+  approvedAt?: string;
+  lineItems: Array<{
+    category: BudgetCategory;
+    subcategory?: string;
+    monthlyAmounts: number[]; // 12 months
+    annualTotal: number;
+    notes?: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Budget vs actual query options
+ */
+export interface BudgetVsActualQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  fiscalYear: number;
+  period: BudgetPeriod;
+  periodNumber?: number; // Specific month or quarter
+  includeForecasts?: boolean;
+  includeExplanations?: boolean;
+  compareTopriorYear?: boolean;
+  categories?: BudgetCategory[];
+}

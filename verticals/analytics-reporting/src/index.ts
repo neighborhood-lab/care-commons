@@ -68,6 +68,18 @@ export type {
   ConversionFunnelSummary,
   ConversionRateAnalysis,
   ConversionRateQueryOptions,
+  // Budget vs. Actual types
+  BudgetCategory,
+  BudgetPeriod,
+  VarianceStatus,
+  BudgetLineItem,
+  BudgetCategorySummary,
+  BudgetTrendDataPoint,
+  BudgetForecast,
+  VarianceExplanation,
+  BudgetVsActualAnalysis,
+  BudgetDefinition,
+  BudgetVsActualQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -78,6 +90,7 @@ export { StaffCostAnalysisService } from './service/staff-cost-analysis-service'
 export { MarginAnalysisService } from './service/margin-analysis-service';
 export { PayerMarginAnalysisService } from './service/payer-margin-analysis-service';
 export { ConversionTrackingService } from './service/conversion-tracking-service';
+export { BudgetVsActualService } from './service/budget-vs-actual-service';
 
 // Natural Language Query (AI-powered)
 export {
