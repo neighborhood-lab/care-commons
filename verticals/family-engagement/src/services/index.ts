@@ -8,3 +8,4 @@ export * from './respite-service';
 export * from './care-transition-service';
 export * from './grief-bereavement-service';
 export * from './video-checkin-service';
+export * from './family-billing-transparency-service';

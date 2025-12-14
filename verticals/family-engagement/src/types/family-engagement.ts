@@ -927,3 +927,293 @@ export interface SurveySummary {
   responseRate: number;
   recentTrend: 'UP' | 'DOWN' | 'STABLE';
 }
+
+// ============================================================================
+// Billing Transparency Types
+// ============================================================================
+
+/**
+ * Payer type for billing
+ */
+export type BillingPayerType =
+  | 'MEDICAID'
+  | 'MEDICARE'
+  | 'PRIVATE_INSURANCE'
+  | 'PRIVATE_PAY'
+  | 'VETERANS_BENEFITS'
+  | 'OTHER';
+
+/**
+ * Family-visible invoice status
+ */
+export type FamilyInvoiceStatus =
+  | 'PENDING' // Invoice created, awaiting approval
+  | 'SENT' // Invoice sent to payer
+  | 'PROCESSING' // Being processed by payer
+  | 'PARTIALLY_PAID' // Some payment received
+  | 'PAID' // Fully paid
+  | 'PAST_DUE' // Payment overdue
+  | 'DISPUTED'; // Under dispute
+
+/**
+ * Payment method
+ */
+export type PaymentMethodType =
+  | 'CHECK'
+  | 'CREDIT_CARD'
+  | 'DEBIT_CARD'
+  | 'ACH'
+  | 'CASH'
+  | 'INSURANCE'
+  | 'OTHER';
+
+/**
+ * Unit type for services
+ */
+export type ServiceUnitType =
+  | 'HOUR'
+  | 'VISIT'
+  | 'DAY'
+  | 'WEEK'
+  | 'MONTH'
+  | 'TASK'
+  | 'MILE'
+  | 'UNIT';
+
+/**
+ * Family-friendly invoice line item
+ */
+export interface FamilyInvoiceLineItem {
+  id: UUID;
+  serviceDate: string; // YYYY-MM-DD
+  serviceDescription: string;
+  caregiverName: string;
+  unitType: ServiceUnitType;
+  units: number;
+  unitRate: number;
+  subtotal: number;
+  adjustments: number;
+  total: number;
+  notes?: string;
+}
+
+/**
+ * Family-visible invoice summary
+ * Clear, understandable billing with line-item detail
+ */
+export interface FamilyInvoiceSummary {
+  id: UUID;
+  invoiceNumber: string;
+  invoiceDate: string; // YYYY-MM-DD
+  dueDate: string; // YYYY-MM-DD
+
+  // Payer information
+  payerType: BillingPayerType;
+  payerName: string;
+
+  // Line items for transparency
+  lineItems: FamilyInvoiceLineItem[];
+
+  // Totals breakdown (no surprise charges)
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  adjustmentAmount: number;
+  adjustmentDescription?: string;
+  totalAmount: number;
+
+  // Payment status
+  paidAmount: number;
+  balanceDue: number;
+  status: FamilyInvoiceStatus;
+
+  // Service period covered
+  servicePeriodStart: string; // YYYY-MM-DD
+  servicePeriodEnd: string; // YYYY-MM-DD
+
+  // Client info
+  clientId: UUID;
+  clientName: string;
+
+  organizationId: UUID;
+}
+
+/**
+ * Payment record visible to family
+ */
+export interface FamilyPaymentRecord {
+  id: UUID;
+  paymentDate: string; // YYYY-MM-DD
+  amount: number;
+  paymentMethod: PaymentMethodType;
+  payerName: string;
+  invoiceNumber?: string;
+  invoiceId?: UUID;
+  confirmationNumber?: string;
+  status: 'RECEIVED' | 'APPLIED' | 'PENDING' | 'RETURNED';
+  notes?: string;
+}
+
+/**
+ * Billing statement for family (monthly summary)
+ */
+export interface FamilyBillingStatement {
+  statementId: UUID;
+  statementDate: string; // YYYY-MM-DD
+  statementPeriodStart: string; // YYYY-MM-DD
+  statementPeriodEnd: string; // YYYY-MM-DD
+
+  // Client info
+  clientId: UUID;
+  clientName: string;
+
+  // Opening balance
+  previousBalance: number;
+
+  // Activity during period
+  newCharges: number;
+  paymentsReceived: number;
+  adjustments: number;
+  adjustmentDescription?: string;
+
+  // Closing balance
+  currentBalance: number;
+
+  // Breakdown by service type
+  chargesByService: FamilyServiceChargeBreakdown[];
+
+  // Invoice references
+  invoicesIncluded: FamilyInvoiceSummary[];
+
+  // Payment history
+  paymentsIncluded: FamilyPaymentRecord[];
+
+  // Aging information
+  aging: FamilyBalanceAging;
+
+  organizationId: UUID;
+}
+
+/**
+ * Charge breakdown by service type
+ */
+export interface FamilyServiceChargeBreakdown {
+  serviceType: string;
+  serviceDescription: string;
+  totalHours?: number;
+  totalUnits: number;
+  unitType: ServiceUnitType;
+  averageRate: number;
+  totalAmount: number;
+}
+
+/**
+ * Balance aging for family view
+ */
+export interface FamilyBalanceAging {
+  current: number; // 0-30 days
+  days31to60: number;
+  days61to90: number;
+  over90Days: number;
+  totalPastDue: number;
+}
+
+/**
+ * Authorization status visible to family
+ */
+export interface FamilyAuthorizationStatus {
+  id: UUID;
+  authorizationNumber: string;
+  payerName: string;
+  serviceType: string;
+  serviceDescription: string;
+
+  // Authorization period
+  effectiveFrom: string; // YYYY-MM-DD
+  effectiveTo: string; // YYYY-MM-DD
+
+  // Units tracking
+  authorizedUnits: number;
+  usedUnits: number;
+  remainingUnits: number;
+  unitType: ServiceUnitType;
+
+  // Status
+  status: 'ACTIVE' | 'EXPIRING_SOON' | 'DEPLETED' | 'EXPIRED';
+  percentUsed: number;
+  daysRemaining: number;
+
+  // Alerts
+  alerts: FamilyAuthorizationAlert[];
+}
+
+/**
+ * Alert for authorization
+ */
+export interface FamilyAuthorizationAlert {
+  alertType: 'UNITS_LOW' | 'EXPIRING_SOON' | 'EXPIRED' | 'RENEWAL_NEEDED';
+  message: string;
+  severity: 'INFO' | 'WARNING' | 'URGENT';
+}
+
+/**
+ * Billing dashboard for family
+ */
+export interface FamilyBillingDashboard {
+  clientId: UUID;
+  clientName: string;
+
+  // Current balance summary
+  currentBalance: number;
+  pastDueBalance: number;
+  nextPaymentDueDate?: string;
+  nextPaymentAmount?: number;
+
+  // Recent activity
+  recentInvoices: FamilyInvoiceSummary[];
+  recentPayments: FamilyPaymentRecord[];
+
+  // Authorization status
+  authorizations: FamilyAuthorizationStatus[];
+  authorizationAlerts: FamilyAuthorizationAlert[];
+
+  // Year-to-date summary
+  ytdTotalCharges: number;
+  ytdTotalPayments: number;
+  ytdInsurancePaid: number;
+  ytdClientResponsibility: number;
+
+  // Payment options
+  acceptedPaymentMethods: PaymentMethodType[];
+  paymentPortalUrl?: string;
+  paymentInstructions?: string;
+
+  organizationId: UUID;
+  lastUpdated: Timestamp;
+}
+
+/**
+ * Input for querying family billing
+ */
+export interface FamilyBillingQueryInput {
+  clientId: UUID;
+  familyMemberId: UUID;
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  status?: FamilyInvoiceStatus[];
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Billing notification preferences for family
+ */
+export interface FamilyBillingNotificationPreferences {
+  invoiceReadyNotifications: boolean;
+  paymentReceivedNotifications: boolean;
+  paymentDueReminders: boolean;
+  paymentPastDueAlerts: boolean;
+  authorizationExpiringAlerts: boolean;
+  statementReadyNotifications: boolean;
+  reminderDaysBeforeDue: number;
+}
