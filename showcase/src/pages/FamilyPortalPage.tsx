@@ -117,16 +117,24 @@ const recentVisitsForFeedback = [
   },
 ];
 
-// Wellness check-in history
+// Wellness check-in history with relative dates (won't become stale)
 const wellnessHistory = [
   { date: 'Yesterday', status: 'great' as const, note: '' },
-  { date: 'Nov 2', status: 'good' as const, note: '' },
-  { date: 'Nov 1', status: 'good' as const, note: 'Felt a bit tired' },
-  { date: 'Oct 31', status: 'okay' as const, note: 'Had some trouble sleeping' },
-  { date: 'Oct 30', status: 'great' as const, note: '' },
+  { date: '2 days ago', status: 'good' as const, note: '' },
+  { date: '3 days ago', status: 'good' as const, note: 'Felt a bit tired' },
+  { date: '4 days ago', status: 'okay' as const, note: 'Had some trouble sleeping' },
+  { date: '5 days ago', status: 'great' as const, note: '' },
 ];
 
 type WellnessStatus = 'great' | 'good' | 'okay' | 'need-help';
+
+// Wellness status configuration - extracted for performance and type safety
+const WELLNESS_STATUS_CONFIG: Record<WellnessStatus, { icon: typeof Sparkles; color: string; bg: string; label: string }> = {
+  great: { icon: Sparkles, color: 'text-green-600', bg: 'bg-green-100', label: 'Great' },
+  good: { icon: Sun, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Good' },
+  okay: { icon: CloudRain, color: 'text-yellow-600', bg: 'bg-yellow-100', label: 'Okay' },
+  'need-help': { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100', label: 'Need Help' },
+};
 
 export const FamilyPortalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'messages' | 'schedule' | 'careplan'>('overview');
@@ -183,21 +191,37 @@ export const FamilyPortalPage: React.FC = () => {
   const submitWellnessCheckin = () => {
     if (todayCheckin) {
       setCheckinSubmitted(true);
+      // Persist to localStorage for demo consistency
+      const today = new Date().toDateString();
+      localStorage.setItem('folkcare_wellness_checkin', JSON.stringify({
+        date: today,
+        status: todayCheckin,
+        note: checkinNote,
+      }));
     }
   };
 
-  const getWellnessStatusConfig = (status: WellnessStatus) => {
-    switch (status) {
-      case 'great':
-        return { icon: Sparkles, color: 'text-green-600', bg: 'bg-green-100', label: 'Great' };
-      case 'good':
-        return { icon: Sun, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Good' };
-      case 'okay':
-        return { icon: CloudRain, color: 'text-yellow-600', bg: 'bg-yellow-100', label: 'Okay' };
-      case 'need-help':
-        return { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100', label: 'Need Help' };
+  // Load persisted wellness check-in on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('folkcare_wellness_checkin');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        const today = new Date().toDateString();
+        // Only restore if check-in is from today
+        if (data.date === today) {
+          setTodayCheckin(data.status);
+          setCheckinNote(data.note || '');
+          setCheckinSubmitted(true);
+        }
+      } catch {
+        // Invalid data, ignore
+      }
     }
-  };
+  }, []);
+
+  // Helper to get wellness config (uses extracted constant)
+  const getWellnessStatusConfig = (status: WellnessStatus) => WELLNESS_STATUS_CONFIG[status];
 
   return (
     <div className="min-h-screen bg-gray-50">
