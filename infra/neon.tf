@@ -21,21 +21,25 @@ resource "neon_project" "folkcare" {
     suspend_timeout_seconds  = 300 # Suspend after 5 minutes of inactivity
   }
 
-  # Enable connection pooling
+  # PostgreSQL version
   pg_version = 15
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # =============================================================================
 # Database Branches
 # =============================================================================
 
-# Production branch (main branch is created automatically with the project)
-resource "neon_branch" "production" {
+# Use the default "main" branch created with the project as production
+# Note: Neon automatically creates a "main" branch when the project is created
+# We reference it via data source to avoid conflicts
+data "neon_branch" "main" {
   project_id = neon_project.folkcare.id
-  name       = "production"
+  name       = "main"
 
-  # Production uses the main branch which is created with the project
-  # This is a reference to ensure proper dependency ordering
   depends_on = [neon_project.folkcare]
 }
 
@@ -44,8 +48,8 @@ resource "neon_branch" "preview" {
   project_id = neon_project.folkcare.id
   name       = "preview"
 
-  # Branch from production to include schema
-  parent_id = neon_branch.production.id
+  # Branch from main to inherit schema and data
+  parent_id = data.neon_branch.main.id
 }
 
 # =============================================================================
@@ -54,7 +58,7 @@ resource "neon_branch" "preview" {
 
 resource "neon_endpoint" "production" {
   project_id = neon_project.folkcare.id
-  branch_id  = neon_branch.production.id
+  branch_id  = data.neon_branch.main.id
 
   type = "read_write"
 
@@ -75,12 +79,18 @@ resource "neon_endpoint" "preview" {
 }
 
 # =============================================================================
-# Database Roles
+# Database Roles (one per branch - roles are branch-specific in Neon)
 # =============================================================================
 
-resource "neon_role" "app" {
+resource "neon_role" "production_app" {
   project_id = neon_project.folkcare.id
-  branch_id  = neon_branch.production.id
+  branch_id  = data.neon_branch.main.id
+  name       = "folkcare_app"
+}
+
+resource "neon_role" "preview_app" {
+  project_id = neon_project.folkcare.id
+  branch_id  = neon_branch.preview.id
   name       = "folkcare_app"
 }
 
@@ -90,14 +100,14 @@ resource "neon_role" "app" {
 
 resource "neon_database" "production" {
   project_id = neon_project.folkcare.id
-  branch_id  = neon_branch.production.id
+  branch_id  = data.neon_branch.main.id
   name       = "folkcare"
-  owner_name = neon_role.app.name
+  owner_name = neon_role.production_app.name
 }
 
 resource "neon_database" "preview" {
   project_id = neon_project.folkcare.id
   branch_id  = neon_branch.preview.id
   name       = "folkcare"
-  owner_name = neon_role.app.name
+  owner_name = neon_role.preview_app.name
 }

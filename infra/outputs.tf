@@ -42,7 +42,7 @@ output "neon_preview_host" {
 
 output "neon_production_connection_uri" {
   description = "Neon production connection URI (pooled)"
-  value       = neon_branch.production.connection_uri
+  value       = data.neon_branch.main.connection_uri
   sensitive   = true
 }
 
@@ -87,7 +87,7 @@ output "connection_strings" {
   sensitive   = true
   value = {
     production = {
-      database = neon_branch.production.connection_uri
+      database = data.neon_branch.main.connection_uri
       redis    = "rediss://:${upstash_redis_database.production.password}@${upstash_redis_database.production.endpoint}:${upstash_redis_database.production.port}"
     }
     preview = {

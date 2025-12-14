@@ -40,7 +40,7 @@ resource "vercel_project" "folkcare" {
 resource "vercel_project_environment_variable" "database_url_production" {
   project_id = vercel_project.folkcare.id
   key        = "DATABASE_URL"
-  value      = neon_branch.production.connection_uri
+  value      = data.neon_branch.main.connection_uri
   target     = ["production"]
 }
 

@@ -16,6 +16,10 @@ resource "upstash_redis_database" "production" {
   # Cost control: set a budget limit
   # Default $20/month, increase as needed
   auto_scale = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # =============================================================================
