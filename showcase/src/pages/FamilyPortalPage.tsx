@@ -225,10 +225,21 @@ export const FamilyPortalPage: React.FC = () => {
   // Helper to get wellness config (uses extracted constant)
   const getWellnessStatusConfig = (status: WellnessStatus) => WELLNESS_STATUS_CONFIG[status];
 
+  // HTML escape function to prevent XSS when building HTML strings
+  const escapeHtml = (text: string): string => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
   // Print large print version of care plan and schedule
   const handlePrintLarge = () => {
     const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    if (!printWindow) {
+      // Popup was blocked - notify user
+      alert('Unable to open print window. Please allow popups for this site and try again.');
+      return;
+    }
 
     const content = `
       <!DOCTYPE html>
@@ -273,8 +284,8 @@ export const FamilyPortalPage: React.FC = () => {
             <h2>Today's Care Tasks</h2>
             ${carePlanTasks.map(task => `
               <div class="task">
-                <span class="task-time">${task.time}</span>
-                <span class="task-name">${task.task}</span>
+                <span class="task-time">${escapeHtml(task.time)}</span>
+                <span class="task-name">${escapeHtml(task.task)}</span>
                 <span class="${task.completed ? 'completed' : 'pending'}">
                   ${task.completed ? '✓ Completed' : '○ Pending'}
                 </span>
@@ -286,10 +297,10 @@ export const FamilyPortalPage: React.FC = () => {
             <h2>Upcoming Visits</h2>
             ${upcomingVisits.map(visit => `
               <div class="visit">
-                <div class="visit-caregiver">${visit.caregiver}</div>
+                <div class="visit-caregiver">${escapeHtml(visit.caregiver)}</div>
                 <div class="visit-details">
-                  <strong>${visit.type}</strong><br>
-                  ${visit.date} • ${visit.time}
+                  <strong>${escapeHtml(visit.type)}</strong><br>
+                  ${escapeHtml(visit.date)} • ${escapeHtml(visit.time)}
                 </div>
               </div>
             `).join('')}
