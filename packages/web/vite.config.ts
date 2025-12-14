@@ -97,8 +97,10 @@ export default defineConfig({
         branch: process.env.GITHUB_REF_NAME,
       },
     }),
-    // Bundle visualization - only enabled when ANALYZE=true
-    // Run: ANALYZE=true npm run build
+    // Bundle visualization - generates interactive treemap showing module sizes
+    // Only enabled when ANALYZE=true to avoid slowing down normal builds
+    // Run: npm run build:analyze (auto-opens dist/stats.html in browser)
+    // Templates: treemap (large deps), sunburst (hierarchy), network (relationships)
     ...(isAnalyze
       ? [
           visualizer({
@@ -106,7 +108,7 @@ export default defineConfig({
             open: true,
             gzipSize: true,
             brotliSize: true,
-            template: 'treemap', // or 'sunburst', 'network'
+            template: 'treemap',
           }),
         ]
       : []),
