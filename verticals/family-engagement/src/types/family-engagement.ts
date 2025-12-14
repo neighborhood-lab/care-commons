@@ -584,3 +584,346 @@ export interface FamilyMemberProfile extends FamilyMember {
     lastActivityDate?: Timestamp;
   };
 }
+
+// ============================================================================
+// Satisfaction Survey Types
+// ============================================================================
+
+/**
+ * Type of survey
+ */
+export type SurveyType =
+  | 'SATISFACTION' // General satisfaction survey
+  | 'NPS' // Net Promoter Score survey
+  | 'CARE_QUALITY' // Care quality feedback
+  | 'CAREGIVER_FEEDBACK' // Feedback about specific caregivers
+  | 'CUSTOM'; // Custom survey
+
+/**
+ * Survey template status
+ */
+export type SurveyStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
+
+/**
+ * Survey trigger type
+ */
+export type SurveyTriggerType =
+  | 'MANUAL' // Manually sent
+  | 'SCHEDULED' // Sent on a schedule
+  | 'AFTER_VISIT' // Sent after a visit
+  | 'AFTER_MILESTONE' // Sent after care plan milestone
+  | 'AFTER_CARE_PLAN_UPDATE'; // Sent after care plan updates
+
+/**
+ * Survey schedule frequency
+ */
+export type SurveyFrequency = 'WEEKLY' | 'MONTHLY' | 'QUARTERLY';
+
+/**
+ * Question type in a survey
+ */
+export type SurveyQuestionType =
+  | 'RATING' // 1-5 star rating
+  | 'MULTIPLE_CHOICE' // Select one or more options
+  | 'TEXT' // Free text response
+  | 'NPS' // Net Promoter Score (0-10)
+  | 'YES_NO' // Yes/No question
+  | 'SCALE'; // Numeric scale
+
+/**
+ * Survey invitation status
+ */
+export type SurveyInvitationStatus =
+  | 'PENDING' // Not yet sent
+  | 'SENT' // Sent to family member
+  | 'OPENED' // Family member opened the survey
+  | 'STARTED' // Started answering
+  | 'COMPLETED' // Completed
+  | 'EXPIRED' // Survey expired
+  | 'DECLINED'; // Family member declined
+
+/**
+ * Survey response status
+ */
+export type SurveyResponseStatus = 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
+
+/**
+ * Survey template definition
+ */
+export interface SurveyTemplate extends Entity {
+  name: string;
+  description?: string;
+  surveyType: SurveyType;
+  status: SurveyStatus;
+
+  // Configuration
+  estimatedMinutes: number;
+  allowAnonymous: boolean;
+  isRequired: boolean;
+  minDaysBetweenSurveys: number;
+
+  // Scheduling
+  triggerType: SurveyTriggerType;
+  triggerDaysAfterEvent?: number;
+  scheduleFrequency?: SurveyFrequency;
+  scheduleDayOfWeek?: number;
+  scheduleDayOfMonth?: number;
+
+  // Display
+  welcomeMessage?: string;
+  thankYouMessage?: string;
+  logoUrl?: string;
+
+  organizationId: UUID;
+}
+
+/**
+ * Question within a survey template
+ */
+export interface SurveyQuestion extends Entity {
+  surveyTemplateId: UUID;
+  orderIndex: number;
+  questionType: SurveyQuestionType;
+  questionText: string;
+  helpText?: string;
+
+  // Configuration
+  isRequired: boolean;
+  options?: string[]; // For MULTIPLE_CHOICE
+  minValue?: number; // For RATING, SCALE, NPS
+  maxValue?: number;
+  minLabel?: string;
+  maxLabel?: string;
+
+  // Conditional logic
+  conditionalOnQuestionId?: UUID;
+  conditionalOperator?: 'EQUALS' | 'NOT_EQUALS' | 'GREATER_THAN' | 'LESS_THAN';
+  conditionalValue?: string;
+
+  // Categorization
+  category?: string;
+}
+
+/**
+ * Survey invitation sent to family member
+ */
+export interface SurveyInvitation extends Entity {
+  surveyTemplateId: UUID;
+  familyMemberId: UUID;
+  clientId: UUID;
+
+  status: SurveyInvitationStatus;
+  invitationCode: string;
+
+  // Scheduling
+  scheduledSendAt?: Timestamp;
+  sentAt?: Timestamp;
+  expiresAt: Timestamp;
+
+  // Trigger context
+  triggerType: SurveyTriggerType;
+  triggerEntityId?: UUID;
+  triggerEntityType?: string;
+
+  // Response tracking
+  openedAt?: Timestamp;
+  startedAt?: Timestamp;
+  completedAt?: Timestamp;
+  declinedAt?: Timestamp;
+  declineReason?: string;
+
+  // Reminders
+  reminderCount: number;
+  lastReminderAt?: Timestamp;
+
+  organizationId: UUID;
+}
+
+/**
+ * Family member response to a survey
+ */
+export interface SurveyResponse extends Entity {
+  surveyInvitationId: UUID;
+  surveyTemplateId: UUID;
+  familyMemberId?: UUID; // Null if anonymous
+  clientId: UUID;
+
+  isAnonymous: boolean;
+  status: SurveyResponseStatus;
+  completionPercentage: number;
+
+  // Timing
+  startedAt: Timestamp;
+  completedAt?: Timestamp;
+  timeSpentSeconds?: number;
+
+  // Calculated scores
+  overallSatisfactionScore?: number;
+  npsScore?: number;
+  categoryScores?: Record<string, number>;
+
+  // Device info
+  deviceType?: 'DESKTOP' | 'MOBILE' | 'TABLET';
+  browser?: string;
+
+  organizationId: UUID;
+}
+
+/**
+ * Individual answer to a survey question
+ */
+export interface SurveyResponseAnswer {
+  id: UUID;
+  surveyResponseId: UUID;
+  surveyQuestionId: UUID;
+
+  ratingValue?: number;
+  textValue?: string;
+  selectedOptions?: number[];
+
+  timeSpentSeconds?: number;
+  answeredAt: Timestamp;
+  wasSkipped: boolean;
+
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/**
+ * Aggregated survey analytics
+ */
+export interface SurveyAnalytics {
+  id: UUID;
+  surveyTemplateId: UUID;
+  periodDate: string;
+  periodType: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+
+  // Response metrics
+  invitationsSent: number;
+  invitationsOpened: number;
+  responsesStarted: number;
+  responsesCompleted: number;
+  responsesAbandoned: number;
+  completionRate?: number;
+
+  // Score metrics
+  avgSatisfactionScore?: number;
+  avgNpsScore?: number;
+  avgCategoryScores?: Record<string, number>;
+
+  // Timing
+  avgTimeSpentSeconds?: number;
+
+  organizationId: UUID;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// ============================================================================
+// Survey Service Input/Output Types
+// ============================================================================
+
+/**
+ * Input for creating a survey template
+ */
+export interface CreateSurveyTemplateInput {
+  name: string;
+  description?: string;
+  surveyType: SurveyType;
+  estimatedMinutes?: number;
+  allowAnonymous?: boolean;
+  isRequired?: boolean;
+  minDaysBetweenSurveys?: number;
+  triggerType: SurveyTriggerType;
+  triggerDaysAfterEvent?: number;
+  scheduleFrequency?: SurveyFrequency;
+  scheduleDayOfWeek?: number;
+  scheduleDayOfMonth?: number;
+  welcomeMessage?: string;
+  thankYouMessage?: string;
+  logoUrl?: string;
+}
+
+/**
+ * Input for updating a survey template
+ */
+export interface UpdateSurveyTemplateInput {
+  name?: string;
+  description?: string;
+  status?: SurveyStatus;
+  estimatedMinutes?: number;
+  allowAnonymous?: boolean;
+  isRequired?: boolean;
+  minDaysBetweenSurveys?: number;
+  triggerType?: SurveyTriggerType;
+  triggerDaysAfterEvent?: number;
+  scheduleFrequency?: SurveyFrequency;
+  scheduleDayOfWeek?: number;
+  scheduleDayOfMonth?: number;
+  welcomeMessage?: string;
+  thankYouMessage?: string;
+  logoUrl?: string;
+}
+
+/**
+ * Input for creating a survey question
+ */
+export interface CreateSurveyQuestionInput {
+  surveyTemplateId: UUID;
+  orderIndex: number;
+  questionType: SurveyQuestionType;
+  questionText: string;
+  helpText?: string;
+  isRequired?: boolean;
+  options?: string[];
+  minValue?: number;
+  maxValue?: number;
+  minLabel?: string;
+  maxLabel?: string;
+  conditionalOnQuestionId?: UUID;
+  conditionalOperator?: 'EQUALS' | 'NOT_EQUALS' | 'GREATER_THAN' | 'LESS_THAN';
+  conditionalValue?: string;
+  category?: string;
+}
+
+/**
+ * Input for sending a survey invitation
+ */
+export interface SendSurveyInvitationInput {
+  surveyTemplateId: UUID;
+  familyMemberId: UUID;
+  clientId: UUID;
+  scheduledSendAt?: Timestamp;
+  expiresAt?: Timestamp;
+  triggerEntityId?: UUID;
+  triggerEntityType?: string;
+}
+
+/**
+ * Input for submitting a survey answer
+ */
+export interface SubmitSurveyAnswerInput {
+  surveyResponseId: UUID;
+  surveyQuestionId: UUID;
+  ratingValue?: number;
+  textValue?: string;
+  selectedOptions?: number[];
+  wasSkipped?: boolean;
+  timeSpentSeconds?: number;
+}
+
+/**
+ * Summary of survey results for reporting
+ */
+export interface SurveySummary {
+  templateId: UUID;
+  templateName: string;
+  surveyType: SurveyType;
+  totalResponses: number;
+  completedResponses: number;
+  avgCompletionTime: number;
+  avgSatisfactionScore?: number;
+  npsScore?: number;
+  responseRate: number;
+  recentTrend: 'UP' | 'DOWN' | 'STABLE';
+}

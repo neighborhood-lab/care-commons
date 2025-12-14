@@ -3,3 +3,4 @@
  */
 
 export * from './family-engagement-service';
+export * from './satisfaction-survey-service';
