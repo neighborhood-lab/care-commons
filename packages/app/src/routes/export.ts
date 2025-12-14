@@ -6,7 +6,7 @@
  */
 
 import { Router, type Router as RouterType, type Request, type Response } from 'express';
-import { DataExportService, FHIRExportService } from '@folkcare/core';
+import { DataExportService, FHIRExportService, HL7ExportService } from '@folkcare/core';
 import { requireAuth } from '../middleware/auth-context';
 import { asyncHandler } from '@folkcare/core';
 import { z } from 'zod';
@@ -247,6 +247,133 @@ router.get('/fhir/metadata', asyncHandler(async (req: Request, res: Response) =>
     organizationId,
     format: 'FHIR R4',
     contentType: 'application/fhir+json',
+    ...metadata,
+  });
+}));
+
+// ============================================================================
+// HL7 v2.x Export Routes
+// ============================================================================
+
+// Validation schema for HL7 export options
+const hl7ExportOptionsSchema = z.object({
+  messageType: z.enum(['ADT', 'ORU', 'ORM', 'DFT', 'MDM']).optional(),
+  eventType: z.enum(['A01', 'A02', 'A03', 'A04', 'A08', 'A28', 'A31']).optional(),
+  sendingApplication: z.string().optional(),
+  sendingFacility: z.string().optional(),
+  receivingApplication: z.string().optional(),
+  receivingFacility: z.string().optional(),
+  includeAllergies: z.boolean().optional().default(true),
+  includeInsurance: z.boolean().optional().default(true),
+  includeNextOfKin: z.boolean().optional().default(true),
+});
+
+// Validation schema for HL7 batch export
+const hl7BatchExportSchema = z.object({
+  clientIds: z.array(z.string().uuid()).min(1).max(100),
+  options: hl7ExportOptionsSchema.optional(),
+});
+
+/**
+ * Export single patient as HL7 v2.x ADT message
+ *
+ * @route GET /export/hl7/patient/:clientId
+ * @security Requires authentication and organization scope
+ */
+router.get('/hl7/patient/:clientId', asyncHandler(async (req: Request, res: Response) => {
+  const organizationId = req.user?.organizationId;
+
+  if (organizationId === undefined) {
+    res.status(400).json({ error: 'Organization ID required' });
+    return;
+  }
+
+  const clientId = req.params.clientId;
+  if (clientId === undefined || clientId === '' || !z.string().uuid().safeParse(clientId).success) {
+    res.status(400).json({ error: 'Valid client ID required' });
+    return;
+  }
+
+  // Parse query parameters for options
+  const options = {
+    includeAllergies: req.query.includeAllergies !== 'false',
+    includeInsurance: req.query.includeInsurance !== 'false',
+    includeNextOfKin: req.query.includeNextOfKin !== 'false',
+  };
+
+  const hl7Service = new HL7ExportService();
+  const result = await hl7Service.exportPatientMessage(
+    clientId as UUID,
+    organizationId,
+    options
+  );
+
+  // Set HL7-specific headers
+  const filename = `hl7-patient-${clientId.slice(0, 8)}-${result.timestamp.replace(/[.:]/g, '-')}.hl7`;
+
+  res.setHeader('Content-Type', 'application/hl7-v2');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(result.rawMessage);
+}));
+
+/**
+ * Export multiple patients as HL7 v2.x ADT messages
+ *
+ * @route POST /export/hl7/patients
+ * @security Requires authentication and organization scope
+ * @body {clientIds: string[], options?: HL7ExportOptions}
+ */
+router.post('/hl7/patients', asyncHandler(async (req: Request, res: Response) => {
+  const organizationId = req.user?.organizationId;
+
+  if (organizationId === undefined) {
+    res.status(400).json({ error: 'Organization ID required' });
+    return;
+  }
+
+  // Validate request body
+  const validatedBody = hl7BatchExportSchema.parse(req.body);
+
+  const hl7Service = new HL7ExportService();
+  const results = await hl7Service.exportPatientBatch(
+    validatedBody.clientIds as UUID[],
+    organizationId,
+    validatedBody.options
+  );
+
+  // Set HL7-specific headers
+  const timestamp = new Date().toISOString().replace(/[.:]/g, '-');
+  const filename = `hl7-patients-${organizationId.slice(0, 8)}-${timestamp}.hl7`;
+
+  res.setHeader('Content-Type', 'application/hl7-v2');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+  // Concatenate all messages with blank line separator (HL7 batch format)
+  const batchMessage = results.map(r => r.rawMessage).join('\r\n\r\n');
+  res.send(batchMessage);
+}));
+
+/**
+ * Get HL7 export metadata (available patients and estimated size)
+ *
+ * @route GET /export/hl7/metadata
+ * @security Requires authentication and organization scope
+ */
+router.get('/hl7/metadata', asyncHandler(async (req: Request, res: Response) => {
+  const organizationId = req.user?.organizationId;
+
+  if (organizationId === undefined) {
+    res.status(400).json({ error: 'Organization ID required' });
+    return;
+  }
+
+  const hl7Service = new HL7ExportService();
+  const metadata = await hl7Service.getExportMetadata(organizationId);
+
+  res.json({
+    organizationId,
+    format: 'HL7 v2.x',
+    contentType: 'application/hl7-v2',
     ...metadata,
   });
 }));

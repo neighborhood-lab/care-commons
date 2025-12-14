@@ -116,3 +116,5 @@ export { DemoDataService, type DemoDataStats } from './service/demo-data-service
 export * from './ai/index.js';
 // FHIR R4 Export
 export * from './fhir/index.js';
+// HL7 v2.x Export
+export * from './hl7/index.js';
