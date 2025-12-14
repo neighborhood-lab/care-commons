@@ -104,6 +104,21 @@ export type {
   PeriodComparison,
   InvestorBoardReport,
   InvestorBoardReportQueryOptions,
+  // Strategic Planning types
+  GoalCategory,
+  GoalStatus,
+  GoalPriority,
+  PlanningHorizon,
+  KeyResult,
+  StrategicGoal,
+  ActionItem,
+  Milestone,
+  PlanningScenario,
+  ResourceAllocation,
+  GoalProgressReport,
+  StrategicPlanSummary,
+  StrategicPlanningAnalysis,
+  StrategicPlanningQueryOptions,
 } from './types/analytics';
 
 // Service exports
@@ -117,6 +132,7 @@ export { ConversionTrackingService } from './service/conversion-tracking-service
 export { BudgetVsActualService } from './service/budget-vs-actual-service';
 export { GrowthOpportunityService } from './service/growth-opportunity-service';
 export { InvestorBoardReportingService } from './service/investor-board-reporting-service';
+export { StrategicPlanningService } from './service/strategic-planning-service';
 
 // Natural Language Query (AI-powered)
 export {

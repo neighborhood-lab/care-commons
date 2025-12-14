@@ -1848,3 +1848,312 @@ export interface InvestorBoardReportQueryOptions {
   includeRiskAssessment?: boolean;
   includeAppendix?: boolean;
 }
+
+// ============================================================================
+// Strategic Planning Types
+// ============================================================================
+
+/**
+ * Strategic goal category
+ */
+export type GoalCategory =
+  | 'REVENUE_GROWTH'
+  | 'MARKET_EXPANSION'
+  | 'OPERATIONAL_EXCELLENCE'
+  | 'QUALITY_IMPROVEMENT'
+  | 'WORKFORCE_DEVELOPMENT'
+  | 'TECHNOLOGY_INNOVATION'
+  | 'COMPLIANCE_REGULATORY'
+  | 'FINANCIAL_HEALTH';
+
+/**
+ * Goal status
+ */
+export type GoalStatus = 'DRAFT' | 'ACTIVE' | 'ON_TRACK' | 'AT_RISK' | 'BEHIND' | 'COMPLETED' | 'CANCELLED';
+
+/**
+ * Goal priority
+ */
+export type GoalPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+
+/**
+ * Time horizon for planning
+ */
+export type PlanningHorizon = 'SHORT_TERM' | 'MEDIUM_TERM' | 'LONG_TERM'; // <1 yr, 1-3 yr, 3-5 yr
+
+/**
+ * Key result (OKR style)
+ */
+export interface KeyResult {
+  id: string;
+  goalId: string;
+  title: string;
+  description?: string;
+  metricName: string;
+  metricUnit: string;
+  baselineValue: number;
+  targetValue: number;
+  currentValue: number;
+  progressPercentage: number;
+  startDate: string;
+  targetDate: string;
+  owner?: string;
+  status: GoalStatus;
+  updateFrequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY';
+  lastUpdated: string;
+  trend: 'IMPROVING' | 'STABLE' | 'DECLINING';
+  notes?: string;
+}
+
+/**
+ * Strategic goal definition
+ */
+export interface StrategicGoal {
+  id: string;
+  organizationId: string;
+  branchId?: string;
+
+  // Goal definition
+  title: string;
+  description: string;
+  category: GoalCategory;
+  priority: GoalPriority;
+  horizon: PlanningHorizon;
+
+  // Timeline
+  startDate: string;
+  targetDate: string;
+  fiscalYear: number;
+
+  // Status
+  status: GoalStatus;
+  overallProgress: number; // 0-100
+
+  // Key results
+  keyResults: KeyResult[];
+
+  // Ownership
+  owner: string;
+  stakeholders: string[];
+
+  // Dependencies
+  dependencies?: string[]; // Other goal IDs
+  blockedBy?: string[];
+
+  // Resources
+  budgetAllocated?: number;
+  budgetSpent?: number;
+  ftesAllocated?: number;
+
+  // Metadata
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Action item for goal achievement
+ */
+export interface ActionItem {
+  id: string;
+  goalId: string;
+  keyResultId?: string;
+  title: string;
+  description: string;
+  assignee: string;
+  dueDate: string;
+  priority: GoalPriority;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'BLOCKED' | 'COMPLETED' | 'CANCELLED';
+  completedDate?: string;
+  dependencies?: string[];
+  notes?: string;
+}
+
+/**
+ * Milestone for tracking progress
+ */
+export interface Milestone {
+  id: string;
+  goalId: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  status: 'PENDING' | 'COMPLETED' | 'MISSED' | 'RESCHEDULED';
+  completedDate?: string;
+  deliverables: string[];
+  owner: string;
+}
+
+/**
+ * Scenario for planning
+ */
+export interface PlanningScenario {
+  id: string;
+  name: string;
+  description: string;
+  type: 'OPTIMISTIC' | 'BASELINE' | 'CONSERVATIVE' | 'WORST_CASE';
+  assumptions: string[];
+  projectedRevenue: number;
+  projectedCosts: number;
+  projectedMargin: number;
+  projectedClientGrowth: number;
+  projectedCaregiverGrowth: number;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  probability: number; // 0-100
+  keyRisks: string[];
+  mitigationStrategies: string[];
+}
+
+/**
+ * Resource allocation plan
+ */
+export interface ResourceAllocation {
+  category: GoalCategory;
+  budgetAmount: number;
+  budgetPercentage: number;
+  fteCount: number;
+  ftePercentage: number;
+  priorityRanking: number;
+  goals: Array<{
+    goalId: string;
+    goalTitle: string;
+    allocation: number;
+  }>;
+}
+
+/**
+ * Goal progress report
+ */
+export interface GoalProgressReport {
+  goalId: string;
+  goalTitle: string;
+  category: GoalCategory;
+  status: GoalStatus;
+  overallProgress: number;
+  keyResultsCompleted: number;
+  keyResultsTotal: number;
+  actionItemsCompleted: number;
+  actionItemsTotal: number;
+  milestonesCompleted: number;
+  milestonesTotal: number;
+  daysRemaining: number;
+  onTrack: boolean;
+  progressTrend: 'ACCELERATING' | 'ON_PACE' | 'SLOWING' | 'STALLED';
+  riskFactors: string[];
+  recentAccomplishments: string[];
+  upcomingMilestones: Array<{
+    title: string;
+    dueDate: string;
+    status: string;
+  }>;
+}
+
+/**
+ * Strategic plan summary
+ */
+export interface StrategicPlanSummary {
+  organizationId: string;
+  branchId?: string;
+  planName: string;
+  fiscalYear: number;
+  planningHorizon: PlanningHorizon;
+  createdAt: string;
+  lastUpdated: string;
+
+  // Summary metrics
+  totalGoals: number;
+  goalsOnTrack: number;
+  goalsAtRisk: number;
+  goalsBehind: number;
+  goalsCompleted: number;
+  overallProgress: number;
+
+  // By category
+  goalsByCategory: Array<{
+    category: GoalCategory;
+    count: number;
+    progress: number;
+    status: GoalStatus;
+  }>;
+
+  // Resource summary
+  totalBudgetAllocated: number;
+  totalBudgetSpent: number;
+  budgetUtilization: number;
+  totalFTEs: number;
+
+  // Timeline
+  upcomingMilestones: Milestone[];
+  overdueItems: number;
+}
+
+/**
+ * Strategic planning analysis result
+ */
+export interface StrategicPlanningAnalysis {
+  generatedAt: string;
+  organizationId: string;
+  branchId?: string;
+  fiscalYear: number;
+
+  // Plan summary
+  summary: StrategicPlanSummary;
+
+  // Goals
+  goals: StrategicGoal[];
+  goalProgress: GoalProgressReport[];
+
+  // Actions and milestones
+  actionItems: ActionItem[];
+  milestones: Milestone[];
+
+  // Resource allocation
+  resourceAllocation: ResourceAllocation[];
+
+  // Scenarios
+  scenarios?: PlanningScenario[];
+
+  // Risk analysis
+  riskAnalysis: {
+    highRiskGoals: Array<{
+      goalId: string;
+      title: string;
+      riskFactors: string[];
+      recommendedActions: string[];
+    }>;
+    overallRiskLevel: 'LOW' | 'MODERATE' | 'ELEVATED' | 'HIGH';
+  };
+
+  // Recommendations
+  recommendations: Array<{
+    priority: number;
+    category: string;
+    recommendation: string;
+    rationale: string;
+    impact: string;
+  }>;
+
+  // Performance vs plan
+  performanceVsPlan: {
+    revenueVariance: number;
+    clientGrowthVariance: number;
+    marginVariance: number;
+    complianceRate: number;
+    qualityScore: number;
+  };
+}
+
+/**
+ * Strategic planning query options
+ */
+export interface StrategicPlanningQueryOptions {
+  organizationId: string;
+  branchId?: string;
+  fiscalYear?: number;
+  planningHorizon?: PlanningHorizon;
+  categories?: GoalCategory[];
+  includeCompletedGoals?: boolean;
+  includeScenarios?: boolean;
+  includeActionItems?: boolean;
+  includeMilestones?: boolean;
+}
