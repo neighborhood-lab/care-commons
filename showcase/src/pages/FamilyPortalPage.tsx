@@ -19,6 +19,10 @@ import {
   ThumbsUp,
   ThumbsDown,
   Smile,
+  Sun,
+  CloudRain,
+  AlertTriangle,
+  Sparkles,
 } from 'lucide-react';
 
 // Mock data
@@ -113,6 +117,25 @@ const recentVisitsForFeedback = [
   },
 ];
 
+// Wellness check-in history with relative dates (won't become stale)
+const wellnessHistory = [
+  { date: 'Yesterday', status: 'great' as const, note: '' },
+  { date: '2 days ago', status: 'good' as const, note: '' },
+  { date: '3 days ago', status: 'good' as const, note: 'Felt a bit tired' },
+  { date: '4 days ago', status: 'okay' as const, note: 'Had some trouble sleeping' },
+  { date: '5 days ago', status: 'great' as const, note: '' },
+];
+
+type WellnessStatus = 'great' | 'good' | 'okay' | 'need-help';
+
+// Wellness status configuration - extracted for performance and type safety
+const WELLNESS_STATUS_CONFIG: Record<WellnessStatus, { icon: typeof Sparkles; color: string; bg: string; label: string }> = {
+  great: { icon: Sparkles, color: 'text-green-600', bg: 'bg-green-100', label: 'Great' },
+  good: { icon: Sun, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Good' },
+  okay: { icon: CloudRain, color: 'text-yellow-600', bg: 'bg-yellow-100', label: 'Okay' },
+  'need-help': { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100', label: 'Need Help' },
+};
+
 export const FamilyPortalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'messages' | 'schedule' | 'careplan'>('overview');
   const [messageText, setMessageText] = useState('');
@@ -120,6 +143,12 @@ export const FamilyPortalPage: React.FC = () => {
   const [feedbackComment, setFeedbackComment] = useState<Record<number, string>>({});
   const [showThankYou, setShowThankYou] = useState<number | null>(null);
   const thankYouTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Wellness check-in state
+  const [todayCheckin, setTodayCheckin] = useState<WellnessStatus | null>(null);
+  const [checkinNote, setCheckinNote] = useState('');
+  const [checkinSubmitted, setCheckinSubmitted] = useState(false);
+  const [showCheckinHistory, setShowCheckinHistory] = useState(false);
 
   const completedTasks = carePlanTasks.filter(t => t.completed).length;
   const totalTasks = carePlanTasks.length;
@@ -158,6 +187,41 @@ export const FamilyPortalPage: React.FC = () => {
     }
     thankYouTimeoutRef.current = setTimeout(() => setShowThankYou(null), 3000);
   };
+
+  const submitWellnessCheckin = () => {
+    if (todayCheckin) {
+      setCheckinSubmitted(true);
+      // Persist to localStorage for demo consistency
+      const today = new Date().toDateString();
+      localStorage.setItem('folkcare_wellness_checkin', JSON.stringify({
+        date: today,
+        status: todayCheckin,
+        note: checkinNote,
+      }));
+    }
+  };
+
+  // Load persisted wellness check-in on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('folkcare_wellness_checkin');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        const today = new Date().toDateString();
+        // Only restore if check-in is from today
+        if (data.date === today) {
+          setTodayCheckin(data.status);
+          setCheckinNote(data.note || '');
+          setCheckinSubmitted(true);
+        }
+      } catch {
+        // Invalid data, ignore
+      }
+    }
+  }, []);
+
+  // Helper to get wellness config (uses extracted constant)
+  const getWellnessStatusConfig = (status: WellnessStatus) => WELLNESS_STATUS_CONFIG[status];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -466,6 +530,106 @@ export const FamilyPortalPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Daily Wellness Check-in */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6" data-tour="wellness-checkin">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Daily Check-in</h3>
+                  {!checkinSubmitted && (
+                    <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
+                      Today
+                    </span>
+                  )}
+                </div>
+
+                {checkinSubmitted ? (
+                  <div className="text-center py-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                    </div>
+                    <p className="font-medium text-gray-900">Check-in Complete!</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      You reported feeling {todayCheckin && getWellnessStatusConfig(todayCheckin)?.label.toLowerCase()}
+                    </p>
+                    <button
+                      onClick={() => setShowCheckinHistory(!showCheckinHistory)}
+                      className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      {showCheckinHistory ? 'Hide history' : 'View history'}
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm text-gray-600 mb-4">How is Dorothy feeling today?</p>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      {(['great', 'good', 'okay', 'need-help'] as WellnessStatus[]).map((status) => {
+                        const config = getWellnessStatusConfig(status);
+                        const Icon = config.icon;
+                        return (
+                          <button
+                            key={status}
+                            onClick={() => setTodayCheckin(status)}
+                            aria-label={`Rate wellness as ${config.label}`}
+                            aria-pressed={todayCheckin === status}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                              todayCheckin === status
+                                ? `${config.bg} border-current ${config.color}`
+                                : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span className="text-xs font-medium">{config.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {todayCheckin && (
+                      <div className="space-y-3">
+                        <textarea
+                          placeholder="Any notes? (optional)"
+                          value={checkinNote}
+                          onChange={(e) => setCheckinNote(e.target.value)}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                          rows={2}
+                        />
+                        <button
+                          onClick={submitWellnessCheckin}
+                          className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
+                            todayCheckin === 'need-help'
+                              ? 'bg-red-600 text-white hover:bg-red-700'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {todayCheckin === 'need-help' ? 'Submit & Alert Care Team' : 'Submit Check-in'}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Check-in History */}
+                {showCheckinHistory && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <h4 className="text-sm font-medium text-gray-900 mb-3">Recent Check-ins</h4>
+                    <div className="space-y-2">
+                      {wellnessHistory.slice(0, 5).map((entry, index) => {
+                        const config = getWellnessStatusConfig(entry.status);
+                        const Icon = config.icon;
+                        return (
+                          <div key={index} className="flex items-center gap-3 text-sm">
+                            <div className={`p-1.5 rounded-full ${config.bg}`}>
+                              <Icon className={`w-3 h-3 ${config.color}`} />
+                            </div>
+                            <span className="text-gray-600 flex-1">{entry.date}</span>
+                            <span className={`font-medium ${config.color}`}>{config.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Quick Actions */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6" data-tour="messaging">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
@@ -642,6 +806,15 @@ export const FamilyPortalPage: React.FC = () => {
               <div>
                 <h4 className="font-medium text-gray-900">Simple Feedback</h4>
                 <p className="text-sm text-gray-600">Quick thumbs up/down after each visit</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-orange-100 p-2 rounded-lg">
+                <Sun className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Wellness Check-ins</h4>
+                <p className="text-sm text-gray-600">Daily status updates with optional alerts</p>
               </div>
             </div>
           </div>
