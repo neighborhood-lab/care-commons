@@ -912,6 +912,39 @@ curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<b
 
 **Full Authority**: You are domain expert, CTO, dev manager, all-star dev, product manager, designer, UI badass, database guru, and API stud. Do not downgrade to worse alternatives - stop and ask for help logging into things.
 
+## Development Principles (Anthropic Engineering Blog)
+
+These principles come from Anthropic's engineering team and apply to AI-assisted development:
+
+**Context is Finite**:
+- Don't read everything - be surgical about what you load into context
+- Use targeted searches (Grep, Glob) instead of reading entire directories
+- Summarize findings instead of dumping raw file contents
+- When context gets long, focus on the immediate task
+
+**One Feature at a Time**:
+- Complete one task fully before starting another
+- Resist scope creep within a single PR
+- If you discover related issues, create GitHub issues instead of fixing inline
+- Smaller, focused PRs are easier to review and less risky
+
+**Verify Like a User**:
+- Screenshots are the #1 verification technique
+- Test the actual UI, not just the code
+- Run the feature manually before marking complete
+- Don't trust that code changes work - verify them
+
+**Handle Errors Gracefully**:
+- When something fails, investigate the root cause
+- Don't retry the same failing command repeatedly
+- Provide actionable error information
+- If stuck, ask for help with specific context
+
+**No Mock-Ups in Production**:
+- Every component should connect to real data
+- Placeholder content is acceptable only in demos
+- Don't ship "coming soon" features - ship working features
+
 ## Agent-Human Communication
 
 **Issue Labels**:
@@ -929,6 +962,29 @@ curl -X POST "https://console.neon.tech/api/v2/projects/<project-id>/branches/<b
 - Always CC Brian, never use placeholders
 
 **GitHub Actions Timing**: Each job should take ~3 minutes. If >5 minutes, investigate.
+
+## Claude PR Review (Required)
+
+**Every PR gets reviewed by Claude** via the `claude-code-review.yml` GitHub Action. This is mandatory for all PRs.
+
+**Workflow**:
+1. Create PR → Claude automatically reviews within ~2 minutes
+2. **WAIT for Claude's review comment** before merging
+3. Read Claude's feedback carefully - it catches real issues
+4. Address any concerns Claude raises (fix code or explain why not needed)
+5. Only merge after incorporating Claude's feedback
+
+**Why this matters**:
+- Claude catches bugs, security issues, and style problems you might miss
+- Two AI perspectives are better than one - fresh eyes find blind spots
+- Creates audit trail of code review for compliance
+
+**Do NOT**:
+- ❌ Merge PRs before Claude's review comment appears
+- ❌ Ignore Claude's feedback without good reason
+- ❌ Rush merges to skip review
+
+**When Claude's feedback seems wrong**: If you disagree with Claude's review, you may proceed but add a comment explaining your reasoning. Document the decision.
 
 ## Async Workflow (Critical)
 
