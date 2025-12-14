@@ -28,6 +28,15 @@ import type {
   ServiceUnitType,
   BillingPayerType,
   PaymentMethodType,
+  FamilyInvoiceHistoryEntry,
+  FamilyInvoiceHistoryResponse,
+  InvoiceDownloadRequest,
+  InvoiceDownloadResponse,
+  BulkInvoiceDownloadRequest,
+  BulkInvoiceDownloadResponse,
+  StatementDownloadRequest,
+  StatementDownloadResponse,
+  InvoicePDFData,
 } from '../types/family-engagement.js';
 
 /**
@@ -57,6 +66,16 @@ export interface BillingDataRepository {
     }
   ): Promise<RawInvoiceData[]>;
 
+  getInvoicesCount(
+    clientId: UUID,
+    organizationId: UUID,
+    filters?: {
+      startDate?: string;
+      endDate?: string;
+      status?: string[];
+    }
+  ): Promise<number>;
+
   getPaymentsForClient(
     clientId: UUID,
     organizationId: UUID,
@@ -76,6 +95,22 @@ export interface BillingDataRepository {
     clientId: UUID,
     organizationId: UUID
   ): Promise<RawBalanceData>;
+
+  getOrganizationInfo(
+    organizationId: UUID
+  ): Promise<OrganizationBillingInfo>;
+}
+
+/**
+ * Organization billing info for invoice PDFs
+ */
+interface OrganizationBillingInfo {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  taxId?: string;
+  logo?: string;
 }
 
 /**
@@ -488,6 +523,224 @@ export class FamilyBillingTransparencyService {
     );
 
     return authorizations.map((auth) => this.processAuthorization(auth));
+  }
+
+  // ============================================================================
+  // Invoice History & Download Methods
+  // ============================================================================
+
+  /**
+   * Get paginated invoice history with download availability
+   */
+  async getInvoiceHistory(
+    familyMemberId: UUID,
+    clientId: UUID,
+    options?: {
+      page?: number;
+      pageSize?: number;
+      startDate?: string;
+      endDate?: string;
+      status?: FamilyInvoiceStatus[];
+    }
+  ): Promise<FamilyInvoiceHistoryResponse> {
+    const familyMember = await this.verifyBillingAccess(
+      familyMemberId,
+      clientId
+    );
+
+    const page = options?.page ?? 1;
+    const pageSize = options?.pageSize ?? 20;
+    const offset = (page - 1) * pageSize;
+
+    const organizationId = familyMember.organizationId;
+
+    // Get invoices and count in parallel
+    const [invoices, totalCount] = await Promise.all([
+      this.billingRepo.getInvoicesForClient(clientId, organizationId, {
+        startDate: options?.startDate,
+        endDate: options?.endDate,
+        status: options?.status,
+        limit: pageSize,
+        offset,
+      }),
+      this.billingRepo.getInvoicesCount(clientId, organizationId, {
+        startDate: options?.startDate,
+        endDate: options?.endDate,
+        status: options?.status,
+      }),
+    ]);
+
+    // Transform invoices to history entries with download info
+    const historyEntries: FamilyInvoiceHistoryEntry[] = invoices.map((inv) => ({
+      ...this.transformInvoice(inv),
+      pdfAvailable: true, // PDFs available for all invoices
+      downloadUrl: undefined, // Generated on-demand
+      downloadExpiresAt: undefined,
+      viewedAt: undefined, // Would come from tracking table
+      downloadedAt: undefined, // Would come from tracking table
+    }));
+
+    // Calculate summary
+    const allInvoices = await this.billingRepo.getInvoicesForClient(
+      clientId,
+      organizationId,
+      { startDate: options?.startDate, endDate: options?.endDate }
+    );
+
+    const summary = {
+      totalInvoices: totalCount,
+      totalAmount: allInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0),
+      paidAmount: allInvoices.reduce((sum, inv) => sum + inv.paidAmount, 0),
+      pendingAmount: allInvoices
+        .filter((inv) => inv.status !== 'PAID')
+        .reduce((sum, inv) => sum + inv.balanceDue, 0),
+      overdueAmount: allInvoices
+        .filter((inv) => inv.status === 'PAST_DUE')
+        .reduce((sum, inv) => sum + inv.balanceDue, 0),
+    };
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return {
+      invoices: historyEntries,
+      pagination: {
+        totalCount,
+        totalPages,
+        currentPage: page,
+        pageSize,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+      summary,
+    };
+  }
+
+  /**
+   * Generate a download URL for a single invoice
+   */
+  async generateInvoiceDownload(
+    request: InvoiceDownloadRequest
+  ): Promise<InvoiceDownloadResponse> {
+    await this.verifyBillingAccess(request.familyMemberId, request.clientId);
+
+    // Generate download URL (in production, this would create actual PDF)
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const fileName = `invoice-${request.invoiceId}.${request.format.toLowerCase()}`;
+
+    // In production, this would:
+    // 1. Fetch invoice data
+    // 2. Generate PDF using a PDF library
+    // 3. Upload to cloud storage
+    // 4. Return signed URL
+
+    return {
+      invoiceId: request.invoiceId,
+      downloadUrl: `/api/family-billing/download/${request.invoiceId}?format=${request.format}`,
+      expiresAt,
+      format: request.format,
+      fileName,
+      fileSizeBytes: 0, // Would be actual size after generation
+      status: 'READY',
+    };
+  }
+
+  /**
+   * Generate a bulk download for multiple invoices
+   */
+  async generateBulkInvoiceDownload(
+    request: BulkInvoiceDownloadRequest
+  ): Promise<BulkInvoiceDownloadResponse> {
+    await this.verifyBillingAccess(request.familyMemberId, request.clientId);
+
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const fileName = request.combineIntoSingle
+      ? `invoices-combined.${request.format.toLowerCase()}`
+      : `invoices-${Date.now()}.zip`;
+
+    // In production, this would:
+    // 1. Queue a background job to generate PDFs
+    // 2. Combine or ZIP the files
+    // 3. Return status with job ID for polling
+
+    return {
+      downloadUrl: `/api/family-billing/download/bulk?ids=${request.invoiceIds.join(',')}`,
+      expiresAt,
+      format: request.format,
+      fileName,
+      fileSizeBytes: 0,
+      status: 'GENERATING',
+      invoiceCount: request.invoiceIds.length,
+    };
+  }
+
+  /**
+   * Generate a statement download for a period
+   */
+  async generateStatementDownload(
+    request: StatementDownloadRequest
+  ): Promise<StatementDownloadResponse> {
+    await this.verifyBillingAccess(request.familyMemberId, request.clientId);
+
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const fileName = `statement-${request.periodStart}-to-${request.periodEnd}.${request.format.toLowerCase()}`;
+
+    return {
+      downloadUrl: `/api/family-billing/download/statement?start=${request.periodStart}&end=${request.periodEnd}`,
+      expiresAt,
+      format: request.format,
+      fileName,
+      fileSizeBytes: 0,
+      status: 'GENERATING',
+      periodStart: request.periodStart,
+      periodEnd: request.periodEnd,
+    };
+  }
+
+  /**
+   * Get invoice PDF data for rendering
+   * Used by PDF generation service
+   */
+  async getInvoicePDFData(
+    familyMemberId: UUID,
+    clientId: UUID,
+    invoiceId: UUID
+  ): Promise<InvoicePDFData | null> {
+    const familyMember = await this.verifyBillingAccess(
+      familyMemberId,
+      clientId
+    );
+
+    const organizationId = familyMember.organizationId;
+
+    // Get invoice and organization info
+    const [invoices, orgInfo] = await Promise.all([
+      this.billingRepo.getInvoicesForClient(clientId, organizationId),
+      this.billingRepo.getOrganizationInfo(organizationId),
+    ]);
+
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
+    if (invoice === undefined) {
+      return null;
+    }
+
+    return {
+      invoice: this.transformInvoice(invoice),
+      organizationInfo: {
+        name: orgInfo.name,
+        address: orgInfo.address,
+        phone: orgInfo.phone,
+        email: orgInfo.email,
+        taxId: orgInfo.taxId,
+        logo: orgInfo.logo,
+      },
+      clientInfo: {
+        name: invoice.clientName,
+      },
+      paymentInstructions:
+        'Payment is due within 30 days. Please include the invoice number with your payment.',
+      footerText:
+        'Thank you for choosing our care services. If you have questions about this invoice, please contact our billing department.',
+    };
   }
 
   /**

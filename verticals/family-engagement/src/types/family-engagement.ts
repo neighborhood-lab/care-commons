@@ -1217,3 +1217,150 @@ export interface FamilyBillingNotificationPreferences {
   statementReadyNotifications: boolean;
   reminderDaysBeforeDue: number;
 }
+
+// ============================================================================
+// Invoice History & Download Types
+// ============================================================================
+
+/**
+ * Document format for downloads
+ */
+export type DocumentFormat = 'PDF' | 'CSV' | 'EXCEL';
+
+/**
+ * Download status
+ */
+export type DownloadStatus = 'PENDING' | 'GENERATING' | 'READY' | 'EXPIRED' | 'FAILED';
+
+/**
+ * Invoice history entry with download info
+ */
+export interface FamilyInvoiceHistoryEntry extends FamilyInvoiceSummary {
+  /** Whether PDF is available for download */
+  pdfAvailable: boolean;
+  /** Download URL if available */
+  downloadUrl?: string;
+  /** Download expiry time */
+  downloadExpiresAt?: Timestamp;
+  /** Date when invoice was first viewed by family */
+  viewedAt?: Timestamp;
+  /** Date when PDF was downloaded */
+  downloadedAt?: Timestamp;
+}
+
+/**
+ * Paginated invoice history response
+ */
+export interface FamilyInvoiceHistoryResponse {
+  invoices: FamilyInvoiceHistoryEntry[];
+  pagination: {
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+  /** Year-to-date summary */
+  summary: {
+    totalInvoices: number;
+    totalAmount: number;
+    paidAmount: number;
+    pendingAmount: number;
+    overdueAmount: number;
+  };
+}
+
+/**
+ * Invoice download request
+ */
+export interface InvoiceDownloadRequest {
+  invoiceId: UUID;
+  familyMemberId: UUID;
+  clientId: UUID;
+  format: DocumentFormat;
+}
+
+/**
+ * Invoice download response
+ */
+export interface InvoiceDownloadResponse {
+  invoiceId: UUID;
+  downloadUrl: string;
+  expiresAt: Timestamp;
+  format: DocumentFormat;
+  fileName: string;
+  fileSizeBytes: number;
+  status: DownloadStatus;
+}
+
+/**
+ * Bulk invoice download request
+ */
+export interface BulkInvoiceDownloadRequest {
+  invoiceIds: UUID[];
+  familyMemberId: UUID;
+  clientId: UUID;
+  format: DocumentFormat;
+  /** Combine into single file or zip archive */
+  combineIntoSingle?: boolean;
+}
+
+/**
+ * Bulk download response
+ */
+export interface BulkInvoiceDownloadResponse {
+  downloadUrl: string;
+  expiresAt: Timestamp;
+  format: DocumentFormat;
+  fileName: string;
+  fileSizeBytes: number;
+  status: DownloadStatus;
+  invoiceCount: number;
+}
+
+/**
+ * Statement download request
+ */
+export interface StatementDownloadRequest {
+  familyMemberId: UUID;
+  clientId: UUID;
+  periodStart: string; // YYYY-MM-DD
+  periodEnd: string; // YYYY-MM-DD
+  format: DocumentFormat;
+}
+
+/**
+ * Statement download response
+ */
+export interface StatementDownloadResponse {
+  downloadUrl: string;
+  expiresAt: Timestamp;
+  format: DocumentFormat;
+  fileName: string;
+  fileSizeBytes: number;
+  status: DownloadStatus;
+  periodStart: string;
+  periodEnd: string;
+}
+
+/**
+ * Invoice PDF content data
+ */
+export interface InvoicePDFData {
+  invoice: FamilyInvoiceSummary;
+  organizationInfo: {
+    name: string;
+    address: string;
+    phone: string;
+    email: string;
+    taxId?: string;
+    logo?: string;
+  };
+  clientInfo: {
+    name: string;
+    address?: string;
+  };
+  paymentInstructions?: string;
+  footerText?: string;
+}
