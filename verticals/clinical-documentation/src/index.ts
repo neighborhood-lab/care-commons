@@ -65,3 +65,21 @@ export type {
   CommunicationSummary,
 } from './service/physician-communication-service.js';
 export { createPhysicianCommunicationRoutes } from './api/physician-communication-routes.js';
+
+// Orders
+export { OrderService } from './service/order-service.js';
+export type {
+  OrderType,
+  OrderPriority,
+  OrderSource,
+  OrderStatus,
+  OrderHistoryAction,
+  Order,
+  OrderHistory,
+  OrderSet,
+  OrderTemplate,
+  CreateOrderInput,
+  UpdateOrderInput,
+  OrderSummary,
+} from './service/order-service.js';
+export { createOrderRoutes } from './api/order-routes.js';
