@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  Users, 
-  MessageCircle, 
-  Calendar, 
+import {
+  Users,
+  MessageCircle,
+  Calendar,
   Heart,
   Send,
   Clock,
@@ -16,6 +16,9 @@ import {
   Activity,
   ClipboardList,
   User,
+  ThumbsUp,
+  ThumbsDown,
+  Smile,
 } from 'lucide-react';
 
 // Mock data
@@ -88,12 +91,53 @@ const notifications = [
   { id: 3, type: 'message', message: 'New message from Care Coordinator', time: '3 hours ago' },
 ];
 
+// Recent visits awaiting feedback
+const recentVisitsForFeedback = [
+  {
+    id: 1,
+    caregiver: 'Sarah M.',
+    avatar: 'SM',
+    type: 'Personal Care',
+    date: 'Yesterday',
+    time: '2:00 PM - 4:00 PM',
+    feedback: null as 'positive' | 'negative' | null,
+  },
+  {
+    id: 2,
+    caregiver: 'Maria G.',
+    avatar: 'MG',
+    type: 'Skilled Nursing',
+    date: 'Nov 2',
+    time: '10:00 AM - 11:00 AM',
+    feedback: null as 'positive' | 'negative' | null,
+  },
+];
+
 export const FamilyPortalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'messages' | 'schedule' | 'careplan'>('overview');
   const [messageText, setMessageText] = useState('');
+  const [visitFeedback, setVisitFeedback] = useState<Record<number, { rating: 'positive' | 'negative'; submitted: boolean }>>({});
+  const [feedbackComment, setFeedbackComment] = useState<Record<number, string>>({});
+  const [showThankYou, setShowThankYou] = useState<number | null>(null);
 
   const completedTasks = carePlanTasks.filter(t => t.completed).length;
   const totalTasks = carePlanTasks.length;
+
+  const handleFeedback = (visitId: number, rating: 'positive' | 'negative') => {
+    setVisitFeedback(prev => ({
+      ...prev,
+      [visitId]: { rating, submitted: false }
+    }));
+  };
+
+  const submitFeedback = (visitId: number) => {
+    setVisitFeedback(prev => ({
+      ...prev,
+      [visitId]: { ...prev[visitId], submitted: true }
+    }));
+    setShowThankYou(visitId);
+    setTimeout(() => setShowThankYou(null), 3000);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -225,6 +269,108 @@ export const FamilyPortalPage: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Visit Feedback Section */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6" data-tour="visit-feedback">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">How Was Your Visit?</h3>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {recentVisitsForFeedback.filter(v => !visitFeedback[v.id]?.submitted).length} awaiting feedback
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  Your feedback helps us ensure quality care. Just tap thumbs up or down!
+                </p>
+                <div className="space-y-4">
+                  {recentVisitsForFeedback.map((visit) => {
+                    const feedback = visitFeedback[visit.id];
+                    const isSubmitted = feedback?.submitted;
+                    const isThankYou = showThankYou === visit.id;
+
+                    if (isSubmitted && !isThankYou) return null;
+
+                    return (
+                      <div key={visit.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                        {isThankYou ? (
+                          <div className="flex items-center justify-center gap-2 py-4 text-green-600">
+                            <Smile className="w-6 h-6" />
+                            <span className="font-medium">Thank you for your feedback!</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="bg-blue-100 text-blue-700 w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm">
+                                {visit.avatar}
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900">{visit.caregiver}</p>
+                                <p className="text-sm text-gray-600">{visit.type} • {visit.date}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => handleFeedback(visit.id, 'positive')}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 transition-all ${
+                                  feedback?.rating === 'positive'
+                                    ? 'bg-green-50 border-green-500 text-green-700'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
+                                }`}
+                              >
+                                <ThumbsUp className={`w-5 h-5 ${feedback?.rating === 'positive' ? 'fill-green-500' : ''}`} />
+                                <span className="font-medium">Great!</span>
+                              </button>
+                              <button
+                                onClick={() => handleFeedback(visit.id, 'negative')}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 transition-all ${
+                                  feedback?.rating === 'negative'
+                                    ? 'bg-red-50 border-red-500 text-red-700'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:border-red-300 hover:bg-red-50'
+                                }`}
+                              >
+                                <ThumbsDown className={`w-5 h-5 ${feedback?.rating === 'negative' ? 'fill-red-500' : ''}`} />
+                                <span className="font-medium">Could be better</span>
+                              </button>
+                            </div>
+
+                            {feedback?.rating && (
+                              <div className="mt-3 space-y-2">
+                                <textarea
+                                  placeholder={feedback.rating === 'positive'
+                                    ? "What did you appreciate? (optional)"
+                                    : "What could be improved? (optional)"
+                                  }
+                                  value={feedbackComment[visit.id] || ''}
+                                  onChange={(e) => setFeedbackComment(prev => ({
+                                    ...prev,
+                                    [visit.id]: e.target.value
+                                  }))}
+                                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                  rows={2}
+                                />
+                                <button
+                                  onClick={() => submitFeedback(visit.id)}
+                                  className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                                >
+                                  Submit Feedback
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {recentVisitsForFeedback.every(v => visitFeedback[v.id]?.submitted) && !showThankYou && (
+                    <div className="text-center py-6 text-gray-500">
+                      <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-500" />
+                      <p className="font-medium">All caught up!</p>
+                      <p className="text-sm">No visits awaiting feedback</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -463,6 +609,15 @@ export const FamilyPortalPage: React.FC = () => {
               <div>
                 <h4 className="font-medium text-gray-900">Care Plan Visibility</h4>
                 <p className="text-sm text-gray-600">Track daily tasks and care progress</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-yellow-100 p-2 rounded-lg">
+                <ThumbsUp className="w-5 h-5 text-yellow-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Simple Feedback</h4>
+                <p className="text-sm text-gray-600">Quick thumbs up/down after each visit</p>
               </div>
             </div>
           </div>
