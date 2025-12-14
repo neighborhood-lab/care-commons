@@ -11,3 +11,4 @@ export * from './video-checkin-service';
 export * from './family-billing-transparency-service';
 export * from './agency-contact-service';
 export * from './family-onboarding-service';
+export * from './family-document-service';

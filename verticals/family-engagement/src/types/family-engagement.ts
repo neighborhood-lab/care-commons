@@ -1883,3 +1883,368 @@ export interface OnboardingCompletionSummary {
     actionUrl: string;
   };
 }
+
+// ============================================================================
+// Family Document Management Types
+// ============================================================================
+
+/**
+ * Document category for organization
+ */
+export type FamilyDocumentCategory =
+  | 'INSURANCE' // Insurance cards, policies
+  | 'MEDICAL_RECORDS' // Medical history, reports
+  | 'LEGAL' // Power of attorney, advance directives
+  | 'IDENTIFICATION' // ID, birth certificate
+  | 'CARE_PLAN' // Care plans provided by agency
+  | 'PROGRESS_NOTES' // Progress notes and reports
+  | 'ASSESSMENTS' // Clinical assessments
+  | 'CONSENTS' // Signed consent forms
+  | 'BILLING' // Invoices, statements
+  | 'CORRESPONDENCE' // Letters, communications
+  | 'PHOTOS' // Client photos (with consent)
+  | 'OTHER'; // Miscellaneous documents
+
+/**
+ * Document status
+ */
+export type FamilyDocumentStatus =
+  | 'UPLOADING' // Currently being uploaded
+  | 'PROCESSING' // Being processed/scanned
+  | 'ACTIVE' // Available for viewing
+  | 'ARCHIVED' // Archived but retrievable
+  | 'EXPIRED' // Document has expired
+  | 'DELETED'; // Soft deleted
+
+/**
+ * Document access level
+ */
+export type DocumentAccessLevel =
+  | 'FAMILY_ONLY' // Only visible to family
+  | 'CARE_TEAM' // Visible to care team and family
+  | 'AGENCY_ONLY' // Only visible to agency staff
+  | 'PUBLIC'; // Visible to all stakeholders
+
+/**
+ * Upload source
+ */
+export type DocumentUploadSource =
+  | 'FAMILY_PORTAL' // Uploaded by family through portal
+  | 'AGENCY' // Uploaded by agency staff
+  | 'CAREGIVER' // Uploaded by caregiver
+  | 'SYSTEM' // System-generated document
+  | 'EXTERNAL'; // From external integration
+
+/**
+ * Document file type
+ */
+export type DocumentFileType =
+  | 'PDF'
+  | 'IMAGE'
+  | 'WORD'
+  | 'EXCEL'
+  | 'TEXT'
+  | 'OTHER';
+
+/**
+ * Family document record
+ */
+export interface FamilyDocument extends Entity {
+  /** Client this document belongs to */
+  clientId: UUID;
+
+  /** Family member who uploaded (if applicable) */
+  uploadedByFamilyMemberId?: UUID;
+
+  /** Document category */
+  category: FamilyDocumentCategory;
+
+  /** Document title */
+  title: string;
+
+  /** Document description */
+  description?: string;
+
+  /** Original file name */
+  fileName: string;
+
+  /** File extension */
+  fileExtension: string;
+
+  /** File type */
+  fileType: DocumentFileType;
+
+  /** File size in bytes */
+  fileSizeBytes: number;
+
+  /** MIME type */
+  mimeType: string;
+
+  /** Storage path/key */
+  storagePath: string;
+
+  /** Document status */
+  status: FamilyDocumentStatus;
+
+  /** Access level */
+  accessLevel: DocumentAccessLevel;
+
+  /** Upload source */
+  uploadSource: DocumentUploadSource;
+
+  /** Document date (e.g., date on insurance card) */
+  documentDate?: string;
+
+  /** Expiration date if applicable */
+  expiresAt?: Timestamp;
+
+  /** Tags for search */
+  tags?: string[];
+
+  /** Custom metadata */
+  metadata?: Record<string, unknown>;
+
+  /** Thumbnail URL for images/PDFs */
+  thumbnailUrl?: string;
+
+  /** Download count */
+  downloadCount: number;
+
+  /** Last downloaded at */
+  lastDownloadedAt?: Timestamp;
+
+  /** Last viewed at */
+  lastViewedAt?: Timestamp;
+
+  /** Virus scan status */
+  virusScanStatus: 'PENDING' | 'CLEAN' | 'INFECTED' | 'ERROR';
+
+  /** Virus scan completed at */
+  virusScanCompletedAt?: Timestamp;
+
+  /** Organization ID */
+  organizationId: UUID;
+}
+
+/**
+ * Document upload request
+ */
+export interface DocumentUploadRequest {
+  familyMemberId: UUID;
+  clientId: UUID;
+  category: FamilyDocumentCategory;
+  title: string;
+  description?: string;
+  documentDate?: string;
+  expiresAt?: Timestamp;
+  tags?: string[];
+  accessLevel?: DocumentAccessLevel;
+}
+
+/**
+ * Document upload response with signed URL
+ */
+export interface DocumentUploadResponse {
+  documentId: UUID;
+  uploadUrl: string;
+  uploadUrlExpiresAt: Timestamp;
+  maxFileSizeBytes: number;
+  allowedMimeTypes: string[];
+  instructions: string;
+}
+
+/**
+ * Complete upload confirmation
+ */
+export interface CompleteUploadRequest {
+  documentId: UUID;
+  familyMemberId: UUID;
+  clientId: UUID;
+  fileName: string;
+  fileSizeBytes: number;
+  mimeType: string;
+}
+
+/**
+ * Document download response
+ */
+export interface DocumentDownloadResponse {
+  documentId: UUID;
+  downloadUrl: string;
+  expiresAt: Timestamp;
+  fileName: string;
+  fileType: DocumentFileType;
+  fileSizeBytes: number;
+}
+
+/**
+ * Document list item (summary view)
+ */
+export interface FamilyDocumentListItem {
+  id: UUID;
+  title: string;
+  category: FamilyDocumentCategory;
+  categoryDisplayName: string;
+  fileName: string;
+  fileType: DocumentFileType;
+  fileSizeBytes: number;
+  status: FamilyDocumentStatus;
+  uploadedAt: Timestamp;
+  uploadedByName?: string;
+  documentDate?: string;
+  expiresAt?: Timestamp;
+  isExpiringSoon?: boolean;
+  thumbnailUrl?: string;
+  downloadCount: number;
+}
+
+/**
+ * Document list response with pagination
+ */
+export interface FamilyDocumentListResponse {
+  documents: FamilyDocumentListItem[];
+  pagination: {
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+  /** Documents grouped by category */
+  byCategory: {
+    category: FamilyDocumentCategory;
+    displayName: string;
+    count: number;
+  }[];
+}
+
+/**
+ * Document search/filter options
+ */
+export interface DocumentSearchOptions {
+  familyMemberId: UUID;
+  clientId: UUID;
+  categories?: FamilyDocumentCategory[];
+  status?: FamilyDocumentStatus[];
+  searchTerm?: string;
+  tags?: string[];
+  uploadedAfter?: Timestamp;
+  uploadedBefore?: Timestamp;
+  sortBy?: 'uploadedAt' | 'title' | 'category' | 'documentDate';
+  sortOrder?: 'ASC' | 'DESC';
+  page?: number;
+  pageSize?: number;
+}
+
+/**
+ * Document expiration alert
+ */
+export interface DocumentExpirationAlert {
+  documentId: UUID;
+  title: string;
+  category: FamilyDocumentCategory;
+  expiresAt: Timestamp;
+  daysUntilExpiration: number;
+  severity: 'INFO' | 'WARNING' | 'URGENT';
+  message: string;
+}
+
+/**
+ * Document dashboard for family
+ */
+export interface FamilyDocumentDashboard {
+  clientId: UUID;
+  clientName: string;
+
+  /** Total document counts */
+  totalDocuments: number;
+  documentsByCategory: {
+    category: FamilyDocumentCategory;
+    displayName: string;
+    count: number;
+    iconName: string;
+  }[];
+
+  /** Recent uploads */
+  recentUploads: FamilyDocumentListItem[];
+
+  /** Recently viewed */
+  recentlyViewed: FamilyDocumentListItem[];
+
+  /** Expiration alerts */
+  expirationAlerts: DocumentExpirationAlert[];
+
+  /** Required documents that are missing */
+  missingRequiredDocuments: {
+    category: FamilyDocumentCategory;
+    displayName: string;
+    description: string;
+    isRequired: boolean;
+  }[];
+
+  /** Storage usage */
+  storageUsed: {
+    bytesUsed: number;
+    bytesLimit: number;
+    percentUsed: number;
+  };
+
+  organizationId: UUID;
+  lastUpdated: Timestamp;
+}
+
+/**
+ * Category display info
+ */
+export interface DocumentCategoryInfo {
+  category: FamilyDocumentCategory;
+  displayName: string;
+  description: string;
+  iconName: string;
+  allowedFileTypes: DocumentFileType[];
+  maxFileSizeBytes: number;
+  isRequiredForClient: boolean;
+  exampleDocuments: string[];
+}
+
+/**
+ * Document version (for tracking updates)
+ */
+export interface FamilyDocumentVersion {
+  id: UUID;
+  documentId: UUID;
+  versionNumber: number;
+  fileName: string;
+  fileSizeBytes: number;
+  storagePath: string;
+  uploadedAt: Timestamp;
+  uploadedByFamilyMemberId?: UUID;
+  uploadedByName?: string;
+  changeNotes?: string;
+}
+
+/**
+ * Input for updating document metadata
+ */
+export interface UpdateDocumentInput {
+  documentId: UUID;
+  familyMemberId: UUID;
+  clientId: UUID;
+  title?: string;
+  description?: string;
+  category?: FamilyDocumentCategory;
+  documentDate?: string;
+  expiresAt?: Timestamp;
+  tags?: string[];
+}
+
+/**
+ * Input for deleting a document
+ */
+export interface DeleteDocumentInput {
+  documentId: UUID;
+  familyMemberId: UUID;
+  clientId: UUID;
+  reason?: string;
+}
