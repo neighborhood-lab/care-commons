@@ -64,6 +64,7 @@
     "db:reset:demo": "npm run db:nuke && npm run db:migrate && npm run db:seed:demo && npm run cache:clear",
     "db:nuke": "cd packages/core && npm run db:nuke",
     "db:migration:create": "tsx scripts/generate-migration.ts",
+    "vertical:create": "tsx scripts/scaffold-vertical.ts",
     "cache:clear": "tsx scripts/clear-cache.ts",
     "db:env": "./scripts/db-env.sh",
     "db:env:preview": "./scripts/db-env.sh migrate --env=preview",
