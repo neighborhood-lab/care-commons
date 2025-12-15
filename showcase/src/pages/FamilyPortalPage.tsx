@@ -23,6 +23,8 @@ import {
   CloudRain,
   AlertTriangle,
   Sparkles,
+  Printer,
+  ZoomIn,
 } from 'lucide-react';
 
 // Mock data
@@ -222,6 +224,107 @@ export const FamilyPortalPage: React.FC = () => {
 
   // Helper to get wellness config (uses extracted constant)
   const getWellnessStatusConfig = (status: WellnessStatus) => WELLNESS_STATUS_CONFIG[status];
+
+  // HTML escape function to prevent XSS when building HTML strings
+  const escapeHtml = (text: string): string => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
+  // Print large print version of care plan and schedule
+  const handlePrintLarge = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      // Popup was blocked - notify user
+      alert('Unable to open print window. Please allow popups for this site and try again.');
+      return;
+    }
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Care Plan - Large Print</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 24px;
+              line-height: 1.8;
+              padding: 40px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            h1 { font-size: 36px; margin-bottom: 20px; }
+            h2 { font-size: 30px; margin-top: 40px; margin-bottom: 16px; border-bottom: 3px solid #333; padding-bottom: 8px; }
+            .section { margin-bottom: 40px; }
+            .task { padding: 16px 0; border-bottom: 2px solid #eee; }
+            .task-time { font-weight: bold; color: #333; }
+            .task-name { margin-left: 20px; }
+            .completed { color: #059669; }
+            .pending { color: #dc2626; }
+            .visit { padding: 20px 0; border-bottom: 2px solid #eee; }
+            .visit-caregiver { font-weight: bold; font-size: 28px; }
+            .visit-details { color: #555; margin-top: 8px; }
+            .header-info { background: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+            .print-note { font-size: 16px; color: #666; margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px; }
+            @media print {
+              body { padding: 20px; }
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header-info">
+            <h1>Dorothy Chen's Care Plan</h1>
+            <p><strong>Generated:</strong> ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          </div>
+
+          <div class="section">
+            <h2>Today's Care Tasks</h2>
+            ${carePlanTasks.map(task => `
+              <div class="task">
+                <span class="task-time">${escapeHtml(task.time)}</span>
+                <span class="task-name">${escapeHtml(task.task)}</span>
+                <span class="${task.completed ? 'completed' : 'pending'}">
+                  ${task.completed ? '✓ Completed' : '○ Pending'}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="section">
+            <h2>Upcoming Visits</h2>
+            ${upcomingVisits.map(visit => `
+              <div class="visit">
+                <div class="visit-caregiver">${escapeHtml(visit.caregiver)}</div>
+                <div class="visit-details">
+                  <strong>${escapeHtml(visit.type)}</strong><br>
+                  ${escapeHtml(visit.date)} • ${escapeHtml(visit.time)}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="section">
+            <h2>Emergency Contacts</h2>
+            <p><strong>Care Coordinator:</strong> Folk Care Agency - (555) 123-4567</p>
+            <p><strong>Emergency:</strong> 911</p>
+          </div>
+
+          <div class="print-note">
+            <p>This document was generated from Folk Care's Family Portal for accessibility purposes.</p>
+            <button class="no-print" onclick="window.print()" style="font-size: 20px; padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 16px;">
+              Print This Page
+            </button>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(content);
+    printWindow.document.close();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -650,6 +753,18 @@ export const FamilyPortalPage: React.FC = () => {
                     <Phone className="w-5 h-5 text-red-600" />
                     <span className="text-sm font-medium text-gray-900">Emergency Contact</span>
                   </button>
+                  <button
+                    onClick={handlePrintLarge}
+                    aria-label="Print care plan in large format for better readability"
+                    className="w-full flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+                  >
+                    <Printer className="w-5 h-5 text-blue-600" />
+                    <div className="text-left">
+                      <span className="text-sm font-medium text-gray-900">Print Large</span>
+                      <span className="block text-xs text-gray-500">Accessibility format</span>
+                    </div>
+                    <ZoomIn className="w-4 h-4 text-blue-400 ml-auto" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -815,6 +930,15 @@ export const FamilyPortalPage: React.FC = () => {
               <div>
                 <h4 className="font-medium text-gray-900">Wellness Check-ins</h4>
                 <p className="text-sm text-gray-600">Daily status updates with optional alerts</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-indigo-100 p-2 rounded-lg">
+                <Printer className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Large Print Export</h4>
+                <p className="text-sm text-gray-600">Accessible printouts for vision impaired</p>
               </div>
             </div>
           </div>
