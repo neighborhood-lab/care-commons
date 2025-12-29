@@ -31,7 +31,6 @@ Built by **[Neighborhood Lab](https://neighborhoodlab.substack.com/)** - communi
 
 - **[Interactive Showcase](https://folk.care/)** ⭐ **Start here** - No login required, explore with realistic demo data
 - **[Production SaaS](https://folk.care/)** - Full application (free 14-day trial)
-- **[Health Check](https://folk.care/health)** - System status & uptime
 
 **Demo Logins:**
 ```
