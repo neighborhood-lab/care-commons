@@ -67,7 +67,6 @@ Family: family@tx.demo / demo1234
 - [Substack](https://neighborhoodlab.substack.com/) - Updates, news and commentary  
 - [Patreon](https://www.patreon.com/cw/neighborhood_lab) - Support continued development
 - [Product Site](https://neighborhood-lab.github.io/product/) - Marketing site
-- [Neighborhood Lab](https://neighborhood-lab.github.io/) - Organization site
 
 ## Vision
 
