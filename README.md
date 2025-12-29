@@ -25,7 +25,7 @@ Home healthcare agencies face a broken software market:
 - ✅ **Modern Technology** - TypeScript, React, PostgreSQL
 - ✅ **Production Ready** - Built in 28 days with AI assistance, deployed and tested
 
-Built by **[Neighborhood Lab](https://neighborhoodlab.org)** - community-owned software for the common good.
+Built by **[Neighborhood Lab](https://neighborhoodlab.substack.com/)** - community-owned software for the common good.
 
 ## 🌐 Try It Now
 
