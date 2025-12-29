@@ -1,6 +1,5 @@
 # Folk Care
 
-> **🚀 Soft Launch: December 1, 2025**
 > **Status:** Production Ready - Open Source
 
 [![CI](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/neighborhood-lab/folkcare/actions/workflows/ci.yml)
@@ -63,7 +62,7 @@ Family: family@tx.demo / demo1234
 
 ## 🔗 Community
 
-- [Discord](https://discord.gg/EkeXQZFq) - Chat with the community
+- [Discord](https://discord.com/invite/EkeXQZFq) - Chat with the community
 - [Substack](https://neighborhoodlab.substack.com/) - Updates, news and commentary  
 - [Patreon](https://www.patreon.com/cw/neighborhood_lab) - Support continued development
 - [Product Site](https://neighborhood-lab.github.io/product/) - Marketing site
