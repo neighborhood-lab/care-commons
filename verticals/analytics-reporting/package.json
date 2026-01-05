@@ -39,10 +39,10 @@
   },
   "dependencies": {
     "@folkcare/core": "^0.1.0",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "exceljs": "^4.4.0",
     "jspdf": "^3.0.3",
-    "jspdf-autotable": "^5.0.2"
+    "jspdf-autotable": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
