@@ -99,7 +99,7 @@
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/luxon": "^3.7.1",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.3",
     "@types/pg": "^8.15.6",
     "@types/sanitize-html": "^2.16.0",
     "@types/zxcvbn": "^4.4.5",
