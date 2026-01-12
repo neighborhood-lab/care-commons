@@ -58,7 +58,7 @@ describe('ClientValidator', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors).toContainEqual(
-        expect.objectContaining({ path: 'organizationId', message: expect.stringContaining('UUID') })
+        expect.objectContaining({ path: 'organizationId', message: expect.stringContaining('uuid') })
       );
       expect(result.errors).toContainEqual(
         expect.objectContaining({ path: 'firstName', message: expect.stringContaining('required') })
