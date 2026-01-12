@@ -11,7 +11,6 @@ import { z } from 'zod';
  * Common field validators with user-friendly error messages
  */
 export const validators = {
-  // eslint-disable-next-line sonarjs/deprecation
   email: z.string().email({ message: 'Please enter a valid email address' }),
 
   phone: z.string().regex(
@@ -29,10 +28,8 @@ export const validators = {
     { message: 'Please enter a valid SSN (e.g., 123-45-6789)' }
   ),
 
-  // eslint-disable-next-line sonarjs/deprecation
   uuid: z.string().uuid({ message: 'Invalid ID format' }),
 
-  // eslint-disable-next-line sonarjs/deprecation
   date: z.string().datetime({ message: 'Please enter a valid date' }),
 
   requiredString: (fieldName: string, minLength = 1) =>

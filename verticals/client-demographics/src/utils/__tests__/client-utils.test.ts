@@ -197,8 +197,8 @@ describe('Client Utilities', () => {
       expect(age).toHaveProperty('years');
       expect(age).toHaveProperty('months');
       
-      // Should be 25 years old as of 2025
-      expect(age.years).toBe(25);
+      // Should be 26 years old as of 2026
+      expect(age.years).toBe(26);
       
       // Months should be between 0-11 depending on current month
       expect(age.months).toBeGreaterThanOrEqual(0);

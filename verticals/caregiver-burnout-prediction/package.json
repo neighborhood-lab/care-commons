@@ -4,13 +4,14 @@
   "type": "module",
   "private": true,
   "description": "Caregiver burnout prediction vertical - ML-like risk scoring to prevent caregiver turnover",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "lint": "eslint . --ext ts --max-warnings 15",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc"
+    "build": "tsc && tsc-alias -p tsconfig.json"
   },
   "dependencies": {
     "@folkcare/core": "^0.1.0",
@@ -26,6 +27,7 @@
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0"
   },

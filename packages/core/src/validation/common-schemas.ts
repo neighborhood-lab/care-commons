@@ -12,7 +12,6 @@ import { z } from 'zod';
 /**
  * Email validation - lowercase, valid email format
  */
-// eslint-disable-next-line sonarjs/deprecation -- Using current Zod API
 export const emailSchema = z.string().email().toLowerCase();
 
 /**
@@ -33,7 +32,6 @@ export const ssnSchema = z.string().regex(/^\d{3}-\d{2}-\d{4}$/, 'SSN must be in
 /**
  * UUID validation
  */
-// eslint-disable-next-line sonarjs/deprecation -- Using current Zod API
 export const uuidSchema = z.string().uuid();
 
 /**
