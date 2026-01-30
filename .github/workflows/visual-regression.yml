@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload diff screenshots
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: visual-diff-screenshots
           path: |
@@ -107,7 +107,7 @@ jobs:
 
       - name: Upload baseline screenshots
         if: ${{ inputs.update_baselines }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: updated-baselines
           path: e2e/tests/visual-showcase.spec.ts-snapshots/
