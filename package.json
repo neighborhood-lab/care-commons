@@ -131,7 +131,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.10",
-    "express-rate-limit": "^8.2.1",
+    "express-rate-limit": "^8.3.0",
     "js-yaml": "4.1.1",
     "rate-limit-redis": "^4.3.0",
     "react-joyride": "^3.0.0-7",
