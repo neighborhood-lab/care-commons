@@ -18,6 +18,12 @@ export interface OrganizationContext {
   userId: UUID;
 }
 
+function assertSafeIdentifier(identifier: string): void {
+  if (!/^[a-z_][a-z0-9_]*$/.test(identifier)) {
+    throw new Error(`Unsafe SQL identifier: ${identifier}`);
+  }
+}
+
 /**
  * Execute a SELECT query with automatic organization scoping
  * 
@@ -93,6 +99,7 @@ export async function scopedUpdate(
   whereClause: string,
   whereParams: unknown[] = []
 ): Promise<QueryResult> {
+  assertSafeIdentifier(tableName);
   // Build SET clause
   const updateEntries = Object.entries(updates);
   const setClause = updateEntries
@@ -145,6 +152,7 @@ export async function scopedDelete(
   whereClause: string,
   whereParams: unknown[] = []
 ): Promise<QueryResult> {
+  assertSafeIdentifier(tableName);
   const now = new Date();
   const params = [now, context.userId, ...whereParams, context.organizationId];
   
@@ -178,6 +186,7 @@ export async function scopedHardDelete(
   whereClause: string,
   whereParams: unknown[] = []
 ): Promise<QueryResult> {
+  assertSafeIdentifier(tableName);
   const params = [...whereParams, context.organizationId];
   // eslint-disable-next-line sonarjs/sql-queries
   const query = `DELETE FROM ${tableName} WHERE ${whereClause} AND organization_id = $${params.length}`;
@@ -212,6 +221,7 @@ export async function scopedInsert<T extends Record<string, unknown> = Record<st
   tableName: string,
   data: Record<string, unknown>
 ): Promise<QueryResult<T>> {
+  assertSafeIdentifier(tableName);
   const now = new Date();
   
   // Merge organization context with data
@@ -263,6 +273,7 @@ export async function validateOrganizationOwnership(
   tableName: string,
   resourceId: UUID
 ): Promise<void> {
+  assertSafeIdentifier(tableName);
   // eslint-disable-next-line sonarjs/sql-queries
   const result = await db.query(
     `SELECT organization_id FROM ${tableName} WHERE id = $1 AND deleted_at IS NULL`,
@@ -296,6 +307,7 @@ export async function scopedCount(
   whereClause?: string,
   whereParams: unknown[] = []
 ): Promise<number> {
+  assertSafeIdentifier(tableName);
   const params = [...whereParams, context.organizationId];
   const where = whereClause !== undefined 
     ? `WHERE ${whereClause} AND organization_id = $${params.length} AND deleted_at IS NULL`
@@ -325,6 +337,7 @@ export async function scopedExists(
   whereClause: string,
   whereParams: unknown[] = []
 ): Promise<boolean> {
+  assertSafeIdentifier(tableName);
   const params = [...whereParams, context.organizationId];
   // eslint-disable-next-line sonarjs/sql-queries
   const query = `
