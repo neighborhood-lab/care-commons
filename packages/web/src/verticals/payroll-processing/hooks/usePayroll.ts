@@ -197,11 +197,15 @@ export const useDownloadPayStubPdf = () => {
         await writable.write(blob);
         await writable.close();
       } else {
-        // Fallback: inform user to use modern browser
-        throw new Error(
-          'PDF download requires a modern browser with File System Access API support. ' +
-          'Please update your browser or contact support for assistance.'
-        );
+        const objectUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = objectUrl;
+        anchor.download = `paystub-${sanitizedId}.pdf`;
+        anchor.rel = 'noopener';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(objectUrl);
       }
     },
     onSuccess: () => {
