@@ -390,16 +390,16 @@ describe('AuditService', () => {
       const mockResult = { rows: mockEvents, rowCount: 2, command: 'SELECT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      const trail = await auditService.getAuditTrail('clients', 'client-123');
+      const trail = await auditService.getAuditTrail(mockUserContext, 'clients', 'client-123');
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         `
       SELECT * FROM audit_events
-      WHERE resource = $1 AND resource_id = $2
+      WHERE resource = $1 AND resource_id = $2 AND organization_id = $3
       ORDER BY timestamp DESC
-      LIMIT $3
+      LIMIT $4
     `,
-        ['clients', 'client-123', 100]
+        ['clients', 'client-123', 'test-org-id', 100]
       );
 
       expect(trail).toEqual([
@@ -438,16 +438,16 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 0, command: 'SELECT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.getAuditTrail('visits', 'visit-123', 50);
+      await auditService.getAuditTrail(mockUserContext, 'visits', 'visit-123', 50);
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         `
       SELECT * FROM audit_events
-      WHERE resource = $1 AND resource_id = $2
+      WHERE resource = $1 AND resource_id = $2 AND organization_id = $3
       ORDER BY timestamp DESC
-      LIMIT $3
+      LIMIT $4
     `,
-        ['visits', 'visit-123', 50]
+        ['visits', 'visit-123', 'test-org-id', 50]
       );
     });
 
@@ -455,16 +455,16 @@ describe('AuditService', () => {
       const mockResult = { rows: [], rowCount: 0, command: 'SELECT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      await auditService.getAuditTrail('notes', 'note-456');
+      await auditService.getAuditTrail(mockUserContext, 'notes', 'note-456');
 
       expect(mockDatabase.query).toHaveBeenCalledWith(
         `
       SELECT * FROM audit_events
-      WHERE resource = $1 AND resource_id = $2
+      WHERE resource = $1 AND resource_id = $2 AND organization_id = $3
       ORDER BY timestamp DESC
-      LIMIT $3
+      LIMIT $4
     `,
-        ['notes', 'note-456', 100]
+        ['notes', 'note-456', 'test-org-id', 100]
       );
     });
 
@@ -479,7 +479,7 @@ describe('AuditService', () => {
       const mockResult = { rows: mockEvents, rowCount: 1, command: 'SELECT' as const, oid: 0, fields: [] };
       mockDatabase.query.mockResolvedValue(mockResult);
 
-      const trail = await auditService.getAuditTrail('test', 'test-123');
+      const trail = await auditService.getAuditTrail(mockUserContext, 'test', 'test-123');
 
       expect(trail[0]?.metadata).toEqual({});
     });
