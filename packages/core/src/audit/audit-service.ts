@@ -153,20 +153,22 @@ export class AuditService {
    * Get audit trail for a resource
    */
   async getAuditTrail(
+    context: UserContext,
     resourceType: string,
     resourceId: string,
     limit: number = 100
   ): Promise<AuditEvent[]> {
     const query = `
       SELECT * FROM audit_events
-      WHERE resource = $1 AND resource_id = $2
+      WHERE resource = $1 AND resource_id = $2 AND organization_id = $3
       ORDER BY timestamp DESC
-      LIMIT $3
+      LIMIT $4
     `;
 
     const result = await this.database.query(query, [
       resourceType,
       resourceId,
+      context.organizationId,
       limit,
     ]);
 

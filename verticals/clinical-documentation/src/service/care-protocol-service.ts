@@ -409,7 +409,6 @@ export class CareProtocolService {
     }
 
     // Conditions are from hardcoded strings, safe for dynamic SQL
-    // eslint-disable-next-line sonarjs/sql-queries
     const result = await this.pool.query<CareProtocolRow>(query, values);
     return result.rows.map(this.mapCareProtocol);
   }
@@ -718,7 +717,6 @@ export class CareProtocolService {
     }
 
     // Conditions are from hardcoded strings, safe for dynamic SQL
-    // eslint-disable-next-line sonarjs/sql-queries
     const result = await this.pool.query<ProtocolComplianceRow>(query, values);
     return result.rows.map(this.mapProtocolCompliance);
   }

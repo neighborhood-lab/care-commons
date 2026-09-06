@@ -46,9 +46,13 @@ export const CaregiverTasksPage: React.FC = () => {
   const tasks = data?.items || [];
   const scheduledTasks = tasks.filter(t => t.status === 'SCHEDULED');
   const completedTasks = tasks.filter(t => t.status === 'COMPLETED');
-  const overdueTasks = tasks.filter(t =>
-    t.status === 'SCHEDULED' && new Date(t.scheduledDate) < new Date()
-  );
+  const overdueTasks = tasks.filter((task) => {
+    if (task.status !== 'SCHEDULED') return false;
+    const scheduledDate = new Date(task.scheduledDate);
+    const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(task.scheduledDate);
+    if (isDateOnly) scheduledDate.setHours(23, 59, 59, 999);
+    return scheduledDate < new Date();
+  });
 
   const statusOptions = [
     { value: '', label: 'All Statuses' },
