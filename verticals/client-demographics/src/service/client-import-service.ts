@@ -635,7 +635,6 @@ export class ClientImportService implements ImportService<ClientImportRow, Clien
     if (dotIndex === -1 || dotIndex < atIndex || dotIndex === email.length - 1) return false;
 
     // Check for valid characters (simple check, no complex regex)
-    // eslint-disable-next-line unicorn/better-regex
     return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email);
   }
 
