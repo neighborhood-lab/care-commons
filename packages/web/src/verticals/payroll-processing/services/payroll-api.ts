@@ -102,17 +102,7 @@ export const createPayrollApiService = (apiClient: ApiClient): PayrollApiService
     },
 
     downloadPayStubPdf: async (id: string) => {
-      const response = await fetch(`/api/payroll/stubs/${id}/pdf`, {
-        headers: {
-          'Authorization': `Bearer ${globalThis.localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      return response.blob();
+      return apiClient.getBlob(`/api/payroll/stubs/${id}/pdf`);
     },
 
     getPayrollSummary: async () => {
