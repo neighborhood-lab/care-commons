@@ -16,6 +16,15 @@ export const usePayrollApi = () => {
   return useMemo(() => createPayrollApiService(apiClient), [apiClient]);
 };
 
+export const useCurrentPayPeriod = () => {
+  const payrollApi = usePayrollApi();
+
+  return useQuery({
+    queryKey: ['payroll', 'current-period'],
+    queryFn: () => payrollApi.getCurrentPeriod(),
+  });
+};
+
 export const usePayPeriods = (filters?: PayrollSearchFilters) => {
   const payrollApi = usePayrollApi();
 

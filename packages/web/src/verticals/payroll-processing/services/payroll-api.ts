@@ -17,6 +17,7 @@ import type {
 
 
 export interface PayrollApiService {
+  getCurrentPeriod(): Promise<PayPeriod | null>;
   getPayPeriods(filters?: PayrollSearchFilters): Promise<PayPeriodListResponse>;
   getPayPeriodById(id: string): Promise<PayPeriod>;
   getPayRuns(filters?: PayRunSearchFilters): Promise<PayRunListResponse>;
@@ -33,6 +34,11 @@ export interface PayrollApiService {
 
 export const createPayrollApiService = (apiClient: ApiClient): PayrollApiService => {
   return {
+    getCurrentPeriod: async () => {
+      const response = await apiClient.get<{ data: PayPeriod | null }>('/api/payroll/current-period');
+      return response.data;
+    },
+
     getPayPeriods: async (filters?: PayrollSearchFilters) => {
       const params = new URLSearchParams();
 
