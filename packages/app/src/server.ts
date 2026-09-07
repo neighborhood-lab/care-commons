@@ -11,7 +11,15 @@ import { dirname, join } from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, '../../../.env'), quiet: true });
+for (const envPath of [
+  join(process.cwd(), '.env.development.local'),
+  join(process.cwd(), '.env.local'),
+  join(process.cwd(), '.env'),
+  join(__dirname, '../../../.env.development.local'),
+  join(__dirname, '../../../.env'),
+]) {
+  dotenv.config({ path: envPath, quiet: true });
+}
 
 // Initialize error tracking EARLY (before other imports that might throw)
 // Skip initialization during test imports (when VERCEL env is set) or in test mode
