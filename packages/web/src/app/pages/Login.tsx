@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 const DEMO_PERSONAS = [
   {
     email: 'admin@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     name: 'Maria Rodriguez',
     role: 'Administrator',
     description: 'Full system access, manage agency operations',
@@ -18,7 +18,7 @@ const DEMO_PERSONAS = [
   },
   {
     email: 'coordinator@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     name: 'James Thompson',
     role: 'Care Coordinator',
     description: 'Schedule visits, assign caregivers, manage care plans',
@@ -27,7 +27,7 @@ const DEMO_PERSONAS = [
   },
   {
     email: 'caregiver@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     name: 'Sarah Chen',
     role: 'Caregiver',
     description: 'Clock in/out, document visits, view assignments',
@@ -36,7 +36,7 @@ const DEMO_PERSONAS = [
   },
   {
     email: 'nurse@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     name: 'David Williams',
     role: 'RN Clinical',
     description: 'Clinical assessments, medication management, oversight',
@@ -45,7 +45,7 @@ const DEMO_PERSONAS = [
   },
   {
     email: 'family@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     name: 'Emily Johnson',
     role: 'Family Member',
     description: 'View care updates, message caregivers, track visits (daughter of Margaret Johnson)',

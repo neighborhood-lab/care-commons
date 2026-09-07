@@ -176,7 +176,7 @@ cp .env.example .env
 npm run db:reset:demo
 
 # This creates 61 clients, 35 caregivers, 605 visits, and more Texas demo data
-# Login with: admin@tx.folkcare.example / Demo123!
+# Login with: admin@tx.folkcare.example / Wanyama2026$
 
 # Start development servers
 npm run dev
@@ -191,7 +191,7 @@ npm install
 cp .env.example .env
 npm run db:reset:demo
 npm run dev
-# Navigate to http://localhost:5173 and login with admin@tx.folkcare.example / Demo123!
+# Navigate to http://localhost:5173 and login with admin@tx.folkcare.example / Wanyama2026$
 ```
 
 ### Environment Variables

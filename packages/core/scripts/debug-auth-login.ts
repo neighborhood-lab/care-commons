@@ -127,7 +127,7 @@ async function debugAuthLogin(email: string, passwordToTest?: string) {
         } else {
           console.log('❌ Password verification FAILED!');
           console.log('\n💡 The password is incorrect.');
-          console.log('   Default password for seeded users: Admin123!');
+          console.log('   Default password for seeded users: Wanyama2026$');
           console.log('   Check if ADMIN_PASSWORD env var was set during seeding.');
           console.log('\n   To reset password, run:');
           console.log('   tsx packages/core/scripts/set-admin-password.ts\n');
@@ -176,7 +176,7 @@ async function debugAuthLogin(email: string, passwordToTest?: string) {
 
     // 7. Summary
     console.log('📋 Summary:');
-    console.log('   Expected password: Admin123! (or ADMIN_PASSWORD env var value)');
+    console.log('   Expected password: Wanyama2026$ (or ADMIN_PASSWORD env var value)');
     console.log('   User status: ' + (user.status === 'ACTIVE' ? '✅ Ready' : `❌ ${user.status}`));
     console.log('   Password hash: ' + (hashParts.length === 2 ? '✅ Valid format' : '❌ Invalid format'));
     console.log('   Account locked: ' + (user.locked_until && new Date() < new Date(user.locked_until) ? '❌ Yes' : '✅ No'));
@@ -203,7 +203,7 @@ if (args.length === 0) {
   console.log('');
   console.log('Examples:');
   console.log('  tsx packages/core/scripts/debug-auth-login.ts admin@folkcare.example');
-  console.log('  tsx packages/core/scripts/debug-auth-login.ts admin@folkcare.example Admin123!');
+  console.log('  tsx packages/core/scripts/debug-auth-login.ts admin@folkcare.example Wanyama2026$');
   console.log('');
   process.exit(1);
 }

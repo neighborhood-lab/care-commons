@@ -83,19 +83,19 @@ Three role-based accounts are now available for testing:
 
 #### Super Admin
 - **Email:** `admin@folkcare.example`
-- **Password:** `Admin123!`
+- **Password:** `Wanyama2026$`
 - **Access:** Full system access, all permissions
 - **Use for:** System configuration, user management, full administrative tasks
 
 #### Coordinator
 - **Email:** `coordinator@folkcare.example`
-- **Password:** `Admin123!`
+- **Password:** `Wanyama2026$`
 - **Access:** Client management, scheduling, care plan coordination
 - **Use for:** Day-to-day care coordination, scheduling visits, managing client records
 
 #### Caregiver
 - **Email:** `caregiver@folkcare.example`
-- **Password:** `Admin123!`
+- **Password:** `Wanyama2026$`
 - **Access:** View assigned clients, clock in/out of visits, update tasks
 - **Use for:** Field caregiver workflows, mobile visit tracking
 
@@ -118,7 +118,7 @@ The database setup is organized in three layers:
 2. **Operational Data** - `npm run db:seed`
    - Minimal data required for any installation
    - Creates: 1 organization, 1 branch, 1 admin user
-   - Login: `admin@folkcare.example` / `Admin123!`
+   - Login: `admin@folkcare.example` / `Wanyama2026$`
 
 3. **Demo Data** - `npm run db:seed:demo`
    - Sample data for testing and development
@@ -240,7 +240,7 @@ npm run db:seed-users
 
 ### Development vs Production
 
-- **Development:** Uses the default password `Admin123!` for convenience
+- **Development:** Uses the default password `Wanyama2026$` for convenience
 - **Production:** Users MUST change their password after first login
 - **JWT Secrets:** The generated secrets in `.env` are for development only. Use proper secrets in production.
 

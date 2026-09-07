@@ -2,7 +2,7 @@
  * Set Admin Password Script
  * 
  * Updates the admin user password to allow local development login
- * Default password: Admin123! (change after first login)
+ * Default password: Wanyama2026$ (change after first login)
  */
 
 import dotenv from 'dotenv';
@@ -19,7 +19,7 @@ async function setAdminPassword() {
   const database = env === 'test' ? `${dbName}_test` : dbName;
 
   // Get password from environment or use default
-  const password = process.env['ADMIN_PASSWORD'] ?? 'Admin123!';
+  const password = process.env['ADMIN_PASSWORD'] ?? 'Wanyama2026$';
 
   const config: DatabaseConfig = {
     host: process.env['DB_HOST'] ?? 'localhost',
