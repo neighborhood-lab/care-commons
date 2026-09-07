@@ -100,7 +100,7 @@ ui-screenshots-production-comprehensive/
 
 ### 1. Administrator (Maria Rodriguez)
 **Email**: `admin@tx.folkcare.example`  
-**Password**: `Demo123!`
+**Password**: `Wanyama2026$`
 
 **Routes** (15 total):
 - Home, Admin Dashboard, Dashboard
@@ -111,7 +111,7 @@ ui-screenshots-production-comprehensive/
 
 ### 2. Care Coordinator (James Thompson)
 **Email**: `coordinator@tx.folkcare.example`  
-**Password**: `Demo123!`
+**Password**: `Wanyama2026$`
 
 **Routes** (12 total):
 - Home, Dashboard
@@ -122,7 +122,7 @@ ui-screenshots-production-comprehensive/
 
 ### 3. Caregiver (Sarah Chen)
 **Email**: `caregiver@tx.folkcare.example`  
-**Password**: `Demo123!`
+**Password**: `Wanyama2026$`
 
 **Routes** (8 total):
 - Home, Dashboard
@@ -132,7 +132,7 @@ ui-screenshots-production-comprehensive/
 
 ### 4. RN Clinical (David Williams)
 **Email**: `nurse@tx.folkcare.example`  
-**Password**: `Demo123!`
+**Password**: `Wanyama2026$`
 
 **Routes** (9 total):
 - Home, Dashboard
@@ -142,7 +142,7 @@ ui-screenshots-production-comprehensive/
 
 ### 5. Family Member (Emily Johnson)
 **Email**: `family@tx.folkcare.example`  
-**Password**: `Demo123!`
+**Password**: `Wanyama2026$`
 
 **Routes** (9 total):
 - Home, Family Dashboard

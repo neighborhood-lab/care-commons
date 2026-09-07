@@ -51,7 +51,7 @@ The comprehensive seed (`seed-comprehensive-demo.ts`) creates:
 All user credentials follow this pattern:
 
 - **Email:** `{role}@{state-code}.folkcare.example`
-- **Password:** `Demo{STATE_CODE}{ROLE}123!`
+- **Password:** `Wanyama2026${STATE_CODE}{ROLE}123!`
 
 Where:
 - `{role}` = admin, coordinator, caregiver, nurse, or family
@@ -62,39 +62,39 @@ Where:
 ### Examples by State
 
 #### Alabama (AL)
-- **Admin:** `admin@al.folkcare.example` / `DemoALADMIN123!`
-- **Coordinator:** `coordinator@al.folkcare.example` / `DemoALCOORDINATOR123!`
-- **Caregiver:** `caregiver@al.folkcare.example` / `DemoALCAREGIVER123!`
-- **Nurse:** `nurse@al.folkcare.example` / `DemoALNURSE123!`
-- **Family:** `family@al.folkcare.example` / `DemoALFAMILY123!`
+- **Admin:** `admin@al.folkcare.example` / `Wanyama2026$ALADMIN123!`
+- **Coordinator:** `coordinator@al.folkcare.example` / `Wanyama2026$ALCOORDINATOR123!`
+- **Caregiver:** `caregiver@al.folkcare.example` / `Wanyama2026$ALCAREGIVER123!`
+- **Nurse:** `nurse@al.folkcare.example` / `Wanyama2026$ALNURSE123!`
+- **Family:** `family@al.folkcare.example` / `Wanyama2026$ALFAMILY123!`
 
 #### California (CA)
-- **Admin:** `admin@ca.folkcare.example` / `DemoCAADMIN123!`
-- **Coordinator:** `coordinator@ca.folkcare.example` / `DemoCACOORDINATOR123!`
-- **Caregiver:** `caregiver@ca.folkcare.example` / `DemoCACAREGIVER123!`
-- **Nurse:** `nurse@ca.folkcare.example` / `DemoCANURSE123!`
-- **Family:** `family@ca.folkcare.example` / `DemoCAFAMILY123!`
+- **Admin:** `admin@ca.folkcare.example` / `Wanyama2026$CAADMIN123!`
+- **Coordinator:** `coordinator@ca.folkcare.example` / `Wanyama2026$CACOORDINATOR123!`
+- **Caregiver:** `caregiver@ca.folkcare.example` / `Wanyama2026$CACAREGIVER123!`
+- **Nurse:** `nurse@ca.folkcare.example` / `Wanyama2026$CANURSE123!`
+- **Family:** `family@ca.folkcare.example` / `Wanyama2026$CAFAMILY123!`
 
 #### Texas (TX)
-- **Admin:** `admin@tx.folkcare.example` / `DemoTXADMIN123!`
-- **Coordinator:** `coordinator@tx.folkcare.example` / `DemoTXCOORDINATOR123!`
-- **Caregiver:** `caregiver@tx.folkcare.example` / `DemoTXCAREGIVER123!`
-- **Nurse:** `nurse@tx.folkcare.example` / `DemoTXNURSE123!`
-- **Family:** `family@tx.folkcare.example` / `DemoTXFAMILY123!`
+- **Admin:** `admin@tx.folkcare.example` / `Wanyama2026$TXADMIN123!`
+- **Coordinator:** `coordinator@tx.folkcare.example` / `Wanyama2026$TXCOORDINATOR123!`
+- **Caregiver:** `caregiver@tx.folkcare.example` / `Wanyama2026$TXCAREGIVER123!`
+- **Nurse:** `nurse@tx.folkcare.example` / `Wanyama2026$TXNURSE123!`
+- **Family:** `family@tx.folkcare.example` / `Wanyama2026$TXFAMILY123!`
 
 #### Florida (FL)
-- **Admin:** `admin@fl.folkcare.example` / `DemoFLADMIN123!`
-- **Coordinator:** `coordinator@fl.folkcare.example` / `DemoFLCOORDINATOR123!`
-- **Caregiver:** `caregiver@fl.folkcare.example` / `DemoFLCAREGIVER123!`
-- **Nurse:** `nurse@fl.folkcare.example` / `DemoFLNURSE123!`
-- **Family:** `family@fl.folkcare.example` / `DemoFLFAMILY123!`
+- **Admin:** `admin@fl.folkcare.example` / `Wanyama2026$FLADMIN123!`
+- **Coordinator:** `coordinator@fl.folkcare.example` / `Wanyama2026$FLCOORDINATOR123!`
+- **Caregiver:** `caregiver@fl.folkcare.example` / `Wanyama2026$FLCAREGIVER123!`
+- **Nurse:** `nurse@fl.folkcare.example` / `Wanyama2026$FLNURSE123!`
+- **Family:** `family@fl.folkcare.example` / `Wanyama2026$FLFAMILY123!`
 
 #### New York (NY)
-- **Admin:** `admin@ny.folkcare.example` / `DemoNYADMIN123!`
-- **Coordinator:** `coordinator@ny.folkcare.example` / `DemoNYCOORDINATOR123!`
-- **Caregiver:** `caregiver@ny.folkcare.example` / `DemoNYCAREGIVER123!`
-- **Nurse:** `nurse@ny.folkcare.example` / `DemoNYNURSE123!`
-- **Family:** `family@ny.folkcare.example` / `DemoNYFAMILY123!`
+- **Admin:** `admin@ny.folkcare.example` / `Wanyama2026$NYADMIN123!`
+- **Coordinator:** `coordinator@ny.folkcare.example` / `Wanyama2026$NYCOORDINATOR123!`
+- **Caregiver:** `caregiver@ny.folkcare.example` / `Wanyama2026$NYCAREGIVER123!`
+- **Nurse:** `nurse@ny.folkcare.example` / `Wanyama2026$NYNURSE123!`
+- **Family:** `family@ny.folkcare.example` / `Wanyama2026$NYFAMILY123!`
 
 ### All States
 
@@ -124,7 +124,7 @@ Each state has 5 user roles:
    npm run db:seed-comprehensive
    ```
 3. **Verify login at:** https://folk.care/login
-4. **Test with any state's admin credentials** (e.g., `admin@al.folkcare.example` / `DemoALADMIN123!`)
+4. **Test with any state's admin credentials** (e.g., `admin@al.folkcare.example` / `Wanyama2026$ALADMIN123!`)
 
 ## Troubleshooting
 
@@ -159,8 +159,8 @@ Ensure you're using the correct pattern:
 - Email uses **lowercase** state code
 - Password uses **UPPERCASE** state code and role
 
-**Correct:** `admin@al.folkcare.example` / `DemoALADMIN123!`
-**Wrong:** `admin@AL.folkcare.example` / `Demoaladmin123!`
+**Correct:** `admin@al.folkcare.example` / `Wanyama2026$ALADMIN123!`
+**Wrong:** `admin@AL.folkcare.example` / `Wanyama2026$aladmin123!`
 
 ## Security Note
 

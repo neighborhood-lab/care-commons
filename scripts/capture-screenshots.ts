@@ -58,7 +58,7 @@ const PERSONAS: Persona[] = [
     name: 'Maria Rodriguez',
     role: 'Administrator',
     email: 'admin@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     folder: '01-administrator',
     routes: [
       { path: '/', name: 'home' },
@@ -83,7 +83,7 @@ const PERSONAS: Persona[] = [
     name: 'James Thompson',
     role: 'Care Coordinator',
     email: 'coordinator@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     folder: '02-coordinator',
     routes: [
       { path: '/', name: 'home' },
@@ -105,7 +105,7 @@ const PERSONAS: Persona[] = [
     name: 'Sarah Chen',
     role: 'Caregiver',
     email: 'caregiver@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     folder: '03-caregiver',
     routes: [
       { path: '/', name: 'home' },
@@ -123,7 +123,7 @@ const PERSONAS: Persona[] = [
     name: 'David Williams',
     role: 'RN Clinical',
     email: 'nurse@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     folder: '04-nurse',
     routes: [
       { path: '/', name: 'home' },
@@ -142,7 +142,7 @@ const PERSONAS: Persona[] = [
     name: 'Emily Johnson',
     role: 'Family Member',
     email: 'family@tx.folkcare.example',
-    password: 'Demo123!',
+    password: 'Wanyama2026$',
     folder: '05-family',
     routes: [
       { path: '/', name: 'home' },

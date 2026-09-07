@@ -99,11 +99,11 @@ export async function up(knex: Knex): Promise<void> {
 
   // ==========================================================================
   // STEP 3: Create admin user
-  // Password: Admin123!
+  // Password: Wanyama2026$
   // ==========================================================================
   console.log('Creating admin user...');
   
-  const adminPasswordHash = PasswordUtils.hashPassword('Admin123!');
+  const adminPasswordHash = PasswordUtils.hashPassword('Wanyama2026$');
   
   await knex.raw(`
     INSERT INTO users (
@@ -137,11 +137,11 @@ export async function up(knex: Knex): Promise<void> {
 
   // ==========================================================================
   // STEP 4: Create family user
-  // Password: Family123!
+  // Password: Wanyama2026$
   // ==========================================================================
   console.log('Creating family user...');
   
-  const familyPasswordHash = PasswordUtils.hashPassword('Family123!');
+  const familyPasswordHash = PasswordUtils.hashPassword('Wanyama2026$');
   
   await knex.raw(`
     INSERT INTO users (
@@ -177,8 +177,8 @@ export async function up(knex: Knex): Promise<void> {
   console.log('📊 Operational data created:');
   console.log('  Organization: Folk Home Health');
   console.log('  Branch: Main Office');
-  console.log('  Admin User: admin@folkcare.example / Admin123!');
-  console.log('  Family User: family@folkcare.example / Family123!');
+  console.log('  Admin User: admin@folkcare.example / Wanyama2026$');
+  console.log('  Family User: family@folkcare.example / Wanyama2026$');
   console.log('\n💡 Run "npm run db:seed:demo" to add comprehensive demo data (clients, caregivers, visits, etc.)\n');
 }
 
