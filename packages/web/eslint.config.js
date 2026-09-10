@@ -151,6 +151,7 @@ export default [
       'dist/**',
       'dist-vercel/**',
       'dist-showcase/**',
+      'dev-dist/**',
       '*.js',
       '*.d.ts',
       '*.js.map',

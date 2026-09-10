@@ -8,6 +8,14 @@ import { CaregiverRepository } from '../repository/caregiver-repository';
 import type { Database, UserContext } from '@folkcare/core';
 import type { Caregiver } from '../types/caregiver';
 
+/**
+ * Expiration for credential fixtures that are meant to be currently valid.
+ * Relative to now so the tests don't break once the wall clock passes a
+ * hardcoded date (these previously used 2025-12-31).
+ */
+const validCredentialExpiration = (): Date =>
+  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+
 describe('CaregiverService', () => {
   let service: CaregiverService;
   let mockDb: Database;
@@ -41,7 +49,7 @@ describe('CaregiverService', () => {
             type: 'CNA',
             name: 'Certified Nursing Assistant',
             issueDate: new Date('2023-01-01'),
-            expirationDate: new Date('2025-12-31'),
+            expirationDate: validCredentialExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -72,7 +80,7 @@ describe('CaregiverService', () => {
           status: 'CLEARED',
           initiationDate: new Date('2023-01-01'),
           completionDate: new Date('2023-01-15'),
-          expirationDate: new Date('2025-12-31'),
+          expirationDate: validCredentialExpiration(),
           confirmationNumber: 'TX-123456',
           clearanceNumber: null,
           results: null,
@@ -104,7 +112,7 @@ describe('CaregiverService', () => {
             type: 'CNA',
             name: 'Certified Nursing Assistant',
             issueDate: new Date('2023-01-01'),
-            expirationDate: new Date('2025-12-31'),
+            expirationDate: validCredentialExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -319,7 +327,7 @@ describe('CaregiverService', () => {
           status: 'CLEARED',
           initiationDate: new Date('2024-01-01'),
           completionDate: new Date('2024-01-15'),
-          expirationDate: new Date('2025-12-31'),
+          expirationDate: validCredentialExpiration(),
           confirmationNumber: 'TX-123456',
           clearanceNumber: null,
           results: null,
@@ -415,7 +423,7 @@ describe('CaregiverService', () => {
             type: 'CNA',
             name: 'Certified Nursing Assistant',
             issueDate: new Date('2023-01-01'),
-            expirationDate: new Date('2025-12-31'),
+            expirationDate: validCredentialExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -463,7 +471,7 @@ describe('CaregiverService', () => {
             type: 'CNA',
             name: 'Certified Nursing Assistant',
             issueDate: new Date('2023-01-01'),
-            expirationDate: new Date('2025-12-31'),
+            expirationDate: validCredentialExpiration(),
             status: 'ACTIVE',
           },
         ],

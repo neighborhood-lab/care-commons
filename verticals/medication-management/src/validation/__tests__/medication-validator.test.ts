@@ -21,7 +21,9 @@ import {
 // Fixed timestamp for deterministic tests
 const FIXED_DATE = '2024-01-15T10:00:00.000Z';
 const PAST_DATE = '2024-01-10T10:00:00.000Z';
-const FUTURE_DATE = '2026-01-15T10:00:00.000Z';
+// Must stay genuinely in the future: recordAdministrationSchema rejects administeredAt > now.
+// Was hardcoded to 2026-01-15 and started failing once that date passed.
+const FUTURE_DATE = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
 
 describe('Medication Validator', () => {
   describe('medicationRouteSchema', () => {

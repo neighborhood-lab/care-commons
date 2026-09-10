@@ -16,6 +16,14 @@ import type {
   ClientDetails,
 } from '../../types/index';
 
+/**
+ * License expiration for fixtures that are meant to be currently valid.
+ * Relative to now so these tests don't start failing once the wall clock
+ * passes a hardcoded date (these previously used 2026-01-01).
+ */
+const validLicenseExpiration = (): Date =>
+  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+
 describe('OhioComplianceValidator', () => {
   let validator: OhioComplianceValidator;
 
@@ -125,7 +133,7 @@ describe('OhioComplianceValidator', () => {
             state: 'OH',
             number: 'HHA123456',
             issueDate: new Date('2020-01-01'),
-            expirationDate: new Date('2026-01-01'),
+            expirationDate: validLicenseExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -288,7 +296,7 @@ describe('OhioComplianceValidator', () => {
             state: 'OH',
             number: 'CNA123456',
             issueDate: new Date('2020-01-01'),
-            expirationDate: new Date('2026-01-01'),
+            expirationDate: validLicenseExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -345,7 +353,7 @@ describe('OhioComplianceValidator', () => {
             state: 'OH',
             number: 'CNA123456',
             issueDate: new Date('2020-01-01'),
-            expirationDate: new Date('2026-01-01'),
+            expirationDate: validLicenseExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -403,7 +411,7 @@ describe('OhioComplianceValidator', () => {
             state: 'OH',
             number: 'CNA123456',
             issueDate: new Date('2020-01-01'),
-            expirationDate: new Date('2026-01-01'),
+            expirationDate: validLicenseExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -464,7 +472,7 @@ describe('OhioComplianceValidator', () => {
             state: 'OH',
             number: 'HHA123456',
             issueDate: new Date('2020-01-01'),
-            expirationDate: new Date('2026-01-01'),
+            expirationDate: validLicenseExpiration(),
             status: 'ACTIVE',
           },
         ],
@@ -524,7 +532,7 @@ describe('OhioComplianceValidator', () => {
             state: 'OH',
             number: 'HHA123456',
             issueDate: new Date('2020-01-01'),
-            expirationDate: new Date('2026-01-01'),
+            expirationDate: validLicenseExpiration(),
             status: 'ACTIVE',
           },
         ],
