@@ -17,6 +17,7 @@ import type {
 
 
 export interface PayrollApiService {
+  getCurrentPeriod(): Promise<PayPeriod | null>;
   getPayPeriods(filters?: PayrollSearchFilters): Promise<PayPeriodListResponse>;
   getPayPeriodById(id: string): Promise<PayPeriod>;
   getPayRuns(filters?: PayRunSearchFilters): Promise<PayRunListResponse>;
@@ -33,6 +34,11 @@ export interface PayrollApiService {
 
 export const createPayrollApiService = (apiClient: ApiClient): PayrollApiService => {
   return {
+    getCurrentPeriod: async () => {
+      const response = await apiClient.get<{ data: PayPeriod | null }>('/api/payroll/current-period');
+      return response.data;
+    },
+
     getPayPeriods: async (filters?: PayrollSearchFilters) => {
       const params = new URLSearchParams();
 
@@ -102,17 +108,7 @@ export const createPayrollApiService = (apiClient: ApiClient): PayrollApiService
     },
 
     downloadPayStubPdf: async (id: string) => {
-      const response = await fetch(`/api/payroll/stubs/${id}/pdf`, {
-        headers: {
-          'Authorization': `Bearer ${globalThis.localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      return response.blob();
+      return apiClient.getBlob(`/api/payroll/stubs/${id}/pdf`);
     },
 
     getPayrollSummary: async () => {

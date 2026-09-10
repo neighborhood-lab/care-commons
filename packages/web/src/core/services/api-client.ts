@@ -10,6 +10,7 @@ export interface UserContextHeaders {
 
 export interface ApiClient {
   get<T>(url: string, config?: RequestConfig): Promise<T>;
+  getBlob(url: string, config?: RequestConfig): Promise<globalThis.Blob>;
   post<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T>;
   patch<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T>;
   delete<T>(url: string, config?: RequestConfig): Promise<T>;
@@ -136,10 +137,27 @@ class ApiClientImpl implements ApiClient {
   }
 
   async get<T>(url: string, config?: RequestConfig): Promise<T> {
-    return this.request<T>(url, { 
-      method: 'GET', 
-      ...(config !== undefined && { config: config }) 
+    return this.request<T>(url, {
+      method: 'GET',
+      ...(config !== undefined && { config: config })
     });
+  }
+
+  async getBlob(url: string, config?: RequestConfig): Promise<globalThis.Blob> {
+    const token = this.getAuthToken();
+    const headers: HeadersInit = {
+      ...config?.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      method: 'GET',
+      headers,
+      ...(config?.signal !== undefined && { signal: config.signal }),
+    });
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    }
+    return response.blob();
   }
 
   async post<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T> {

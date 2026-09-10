@@ -6,10 +6,9 @@
  */
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../../core/hooks';
 import { PayrollSummaryCard } from '../components/PayrollSummaryCard';
+import { useCurrentPayPeriod, usePayPeriods } from '../hooks/usePayroll';
 
 interface PayPeriod {
   id: string;
@@ -27,48 +26,12 @@ interface PayPeriod {
 }
 
 /**
- * Fetch current pay period
- */
-async function fetchCurrentPeriod(organizationId: string): Promise<PayPeriod | null> {
-  const response = await fetch(`/api/payroll/current-period?organizationId=${organizationId}`);
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null;
-    }
-    throw new Error('Failed to fetch current pay period');
-  }
-  const data = await response.json();
-  return data.data;
-}
-
-/**
- * Fetch recent pay periods
- */
-async function fetchRecentPeriods(organizationId: string, limit: number = 5): Promise<PayPeriod[]> {
-  const response = await fetch(`/api/payroll/periods?organizationId=${organizationId}&limit=${limit}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch recent pay periods');
-  }
-  const data = await response.json();
-  return data.data;
-}
-
-/**
  * Payroll Dashboard Component
  */
 export const PayrollDashboard: React.FC = () => {
-  const { user } = useAuth();
-  const organizationId = user?.organizationId || '';
-
-  const { data: currentPeriod, isLoading: isLoadingCurrent } = useQuery({
-    queryKey: ['payroll', 'current-period', organizationId],
-    queryFn: () => fetchCurrentPeriod(organizationId),
-  });
-
-  const { data: recentPeriods = [], isLoading: isLoadingRecent } = useQuery({
-    queryKey: ['payroll', 'periods', organizationId],
-    queryFn: () => fetchRecentPeriods(organizationId, 5),
-  });
+  const { data: currentPeriod, isLoading: isLoadingCurrent } = useCurrentPayPeriod();
+  const { data: recentPeriodsResponse, isLoading: isLoadingRecent } = usePayPeriods({});
+  const recentPeriods = recentPeriodsResponse?.items.slice(0, 5) ?? [];
 
   return (
     <div className="container mx-auto px-4 py-8">

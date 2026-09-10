@@ -34,15 +34,15 @@ npm run db:seed-all-states
 
 **Credential Pattern:**
 - Email: `{role}@{state}.folkcare.example`
-- Password: `Demo{STATE}{ROLE}123!`
+- Password: `Wanyama2026$`
 
 **Examples:**
 ```
-admin@ca.folkcare.example / DemoCAADMIN123!
-coordinator@tx.folkcare.example / DemoTXCOORDINATOR123!
-caregiver@fl.folkcare.example / DemoFLCAREGIVER123!
-nurse@ny.folkcare.example / DemoNYNURSE123!
-family@il.folkcare.example / DemoILFAMILY123!
+admin@ca.folkcare.example / Wanyama2026$
+coordinator@tx.folkcare.example / Wanyama2026$
+caregiver@fl.folkcare.example / Wanyama2026$
+nurse@ny.folkcare.example / Wanyama2026$
+family@il.folkcare.example / Wanyama2026$
 ```
 
 ## All Available Seed Scripts

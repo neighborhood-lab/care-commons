@@ -88,18 +88,8 @@ export const createBillingApiService = (apiClient: ApiClient): BillingApiService
       return apiClient.get<BillingSummary>(url);
     },
 
-  generateInvoicePdf: async (id: string) => {
-    const response = await fetch(`/api/billing/invoices/${id}/pdf`, {
-      headers: {
-        'Authorization': `Bearer ${globalThis.localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate PDF');
-    }
-
-    return response.blob();
-  },
+    generateInvoicePdf: async (id: string) => {
+      return apiClient.getBlob(`/api/billing/invoices/${encodeURIComponent(id)}/pdf`);
+    },
   };
 };

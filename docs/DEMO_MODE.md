@@ -71,18 +71,18 @@ Access demo mode with predefined personas for different user types:
 
 | Persona | Email | Password | Access Level |
 |---------|-------|----------|--------------|
-| **Administrator** | `admin@{state}.folkcare.example` | `Demo123!` | Full system access |
-| **Care Coordinator** | `coordinator@{state}.folkcare.example` | `Demo123!` | Client/caregiver management, scheduling |
-| **Caregiver** | (see caregiver emails in demo data) | `Caregiver123!` | Visit clock-in/out, task completion |
-| **Family Member** | `family@folkcare.example` | `Family123!` | View loved one's care, communicate with team |
-| **Clinical/RN** | `nurse@{state}.folkcare.example` | `Demo123!` | Clinical assessments, supervision visits |
+| **Administrator** | `admin@{state}.folkcare.example` | `Wanyama2026$` | Full system access |
+| **Care Coordinator** | `coordinator@{state}.folkcare.example` | `Wanyama2026$` | Client/caregiver management, scheduling |
+| **Caregiver** | (see caregiver emails in demo data) | `Wanyama2026$` | Visit clock-in/out, task completion |
+| **Family Member** | `family@folkcare.example` | `Wanyama2026$` | View loved one's care, communicate with team |
+| **Clinical/RN** | `nurse@{state}.folkcare.example` | `Wanyama2026$` | Clinical assessments, supervision visits |
 
 *Note: Replace `{state}` with state code (e.g., `tx`, `fl`)*
 
 **Examples**:
-- Texas Admin: `admin@tx.folkcare.example / Demo123!`
-- Florida Coordinator: `coordinator@fl.folkcare.example / Demo123!`
-- Family Portal: `family@folkcare.example / Family123!`
+- Texas Admin: `admin@tx.folkcare.example / Wanyama2026$`
+- Florida Coordinator: `coordinator@fl.folkcare.example / Wanyama2026$`
+- Family Portal: `family@folkcare.example / Wanyama2026$`
 
 ### 4. **Visual Demo Indicators**
 

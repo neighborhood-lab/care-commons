@@ -201,7 +201,7 @@ const ROLES: RoleDefinition[] = [
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TEXAS-SPECIFIC DATA
-// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════��═══════════════════════════════════════════════
 
 // Texas cities with realistic neighborhoods and zip codes
 const TEXAS_LOCATIONS = [
@@ -1024,8 +1024,8 @@ async function seedDatabase() {
           const firstName = role.label;
           const lastName = `(${state.code})`;
 
-          // Password format: Demo123! (simple, easy to remember)
-          const password = `Demo123!`;
+          // Password format: Wanyama2026$ (simple, easy to remember)
+          const password = `Wanyama2026$`;
           const passwordHash = PasswordUtils.hashPassword(password);
 
           const userId = uuidv4();
@@ -1126,8 +1126,8 @@ async function seedDatabase() {
       }
 
       console.log(`✅ State-specific users: ${usersCreated} created, ${usersUpdated} updated (${usersCreated + usersUpdated} total)\n`);
-      console.log(`📝 Login format: {role}@{state}.folkcare.example / Demo123!`);
-      console.log(`   Example: admin@al.folkcare.example / Demo123!\n`);
+      console.log(`📝 Login format: {role}@{state}.folkcare.example / Wanyama2026$`);
+      console.log(`   Example: admin@al.folkcare.example / Wanyama2026$\n`);
 
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 2: Clear existing demo data to refresh with evergreen dates
@@ -1158,7 +1158,7 @@ async function seedDatabase() {
       
       // ═══════════════════════════════════════════════════════════════════════════
       // STEP 3: Generate and insert clients (60 total: distributed across Texas cities)
-      // ═══════════════════════════════════════════════════════════════════════════
+      // ════════════════════════════════════��══════════════════════════════════════
 
       console.log(`👥 Creating ${SEED_CONFIG.clients} Texas-based clients...`);
 
@@ -1356,9 +1356,9 @@ async function seedDatabase() {
       console.log('');
 
       // Now insert demo caregivers into database
-      // Password for all demo caregivers: Caregiver123!
+      // Password for all demo caregivers: Wanyama2026$
       // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- Demo data only
-      const caregiverPassword = 'Caregiver123!';
+      const caregiverPassword = 'Wanyama2026$';
       const caregiverPasswordHash = PasswordUtils.hashPassword(caregiverPassword);
 
       for (const caregiver of caregivers) {
@@ -2201,7 +2201,7 @@ async function seedDatabase() {
       let emilyUserId;
       if (texasFamilyUserCheck.rows.length === 0) {
         emilyUserId = uuidv4();
-        const emilyPasswordHash = PasswordUtils.hashPassword('DemoTXFAMILY123!');
+        const emilyPasswordHash = PasswordUtils.hashPassword('Wanyama2026$');
         
         await client.query(
           `
@@ -3055,7 +3055,7 @@ async function seedDatabase() {
 
       console.log(`✅ Created ${activityCount} activity feed entries\n`);
 
-      // ═══════════════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════��═══════════════════════════════════════════
       // SUMMARY
       // ═══════════════════════════════════════════════════════════════════════════
       
@@ -3121,14 +3121,14 @@ async function seedDatabase() {
       console.log(`      - ${taskCount} pending tasks for caregivers`);
       console.log(`      - ${threadCount} message conversations with care team`);
       console.log(`      - ${activityCount} recent activities logged`);
-      console.log(`      - Family portal: family@folkcare.example / Family123!`);
+      console.log(`      - Family portal: family@folkcare.example / Wanyama2026$`);
       console.log('═══════════════════════════════════════════════════════════════');
       console.log('\n🔐 Demo Login Credentials:');
-      console.log('   📧 Admin: admin@folkcare.example / Admin123!');
-      console.log('   📧 Family: family@folkcare.example / Family123!');
-      console.log('   📧 Caregivers: (any caregiver email from demo data) / Caregiver123!');
-      console.log('   📧 State Users: {role}@{state}.folkcare.example / Demo123!');
-      console.log('      Example: admin@tx.folkcare.example / Demo123!');
+      console.log('   📧 Admin: admin@folkcare.example / Wanyama2026$');
+      console.log('   📧 Family: family@folkcare.example / Wanyama2026$');
+      console.log('   📧 Caregivers: (any caregiver email from demo data) / Wanyama2026$');
+      console.log('   📧 State Users: {role}@{state}.folkcare.example / Wanyama2026$');
+      console.log('      Example: admin@tx.folkcare.example / Wanyama2026$');
       console.log('═══════════════════════════════════════════════════════════════\n');
     });
 

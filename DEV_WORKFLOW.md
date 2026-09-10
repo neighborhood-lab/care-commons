@@ -18,7 +18,7 @@ This creates:
 - **87 invoices** for billing
 - **Demo users** for all roles (Admin, Coordinator, Caregiver, Nurse, Family)
 
-**Login credentials**: All demo accounts use password `Demo123!`
+**Login credentials**: All demo accounts use password `Wanyama2026$`
 - Admin: `admin@tx.folkcare.example`
 - Coordinator: `coordinator@tx.folkcare.example`
 - Caregiver: `caregiver@tx.folkcare.example`

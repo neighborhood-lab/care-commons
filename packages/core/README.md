@@ -23,7 +23,7 @@ npm run db:migrate
 - Creates:
   - 1 Organization (template)
   - 1 Branch (template)
-  - 1 Admin User: `admin@folkcare.example` / `Admin123!`
+  - 1 Admin User: `admin@folkcare.example` / `Wanyama2026$`
 - Customer adds their own clients, caregivers, programs
 
 ```bash

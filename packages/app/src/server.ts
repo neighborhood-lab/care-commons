@@ -11,7 +11,16 @@ import { dirname, join } from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, '../../../.env'), quiet: true });
+for (const envPath of [
+  '/vercel/share/.env.project',
+  join(process.cwd(), '.env.development.local'),
+  join(process.cwd(), '.env.local'),
+  join(process.cwd(), '.env'),
+  join(__dirname, '../../../.env.development.local'),
+  join(__dirname, '../../../.env'),
+]) {
+  dotenv.config({ path: envPath, quiet: true });
+}
 
 // Initialize error tracking EARLY (before other imports that might throw)
 // Skip initialization during test imports (when VERCEL env is set) or in test mode
@@ -52,7 +61,12 @@ app.set('trust proxy', 1);
  */
 function initDb(): ReturnType<typeof initializeDatabase> {
   // Check for DATABASE_URL first (Vercel/production style)
-  const databaseUrl = process.env['DATABASE_URL'];
+  const databaseUrl = [
+    process.env['DATABASE_URL'],
+    process.env['POSTGRES_PRISMA_URL'],
+    process.env['POSTGRES_URL'],
+    process.env['POSTGRES_URL_NON_POOLING'],
+  ].find((value) => value !== undefined && value !== '');
   
   if (databaseUrl !== undefined && databaseUrl !== '') {
     console.log('Using DATABASE_URL for connection');
@@ -63,8 +77,8 @@ function initDb(): ReturnType<typeof initializeDatabase> {
       host: url.hostname,
       port: port !== 0 ? port : 5432,
       database: url.pathname.slice(1), // Remove leading /
-      user: url.username,
-      password: url.password,
+      user: decodeURIComponent(url.username),
+      password: decodeURIComponent(url.password),
       ssl: url.searchParams.get('sslmode') === 'require',
       max: 20,
       idleTimeoutMillis: 30000,
