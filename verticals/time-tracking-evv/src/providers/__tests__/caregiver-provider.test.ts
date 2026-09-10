@@ -10,6 +10,13 @@ import { CaregiverProvider, createCaregiverProvider } from '../caregiver-provide
 import { NotFoundError } from '@folkcare/core';
 import type { Database } from '@folkcare/core';
 
+/**
+ * Expiration for credential fixtures that are meant to be currently valid.
+ * Relative to now so the tests don't break once the wall clock passes a
+ * hardcoded date (these previously used 2025-12-31, 2026-06-30, 2026-12-31).
+ */
+const VALID_EXPIRATION = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
 describe('CaregiverProvider', () => {
   let caregiverProvider: CaregiverProvider;
   let mockDatabase: Database;
@@ -34,13 +41,13 @@ describe('CaregiverProvider', () => {
             type: 'HHA_CERTIFICATION',
             name: 'Home Health Aide Certification',
             status: 'ACTIVE',
-            expirationDate: '2025-12-31',
+            expirationDate: VALID_EXPIRATION,
           },
           {
             type: 'CPR_CERTIFICATION',
             name: 'CPR Certification',
             status: 'ACTIVE',
-            expirationDate: '2026-06-30',
+            expirationDate: VALID_EXPIRATION,
           },
           {
             type: 'NPI',
@@ -127,7 +134,7 @@ describe('CaregiverProvider', () => {
             type: 'CERTIFICATION',
             name: 'Valid Certification',
             status: 'ACTIVE',
-            expirationDate: '2025-12-31',
+            expirationDate: VALID_EXPIRATION,
           },
         ]),
         background_check: null,
@@ -293,7 +300,7 @@ describe('CaregiverProvider', () => {
             type: 'TRAINING',
             name: 'First Aid Training',
             status: 'ACTIVE',
-            expirationDate: '2026-12-31',
+            expirationDate: VALID_EXPIRATION,
           },
           {
             type: 'SKILL',

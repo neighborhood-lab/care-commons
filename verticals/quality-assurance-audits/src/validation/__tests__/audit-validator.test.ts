@@ -24,11 +24,16 @@ import {
   updateCorrectiveActionProgressSchema,
 } from '../audit-validator.js';
 
-// Fixed timestamps for deterministic tests
+// Fixed timestamps for deterministic tests.
+// NOTE: some schemas validate against the real clock (e.g. "Target completion
+// date cannot be in the past"), so the two forward-looking values must stay
+// genuinely in the future. They were hardcoded to 2025-12-15 / 2026-01-15 and
+// started failing once those dates passed. Ordering invariant relied on by the
+// range checks below: PAST_DATE < FIXED_DATE < NEAR_FUTURE_DATE < FUTURE_DATE.
 const FIXED_DATE = '2024-01-15T10:00:00.000Z';
 const PAST_DATE = '2024-01-10T10:00:00.000Z';
-const FUTURE_DATE = '2026-01-15T10:00:00.000Z';
-const NEAR_FUTURE_DATE = '2025-12-15T10:00:00.000Z';
+const NEAR_FUTURE_DATE = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+const FUTURE_DATE = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
 
 describe('Audit Validator', () => {
   describe('Enum Schemas', () => {
