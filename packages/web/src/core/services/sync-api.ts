@@ -12,7 +12,8 @@ import type {
   PushChangesResponse,
 } from '@folkcare/core/browser';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
+// Relative path ('') is served same-origin: Vercel rewrites in production, Vite proxy in development
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 /**
  * Pull changes from server since last sync
