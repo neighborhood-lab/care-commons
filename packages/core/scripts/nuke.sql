@@ -56,3 +56,38 @@ BEGIN
         EXECUTE 'DROP FUNCTION IF EXISTS ' || quote_ident(r.schema) || '.' || quote_ident(r.function) || '(' || r.args || ') CASCADE';
     END LOOP;
 END $$;
+
+
+-- #################################################
+-- # 4. DROP CUSTOM TYPES (enums and domains)
+-- #################################################
+
+-- Tables are already gone, so nothing depends on these anymore.
+-- Without this, enums like "webhook_status" survive the nuke and the next
+-- `db:migrate` fails with 42710 (duplicate_object) on CREATE TYPE.
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    -- Drop all enum types
+    FOR r IN (
+        SELECT t.typname
+        FROM pg_type t
+        JOIN pg_namespace n ON t.typnamespace = n.oid
+        WHERE n.nspname = 'public'
+          AND t.typtype = 'e'
+    ) LOOP
+        EXECUTE 'DROP TYPE IF EXISTS public.' || quote_ident(r.typname) || ' CASCADE';
+    END LOOP;
+
+    -- Drop all domain types
+    FOR r IN (
+        SELECT t.typname
+        FROM pg_type t
+        JOIN pg_namespace n ON t.typnamespace = n.oid
+        WHERE n.nspname = 'public'
+          AND t.typtype = 'd'
+    ) LOOP
+        EXECUTE 'DROP DOMAIN IF EXISTS public.' || quote_ident(r.typname) || ' CASCADE';
+    END LOOP;
+END $$;
